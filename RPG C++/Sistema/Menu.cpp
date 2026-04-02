@@ -2,6 +2,7 @@
 #include <limits>
 #include <string>
 #include <vector>
+#include <iomanip>
 
 // Ajustar o logo ao tamanho do terminal
 #ifdef _WIN32
@@ -14,6 +15,7 @@
 // Menu e Inventário
 #include "Menu.h"
 #include "../Inventario/Item.h"
+#include "../Sistema/GeradorInimigos.h"
 
 // Racas
 #include "../Raças/RacaBase.h"
@@ -154,4 +156,45 @@ void Menu::exibirInventario(Personagem* p)
     limparTela();
     p->obterInventario()->listarItens(p->obterArma(), p->obterEscudo(), p->obterArmadura()); 
     esperar();
+}
+
+void Menu::exibirHorda(const std::vector<Personagem*>& inimigos) 
+{
+    if (inimigos.empty()) return;
+
+    // Obtemos a arte do Gerador de Inimigos
+    std::vector<std::string> arte = GeradorInimigos::obterGoblinASCII();
+    
+    // Definimos a largura da coluna baseada na arte (aprox. 15 caracteres)
+    int larguraColuna = 18; 
+
+    std::cout << "\n" << std::string(larguraColuna * inimigos.size(), '-') << "\n";
+
+    // 1. Linha de Nomes e Números (ex: Goblin [0])
+    for (size_t i = 0; i < inimigos.size(); i++) 
+    {
+        std::string identificador = inimigos[i]->obterNome() + " [" + std::to_string(i) + "]";
+        std::cout << std::left << std::setw(larguraColuna) << identificador;
+    }
+    std::cout << "\n";
+
+    // 2. Linha de Vida (ex: HP: 50/50)
+    for (size_t i = 0; i < inimigos.size(); i++) 
+    {
+        std::string hp = "HP: " + std::to_string(inimigos[i]->obterVida()) + "/" + std::to_string(inimigos[i]->obterVidaMaxima());
+        std::cout << std::left << std::setw(larguraColuna) << hp;
+    }
+    std::cout << "\n\n";
+
+    // 3. Impressão da Arte ASCII linha por linha para todos os inimigos
+    for (size_t i = 0; i < arte.size(); i++) 
+    {
+        for (size_t j = 0; j < inimigos.size(); j++) 
+        {
+            std::cout << std::left << std::setw(larguraColuna) << arte[i];
+        }
+        std::cout << "\n";
+    }
+    
+    std::cout << std::string(larguraColuna * inimigos.size(), '-') << "\n" << std::endl;
 }

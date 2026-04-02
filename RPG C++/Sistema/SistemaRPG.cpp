@@ -30,6 +30,9 @@ void SistemaRPG::iniciarCombate()
 
         while (!acaoConsumiuTurno) 
         {
+            Menu::limparTela();
+            Menu::exibirHorda(inimigos);
+
             std::cout << "\n================================================" << std::endl;
             std::cout << "TURNO " << contadorTurno << " | SUA VEZ" << std::endl;
             jogador->mostrarStatus(); 

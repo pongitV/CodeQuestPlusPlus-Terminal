@@ -41,6 +41,20 @@ Personagem* GeradorInimigos::gerarGoblin()
     return g;
 }
 
+std::vector<std::string> GeradorInimigos::obterGoblinASCII()
+{
+    return 
+    {
+        "   /\\__/\\   ", // Orelhas pontiagudas (topo)
+        "  ( o  o )  ", // Rosto e Olhos grandes
+        "  (  ww  )  ", // Expressão/Boca ranzinza
+        "   /|__|\\)=->", // Ombros, Braços e pequena Arma
+        "  /|====|\\  ", // Torso/Armadura rústica
+        "  _||  ||_  ", // Pernas e Pés (base)
+        " (___)(___) "  // Finalização do corpo inteiro
+    };
+}
+
 std::vector<Personagem*> GeradorInimigos::gerarHordaGoblins(int quantidade)
 {
     std::vector<Personagem*> horda;

@@ -6,11 +6,13 @@ class Menu
 {
 public:
     static void exibirLogo();
-    static Personagem* criarPersonagem();
+    static void limparTela();
     static void esperar();
+    static Personagem* criarPersonagem();
     static void exibirInventario(Personagem* p); 
 
+    static void exibirHorda(const std::vector<Personagem*>& inimigos);
+
 private:
-    static void limparTela();
     static int obterLarguraTerminal(); 
 };
