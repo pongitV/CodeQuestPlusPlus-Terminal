@@ -12,9 +12,8 @@ Personagem::Personagem(std::string nome, RacaBase* r, ClasseBase* c)
     this->raca = r;
     this->classe = c;
     this->mochila = new Inventario();
-    this->statsFinais = { 100, 10, 10, 10, 10, 10, 10 }; // Atributos base
+    this->statsFinais = { 100, 0, 0, 0, 0, 0, 0 }; // Atributos base
 
-    // Inicializa equipamentos como nulo para evitar lixo de memória
     this->arma = nullptr;
     this->escudo = nullptr;
     this->armadura = nullptr;

@@ -12,4 +12,5 @@ public:
 
 private:
     static void limparTela();
+    static int obterLarguraTerminal(); 
 };
