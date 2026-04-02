@@ -82,7 +82,14 @@ void Menu::limparTela()
 void Menu::esperar() 
 {
     std::cout << "\nPressione Enter para continuar...";
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::cin.clear(); 
+
+    if (std::cin.peek() == '\n') 
+    {
+        std::cin.ignore();
+    }
+    
+    std::cin.ignore(std::cin.rdbuf()->in_avail(), '\n');
     std::cin.get();
 }
 
@@ -150,51 +157,89 @@ Personagem* Menu::criarPersonagem()
     return p;
 }
 
+// ... (includes anteriores permanecem iguais)
+
 void Menu::exibirInventario(Personagem* p) 
 {
     if (p == nullptr) return;
     limparTela();
+    // Exibe o inventário com os itens equipados
     p->obterInventario()->listarItens(p->obterArma(), p->obterEscudo(), p->obterArmadura()); 
-    esperar();
+    // REMOVIDO: Menu::esperar() para permitir escolha imediata
+}
+
+void Menu::exibirStatusJogador(Personagem* p) 
+{
+    if (p == nullptr) return;
+
+    int largura = obterLarguraTerminal();
+    std::string arma = (p->obterArma()) ? p->obterArma()->obterNomeItem() : "Punhos";
+    std::string escu = (p->obterEscudo()) ? p->obterEscudo()->obterNomeItem() : "Nenhum";
+    std::string dura = (p->obterArmadura()) ? p->obterArmadura()->obterNomeItem() : "Trapos";
+    
+    int qtdPocoes = p->obterInventario()->contarItensPorNome("Pocao de Cura (30%)");
+    
+    // Busca a arte da raça atual
+    std::vector<std::string> corpo = p->obterRaca()->obterAparencia();
+
+    std::cout << std::string(largura, '=') << "\n";
+    
+    // LINHA ALTERADA: Nome da Raça adicionado ao lado da Classe
+    std::cout << "| " << corpo[0] << " |  HEROI: " << p->obterNome() 
+              << " (" << p->obterRaca()->obterNomeRaca() << " " << p->obterNomeClasse() << ")\n";
+    
+    std::cout << "| " << corpo[1] << " |  HP: " << p->obterVida() << "/" << p->obterVidaMaxima() 
+              << " | OURO: " << p->obterInventario()->obterOuro() << "G\n";
+    
+    std::cout << "| " << corpo[2] << " |  EQUIP: " << arma << " | " << escu << " | " << dura << "\n";
+    std::cout << "| " << corpo[3] << " |  CURA DISPONIVEL: " << qtdPocoes << "x Pocao de Cura (30%)\n";
+    
+    std::cout << std::string(largura, '=') << "\n";
 }
 
 void Menu::exibirHorda(const std::vector<Personagem*>& inimigos) 
 {
     if (inimigos.empty()) return;
 
-    // Obtemos a arte do Gerador de Inimigos
+    int larguraTerminal = obterLarguraTerminal();
     std::vector<std::string> arte = GeradorInimigos::obterGoblinASCII();
     
-    // Definimos a largura da coluna baseada na arte (aprox. 15 caracteres)
-    int larguraColuna = 18; 
+    int numInimigos = static_cast<int>(inimigos.size());
+    int larguraColuna = larguraTerminal / numInimigos; 
 
-    std::cout << "\n" << std::string(larguraColuna * inimigos.size(), '-') << "\n";
+    std::cout << std::string(larguraTerminal, '-') << "\n";
 
-    // 1. Linha de Nomes e Números (ex: Goblin [0])
+    // 1. Nomes centralizados na coluna
     for (size_t i = 0; i < inimigos.size(); i++) 
     {
         std::string identificador = inimigos[i]->obterNome() + " [" + std::to_string(i) + "]";
-        std::cout << std::left << std::setw(larguraColuna) << identificador;
+        int espacosEsq = (larguraColuna - static_cast<int>(identificador.length())) / 2;
+        std::cout << std::string(espacosEsq > 0 ? espacosEsq : 0, ' ') 
+                  << std::left << std::setw(larguraColuna - espacosEsq) << identificador;
     }
     std::cout << "\n";
 
-    // 2. Linha de Vida (ex: HP: 50/50)
+    // 2. HP centralizado na coluna
     for (size_t i = 0; i < inimigos.size(); i++) 
     {
         std::string hp = "HP: " + std::to_string(inimigos[i]->obterVida()) + "/" + std::to_string(inimigos[i]->obterVidaMaxima());
-        std::cout << std::left << std::setw(larguraColuna) << hp;
+        int espacosEsq = (larguraColuna - static_cast<int>(hp.length())) / 2;
+        std::cout << std::string(espacosEsq > 0 ? espacosEsq : 0, ' ') 
+                  << std::left << std::setw(larguraColuna - espacosEsq) << hp;
     }
     std::cout << "\n\n";
 
-    // 3. Impressão da Arte ASCII linha por linha para todos os inimigos
+    // 3. Arte ASCII centralizada (Estendida horizontalmente)
     for (size_t i = 0; i < arte.size(); i++) 
     {
         for (size_t j = 0; j < inimigos.size(); j++) 
         {
-            std::cout << std::left << std::setw(larguraColuna) << arte[i];
+            int espacosEsq = (larguraColuna - static_cast<int>(arte[i].length())) / 2;
+            std::cout << std::string(espacosEsq > 0 ? espacosEsq : 0, ' ') 
+                      << std::left << std::setw(larguraColuna - espacosEsq) << arte[i];
         }
         std::cout << "\n";
     }
     
-    std::cout << std::string(larguraColuna * inimigos.size(), '-') << "\n" << std::endl;
+    std::cout << std::string(larguraTerminal, '-') << "\n";
 }

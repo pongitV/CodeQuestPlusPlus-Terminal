@@ -22,32 +22,32 @@ SistemaRPG::~SistemaRPG()
 
 void SistemaRPG::iniciarCombate() 
 {
-    std::cout << "--- BATALHA INICIADA ---" << std::endl;
-
     while (jogador->obterVida() > 0 && !inimigos.empty()) 
     {
         bool acaoConsumiuTurno = false;
 
         while (!acaoConsumiuTurno) 
         {
+            // 1. ATUALIZAÇÃO VISUAL DO CAMPO DE BATALHA
             Menu::limparTela();
-            Menu::exibirHorda(inimigos);
+            Menu::exibirLogo();
+            Menu::exibirHorda(inimigos); // Mostra os goblins lado a lado com HP
 
-            std::cout << "\n================================================" << std::endl;
-            std::cout << "TURNO " << contadorTurno << " | SUA VEZ" << std::endl;
-            jogador->mostrarStatus(); 
+            // 2. INTERFACE DE STATUS DO JOGADOR
+            Menu::exibirStatusJogador(jogador); 
+
+            std::cout << "\nTURNO " << contadorTurno << " | SUA VEZ" << std::endl;
+            std::cout << "1. Atacar | 2. Habilidade | 3. Inventario | Escolha: ";
             
-            std::cout << "\nINIMIGOS EM CAMPO:" << std::endl;
-            for (size_t i = 0; i < inimigos.size(); i++) 
+            int acao;
+            if (!(std::cin >> acao)) 
             {
-                std::cout << i << ". ";
-                inimigos[i]->mostrarStatus();
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                continue;
             }
 
-            int acao;
-            std::cout << "\n1. Atacar | 2. Habilidade | 3. Inventario | Escolha: ";
-            std::cin >> acao;
-
+            // --- LÓGICA DE ATAQUE ---
             if (acao == 1) 
             {
                 int alvoIndex;
@@ -60,58 +60,73 @@ void SistemaRPG::iniciarCombate()
                     
                     if (inimigos[alvoIndex]->obterVida() <= 0) 
                     {
-                        int ouroGanho = inimigos[alvoIndex]->obterOuroRecompensa();
-                        jogador->ganharOuro(ouroGanho);
-                        std::cout << "[!] " << inimigos[alvoIndex]->obterNome() << " foi derrotado!" << std::endl;
-
+                        int ouro = inimigos[alvoIndex]->obterOuroRecompensa();
+                        jogador->ganharOuro(ouro);
+                        std::cout << "\n[!] " << inimigos[alvoIndex]->obterNome() << " derrotado! +" << ouro << "G\n";
+                        
                         delete inimigos[alvoIndex]; 
                         inimigos.erase(inimigos.begin() + alvoIndex);
+                        Menu::esperar();
                     }
                     acaoConsumiuTurno = true;
                 }
             }
-            else if (acao == 2) 
+            // --- LÓGICA DE HABILIDADE ---
+            else if (acao == 2)
             {
-                usarHabilidadeClasse(jogador, jogador); 
+                usarHabilidadeClasse(jogador, jogador); // Alvo padrão é o próprio ou o primeiro inimigo
                 acaoConsumiuTurno = true;
+                Menu::esperar();
             }
+            // --- LÓGICA DE INVENTÁRIO (SISTEMA DE CÓDIGOS) ---
             else if (acao == 3) 
             {
                 Menu::exibirInventario(jogador);
-        
-                std::string nomeItem;
-                std::cout << "\nDigite o nome do item para usar (ou 'voltar'): ";
-                std::getline(std::cin, nomeItem);
+    
+                std::string codigo;
+                std::cout << "\nDigite o codigo do item ou '0' para voltar: ";
+                std::cin >> codigo;
 
-                if (nomeItem != "voltar")
+                if (codigo != "0")
                 {
-                    bool encontrou = false;
-            
-                    if (nomeItem == "Pocao de Cura (30%)")
+                    // Busca o item usando a etiqueta (ex: 1C para a primeira poção)
+                    Item* itemEscolhido = jogador->obterInventario()->buscarItemPorCodigo(
+                        codigo, jogador->obterArma(), jogador->obterEscudo(), jogador->obterArmadura()
+                    );
+
+                    if (itemEscolhido != nullptr)
                     {
-                        if (jogador->obterInventario()->possuiPocaoCura())
+                        if (dynamic_cast<PocaoCura*>(itemEscolhido))
                         {
+                            // SALVAGUARDA: Guardar o nome antes de remover o item da memória
+                            std::string nomeItem = itemEscolhido->obterNomeItem();
                             int cura = static_cast<int>(jogador->obterVidaMaxima() * 0.30);
+                            
                             jogador->modificarVida(cura); 
-                            jogador->obterInventario()->removerPorNome(nomeItem);
-                            std::cout << nomeItem << " utilizada! +" << cura << " HP." << std::endl;
-                            std::cout << "Vida: " << jogador->obterVida() << "/" << jogador->obterVidaMaxima() << std::endl;
-                            encontrou = true;
-                            acaoConsumiuTurno = true; 
+                            jogador->obterInventario()->removerPorNome(nomeItem); // Deleta o ponteiro
+                
+                            std::cout << "\n[SISTEMA]: " << nomeItem << " usada! +" << cura << " HP.\n";
+                            Menu::esperar(); // Permite que o jogador leia o resultado
+                            acaoConsumiuTurno = true;
+                        }
+                        else 
+                        {
+                            std::cout << "[SISTEMA]: Este item nao pode ser usado em combate.\n";
+                            Menu::esperar();
                         }
                     }
-
-                    if (!encontrou)
+                    else 
                     {
-                        std::cout << "Item nao encontrado ou nome incorreto" << std::endl;
+                        std::cout << "[ERRO]: Codigo invalido!\n";
                         Menu::esperar();
                     }
                 }
             }
-
+            
             if (verificarVitoria()) return; 
         }
 
+        // --- TURNO AUTOMÁTICO DOS INIMIGOS ---
         executarTurnoInimigos();
         contadorTurno++;
     }
@@ -127,6 +142,7 @@ void SistemaRPG::executarTurnoInimigos()
             realizarAtaqueFisico(inimigo, jogador, contadorTurno);
         }
     }
+    Menu::esperar();
 }
 
 void SistemaRPG::realizarAtaqueFisico(Personagem* atacante, Personagem* defensor, int turnoAtual) 
@@ -140,12 +156,14 @@ void SistemaRPG::realizarAtaqueFisico(Personagem* atacante, Personagem* defensor
 
 void SistemaRPG::aplicarDano(Personagem* alvo, int danoBruto, int turnoAtual) 
 {
+    // Lógica de Esquiva do Arqueiro
     if (alvo->obterNomeClasse() == "Arqueiro" && turnoAtual % 2 == 0) 
     {
         std::cout << "[ESQUIVA] O alvo desviou habilmente do ataque!" << std::endl;
         return;
     }
 
+    // Cálculos de Defesa
     int bonusArmadura = (alvo->obterArmadura()) ? alvo->obterArmadura()->obterReducaoFixa() : 0;
     double totalReducaoFixa = (0.2 * alvo->obterResistencia()) + bonusArmadura;
 

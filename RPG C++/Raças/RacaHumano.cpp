@@ -16,3 +16,8 @@ void RacaHumano::usarHabilidadeRaca(Personagem* usuario, Personagem* alvo)
 {
     std::cout << "" << std::endl;
 }
+
+std::vector<std::string> RacaHumano::obterAparencia() const 
+{
+    return { "  O  ", " /|\\ ", "  |  ", " / \\ " };
+}

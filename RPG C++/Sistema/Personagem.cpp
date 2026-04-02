@@ -19,7 +19,8 @@ Personagem::Personagem(std::string nome, RacaBase* r, ClasseBase* c)
     this->armadura = nullptr;
 
     std::vector<Item*> kit = c->gerarKitInicial();
-    for (Item* item : kit) {
+    for (Item* item : kit) 
+    {
         this->mochila->adicionarItem(item); 
         this->equiparItem(item);            
     }
@@ -73,4 +74,16 @@ void Personagem::equiparItem(Item* item)
     if (item->obterTipo() == TipoEquipamento::ARMA) this->arma = item;
     else if (item->obterTipo() == TipoEquipamento::ESCUDO) this->escudo = item;
     else if (item->obterTipo() == TipoEquipamento::ARMADURA) this->armadura = item;
+}
+
+// CORREÇÕES: Adicionando as definições dos métodos que causavam o erro de linkagem
+
+RacaBase* Personagem::obterRaca() const 
+{
+    return this->raca;
+}
+
+ClasseBase* Personagem::obterClasse() const 
+{
+    return this->classe;
 }
