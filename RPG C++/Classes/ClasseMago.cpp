@@ -9,6 +9,35 @@ std::string ClasseMago::obterNomeClasse() const
      return "Mago"; 
 }
 
+std::vector<std::string> ClasseMago::obterAparenciaClasseMenu() const 
+{
+    return 
+    {
+        "                    ____ ",
+        "                  .'* *.'",
+        "               __/_*_*(_",
+        "              / _______ \\",
+        "             _\\_)/___\\(_/_ ",
+        "            / _((\\- -/))_ \\",
+        "            \\ \\())(-)(()/ /",
+        "             ' \\(((()))/ '",
+        "            / ' \\)).))/ ' \\",
+        "           / _ \\ - | - /_  \\",
+        "          (   ( .;''';. .'  )",
+        "          _\\\"__ /   )\\ __\" /_",
+        "            \\/  \\    ' / \\/",
+        "             (.' '...' '.)",
+        "              / /  |  \\ \\",
+        "             / .   .   . \\",
+        "            /   .     .   \\",
+        "           /   /   |   \\   \\",
+        "          .'   /   b    '.  '.",
+        "     _.-'    /     Bb     '-. '-._ ",
+        " _.-'        |      BBb       '-.  '-. ",
+        "(________mrf\\____.dBBBb.________)____)"
+    };
+}
+
 Atributos ClasseMago::obterAtributosClasse() const
 {
     return { 0, 0, 0, 0, 0, 0, 0 };

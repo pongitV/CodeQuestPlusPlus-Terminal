@@ -9,6 +9,37 @@ std::string ClasseGuerreiro::obterNomeClasse() const
     return "Guerreiro"; 
 }
 
+std::vector<std::string> ClasseGuerreiro::obterAparenciaClasseMenu() const 
+{
+    return 
+    {
+        "      /\\",
+        "      ||",
+        "      ||",
+        "      ||",
+        "      ||           {}",
+        "      ||          .--.",
+        "      ||         /.--.\\",
+        "      ||         |====|",
+        "      ||         |`::`|",
+        "     _||_    .-;`\\..../`;_.-^-._",
+        "      /\\\\   /  |...::..|`   :   `|",
+        "      |:'\\ |   /'''::''|   .:.   |",
+        "       \\ /\\;-,/\\   ::  |..:::::..|",
+        "        \\ <` >  >._::_.| ':::::' |",
+        "         `\"\"`  /   ^^  |   ':'   |",
+        "               |       \\    :    /",
+        "               |        \\   :   /",
+        "               |___/\\___|`-.:.-`",
+        "                \\_ || _/    `",
+        "                <_ >< _>",
+        "                |  ||  |",
+        "                |  ||  |",
+        "               _\\.:||:./_",
+        "              /____/\\____\\"
+    };
+}
+
 Atributos ClasseGuerreiro::obterAtributosClasse() const
 {
     return { 0, 1000000, 0, 0, 0, 0, 0 };

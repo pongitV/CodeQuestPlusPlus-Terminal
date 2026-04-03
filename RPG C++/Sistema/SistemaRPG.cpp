@@ -156,13 +156,6 @@ void SistemaRPG::realizarAtaqueFisico(Personagem* atacante, Personagem* defensor
 
 void SistemaRPG::aplicarDano(Personagem* alvo, int danoBruto, int turnoAtual) 
 {
-    // Lógica de Esquiva do Arqueiro
-    if (alvo->obterNomeClasse() == "Arqueiro" && turnoAtual % 2 == 0) 
-    {
-        std::cout << "[ESQUIVA] O alvo desviou habilmente do ataque!" << std::endl;
-        return;
-    }
-
     // Cálculos de Defesa
     int bonusArmadura = (alvo->obterArmadura()) ? alvo->obterArmadura()->obterReducaoFixa() : 0;
     double totalReducaoFixa = (0.2 * alvo->obterResistencia()) + bonusArmadura;

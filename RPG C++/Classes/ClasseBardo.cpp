@@ -9,6 +9,31 @@ std::string ClasseBardo::obterNomeClasse() const
      return "Bardo"; 
 }
 
+std::vector<std::string> ClasseBardo::obterAparenciaClasseMenu() const 
+{
+    return 
+    {
+        "       _______  ",
+        "      /       \\ ",
+        "     |  (O O)  |",
+        "      \\  _w_  / ",
+        "    ___|     |___",
+        "   /   |     |   \\",
+        "  /    |_____|    \\",
+        " |   / |     | \\   |",
+        " |  |  |     |  |  |",
+        " |  |  |_____|  |  |",
+        " |  | /       \\ |  |",
+        " |__|/  [#|#]  \\|__|", // Alaúde
+        "     \\  [#|#]  /   ",
+        "      \\_______/    ",
+        "       |     |     ",
+        "       |     |     ",
+        "      /       \\    ",
+        "     /_________\\   "
+    };
+}
+
 Atributos ClasseBardo::obterAtributosClasse() const
 {
     return { 0, 0, 0, 0, 0, 0, 0 };

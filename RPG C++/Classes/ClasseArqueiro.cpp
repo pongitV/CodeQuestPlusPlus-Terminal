@@ -9,6 +9,33 @@ std::string ClasseArqueiro::obterNomeClasse() const
      return "Arqueiro"; 
 }
 
+std::vector<std::string> ClasseArqueiro::obterAparenciaClasseMenu() const 
+{
+    return 
+    {
+        "          ||    ",
+        "          ||    ",
+        "     (    ||    ",
+        "      \\   ||    ",
+        "       \\  ||    ",
+        "        \\(O)    ",
+        "      ---||---> ",
+        "        /| |\\   ",
+        "       / | | \\  ",
+        "      /  | |  \\ ",
+        "     /   | |   \\",
+        "    (    | |    )",
+        "     \\   | |   / ",
+        "      \\  | |  /  ",
+        "       \\ | | /   ",
+        "        \\| |/    ",
+        "         | |     ",
+        "        /   \\    ",
+        "       /     \\   ",
+        "      /       \\  "
+    };
+}
+
 Atributos ClasseArqueiro::obterAtributosClasse() const
 {
     return { 0, 0, 0, 0, 0, 0, 0 };

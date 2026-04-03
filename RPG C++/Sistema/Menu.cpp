@@ -3,28 +3,25 @@
 #include <string>
 #include <vector>
 #include <iomanip>
+#include <algorithm>
 
-// Ajustar o logo ao tamanho do terminal
 #ifdef _WIN32
-    #include <windows.h> // Para Windows
+    #include <windows.h>
 #else
     #include <sys/ioctl.h>
     #include <unistd.h>
 #endif
 
-// Menu e Inventário
 #include "Menu.h"
 #include "../Inventario/Item.h"
 #include "../Sistema/GeradorInimigos.h"
 
-// Racas
 #include "../Raças/RacaBase.h"
 #include "../Raças/RacaDwarf.h"
 #include "../Raças/RacaElfo.h" 
 #include "../Raças/RacaHumano.h"
 #include "../Raças/RacaOrk.h"
 
-// Classes
 #include "../Classes/ClasseBase.h"
 #include "../Classes/ClasseArqueiro.h"
 #include "../Classes/ClasseBardo.h"
@@ -47,8 +44,6 @@ int Menu::obterLarguraTerminal()
 void Menu::exibirLogo() 
 {
     int largura = obterLarguraTerminal();
-    
-    // Titulo ASCII
     std::vector<std::string> titulo = 
     {
         "  ____ ___  ____  _____    ___  _   _ _____ ____ _____ ",
@@ -59,14 +54,12 @@ void Menu::exibirLogo()
     };
 
     std::cout << std::string(largura, '=') << "\n";
-
     for (const std::string& linha : titulo)
     {
         int espacos = (largura - static_cast<int>(linha.length())) / 2;
         if (espacos > 0) std::cout << std::string(espacos, ' ');
         std::cout << linha << "\n";
     }
-
     std::cout << "\n" << std::string(largura, '=') << "\n";
 }
 
@@ -83,12 +76,7 @@ void Menu::esperar()
 {
     std::cout << "\nPressione Enter para continuar...";
     std::cin.clear(); 
-
-    if (std::cin.peek() == '\n') 
-    {
-        std::cin.ignore();
-    }
-    
+    if (std::cin.peek() == '\n') std::cin.ignore();
     std::cin.ignore(std::cin.rdbuf()->in_avail(), '\n');
     std::cin.get();
 }
@@ -103,16 +91,16 @@ Personagem* Menu::criarPersonagem()
     std::cout << "Digite o nome do seu heroi: ";
     std::getline(std::cin, nome);
 
-    // Seleção de Raça
     RacaBase* racaFinal = nullptr;
     while (racaFinal == nullptr) 
     {
         limparTela();
         exibirLogo();
         std::cout << "Ola, " << nome << ". Escolha sua raca: \n";
-        std::cout << "1. Dwarf \n2. Elfo\n3. Humano\n4. Ork\nEscolha: ";
+        std::cout << "1. Dwarf | 2. Elfo | 3. Humano | 4. Ork\nEscolha: ";
         
-        if (!(std::cin >> escolha)) {
+        if (!(std::cin >> escolha)) 
+        {
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             continue;
@@ -122,17 +110,15 @@ Personagem* Menu::criarPersonagem()
         else if (escolha == 2) racaFinal = new RacaElfo();
         else if (escolha == 3) racaFinal = new RacaHumano();
         else if (escolha == 4) racaFinal = new RacaOrk();
-        else std::cout << "Opcao invalida\n";
     }
 
-    // Seleção de Classe
     ClasseBase* classeFinal = nullptr;
     while (classeFinal == nullptr) 
     {
         limparTela();
         exibirLogo();
         std::cout << "Escolha sua classe: \n";
-        std::cout << "1. Arqueiro\n2. Bardo\n3. Guerreiro\n4. Mago\nEscolha: ";
+        std::cout << "1. Arqueiro | 2. Bardo | 3. Guerreiro | 4. Mago\nEscolha: ";
         
         if (!(std::cin >> escolha)) 
         {
@@ -141,31 +127,43 @@ Personagem* Menu::criarPersonagem()
             continue;
         }
 
-        if (escolha == 1) classeFinal = new ClasseArqueiro();
-        else if (escolha == 2) classeFinal = new ClasseBardo();
-        else if (escolha == 3) classeFinal = new ClasseGuerreiro();
-        else if (escolha == 4) classeFinal = new ClasseMago();
-        else std::cout << "Opcao invalida\n";
+        ClasseBase* temp = nullptr;
+        if (escolha == 1) temp = new ClasseArqueiro();
+        else if (escolha == 2) temp = new ClasseBardo();
+        else if (escolha == 3) temp = new ClasseGuerreiro();
+        else if (escolha == 4) temp = new ClasseMago();
+
+        if (temp) 
+        {
+            limparTela();
+            exibirLogo();
+            std::cout << "--- VISUAL DA CLASSE: " << temp->obterNomeClasse() << " ---\n\n";
+            
+            // Usa o desenho épico para a seleção
+            for (const std::string& linha : temp->obterAparenciaClasseMenu()) 
+            {
+                std::cout << linha << "\n";
+            }
+
+            std::cout << "\nConfirmar escolha? ( Sim(1) / Nao(2) ): ";
+            int confirma;
+            std::cin >> confirma;
+            if (confirma == 1) classeFinal = temp;
+            else delete temp;
+        }
     }
 
-    // Cria o Personagem
     Personagem* p = new Personagem(nome, racaFinal, classeFinal);
-
-    std::cout << "\n[SISTEMA]: Personagem criado e equipamentos de classe atribuidos!\n";
+    std::cout << "\n[SISTEMA]: Personagem criado com sucesso!\n";
     esperar();
-
     return p;
 }
-
-// ... (includes anteriores permanecem iguais)
 
 void Menu::exibirInventario(Personagem* p) 
 {
     if (p == nullptr) return;
     limparTela();
-    // Exibe o inventário com os itens equipados
     p->obterInventario()->listarItens(p->obterArma(), p->obterEscudo(), p->obterArmadura()); 
-    // REMOVIDO: Menu::esperar() para permitir escolha imediata
 }
 
 void Menu::exibirStatusJogador(Personagem* p) 
@@ -176,17 +174,16 @@ void Menu::exibirStatusJogador(Personagem* p)
     std::string arma = (p->obterArma()) ? p->obterArma()->obterNomeItem() : "Punhos";
     std::string escu = (p->obterEscudo()) ? p->obterEscudo()->obterNomeItem() : "Nenhum";
     std::string dura = (p->obterArmadura()) ? p->obterArmadura()->obterNomeItem() : "Trapos";
-    
     int qtdPocoes = p->obterInventario()->contarItensPorNome("Pocao de Cura (30%)");
     
-    // Busca a arte da raça atual
-    std::vector<std::string> corpo = p->obterRaca()->obterAparencia();
+    // CORREÇÃO: Usa obterAparenciaClasse (stick figure) para o combate
+    std::vector<std::string> corpo = p->obterClasse()->obterAparenciaClasseMenu();
 
     std::cout << std::string(largura, '=') << "\n";
     
-    // LINHA ALTERADA: Nome da Raça adicionado ao lado da Classe
+    // AJUSTE: Formato (Raça / Classe)
     std::cout << "| " << corpo[0] << " |  HEROI: " << p->obterNome() 
-              << " (" << p->obterRaca()->obterNomeRaca() << " " << p->obterNomeClasse() << ")\n";
+              << " (" << p->obterRaca()->obterNomeRaca() << " / " << p->obterNomeClasse() << ")\n";
     
     std::cout << "| " << corpo[1] << " |  HP: " << p->obterVida() << "/" << p->obterVidaMaxima() 
               << " | OURO: " << p->obterInventario()->obterOuro() << "G\n";
@@ -209,7 +206,6 @@ void Menu::exibirHorda(const std::vector<Personagem*>& inimigos)
 
     std::cout << std::string(larguraTerminal, '-') << "\n";
 
-    // 1. Nomes centralizados na coluna
     for (size_t i = 0; i < inimigos.size(); i++) 
     {
         std::string identificador = inimigos[i]->obterNome() + " [" + std::to_string(i) + "]";
@@ -219,7 +215,6 @@ void Menu::exibirHorda(const std::vector<Personagem*>& inimigos)
     }
     std::cout << "\n";
 
-    // 2. HP centralizado na coluna
     for (size_t i = 0; i < inimigos.size(); i++) 
     {
         std::string hp = "HP: " + std::to_string(inimigos[i]->obterVida()) + "/" + std::to_string(inimigos[i]->obterVidaMaxima());
@@ -229,7 +224,6 @@ void Menu::exibirHorda(const std::vector<Personagem*>& inimigos)
     }
     std::cout << "\n\n";
 
-    // 3. Arte ASCII centralizada (Estendida horizontalmente)
     for (size_t i = 0; i < arte.size(); i++) 
     {
         for (size_t j = 0; j < inimigos.size(); j++) 
@@ -240,6 +234,5 @@ void Menu::exibirHorda(const std::vector<Personagem*>& inimigos)
         }
         std::cout << "\n";
     }
-    
     std::cout << std::string(larguraTerminal, '-') << "\n";
 }

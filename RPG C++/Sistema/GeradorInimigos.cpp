@@ -13,6 +13,12 @@ public:
     Atributos obterAtributosClasse() const override { return { 0, 0, 0, 0, 0, 0, 0 }; }
     void usarHabilidadeClasse(Personagem* u, Personagem* a) override {}
     std::vector<Item*> gerarKitInicial() const override { return std::vector<Item*>(); }
+
+    std::vector<std::string> obterAparenciaClasseMenu() const override 
+    {
+        // Como inimigos não aparecem no menu de criação, retornamos vazio ou um nome
+        return { " --- MONSTRO --- " };
+    }
 };
 
 class RacaGoblin : public RacaBase
@@ -22,7 +28,6 @@ public:
     Atributos obterAtributosRaca() const override { return { -50, 0, 0, 0, 0, 0, 0 }; }
     void usarHabilidadeRaca(Personagem* u, Personagem* a) override {}
 
-    // Implementação obrigatória para a classe não ser abstrata
     std::vector<std::string> obterAparencia() const override 
     {
         return 
@@ -40,14 +45,13 @@ public:
 
 Personagem* GeradorInimigos::gerarGoblin()
 {
-    // Agora o compilador permite o 'new'
     return new Personagem("Goblin", new RacaGoblin(), new ClasseInimigoPadrao());
 }
 
 std::vector<std::string> GeradorInimigos::obterGoblinASCII()
 {
     RacaGoblin temp;
-    return temp.obterAparencia(); // Centralizado na raça
+    return temp.obterAparencia();
 }
 
 std::vector<Personagem*> GeradorInimigos::gerarHordaGoblins(int quantidade)
