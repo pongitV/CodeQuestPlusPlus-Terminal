@@ -48,7 +48,7 @@ std::vector<Item*> ClasseMago::gerarKitInicial() const
     return 
     {
         new PocaoCura(), new PocaoCura(), new PocaoCura(),
-        new Arma("Cajado de cristal", 12),
+        new Arma("Bola de cristal", 12),
         new Escudo("Manto encantado", 0.08),
         new Armadura("Traje encantado de couro e prata", 5)
     };

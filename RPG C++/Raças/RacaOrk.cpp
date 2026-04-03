@@ -17,7 +17,7 @@ void RacaOrk::usarHabilidadeRaca(Personagem* usuario, Personagem* alvo)
     std::cout << "" << std::endl;
 }
 
-std::vector<std::string> RacaOrk::obterAparencia() const 
+std::vector<std::string> RacaOrk::obterAparenciaRaca() const 
 {
     return { " (O) ", "/|#|\\", "  |  ", " / \\ " };
 }

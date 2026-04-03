@@ -4,6 +4,9 @@
 #include <vector>
 #include <iomanip>
 #include <algorithm>
+#include <map> 
+#include <chrono>
+#include <thread>
 
 #ifdef _WIN32
     #include <windows.h>
@@ -15,13 +18,11 @@
 #include "Menu.h"
 #include "../Inventario/Item.h"
 #include "../Sistema/GeradorInimigos.h"
-
 #include "../Raças/RacaBase.h"
 #include "../Raças/RacaDwarf.h"
 #include "../Raças/RacaElfo.h" 
 #include "../Raças/RacaHumano.h"
 #include "../Raças/RacaOrk.h"
-
 #include "../Classes/ClasseBase.h"
 #include "../Classes/ClasseArqueiro.h"
 #include "../Classes/ClasseBardo.h"
@@ -38,6 +39,14 @@ int Menu::obterLarguraTerminal()
     struct winsize w;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
     return w.ws_col;
+#endif
+}
+
+void Menu::configurarTelaCheia() 
+{
+#ifdef _WIN32
+    HWND hwnd = GetConsoleWindow();
+    ShowWindow(hwnd, SW_MAXIMIZE);
 #endif
 }
 
@@ -81,80 +90,150 @@ void Menu::esperar()
     std::cin.get();
 }
 
+void Menu::digitar(std::string texto, int velocidade) 
+{
+    for (char c : texto) 
+    {
+        std::cout << c << std::flush;
+        std::this_thread::sleep_for(std::chrono::milliseconds(velocidade));
+    }
+}
+
 Personagem* Menu::criarPersonagem() 
 {
-    std::string nome;
-    int escolha = 0;
-
-    limparTela();
-    exibirLogo();
-    std::cout << "Digite o nome do seu heroi: ";
-    std::getline(std::cin, nome);
-
+    std::string nome = "";
     RacaBase* racaFinal = nullptr;
-    while (racaFinal == nullptr) 
-    {
-        limparTela();
-        exibirLogo();
-        std::cout << "Ola, " << nome << ". Escolha sua raca: \n";
-        std::cout << "1. Dwarf | 2. Elfo | 3. Humano | 4. Ork\nEscolha: ";
-        
-        if (!(std::cin >> escolha)) 
-        {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            continue;
-        }
-
-        if (escolha == 1) racaFinal = new RacaDwarf();
-        else if (escolha == 2) racaFinal = new RacaElfo();
-        else if (escolha == 3) racaFinal = new RacaHumano();
-        else if (escolha == 4) racaFinal = new RacaOrk();
-    }
-
     ClasseBase* classeFinal = nullptr;
-    while (classeFinal == nullptr) 
+    int etapa = 1; 
+
+    while (etapa <= 3) 
     {
-        limparTela();
-        exibirLogo();
-        std::cout << "Escolha sua classe: \n";
-        std::cout << "1. Arqueiro | 2. Bardo | 3. Guerreiro | 4. Mago\nEscolha: ";
-        
-        if (!(std::cin >> escolha)) 
-        {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            continue;
-        }
-
-        ClasseBase* temp = nullptr;
-        if (escolha == 1) temp = new ClasseArqueiro();
-        else if (escolha == 2) temp = new ClasseBardo();
-        else if (escolha == 3) temp = new ClasseGuerreiro();
-        else if (escolha == 4) temp = new ClasseMago();
-
-        if (temp) 
+        if (etapa == 1) 
         {
             limparTela();
             exibirLogo();
-            std::cout << "--- VISUAL DA CLASSE: " << temp->obterNomeClasse() << " ---\n\n";
+            std::cout << "\n";
+            digitar(" [NARRACAO]: O reino clama por um novo destino...\n", 40);
+            digitar(" [NARRACAO]: Mas as lendas apenas lembram daqueles com um nome forte.\n\n", 40);
+            std::cout << " > Escolha o nome do seu personagem (ou '0' para sair): ";
             
-            // Usa o desenho épico para a seleção
-            for (const std::string& linha : temp->obterAparenciaClasseMenu()) 
-            {
-                std::cout << linha << "\n";
-            }
+            std::cin.ignore(std::cin.rdbuf()->in_avail(), '\n');
+            std::getline(std::cin, nome);
 
-            std::cout << "\nConfirmar escolha? ( Sim(1) / Nao(2) ): ";
-            int confirma;
-            std::cin >> confirma;
-            if (confirma == 1) classeFinal = temp;
-            else delete temp;
+            if (nome == "0") exit(0);
+            if (!nome.empty()) etapa = 2;
+        }
+        else if (etapa == 2) 
+        {
+            limparTela();
+            exibirLogo();
+            std::cout << " HEROI: " << nome << "\n";
+            std::cout << std::string(obterLarguraTerminal(), '-') << "\n";
+            digitar(" [NARRACAO]: De qual linhagem voce descende?\n\n", 40);
+            
+            std::cout << "  [1] Dwarf  - Mestres da resistencia e forja\n";
+            std::cout << "  [2] Elfo   - Guardioes da magia e agilidade\n";
+            std::cout << "  [3] Humano - Ambiciosos e versateis\n";
+            std::cout << "  [4] Ork    - Forca bruta e instinto de guerra\n";
+            std::cout << "\n  [0] VOLTAR (Mudar nome)\n";
+            std::cout << "\n > Sua linhagem: ";
+            
+            int escolha;
+            if (!(std::cin >> escolha)) { std::cin.clear(); std::cin.ignore(1000, '\n'); continue; }
+
+            if (escolha == 0) etapa = 1;
+            else if (escolha == 1) { racaFinal = new RacaDwarf(); etapa = 3; }
+            else if (escolha == 2) { racaFinal = new RacaElfo(); etapa = 3; }
+            else if (escolha == 3) { racaFinal = new RacaHumano(); etapa = 3; }
+            else if (escolha == 4) { racaFinal = new RacaOrk(); etapa = 3; }
+        }
+        else if (etapa == 3) 
+        {
+            limparTela();
+            exibirLogo();
+            std::cout << " HEROI: " << nome << " | RACA: " << racaFinal->obterNomeRaca() << "\n";
+            std::cout << std::string(obterLarguraTerminal(), '-') << "\n";
+            digitar(" [NARRACAO]: Qual caminho voce seguira neste mundo?\n\n", 40);
+            
+            std::cout << "  [1] Arqueiro  - Especialista em precisao a distancia\n";
+            std::cout << "  [2] Bardo     - Manipulador de sons e destinos\n";
+            std::cout << "  [3] Guerreiro - O pilar inabalavel do combate\n";
+            std::cout << "  [4] Mago      - Conhecedor dos segredos arcanos\n";
+            std::cout << "\n  [0] VOLTAR (Mudar raca)\n";
+            std::cout << "\n > Sua vocacao: ";
+            
+            int escolha;
+            if (!(std::cin >> escolha)) { std::cin.clear(); std::cin.ignore(1000, '\n'); continue; }
+            if (escolha == 0) { delete racaFinal; racaFinal = nullptr; etapa = 2; continue; }
+
+            ClasseBase* temp = nullptr;
+            if (escolha == 1) temp = new ClasseArqueiro();
+            else if (escolha == 2) temp = new ClasseBardo();
+            else if (escolha == 3) temp = new ClasseGuerreiro();
+            else if (escolha == 4) temp = new ClasseMago();
+
+            if (temp) 
+            {
+                limparTela();
+                exibirLogo();
+                int larguraTerminal = obterLarguraTerminal();
+                std::cout << std::string(larguraTerminal, '-') << "\n";
+                std::cout << " PREVIA DA CLASSE: " << temp->obterNomeClasse() << "\n";
+                std::cout << std::string(larguraTerminal, '-') << "\n\n";
+
+                Atributos stats = temp->obterAtributosClasse();
+                std::vector<std::string> listaStats;
+                listaStats.push_back("[ ATRIBUTOS ]");
+                if (stats.vida != 0)         listaStats.push_back(" - Vida:         +" + std::to_string(stats.vida));
+                if (stats.forca != 0)        listaStats.push_back(" - Forca:        +" + std::to_string(stats.forca));
+                if (stats.inteligencia != 0) listaStats.push_back(" - Inteligencia: +" + std::to_string(stats.inteligencia));
+                if (stats.resistencia != 0)  listaStats.push_back(" - Resistencia:  +" + std::to_string(stats.resistencia));
+                if (stats.constituicao != 0) listaStats.push_back(" - Constituicao: +" + std::to_string(stats.constituicao));
+                if (stats.sabedoria != 0)    listaStats.push_back(" - Sabedoria:    +" + std::to_string(stats.sabedoria));
+
+                std::vector<std::string> arte = temp->obterAparenciaClasseMenu();
+                int larguraArte = 0;
+                for (const std::string& l : arte) if ((int)l.length() > larguraArte) larguraArte = (int)l.length();
+
+                int larguraStatsColuna = 25;
+                int gap = 4;
+                int larguraTotalBloco = larguraStatsColuna + gap + larguraArte;
+                int recuoInicial = (larguraTerminal - larguraTotalBloco) / 2;
+                if (recuoInicial < 0) recuoInicial = 0;
+
+                size_t maxLinhas = std::max(arte.size(), listaStats.size());
+                for (size_t i = 0; i < maxLinhas; ++i) 
+                {
+                    std::cout << std::string(recuoInicial, ' ');
+                    if (i < listaStats.size()) std::cout << std::left << std::setw(larguraStatsColuna) << listaStats[i];
+                    else std::cout << std::string(larguraStatsColuna, ' ');
+
+                    std::cout << std::string(gap, ' ');
+                    if (i < arte.size()) std::cout << arte[i];
+                    std::cout << "\n";
+                }
+
+                std::vector<Item*> kit = temp->gerarKitInicial();
+                std::map<std::string, int> contagemKit;
+                for (Item* i : kit) contagemKit[i->obterNomeItem()]++;
+
+                std::cout << "\n" << std::string(recuoInicial, ' ') << "[ EQUIPAMENTO INICIAL ]\n";
+                for (auto const& [nomeItem, qtd] : contagemKit) 
+                    std::cout << std::string(recuoInicial, ' ') << " - " << qtd << "x " << nomeItem << "\n";
+
+                for (Item* i : kit) delete i;
+
+                std::cout << "\n" << std::string(recuoInicial, ' ') << "0. VOLTAR | 1. CONFIRMAR\n";
+                std::cout << std::string(recuoInicial, ' ') << "Escolha: ";
+                int confirma; std::cin >> confirma;
+                if (confirma == 1) { classeFinal = temp; etapa = 4; }
+                else { delete temp; }
+            }
         }
     }
-
     Personagem* p = new Personagem(nome, racaFinal, classeFinal);
-    std::cout << "\n[SISTEMA]: Personagem criado com sucesso!\n";
+    std::cout << "\n";
+    digitar(" [SISTEMA]: Personagem criado com sucesso! Iniciando jornada...\n", 30);
     esperar();
     return p;
 }
@@ -169,68 +248,48 @@ void Menu::exibirInventario(Personagem* p)
 void Menu::exibirStatusJogador(Personagem* p) 
 {
     if (p == nullptr) return;
-
     int largura = obterLarguraTerminal();
     std::string arma = (p->obterArma()) ? p->obterArma()->obterNomeItem() : "Punhos";
     std::string escu = (p->obterEscudo()) ? p->obterEscudo()->obterNomeItem() : "Nenhum";
     std::string dura = (p->obterArmadura()) ? p->obterArmadura()->obterNomeItem() : "Trapos";
-    int qtdPocoes = p->obterInventario()->contarItensPorNome("Pocao de Cura (30%)");
     
-    // CORREÇÃO: Usa obterAparenciaClasse (stick figure) para o combate
-    std::vector<std::string> corpo = p->obterClasse()->obterAparenciaClasseMenu();
-
+    std::vector<std::string> corpo = p->obterRaca()->obterAparenciaRaca();
     std::cout << std::string(largura, '=') << "\n";
-    
-    // AJUSTE: Formato (Raça / Classe)
-    std::cout << "| " << corpo[0] << " |  HEROI: " << p->obterNome() 
-              << " (" << p->obterRaca()->obterNomeRaca() << " / " << p->obterNomeClasse() << ")\n";
-    
-    std::cout << "| " << corpo[1] << " |  HP: " << p->obterVida() << "/" << p->obterVidaMaxima() 
-              << " | OURO: " << p->obterInventario()->obterOuro() << "G\n";
-    
+    std::cout << "| " << corpo[0] << " |  HEROI: " << p->obterNome() << " (" << p->obterRaca()->obterNomeRaca() << " / " << p->obterNomeClasse() << ")\n";
+    std::cout << "| " << corpo[1] << " |  HP: " << p->obterVida() << "/" << p->obterVidaMaxima() << " | OURO: " << p->obterInventario()->obterOuro() << "G\n";
     std::cout << "| " << corpo[2] << " |  EQUIP: " << arma << " | " << escu << " | " << dura << "\n";
-    std::cout << "| " << corpo[3] << " |  CURA DISPONIVEL: " << qtdPocoes << "x Pocao de Cura (30%)\n";
-    
     std::cout << std::string(largura, '=') << "\n";
 }
 
 void Menu::exibirHorda(const std::vector<Personagem*>& inimigos) 
 {
     if (inimigos.empty()) return;
-
     int larguraTerminal = obterLarguraTerminal();
     std::vector<std::string> arte = GeradorInimigos::obterGoblinASCII();
-    
     int numInimigos = static_cast<int>(inimigos.size());
     int larguraColuna = larguraTerminal / numInimigos; 
 
     std::cout << std::string(larguraTerminal, '-') << "\n";
-
     for (size_t i = 0; i < inimigos.size(); i++) 
     {
-        std::string identificador = inimigos[i]->obterNome() + " [" + std::to_string(i) + "]";
-        int espacosEsq = (larguraColuna - static_cast<int>(identificador.length())) / 2;
-        std::cout << std::string(espacosEsq > 0 ? espacosEsq : 0, ' ') 
-                  << std::left << std::setw(larguraColuna - espacosEsq) << identificador;
+        std::string id = inimigos[i]->obterNome() + " [" + std::to_string(i) + "]";
+        int esp = (larguraColuna - (int)id.length()) / 2;
+        std::cout << std::string(esp > 0 ? esp : 0, ' ') << std::left << std::setw(larguraColuna - esp) << id;
     }
     std::cout << "\n";
-
     for (size_t i = 0; i < inimigos.size(); i++) 
     {
         std::string hp = "HP: " + std::to_string(inimigos[i]->obterVida()) + "/" + std::to_string(inimigos[i]->obterVidaMaxima());
-        int espacosEsq = (larguraColuna - static_cast<int>(hp.length())) / 2;
-        std::cout << std::string(espacosEsq > 0 ? espacosEsq : 0, ' ') 
-                  << std::left << std::setw(larguraColuna - espacosEsq) << hp;
+        int esp = (larguraColuna - (int)hp.length()) / 2;
+        std::cout << std::string(esp > 0 ? esp : 0, ' ') << std::left << std::setw(larguraColuna - esp) << hp;
     }
     std::cout << "\n\n";
-
     for (size_t i = 0; i < arte.size(); i++) 
     {
         for (size_t j = 0; j < inimigos.size(); j++) 
         {
-            int espacosEsq = (larguraColuna - static_cast<int>(arte[i].length())) / 2;
-            std::cout << std::string(espacosEsq > 0 ? espacosEsq : 0, ' ') 
-                      << std::left << std::setw(larguraColuna - espacosEsq) << arte[i];
+            int esp = (larguraColuna - (int)arte[i].length()) / 2;
+            std::cout << std::string(esp > 0 ? esp : 0, ' ') << std::left << std::setw(larguraColuna - esp) << arte[i];
         }
         std::cout << "\n";
     }

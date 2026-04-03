@@ -8,8 +8,8 @@ class RacaDwarf : public RacaBase
 {
 public:
     std::string obterNomeRaca() const override;
+    std::vector<std::string> obterAparenciaRaca() const override;
     Atributos obterAtributosRaca() const override;
 
     void usarHabilidadeRaca(Personagem* usuario, Personagem* alvo) override;
-    std::vector<std::string> obterAparencia() const override;
 };

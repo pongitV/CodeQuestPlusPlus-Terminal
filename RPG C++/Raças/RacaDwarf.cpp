@@ -17,7 +17,7 @@ void RacaDwarf::usarHabilidadeRaca(Personagem* usuario, Personagem* alvo)
     std::cout << "" << std::endl;
 }
 
-std::vector<std::string> RacaDwarf::obterAparencia() const 
+std::vector<std::string> RacaDwarf::obterAparenciaRaca() const 
 {
     return { "     ", " [O] ", " /|\\ ", " / \\ " };
 }
