@@ -12,4 +12,6 @@ public:
     Atributos obterAtributosRaca() const override;
 
     void usarHabilidadeRaca(Personagem* usuario, Personagem* alvo) override;
+    std::string obterNomeHabilidade() const override;
+    std::string obterDescricaoHabilidade() const override;
 };

@@ -17,6 +17,9 @@ void RacaHumano::usarHabilidadeRaca(Personagem* usuario, Personagem* alvo)
     std::cout << "" << std::endl;
 }
 
+std::string RacaHumano::obterNomeHabilidade() const { return "Espirito indomavel"; }
+std::string RacaHumano::obterDescricaoHabilidade() const { return "Revive com metade do HP uma vez ao morrer"; }
+
 std::vector<std::string> RacaHumano::obterAparenciaRaca() const 
 {
     return { "  O  ", " /|\\ ", "  |  ", " / \\ " };

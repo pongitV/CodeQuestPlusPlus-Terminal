@@ -40,6 +40,7 @@ protected:
     RacaBase* raca;
     ClasseBase* classe;
     Inventario* mochila;
+    bool podeReviver; // Controle para "Espirito indomavel"
 
     Item* arma;    
     Item* escudo;   
@@ -80,4 +81,6 @@ public:
 
     void usarHabilidadeDeClasse(Personagem* alvo);
     void usarHabilidadeDeRaca(Personagem* alvo);
+    bool podeUsarRessurreicao() const { return podeReviver; }
+    void consumirRessurreicao() { podeReviver = false; }
 };

@@ -14,4 +14,6 @@ public:
     virtual Atributos obterAtributosRaca() const = 0;
     
     virtual void usarHabilidadeRaca(Personagem* u, Personagem* a) = 0;
+    virtual std::string obterNomeHabilidade() const = 0;
+    virtual std::string obterDescricaoHabilidade() const = 0;
 };

@@ -21,7 +21,10 @@ class RacaGoblin : public RacaBase
 public:
     std::string obterNomeRaca() const override { return "Goblin"; }
     Atributos obterAtributosRaca() const override { return { -50, 0, 0, 0, 0, 0, 0 }; }
+    
     void usarHabilidadeRaca(Personagem* u, Personagem* a) override {}
+    std::string obterNomeHabilidade() const override { return "Nenhuma"; }
+    std::string obterDescricaoHabilidade() const override { return "Monstros nao possuem passivas"; }
 
     std::vector<std::string> obterAparenciaRaca() const override 
     {
