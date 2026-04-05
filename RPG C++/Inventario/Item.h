@@ -16,6 +16,12 @@ public:
     virtual double obterReducaoPercentual() const { return 0.0; }
     virtual int obterReducaoFixa() const { return 0; }
 
+    // Novos metodos base para o sistema de Defesa Ativa (Escudos)
+    virtual int obterReducaoFixaEscudo() const { return 0; }
+    virtual int obterDurabilidade() const { return 0; }
+    virtual void reduzirDurabilidade(int qtd) {}
+    virtual void aumentarDurabilidade(int qtd) {}
+
     std::string raridadeParaString() const 
     {
         if (obterRaridade() == Raridade::MITICO) return "Mitico";
@@ -43,13 +49,20 @@ public:
 };
 
 class Escudo : public Item {
-    std::string nome; double red;
+    std::string nome; 
+    int reducaoFixa;
+    int durabilidade;
 public:
-    Escudo(std::string n, double r) : nome(n), red(r) {}
+    Escudo(std::string n, int r, int d) : nome(n), reducaoFixa(r), durabilidade(d) {}
     std::string obterNomeItem() const override { return nome; }
     Raridade obterRaridade() const override { return Raridade::COMUM; }
     TipoEquipamento obterTipo() const override { return TipoEquipamento::ESCUDO; }
-    double obterReducaoPercentual() const override { return red; }
+    
+    // Implementacao exclusiva do Escudo
+    int obterReducaoFixaEscudo() const override { return reducaoFixa; }
+    int obterDurabilidade() const override { return durabilidade; }
+    void reduzirDurabilidade(int qtd) override { durabilidade -= qtd; }
+    void aumentarDurabilidade(int qtd) override { durabilidade += qtd; }
 };
 
 class Armadura : public Item {

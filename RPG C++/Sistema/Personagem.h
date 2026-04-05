@@ -43,6 +43,8 @@ protected:
 
     double multiplicadorAtual; // Para buffs temporarios
 
+    bool estaDefendendo;      // Controle de Defesa Ativa
+    bool recargaDefesa;       // Cooldown de 1 turno da Defesa
     bool podeReviver; // Controle para "Espirito indomavel"
     bool estaInviolavel;      // Arqueiro: retirada com pontaria
     int turnosBuff;           // Guerreiro: determinacao no combate
@@ -103,4 +105,10 @@ public:
     bool obterModoAtaqueArea() const { return modoAtaqueArea; }
     void definirPularTurnoInimigo(bool p) { pularTurnoInimigo = p; }
     bool obterPularTurnoInimigo() const { return pularTurnoInimigo; }
+    
+    void definirDefendendo(bool d) { estaDefendendo = d; }
+    bool obterDefendendo() const { return estaDefendendo; }
+    void definirRecargaDefesa(bool r) { recargaDefesa = r; }
+    bool obterRecargaDefesa() const { return recargaDefesa; }
+    void desequiparEscudo() { escudo = nullptr; }
 };

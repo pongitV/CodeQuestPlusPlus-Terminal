@@ -20,10 +20,12 @@ public:
     
     // Sistema de busca por atalho (ex: 1C)
     Item* buscarItemPorCodigo(std::string codigo, Item* a, Item* e, Item* d);
+    Item* escolherEscudoParaDefesa();
     
     void adicionarItem(Item* novoItem);
     void removerPorNome(std::string nome);
     int contarItensPorNome(std::string nome) const;
+
     bool possuiPocaoCura() const;
     
     void adicionarOuro(int quantidade);

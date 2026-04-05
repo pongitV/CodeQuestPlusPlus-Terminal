@@ -7,7 +7,6 @@
 #include "SistemaRPG.h"
 #include "Menu.h"
 
-// Inclusao de componentes para o funcionamento das mecanicas
 #include "../Raças/RacaBase.h"
 #include "../Classes/ClasseBase.h"
 #include "../Inventario/Item.h"
@@ -38,7 +37,7 @@ void SistemaRPG::iniciarCombate()
             Menu::exibirStatusJogador(jogador); 
 
             std::cout << "\nTURNO " << contadorTurno << " | SUA VEZ" << std::endl;
-            std::cout << "1. Atacar | 2. Habilidade | 3. Inventario | 4. Jogador | Escolha: ";
+            std::cout << "1. Atacar | 2. Defender | 3. Habilidade | 4. Inventario | 5. Jogador | Escolha: ";
             
             int acao;
             if (!(std::cin >> acao)) 
@@ -48,7 +47,9 @@ void SistemaRPG::iniciarCombate()
                 continue;
             }
 
-            if (acao == 1) // --- 1. ATACAR ---
+            switch (acao) 
+            {
+            case 1: // --- 1. ATACAR ---
             {
                 if (jogador->obterModoAtaqueArea() && jogador->obterNomeClasse() == "Mago") 
                 {
@@ -59,13 +60,17 @@ void SistemaRPG::iniciarCombate()
                 {
                     int alvoIndex;
                     std::cout << "Escolha o alvo (0 a " << inimigos.size() - 1 << "): ";
-                    std::cin >> alvoIndex;
-
-                    if (alvoIndex >= 0 && alvoIndex < static_cast<int>(inimigos.size())) 
+                    if (!(std::cin >> alvoIndex) || alvoIndex < 0 || alvoIndex >= static_cast<int>(inimigos.size())) 
                     {
-                        realizarAtaqueFisico(jogador, inimigos[alvoIndex], contadorTurno);
-                        acaoConsumiuTurno = true;
+                        std::cin.clear(); 
+                        std::cin.ignore(1000, '\n');
+                        std::cout << "\n[ERRO] Alvo invalido!\n";
+                        Menu::esperar();
+                        break; // Volta para o menu de acoes sem gastar o turno
                     }
+
+                    realizarAtaqueFisico(jogador, inimigos[alvoIndex], contadorTurno);
+                    acaoConsumiuTurno = true;
                 }
 
                 // Limpeza de mortos apos o ataque
@@ -81,16 +86,37 @@ void SistemaRPG::iniciarCombate()
                         Menu::esperar();
                     } else { ++it; }
                 }
+                break;
             }
-            else if (acao == 2) // --- 2. HABILIDADE ATIVA ---
+            case 2: // --- 2. DEFENDER ---
+            {
+                if (jogador->obterRecargaDefesa()) 
+                {
+                    std::cout << "\n[ERRO]: Voce se desequilibrou e precisa de 1 turno para poder defender novamente!\n";
+                    Menu::esperar();
+                    break; // Volta pro loop de acao sem gastar turno
+                }
+                
+                Item* esc = jogador->obterInventario()->escolherEscudoParaDefesa();
+                if (esc != nullptr) 
+                {
+                    jogador->equiparItem(esc);
+                    jogador->definirDefendendo(true);
+                    std::cout << "\n[SISTEMA]: " << jogador->obterNome() << " assumiu uma postura defensiva com " << esc->obterNomeItem() << "!\n";
+                    Menu::esperar();
+                    acaoConsumiuTurno = true;
+                }
+                break;
+            }
+            case 3: // --- 3. HABILIDADE ATIVA ---
             {
                 jogador->obterClasse()->usarHabilidadeClasseAtiva(jogador, inimigos);
                 
-                // Mago nao gasta turno ao alternar estrategia
                 if (jogador->obterNomeClasse() != "Mago") acaoConsumiuTurno = true;
                 else Menu::esperar();
+                break;
             }
-            else if (acao == 3) // --- 3. INVENTARIO ---
+            case 4: // --- 4. INVENTARIO ---
             {
                 Menu::exibirInventario(jogador);
                 std::string codigo;
@@ -105,7 +131,6 @@ void SistemaRPG::iniciarCombate()
 
                     if (item && dynamic_cast<PocaoCura*>(item))
                     {
-                        // Seguranca: Salva o nome antes de deletar o item do inventario
                         std::string nomeItem = item->obterNomeItem(); 
                         int cura = static_cast<int>(jogador->obterVidaMaxima() * 0.30);
                         
@@ -116,9 +141,15 @@ void SistemaRPG::iniciarCombate()
                         Menu::esperar();
                         acaoConsumiuTurno = true;
                     }
+                    else if (item)
+                    {
+                        std::cout << "\n[SISTEMA]: Este item nao pode ser usado em combate!\n";
+                        Menu::esperar();
+                    }
                 }
+                break;
             }
-            else if (acao == 4) // --- 4. JOGADOR  ---
+            case 5: // --- 5. JOGADOR ---
             {
                 Menu::limparTela();
                 std::cout << "========== FICHA DETALHADA DO JOGADOR ==========\n\n";
@@ -159,6 +190,10 @@ void SistemaRPG::iniciarCombate()
                 exibirAtributo("Sabedoria", jogador->obterSabedoria());
                 
                 Menu::esperar();
+                break;
+            }
+            default:
+                break;
             }
             
             if (verificarVitoria()) return; 
@@ -176,17 +211,25 @@ void SistemaRPG::executarTurnoInimigos()
     {
         std::cout << "\n[EFEITO]: Os inimigos estao atordoados e nao podem agir!\n";
         jogador->definirPularTurnoInimigo(false); 
-        Menu::esperar();
-        return;
+    }
+    else
+    {
+        std::cout << "\n--- TURNO DOS INIMIGOS ---" << std::endl;
+        for (Personagem* inimigo : inimigos) 
+        {
+            if (jogador->obterVida() > 0) 
+            {
+                realizarAtaqueFisico(inimigo, jogador, contadorTurno);
+            }
+        }
     }
 
-    std::cout << "\n--- TURNO DOS INIMIGOS ---" << std::endl;
-    for (Personagem* inimigo : inimigos) 
-    {
-        if (jogador->obterVida() > 0) 
-        {
-            realizarAtaqueFisico(inimigo, jogador, contadorTurno);
-        }
+    // Reseta o estado da defesa APOS os inimigos atacarem
+    if (jogador->obterDefendendo()) {
+        jogador->definirDefendendo(false);
+        jogador->definirRecargaDefesa(true); // Entra em Cooldown
+    } else if (jogador->obterRecargaDefesa()) {
+        jogador->definirRecargaDefesa(false); // Resfria o Cooldown
     }
 
     // Gerencia a duracao do buff acumulativo
@@ -244,11 +287,27 @@ void SistemaRPG::aplicarDano(Personagem* alvo, int danoBruto, int turnoAtual)
 
     int bArmadura = (alvo->obterArmadura()) ? alvo->obterArmadura()->obterReducaoFixa() : 0;
     double tRedFixa = (0.2 * alvo->obterResistencia()) + bArmadura;
-    double bEscudo = (alvo->obterEscudo()) ? alvo->obterEscudo()->obterReducaoPercentual() : 0.0;
-    double tRedPerc = ((alvo->obterConstituicao() / 3.0) / 100.0) + bEscudo;
+    double tRedPerc = ((alvo->obterConstituicao() / 3.0) / 100.0);
 
     int dFinal = static_cast<int>((danoBruto - tRedFixa) * (1.0 - tRedPerc));
-    if (dFinal < 1) dFinal = 1;
+    if (dFinal < 1) dFinal = 1; // Impacto basico minimo
+
+    // Logica Ativa do Escudo
+    if (alvo->obterDefendendo() && alvo->obterEscudo() != nullptr) 
+    {
+        int reducaoFixo = alvo->obterEscudo()->obterReducaoFixaEscudo();
+        std::cout << ">> [DEFESA]: O escudo bloqueou " << reducaoFixo << " de dano!\n";
+        dFinal -= reducaoFixo;
+        if (dFinal < 0) dFinal = 0; // Escudo pode zerar completamente o dano
+        
+        alvo->obterEscudo()->reduzirDurabilidade(1);
+        if (alvo->obterEscudo()->obterDurabilidade() <= 0) 
+        {
+            std::cout << "[!] ALERTA: O escudo " << alvo->obterEscudo()->obterNomeItem() << " foi DESTRUIDO em pedacos!\n";
+            alvo->obterInventario()->removerPorNome(alvo->obterEscudo()->obterNomeItem());
+            alvo->desequiparEscudo(); // Fica sem escudo
+        }
+    }
 
     // Passivas defensivas de raca (Dwarf/Humano)
     dFinal = alvo->obterRaca()->processarDanoDefensivo(dFinal, alvo);
@@ -257,6 +316,10 @@ void SistemaRPG::aplicarDano(Personagem* alvo, int danoBruto, int turnoAtual)
     {
         alvo->modificarVida(-dFinal);
         std::cout << ">> " << alvo->obterNome() << " recebeu " << dFinal << " de dano." << std::endl;
+    }
+    else if (dFinal == 0 && alvo->obterDefendendo()) 
+    {
+        std::cout << ">> O dano foi totalmente absorvido pela sua defesa!" << std::endl;
     }
 }
 

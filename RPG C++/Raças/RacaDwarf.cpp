@@ -22,11 +22,13 @@ std::string RacaDwarf::obterDescricaoHabilidadeRaca() const { return "Escudos te
 
 int RacaDwarf::processarDanoDefensivo(int danoFinal, Personagem* defensor) 
 {
-    if (defensor->obterEscudo() != nullptr) 
+    if (defensor->obterDefendendo() && defensor->obterEscudo() != nullptr) 
     {
-        double bEscudo = defensor->obterEscudo()->obterReducaoPercentual();
-        std::cout << "[PASSIVA]: Forjado com determinacao absorveu mais dano!\n";
-        return static_cast<int>(danoFinal * (1.0 - bEscudo));
+        if (rand() % 100 < 50) 
+        {
+            defensor->obterEscudo()->aumentarDurabilidade(1);
+            std::cout << "[PASSIVA]: Forjado com determinacao poupou a durabilidade do escudo!\n";
+        }
     }
     return danoFinal;
 }

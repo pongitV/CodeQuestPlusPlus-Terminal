@@ -6,11 +6,10 @@ class Menu
 {
 public:
     static void configurarTelaCheia();
-    static void digitar(std::string texto, int velocidade);
-
     static void exibirLogo();
     static void limparTela();
     static void esperar();
+    static void digitar(const std::string& texto, int velocidade);
     
     static Personagem* criarPersonagem();
     static void exibirStatusJogador(Personagem* p);
@@ -20,4 +19,5 @@ public:
 
 private:
     static int obterLarguraTerminal(); 
+    static bool exibirPreviaLadoALado(const std::string& tipo, const std::string& nome, const std::vector<std::string>& info, const std::vector<std::string>& arte);
 };

@@ -1,9 +1,6 @@
 #include <iostream>
-#include <vector>
-#include <string>
 
 #include "ClasseArqueiro.h"
-#include "../Inventario/Item.h"
 
 std::string ClasseArqueiro::obterNomeClasse() const 
 {
@@ -68,22 +65,22 @@ std::vector<Item*> ClasseArqueiro::gerarKitInicial() const
     {
         new PocaoCura(), new PocaoCura(), new PocaoCura(),
         new Arma("Arco recurvo de madeira", 5),
-        new Escudo("Escudo leve de madeira", 0.05),
+        new Escudo("Escudo leve de madeira", 6, 3),
         new Armadura("Armadura leve de couro", 2)
     };
 }
 
 void ClasseArqueiro::usarHabilidadeClasseAtiva(Personagem* u, std::vector<Personagem*>& inimigos) {
     if (u->obterRecarga()) {
-        std::cout << "[ERRO]: Habilidade em recarga!\n";
+        std::cout << "[SISTEMA]: Habilidade em recarga\n";
         return;
     }
     u->definirInviolavel(true);
     u->definirRecarga(true);
-    std::cout << "[HABILIDADE]: Retirada com pontaria! Voce esta protegido este turno.\n";
+    std::cout << "[HABILIDADE]: Retirada com pontaria! Voce se afasta neste turno.\n";
 }
 
 std::string ClasseArqueiro::obterNomeHabilidadeClasseAtiva() const { return "Retirada com pontaria"; }
 std::string ClasseArqueiro::obterDescricaoHabilidadeClasseAtiva() const { 
-    return "Gasta o turno mas fica imune. No proximo turno, causa 2x dano."; 
+    return "Se afasta durante um turno, no proximo turno causa 2x dano"; 
 }

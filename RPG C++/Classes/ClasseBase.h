@@ -1,7 +1,6 @@
-#include <vector>
-#include <string>
-
 #include "../Sistema/Personagem.h"
+#include "../Inventario/Inventario.h"
+#include "../Inventario/Item.h"
 
 #pragma once
 

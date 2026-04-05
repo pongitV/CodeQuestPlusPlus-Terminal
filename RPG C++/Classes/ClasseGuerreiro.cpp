@@ -1,8 +1,6 @@
 #include <iostream>
-#include <vector>
 
 #include "ClasseGuerreiro.h"
-#include "../Inventario/Item.h"
 
 std::string ClasseGuerreiro::obterNomeClasse() const 
 { 
@@ -51,7 +49,7 @@ std::vector<Item*> ClasseGuerreiro::gerarKitInicial() const
     {
         new PocaoCura(), new PocaoCura(), new PocaoCura(),
         new Arma("Espada longa de metal", 10),
-        new Escudo("Escudo medio de metal", 0.15),
+        new Escudo("Escudo medio de metal", 12, 6),
         new Armadura("Armadura media de malha", 8)
     };
 }
@@ -76,5 +74,5 @@ void ClasseGuerreiro::usarHabilidadeClasseAtiva(Personagem* u, std::vector<Perso
 
 std::string ClasseGuerreiro::obterNomeHabilidadeClasseAtiva() const { return "Determinacao no combate"; }
 std::string ClasseGuerreiro::obterDescricaoHabilidadeClasseAtiva() const { 
-    return "Gasta seu turno para aumentar seus atributos em 1.5x por 3 turnos."; 
+    return "Gasta seu turno para aumentar seus atributos em 1.5x por 2 turnos."; 
 }

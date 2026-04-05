@@ -1,8 +1,6 @@
 #include <iostream>
-#include <vector>
 
 #include "ClasseMago.h"
-#include "../Inventario/Item.h"
 
 std::string ClasseMago::obterNomeClasse() const 
 {
@@ -49,8 +47,8 @@ std::vector<Item*> ClasseMago::gerarKitInicial() const
     {
         new PocaoCura(), new PocaoCura(), new PocaoCura(),
         new Arma("Bola de cristal", 12),
-        new Escudo("Manto encantado", 0.08),
-        new Armadura("Traje encantado de couro e prata", 5)
+        new Escudo("Manto encantado", 5, 3),
+        new Armadura("Traje de lã encantada", 5)
     };
 }
 
@@ -62,5 +60,5 @@ void ClasseMago::usarHabilidadeClasseAtiva(Personagem* u, std::vector<Personagem
 
 std::string ClasseMago::obterNomeHabilidadeClasseAtiva() const { return "Estrategia arcana"; }
 std::string ClasseMago::obterDescricaoHabilidadeClasseAtiva() const { 
-    return "Nao gasta turno. Alterna entre ataque em area ou alvo unico."; 
+    return "Alterna entre ataque em area ou alvo unico (não gasta seu turno)"; 
 }

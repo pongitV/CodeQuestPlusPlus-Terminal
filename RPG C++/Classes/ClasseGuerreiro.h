@@ -1,5 +1,3 @@
-#include <vector> 
-
 #include "ClasseBase.h"
 
 #pragma once

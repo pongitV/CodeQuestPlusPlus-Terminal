@@ -1,8 +1,6 @@
 #include <iostream>
-#include <vector>
 
 #include "ClasseBardo.h"
-#include "../Inventario/Item.h"
 
 std::string ClasseBardo::obterNomeClasse() const 
 {
@@ -45,8 +43,8 @@ std::vector<Item*> ClasseBardo::gerarKitInicial() const
     {
         new PocaoCura(), new PocaoCura(), new PocaoCura(),
         new Arma("Violao encantado", 3),
-        new Escudo("Capa magica", 0.10),
-        new Armadura("Roupas nobres de tecido", 1)
+        new Escudo("Capa magica", 5, 2),
+        new Armadura("Roupas nobres de tecido luxuoso", 1)
     };
 }
 
@@ -54,7 +52,7 @@ void ClasseBardo::usarHabilidadeClasseAtiva(Personagem* u, std::vector<Personage
 {
     if (u->obterRecarga()) 
     {
-        std::cout << "[SISTEMA]: Habilidade em recarga! Use um ataque normal.\n";
+        std::cout << "[SISTEMA]: Habilidade em recarga\n";
         return; 
     }
 
@@ -66,8 +64,7 @@ void ClasseBardo::usarHabilidadeClasseAtiva(Personagem* u, std::vector<Personage
     u->definirPularTurnoInimigo(true);
     u->definirRecarga(true); // Ativa recarga para o proximo turno
 
-    std::cout << "[HABILIDADE]: Flashing lights! Voce recuperou " << cura << " HP.\n";
-    std::cout << "[EFEITO]: O inimigo ficou atordoado e pulara o proximo turno!\n";
+    std::cout << "[HABILIDADE]: !Flashing lights! Voce recuperou " << cura << " HP e encantou os inimigos, pulando o proximo turno.\n";
 }
 
 std::string ClasseBardo::obterNomeHabilidadeClasseAtiva() const { return "Flashing lights"; }

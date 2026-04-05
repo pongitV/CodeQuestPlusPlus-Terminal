@@ -1,9 +1,5 @@
 #include <iostream>
-#include <vector>
-#include <string>
 #include <map>
-#include <iomanip>
-#include <cctype>
 
 #ifdef _WIN32
     #include <windows.h>
@@ -15,7 +11,6 @@
 #include "Inventario.h"
 #include "Item.h"
 
-// Função auxiliar para detetar a largura do terminal
 int obterLargura() 
 {
 #ifdef _WIN32
@@ -126,6 +121,41 @@ Item* Inventario::buscarItemPorCodigo(std::string codigo, Item* a, Item* e, Item
                 for (Item* item : itens) if (item->obterNomeItem() == nome) return item;
     }
     return nullptr;
+}
+
+Item* Inventario::escolherEscudoParaDefesa() 
+{
+    std::vector<Item*> escudos;
+    for (Item* item : itens) 
+    {
+        if (item->obterTipo() == TipoEquipamento::ESCUDO) escudos.push_back(item);
+    }
+
+    if (escudos.empty()) 
+    {
+        std::cout << "\n[!] Voce nao possui escudos no inventario para usar!\n";
+        return nullptr;
+    }
+
+    std::cout << "\n=== SELECIONE SEU ESCUDO ===\n";
+    for (size_t i = 0; i < escudos.size(); i++) 
+    {
+        std::cout << " [" << i + 1 << "] " << escudos[i]->obterNomeItem() 
+                  << " (Bloqueio Fixo: " << escudos[i]->obterReducaoFixaEscudo() 
+                  << " | Durabilidade: " << escudos[i]->obterDurabilidade() << " usos)\n";
+    }
+    std::cout << " [0] Cancelar\n";
+    std::cout << "\nEscolha: ";
+
+    int op;
+    if (!(std::cin >> op) || op < 0 || op > static_cast<int>(escudos.size())) 
+    {
+        std::cin.clear(); std::cin.ignore(1000, '\n');
+        std::cout << "Opcao invalida!\n";
+        return nullptr;
+    }
+    if (op == 0) return nullptr;
+    return escudos[op - 1];
 }
 
 void Inventario::adicionarItem(Item* n) { if(n) itens.push_back(n); }

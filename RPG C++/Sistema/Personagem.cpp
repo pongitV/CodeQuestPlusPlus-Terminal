@@ -1,6 +1,4 @@
 #include <iostream>
-#include <string>
-#include <vector>
 
 #include "Personagem.h"
 #include "../Raças/RacaBase.h"
@@ -20,6 +18,8 @@ Personagem::Personagem(std::string nome, RacaBase* r, ClasseBase* c)
     this->ouroRecompensa = 15;
 
     this->multiplicadorAtual = 1.0;
+    this->estaDefendendo = false;
+    this->recargaDefesa = false;
     this->estaInviolavel = false;
     this->turnosBuff = 0;
     this->recargaHabilidade = false;
