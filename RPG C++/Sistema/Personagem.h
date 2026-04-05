@@ -40,7 +40,15 @@ protected:
     RacaBase* raca;
     ClasseBase* classe;
     Inventario* mochila;
+
+    double multiplicadorAtual; // Para buffs temporarios
+
     bool podeReviver; // Controle para "Espirito indomavel"
+    bool estaInviolavel;      // Arqueiro: retirada com pontaria
+    int turnosBuff;           // Guerreiro: determinacao no combate
+    bool recargaHabilidade;   // Arqueiro/Bardo: uso seguido
+    bool modoAtaqueArea;      // Mago: estrategia arcana
+    bool pularTurnoInimigo;   // Bardo: flashing lights
 
     Item* arma;    
     Item* escudo;   
@@ -79,8 +87,20 @@ public:
     int obterOuroRecompensa() const { return ouroRecompensa; }
     void ganharOuro(int valor) { mochila->adicionarOuro(valor); }
 
-    void usarHabilidadeDeClasse(Personagem* alvo);
-    void usarHabilidadeDeRaca(Personagem* alvo);
+    void definirMultiplicador(double m) { multiplicadorAtual = m; }
+    double obterMultiplicador() const { return multiplicadorAtual; }
+
     bool podeUsarRessurreicao() const { return podeReviver; }
     void consumirRessurreicao() { podeReviver = false; }
+
+    void definirInviolavel(bool v) { estaInviolavel = v; }
+    bool obterInviolavel() const { return estaInviolavel; }
+    void definirTurnosBuff(int t) { turnosBuff = t; }
+    int obterTurnosBuff() const { return turnosBuff; }
+    void definirRecarga(bool r) { recargaHabilidade = r; }
+    bool obterRecarga() const { return recargaHabilidade; }
+    void alternarModoAtaque() { modoAtaqueArea = !modoAtaqueArea; }
+    bool obterModoAtaqueArea() const { return modoAtaqueArea; }
+    void definirPularTurnoInimigo(bool p) { pularTurnoInimigo = p; }
+    bool obterPularTurnoInimigo() const { return pularTurnoInimigo; }
 };

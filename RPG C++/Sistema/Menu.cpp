@@ -118,7 +118,7 @@ Personagem* Menu::criarPersonagem()
             exibirLogo();
             std::cout << "\n";
             digitar(" [NARRACAO]: O reino clama por um novo destino...\n", 40);
-            digitar(" [NARRACAO]: Mas as lendas apenas lembram daqueles com um nome forte.\n\n", 40);
+            digitar(" [NARRACAO]: E todas lendas possuem um nome.\n\n", 40);
             std::cout << " > Escolha o nome do seu personagem (ou '0' para sair): ";
             
             std::cin.ignore(std::cin.rdbuf()->in_avail(), '\n');
@@ -127,20 +127,20 @@ Personagem* Menu::criarPersonagem()
             if (nome == "0") exit(0);
             if (!nome.empty()) etapa = 2;
         }
-        else if (etapa == 2) // --- ETAPA 2: RACA EM LISTA ---
+
+        else if (etapa == 2) // --- ETAPA 2: RACA ---
         {
             limparTela();
             exibirLogo();
-            std::cout << " HEROI: " << nome << "\n";
+            std::cout << " JOGADOR: " << nome << "\n";
             std::cout << std::string(obterLarguraTerminal(), '-') << "\n";
-            digitar(" [NARRACAO]: De qual linhagem voce descende?\n\n", 40);
+            digitar(" [NARRACAO]: Qual sua origem?\n\n", 40);
             
-            // Selecao em Lista Vertical
             std::cout << "  [1] Dwarf\n";
             std::cout << "  [2] Elfo\n";
             std::cout << "  [3] Humano\n";
             std::cout << "  [4] Ork\n";
-            std::cout << "\n  [0] VOLTAR (Mudar nome)\n";
+            std::cout << "\n  [0] VOLTAR (selecao de nome)\n";
             std::cout << "\n > Sua escolha: ";
             
             int escolha;
@@ -162,16 +162,28 @@ Personagem* Menu::criarPersonagem()
                 std::cout << " PREVIA DA RACA: " << tempRaca->obterNomeRaca() << "\n";
                 std::cout << std::string(larguraTerminal, '-') << "\n\n";
 
-                // Informacoes da Raca
+                // Informacoes da Raca com todos os atributos
                 Atributos stats = tempRaca->obterAtributosRaca();
                 std::vector<std::string> info;
-                info.push_back("[ ATRIBUTOS BASE ]");
-                if (stats.vida != 0) info.push_back(" - Vida:         +" + std::to_string(stats.vida));
-                if (stats.forca != 0) info.push_back(" - Forca:        +" + std::to_string(stats.forca));
+                info.push_back("[ ATRIBUTOS BASE DE RAÇA ]");
+                
+                auto addStat = [&](std::string n, int v) {
+                    std::string sinal = (v >= 0) ? "+" : "";
+                    info.push_back(" - " + n + ": " + sinal + std::to_string(v));
+                };
+
+                addStat("Vida", stats.vida);
+                addStat("Forca", stats.forca);
+                addStat("Destreza", stats.destreza);
+                addStat("Resistencia", stats.resistencia);
+                addStat("Constituicao", stats.constituicao);
+                addStat("Inteligencia", stats.inteligencia);
+                addStat("Sabedoria", stats.sabedoria);
+
                 info.push_back("");
                 info.push_back("[ HABILIDADE PASSIVA ]");
-                info.push_back(" " + tempRaca->obterNomeHabilidade());
-                info.push_back(" - " + tempRaca->obterDescricaoHabilidade());
+                info.push_back(" " + tempRaca->obterNomeHabilidadeRaca());
+                info.push_back(" - " + tempRaca->obterDescricaoHabilidadeRaca());
 
                 std::vector<std::string> arte = tempRaca->obterAparenciaRaca();
                 
@@ -199,20 +211,20 @@ Personagem* Menu::criarPersonagem()
                 else { delete tempRaca; }
             }
         }
-        else if (etapa == 3) // --- ETAPA 3: CLASSE EM LISTA ---
+        
+        else if (etapa == 3) // --- ETAPA 3: CLASSE ---
         {
             limparTela();
             exibirLogo();
-            std::cout << " HEROI: " << nome << " | RACA: " << racaFinal->obterNomeRaca() << "\n";
+            std::cout << " JOGADOR: " << nome << " | RACA: " << racaFinal->obterNomeRaca() << "\n";
             std::cout << std::string(obterLarguraTerminal(), '-') << "\n";
             digitar(" [NARRACAO]: Qual caminho voce seguira neste mundo?\n\n", 40);
             
-            // Selecao em Lista Vertical
             std::cout << "  [1] Arqueiro\n";
             std::cout << "  [2] Bardo\n";
             std::cout << "  [3] Guerreiro\n";
             std::cout << "  [4] Mago\n";
-            std::cout << "\n  [0] VOLTAR PARA RACA\n";
+            std::cout << "\n  [0] VOLTAR (selecao de raca)\n";
             std::cout << "\n > Sua escolha: ";
             
             int escolha;
@@ -234,16 +246,23 @@ Personagem* Menu::criarPersonagem()
                 std::cout << " PREVIA DA CLASSE: " << temp->obterNomeClasse() << "\n";
                 std::cout << std::string(larguraTerminal, '-') << "\n\n";
 
-                // Atributos
+                // Atributos da Classe com todos os valores
                 Atributos stats = temp->obterAtributosClasse();
                 std::vector<std::string> listaStats;
-                listaStats.push_back("[ ATRIBUTOS ]");
-                if (stats.vida != 0)         listaStats.push_back(" - Vida:         +" + std::to_string(stats.vida));
-                if (stats.forca != 0)        listaStats.push_back(" - Forca:        +" + std::to_string(stats.forca));
-                if (stats.inteligencia != 0) listaStats.push_back(" - Inteligencia: +" + std::to_string(stats.inteligencia));
-                if (stats.resistencia != 0)  listaStats.push_back(" - Resistencia:  +" + std::to_string(stats.resistencia));
-                if (stats.constituicao != 0) listaStats.push_back(" - Constituicao: +" + std::to_string(stats.constituicao));
-                if (stats.sabedoria != 0)    listaStats.push_back(" - Sabedoria:    +" + std::to_string(stats.sabedoria));
+                listaStats.push_back("[ ATRIBUTOS BONUS DE CLASSE ]");
+                
+                auto addStat = [&](std::string n, int v) {
+                    std::string sinal = (v >= 0) ? "+" : "";
+                    listaStats.push_back(" - " + n + ": " + sinal + std::to_string(v));
+                };
+
+                addStat("Vida", stats.vida);
+                addStat("Forca", stats.forca);
+                addStat("Destreza", stats.destreza);
+                addStat("Resistencia", stats.resistencia);
+                addStat("Constituicao", stats.constituicao);
+                addStat("Inteligencia", stats.inteligencia);
+                addStat("Sabedoria", stats.sabedoria);
 
                 std::vector<std::string> arte = temp->obterAparenciaClasseMenu();
                 
@@ -307,7 +326,7 @@ void Menu::exibirStatusJogador(Personagem* p)
     
     std::vector<std::string> corpo = p->obterRaca()->obterAparenciaRaca();
     std::cout << std::string(largura, '=') << "\n";
-    std::cout << "| " << corpo[0] << " |  HEROI: " << p->obterNome() << " (" << p->obterRaca()->obterNomeRaca() << " / " << p->obterNomeClasse() << ")\n";
+    std::cout << "| " << corpo[0] << " |  JOGADOR: " << p->obterNome() << " (" << p->obterRaca()->obterNomeRaca() << " / " << p->obterNomeClasse() << ")\n";
     std::cout << "| " << corpo[1] << " |  HP: " << p->obterVida() << "/" << p->obterVidaMaxima() << " | OURO: " << p->obterInventario()->obterOuro() << "G\n";
     std::cout << "| " << corpo[2] << " |  EQUIP: " << arma << " | " << escu << " | " << dura << "\n";
     std::cout << std::string(largura, '=') << "\n";

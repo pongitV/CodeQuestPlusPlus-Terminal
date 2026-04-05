@@ -51,13 +51,13 @@ void Inventario::listarItens(Item* armaEquipada, Item* escudoEquipado, Item* arm
     std::cout << " DINHEIRO: " << ouro << " moedas\n";
     
     // 1. ARSENAL (A)
-    std::cout << "\n [ ARSENAL - EQUIPADOS ]" << std::endl;
+    std::cout << "\n [ EQUIPAMENTO ]" << std::endl;
     if (armaEquipada) std::cout << "  [1A] ARMA:    " << armaEquipada->obterNomeItem() << std::endl;
     if (escudoEquipado) std::cout << "  [2A] ESCUDO:  " << escudoEquipado->obterNomeItem() << std::endl;
     if (armaduraEquipada) std::cout << "  [3A] ARMADURA: " << armaduraEquipada->obterNomeItem() << std::endl;
 
     // 2. EQUIPAMENTOS (E)
-    std::cout << "\n [ EQUIPAMENTOS ]" << std::endl;
+    std::cout << "\n [ ARSENAL ]" << std::endl;
     int contadorE = 1;
     bool temEquip = false;
     for (Item* item : itens)

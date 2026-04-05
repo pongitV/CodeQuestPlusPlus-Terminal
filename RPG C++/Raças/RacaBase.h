@@ -13,7 +13,9 @@ public:
     virtual std::vector<std::string> obterAparenciaRaca() const = 0;
     virtual Atributos obterAtributosRaca() const = 0;
     
-    virtual void usarHabilidadeRaca(Personagem* u, Personagem* a) = 0;
-    virtual std::string obterNomeHabilidade() const = 0;
-    virtual std::string obterDescricaoHabilidade() const = 0;
+    virtual std::string obterNomeHabilidadeRaca() const = 0;
+    virtual std::string obterDescricaoHabilidadeRaca() const = 0;
+
+    virtual int processarDanoOfensivo(int danoBase, Personagem* atacante) { return danoBase; }
+    virtual int processarDanoDefensivo(int danoFinal, Personagem* defensor) { return danoFinal; }
 };

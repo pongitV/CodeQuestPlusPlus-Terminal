@@ -25,6 +25,8 @@ Personagem::Personagem(std::string nome, RacaBase* r, ClasseBase* c)
         this->equiparItem(item);            
     }
     calcularAtributos();
+
+    this->podeReviver = true; // Habilidade de raça "Espirito indomavel" ativa por padrão
 }
 
 Personagem::~Personagem() 
@@ -56,16 +58,6 @@ void Personagem::mostrarStatus() const
 std::string Personagem::obterNomeClasse() const 
 {
     return this->classe->obterNomeClasse();
-}
-
-void Personagem::usarHabilidadeDeClasse(Personagem* alvo) 
-{
-    this->classe->usarHabilidadeClasse(this, alvo);
-}
-
-void Personagem::usarHabilidadeDeRaca(Personagem* alvo) 
-{
-    this->raca->usarHabilidadeRaca(this, alvo);
 }
 
 void Personagem::equiparItem(Item* item) 

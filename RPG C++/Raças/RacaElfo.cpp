@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "RacaBase.h"
 #include "RacaElfo.h"
 
 std::string RacaElfo::obterNomeRaca() const 
@@ -7,20 +8,25 @@ std::string RacaElfo::obterNomeRaca() const
     return "Elfo";
 }
 
-Atributos RacaElfo::obterAtributosRaca() const 
-{
-    return { 0, 0, 0, 0, 0, 0, 0 };
-}
-
-void RacaElfo::usarHabilidadeRaca(Personagem* usuario, Personagem* alvo) 
-{
-    std::cout << "" << std::endl;
-}
-
-std::string RacaElfo::obterNomeHabilidade() const { return "Agil e preciso"; }
-std::string RacaElfo::obterDescricaoHabilidade() const { return "33% chance de causar 1.5x de dano"; }
-
 std::vector<std::string> RacaElfo::obterAparenciaRaca() const 
 {
     return { " <O> ", " /|\\ ", "  |  ", " / \\ " };
+}
+
+Atributos RacaElfo::obterAtributosRaca() const 
+{
+    return { -10, 8, 15, 5, 5, 15, 12 };
+}
+
+std::string RacaElfo::obterNomeHabilidadeRaca() const { return "Agil e preciso"; }
+std::string RacaElfo::obterDescricaoHabilidadeRaca() const { return "33% chance de causar 1.5x de dano"; }
+
+int RacaElfo::processarDanoOfensivo(int danoBase, Personagem* atacante) 
+{
+    if ((rand() % 100) < 33) 
+    {
+        std::cout << "[PASSIVA]: Agil e preciso! Golpe critico.\n";
+        return static_cast<int>(danoBase * 1.5);
+    }
+    return danoBase;
 }

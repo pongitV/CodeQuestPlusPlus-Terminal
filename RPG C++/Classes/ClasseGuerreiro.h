@@ -14,5 +14,7 @@ public:
     Atributos obterAtributosClasse() const override;
     std::vector<Item*> gerarKitInicial() const override;
 
-    void usarHabilidadeClasse(Personagem* usuario, Personagem* alvo) override;
+    void usarHabilidadeClasseAtiva(Personagem* usuario, std::vector<Personagem*>& inimigos) override;
+    std::string obterNomeHabilidadeClasseAtiva() const override;
+    std::string obterDescricaoHabilidadeClasseAtiva() const override;
 };  

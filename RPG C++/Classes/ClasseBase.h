@@ -17,5 +17,7 @@ public:
     virtual Atributos obterAtributosClasse() const = 0;
     virtual std::vector<Item*> gerarKitInicial() const = 0;
 
-    virtual void usarHabilidadeClasse(Personagem* usuario, Personagem* alvo) = 0;
+    virtual void usarHabilidadeClasseAtiva(Personagem* usuario, std::vector<Personagem*>& inimigos) = 0;
+    virtual std::string obterNomeHabilidadeClasseAtiva() const = 0;
+    virtual std::string obterDescricaoHabilidadeClasseAtiva() const = 0;
 };

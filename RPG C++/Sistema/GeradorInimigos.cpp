@@ -6,25 +6,40 @@
 #include "../Classes/ClasseBase.h"
 #include "../Inventario/Item.h"
 
-class ClasseInimigoPadrao : public ClasseBase 
+class ClasseInimigoPadrao : public ClasseBase
 {
 public:
     std::string obterNomeClasse() const override { return "Monstro"; }
     Atributos obterAtributosClasse() const override { return { 0, 0, 0, 0, 0, 0, 0 }; }
-    void usarHabilidadeClasse(Personagem* u, Personagem* a) override {}
+    std::vector<std::string> obterAparenciaClasseMenu() const override { return {}; }
     std::vector<Item*> gerarKitInicial() const override { return {}; }
-    std::vector<std::string> obterAparenciaClasseMenu() const override { return {"--- MONSTRO ---"}; }
+
+    // --- NOVAS IMPLEMENTACOES OBRIGATORIAS ---
+
+    void usarHabilidadeClasseAtiva(Personagem* usuario, std::vector<Personagem*>& inimigos) override 
+    {
+        // Inimigos padrao nao usam habilidades complexas por enquanto
+    }
+
+    std::string obterNomeHabilidadeClasseAtiva() const override 
+    { 
+        return "Nenhuma"; 
+    }
+
+    std::string obterDescricaoHabilidadeClasseAtiva() const override 
+    { 
+        return "Inimigos basicos nao possuem habilidades ativas."; 
+    }
 };
 
 class RacaGoblin : public RacaBase
 {
 public:
     std::string obterNomeRaca() const override { return "Goblin"; }
-    Atributos obterAtributosRaca() const override { return { -50, 0, 0, 0, 0, 0, 0 }; }
+    Atributos obterAtributosRaca() const override { return { -50, 6, 10, 3, 0, -10, -7 }; }
     
-    void usarHabilidadeRaca(Personagem* u, Personagem* a) override {}
-    std::string obterNomeHabilidade() const override { return "Nenhuma"; }
-    std::string obterDescricaoHabilidade() const override { return "Monstros nao possuem passivas"; }
+    std::string obterNomeHabilidadeRaca() const override { return "Nenhuma"; }
+    std::string obterDescricaoHabilidadeRaca() const override { return "Monstros nao possuem passivas"; }
 
     std::vector<std::string> obterAparenciaRaca() const override 
     {

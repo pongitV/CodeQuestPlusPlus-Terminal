@@ -11,7 +11,7 @@ public:
     std::vector<std::string> obterAparenciaRaca() const override;
     Atributos obterAtributosRaca() const override;
 
-    void usarHabilidadeRaca(Personagem* usuario, Personagem* alvo) override;
-    std::string obterNomeHabilidade() const override;
-    std::string obterDescricaoHabilidade() const override;
+    std::string obterNomeHabilidadeRaca() const override;
+    std::string obterDescricaoHabilidadeRaca() const override;
+    int processarDanoOfensivo(int danoBase, Personagem* atacante) override;
 };

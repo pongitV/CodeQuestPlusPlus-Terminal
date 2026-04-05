@@ -42,7 +42,7 @@ std::vector<std::string> ClasseGuerreiro::obterAparenciaClasseMenu() const
 
 Atributos ClasseGuerreiro::obterAtributosClasse() const
 {
-    return { 0, 1000000, 0, 0, 0, 0, 0 };
+    return { 20, 1000000, 5, 5, 5, 0, 0 };
 }
 
 std::vector<Item*> ClasseGuerreiro::gerarKitInicial() const 
@@ -56,6 +56,25 @@ std::vector<Item*> ClasseGuerreiro::gerarKitInicial() const
     };
 }
 
-void ClasseGuerreiro::usarHabilidadeClasse(Personagem* usuario, Personagem* alvo)
+void ClasseGuerreiro::usarHabilidadeClasseAtiva(Personagem* u, std::vector<Personagem*>& inimigos) 
 {
+    if (u->obterTurnosBuff() <= 0) 
+    {
+        u->definirTurnosBuff(3); // Primeira vez: 3 turnos
+        u->definirMultiplicador(1.5);
+        std::cout << "[HABILIDADE]: Determinacao no combate! Atributos x1.5\n";
+    } 
+    else 
+    {
+        // Se ja tiver buff, acumula o multiplicador mas NAO aumenta a duracao
+        double novoMult = u->obterMultiplicador() + 1.5;
+        u->definirMultiplicador(novoMult);
+        std::cout << "[HABILIDADE]: Furia acumulada! Multiplicador agora e x" << novoMult << ".\n";
+        std::cout << "(" << u->obterTurnosBuff() << " turnos restantes).\n";
+    }
+}
+
+std::string ClasseGuerreiro::obterNomeHabilidadeClasseAtiva() const { return "Determinacao no combate"; }
+std::string ClasseGuerreiro::obterDescricaoHabilidadeClasseAtiva() const { 
+    return "Gasta seu turno para aumentar seus atributos em 1.5x por 3 turnos."; 
 }

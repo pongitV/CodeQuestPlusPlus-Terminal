@@ -1,20 +1,56 @@
 #include <iostream>
-#include <string>
 #include <vector>
 
-#include "Sistema/Menu.h"
-#include "Sistema/Personagem.h"
-#include "Sistema/GeradorInimigos.h"
-#include "Sistema/SistemaRPG.h"
-#include "Sistema/Menu.h"
+#ifdef _WIN32
+    #include <windows.h>
+    #include <shellapi.h> // Necessario para ShellExecuteEx
+    #include <shlobj.h>   // Necessario para IsUserAnAdmin
+#endif
 
-int main()
+#include "Sistema/Menu.h"
+#include "Sistema/SistemaRPG.h"
+#include "Sistema/GeradorInimigos.h"
+
+// Funcao para garantir que o jogo rode como Administrador
+void garantirAdmin() 
 {
-    Menu::configurarTelaCheia();
+#ifdef _WIN32
+    if (!IsUserAnAdmin()) 
+    {
+        char caminho[MAX_PATH];
+        GetModuleFileNameA(NULL, caminho, MAX_PATH);
+
+        SHELLEXECUTEINFOA sei = { sizeof(sei) };
+        sei.lpVerb = "runas"; // Comando para elevar privilegios
+        sei.lpFile = caminho;
+        sei.hwnd = NULL;
+        sei.nShow = SW_NORMAL;
+
+        if (ShellExecuteExA(&sei)) 
+        {
+            exit(0); // Fecha a instancia sem admin
+        }
+    }
+#endif
+}
+
+int main() 
+{
+    // 1. Tenta elevar para Administrador antes de tudo
+    garantirAdmin();
+
+    // 2. Configura a tela (agora com permissao total)
+    Menu::configurarTelaCheia(); 
+    Menu::limparTela();
+
+    // 3. Inicia o fluxo do jogo
     Personagem* heroi = Menu::criarPersonagem();
-    std::vector<Personagem*> inimigos = GeradorInimigos::gerarHordaGoblins(3);
-    SistemaRPG* motor = new SistemaRPG(heroi, inimigos);
-    motor->iniciarCombate();
-    delete motor; delete heroi;
+    
+    std::vector<Personagem*> horda = GeradorInimigos::gerarHordaGoblins(3);
+    SistemaRPG jogo(heroi, horda);
+    
+    jogo.iniciarCombate();
+
+    delete heroi;
     return 0;
 }

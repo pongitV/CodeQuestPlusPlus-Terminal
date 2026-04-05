@@ -1,5 +1,4 @@
 #include <vector>
-
 #include "Personagem.h"
 
 #pragma once
@@ -22,7 +21,4 @@ public:
     bool verificarVitoria();
 
     void realizarAtaqueFisico(Personagem* atacante, Personagem* defensor, int turnoAtual);
-    void usarHabilidadeClasse(Personagem* usuario, Personagem* alvo);
-
-    void tentarUsarPocao();
 };

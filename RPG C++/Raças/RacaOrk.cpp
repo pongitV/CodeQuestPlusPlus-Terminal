@@ -7,20 +7,27 @@ std::string RacaOrk::obterNomeRaca() const
     return "Ork";
 }
 
-Atributos RacaOrk::obterAtributosRaca() const 
-{
-    return { 0, 0, 0, 0, 0, 0, 0 };
-}
-
-void RacaOrk::usarHabilidadeRaca(Personagem* usuario, Personagem* alvo) 
-{
-    std::cout << "" << std::endl;
-}
-
-std::string RacaOrk::obterNomeHabilidade() const { return "Furia cega"; }
-std::string RacaOrk::obterDescricaoHabilidade() const { return "Dano extra baseado na vida perdida"; }
-
 std::vector<std::string> RacaOrk::obterAparenciaRaca() const 
 {
     return { " (O) ", "/|#|\\", "  |  ", " / \\ " };
+}
+
+Atributos RacaOrk::obterAtributosRaca() const 
+{
+    return { 30, 15, 5, 20, 10, 0, 3 };
+}
+
+std::string RacaOrk::obterNomeHabilidadeRaca() const { return "Furia cega"; }
+std::string RacaOrk::obterDescricaoHabilidadeRaca() const { return "Dano extra baseado na vida perdida"; }
+
+int RacaOrk::processarDanoOfensivo(int danoBase, Personagem* atacante) 
+{
+    double percVidaPerdida = 1.0 - (static_cast<double>(atacante->obterVida()) / atacante->obterVidaMaxima());
+    int danoExtra = static_cast<int>(danoBase * percVidaPerdida);
+    if (danoExtra > 0) 
+    {
+        std::cout << "[PASSIVA]: Furia cega aumentou o dano em " << danoExtra << "!\n";
+        return danoBase + danoExtra;
+    }
+    return danoBase;
 }

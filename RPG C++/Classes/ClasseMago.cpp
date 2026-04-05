@@ -40,7 +40,7 @@ std::vector<std::string> ClasseMago::obterAparenciaClasseMenu() const
 
 Atributos ClasseMago::obterAtributosClasse() const
 {
-    return { 0, 0, 0, 0, 0, 0, 0 };
+    return { -10, 0, -5, 0, 5, 15, 15 };
 }
 
 std::vector<Item*> ClasseMago::gerarKitInicial() const 
@@ -54,6 +54,13 @@ std::vector<Item*> ClasseMago::gerarKitInicial() const
     };
 }
 
-void ClasseMago::usarHabilidadeClasse(Personagem* usuario, Personagem* alvo)
-{
+void ClasseMago::usarHabilidadeClasseAtiva(Personagem* u, std::vector<Personagem*>& inimigos) {
+    u->alternarModoAtaque();
+    std::string modo = u->obterModoAtaqueArea() ? "AREA (Dano dividido)" : "UNICO (Dano total)";
+    std::cout << "[HABILIDADE]: Estrategia arcana! Modo de ataque: " << modo << "\n";
+}
+
+std::string ClasseMago::obterNomeHabilidadeClasseAtiva() const { return "Estrategia arcana"; }
+std::string ClasseMago::obterDescricaoHabilidadeClasseAtiva() const { 
+    return "Nao gasta turno. Alterna entre ataque em area ou alvo unico."; 
 }
