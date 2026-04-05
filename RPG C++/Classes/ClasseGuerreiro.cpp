@@ -70,7 +70,7 @@ void ClasseGuerreiro::usarHabilidadeClasseAtiva(Personagem* u, std::vector<Perso
         double novoMult = u->obterMultiplicador() + 1.5;
         u->definirMultiplicador(novoMult);
         std::cout << "[HABILIDADE]: Furia acumulada! Multiplicador agora e x" << novoMult << ".\n";
-        std::cout << "(" << u->obterTurnosBuff() << " turnos restantes).\n";
+        std::cout << "(" << u->obterTurnosBuff() - 1 << " turnos restantes).\n";
     }
 }
 

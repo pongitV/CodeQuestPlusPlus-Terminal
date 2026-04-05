@@ -264,11 +264,19 @@ Personagem* Menu::criarPersonagem()
                 addStat("Inteligencia", stats.inteligencia);
                 addStat("Sabedoria", stats.sabedoria);
 
+                listaStats.push_back("");
+                listaStats.push_back("[ HABILIDADE ATIVA ]");
+                listaStats.push_back(" " + temp->obterNomeHabilidadeClasseAtiva());
+                listaStats.push_back(" - " + temp->obterDescricaoHabilidadeClasseAtiva());
+
                 std::vector<std::string> arte = temp->obterAparenciaClasseMenu();
                 
                 int larguraArte = 0;
                 for (const std::string& l : arte) if ((int)l.length() > larguraArte) larguraArte = (int)l.length();
-                int larguraStatsCol = 25, gap = 4;
+                
+                int larguraStatsCol = 25;
+                for (const std::string& s : listaStats) if ((int)s.length() > larguraStatsCol) larguraStatsCol = (int)s.length();
+                int gap = 4;
                 int recuo = (larguraTerminal - (larguraStatsCol + gap + larguraArte)) / 2;
                 if (recuo < 0) recuo = 0;
 

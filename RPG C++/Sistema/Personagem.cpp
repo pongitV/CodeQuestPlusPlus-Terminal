@@ -17,6 +17,14 @@ Personagem::Personagem(std::string nome, RacaBase* r, ClasseBase* c)
     this->arma = nullptr;
     this->escudo = nullptr;
     this->armadura = nullptr;
+    this->ouroRecompensa = 15;
+
+    this->multiplicadorAtual = 1.0;
+    this->estaInviolavel = false;
+    this->turnosBuff = 0;
+    this->recargaHabilidade = false;
+    this->modoAtaqueArea = false;
+    this->pularTurnoInimigo = false;
 
     std::vector<Item*> kit = c->gerarKitInicial();
     for (Item* item : kit) 
