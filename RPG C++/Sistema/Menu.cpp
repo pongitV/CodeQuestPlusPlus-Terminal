@@ -54,7 +54,7 @@ int Menu::obterLarguraTerminal()
     return largura;
 }
 
-void Menu::exibirLogo() 
+void Menu::exibirLogo(const std::string& titulo) 
 {
 #ifdef _WIN32
     // Configura o console para aceitar blocos UTF-8
@@ -96,8 +96,17 @@ void Menu::exibirLogo()
 
     std::cout << "\n";
     
-    // Desenha a linha inferior █
-    std::cout << std::string(larguraConsole, '=') << "\n\n";
+    if (titulo.empty()) 
+    {
+        std::cout << std::string(larguraConsole, '=') << "\n\n";
+    } 
+    else 
+    {
+        std::cout << std::string(larguraConsole, '=') << "\n";
+        int espacos = (larguraConsole - (int)titulo.length()) / 2;
+        std::cout << std::string(espacos > 0 ? espacos : 0, ' ') << titulo << "\n";
+        std::cout << std::string(larguraConsole, '=') << "\n\n";
+    }
 }
 
 void Menu::limparTela() 
@@ -130,11 +139,8 @@ void Menu::digitar(const std::string& texto, int velocidade)
 bool Menu::exibirPreviaLadoALado(const std::string& tipo, const std::string& nome, const std::vector<std::string>& info, const std::vector<std::string>& arte) 
 {
     limparTela();
-    exibirLogo();
+    exibirLogo("PREVIA DA " + tipo + ": " + nome);
     int larguraTerminal = obterLarguraTerminal();
-    std::cout << std::string(larguraTerminal, '-') << "\n";
-    std::cout << " PREVIA DA " << tipo << ": " << nome << "\n";
-    std::cout << std::string(larguraTerminal, '-') << "\n\n";
 
     int larguraArte = 0;
     for (const std::string& l : arte) if ((int)l.length() > larguraArte) larguraArte = (int)l.length();
@@ -180,10 +186,10 @@ Personagem* Menu::criarPersonagem()
         if (etapa == 1) // --- ETAPA 1: NOME ---
         {
             limparTela();
-            exibirLogo();
+            exibirLogo("INTRODUCAO AO RPG");
             std::cout << "\n";
-            digitar(" [NARRACAO]: O reino clama por um novo destino...\n", 40);
-            digitar(" [NARRACAO]: E todas lendas possuem um nome.\n\n", 40);
+            digitar(" [NARRACAO]: O reino clama por um novo destino...\n", 35);
+            digitar(" [NARRACAO]: E todas lendas possuem um nome.\n\n", 35);
             std::cout << " > Escolha o nome do seu personagem (ou '0' para sair): ";
             
             std::cin.ignore(std::cin.rdbuf()->in_avail(), '\n');
@@ -195,10 +201,10 @@ Personagem* Menu::criarPersonagem()
         else if (etapa == 2) // --- ETAPA 2: RACA ---
         {
             limparTela();
-            exibirLogo();
+            exibirLogo("SELECAO DE RACA");
             std::cout << " JOGADOR: " << nome << "\n";
             std::cout << std::string(obterLarguraTerminal(), '-') << "\n";
-            digitar(" [NARRACAO]: Qual sua origem?\n\n", 40);
+            digitar(" [NARRACAO]: Qual sua origem?\n\n", 35);
             
             std::cout << "  [1] Dwarf\n";
             std::cout << "  [2] Elfo\n";
@@ -248,10 +254,10 @@ Personagem* Menu::criarPersonagem()
         else if (etapa == 3) // --- ETAPA 3: CLASSE ---
         {
             limparTela();
-            exibirLogo();
+            exibirLogo("SELECAO DE CLASSE");
             std::cout << " JOGADOR: " << nome << " | RACA: " << racaFinal->obterNomeRaca() << "\n";
             std::cout << std::string(obterLarguraTerminal(), '-') << "\n";
-            digitar(" [NARRACAO]: Qual caminho voce seguira neste mundo?\n\n", 40);
+            digitar(" [NARRACAO]: Qual caminho voce seguira neste mundo?\n\n", 35);
             
             std::cout << "  [1] Arqueiro\n";
             std::cout << "  [2] Bardo\n";
@@ -309,7 +315,7 @@ Personagem* Menu::criarPersonagem()
     }
     Personagem* p = new Personagem(nome, racaFinal, classeFinal);
     std::cout << "\n";
-    digitar(" [SISTEMA]: Personagem criado com sucesso! Iniciando jornada...\n", 40);
+    digitar(" [SISTEMA]: Personagem criado com sucesso! Iniciando jornada...\n", 35);
     esperar();
     return p;
 }
@@ -318,6 +324,7 @@ void Menu::exibirInventario(Personagem* p)
 {
     if (p == nullptr) return;
     limparTela();
+    exibirLogo("INVENTARIO");
     p->obterInventario()->listarItens(p->obterArma(), p->obterEscudo(), p->obterArmadura()); 
 }
 
@@ -329,11 +336,43 @@ void Menu::exibirStatusJogador(Personagem* p)
     std::string escu = (p->obterEscudo()) ? p->obterEscudo()->obterNomeItem() : "Nenhum";
     std::string dura = (p->obterArmadura()) ? p->obterArmadura()->obterNomeItem() : "Trapos";
     
-    std::vector<std::string> corpo = p->obterRaca()->obterAparenciaRaca();
+    double percVida = static_cast<double>(p->obterVida()) / p->obterVidaMaxima();
+    std::vector<std::string> coracao;
+    
+    if (percVida > 0.70) 
+    {
+        coracao = {
+            "   _   _   ",
+            "  / \\_/ \\  ",
+            "  \\     /  ",
+            "   \\___/   "
+        };
+    }
+    else if (percVida > 0.30) 
+    {
+        coracao = {
+            "   _   _   ",
+            "  / \\// \\  ",
+            "  \\  \\ /   ",
+            "   \\___/   "
+        };
+    }
+    else 
+    {
+        coracao = {
+            "  _     _  ",
+            " / \\   / \\ ",
+            " \\     \\_/ ",
+            "  \\___/    "
+        };
+    }
+
     std::cout << std::string(largura, '=') << "\n";
-    std::cout << "| " << corpo[0] << " |  JOGADOR: " << p->obterNome() << " (" << p->obterRaca()->obterNomeRaca() << " / " << p->obterNomeClasse() << ")\n";
-    std::cout << "| " << corpo[1] << " |  HP: " << p->obterVida() << "/" << p->obterVidaMaxima() << " | OURO: " << p->obterInventario()->obterOuro() << "G\n";
-    std::cout << "| " << corpo[2] << " |  EQUIP: " << arma << " | " << escu << " | " << dura << "\n";
+    std::cout << "| " << coracao[0] << " |\n";
+    std::cout << "| " << coracao[1] << " |  JOGADOR: " << p->obterNome() << " (" << p->obterRaca()->obterNomeRaca() << " / " << p->obterNomeClasse() << ")\n";
+    std::cout << "| " << coracao[2] << " |  HP: " << p->obterVida() << "/" << p->obterVidaMaxima() << " | OURO: " << p->obterInventario()->obterOuro() << "G\n";
+    std::cout << "| " << coracao[3] << " |  EQUIP: " << arma << " | " << escu << " | " << dura << "\n";
+    std::cout << "| " << std::string(11, ' ') << " |\n";
     std::cout << std::string(largura, '=') << "\n";
 }
 
@@ -369,5 +408,5 @@ void Menu::exibirHorda(const std::vector<Personagem*>& inimigos)
         }
         std::cout << "\n";
     }
-    std::cout << std::string(larguraTerminal, '-') << "\n";
+    std::cout << std::string(larguraTerminal, '-') << "\n\n";
 }

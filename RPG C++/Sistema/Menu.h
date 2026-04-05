@@ -6,7 +6,7 @@ class Menu
 {
 public:
     static void configurarTelaCheia();
-    static void exibirLogo();
+    static void exibirLogo(const std::string& titulo = "");
     static void limparTela();
     static void esperar();
     static void digitar(const std::string& texto, int velocidade);

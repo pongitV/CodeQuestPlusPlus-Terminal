@@ -31,8 +31,15 @@ void SistemaRPG::iniciarCombate()
 
         while (!acaoConsumiuTurno) 
         {
+            std::string tituloCombate = "EM COMBATE (";
+            for (size_t i = 0; i < inimigos.size(); ++i) {
+                tituloCombate += inimigos[i]->obterNome();
+                if (i < inimigos.size() - 1) tituloCombate += ", ";
+            }
+            tituloCombate += ")";
+
             Menu::limparTela();
-            Menu::exibirLogo();
+            Menu::exibirLogo(tituloCombate);
             Menu::exibirHorda(inimigos);
             Menu::exibirStatusJogador(jogador); 
 
@@ -152,7 +159,7 @@ void SistemaRPG::iniciarCombate()
             case 5: // --- 5. JOGADOR ---
             {
                 Menu::limparTela();
-                std::cout << "========== FICHA DETALHADA DO JOGADOR ==========\n\n";
+                Menu::exibirLogo("FICHA DO JOGADOR");
                 std::cout << " NOME:           " << jogador->obterNome() << "\n";
                 std::cout << " RACA:           " << jogador->obterRaca()->obterNomeRaca() << "\n";
                 std::cout << " CLASSE:         " << jogador->obterNomeClasse() << "\n";

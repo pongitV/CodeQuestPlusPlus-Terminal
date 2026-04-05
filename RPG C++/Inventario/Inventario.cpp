@@ -35,62 +35,52 @@ Inventario::~Inventario()
 void Inventario::listarItens(Item* armaEquipada, Item* escudoEquipado, Item* armaduraEquipada) const 
 {
     int largura = obterLargura();
-    std::string titulo = "INVENTARIO";
-    int espacos = (largura - (int)titulo.length()) / 2;
-
-    // Título horizontal dinâmico
-    std::cout << std::string(largura, '=') << "\n";
-    std::cout << std::string(espacos > 0 ? espacos : 0, ' ') << titulo << "\n";
-    std::cout << std::string(largura, '=') << "\n";
     
     std::cout << " DINHEIRO: " << ouro << " moedas\n";
-    
-    // 1. ARSENAL (A)
-    std::cout << "\n [ EQUIPAMENTO ]" << std::endl;
-    if (armaEquipada) std::cout << "  [1A] ARMA:    " << armaEquipada->obterNomeItem() << std::endl;
-    if (escudoEquipado) std::cout << "  [2A] ESCUDO:  " << escudoEquipado->obterNomeItem() << std::endl;
-    if (armaduraEquipada) std::cout << "  [3A] ARMADURA: " << armaduraEquipada->obterNomeItem() << std::endl;
 
-    // 2. EQUIPAMENTOS (E)
-    std::cout << "\n [ ARSENAL ]" << std::endl;
-    int contadorE = 1;
-    bool temEquip = false;
-    for (Item* item : itens)
-    {
+    // Pre-processamento: Categorizar itens em uma unica passada (O(N))
+    std::vector<Item*> equipamentosOutros;
+    std::map<std::string, int> consumiveisMap;
+    std::vector<Item*> missoes;
+
+    for (Item* item : itens) {
         TipoEquipamento tipo = item->obterTipo();
-        if ((tipo == TipoEquipamento::ARMA || tipo == TipoEquipamento::ESCUDO || tipo == TipoEquipamento::ARMADURA) 
-            && item != armaEquipada && item != escudoEquipado && item != armaduraEquipada)
-        {
-            std::cout << "  [" << contadorE++ << "E] " << item->obterNomeItem() << " [" << item->raridadeParaString() << "]\n";
-            temEquip = true;
+        if (tipo == TipoEquipamento::CONSUMIVEL) {
+            consumiveisMap[item->obterNomeItem()]++;
+        } else if (tipo == TipoEquipamento::MISSAO) {
+            missoes.push_back(item);
+        } else if ((tipo == TipoEquipamento::ARMA || tipo == TipoEquipamento::ESCUDO || tipo == TipoEquipamento::ARMADURA) 
+                   && item != armaEquipada && item != escudoEquipado && item != armaduraEquipada) {
+            equipamentosOutros.push_back(item);
         }
     }
-    if (!temEquip) std::cout << "  (Vazio)\n";
+    
+    // 1. ARSENAL (A)
+    std::cout << "\n [ EQUIPAMENTO ]\n";
+    if (armaEquipada) std::cout << "  [1A] ARMA:    " << armaEquipada->obterNomeItem() << "\n";
+    if (escudoEquipado) std::cout << "  [2A] ESCUDO:  " << escudoEquipado->obterNomeItem() << "\n";
+    if (armaduraEquipada) std::cout << "  [3A] ARMADURA: " << armaduraEquipada->obterNomeItem() << "\n";
+
+    // 2. EQUIPAMENTOS (E)
+    std::cout << "\n [ ARSENAL ]\n";
+    if (equipamentosOutros.empty()) std::cout << "  (Vazio)\n";
+    for (size_t i = 0; i < equipamentosOutros.size(); i++)
+        std::cout << "  [" << i + 1 << "E] " << equipamentosOutros[i]->obterNomeItem() << " [" << equipamentosOutros[i]->raridadeParaString() << "]\n";
 
     // 3. CONSUMIVEIS (C)
-    std::cout << "\n [ CONSUMIVEIS ]" << std::endl;
-    std::map<std::string, int> contagem;
-    for (Item* item : itens) 
-        if (item->obterTipo() == TipoEquipamento::CONSUMIVEL) contagem[item->obterNomeItem()]++;
-
-    if (contagem.empty()) std::cout << "  (Vazio)\n";
+    std::cout << "\n [ CONSUMIVEIS ]\n";
+    if (consumiveisMap.empty()) std::cout << "  (Vazio)\n";
     int contadorC = 1;
-    for (auto const& [nome, qtd] : contagem) 
-        std::cout << "  [" << contadorC++ << "C] " << qtd << "x " << nome << std::endl;
+    for (auto const& [nome, qtd] : consumiveisMap) 
+        std::cout << "  [" << contadorC++ << "C] " << qtd << "x " << nome << "\n";
 
     // 4. ITENS DE MISSAO (M)
-    std::cout << "\n [ ITENS DE MISSAO ]" << std::endl;
-    int contadorM = 1;
-    bool temMissao = false;
-    for (Item* item : itens)
-        if (item->obterTipo() == TipoEquipamento::MISSAO)
-        {
-            std::cout << "  [" << contadorM++ << "M] " << item->obterNomeItem() << std::endl;
-            temMissao = true;
-        }
-    if (!temMissao) std::cout << "  (Vazio)\n";
-    
-    std::cout << std::string(largura, '=') << std::endl;
+    std::cout << "\n [ ITENS DE MISSAO ]\n";
+    if (missoes.empty()) std::cout << "  (Vazio)\n";
+    for (size_t i = 0; i < missoes.size(); i++)
+        std::cout << "  [" << i + 1 << "M] " << missoes[i]->obterNomeItem() << "\n";
+        
+    std::cout << std::string(largura, '=') << "\n";
 }
 
 Item* Inventario::buscarItemPorCodigo(std::string codigo, Item* a, Item* e, Item* d)
@@ -102,7 +92,7 @@ Item* Inventario::buscarItemPorCodigo(std::string codigo, Item* a, Item* e, Item
     
     for(char c : numParte) if(!isdigit(c)) return nullptr;
     int indiceAlvo = std::stoi(numParte);
-    int contador = 1;
+    if (indiceAlvo <= 0) return nullptr;
 
     if (categoria == 'A')
     {
@@ -110,16 +100,37 @@ Item* Inventario::buscarItemPorCodigo(std::string codigo, Item* a, Item* e, Item
         if (indiceAlvo == 2) return e;
         if (indiceAlvo == 3) return d;
     }
+    else if (categoria == 'E')
+    {
+        std::vector<Item*> equipamentosOutros;
+        for (Item* item : itens) {
+            TipoEquipamento tipo = item->obterTipo();
+            if ((tipo == TipoEquipamento::ARMA || tipo == TipoEquipamento::ESCUDO || tipo == TipoEquipamento::ARMADURA) 
+                && item != a && item != e && item != d) {
+                equipamentosOutros.push_back(item);
+            }
+        }
+        if (indiceAlvo <= static_cast<int>(equipamentosOutros.size())) return equipamentosOutros[indiceAlvo - 1];
+    }
     else if (categoria == 'C')
     {
         std::map<std::string, int> contagem;
         for (Item* item : itens) 
             if (item->obterTipo() == TipoEquipamento::CONSUMIVEL) contagem[item->obterNomeItem()]++;
 
+        int contador = 1;
         for (auto const& [nome, qtd] : contagem)
-            if (contador++ == indiceAlvo)
+            if (contador++ == indiceAlvo) {
                 for (Item* item : itens) if (item->obterNomeItem() == nome) return item;
+            }
     }
+    else if (categoria == 'M')
+    {
+        std::vector<Item*> missoes;
+        for (Item* item : itens) if (item->obterTipo() == TipoEquipamento::MISSAO) missoes.push_back(item);
+        if (indiceAlvo <= static_cast<int>(missoes.size())) return missoes[indiceAlvo - 1];
+    }
+    
     return nullptr;
 }
 
