@@ -18,7 +18,7 @@
 #include "../Inventario/Item.h"
 
 SistemaRPG::SistemaRPG(Personagem* jogador, std::vector<Personagem*> inimigos) 
-    : jogador(jogador), inimigos(inimigos), contadorTurno(1), ouroObtido(0), danoCausadoTotal(0), danoRecebidoTotal(0)
+    : jogador(jogador), inimigos(inimigos), contadorTurno(1), ouroObtido(0), xpObtido(0), danoCausadoTotal(0), danoRecebidoTotal(0)
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
@@ -110,9 +110,12 @@ void SistemaRPG::iniciarCombate()
                     if ((*it)->obterVida() <= 0) 
                     {
                         int ouro = (*it)->obterOuroRecompensa();
+                        int xp = (*it)->obterXpRecompensa();
                         jogador->ganharOuro(ouro);
+                        jogador->ganharXp(xp);
                         ouroObtido += ouro;
-                        std::cout << "\n[!] " << (*it)->obterNome() << " derrotado! +" << ouro << "G\n";
+                        xpObtido += xp;
+                        std::cout << "\n[!] " << (*it)->obterNome() << " derrotado! +" << ouro << "G | +" << xp << " XP\n";
                         delete *it;
                         it = inimigos.erase(it);
                         Menu::esperar();
@@ -201,7 +204,9 @@ void SistemaRPG::iniciarCombate()
                 do 
                 {
                     Menu::exibirFichaJogador(jogador);
-                    std::string msg = "[0] VOLTAR (combate) ou [1] ALTERAR PARRY: ";
+                    std::string msg = "[0] VOLTAR (combate) | [1] ALTERAR PARRY";
+                    if (jogador->podeSubirDeNivel()) msg += " | [2] SUBIR DE NIVEL";
+                    msg += ": ";
                     int largura = Menu::obterLarguraTerminal();
                     int esp = (largura - (int)msg.length()) / 2;
                     std::cout << "\n" << std::string(esp > 0 ? esp : 0, ' ') << msg;
@@ -209,6 +214,17 @@ void SistemaRPG::iniciarCombate()
 
                     if (opcao == "1") {
                         jogador->definirParryAtivado(!jogador->obterParryAtivado());
+                    } else if (opcao == "2" && jogador->podeSubirDeNivel()) {
+                        std::string attr;
+                        std::cout << "\nDigite o atributo para melhorar (Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria): ";
+                        std::cin >> attr;
+                        if (jogador->subirDeNivel(attr)) {
+                            std::cout << "[SISTEMA]: Nivel subiu! " << attr << " melhorado.\n";
+                            Menu::esperar();
+                        } else {
+                            std::cout << "[ERRO]: Atributo invalido.\n";
+                            Menu::esperar();
+                        }
                     }
                 } while (opcao != "0");
                 break;
@@ -470,12 +486,12 @@ bool SistemaRPG::verificarVitoria()
 {
     if (inimigos.empty()) 
     { 
-        Menu::exibirTelaVitoria(jogador, ouroObtido, danoCausadoTotal, danoRecebidoTotal);
+        Menu::exibirTelaVitoria(jogador, ouroObtido, xpObtido, danoCausadoTotal, danoRecebidoTotal);
         return true; 
     }
     if (jogador->obterVida() <= 0) 
     { 
-        Menu::exibirTelaDerrota(jogador, ouroObtido, danoCausadoTotal, danoRecebidoTotal); 
+        Menu::exibirTelaDerrota(jogador, ouroObtido, xpObtido, danoCausadoTotal, danoRecebidoTotal); 
         return true; 
     }
     return false;

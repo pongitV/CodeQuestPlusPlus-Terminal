@@ -402,6 +402,8 @@ void Menu::exibirFichaJogador(Personagem* jogador)
         "NOME:           " + jogador->obterNome(),
         "RACA:           " + jogador->obterRaca()->obterNomeRaca(),
         "CLASSE:         " + jogador->obterNomeClasse(),
+        "NIVEL:          " + std::to_string(jogador->obterNivel()),
+        "XP:             " + std::to_string(jogador->obterXpAtual()) + " / " + std::to_string(jogador->obterXpParaSubir()),
         "DIFICULDADE:    " + std::string(jogador->obterDificuldade() == 1 ? "Facil" : (jogador->obterDificuldade() == 2 ? "Normal" : "Dificil")),
         "[PARRY]:        " + std::string(jogador->obterParryAtivado() ? "Ligado" : "Desligado"),
         "OURO:           " + std::to_string(jogador->obterInventario()->obterOuro()) + "G",
@@ -491,11 +493,21 @@ void Menu::exibirStatusJogador(Personagem* p)
             "  \\___/    "
         };
     }
+    
+    std::string barraXp = "[";
+    int tamanhoBarra = 10;
+    int preenchido = (p->obterXpAtual() * tamanhoBarra) / p->obterXpParaSubir();
+    if (preenchido > tamanhoBarra) preenchido = tamanhoBarra;
+    for (int i = 0; i < tamanhoBarra; ++i) {
+        if (i < preenchido) barraXp += "#";
+        else barraXp += "-";
+    }
+    barraXp += "] " + std::to_string(p->obterXpAtual()) + "/" + std::to_string(p->obterXpParaSubir());
 
     std::vector<std::string> linhas = {
         "| " + coracao[0] + " |",
-        "| " + coracao[1] + " |  JOGADOR: " + p->obterNome() + " (" + p->obterRaca()->obterNomeRaca() + " / " + p->obterNomeClasse() + ")",
-        "| " + coracao[2] + " |  HP: " + std::to_string(p->obterVida()) + "/" + std::to_string(p->obterVidaMaxima()) + " | OURO: " + std::to_string(p->obterInventario()->obterOuro()) + "G",
+        "| " + coracao[1] + " |  JOGADOR: " + p->obterNome() + " (" + p->obterRaca()->obterNomeRaca() + " / " + p->obterNomeClasse() + ") | NIVEL: " + std::to_string(p->obterNivel()),
+        "| " + coracao[2] + " |  HP: " + std::to_string(p->obterVida()) + "/" + std::to_string(p->obterVidaMaxima()) + " | OURO: " + std::to_string(p->obterInventario()->obterOuro()) + "G | XP: " + barraXp,
         "| " + coracao[3] + " |  EQUIP: " + arma + " | " + escu + " | " + dura,
         "| " + std::string(11, ' ') + " |"
     };
@@ -550,7 +562,7 @@ void Menu::exibirHorda(const std::vector<Personagem*>& inimigos)
     std::cout << std::string(larguraTerminal, '-') << "\n\n";
 }
 
-void Menu::exibirTelaVitoria(Personagem* p, int ouro, int danoCausado, int danoRecebido)
+void Menu::exibirTelaVitoria(Personagem* p, int ouro, int xp, int danoCausado, int danoRecebido)
 {
     limparTela();
     exibirLogo("VITORIA");
@@ -563,9 +575,11 @@ void Menu::exibirTelaVitoria(Personagem* p, int ouro, int danoCausado, int danoR
         "CLASSE:         " + p->obterNomeClasse(),
         "HP RESTANTE:    " + std::to_string(p->obterVida()) + "/" + std::to_string(p->obterVidaMaxima()),
         "OURO TOTAL:     " + std::to_string(p->obterInventario()->obterOuro()) + "G",
+        "NIVEL:          " + std::to_string(p->obterNivel()) + " (XP: " + std::to_string(p->obterXpAtual()) + "/" + std::to_string(p->obterXpParaSubir()) + ")",
         "",
         "--- ESTATISTICAS DA BATALHA ---",
         "OURO OBTIDO:   +" + std::to_string(ouro) + "G",
+        "XP OBTIDO:     +" + std::to_string(xp) + " XP",
         "DANO CAUSADO:   " + std::to_string(danoCausado),
         "DANO RECEBIDO:  " + std::to_string(danoRecebido)
     };
@@ -588,7 +602,7 @@ void Menu::exibirTelaVitoria(Personagem* p, int ouro, int danoCausado, int danoR
     esperar();
 }
 
-void Menu::exibirTelaDerrota(Personagem* p, int ouro, int danoCausado, int danoRecebido)
+void Menu::exibirTelaDerrota(Personagem* p, int ouro, int xp, int danoCausado, int danoRecebido)
 {
     limparTela();
     exibirLogo("DERROTA");
@@ -601,9 +615,11 @@ void Menu::exibirTelaDerrota(Personagem* p, int ouro, int danoCausado, int danoR
         "CLASSE:         " + p->obterNomeClasse(),
         "HP RESTANTE:    " + std::to_string(p->obterVida()) + "/" + std::to_string(p->obterVidaMaxima()),
         "OURO TOTAL:     " + std::to_string(p->obterInventario()->obterOuro()) + "G",
+        "NIVEL:          " + std::to_string(p->obterNivel()) + " (XP: " + std::to_string(p->obterXpAtual()) + "/" + std::to_string(p->obterXpParaSubir()) + ")",
         "",
         "--- ESTATISTICAS DA BATALHA ---",
         "OURO OBTIDO:   +" + std::to_string(ouro) + "G",
+        "XP OBTIDO:     +" + std::to_string(xp) + " XP",
         "DANO CAUSADO:   " + std::to_string(danoCausado),
         "DANO RECEBIDO:  " + std::to_string(danoRecebido)
     };

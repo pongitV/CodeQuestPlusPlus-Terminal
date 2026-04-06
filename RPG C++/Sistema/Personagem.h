@@ -58,6 +58,11 @@ protected:
     Item* escudo;   
     Item* armadura;
     int ouroRecompensa;
+    
+    int nivel;
+    int xpAtual;
+    int xpParaSubir;
+    int xpRecompensa;
 
 public:
     Personagem(std::string nome, RacaBase* r, ClasseBase* c);
@@ -78,6 +83,13 @@ public:
     int obterConstituicao() const { return statsFinais.constituicao; }
     int obterInteligencia() const { return statsFinais.inteligencia; }
     int obterSabedoria() const { return statsFinais.sabedoria; }
+    
+    int obterNivel() const { return nivel; }
+    int obterXpAtual() const { return xpAtual; }
+    int obterXpParaSubir() const { return xpParaSubir; }
+    void ganharXp(int valor) { xpAtual += valor; }
+    bool podeSubirDeNivel() const { return xpAtual >= xpParaSubir; }
+    bool subirDeNivel(std::string atributo);
 
     RacaBase* obterRaca() const;
     ClasseBase* obterClasse() const;
@@ -91,6 +103,8 @@ public:
     void definirOuroRecompensa(int valor) { ouroRecompensa = valor; }
     int obterOuroRecompensa() const { return ouroRecompensa; }
     void ganharOuro(int valor) { mochila->adicionarOuro(valor); }
+    void definirXpRecompensa(int valor) { xpRecompensa = valor; }
+    int obterXpRecompensa() const { return xpRecompensa; }
 
     void definirMultiplicador(double m) { multiplicadorAtual = m; }
     double obterMultiplicador() const { return multiplicadorAtual; }

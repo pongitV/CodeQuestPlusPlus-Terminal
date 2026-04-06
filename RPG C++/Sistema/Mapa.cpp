@@ -147,13 +147,26 @@ void Mapa::iniciarExploracao()
             do 
             {
                 Menu::exibirFichaJogador(jogador);
-                std::string msg = "[0] VOLTAR (exploracao) | [1] LIGAR/DESLIGAR PARRY: ";
+                std::string msg = "[0] VOLTAR (exploracao) | [1] LIGAR/DESLIGAR PARRY";
+                if (jogador->podeSubirDeNivel()) msg += " | [2] SUBIR DE NIVEL";
+                msg += ": ";
                 int esp = (larguraConsole - (int)msg.length()) / 2;
                 std::cout << "\n" << std::string(esp > 0 ? esp : 0, ' ') << msg;
                 std::cin >> opcao;
 
                 if (opcao == "1") {
                     jogador->definirParryAtivado(!jogador->obterParryAtivado());
+                } else if (opcao == "2" && jogador->podeSubirDeNivel()) {
+                    std::string attr;
+                    std::cout << "\nDigite o atributo para melhorar (Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria): ";
+                    std::cin >> attr;
+                    if (jogador->subirDeNivel(attr)) {
+                        std::cout << "[SISTEMA]: Nivel subiu! " << attr << " melhorado.\n";
+                        Menu::esperar();
+                    } else {
+                        std::cout << "[ERRO]: Atributo invalido.\n";
+                        Menu::esperar();
+                    }
                 }
             } while (opcao != "0");
 

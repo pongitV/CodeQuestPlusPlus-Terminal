@@ -37,7 +37,7 @@ class RacaGoblin : public RacaBase
 {
 public:
     std::string obterNomeRaca() const override { return "Goblin"; }
-    Atributos obterAtributosRaca() const override { return { -50, 10, 10, 3, 0, -10, -8 }; }
+    Atributos obterAtributosRaca() const override { return { -80, 10, 10, 3, 0, -10, -8 }; }
     
     std::string obterNomeHabilidadeRaca() const override { return "Nenhuma"; }
     std::string obterDescricaoHabilidadeRaca() const override { return "Monstros nao possuem passivas"; }
@@ -80,25 +80,6 @@ public:
     }
 };
 
-class RacaOrkMiniBoss : public RacaOrk
-{
-public:
-    std::string obterNomeRaca() const override { return "Ork (Mini-Boss)"; }
-    Atributos obterAtributosRaca() const override 
-    {
-        Atributos base = RacaOrk::obterAtributosRaca();
-        return { 
-            base.vida * 2, 
-            base.forca * 2, 
-            base.destreza * 2, 
-            base.resistencia * 2, 
-            base.constituicao * 2, 
-            base.inteligencia * 2, 
-            base.sabedoria * 2 
-        };
-    }
-};
-
 Personagem* GeradorInimigos::gerarGoblin()
 {
     return new Personagem("Goblin", new RacaGoblin(), new ClasseInimigoPadrao());
@@ -117,7 +98,17 @@ std::vector<Personagem*> GeradorInimigos::gerarHordaGoblins(int quantidade)
     return horda;
 }
 
+class RacaOrkMiniBoss : public RacaOrk
+{
+public:
+    std::string obterNomeRaca() const override { return "Ork (Mini-Boss)"; }
+    Atributos obterAtributosRaca() const override { return { 50, 25, 5, 20, 10, 0, 3 }; }
+};
+
 Personagem* GeradorInimigos::gerarOrk()
 {
-    return new Personagem("Ork", new RacaOrkMiniBoss(), new ClasseInimigoPadrao());
+    Personagem* p = new Personagem("Ork", new RacaOrkMiniBoss(), new ClasseInimigoPadrao());
+    p->definirXpRecompensa(120);
+    p->definirOuroRecompensa(50);
+    return p;
 }

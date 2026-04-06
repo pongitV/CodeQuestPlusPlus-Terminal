@@ -1,4 +1,6 @@
 #include <iostream>
+#include <algorithm>
+#include <cctype>
 
 #include "Personagem.h"
 #include "../Raças/RacaBase.h"
@@ -16,6 +18,11 @@ Personagem::Personagem(std::string nome, RacaBase* r, ClasseBase* c)
     this->escudo = nullptr;
     this->armadura = nullptr;
     this->ouroRecompensa = 15;
+    
+    this->nivel = 1;
+    this->xpAtual = 0;
+    this->xpParaSubir = 100;
+    this->xpRecompensa = 40;
 
     this->multiplicadorAtual = 1.0;
     this->estaDefendendo = false;
@@ -45,6 +52,35 @@ Personagem::~Personagem()
     delete classe;
     delete mochila;
 }  
+
+bool Personagem::subirDeNivel(std::string atributo) 
+{
+    if (xpAtual < xpParaSubir) return false;
+
+    std::transform(atributo.begin(), atributo.end(), atributo.begin(),
+                   [](unsigned char c){ return std::tolower(c); });
+
+    bool upou = false;
+    if (atributo == "vida") {
+        statsFinais.vida += 20;
+        vidaAtual += 20;
+        upou = true;
+    }
+    else if (atributo == "forca" || atributo == "força") { statsFinais.forca += 5; upou = true; }
+    else if (atributo == "destreza") { statsFinais.destreza += 5; upou = true; }
+    else if (atributo == "resistencia" || atributo == "resistência") { statsFinais.resistencia += 5; upou = true; }
+    else if (atributo == "constituicao" || atributo == "constituição") { statsFinais.constituicao += 5; upou = true; }
+    else if (atributo == "inteligencia" || atributo == "inteligência") { statsFinais.inteligencia += 5; upou = true; }
+    else if (atributo == "sabedoria") { statsFinais.sabedoria += 5; upou = true; }
+
+    if (upou) {
+        xpAtual -= xpParaSubir;
+        xpParaSubir = static_cast<int>(xpParaSubir * 1.5);
+        nivel++;
+        return true;
+    }
+    return false;
+}
 
 void Personagem::calcularAtributos() 
 {

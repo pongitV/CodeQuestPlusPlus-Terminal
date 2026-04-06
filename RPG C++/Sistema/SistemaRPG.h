@@ -10,6 +10,7 @@ private:
     std::vector<Personagem*> inimigos;
     int contadorTurno;
     int ouroObtido;
+    int xpObtido;
     int danoCausadoTotal;
     int danoRecebidoTotal;
 
