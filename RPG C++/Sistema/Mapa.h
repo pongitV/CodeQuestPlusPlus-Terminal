@@ -11,6 +11,17 @@ private:
     int jogadorY;
     Personagem* jogador;
 
+    // Variaveis para gerenciar sub-mapas
+    std::vector<std::string> mapaGeralSalvo;
+    int anteriorX;
+    int anteriorY;
+    bool emSubMapa;
+    std::vector<std::string> mapaCavernaSalvo;
+    bool cavernaIniciada;
+    std::vector<std::string> mapaLojaSalvo;
+    bool lojaIniciada;
+
+
 public:
     Mapa(Personagem* p);
     
