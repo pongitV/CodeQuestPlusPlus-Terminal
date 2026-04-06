@@ -63,7 +63,7 @@ Atributos RacaOrk::obterAtributosRaca() const
 }
 
 std::string RacaOrk::obterNomeHabilidadeRaca() const { return "Furia cega"; }
-std::string RacaOrk::obterDescricaoHabilidadeRaca() const { return "Dano extra baseado na vida perdida"; }
+std::string RacaOrk::obterDescricaoHabilidadeRaca() const { return "Dano extra baseado na porcentagem de vida perdida"; }
 
 int RacaOrk::processarDanoOfensivo(int danoBase, Personagem* atacante) 
 {

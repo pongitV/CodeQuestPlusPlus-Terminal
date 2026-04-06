@@ -80,6 +80,4 @@ void ClasseMago::usarHabilidadeClasseAtiva(Personagem* u, std::vector<Personagem
 }
 
 std::string ClasseMago::obterNomeHabilidadeClasseAtiva() const { return "Estrategia arcana"; }
-std::string ClasseMago::obterDescricaoHabilidadeClasseAtiva() const { 
-    return "Alterna entre ataque em area ou alvo unico (não gasta seu turno)"; 
-}
+std::string ClasseMago::obterDescricaoHabilidadeClasseAtiva() const { return "Alterna entre ataque em area ou alvo unico (não gasta seu turno)"; }

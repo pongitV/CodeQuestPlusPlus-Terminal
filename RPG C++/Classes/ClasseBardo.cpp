@@ -94,6 +94,4 @@ void ClasseBardo::usarHabilidadeClasseAtiva(Personagem* u, std::vector<Personage
 }
 
 std::string ClasseBardo::obterNomeHabilidadeClasseAtiva() const { return "Flashing lights"; }
-std::string ClasseBardo::obterDescricaoHabilidadeClasseAtiva() const { 
-    return "Cura 30% da vida perdida e pula o turno do inimigo. Recarga: 1 turno."; 
-}
+std::string ClasseBardo::obterDescricaoHabilidadeClasseAtiva() const { return "Cura 30% da vida perdida e pula o turno do inimigo. Recarga: 1 turno."; }

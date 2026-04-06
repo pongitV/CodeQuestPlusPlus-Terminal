@@ -93,6 +93,4 @@ void ClasseGuerreiro::usarHabilidadeClasseAtiva(Personagem* u, std::vector<Perso
 }
 
 std::string ClasseGuerreiro::obterNomeHabilidadeClasseAtiva() const { return "Determinacao no combate"; }
-std::string ClasseGuerreiro::obterDescricaoHabilidadeClasseAtiva() const { 
-    return "Gasta seu turno para aumentar seus atributos em 1.5x por 2 turnos."; 
-}
+std::string ClasseGuerreiro::obterDescricaoHabilidadeClasseAtiva() const { return "Gasta seu turno para aumentar seus atributos em 1.5x por 2 turnos."; }

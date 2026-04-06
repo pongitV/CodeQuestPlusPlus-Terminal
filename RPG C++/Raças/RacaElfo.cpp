@@ -62,7 +62,7 @@ Atributos RacaElfo::obterAtributosRaca() const
 }
 
 std::string RacaElfo::obterNomeHabilidadeRaca() const { return "Agil e preciso"; }
-std::string RacaElfo::obterDescricaoHabilidadeRaca() const { return "33% chance de causar 1.5x de dano"; }
+std::string RacaElfo::obterDescricaoHabilidadeRaca() const { return "Possui 33% chance de causar 1.5x de dano em cada ataque"; }
 
 int RacaElfo::processarDanoOfensivo(int danoBase, Personagem* atacante) 
 {

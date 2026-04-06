@@ -74,7 +74,8 @@ std::vector<Item*> ClasseArqueiro::gerarKitInicial() const
 }
 
 void ClasseArqueiro::usarHabilidadeClasseAtiva(Personagem* u, std::vector<Personagem*>& inimigos) {
-    if (u->obterRecarga()) {
+    if (u->obterRecarga()) 
+    {
         std::cout << "[SISTEMA]: Habilidade em recarga\n";
         return;
     }
@@ -84,6 +85,4 @@ void ClasseArqueiro::usarHabilidadeClasseAtiva(Personagem* u, std::vector<Person
 }
 
 std::string ClasseArqueiro::obterNomeHabilidadeClasseAtiva() const { return "Retirada com pontaria"; }
-std::string ClasseArqueiro::obterDescricaoHabilidadeClasseAtiva() const { 
-    return "Se afasta durante um turno, no proximo turno causa 2x dano"; 
-}
+std::string ClasseArqueiro::obterDescricaoHabilidadeClasseAtiva() const { return "Se afasta durante um turno, no proximo turno causa 2x dano"; }

@@ -62,7 +62,7 @@ Atributos RacaDwarf::obterAtributosRaca() const
 }
 
 std::string RacaDwarf::obterNomeHabilidadeRaca() const { return "Forjado com determinacao"; }
-std::string RacaDwarf::obterDescricaoHabilidadeRaca() const { return "Escudos tem o dobro de durabilidade"; }
+std::string RacaDwarf::obterDescricaoHabilidadeRaca() const { return "Escudos possuem o dobro de durabilidade"; }
 
 int RacaDwarf::processarDanoDefensivo(int danoFinal, Personagem* defensor) 
 {
