@@ -8,6 +8,8 @@
 #endif
 
 #include "Sistema/Menu.h"
+#include "Sistema/Personagem.h"
+#include "Sistema/Mapa.h"
 #include "Sistema/SistemaRPG.h"
 #include "Sistema/GeradorInimigos.h"
 
@@ -44,13 +46,10 @@ int main()
     Menu::limparTela();
 
     // 3. Inicia o fluxo do jogo
-    Personagem* heroi = Menu::criarPersonagem();
-    
-    std::vector<Personagem*> horda = GeradorInimigos::gerarHordaGoblins(3);
-    SistemaRPG jogo(heroi, horda);
-    
-    jogo.iniciarCombate();
+    Personagem* jogador = Menu::criarPersonagem();
+    Mapa mapaDoJogo(jogador);
+    mapaDoJogo.iniciarExploracao();
 
-    delete heroi;
+    delete jogador;
     return 0;
 }
