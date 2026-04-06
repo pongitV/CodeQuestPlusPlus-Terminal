@@ -9,6 +9,7 @@ class GeradorInimigos
 {
 public:
     static Personagem* gerarGoblin();
+    static Personagem* gerarOrk();
     
     static std::vector<std::string> obterGoblinASCII();
     static std::vector<Personagem*> gerarHordaGoblins(int quantidade);

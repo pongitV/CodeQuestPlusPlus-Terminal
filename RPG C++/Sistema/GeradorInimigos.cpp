@@ -3,6 +3,7 @@
 
 #include "GeradorInimigos.h"
 #include "../Raças/RacaBase.h"
+#include "../Raças/RacaOrk.h"
 #include "../Classes/ClasseBase.h"
 #include "../Inventario/Item.h"
 
@@ -36,7 +37,7 @@ class RacaGoblin : public RacaBase
 {
 public:
     std::string obterNomeRaca() const override { return "Goblin"; }
-    Atributos obterAtributosRaca() const override { return { -50, 6, 10, 3, 0, -10, -7 }; }
+    Atributos obterAtributosRaca() const override { return { -50, 10, 10, 3, 0, -10, -8 }; }
     
     std::string obterNomeHabilidadeRaca() const override { return "Nenhuma"; }
     std::string obterDescricaoHabilidadeRaca() const override { return "Monstros nao possuem passivas"; }
@@ -79,6 +80,25 @@ public:
     }
 };
 
+class RacaOrkMiniBoss : public RacaOrk
+{
+public:
+    std::string obterNomeRaca() const override { return "Ork (Mini-Boss)"; }
+    Atributos obterAtributosRaca() const override 
+    {
+        Atributos base = RacaOrk::obterAtributosRaca();
+        return { 
+            base.vida * 2, 
+            base.forca * 2, 
+            base.destreza * 2, 
+            base.resistencia * 2, 
+            base.constituicao * 2, 
+            base.inteligencia * 2, 
+            base.sabedoria * 2 
+        };
+    }
+};
+
 Personagem* GeradorInimigos::gerarGoblin()
 {
     return new Personagem("Goblin", new RacaGoblin(), new ClasseInimigoPadrao());
@@ -95,4 +115,9 @@ std::vector<Personagem*> GeradorInimigos::gerarHordaGoblins(int quantidade)
     std::vector<Personagem*> horda;
     for (int i = 0; i < quantidade; i++) horda.push_back(gerarGoblin());
     return horda;
+}
+
+Personagem* GeradorInimigos::gerarOrk()
+{
+    return new Personagem("Ork", new RacaOrkMiniBoss(), new ClasseInimigoPadrao());
 }

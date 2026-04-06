@@ -7,19 +7,31 @@
 #include "Menu.h"
 #include "SistemaRPG.h"
 #include "GeradorInimigos.h"
+#include "../Inventario/Item.h"
+#include "../Raças/RacaBase.h"
+#include "../Classes/ClasseBase.h"
 
 Mapa::Mapa(Personagem* p) : jogador(p), jogadorX(2), jogadorY(2) 
 {
     layout = {
-        "####################",
-        "#..................#",
-        "#.###..............#",
-        "#...#.......~......#",
-        "#...#......~~~.....#",
-        "#..........~......M#",
-        "#######............#",
-        "#..................#",
-        "####################"
+        "################################################################################",
+        "#........................................................##...................##",
+        "#.........###............................................##...................##",
+        "#.........#L#...[ VILA ].................................##.........O.........##",
+        "#.........###............................................##...................##",
+        "#.........................................................###..............#####",
+        "#..........................G................................#.............######",
+        "#.........................................................................######",
+        "#.................................~~~~~~~~~~~............................#######",
+        "####............................~~~~~~~~~~~~~~~~........................########",
+        "#####.........................~~~~~~~~~~~~~~~~~~~~......................########",
+        "##...........................~~~~~~~~~~~~~~~~~~~~~~...........G..........#######",
+        "##...............................~~~~~~~~~~~~~~........................#########",
+        "##................................~~~~~~~~~~~~.........................#########",
+        "##.....................................................................#########",
+        "##........G............................................................#########",
+        "##.....................................................................#########",
+        "################################################################################"
     };
 }
 
@@ -51,7 +63,7 @@ void Mapa::iniciarExploracao()
         int espacosMapa = (larguraConsole - larguraMapa) / 2;
         std::string margemMapa(espacosMapa > 0 ? espacosMapa : 0, ' ');
 
-        std::string controles = "Use W, A, S, D para mover. Pressione 'Q' para sair.";
+        std::string controles = "W,A,S,D: Mover | I: Inventario | C: Ficha | Q: Sair";
         int espacosControles = (larguraConsole - (int)controles.length()) / 2;
         std::string margemControles(espacosControles > 0 ? espacosControles : 0, ' ');
 
@@ -85,11 +97,71 @@ void Mapa::iniciarExploracao()
         if (tecla == 'd' || tecla == 'D' || tecla == 77) proximoX++; // 77 = Seta direita
         if (tecla == 'q' || tecla == 'Q') { jogando = false; continue; }
 
+        if (tecla == 'i' || tecla == 'I') 
+        {
+            std::string codigo;
+            do 
+            {
+                Menu::exibirInventario(jogador);
+                std::cout << "\nDigite o codigo do item (ex: 1C) ou '0' para voltar: ";
+                std::cin >> codigo;
+    
+                if (codigo != "0")
+                {
+                    Item* item = jogador->obterInventario()->buscarItemPorCodigo(
+                        codigo, jogador->obterArma(), jogador->obterEscudo(), jogador->obterArmadura()
+                    );
+    
+                    if (item && dynamic_cast<PocaoCura*>(item))
+                    {
+                        std::string nomeItem = item->obterNomeItem(); 
+                        int cura = static_cast<int>(jogador->obterVidaMaxima() * 0.30);
+                        
+                        jogador->modificarVida(cura); 
+                        jogador->obterInventario()->removerPorNome(nomeItem);
+                        
+                        std::cout << "\n[SISTEMA]: " << nomeItem << " usada! +" << cura << " HP.\n";
+                        Menu::esperar();
+                    }
+                    else if (item)
+                    {
+                        std::cout << "\n[SISTEMA]: Este item nao pode ser usado fora de combate!\n";
+                        Menu::esperar();
+                    }
+                }
+            } while (codigo != "0");
+
+            // Restaura a renderizacao padrao do mapa apos fechar o inventario
+            Menu::limparTela();
+            Menu::exibirLogo("EXPLORACAO");
+            GetConsoleScreenBufferInfo(consoleHandle, &csbi);
+            linhaMapaY = csbi.dwCursorPosition.Y;
+            continue;
+        }
+
+        if (tecla == 'c' || tecla == 'C') 
+        {
+            std::string opcao;
+            do 
+            {
+                Menu::exibirFichaJogador(jogador);
+                std::cout << "\nDigite '0' para voltar: ";
+                std::cin >> opcao;
+            } while (opcao != "0");
+
+            // Restaura a tela do mapa
+            Menu::limparTela();
+            Menu::exibirLogo("EXPLORACAO");
+            GetConsoleScreenBufferInfo(consoleHandle, &csbi);
+            linhaMapaY = csbi.dwCursorPosition.Y;
+            continue;
+        }
+
         char celula = layout[proximoY][proximoX];
 
-        if (celula != '#') 
+        if (celula != '#' && celula != '~') 
         {
-            if (celula == 'M') 
+            if (celula == 'G') 
             {
                 Menu::limparTela();
                 Menu::exibirLogo("ENCONTRO INESPERADO");
@@ -112,7 +184,7 @@ void Mapa::iniciarExploracao()
 
                     if (jogador->obterVida() > 0) 
                     {
-                        layout[proximoY][proximoX] = '.'; // Tira o 'M' do mapa se vencer
+                        layout[proximoY][proximoX] = '.'; // Tira o 'G' do mapa se vencer
                         jogadorX = proximoX;
                         jogadorY = proximoY;
                     }
@@ -120,7 +192,6 @@ void Mapa::iniciarExploracao()
                 else 
                 {
                     std::cin.clear(); std::cin.ignore(1000, '\n');
-                    // Fica parado, não avança para o bloco M
                 }
 
                 // Se sobreviveu e o loop continuar, restaura a tela do mapa perfeitamente
@@ -131,6 +202,67 @@ void Mapa::iniciarExploracao()
                     linhaMapaY = csbi.dwCursorPosition.Y;
                 }
             } 
+            else if (celula == 'O') 
+            {
+                Menu::limparTela();
+                Menu::exibirLogo("ENCONTRO NA CAVERNA");
+                
+                int espDialogo = (larguraConsole - 40) / 2;
+                std::string mDialogo(espDialogo > 0 ? espDialogo : 0, ' ');
+
+                std::cout << "\n" << mDialogo << "[!] Voce encontrou um Ork assustador!\n";
+                std::cout << mDialogo << "A criatura ruge desafiando voce!\n";
+                std::cout << mDialogo << "Deseja enfrentar o Ork?\n";
+                std::cout << mDialogo << "[1] Sim, para a batalha!\n";
+                std::cout << mDialogo << "[2] Nao, recuar com cuidado\n";
+                std::cout << "\n" << mDialogo << "Escolha: ";
+
+                int op;
+                if (std::cin >> op && op == 1) 
+                {
+                    // Inicia o combate com o Ork Mini-Boss gerado pelo Gerador de Inimigos
+                    std::vector<Personagem*> horda = { GeradorInimigos::gerarOrk() };
+                    SistemaRPG combate(jogador, horda);
+                    combate.iniciarCombate();
+
+                    if (jogador->obterVida() > 0) 
+                    {
+                        layout[proximoY][proximoX] = '.'; 
+                        jogadorX = proximoX;
+                        jogadorY = proximoY;
+                    }
+                } 
+                else 
+                {
+                    std::cin.clear(); std::cin.ignore(1000, '\n');
+                }
+
+                if (jogando) {
+                    Menu::limparTela();
+                    Menu::exibirLogo("EXPLORACAO");
+                    GetConsoleScreenBufferInfo(consoleHandle, &csbi);
+                    linhaMapaY = csbi.dwCursorPosition.Y;
+                }
+            }
+            else if (celula == 'L')
+            {
+                Menu::limparTela();
+                Menu::exibirLogo("LOJA DA VILA");
+                
+                int espDialogo = (larguraConsole - 40) / 2;
+                std::string mDialogo(espDialogo > 0 ? espDialogo : 0, ' ');
+
+                std::cout << "\n" << mDialogo << "[Lojista]: Bem-vindo a nossa humilde vila!\n";
+                std::cout << mDialogo << "Desculpe, a loja ainda esta em construcao.\n";
+                Menu::esperar();
+
+                if (jogando) {
+                    Menu::limparTela();
+                    Menu::exibirLogo("EXPLORACAO");
+                    GetConsoleScreenBufferInfo(consoleHandle, &csbi);
+                    linhaMapaY = csbi.dwCursorPosition.Y;
+                }
+            }
             else 
             {
                 jogadorX = proximoX;

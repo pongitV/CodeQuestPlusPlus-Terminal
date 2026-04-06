@@ -10,6 +10,7 @@
 
 #ifdef _WIN32
     #include <windows.h>
+    #include <conio.h>
 #else
     #include <sys/ioctl.h>
     #include <unistd.h>
@@ -121,10 +122,18 @@ void Menu::limparTela()
 void Menu::esperar() 
 {
     std::cout << "\nPressione Enter para continuar...";
+#ifdef _WIN32
+    // Limpa teclas residuais pressionadas antes da hora e aguarda estritamente pelo Enter (ASCII 13)
+    while (_kbhit()) _getch();
+    while (_getch() != 13) {}
+#else
     std::cin.clear(); 
-    if (std::cin.peek() == '\n') std::cin.ignore();
-    std::cin.ignore(std::cin.rdbuf()->in_avail(), '\n');
-    std::cin.get();
+    if (std::cin.rdbuf()->in_avail() > 0) {
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+    std::string temp;
+    std::getline(std::cin, temp);
+#endif
 }
 
 void Menu::digitar(const std::string& texto, int velocidade) 
@@ -328,6 +337,69 @@ void Menu::exibirInventario(Personagem* p)
     p->obterInventario()->listarItens(p->obterArma(), p->obterEscudo(), p->obterArmadura()); 
 }
 
+void Menu::exibirFichaJogador(Personagem* jogador)
+{
+    if (jogador == nullptr) return;
+    
+    limparTela();
+    exibirLogo("FICHA DO JOGADOR");
+    
+    double m = jogador->obterMultiplicador();
+    int t = jogador->obterTurnosBuff();
+
+    std::vector<std::string> linhas = {
+        "NOME:           " + jogador->obterNome(),
+        "RACA:           " + jogador->obterRaca()->obterNomeRaca(),
+        "CLASSE:         " + jogador->obterNomeClasse(),
+        "OURO:           " + std::to_string(jogador->obterInventario()->obterOuro()) + "G",
+        "",
+        "PASSIVA RACA:   " + jogador->obterRaca()->obterNomeHabilidadeRaca(),
+        "-> " + jogador->obterRaca()->obterDescricaoHabilidadeRaca(),
+        "",
+        "ATIVA CLASSE:   " + jogador->obterClasse()->obterNomeHabilidadeClasseAtiva(),
+        "-> " + jogador->obterClasse()->obterDescricaoHabilidadeClasseAtiva(),
+        "",
+        "ATRIBUTOS TOTAIS:",
+        "- HP: " + std::to_string(jogador->obterVida()) + "/" + std::to_string(jogador->obterVidaMaxima()) + " (0)"
+    };
+
+    auto addAtributo = [&](std::string nome, int valorBase) 
+    {
+        std::string linha = "- " + nome + ": " + std::to_string(valorBase);
+        if (t > 0) {
+            std::string sm = std::to_string(m);
+            sm.erase(sm.find_last_not_of('0') + 1, std::string::npos);
+            if (sm.back() == '.') sm += "0";
+            linha += " (" + std::to_string(static_cast<int>(valorBase * m)) + "){x" + sm + "} por " + std::to_string(t) + " turnos";
+        } else {
+            linha += " (0)";
+        }
+        linhas.push_back(linha);
+    };
+
+    std::string cl = jogador->obterNomeClasse();
+    addAtributo(cl == "Guerreiro" ? "Forca [DANO]" : "Forca", jogador->obterForca());
+    addAtributo(cl == "Arqueiro" ? "Destreza [DANO]" : "Destreza", jogador->obterDestreza());
+    addAtributo("Resistencia", jogador->obterResistencia());
+    addAtributo("Constituicao", jogador->obterConstituicao());
+    addAtributo(cl == "Mago" ? "Inteligencia [DANO]" : "Inteligencia", jogador->obterInteligencia());
+    addAtributo(cl == "Bardo" ? "Sabedoria [DANO]" : "Sabedoria", jogador->obterSabedoria());
+    
+    int larguraConsole = obterLarguraTerminal();
+    int maxLen = 0;
+    for (const std::string& linha : linhas) {
+        if ((int)linha.length() > maxLen) maxLen = (int)linha.length();
+    }
+    int espacos = (larguraConsole - maxLen) / 2;
+    std::string margem(espacos > 0 ? espacos : 0, ' ');
+
+    for (const std::string& linha : linhas) {
+        std::cout << margem << linha << "\n";
+    }
+    
+    std::cout << "\n" << std::string(larguraConsole, '=') << "\n";
+}
+
 void Menu::exibirStatusJogador(Personagem* p) 
 {
     if (p == nullptr) return;
@@ -380,7 +452,8 @@ void Menu::exibirHorda(const std::vector<Personagem*>& inimigos)
 {
     if (inimigos.empty()) return;
     int larguraTerminal = obterLarguraTerminal();
-    std::vector<std::string> arte = GeradorInimigos::obterGoblinASCII();
+    // Pega a arte dinamicamente da raca do inimigo que esta sendo enfrentado
+    std::vector<std::string> arte = inimigos[0]->obterRaca()->obterAparenciaRaca();
     int numInimigos = static_cast<int>(inimigos.size());
     int larguraColuna = larguraTerminal / numInimigos; 
 
@@ -409,4 +482,84 @@ void Menu::exibirHorda(const std::vector<Personagem*>& inimigos)
         std::cout << "\n";
     }
     std::cout << std::string(larguraTerminal, '-') << "\n\n";
+}
+
+void Menu::exibirTelaVitoria(Personagem* p, int ouro, int danoCausado, int danoRecebido)
+{
+    limparTela();
+    exibirLogo("VITORIA");
+
+    int largura = obterLarguraTerminal();
+
+    std::vector<std::string> linhas = {
+        "NOME:           " + p->obterNome(),
+        "RACA:           " + p->obterRaca()->obterNomeRaca(),
+        "CLASSE:         " + p->obterNomeClasse(),
+        "HP RESTANTE:    " + std::to_string(p->obterVida()) + "/" + std::to_string(p->obterVidaMaxima()),
+        "OURO TOTAL:     " + std::to_string(p->obterInventario()->obterOuro()) + "G",
+        "",
+        "--- ESTATISTICAS DA BATALHA ---",
+        "OURO OBTIDO:   +" + std::to_string(ouro) + "G",
+        "DANO CAUSADO:   " + std::to_string(danoCausado),
+        "DANO RECEBIDO:  " + std::to_string(danoRecebido)
+    };
+
+    // Encontra a linha mais longa para centralizar o bloco inteiro
+    int maxLen = 0;
+    for (const std::string& linha : linhas) {
+        if ((int)linha.length() > maxLen) maxLen = (int)linha.length();
+    }
+    int espacos = (largura - maxLen) / 2;
+    std::string margem(espacos > 0 ? espacos : 0, ' ');
+
+    std::cout << "\n";
+    for (const std::string& linha : linhas)
+    {
+        std::cout << margem << linha << "\n";
+    }
+    std::cout << "\n" << std::string(largura, '=') << "\n";
+
+    esperar();
+}
+
+void Menu::exibirTelaDerrota(Personagem* p, int ouro, int danoCausado, int danoRecebido)
+{
+    limparTela();
+    exibirLogo("DERROTA");
+
+    int largura = obterLarguraTerminal();
+
+    std::vector<std::string> linhas = {
+        "NOME:           " + p->obterNome(),
+        "RACA:           " + p->obterRaca()->obterNomeRaca(),
+        "CLASSE:         " + p->obterNomeClasse(),
+        "HP RESTANTE:    " + std::to_string(p->obterVida()) + "/" + std::to_string(p->obterVidaMaxima()),
+        "OURO TOTAL:     " + std::to_string(p->obterInventario()->obterOuro()) + "G",
+        "",
+        "--- ESTATISTICAS DA BATALHA ---",
+        "OURO OBTIDO:   +" + std::to_string(ouro) + "G",
+        "DANO CAUSADO:   " + std::to_string(danoCausado),
+        "DANO RECEBIDO:  " + std::to_string(danoRecebido)
+    };
+
+    // Encontra a linha mais longa para centralizar o bloco inteiro
+    int maxLen = 0;
+    for (const std::string& linha : linhas) {
+        if ((int)linha.length() > maxLen) maxLen = (int)linha.length();
+    }
+    int espacos = (largura - maxLen) / 2;
+    std::string margem(espacos > 0 ? espacos : 0, ' ');
+
+    std::cout << "\n";
+    for (const std::string& linha : linhas)
+    {
+        std::cout << margem << linha << "\n";
+    }
+    
+    std::string msgMorte = "Voce pereceu em combate...";
+    int espMsg = (largura - (int)msgMorte.length()) / 2;
+    std::cout << "\n" << std::string(espMsg > 0 ? espMsg : 0, ' ') << msgMorte << "\n";
+    std::cout << "\n" << std::string(largura, '=') << "\n";
+
+    esperar();
 }

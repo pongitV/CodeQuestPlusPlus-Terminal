@@ -9,6 +9,9 @@ private:
     Personagem* jogador;
     std::vector<Personagem*> inimigos;
     int contadorTurno;
+    int ouroObtido;
+    int danoCausadoTotal;
+    int danoRecebidoTotal;
 
     void aplicarDano(Personagem* alvo, int danoBruto, int turnoAtual);
 

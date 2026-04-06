@@ -12,7 +12,7 @@
 #include "../Inventario/Item.h"
 
 SistemaRPG::SistemaRPG(Personagem* jogador, std::vector<Personagem*> inimigos) 
-    : jogador(jogador), inimigos(inimigos), contadorTurno(1) 
+    : jogador(jogador), inimigos(inimigos), contadorTurno(1), ouroObtido(0), danoCausadoTotal(0), danoRecebidoTotal(0)
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 }
@@ -87,6 +87,7 @@ void SistemaRPG::iniciarCombate()
                     {
                         int ouro = (*it)->obterOuroRecompensa();
                         jogador->ganharOuro(ouro);
+                        ouroObtido += ouro;
                         std::cout << "\n[!] " << (*it)->obterNome() << " derrotado! +" << ouro << "G\n";
                         delete *it;
                         it = inimigos.erase(it);
@@ -125,78 +126,57 @@ void SistemaRPG::iniciarCombate()
             }
             case 4: // --- 4. INVENTARIO ---
             {
-                Menu::exibirInventario(jogador);
                 std::string codigo;
-                std::cout << "\nDigite o codigo do item (ex: 1C) ou '0' para voltar: ";
-                std::cin >> codigo;
-
-                if (codigo != "0")
+                do 
                 {
-                    Item* item = jogador->obterInventario()->buscarItemPorCodigo(
-                        codigo, jogador->obterArma(), jogador->obterEscudo(), jogador->obterArmadura()
-                    );
-
-                    if (item && dynamic_cast<PocaoCura*>(item))
+                    Menu::exibirInventario(jogador);
+                    std::cout << "\nDigite o codigo do item ou '0' para voltar: ";
+                    std::cin >> codigo;
+    
+                    if (codigo != "0")
                     {
-                        std::string nomeItem = item->obterNomeItem(); 
-                        int cura = static_cast<int>(jogador->obterVidaMaxima() * 0.30);
-                        
-                        jogador->modificarVida(cura); 
-                        jogador->obterInventario()->removerPorNome(nomeItem);
-                        
-                        std::cout << "\n[SISTEMA]: " << nomeItem << " usada! +" << cura << " HP.\n";
-                        Menu::esperar();
-                        acaoConsumiuTurno = true;
+                        Item* item = jogador->obterInventario()->buscarItemPorCodigo(
+                            codigo, jogador->obterArma(), jogador->obterEscudo(), jogador->obterArmadura()
+                        );
+    
+                        if (item && dynamic_cast<PocaoCura*>(item))
+                        {
+                            if (acaoConsumiuTurno) 
+                            {
+                                std::cout << "\n[SISTEMA]: Voce ja usou um item neste turno!\n";
+                                Menu::esperar();
+                            } 
+                            else 
+                            {
+                                std::string nomeItem = item->obterNomeItem(); 
+                                int cura = static_cast<int>(jogador->obterVidaMaxima() * 0.30);
+                                
+                                jogador->modificarVida(cura); 
+                                jogador->obterInventario()->removerPorNome(nomeItem);
+                                
+                                std::cout << "\n[SISTEMA]: " << nomeItem << " usada! +" << cura << " HP.\n";
+                                Menu::esperar();
+                                acaoConsumiuTurno = true;
+                            }
+                        }
+                        else if (item)
+                        {
+                            std::cout << "\n[SISTEMA]: Este item nao pode ser usado em combate!\n";
+                            Menu::esperar();
+                        }
                     }
-                    else if (item)
-                    {
-                        std::cout << "\n[SISTEMA]: Este item nao pode ser usado em combate!\n";
-                        Menu::esperar();
-                    }
-                }
+                } while (codigo != "0");
                 break;
             }
             case 5: // --- 5. JOGADOR ---
             {
-                Menu::limparTela();
-                Menu::exibirLogo("FICHA DO JOGADOR");
-                std::cout << " NOME:           " << jogador->obterNome() << "\n";
-                std::cout << " RACA:           " << jogador->obterRaca()->obterNomeRaca() << "\n";
-                std::cout << " CLASSE:         " << jogador->obterNomeClasse() << "\n";
-                std::cout << " OURO:           " << jogador->obterInventario()->obterOuro() << "G\n\n";
-                
-                std::cout << " PASSIVA RACA:   " << jogador->obterRaca()->obterNomeHabilidadeRaca() << "\n";
-                std::cout << " -> " << jogador->obterRaca()->obterDescricaoHabilidadeRaca() << "\n\n";
-                std::cout << " ATIVA CLASSE:   " << jogador->obterClasse()->obterNomeHabilidadeClasseAtiva() << "\n";
-                std::cout << " -> " << jogador->obterClasse()->obterDescricaoHabilidadeClasseAtiva() << "\n\n";
-                
-                double m = jogador->obterMultiplicador();
-                int t = jogador->obterTurnosBuff();
-
-                // Formato: Nome: Base (Total){xMult} por T turnos
-                auto exibirAtributo = [&](std::string nome, int valorBase) 
+                std::string opcao;
+                do 
                 {
-                    std::cout << " - " << nome << ": " << valorBase;
-                    if (t > 0) 
-                    {
-                        int total = static_cast<int>(valorBase * m);
-                        std::cout << " (" << total << "){x" << m << "} por " << t << " turnos\n";
-                    } 
-                    else 
-                    {
-                        std::cout << " (0)\n"; // Indica ausencia de buff
-                    }
-                };
-
-                std::cout << " ATRIBUTOS TOTAIS:\n";
-                std::cout << " - HP: " << jogador->obterVida() << "/" << jogador->obterVidaMaxima() << " (0)\n";
-                exibirAtributo("Forca", jogador->obterForca());
-                exibirAtributo("Resistencia", jogador->obterResistencia());
-                exibirAtributo("Constituicao", jogador->obterConstituicao());
-                exibirAtributo("Inteligencia", jogador->obterInteligencia());
-                exibirAtributo("Sabedoria", jogador->obterSabedoria());
-                
-                Menu::esperar();
+                    Menu::exibirFichaJogador(jogador);
+                    std::cout << "\nDigite '0' para voltar: ";
+                    std::cin >> opcao;
+                } while (opcao != "0");
                 break;
             }
             default:
@@ -207,6 +187,7 @@ void SistemaRPG::iniciarCombate()
         }
 
         executarTurnoInimigos();
+        if (verificarVitoria()) return;
         contadorTurno++;
     }
 }
@@ -266,7 +247,17 @@ void SistemaRPG::realizarAtaqueFisico(Personagem* atacante, Personagem* defensor
     }
 
     int dArma = (atacante->obterArma()) ? atacante->obterArma()->obterBonusDano() : 0;
-    int danoBase = static_cast<int>((atacante->obterForca() + dArma) * multBuff);
+    
+    int atributoBase = atacante->obterForca();
+    if (atacante->obterNomeClasse() == "Mago") {
+        atributoBase = atacante->obterInteligencia();
+    } else if (atacante->obterNomeClasse() == "Bardo") {
+        atributoBase = atacante->obterSabedoria();
+    } else if (atacante->obterNomeClasse() == "Arqueiro") {
+        atributoBase = atacante->obterDestreza();
+    }
+
+    int danoBase = static_cast<int>((atributoBase + dArma) * multBuff);
 
     // Passivas de raca
     danoBase = atacante->obterRaca()->processarDanoOfensivo(danoBase, atacante);
@@ -322,6 +313,13 @@ void SistemaRPG::aplicarDano(Personagem* alvo, int danoBruto, int turnoAtual)
     if (dFinal > 0) 
     {
         alvo->modificarVida(-dFinal);
+        
+        if (alvo == jogador) {
+            danoRecebidoTotal += dFinal;
+        } else {
+            danoCausadoTotal += dFinal;
+        }
+        
         std::cout << ">> " << alvo->obterNome() << " recebeu " << dFinal << " de dano." << std::endl;
     }
     else if (dFinal == 0 && alvo->obterDefendendo()) 
@@ -332,7 +330,15 @@ void SistemaRPG::aplicarDano(Personagem* alvo, int danoBruto, int turnoAtual)
 
 bool SistemaRPG::verificarVitoria() 
 {
-    if (inimigos.empty()) { std::cout << "\n[VITORIA] Inimigos eliminados!\n"; Menu::esperar(); return true; }
-    if (jogador->obterVida() <= 0) { std::cout << "\n[DERROTA] O heroi caiu...\n"; Menu::esperar(); return true; }
+    if (inimigos.empty()) 
+    { 
+        Menu::exibirTelaVitoria(jogador, ouroObtido, danoCausadoTotal, danoRecebidoTotal);
+        return true; 
+    }
+    if (jogador->obterVida() <= 0) 
+    { 
+        Menu::exibirTelaDerrota(jogador, ouroObtido, danoCausadoTotal, danoRecebidoTotal); 
+        return true; 
+    }
     return false;
 }

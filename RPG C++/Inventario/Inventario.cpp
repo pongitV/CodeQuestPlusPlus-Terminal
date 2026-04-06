@@ -36,9 +36,6 @@ void Inventario::listarItens(Item* armaEquipada, Item* escudoEquipado, Item* arm
 {
     int largura = obterLargura();
     
-    std::cout << " DINHEIRO: " << ouro << " moedas\n";
-
-    // Pre-processamento: Categorizar itens em uma unica passada (O(N))
     std::vector<Item*> equipamentosOutros;
     std::map<std::string, int> consumiveisMap;
     std::vector<Item*> missoes;
@@ -55,32 +52,47 @@ void Inventario::listarItens(Item* armaEquipada, Item* escudoEquipado, Item* arm
         }
     }
     
-    // 1. ARSENAL (A)
-    std::cout << "\n [ EQUIPAMENTO ]\n";
-    if (armaEquipada) std::cout << "  [1A] ARMA:    " << armaEquipada->obterNomeItem() << "\n";
-    if (escudoEquipado) std::cout << "  [2A] ESCUDO:  " << escudoEquipado->obterNomeItem() << "\n";
-    if (armaduraEquipada) std::cout << "  [3A] ARMADURA: " << armaduraEquipada->obterNomeItem() << "\n";
+    std::vector<std::string> linhas;
+    linhas.push_back("DINHEIRO: " + std::to_string(ouro) + " moedas");
+    linhas.push_back("");
 
-    // 2. EQUIPAMENTOS (E)
-    std::cout << "\n [ ARSENAL ]\n";
-    if (equipamentosOutros.empty()) std::cout << "  (Vazio)\n";
+    linhas.push_back("[ EQUIPAMENTO ]");
+    if (armaEquipada) linhas.push_back(" [1A] ARMA:     " + armaEquipada->obterNomeItem());
+    if (escudoEquipado) linhas.push_back(" [2A] ESCUDO:   " + escudoEquipado->obterNomeItem());
+    if (armaduraEquipada) linhas.push_back(" [3A] ARMADURA: " + armaduraEquipada->obterNomeItem());
+
+    linhas.push_back("");
+    linhas.push_back("[ ARSENAL ]");
+    if (equipamentosOutros.empty()) linhas.push_back(" (Vazio)");
     for (size_t i = 0; i < equipamentosOutros.size(); i++)
-        std::cout << "  [" << i + 1 << "E] " << equipamentosOutros[i]->obterNomeItem() << " [" << equipamentosOutros[i]->raridadeParaString() << "]\n";
+        linhas.push_back(" [" + std::to_string(i + 1) + "E] " + equipamentosOutros[i]->obterNomeItem() + " [" + equipamentosOutros[i]->raridadeParaString() + "]");
 
-    // 3. CONSUMIVEIS (C)
-    std::cout << "\n [ CONSUMIVEIS ]\n";
-    if (consumiveisMap.empty()) std::cout << "  (Vazio)\n";
+    linhas.push_back("");
+    linhas.push_back("[ CONSUMIVEIS ]");
+    if (consumiveisMap.empty()) linhas.push_back(" (Vazio)");
     int contadorC = 1;
     for (auto const& [nome, qtd] : consumiveisMap) 
-        std::cout << "  [" << contadorC++ << "C] " << qtd << "x " << nome << "\n";
+        linhas.push_back(" [" + std::to_string(contadorC++) + "C] " + std::to_string(qtd) + "x " + nome);
 
-    // 4. ITENS DE MISSAO (M)
-    std::cout << "\n [ ITENS DE MISSAO ]\n";
-    if (missoes.empty()) std::cout << "  (Vazio)\n";
+    linhas.push_back("");
+    linhas.push_back("[ ITENS DE MISSAO ]");
+    if (missoes.empty()) linhas.push_back(" (Vazio)");
     for (size_t i = 0; i < missoes.size(); i++)
-        std::cout << "  [" << i + 1 << "M] " << missoes[i]->obterNomeItem() << "\n";
-        
-    std::cout << std::string(largura, '=') << "\n";
+        linhas.push_back(" [" + std::to_string(i + 1) + "M] " + missoes[i]->obterNomeItem());
+
+    int maxLen = 0;
+    for (const std::string& linha : linhas) {
+        if ((int)linha.length() > maxLen) maxLen = (int)linha.length();
+    }
+    
+    int espacos = (largura - maxLen) / 2;
+    std::string margem(espacos > 0 ? espacos : 0, ' ');
+
+    for (const std::string& linha : linhas) {
+        std::cout << margem << linha << "\n";
+    }
+    
+    std::cout << "\n" << std::string(largura, '=') << "\n";
 }
 
 Item* Inventario::buscarItemPorCodigo(std::string codigo, Item* a, Item* e, Item* d)

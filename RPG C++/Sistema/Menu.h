@@ -14,6 +14,9 @@ public:
     static Personagem* criarPersonagem();
     static void exibirStatusJogador(Personagem* p);
     static void exibirInventario(Personagem* p); 
+    static void exibirFichaJogador(Personagem* p);
+    static void exibirTelaVitoria(Personagem* p, int ouro, int danoCausado, int danoRecebido);
+    static void exibirTelaDerrota(Personagem* p, int ouro, int danoCausado, int danoRecebido);
 
     static void exibirHorda(const std::vector<Personagem*>& inimigos);
 

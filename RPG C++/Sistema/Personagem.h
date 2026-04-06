@@ -71,6 +71,7 @@ public:
     int obterVida() const { return vidaAtual; }
     int obterVidaMaxima() const { return statsFinais.vida; }
     int obterForca() const { return statsFinais.forca; }
+    int obterDestreza() const { return statsFinais.destreza; }
     int obterResistencia() const { return statsFinais.resistencia; }
     int obterConstituicao() const { return statsFinais.constituicao; }
     int obterInteligencia() const { return statsFinais.inteligencia; }
