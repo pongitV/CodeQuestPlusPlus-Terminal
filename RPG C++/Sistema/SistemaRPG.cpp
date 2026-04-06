@@ -3,6 +3,12 @@
 #include <algorithm>
 #include <limits>
 #include <ctime>
+#include <chrono>
+#include <thread>
+
+#ifdef _WIN32
+    #include <conio.h>
+#endif
 
 #include "SistemaRPG.h"
 #include "Menu.h"
@@ -15,6 +21,18 @@ SistemaRPG::SistemaRPG(Personagem* jogador, std::vector<Personagem*> inimigos)
     : jogador(jogador), inimigos(inimigos), contadorTurno(1), ouroObtido(0), danoCausadoTotal(0), danoRecebidoTotal(0)
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
+
+    int dif = jogador->obterDificuldade();
+    double multiplicador = 1.0;
+    if (dif == 2) { // Normal
+        multiplicador = 1.5;
+    } else if (dif == 3) { // Dificil
+        multiplicador = 2.0;
+    }
+
+    for (Personagem* ini : this->inimigos) {
+        ini->aplicarMultiplicadorDificuldade(multiplicador);
+    }
 }
 
 SistemaRPG::~SistemaRPG() 
@@ -136,7 +154,7 @@ void SistemaRPG::iniciarCombate()
                 do 
                 {
                     Menu::exibirInventario(jogador);
-                    std::string msg = "Digite o codigo do item ou '0' para voltar: ";
+                    std::string msg = "Digite o codigo do item ou [0] VOLTAR: ";
                     int largura = Menu::obterLarguraTerminal();
                     int esp = (largura - (int)msg.length()) / 2;
                     std::cout << "\n" << std::string(esp > 0 ? esp : 0, ' ') << msg;
@@ -183,11 +201,15 @@ void SistemaRPG::iniciarCombate()
                 do 
                 {
                     Menu::exibirFichaJogador(jogador);
-                    std::string msg = "Digite '0' para voltar: ";
+                    std::string msg = "[0] VOLTAR (combate) ou [1] ALTERAR PARRY: ";
                     int largura = Menu::obterLarguraTerminal();
                     int esp = (largura - (int)msg.length()) / 2;
                     std::cout << "\n" << std::string(esp > 0 ? esp : 0, ' ') << msg;
                     std::cin >> opcao;
+
+                    if (opcao == "1") {
+                        jogador->definirParryAtivado(!jogador->obterParryAtivado());
+                    }
                 } while (opcao != "0");
                 break;
             }
@@ -219,6 +241,13 @@ void SistemaRPG::executarTurnoInimigos()
         {
             if (jogador->obterVida() > 0) 
             {
+                // Na Dificuldade Dificil(3), os inimigos poderao ativar suas habilidades de Classe
+                if (jogador->obterDificuldade() == 3) 
+                {
+                    std::vector<Personagem*> alvos = { jogador };
+                    inimigo->obterClasse()->usarHabilidadeClasseAtiva(inimigo, alvos);
+                }
+                
                 realizarAtaqueFisico(inimigo, jogador, contadorTurno);
             }
         }
@@ -271,23 +300,25 @@ void SistemaRPG::realizarAtaqueFisico(Personagem* atacante, Personagem* defensor
 
     int danoBase = static_cast<int>((atributoBase + dArma) * multBuff);
 
-    // Passivas de raca
-    danoBase = atacante->obterRaca()->processarDanoOfensivo(danoBase, atacante);
+    // Passivas de raca somente aplicam no Normal(2) ou Dificil(3), ou se for o Jogador
+    if (atacante == jogador || jogador->obterDificuldade() >= 2) {
+        danoBase = atacante->obterRaca()->processarDanoOfensivo(danoBase, atacante);
+    }
 
     if (atacante->obterModoAtaqueArea() && atacante->obterNomeClasse() == "Mago" && !inimigos.empty()) 
     {
         int danoDiv = danoBase / static_cast<int>(inimigos.size());
         std::cout << atacante->obterNome() << " desfere um ataque em area!\n";
-        for (Personagem* ini : inimigos) aplicarDano(ini, danoDiv, turnoAtual);
+        for (Personagem* ini : inimigos) aplicarDano(atacante, ini, danoDiv, turnoAtual);
     } 
     else if (defensor != nullptr) 
     {
         std::cout << atacante->obterNome() << " ataca " << defensor->obterNome() << "!" << std::endl;
-        aplicarDano(defensor, danoBase, turnoAtual);
+        aplicarDano(atacante, defensor, danoBase, turnoAtual);
     }
 }
 
-void SistemaRPG::aplicarDano(Personagem* alvo, int danoBruto, int turnoAtual) 
+void SistemaRPG::aplicarDano(Personagem* atacante, Personagem* alvo, int danoBruto, int turnoAtual) 
 {
     if (alvo->obterInviolavel()) 
     {
@@ -301,6 +332,40 @@ void SistemaRPG::aplicarDano(Personagem* alvo, int danoBruto, int turnoAtual)
 
     int dFinal = static_cast<int>((danoBruto - tRedFixa) * (1.0 - tRedPerc));
     if (dFinal < 1) dFinal = 1; // Impacto basico minimo
+
+    // Logica do Parry
+    if (alvo == jogador && jogador->obterParryAtivado()) 
+    {
+        int qtdNumeros = std::max(1, dFinal / 4);
+        int destrezaAtacante = std::max(1, atacante->obterDestreza());
+        int tempoLimite = std::max(1, 50 / destrezaAtacante);
+
+        int reducaoParry = 0;
+        bool sucesso = executarParry(qtdNumeros, tempoLimite, reducaoParry);
+        if (sucesso) 
+        {
+            // Aplica o limite de 50% de reducao do dano (com um minimo de 1 para danos baixos)
+            int limiteReducao = std::max(1, dFinal / 2);
+            if (reducaoParry > limiteReducao) {
+                reducaoParry = limiteReducao;
+            }
+
+            dFinal -= reducaoParry;
+            if (dFinal <= 0) 
+            {
+                dFinal = 0;
+                std::cout << ">> [PARRY]: Parry perfeito, reducao total!\n";
+            } 
+            else 
+            {
+                std::cout << ">> [PARRY]: Parry efetivo, dano reduzido em " << reducaoParry << "\n";
+            }
+        }
+        else 
+        {
+            std::cout << ">> [PARRY]: FALHA! A defesa falhou!\n";
+        }
+    }
 
     // Logica Ativa do Escudo
     if (alvo->obterDefendendo() && alvo->obterEscudo() != nullptr) 
@@ -319,8 +384,10 @@ void SistemaRPG::aplicarDano(Personagem* alvo, int danoBruto, int turnoAtual)
         }
     }
 
-    // Passivas defensivas de raca (Dwarf/Humano)
-    dFinal = alvo->obterRaca()->processarDanoDefensivo(dFinal, alvo);
+    // Passivas defensivas de raca (Dwarf/Humano) somente aplicam no Normal(2) ou Dificil(3), ou se for o Jogador
+    if (alvo == jogador || jogador->obterDificuldade() >= 2) {
+        dFinal = alvo->obterRaca()->processarDanoDefensivo(dFinal, alvo);
+    }
 
     if (dFinal > 0) 
     {
@@ -338,6 +405,65 @@ void SistemaRPG::aplicarDano(Personagem* alvo, int danoBruto, int turnoAtual)
     {
         std::cout << ">> O dano foi totalmente absorvido pela sua defesa!" << std::endl;
     }
+}
+
+bool SistemaRPG::executarParry(int qtdNumeros, int tempoLimite, int& reducao) 
+{
+    std::string sequencia = "";
+    reducao = 0;
+    for (int i = 0; i < qtdNumeros; ++i) {
+        int num = (std::rand() % 9) + 1; // 1 to 9
+        sequencia += std::to_string(num);
+        reducao += num;
+    }
+
+    std::cout << "\n[PARRY] O inimigo ataca! Digite a sequencia rapidamente para defender!\n";
+    std::cout << "[PARRY] Sequencia: " << sequencia << "\n";
+    std::cout << "[PARRY] Tempo Limite: " << tempoLimite << " segundos!\n";
+    std::cout << "[PARRY] Digite: ";
+
+    std::string entrada = "";
+    
+#ifdef _WIN32
+    auto start = std::chrono::steady_clock::now();
+    while (true) {
+        auto now = std::chrono::steady_clock::now();
+        std::chrono::duration<double> elapsed = now - start;
+        if (elapsed.count() > tempoLimite) {
+            std::cout << "\n[PARRY] TEMPO ESGOTADO!\n";
+            return false;
+        }
+        if (_kbhit()) 
+        {
+            char c = _getch();
+            if (c == '\r' || c == '\n') {
+                std::cout << "\n";
+                break;
+            } else if (c == '\b' || c == 127) {
+                if (!entrada.empty()) 
+                {
+                    entrada.pop_back();
+                    std::cout << "\b \b";
+                }
+            } else {
+                entrada += c;
+                std::cout << c;
+            }
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+#else
+    auto start = std::chrono::steady_clock::now();
+    std::cin >> entrada;
+    auto now = std::chrono::steady_clock::now();
+    std::chrono::duration<double> elapsed = now - start;
+    if (elapsed.count() > tempoLimite) {
+        std::cout << "\n[PARRY] TEMPO ESGOTADO (" << elapsed.count() << "s)!\n";
+        return false;
+    }
+#endif
+
+    return entrada == sequencia;
 }
 
 bool SistemaRPG::verificarVitoria() 

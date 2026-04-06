@@ -184,19 +184,20 @@ Personagem* Menu::criarPersonagem()
     std::string nome = "";
     RacaBase* racaFinal = nullptr;
     ClasseBase* classeFinal = nullptr;
+    bool parryFinal = false;
+    int dificuldadeFinal = 2;
     int etapa = 1; 
 
     auto formatarAtributo = [](const std::string& n, int v) {
         return " - " + n + ": " + (v >= 0 ? "+" : "") + std::to_string(v);
     };
 
-    while (etapa <= 3) 
+    while (etapa <= 5) 
     {
         if (etapa == 1) // --- ETAPA 1: NOME ---
         {
             limparTela();
             exibirLogo("INTRODUCAO AO RPG");
-            std::cout << "\n";
             digitar(" [NARRACAO]: O reino clama por um novo destino...\n", 35);
             digitar(" [NARRACAO]: E todas lendas possuem um nome.\n\n", 35);
             std::cout << " > Escolha o nome do seu personagem (ou '0' para sair): ";
@@ -211,7 +212,7 @@ Personagem* Menu::criarPersonagem()
         {
             limparTela();
             exibirLogo("SELECAO DE RACA");
-            std::cout << " JOGADOR: " << nome << "\n";
+            std::cout << "JOGADOR: " << nome << "\n";
             std::cout << std::string(obterLarguraTerminal(), '-') << "\n";
             digitar(" [NARRACAO]: Qual sua origem?\n\n", 35);
             
@@ -264,7 +265,7 @@ Personagem* Menu::criarPersonagem()
         {
             limparTela();
             exibirLogo("SELECAO DE CLASSE");
-            std::cout << " JOGADOR: " << nome << " | RACA: " << racaFinal->obterNomeRaca() << "\n";
+            std::cout << "JOGADOR: " << nome << " | RACA: " << racaFinal->obterNomeRaca() << "\n";
             std::cout << std::string(obterLarguraTerminal(), '-') << "\n";
             digitar(" [NARRACAO]: Qual caminho voce seguira neste mundo?\n\n", 35);
             
@@ -321,8 +322,58 @@ Personagem* Menu::criarPersonagem()
                 }
             }
         }
+        else if (etapa == 4) // --- ETAPA 4: CONFIGURACOES DO JOGO ---
+        {
+            limparTela();
+            exibirLogo("CONFIGURACOES DO JOGO");
+            std::cout << "JOGADOR: " << nome << " | RACA: " << racaFinal->obterNomeRaca() << " | CLASSE: " << classeFinal->obterNomeClasse() << "\n";
+            std::cout << std::string(obterLarguraTerminal(), '-') << "\n";
+            digitar(" [SISTEMA]: Deseja ativar o sistema de PARRY?\n", 35);
+            digitar(" (Permite reduzir danos ao digitar uma sequencia de numeros num tempo limite)\n\n", 35);
+            
+            std::cout << "  [1] LIGAR Parry\n";
+            std::cout << "  [2] DESLIGAR Parry\n";
+            std::cout << "\n  [0] VOLTAR (selecao de classe)\n";
+            std::cout << "\n > Sua escolha: ";
+            
+            int escolha;
+            if (!(std::cin >> escolha)) { std::cin.clear(); std::cin.ignore(1000, '\n'); continue; }
+            if (escolha == 0) { delete classeFinal; classeFinal = nullptr; etapa = 3; continue; }
+
+            if (escolha == 1 || escolha == 2) 
+            {
+                parryFinal = (escolha == 1);
+                etapa = 5;
+            }
+        }
+        else if (etapa == 5) // --- ETAPA 5: DIFICULDADE ---
+        {
+            limparTela();
+            exibirLogo("DIFICULDADE DO MUNDO");
+            std::cout << "JOGADOR: " << nome << " | RACA: " << racaFinal->obterNomeRaca() << " | CLASSE: " << classeFinal->obterNomeClasse() << "\n";
+            std::cout << std::string(obterLarguraTerminal(), '-') << "\n";
+            digitar(" [SISTEMA]: Escolha o nivel de desafio da sua jornada:\n\n", 35);
+            
+            std::cout << "  [1] FACIL   (Inimigos com 1x Atributos, sem habilidades de raca e sem classe)\n";
+            std::cout << "  [2] NORMAL  (Inimigos com 1.5x Atributos, com habilidades de raca mas sem classes)\n";
+            std::cout << "  [3] DIFICIL (Inimigos com 2x Atributos, com habilidades de raca e com classes)\n";
+            std::cout << "\n  [0] VOLTAR (configuracao de parry)\n";
+            std::cout << "\n > Sua escolha: ";
+            
+            int escolha;
+            if (!(std::cin >> escolha)) { std::cin.clear(); std::cin.ignore(1000, '\n'); continue; }
+            if (escolha == 0) { etapa = 4; continue; }
+
+            if (escolha >= 1 && escolha <= 3) 
+            {
+                dificuldadeFinal = escolha;
+                etapa = 6;
+            }
+        }
     }
     Personagem* p = new Personagem(nome, racaFinal, classeFinal);
+    p->definirParryAtivado(parryFinal);
+    p->definirDificuldade(dificuldadeFinal);
     std::cout << "\n";
     digitar(" [SISTEMA]: Personagem criado com sucesso! Iniciando jornada...\n", 35);
     esperar();
@@ -351,6 +402,8 @@ void Menu::exibirFichaJogador(Personagem* jogador)
         "NOME:           " + jogador->obterNome(),
         "RACA:           " + jogador->obterRaca()->obterNomeRaca(),
         "CLASSE:         " + jogador->obterNomeClasse(),
+        "DIFICULDADE:    " + std::string(jogador->obterDificuldade() == 1 ? "Facil" : (jogador->obterDificuldade() == 2 ? "Normal" : "Dificil")),
+        "[PARRY]:        " + std::string(jogador->obterParryAtivado() ? "Ligado" : "Desligado"),
         "OURO:           " + std::to_string(jogador->obterInventario()->obterOuro()) + "G",
         "",
         "PASSIVA RACA:   " + jogador->obterRaca()->obterNomeHabilidadeRaca(),

@@ -25,6 +25,8 @@ Personagem::Personagem(std::string nome, RacaBase* r, ClasseBase* c)
     this->recargaHabilidade = false;
     this->modoAtaqueArea = false;
     this->pularTurnoInimigo = false;
+    this->parryAtivado = false;
+    this->dificuldadeAtual = 2; // Padrao: Normal
 
     std::vector<Item*> kit = c->gerarKitInicial();
     for (Item* item : kit) 
@@ -49,6 +51,19 @@ void Personagem::calcularAtributos()
     this->statsFinais.calcularAtributos(raca->obterAtributosRaca());
     this->statsFinais.calcularAtributos(classe->obterAtributosClasse());
     this->vidaAtual = statsFinais.vida;
+}
+
+void Personagem::aplicarMultiplicadorDificuldade(double mult) 
+{
+    if (mult <= 1.0) return; // Facil nao sofre alteracao (1x)
+    this->statsFinais.vida = static_cast<int>(this->statsFinais.vida * mult);
+    this->statsFinais.forca = static_cast<int>(this->statsFinais.forca * mult);
+    this->statsFinais.destreza = static_cast<int>(this->statsFinais.destreza * mult);
+    this->statsFinais.resistencia = static_cast<int>(this->statsFinais.resistencia * mult);
+    this->statsFinais.constituicao = static_cast<int>(this->statsFinais.constituicao * mult);
+    this->statsFinais.inteligencia = static_cast<int>(this->statsFinais.inteligencia * mult);
+    this->statsFinais.sabedoria = static_cast<int>(this->statsFinais.sabedoria * mult);
+    this->vidaAtual = this->statsFinais.vida;
 }
 
 void Personagem::modificarVida(int valor) 

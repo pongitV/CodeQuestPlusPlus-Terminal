@@ -147,10 +147,14 @@ void Mapa::iniciarExploracao()
             do 
             {
                 Menu::exibirFichaJogador(jogador);
-                std::string msg = "[0] VOLTAR (exploracao) ";
+                std::string msg = "[0] VOLTAR (exploracao) | [1] LIGAR/DESLIGAR PARRY: ";
                 int esp = (larguraConsole - (int)msg.length()) / 2;
                 std::cout << "\n" << std::string(esp > 0 ? esp : 0, ' ') << msg;
                 std::cin >> opcao;
+
+                if (opcao == "1") {
+                    jogador->definirParryAtivado(!jogador->obterParryAtivado());
+                }
             } while (opcao != "0");
 
             // Restaura a tela do mapa

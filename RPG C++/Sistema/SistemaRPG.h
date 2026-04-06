@@ -13,7 +13,8 @@ private:
     int danoCausadoTotal;
     int danoRecebidoTotal;
 
-    void aplicarDano(Personagem* alvo, int danoBruto, int turnoAtual);
+    void aplicarDano(Personagem* atacante, Personagem* alvo, int danoBruto, int turnoAtual);
+    bool executarParry(int qtdNumeros, int tempoLimite, int& reducao);
 
 public:
     SistemaRPG(Personagem* jogador, std::vector<Personagem*> inimigos);

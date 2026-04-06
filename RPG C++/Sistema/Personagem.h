@@ -51,6 +51,8 @@ protected:
     bool recargaHabilidade;   // Arqueiro/Bardo: uso seguido
     bool modoAtaqueArea;      // Mago: estrategia arcana
     bool pularTurnoInimigo;   // Bardo: flashing lights
+    bool parryAtivado;        // Controle do sistema de Parry
+    int dificuldadeAtual;     // 1 = Facil, 2 = Normal, 3 = Dificil
 
     Item* arma;    
     Item* escudo;   
@@ -112,4 +114,11 @@ public:
     void definirRecargaDefesa(bool r) { recargaDefesa = r; }
     bool obterRecargaDefesa() const { return recargaDefesa; }
     void desequiparEscudo() { escudo = nullptr; }
+
+    void definirParryAtivado(bool p) { parryAtivado = p; }
+    bool obterParryAtivado() const { return parryAtivado; }
+
+    void definirDificuldade(int d) { dificuldadeAtual = d; }
+    int obterDificuldade() const { return dificuldadeAtual; }
+    void aplicarMultiplicadorDificuldade(double mult);
 };
