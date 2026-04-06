@@ -17,7 +17,7 @@ Mapa::Mapa(Personagem* p) : jogador(p), jogadorX(2), jogadorY(2)
         "################################################################################",
         "#........................................................##...................##",
         "#.........###............................................##...................##",
-        "#.........#L#...[ VILA ].................................##.........O.........##",
+        "#.........#L....[ VILA ].................................##.........O.........##",
         "#.........###............................................##...................##",
         "#.........................................................###..............#####",
         "#..........................G................................#.............######",
@@ -103,7 +103,9 @@ void Mapa::iniciarExploracao()
             do 
             {
                 Menu::exibirInventario(jogador);
-                std::cout << "\nDigite o codigo do item (ex: 1C) ou '0' para voltar: ";
+                std::string msg = "Digite o codigo do item (ex: 1C) ou '0' para voltar: ";
+                int esp = (larguraConsole - (int)msg.length()) / 2;
+                std::cout << "\n" << std::string(esp > 0 ? esp : 0, ' ') << msg;
                 std::cin >> codigo;
     
                 if (codigo != "0")
@@ -145,7 +147,9 @@ void Mapa::iniciarExploracao()
             do 
             {
                 Menu::exibirFichaJogador(jogador);
-                std::cout << "\nDigite '0' para voltar: ";
+                std::string msg = "Digite '0' para voltar: ";
+                int esp = (larguraConsole - (int)msg.length()) / 2;
+                std::cout << "\n" << std::string(esp > 0 ? esp : 0, ' ') << msg;
                 std::cin >> opcao;
             } while (opcao != "0");
 
@@ -246,15 +250,48 @@ void Mapa::iniciarExploracao()
             }
             else if (celula == 'L')
             {
-                Menu::limparTela();
-                Menu::exibirLogo("LOJA DA VILA");
-                
-                int espDialogo = (larguraConsole - 40) / 2;
-                std::string mDialogo(espDialogo > 0 ? espDialogo : 0, ' ');
+                std::string opcaoLoja;
+                do {
+                    Menu::limparTela();
+                    Menu::exibirLogo("LOJA DA VILA");
+                    
+                    int espDialogo = (larguraConsole - 55) / 2;
+                    std::string mDialogo(espDialogo > 0 ? espDialogo : 0, ' ');
 
-                std::cout << "\n" << mDialogo << "[Lojista]: Bem-vindo a nossa humilde vila!\n";
-                std::cout << mDialogo << "Desculpe, a loja ainda esta em construcao.\n";
-                Menu::esperar();
+                    std::cout << "\n" << mDialogo << "[Lojista]: Bem-vindo! De uma olhada nas minhas mercadorias.\n";
+                    std::cout << mDialogo << "Seu Ouro: " << jogador->obterInventario()->obterOuro() << "G\n\n";
+
+                    std::cout << mDialogo << "[1] Pocao de Cura (30% HP)         - 10G\n";
+                    std::cout << mDialogo << "[2] Manto Encantado (Mago)         - 15G\n";
+                    std::cout << mDialogo << "[3] Escudo Medio (Guerreiro)       - 15G\n";
+                    std::cout << mDialogo << "[4] Capa Magica (Bardo)            - 15G\n";
+                    std::cout << mDialogo << "[5] Escudo Leve (Arqueiro)         - 15G\n";
+                    std::cout << mDialogo << "[0] Sair da Loja\n";
+                    std::cout << "\n" << std::string(larguraConsole, '=') << "\n";
+                    std::cout << "\n" << mDialogo << "Escolha: ";
+
+                    std::cin >> opcaoLoja;
+
+                    if (opcaoLoja >= "1" && opcaoLoja <= "5") 
+                    {
+                        int preco = (opcaoLoja == "1") ? 10 : 15;
+                        if (jogador->obterInventario()->obterOuro() >= preco) 
+                        {
+                            jogador->ganharOuro(-preco); // Subtrai o ouro
+                            
+                            if (opcaoLoja == "1") { jogador->obterInventario()->adicionarItem(new PocaoCura()); std::cout << "\n" << mDialogo << "[SISTEMA]: Pocao de Cura comprada!\n"; }
+                            else if (opcaoLoja == "2") { jogador->obterInventario()->adicionarItem(new Escudo("Manto encantado", 5, 3)); std::cout << "\n" << mDialogo << "[SISTEMA]: Manto Encantado comprado!\n"; }
+                            else if (opcaoLoja == "3") { jogador->obterInventario()->adicionarItem(new Escudo("Escudo medio de metal", 12, 6)); std::cout << "\n" << mDialogo << "[SISTEMA]: Escudo Medio comprado!\n"; }
+                            else if (opcaoLoja == "4") { jogador->obterInventario()->adicionarItem(new Escudo("Capa magica", 5, 2)); std::cout << "\n" << mDialogo << "[SISTEMA]: Capa Magica comprada!\n"; }
+                            else if (opcaoLoja == "5") { jogador->obterInventario()->adicionarItem(new Escudo("Escudo leve de madeira", 8, 4)); std::cout << "\n" << mDialogo << "[SISTEMA]: Escudo Leve comprado!\n"; }
+                        } 
+                        else 
+                        {
+                            std::cout << "\n" << mDialogo << "[SISTEMA]: Ouro insuficiente!\n";
+                        }
+                        Menu::esperar();
+                    }
+                } while (opcaoLoja != "0");
 
                 if (jogando) {
                     Menu::limparTela();

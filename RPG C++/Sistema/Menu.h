@@ -20,7 +20,8 @@ public:
 
     static void exibirHorda(const std::vector<Personagem*>& inimigos);
 
-private:
     static int obterLarguraTerminal(); 
+
+private:
     static bool exibirPreviaLadoALado(const std::string& tipo, const std::string& nome, const std::vector<std::string>& info, const std::vector<std::string>& arte);
 };

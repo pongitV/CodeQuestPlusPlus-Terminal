@@ -439,12 +439,25 @@ void Menu::exibirStatusJogador(Personagem* p)
         };
     }
 
+    std::vector<std::string> linhas = {
+        "| " + coracao[0] + " |",
+        "| " + coracao[1] + " |  JOGADOR: " + p->obterNome() + " (" + p->obterRaca()->obterNomeRaca() + " / " + p->obterNomeClasse() + ")",
+        "| " + coracao[2] + " |  HP: " + std::to_string(p->obterVida()) + "/" + std::to_string(p->obterVidaMaxima()) + " | OURO: " + std::to_string(p->obterInventario()->obterOuro()) + "G",
+        "| " + coracao[3] + " |  EQUIP: " + arma + " | " + escu + " | " + dura,
+        "| " + std::string(11, ' ') + " |"
+    };
+
+    int maxLen = 0;
+    for (const std::string& linha : linhas) {
+        if ((int)linha.length() > maxLen) maxLen = (int)linha.length();
+    }
+    int espacos = (largura - maxLen) / 2;
+    std::string margem(espacos > 0 ? espacos : 0, ' ');
+
     std::cout << std::string(largura, '=') << "\n";
-    std::cout << "| " << coracao[0] << " |\n";
-    std::cout << "| " << coracao[1] << " |  JOGADOR: " << p->obterNome() << " (" << p->obterRaca()->obterNomeRaca() << " / " << p->obterNomeClasse() << ")\n";
-    std::cout << "| " << coracao[2] << " |  HP: " << p->obterVida() << "/" << p->obterVidaMaxima() << " | OURO: " << p->obterInventario()->obterOuro() << "G\n";
-    std::cout << "| " << coracao[3] << " |  EQUIP: " << arma << " | " << escu << " | " << dura << "\n";
-    std::cout << "| " << std::string(11, ' ') << " |\n";
+    for (const std::string& linha : linhas) {
+        std::cout << margem << linha << "\n";
+    }
     std::cout << std::string(largura, '=') << "\n";
 }
 

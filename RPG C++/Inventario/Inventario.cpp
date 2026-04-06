@@ -160,7 +160,7 @@ Item* Inventario::escolherEscudoParaDefesa()
         return nullptr;
     }
 
-    std::cout << "\n=== SELECIONE SEU ESCUDO ===\n";
+    std::cout << "=== SELECIONE SEU ESCUDO ===\n";
     for (size_t i = 0; i < escudos.size(); i++) 
     {
         std::cout << " [" << i + 1 << "] " << escudos[i]->obterNomeItem() 
@@ -209,6 +209,6 @@ bool Inventario::possuiPocaoCura() const
     return false;
 }
 
-void Inventario::adicionarOuro(int q) { if (q > 0) ouro += q; }
+void Inventario::adicionarOuro(int q) { ouro += q; if (ouro < 0) ouro = 0; }
 int Inventario::obterOuro() const { return ouro; }
 bool Inventario::estaVazio() const { return itens.empty(); }

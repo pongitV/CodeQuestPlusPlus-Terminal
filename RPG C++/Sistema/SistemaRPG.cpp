@@ -43,8 +43,14 @@ void SistemaRPG::iniciarCombate()
             Menu::exibirHorda(inimigos);
             Menu::exibirStatusJogador(jogador); 
 
-            std::cout << "\nTURNO " << contadorTurno << " | SUA VEZ" << std::endl;
-            std::cout << "1. Atacar | 2. Defender | 3. Habilidade | 4. Inventario | 5. Jogador | Escolha: ";
+            int largura = Menu::obterLarguraTerminal();
+            std::string textoTurno = "TURNO " + std::to_string(contadorTurno) + " | SUA VEZ";
+            int espTurno = (largura - (int)textoTurno.length()) / 2;
+            std::cout << "\n" << std::string(espTurno > 0 ? espTurno : 0, ' ') << textoTurno << "\n";
+
+            std::string textoEscolha = "1. Atacar | 2. Defender | 3. Habilidade | 4. Inventario | 5. Jogador | Escolha: ";
+            int espEscolha = (largura - (int)textoEscolha.length()) / 2;
+            std::cout << std::string(espEscolha > 0 ? espEscolha : 0, ' ') << textoEscolha;
             
             int acao;
             if (!(std::cin >> acao)) 
@@ -130,7 +136,10 @@ void SistemaRPG::iniciarCombate()
                 do 
                 {
                     Menu::exibirInventario(jogador);
-                    std::cout << "\nDigite o codigo do item ou '0' para voltar: ";
+                    std::string msg = "Digite o codigo do item ou '0' para voltar: ";
+                    int largura = Menu::obterLarguraTerminal();
+                    int esp = (largura - (int)msg.length()) / 2;
+                    std::cout << "\n" << std::string(esp > 0 ? esp : 0, ' ') << msg;
                     std::cin >> codigo;
     
                     if (codigo != "0")
@@ -174,7 +183,10 @@ void SistemaRPG::iniciarCombate()
                 do 
                 {
                     Menu::exibirFichaJogador(jogador);
-                    std::cout << "\nDigite '0' para voltar: ";
+                    std::string msg = "Digite '0' para voltar: ";
+                    int largura = Menu::obterLarguraTerminal();
+                    int esp = (largura - (int)msg.length()) / 2;
+                    std::cout << "\n" << std::string(esp > 0 ? esp : 0, ' ') << msg;
                     std::cin >> opcao;
                 } while (opcao != "0");
                 break;
