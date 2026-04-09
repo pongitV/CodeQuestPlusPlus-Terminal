@@ -34,7 +34,8 @@
 #include "../Classes/ClasseGuerreiro.h"
 #include "../Classes/ClasseMago.h"
 
-void Menu::configurarTelaCheia() 
+
+void Menu::configurarTelaCheia()
 {
 #ifdef _WIN32
     HWND hwnd = GetConsoleWindow();
@@ -136,10 +137,20 @@ void Menu::esperar()
 #endif
 }
 
-void Menu::digitar(const std::string& texto, int velocidade) 
+void Menu::digitar(const std::string& texto, int velocidade)
 {
-    for (char c : texto) 
+    for (size_t i = 0; i < texto.length(); ++i)
     {
+        char c = texto[i];
+        
+#ifdef _WIN32
+        if (_kbhit())
+        {
+            // Usuário pressionou uma tecla, pula para o fim
+            std::cout << texto.substr(i) << std::flush;
+            return;
+        }
+#endif
         std::cout << c << std::flush;
         std::this_thread::sleep_for(std::chrono::milliseconds(velocidade));
     }

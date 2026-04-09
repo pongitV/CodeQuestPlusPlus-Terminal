@@ -2,7 +2,7 @@
 
 #pragma once
 
-class Menu 
+class Menu
 {
 public:
     static void configurarTelaCheia();
