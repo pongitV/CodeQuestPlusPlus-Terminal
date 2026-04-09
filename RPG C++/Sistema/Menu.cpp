@@ -464,35 +464,52 @@ void Menu::exibirStatusJogador(Personagem* p)
     std::string dura = (p->obterArmadura()) ? p->obterArmadura()->obterNomeItem() : "Trapos";
     
     double percVida = static_cast<double>(p->obterVida()) / p->obterVidaMaxima();
-    std::vector<std::string> coracao;
+    std::string corVerde = "\033[32m";    // Verde
+        std::string corLaranja = "\033[33m";  // Laranja
+        std::string corVermelho = "\033[31m"; // Vermelho
+        std::string corReset = "\033[0m";     // Reset
     
-    if (percVida > 0.70) 
-    {
-        coracao = {
-            "   _   _   ",
-            "  / \\_/ \\  ",
-            "  \\     /  ",
-            "   \\___/   "
-        };
-    }
-    else if (percVida > 0.30) 
-    {
-        coracao = {
-            "   _   _   ",
-            "  / \\// \\  ",
-            "  \\  \\ /   ",
-            "   \\___/   "
-        };
-    }
-    else 
-    {
-        coracao = {
-            "  _     _  ",
-            " / \\   / \\ ",
-            " \\     \\_/ ",
-            "  \\___/    "
-        };
-    }
+        std::vector<std::string> coracao;
+    
+        if (percVida > 0.70) 
+        {
+            coracao = {
+                "   _   _   ",
+                "  / \\_/ \\  ",
+                "  \\     /  ",
+                "   \\___/   "
+            };
+            coracao[0] = corVerde + coracao[0] + corReset;
+            coracao[1] = corVerde + coracao[1] + corReset;
+            coracao[2] = corVerde + coracao[2] + corReset;
+            coracao[3] = corVerde + coracao[3] + corReset;
+        }
+        else if (percVida > 0.30) 
+        {
+            coracao = {
+                "   _   _   ",
+                "  / \\// \\  ",
+                "  \\  \\ /   ",
+                "   \\___/   "
+            };
+            coracao[0] = corLaranja + coracao[0] + corReset;
+            coracao[1] = corLaranja + coracao[1] + corReset;
+            coracao[2] = corLaranja + coracao[2] + corReset;
+            coracao[3] = corLaranja + coracao[3] + corReset;
+        }
+        else 
+        {
+            coracao = {
+                "  _     _  ",
+                " / \\   / \\ ",
+                " \\     \\_/ ",
+                "  \\___/    "
+            };
+            coracao[0] = corVermelho + coracao[0] + corReset;
+            coracao[1] = corVermelho + coracao[1] + corReset;
+            coracao[2] = corVermelho + coracao[2] + corReset;
+            coracao[3] = corVermelho + coracao[3] + corReset;
+        }
     
     std::string barraXp = "[";
     int tamanhoBarra = 10;
