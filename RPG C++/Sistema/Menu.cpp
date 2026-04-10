@@ -56,61 +56,6 @@ int Menu::obterLarguraTerminal()
     return largura;
 }
 
-void Menu::exibirLogo(const std::string& titulo) 
-{
-#ifdef _WIN32
-    // Configura o console para aceitar blocos UTF-8
-    SetConsoleOutputCP(65001); 
-#endif
-
-    // Chama a nossa nova função para pegar o tamanho exato da tela do notebook/PC atual
-    int larguraConsole = obterLarguraTerminal();
-    
-    // A arte tem exatamente 144 caracteres visuais de largura
-    const int larguraArte = 144; 
-    
-    // Calcula o padding dinâmico
-    int espacosPad = (larguraConsole > larguraArte) ? (larguraConsole - larguraArte) / 2 : 0;
-    std::string padding(espacosPad, ' ');
-
-    std::vector<std::string> logo = 
-    {
-        "   █████████     ███████    ██████████   ██████████       ██████    █████  █████ ██████████  █████████  ███████████                         ",
-        "  ███░░░░░███  ███░░░░░███ ░░███░░░░███ ░░███░░░░░█     ███░░░░███ ░░███  ░░███ ░░███░░░░░█ ███░░░░░███░█░░░███░░░█     ███         ███     ",
-        " ███     ░░░  ███     ░░███ ░███   ░░███ ░███  █ ░     ███    ░░███ ░███   ░███  ░███  █ ░ ░███    ░░░ ░   ░███  ░     ░███        ░███     ",
-        "░███         ░███      ░███ ░███    ░███ ░██████      ░███     ░███ ░███   ░███  ░██████   ░░█████████     ░███     ███████████ ███████████ ",
-        "░███         ░███      ░███ ░███    ░███ ░███░░█      ░███   ██░███ ░███   ░███  ░███░░█    ░░░░░░░░███    ░███      ░░░███░░░ ░░░░░███░░░  ",
-        "░░███     ███░░███     ███  ░███    ███  ░███ ░   █   ░░███ ░░████  ░███   ░███  ░███ ░   █ ███    ░███    ░███        ░███        ░███     ",
-        " ░░█████████  ░░░███████░   ██████████   ██████████    ░░░██████░██ ░░████████   ██████████░░█████████     █████       ░░░         ░░░      ",
-        "  ░░░░░░░░░     ░░░░░░░    ░░░░░░░░░░   ░░░░░░░░░░      ░░░░░░ ░░   ░░░░░░░░   ░░░░░░░░░░  ░░░░░░░░░     ░░░░░                              "
-    };
-
-    std::cout << "\n";
-    
-    // Desenha a linha superior preenchendo a tela inteira baseada na função
-    std::cout << std::string(larguraConsole, '=') << "\n\n";
-
-    // Imprime a logo centralizada
-    for (size_t i = 0; i < logo.size(); ++i) 
-    {
-        std::cout << padding << logo[i] << "\n";
-    }
-
-    std::cout << "\n";
-    
-    if (titulo.empty()) 
-    {
-        std::cout << std::string(larguraConsole, '=') << "\n\n";
-    } 
-    else 
-    {
-        std::cout << std::string(larguraConsole, '=') << "\n";
-        int espacos = (larguraConsole - (int)titulo.length()) / 2;
-        std::cout << std::string(espacos > 0 ? espacos : 0, ' ') << titulo << "\n";
-        std::cout << std::string(larguraConsole, '=') << "\n\n";
-    }
-}
-
 void Menu::limparTela() 
 {
     #ifdef _WIN32
@@ -188,6 +133,25 @@ bool Menu::exibirPreviaLadoALado(const std::string& tipo, const std::string& nom
     int confirma; 
     if (!(std::cin >> confirma)) { std::cin.clear(); std::cin.ignore(1000, '\n'); return false; }
     return confirma == 1;
+}
+
+void Menu::imprimirBlocoCentralizado(const std::vector<std::string>& linhas, int larguraVisual, const std::string& cor) 
+{
+    int larguraConsole = obterLarguraTerminal();
+    
+    if (larguraVisual <= 0) {
+        for (const std::string& l : linhas) {
+            if ((int)l.length() > larguraVisual) larguraVisual = (int)l.length();
+        }
+    }
+    
+    int espacosPad = (larguraConsole > larguraVisual) ? (larguraConsole - larguraVisual) / 2 : 0;
+    std::string padding(espacosPad > 0 ? espacosPad : 0, ' ');
+
+    for (const std::string& linha : linhas) 
+    {
+        std::cout << padding << (cor.empty() ? "" : cor) << linha << (cor.empty() ? "" : "\033[0m") << "\n";
+    }
 }
 
 Personagem* Menu::criarPersonagem() 
@@ -590,12 +554,110 @@ void Menu::exibirHorda(const std::vector<Personagem*>& inimigos)
     std::cout << std::string(larguraTerminal, '-') << "\n\n";
 }
 
+void Menu::exibirLogo(const std::string& titulo) 
+{
+#ifdef _WIN32
+    // Configura o console para aceitar blocos UTF-8
+    SetConsoleOutputCP(65001); 
+#endif
+
+    // Chama a nossa nova função para pegar o tamanho exato da tela do notebook/PC atual
+    int larguraConsole = obterLarguraTerminal();
+    
+    std::vector<std::string> logo = 
+    {
+        "   █████████     ███████    ██████████   ██████████       ██████    █████  █████ ██████████  █████████  ███████████                         ",
+        "  ███░░░░░███  ███░░░░░███ ░░███░░░░███ ░░███░░░░░█     ███░░░░███ ░░███  ░░███ ░░███░░░░░█ ███░░░░░███░█░░░███░░░█     ███         ███     ",
+        " ███     ░░░  ███     ░░███ ░███   ░░███ ░███  █ ░     ███    ░░███ ░███   ░███  ░███  █ ░ ░███    ░░░ ░   ░███  ░     ░███        ░███     ",
+        "░███         ░███      ░███ ░███    ░███ ░██████      ░███     ░███ ░███   ░███  ░██████   ░░█████████     ░███     ███████████ ███████████ ",
+        "░███         ░███      ░███ ░███    ░███ ░███░░█      ░███   ██░███ ░███   ░███  ░███░░█    ░░░░░░░░███    ░███      ░░░███░░░ ░░░░░███░░░  ",
+        "░░███     ███░░███     ███  ░███    ███  ░███ ░   █   ░░███ ░░████  ░███   ░███  ░███ ░   █ ███    ░███    ░███        ░███        ░███     ",
+        " ░░█████████  ░░░███████░   ██████████   ██████████    ░░░██████░██ ░░████████   ██████████░░█████████     █████       ░░░         ░░░      ",
+        "  ░░░░░░░░░     ░░░░░░░    ░░░░░░░░░░   ░░░░░░░░░░      ░░░░░░ ░░   ░░░░░░░░   ░░░░░░░░░░  ░░░░░░░░░     ░░░░░                              "
+    };
+
+    std::cout << "\n";
+    
+    // Desenha a linha superior preenchendo a tela inteira baseada na função
+    std::cout << std::string(larguraConsole, '=') << "\n\n";
+
+    // Imprime a logo centralizada com cor Laranja
+        imprimirBlocoCentralizado(logo, 140, "\x1b[38;5;208m");
+
+    std::cout << "\n";
+    
+    if (titulo.empty()) 
+    {
+        std::cout << std::string(larguraConsole, '=') << "\n\n";
+    } 
+    else 
+    {
+        std::cout << std::string(larguraConsole, '=') << "\n";
+        int espacos = (larguraConsole - (int)titulo.length()) / 2;
+        std::cout << std::string(espacos > 0 ? espacos : 0, ' ') << titulo << "\n";
+        std::cout << std::string(larguraConsole, '=') << "\n\n";
+    }
+}
+
+void Menu::exibirLogoCombate(const std::string& titulo) 
+{
+#ifdef _WIN32
+    // Configura o console para aceitar blocos UTF-8
+    SetConsoleOutputCP(65001); 
+#endif
+
+    int larguraConsole = obterLarguraTerminal();
+    
+    std::vector<std::string> logo = 
+    {
+        "   █████████     ███████    ██████   ██████ ███████████    █████████    ███████████ ██████████ ",
+        "  ███░░░░░███  ███░░░░░███ ░░██████ ██████ ░░███░░░░░███  ███░░░░░███ ░█░░░███░░░█░░███░░░░░█ ",
+        " ███     ░░░  ███     ░░███ ░███░█████░███  ░███    ░███ ░███    ░███ ░   ░███  ░  ░███  █ ░  ",
+        "░███         ░███      ░███ ░███░░███ ░███  ░██████████  ░███████████     ░███     ░██████    ",
+        "░███         ░███      ░███ ░███ ░░░  ░███  ░███░░░░░███ ░███░░░░░███     ░███     ░███░░█    ",
+        "░░███     ███░░███     ███  ░███      ░███  ░███    ░███ ░███    ░███     ░███     ░███ ░   █ ",
+        " ░░█████████  ░░░███████░   █████     █████ ███████████  █████   █████    █████    ██████████ ",
+        "  ░░░░░░░░░     ░░░░░░░    ░░░░░     ░░░░░ ░░░░░░░░░░░  ░░░░░   ░░░░░    ░░░░░    ░░░░░░░░░░  "
+    };
+
+    std::cout << "\n";
+    std::cout << std::string(larguraConsole, '=') << "\n\n";
+
+    // Imprime a logo centralizada com cor Vermelha
+    imprimirBlocoCentralizado(logo, 95, "\033[31m");
+
+    std::cout << "\n";
+    
+    std::cout << std::string(larguraConsole, '=') << "\n";
+    int espacos = (larguraConsole - (int)titulo.length()) / 2;
+    std::cout << std::string(espacos > 0 ? espacos : 0, ' ') << titulo << "\n";
+    std::cout << std::string(larguraConsole, '=') << "\n\n";
+}
+
 void Menu::exibirTelaVitoria(Personagem* p, int ouro, int xp, int danoCausado, int danoRecebido)
 {
     limparTela();
-    exibirLogo("VITORIA");
 
     int largura = obterLarguraTerminal();
+
+    std::vector<std::string> logoVitoria = 
+    {
+       " █████   █████ █████ ███████████    ███████    ███████████   █████   █████████   ███ ",
+       "░░███   ░░███ ░░███ ░█░░░███░░░█  ███░░░░░███ ░░███░░░░░███ ░░███   ███░░░░░███ ░███ ",
+       " ░███    ░███  ░███ ░   ░███  ░  ███     ░░███ ░███    ░███  ░███  ░███    ░███ ░███ ",
+       " ░███    ░███  ░███     ░███    ░███      ░███ ░██████████   ░███  ░███████████ ░███ ",
+       " ░░███   ███   ░███     ░███    ░███      ░███ ░███░░░░░███  ░███  ░███░░░░░███ ░███ ",
+       "  ░░░█████░    ░███     ░███    ░░███     ███  ░███    ░███  ░███  ░███    ░███ ░░░  ",
+       "    ░░███      █████    █████    ░░░███████░   █████   █████ █████ █████   █████ ███ ",
+       "     ░░░      ░░░░░    ░░░░░       ░░░░░░░    ░░░░░   ░░░░░ ░░░░░ ░░░░░   ░░░░░ ░░░  "
+    };
+
+    std::cout << "\n";
+    std::cout << std::string(largura, '=') << "\n\n";
+
+    // Imprime a logo centralizada com cor Verde (largura visual corrigida para 85)
+    imprimirBlocoCentralizado(logoVitoria, 85, "\033[32m");
+    std::cout << "\n" << std::string(largura, '=') << "\n\n";
 
     std::vector<std::string> linhas = {
         "NOME:           " + p->obterNome(),
@@ -612,19 +674,9 @@ void Menu::exibirTelaVitoria(Personagem* p, int ouro, int xp, int danoCausado, i
         "DANO RECEBIDO:  " + std::to_string(danoRecebido)
     };
 
-    // Encontra a linha mais longa para centralizar o bloco inteiro
-    int maxLen = 0;
-    for (const std::string& linha : linhas) {
-        if ((int)linha.length() > maxLen) maxLen = (int)linha.length();
-    }
-    int espacos = (largura - maxLen) / 2;
-    std::string margem(espacos > 0 ? espacos : 0, ' ');
+    // Imprime as estatisticas centralizadas e verdes (largura automatica = 0)
+    imprimirBlocoCentralizado(linhas, 0, "\033[32m");
 
-    std::cout << "\n";
-    for (const std::string& linha : linhas)
-    {
-        std::cout << margem << linha << "\n";
-    }
     std::cout << "\n" << std::string(largura, '=') << "\n";
 
     esperar();
@@ -633,9 +685,33 @@ void Menu::exibirTelaVitoria(Personagem* p, int ouro, int xp, int danoCausado, i
 void Menu::exibirTelaDerrota(Personagem* p, int ouro, int xp, int danoCausado, int danoRecebido)
 {
     limparTela();
-    exibirLogo("DERROTA");
 
     int largura = obterLarguraTerminal();
+
+    std::vector<std::string> logoDerrota = 
+    {
+        " ██████████   ██████████ ███████████   ███████████      ███████    ███████████   █████████           ",
+        "░░███░░░░███ ░░███░░░░░█░░███░░░░░███ ░░███░░░░░███   ███░░░░░███ ░█░░░███░░░█  ███░░░░░███          ",
+        " ░███   ░░███ ░███  █ ░  ░███    ░███  ░███    ░███  ███     ░░███░   ░███  ░  ░███    ░███          ",
+        " ░███    ░███ ░██████    ░██████████   ░██████████  ░███      ░███    ░███     ░███████████          ",
+        " ░███    ░███ ░███░░█    ░███░░░░░███  ░███░░░░░███ ░███      ░███    ░███     ░███░░░░░███          ",
+        " ░███    ███  ░███ ░   █ ░███    ░███  ░███    ░███ ░░███     ███     ░███     ░███    ░███          ",
+        " ██████████   ██████████ █████   █████ █████   █████ ░░░███████░      █████    █████   █████ ██ ██ ██",
+        "░░░░░░░░░░   ░░░░░░░░░░ ░░░░░   ░░░░░ ░░░░░   ░░░░░    ░░░░░░░       ░░░░░    ░░░░░   ░░░░░ ░░ ░░ ░░ "
+    };
+
+
+
+
+    
+
+
+    std::cout << "\n";
+    std::cout << std::string(largura, '=') << "\n\n";
+
+    // Imprime a logo centralizada com cor Vermelha (largura visual corrigida para 101)
+    imprimirBlocoCentralizado(logoDerrota, 101, "\033[31m");
+    std::cout << "\n" << std::string(largura, '=') << "\n\n";
 
     std::vector<std::string> linhas = {
         "NOME:           " + p->obterNome(),
@@ -652,23 +728,15 @@ void Menu::exibirTelaDerrota(Personagem* p, int ouro, int xp, int danoCausado, i
         "DANO RECEBIDO:  " + std::to_string(danoRecebido)
     };
 
-    // Encontra a linha mais longa para centralizar o bloco inteiro
-    int maxLen = 0;
-    for (const std::string& linha : linhas) {
-        if ((int)linha.length() > maxLen) maxLen = (int)linha.length();
-    }
-    int espacos = (largura - maxLen) / 2;
-    std::string margem(espacos > 0 ? espacos : 0, ' ');
-
+    // Imprime as estatisticas centralizadas e vermelhas
+    imprimirBlocoCentralizado(linhas, 0, "\033[31m");
+    
     std::cout << "\n";
-    for (const std::string& linha : linhas)
-    {
-        std::cout << margem << linha << "\n";
-    }
     
     std::string msgMorte = "Voce pereceu em combate...";
-    int espMsg = (largura - (int)msgMorte.length()) / 2;
-    std::cout << "\n" << std::string(espMsg > 0 ? espMsg : 0, ' ') << msgMorte << "\n";
+    std::cout << "\n";
+    imprimirBlocoCentralizado({msgMorte}, 0, "\033[31m");
+    
     std::cout << "\n" << std::string(largura, '=') << "\n";
 
     esperar();

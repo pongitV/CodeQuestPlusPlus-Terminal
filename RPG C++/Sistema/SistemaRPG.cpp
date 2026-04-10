@@ -57,7 +57,7 @@ void SistemaRPG::iniciarCombate()
             tituloCombate += ")";
 
             Menu::limparTela();
-            Menu::exibirLogo(tituloCombate);
+            Menu::exibirLogoCombate(tituloCombate);
             Menu::exibirHorda(inimigos);
             Menu::exibirStatusJogador(jogador); 
 
@@ -415,7 +415,13 @@ void SistemaRPG::aplicarDano(Personagem* atacante, Personagem* alvo, int danoBru
             danoCausadoTotal += dFinal;
         }
         
-        std::cout << ">> " << alvo->obterNome() << " recebeu " << dFinal << " de dano." << std::endl;
+        if (alvo == jogador) {
+            danoRecebidoTotal += dFinal;
+            std::cout << "\033[31m>> " << alvo->obterNome() << " recebeu " << dFinal << " de dano.\033[0m" << std::endl;
+        } else {
+            danoCausadoTotal += dFinal;
+            std::cout << "\033[33m>> " << alvo->obterNome() << " recebeu " << dFinal << " de dano.\033[0m" << std::endl;
+        }
     }
     else if (dFinal == 0 && alvo->obterDefendendo()) 
     {

@@ -7,6 +7,7 @@ class Menu
 public:
     static void configurarTelaCheia();
     static void exibirLogo(const std::string& titulo = "");
+    static void exibirLogoCombate(const std::string& titulo = "");
     static void limparTela();
     static void esperar();
     static void digitar(const std::string& texto, int velocidade);
@@ -24,4 +25,5 @@ public:
 
 private:
     static bool exibirPreviaLadoALado(const std::string& tipo, const std::string& nome, const std::vector<std::string>& info, const std::vector<std::string>& arte);
+    static void imprimirBlocoCentralizado(const std::vector<std::string>& linhas, int larguraVisual = 0, const std::string& cor = "");
 };

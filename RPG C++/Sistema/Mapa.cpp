@@ -88,7 +88,7 @@ void Mapa::iniciarExploracao()
                         {
                             std::cout << linhaRenderizada; 
                             linhaRenderizada = "";        
-                            std::cout << "\x1b[1;33m"; // Amarelo para o jogador
+                            std::cout << "\x1b[1;32m"; // Verde para o jogador
                             std::cout << '@';            
                             std::cout << "\x1b[0m";     // Reset para branco
                         }
