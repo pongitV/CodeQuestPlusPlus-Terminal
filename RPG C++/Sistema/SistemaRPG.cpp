@@ -115,7 +115,9 @@ void SistemaRPG::iniciarCombate()
                         jogador->ganharXp(xp);
                         ouroObtido += ouro;
                         xpObtido += xp;
-                        std::cout << "\n[!] " << (*it)->obterNome() << " derrotado! +" << ouro << "G | +" << xp << " XP\n";
+                        std::cout << "\n[!] " << (*it)->obterNome() << " derrotado! ";
+                        std::cout << "\033[43m+" << ouro << "G\033[0m "; // Fundo Amarelo para o Ouro
+                        std::cout << "\033[44m+" << xp << " XP\033[0m\n"; // Fundo Azul para o XP
                         delete *it;
                         it = inimigos.erase(it);
                         Menu::esperar();
@@ -417,10 +419,10 @@ void SistemaRPG::aplicarDano(Personagem* atacante, Personagem* alvo, int danoBru
         
         if (alvo == jogador) {
             danoRecebidoTotal += dFinal;
-            std::cout << "\033[31m>> " << alvo->obterNome() << " recebeu " << dFinal << " de dano.\033[0m" << std::endl;
+            std::cout << "\033[41m>> " << alvo->obterNome() << " recebeu " << dFinal << " de dano\033[0m" << std::endl;
         } else {
             danoCausadoTotal += dFinal;
-            std::cout << "\033[33m>> " << alvo->obterNome() << " recebeu " << dFinal << " de dano.\033[0m" << std::endl;
+            std::cout << ">> " << alvo->obterNome() << " recebeu " << dFinal << " de dano" << std::endl;
         }
     }
     else if (dFinal == 0 && alvo->obterDefendendo()) 

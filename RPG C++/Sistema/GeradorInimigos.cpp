@@ -15,11 +15,9 @@ public:
     std::vector<std::string> obterAparenciaClasseMenu() const override { return {}; }
     std::vector<Item*> gerarKitInicial() const override { return {}; }
 
-    // --- NOVAS IMPLEMENTACOES OBRIGATORIAS ---
-
     void usarHabilidadeClasseAtiva(Personagem* usuario, std::vector<Personagem*>& inimigos) override 
     {
-        // Inimigos padrao nao usam habilidades complexas por enquanto
+        // Inimigos padrao nao usam habilidades por enquanto
     }
 
     std::string obterNomeHabilidadeClasseAtiva() const override 
@@ -107,7 +105,7 @@ public:
 
 Personagem* GeradorInimigos::gerarOrk()
 {
-    Personagem* p = new Personagem("Ork", new RacaOrkMiniBoss(), new ClasseInimigoPadrao());
+    Personagem* p = new Personagem("Ork (Mini-Boss)", new RacaOrkMiniBoss(), new ClasseInimigoPadrao());
     p->definirXpRecompensa(120);
     p->definirOuroRecompensa(50);
     return p;
