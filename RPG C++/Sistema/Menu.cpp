@@ -202,7 +202,7 @@ Personagem* Menu::criarPersonagem()
             exibirLogo("SELECAO DE RACA");
             std::cout << "JOGADOR: " << nome << "\n";
             std::cout << std::string(obterLarguraTerminal(), '-') << "\n";
-            digitar(" [NARRACAO]: Qual sua origem?\n", 35);
+            digitar(" [NARRACAO]: Qual sua origem?\n\n", 35);
             
             std::cout << "  [1] Dwarf\n";
             std::cout << "  [2] Elfo\n";
@@ -255,7 +255,7 @@ Personagem* Menu::criarPersonagem()
             exibirLogo("SELECAO DE CLASSE");
             std::cout << "JOGADOR: " << nome << " | RACA: " << racaFinal->obterNomeRaca() << "\n";
             std::cout << std::string(obterLarguraTerminal(), '-') << "\n";
-            digitar(" [NARRACAO]: Qual caminho voce seguira neste mundo?\n", 35);
+            digitar(" [NARRACAO]: Qual caminho voce seguira neste mundo?\n\n", 35);
             
             std::cout << "  [1] Arqueiro\n";
             std::cout << "  [2] Bardo\n";
@@ -316,7 +316,7 @@ Personagem* Menu::criarPersonagem()
             exibirLogo("CONFIGURACOES DO JOGO");
             std::cout << "JOGADOR: " << nome << " | RACA: " << racaFinal->obterNomeRaca() << " | CLASSE: " << classeFinal->obterNomeClasse() << "\n";
             std::cout << std::string(obterLarguraTerminal(), '-') << "\n";
-            digitar(" [SISTEMA]: Deseja ativar o sistema de PARRY?\n", 35);
+            digitar(" [SISTEMA]: Deseja ativar o sistema de PARRY?\n\n", 35);
             digitar(" (Permite reduzir danos ao digitar uma sequencia de numeros num tempo limite)\n", 35);
             
             std::cout << "  [1] LIGAR Parry\n";
@@ -340,7 +340,7 @@ Personagem* Menu::criarPersonagem()
             exibirLogo("DIFICULDADE DO MUNDO");
             std::cout << "JOGADOR: " << nome << " | RACA: " << racaFinal->obterNomeRaca() << " | CLASSE: " << classeFinal->obterNomeClasse() << "\n";
             std::cout << std::string(obterLarguraTerminal(), '-') << "\n";
-            digitar(" [SISTEMA]: Escolha o nivel de desafio da sua jornada:\n", 35);
+            digitar(" [SISTEMA]: Escolha o nivel de desafio da sua jornada:\n\n", 35);
             
             std::cout << "  [1] FACIL   (Inimigos com 1x Atributos, sem habilidades de raca e sem classe)\n";
             std::cout << "  [2] NORMAL  (Inimigos com 1.5x Atributos, com habilidades de raca mas sem classes)\n";
@@ -437,14 +437,14 @@ void Menu::exibirStatusJogador(Personagem* p)
     if (preenchido > tamanhoBarra) preenchido = tamanhoBarra;
     if (preenchido > 0) barraXp += "\033[34m" + std::string(preenchido, '#') + "\033[0m";
     if (tamanhoBarra > preenchido) barraXp += std::string(tamanhoBarra - preenchido, '-');
-    barraXp += "] " + std::to_string(p->obterXpAtual()) + "/" + std::to_string(p->obterXpParaSubir());
+    barraXp += "] \033[34m" + std::to_string(p->obterXpAtual()) + "\033[0m/" + std::to_string(p->obterXpParaSubir());
     
     // Aplicando a cor dinâmica ao HP na linha do status
     std::vector<std::string> linhas = 
     {
         "| " + coracao[0] + " |",
         "| " + coracao[1] + " |  JOGADOR: " + p->obterNome() + " (" + p->obterRaca()->obterNomeRaca() + " / " + p->obterNomeClasse() + ") | NIVEL: " + std::to_string(p->obterNivel()),
-        "| " + coracao[2] + " |  HP: " + corHP + std::to_string(p->obterVida()) + corReset + "/" + std::to_string(p->obterVidaMaxima()) + " | OURO: \033[33m" + std::to_string(p->obterInventario()->obterOuro()) + "G\033[0m | XP: " + barraXp + " (" + "\033[34m" + std::to_string(p->obterXpAtual()) + "\033[0m" + ")",
+        "| " + coracao[2] + " |  HP: " + corHP + std::to_string(p->obterVida()) + corReset + "/" + std::to_string(p->obterVidaMaxima()) + " | OURO: \033[33m" + std::to_string(p->obterInventario()->obterOuro()) + "G\033[0m | XP: " + barraXp,
         "| " + coracao[3] + " |  EQUIP: " + arma + " | " + escu + " | " + dura,
         "| " + std::string(11, ' ') + " |"
     };
