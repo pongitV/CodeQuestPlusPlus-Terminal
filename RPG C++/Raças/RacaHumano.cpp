@@ -47,7 +47,7 @@ std::vector<std::string> RacaHumano::obterAparenciaRaca() const
         "              #%#%%#       %%@@%                 ",
         "              ###%%:       #*%##                 ",
         "              ###%#        %#%%                  ",
-        "              ##%#         ###* ",
+        "              ##%#         ###*                  ",
         "              #%%%         ###:                  ",
         "             :#%%-        :###                   ",
         "            :@#%%         +#%#                   ",
@@ -63,7 +63,6 @@ Atributos RacaHumano::obterAtributosRaca() const
 
 std::string RacaHumano::obterNomeHabilidadeRaca() const { return "Espirito indomavel"; }
 std::string RacaHumano::obterDescricaoHabilidadeRaca() const { return "Revive com metade da vida maxima uma vez"; }
-
 int RacaHumano::processarDanoDefensivo(int danoFinal, Personagem* defensor) 
 {
     // Verifica se o golpe seria fatal

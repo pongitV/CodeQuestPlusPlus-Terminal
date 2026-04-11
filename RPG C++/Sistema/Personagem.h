@@ -36,23 +36,24 @@ class Personagem
 protected:
     std::string nomePersonagem;
     int vidaAtual;
-    Atributos statsFinais;
     RacaBase* raca;
     ClasseBase* classe;
+    Atributos statsFinais;
     Inventario* mochila;
 
-    double multiplicadorAtual; // Para buffs temporarios
-
-    bool estaDefendendo;      // Controle de Defesa Ativa
-    bool recargaDefesa;       // Cooldown de 1 turno da Defesa
-    bool podeReviver; // Controle para "Espirito indomavel"
     bool estaInviolavel;      // Arqueiro: retirada com pontaria
     int turnosBuff;           // Guerreiro: determinacao no combate
     bool recargaHabilidade;   // Arqueiro/Bardo: uso seguido
     bool modoAtaqueArea;      // Mago: estrategia arcana
     bool pularTurnoInimigo;   // Bardo: flashing lights
+
+    bool estaDefendendo;      // Controle de Defesa Ativa
+    bool recargaDefesa;       // Cooldown de 1 turno da Defesa
+    bool podeReviver;         // Controle para "Espirito indomavel"
     bool parryAtivado;        // Controle do sistema de Parry
     int dificuldadeAtual;     // 1 = Facil, 2 = Normal, 3 = Dificil
+
+    double multiplicadorAtual;  // Para buffs temporarios
 
     Item* arma;    
     Item* escudo;   
@@ -102,7 +103,7 @@ public:
 
     void definirOuroRecompensa(int valor) { ouroRecompensa = valor; }
     int obterOuroRecompensa() const { return ouroRecompensa; }
-    void ganharOuro(int valor) { mochila->adicionarOuro(valor); }
+    void ganharOuro(int valor) { mochila->adicionarOuroAoInventario(valor); }
     void definirXpRecompensa(int valor) { xpRecompensa = valor; }
     int obterXpRecompensa() const { return xpRecompensa; }
 

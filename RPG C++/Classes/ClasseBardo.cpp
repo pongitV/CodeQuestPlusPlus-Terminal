@@ -63,7 +63,7 @@ Atributos ClasseBardo::obterAtributosClasse() const
     return { 0, 0, 5, 0, 5, 10, 10 };
 }
 
-std::vector<Item*> ClasseBardo::gerarKitInicial() const 
+std::vector<Item*> ClasseBardo::obterEquipamentoClasse() const 
 {
     return 
     {
@@ -74,7 +74,9 @@ std::vector<Item*> ClasseBardo::gerarKitInicial() const
     };
 }
 
-void ClasseBardo::usarHabilidadeClasseAtiva(Personagem* u, std::vector<Personagem*>& inimigos) 
+std::string ClasseBardo::obterNomeHabilidadeClasse() const { return "Flashing lights"; }
+std::string ClasseBardo::obterDescricaoHabilidadeClasse() const { return "Cura 30% da vida perdida e pula o turno do inimigo. Recarga: 1 turno."; }
+void ClasseBardo::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*>& inimigos) 
 {
     if (u->obterRecarga()) 
     {
@@ -92,6 +94,3 @@ void ClasseBardo::usarHabilidadeClasseAtiva(Personagem* u, std::vector<Personage
 
     std::cout << "[HABILIDADE]: !Flashing lights! Voce recuperou " << cura << " HP e encantou os inimigos, pulando o proximo turno.\n";
 }
-
-std::string ClasseBardo::obterNomeHabilidadeClasseAtiva() const { return "Flashing lights"; }
-std::string ClasseBardo::obterDescricaoHabilidadeClasseAtiva() const { return "Cura 30% da vida perdida e pula o turno do inimigo. Recarga: 1 turno."; }

@@ -6,24 +6,26 @@
 class SistemaRPG 
 {
 private:
-    Personagem* jogador;
-    std::vector<Personagem*> inimigos;
-    int contadorTurno;
-    int ouroObtido;
-    int xpObtido;
-    int danoCausadoTotal;
-    int danoRecebidoTotal;
+    // Referencias aos participantes do combate ativo
+    Personagem* jogadorAtual;
+    std::vector<Personagem*> listaDeInimigos;
 
-    void aplicarDano(Personagem* atacante, Personagem* alvo, int danoBruto, int turnoAtual);
-    bool executarParry(int qtdNumeros, int tempoLimite, int& reducao);
+    // Estatisticas gerais e controle da sessao de combate
+    int quantidadeDeOuroObtido;
+    int quantidadeDeXpObtido;
+    int totalDeDanoCausado;
+    int totalDeDanoRecebido;
+    int contadorDoTurnoAtual;
+    
+    void aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* personagemAlvo, int quantidadeDeDanoBruto, int turnoAtualDoCombate);
+    bool executarSistemaDeParry(int quantidadeDeNumerosParaDigitar, int tempoLimiteEmSegundos, int& quantidadeDeDanoReduzido);
 
 public:
-    SistemaRPG(Personagem* jogador, std::vector<Personagem*> inimigos);
+    SistemaRPG(Personagem* jogadorParaOCombate, std::vector<Personagem*> inimigosParaOCombate);
     virtual ~SistemaRPG();
 
     void iniciarCombate();
-    void executarTurnoInimigos();
-    bool verificarVitoria();
-
-    void realizarAtaqueFisico(Personagem* atacante, Personagem* defensor, int turnoAtual);
+    void executarTurnoDeTodosOsInimigos();
+    bool verificarCondicaoDeVitoriaOuDerrota();
+    void realizarAtaqueFisico(Personagem* personagemAtacante, Personagem* personagemDefensor, int turnoAtualDoCombate);
 };

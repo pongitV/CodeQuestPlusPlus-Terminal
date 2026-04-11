@@ -62,7 +62,7 @@ Atributos ClasseArqueiro::obterAtributosClasse() const
     return { -10, 5, 10, 5, 0, 5, 0 };
 }
 
-std::vector<Item*> ClasseArqueiro::gerarKitInicial() const 
+std::vector<Item*> ClasseArqueiro::obterEquipamentoClasse() const 
 {
     return 
     {
@@ -73,7 +73,9 @@ std::vector<Item*> ClasseArqueiro::gerarKitInicial() const
     };
 }
 
-void ClasseArqueiro::usarHabilidadeClasseAtiva(Personagem* u, std::vector<Personagem*>& inimigos) {
+std::string ClasseArqueiro::obterNomeHabilidadeClasse() const { return "Retirada com pontaria"; }
+std::string ClasseArqueiro::obterDescricaoHabilidadeClasse() const { return "Se afasta durante um turno, no proximo turno causa 2x dano"; }
+void ClasseArqueiro::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*>& inimigos) {
     if (u->obterRecarga()) 
     {
         std::cout << "[SISTEMA]: Habilidade em recarga\n";
@@ -84,5 +86,3 @@ void ClasseArqueiro::usarHabilidadeClasseAtiva(Personagem* u, std::vector<Person
     std::cout << "[HABILIDADE]: Retirada com pontaria! Voce se afasta neste turno.\n";
 }
 
-std::string ClasseArqueiro::obterNomeHabilidadeClasseAtiva() const { return "Retirada com pontaria"; }
-std::string ClasseArqueiro::obterDescricaoHabilidadeClasseAtiva() const { return "Se afasta durante um turno, no proximo turno causa 2x dano"; }

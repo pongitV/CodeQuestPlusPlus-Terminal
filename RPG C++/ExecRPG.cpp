@@ -9,7 +9,7 @@
 
 #include "Sistema/Menu.h"
 #include "Sistema/Personagem.h"
-#include "Sistema/Mapa.h"
+#include "Mapas/Mapa.h"
 #include "Sistema/SistemaRPG.h"
 #include "Sistema/GeradorInimigos.h"
 
@@ -42,13 +42,13 @@ int main()
     garantirAdmin();
 
     // 2. Configura a tela (agora com permissao total)
-    Menu::configurarTelaCheia(); 
-    Menu::limparTela();
+    Menu::maximizarJanelaDoTerminal(); 
+    Menu::limparTelaDoTerminal();
 
     // 3. Inicia o fluxo do jogo
-    Personagem* jogador = Menu::criarPersonagem();
+    Personagem* jogador = Menu::iniciarCriacaoDePersonagem();
     Mapa mapaDoJogo(jogador);
-    mapaDoJogo.iniciarExploracao();
+    mapaDoJogo.iniciarLoopDeExploracaoDoMapa();
 
     delete jogador;
     return 0;

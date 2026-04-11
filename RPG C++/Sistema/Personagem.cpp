@@ -22,7 +22,7 @@ Personagem::Personagem(std::string nome, RacaBase* r, ClasseBase* c)
     this->nivel = 1;
     this->xpAtual = 0;
     this->xpParaSubir = 100;
-    this->xpRecompensa = 40;
+    this->xpRecompensa = 0;
 
     this->multiplicadorAtual = 1.0;
     this->estaDefendendo = false;
@@ -35,10 +35,10 @@ Personagem::Personagem(std::string nome, RacaBase* r, ClasseBase* c)
     this->parryAtivado = false;
     this->dificuldadeAtual = 2; // Padrao: Normal
 
-    std::vector<Item*> kit = c->gerarKitInicial();
+    std::vector<Item*> kit = c->obterEquipamentoClasse();
     for (Item* item : kit) 
     {
-        this->mochila->adicionarItem(item); 
+        this->mochila->adicionarItemAoInventario(item); 
         this->equiparItem(item);            
     }
     calcularAtributos();
@@ -61,7 +61,8 @@ bool Personagem::subirDeNivel(std::string atributo)
                    [](unsigned char c){ return std::tolower(c); });
 
     bool upou = false;
-    if (atributo == "vida") {
+    if (atributo == "vida") 
+    {
         statsFinais.vida += 20;
         vidaAtual += 20;
         upou = true;
@@ -73,7 +74,8 @@ bool Personagem::subirDeNivel(std::string atributo)
     else if (atributo == "inteligencia" || atributo == "inteligência") { statsFinais.inteligencia += 5; upou = true; }
     else if (atributo == "sabedoria") { statsFinais.sabedoria += 5; upou = true; }
 
-    if (upou) {
+    if (upou) 
+    {
         xpAtual -= xpParaSubir;
         xpParaSubir = static_cast<int>(xpParaSubir * 1.5);
         nivel++;

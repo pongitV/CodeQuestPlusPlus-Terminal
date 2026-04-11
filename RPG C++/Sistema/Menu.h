@@ -5,25 +5,25 @@
 class Menu
 {
 public:
-    static void configurarTelaCheia();
-    static void exibirLogo(const std::string& titulo = "");
-    static void exibirLogoCombate(const std::string& titulo = "");
-    static void limparTela();
-    static void esperar();
-    static void digitar(const std::string& texto, int velocidade);
+    static void maximizarJanelaDoTerminal();
+    static void limparTelaDoTerminal();
+    static void aguardarPressionamentoDeEnter();
+    static void imprimirTextoComEfeitoDeDigitacao(const std::string& textoParaImprimir, int tempoDeEsperaEmMilissegundos);
+    static int obterLarguraDoTerminalEmColunas();
+
+    static void exibirLogoDoJogo(const std::string& tituloDaTela = "");
+    static void exibirLogoParaTelaDeCombate(const std::string& tituloDaTela = "");
     
-    static Personagem* criarPersonagem();
-    static void exibirStatusJogador(Personagem* p);
-    static void exibirInventario(Personagem* p); 
-    static void exibirFichaJogador(Personagem* p);
-    static void exibirTelaVitoria(Personagem* p, int ouro, int danoCausado, int danoRecebido, int xp);
-    static void exibirTelaDerrota(Personagem* p, int ouro, int danoCausado, int danoRecebido, int xp);
+    static Personagem* iniciarCriacaoDePersonagem();
+    static void exibirBarraDeStatusDoJogador(Personagem* jogadorAtual);
+    static void exibirTelaDeInventario(Personagem* jogadorAtual); 
+    static void exibirTelaDeAtributosDoJogador(Personagem* jogadorAtual);
+    static void exibirTelaDeVitoria(Personagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido);
+    static void exibirTelaDeDerrota(Personagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido);
 
-    static void exibirHorda(const std::vector<Personagem*>& inimigos);
-
-    static int obterLarguraTerminal(); 
+    static void exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>& listaDeInimigos);
 
 private:
-    static bool exibirPreviaLadoALado(const std::string& tipo, const std::string& nome, const std::vector<std::string>& info, const std::vector<std::string>& arte);
-    static void imprimirBlocoCentralizado(const std::vector<std::string>& linhas, int larguraVisual = 0, const std::string& cor = "");
+    static bool exibirConfirmacaoDeEscolhaComArteLadoALado(const std::string& tipoDeEscolha, const std::string& nomeDaEscolha, const std::vector<std::string>& informacoesParaExibir, const std::vector<std::string>& arteAsciiParaExibir);
+    static void imprimirLinhasCentralizadasNaTela(const std::vector<std::string>& linhasParaImprimir, int larguraVisualDaArte = 0, const std::string& codigoDeCorAnsi = "");
 };

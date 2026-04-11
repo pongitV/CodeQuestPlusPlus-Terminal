@@ -1,4 +1,3 @@
-// Inventario/Inventario.h
 #include <vector>
 #include <string>
 #include "Item.h"
@@ -8,27 +7,27 @@
 class Inventario
 {
 private:
-    std::vector<Item*> itens;
-    int ouro;
+    std::vector<Item*> listaDeItens;
+    int quantidadeDeOuro;
 
 public:
     Inventario();
     virtual ~Inventario();
 
     // Listagem adaptada ao terminal com títulos horizontais
-    void listarItens(Item* arma, Item* escudo, Item* armadura) const;
+    void exibirInventarioOrganizadoPorCategorias(Item* armaEquipada, Item* escudoEquipado, Item* armaduraEquipada) const;
     
     // Sistema de busca por atalho (ex: 1C)
-    Item* buscarItemPorCodigo(std::string codigo, Item* a, Item* e, Item* d);
-    Item* escolherEscudoParaDefesa();
+    Item* buscarItemPeloCodigoDigitado(std::string codigoDigitado, Item* armaEquipada, Item* escudoEquipado, Item* armaduraEquipada);
+    Item* abrirMenuParaSelecionarEscudoDeDefesa();
     
-    void adicionarItem(Item* novoItem);
-    void removerPorNome(std::string nome);
-    int contarItensPorNome(std::string nome) const;
+    void adicionarItemAoInventario(Item* novoItem);
+    void removerItemDoInventarioPeloNome(std::string nomeDoItemParaRemover);
+    int contarQuantidadeDeUmItemPeloNome(std::string nomeDoItem) const;
 
-    bool possuiPocaoCura() const;
+    bool verificarSePossuiPocaoDeCura() const;
     
-    void adicionarOuro(int quantidade);
-    int obterOuro() const;
-    bool estaVazio() const;
+    void adicionarOuroAoInventario(int quantidadeAdicional);
+    int obterQuantidadeDeOuro() const;
+    bool verificarSeInventarioEstaVazio() const;
 };
