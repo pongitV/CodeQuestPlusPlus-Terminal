@@ -46,6 +46,23 @@ SistemaRPG::~SistemaRPG()
 
 void SistemaRPG::iniciarCombate() 
 {
+    int maxDestrezaInimigos = 0;
+    for (Personagem* inimigo : listaDeInimigos) 
+    {
+        if (inimigo->obterDestreza() > maxDestrezaInimigos) maxDestrezaInimigos = inimigo->obterDestreza();
+    }
+    
+    // Destreza decide quem ataca primeiro no combate
+    if (maxDestrezaInimigos > jogadorAtual->obterDestreza()) 
+    {
+        Menu::limparTelaDoTerminal();
+        Menu::exibirLogoParaTelaDeCombate("EM COMBATE");
+        std::cout << "\n[SISTEMA]: Os inimigos sao mais ageis e atacam primeiro!\n";
+        Menu::aguardarPressionamentoDeEnter();
+        executarTurnoDeTodosOsInimigos();
+        if (verificarCondicaoDeVitoriaOuDerrota()) return;
+    }
+
     while (jogadorAtual->obterVida() > 0 && !listaDeInimigos.empty()) 
     {
         bool turnoFoiConsumido = false;
@@ -121,6 +138,14 @@ void SistemaRPG::iniciarCombate()
                         std::cout << "\n[!] " << (*iteradorInimigos)->obterNome() << " derrotado! ";
                         std::cout << "\033[43m+" << ouroDerrubado << "G\033[0m "; 
                         std::cout << "\033[44m+" << xpDerrubado << " XP\033[0m\n"; 
+                    
+                    if ((*iteradorInimigos)->obterArma() && (*iteradorInimigos)->obterArma()->obterNomeItem() == "Adaga artesanal de pedra") 
+                    {
+                        jogadorAtual->obterInventario()->adicionarItemAoInventario(new Arma("Adaga artesanal de pedra", 5, 0));
+                        std::cout << "\033[37m+Adaga artesanal de pedra\033[0m\n";
+                        itensObtidos.push_back("Adaga artesanal de pedra");
+                    }
+                    
                         delete *iteradorInimigos;
                         iteradorInimigos = listaDeInimigos.erase(iteradorInimigos);
                         Menu::aguardarPressionamentoDeEnter();
@@ -163,8 +188,7 @@ void SistemaRPG::iniciarCombate()
                 {
                     Menu::exibirTelaDeInventario(jogadorAtual);
                     std::string mensagemDoPrompt = "Digite o codigo do item ou [0] VOLTAR: ";
-                    int larguraDoTerminalLocal = Menu::obterLarguraDoTerminalEmColunas();
-                    int espacosDaMensagem = (larguraDoTerminalLocal - (int)mensagemDoPrompt.length()) / 2;
+                    int espacosDaMensagem = (larguraDoTerminal - (int)mensagemDoPrompt.length()) / 2;
                     std::cout << "\n" << std::string(espacosDaMensagem > 0 ? espacosDaMensagem : 0, ' ') << mensagemDoPrompt;
                     std::cin >> codigoDoItemDigitado;
     
@@ -212,8 +236,7 @@ void SistemaRPG::iniciarCombate()
                     std::string mensagemDeOpcoes = "[0] VOLTAR (combate) | [1] ALTERAR PARRY";
                     if (jogadorAtual->podeSubirDeNivel()) mensagemDeOpcoes += " | [2] SUBIR DE NIVEL";
                     mensagemDeOpcoes += ": ";
-                    int larguraDoTerminalLocal = Menu::obterLarguraDoTerminalEmColunas();
-                    int espacosDaMensagem = (larguraDoTerminalLocal - (int)mensagemDeOpcoes.length()) / 2;
+                    int espacosDaMensagem = (larguraDoTerminal - (int)mensagemDeOpcoes.length()) / 2;
                     std::cout << "\n" << std::string(espacosDaMensagem > 0 ? espacosDaMensagem : 0, ' ') << mensagemDeOpcoes;
                     std::cin >> opcaoEscolhidaNoMenuJogador;
 
@@ -310,23 +333,27 @@ void SistemaRPG::realizarAtaqueFisico(Personagem* personagemAtacante, Personagem
         personagemAtacante->definirInviolavel(false);
     }
 
-    int bonusDeDanoDaArma = (personagemAtacante->obterArma()) ? personagemAtacante->obterArma()->obterBonusDano() : 0;
-    
-    int valorDoAtributoBaseParaAtaque = personagemAtacante->obterForca();
-    if (personagemAtacante->obterNomeClasse() == "Mago") 
+    int danoFisicoDaArma = 1; // Dano base desarmado
+    int danoMagicoDaArma = 0;
+
+    if (personagemAtacante->obterArma()) 
     {
-        valorDoAtributoBaseParaAtaque = personagemAtacante->obterInteligencia();
-    } 
-    else if (personagemAtacante->obterNomeClasse() == "Bardo") 
-    {
-        valorDoAtributoBaseParaAtaque = personagemAtacante->obterSabedoria();
-    } 
-    else if (personagemAtacante->obterNomeClasse() == "Arqueiro") 
-    {
-        valorDoAtributoBaseParaAtaque = personagemAtacante->obterDestreza();
+        danoFisicoDaArma = personagemAtacante->obterArma()->obterDanoFisico();
+        danoMagicoDaArma = personagemAtacante->obterArma()->obterDanoMagico();
     }
 
-    int danoBaseCalculado = static_cast<int>((valorDoAtributoBaseParaAtaque + bonusDeDanoDaArma) * multiplicadorDeAtributos);
+    // Força soma dano fisico, Destreza multiplica dano fisico
+    double danoFisicoCalculado = (danoFisicoDaArma + personagemAtacante->obterForca()) * (1.0 + (personagemAtacante->obterDestreza() / 100.0));
+    if (danoFisicoCalculado < 0) danoFisicoCalculado = 0; // Evita que atributos negativos reduzam o dano total
+    
+    // Inteligencia soma dano magico, Sabedoria multiplica dano magico
+    double danoMagicoCalculado = (danoMagicoDaArma + personagemAtacante->obterInteligencia()) * (1.0 + (personagemAtacante->obterSabedoria() / 100.0));
+    if (danoMagicoCalculado < 0) danoMagicoCalculado = 0; // Evita que magias negativas curem ou enfraquecam o ataque fisico
+
+    double danoTotalCalculado = danoFisicoCalculado + danoMagicoCalculado;
+    if (danoTotalCalculado < 1.0) danoTotalCalculado = 1.0;
+
+    int danoBaseCalculado = static_cast<int>(danoTotalCalculado * multiplicadorDeAtributos);
 
     if (personagemAtacante == jogadorAtual || jogadorAtual->obterDificuldade() >= 2) 
     {
@@ -355,10 +382,17 @@ void SistemaRPG::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* p
     }
 
     int bonusDeDefesaDaArmadura = (personagemAlvo->obterArmadura()) ? personagemAlvo->obterArmadura()->obterReducaoFixa() : 0;
-    double totalDeReducaoFixaDeDano = (0.2 * personagemAlvo->obterResistencia()) + bonusDeDefesaDaArmadura;
-    double totalDeReducaoPercentualDeDano = ((personagemAlvo->obterConstituicao() / 3.0) / 100.0);
+    
+    // Resistencia atua como reduçao fixa base
+    int totalDeReducaoFixaDeDano = personagemAlvo->obterResistencia() + bonusDeDefesaDaArmadura;
+    
+    // Constituicao atua como reducao percentual (produto) com limite de 50%
+    double percentualDeReducao = personagemAlvo->obterConstituicao() / 100.0;
+    if (percentualDeReducao > 0.50) percentualDeReducao = 0.50; // Hardcap de 50% de absorcao maxima
+    
+    double multiplicadorDeConstituicao = 1.0 - percentualDeReducao;
 
-    int danoFinalAposReducoes = static_cast<int>((quantidadeDeDanoBruto - totalDeReducaoFixaDeDano) * (1.0 - totalDeReducaoPercentualDeDano));
+    int danoFinalAposReducoes = static_cast<int>((quantidadeDeDanoBruto - totalDeReducaoFixaDeDano) * multiplicadorDeConstituicao);
     if (danoFinalAposReducoes < 1) danoFinalAposReducoes = 1; // Impacto basico minimo
 
     // Logica do Parry
@@ -506,7 +540,7 @@ bool SistemaRPG::verificarCondicaoDeVitoriaOuDerrota()
 {
     if (listaDeInimigos.empty()) 
     { 
-        Menu::exibirTelaDeVitoria(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido);
+        Menu::exibirTelaDeVitoria(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, itensObtidos);
         return true; 
     }
     if (jogadorAtual->obterVida() <= 0) 

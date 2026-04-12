@@ -67,12 +67,12 @@ bool Personagem::subirDeNivel(std::string atributo)
         vidaAtual += 20;
         upou = true;
     }
-    else if (atributo == "forca" || atributo == "força") { statsFinais.forca += 5; upou = true; }
-    else if (atributo == "destreza") { statsFinais.destreza += 5; upou = true; }
-    else if (atributo == "resistencia" || atributo == "resistência") { statsFinais.resistencia += 5; upou = true; }
-    else if (atributo == "constituicao" || atributo == "constituição") { statsFinais.constituicao += 5; upou = true; }
-    else if (atributo == "inteligencia" || atributo == "inteligência") { statsFinais.inteligencia += 5; upou = true; }
-    else if (atributo == "sabedoria") { statsFinais.sabedoria += 5; upou = true; }
+    else if (atributo == "forca" || atributo == "força") { statsFinais.forca += 1; upou = true; }
+    else if (atributo == "destreza") { statsFinais.destreza += 1; upou = true; }
+    else if (atributo == "resistencia" || atributo == "resistência") { statsFinais.resistencia += 1; upou = true; }
+    else if (atributo == "constituicao" || atributo == "constituição") { statsFinais.constituicao += 1; upou = true; }
+    else if (atributo == "inteligencia" || atributo == "inteligência") { statsFinais.inteligencia += 1; upou = true; }
+    else if (atributo == "sabedoria") { statsFinais.sabedoria += 1; upou = true; }
 
     if (upou) 
     {

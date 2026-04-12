@@ -60,17 +60,17 @@ std::vector<std::string> ClasseBardo::obterAparenciaClasseMenu() const
 
 Atributos ClasseBardo::obterAtributosClasse() const
 {
-    return { 0, 0, 5, 0, 5, 10, 10 };
-}
+    return { 0, 10, 10, 2, 10, 10, 10 };
+} // Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria
 
 std::vector<Item*> ClasseBardo::obterEquipamentoClasse() const 
 {
     return 
     {
         new PocaoCura(), new PocaoCura(), new PocaoCura(),
-        new Arma("Violao encantado", 3),
-        new Escudo("Capa magica", 5, 2),
-        new Armadura("Roupas nobres de tecido luxuoso", 1)
+        new Arma("Violao encantado", 0, 7), // dano fisico, dano magico
+        new Escudo("Capa magica", 10, 8), // durabilidade, reducao fixa
+        new Armadura("Traje de Couro e tecido nobre", 4) // reducao fixa
     };
 }
 

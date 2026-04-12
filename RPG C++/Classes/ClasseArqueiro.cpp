@@ -59,17 +59,17 @@ std::vector<std::string> ClasseArqueiro::obterAparenciaClasseMenu() const
 
 Atributos ClasseArqueiro::obterAtributosClasse() const
 {
-    return { -10, 5, 10, 5, 0, 5, 0 };
-}
+    return { 0, 10, 20, 2, 10, 5, 5 };
+} // Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria
 
 std::vector<Item*> ClasseArqueiro::obterEquipamentoClasse() const 
 {
     return 
     {
         new PocaoCura(), new PocaoCura(), new PocaoCura(),
-        new Arma("Arco recurvo de madeira", 5),
-        new Escudo("Escudo leve de madeira", 6, 3),
-        new Armadura("Armadura leve de couro", 2)
+        new Arma("Arco recurvo de madeira", 10, 0), // Dano Fisico, Dano Magico
+        new Escudo("Bracedeiras de prata", 5, 2), // Durabilidade, Reducao Fixa
+        new Armadura("Armadura leve de couro com malha", 5) // Reducao Fixa
     };
 }
 
@@ -85,4 +85,3 @@ void ClasseArqueiro::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*
     u->definirRecarga(true);
     std::cout << "[HABILIDADE]: Retirada com pontaria! Voce se afasta neste turno.\n";
 }
-

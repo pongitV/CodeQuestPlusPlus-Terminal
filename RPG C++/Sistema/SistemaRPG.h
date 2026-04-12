@@ -1,4 +1,5 @@
 #include <vector>
+#include <string>
 #include "Personagem.h"
 
 #pragma once
@@ -16,6 +17,7 @@ private:
     int totalDeDanoCausado;
     int totalDeDanoRecebido;
     int contadorDoTurnoAtual;
+    std::vector<std::string> itensObtidos;
     
     void aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* personagemAlvo, int quantidadeDeDanoBruto, int turnoAtualDoCombate);
     bool executarSistemaDeParry(int quantidadeDeNumerosParaDigitar, int tempoLimiteEmSegundos, int& quantidadeDeDanoReduzido);

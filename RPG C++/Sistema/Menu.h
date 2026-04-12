@@ -18,7 +18,7 @@ public:
     static void exibirBarraDeStatusDoJogador(Personagem* jogadorAtual);
     static void exibirTelaDeInventario(Personagem* jogadorAtual); 
     static void exibirTelaDeAtributosDoJogador(Personagem* jogadorAtual);
-    static void exibirTelaDeVitoria(Personagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido);
+    static void exibirTelaDeVitoria(Personagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido, const std::vector<std::string>& itensObtidos);
     static void exibirTelaDeDerrota(Personagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido);
 
     static void exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>& listaDeInimigos);

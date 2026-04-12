@@ -58,24 +58,25 @@ std::vector<std::string> ClasseMago::obterAparenciaClasseMenu() const
 }
 
 Atributos ClasseMago::obterAtributosClasse() const
-{
-    return { -10, 0, -5, 0, 5, 15, 15 };
-}
+{ 
+    return { 0, 5, 5, 2, 10, 15, 15 };
+} // Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria
 
 std::vector<Item*> ClasseMago::obterEquipamentoClasse() const 
 {
     return 
     {
         new PocaoCura(), new PocaoCura(), new PocaoCura(),
-        new Arma("Bola de cristal", 12),
-        new Escudo("Manto encantado", 5, 3),
-        new Armadura("Traje de lã encantada", 5)
+        new Arma("Cajado", 0, 30), // Dano Fisico, Dano Magico
+        new Escudo("Barreira magica", 2, 50), // Durabilidade, Reducao Fixa
+        new Armadura("Tunica", 2) // Reducao Fixa
     };
 }
 
 std::string ClasseMago::obterNomeHabilidadeClasse() const { return "Estrategia arcana"; }
 std::string ClasseMago::obterDescricaoHabilidadeClasse() const { return "Alterna entre ataque em area ou alvo unico (não gasta seu turno)"; }
-void ClasseMago::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*>& inimigos) {
+void ClasseMago::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*>& inimigos) 
+{
     u->alternarModoAtaque();
     std::string modo = u->obterModoAtaqueArea() ? "AREA (Dano dividido)" : "UNICO (Dano total)";
     std::cout << "[HABILIDADE]: Estrategia arcana! Modo de ataque: " << modo << "\n";

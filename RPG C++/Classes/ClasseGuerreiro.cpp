@@ -60,17 +60,17 @@ std::vector<std::string> ClasseGuerreiro::obterAparenciaClasseMenu() const
 
 Atributos ClasseGuerreiro::obterAtributosClasse() const
 {
-    return { 20, 1000000, 5, 5, 5, 0, 0 };
-}
+    return { 0, 20, 10, 2, 10, 5, 5 };
+} // Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria
 
 std::vector<Item*> ClasseGuerreiro::obterEquipamentoClasse() const 
 {
     return 
     {
         new PocaoCura(), new PocaoCura(), new PocaoCura(),
-        new Arma("Espada longa de metal", 10),
-        new Escudo("Escudo medio de metal", 12, 6),
-        new Armadura("Armadura media de malha", 8)
+        new Arma("Espada longa de ferro", 10, 0), // Dano Fisico, Dano Magico
+        new Escudo("Escudo medio de metal", 15, 5), // Reducao Fixa, Durabilidade
+        new Armadura("Armadura de malha e metal", 7) // Reducao Fixa
     };
 }
 

@@ -35,21 +35,28 @@ void Inventario::exibirInventarioOrganizadoPorCategorias(Item* armaEquipada, Ite
         }
     }
     
+    auto obterPrecoVendaPorNome = [](const std::string& nome) -> int {
+        if (nome == "Adaga artesanal de pedra") return 5;
+        if (nome.find("Pocao") != std::string::npos || nome.find("Poção") != std::string::npos) return 6;
+        if (nome == "Manto encantado" || nome == "Escudo medio de metal" || nome == "Capa magica" || nome == "Escudo leve de madeira") return 9;
+        return 3;
+    };
+
     std::vector<std::string> linhasParaImprimir;
 
     linhasParaImprimir.push_back("DINHEIRO: " + std::to_string(quantidadeDeOuro) + " moedas");
     linhasParaImprimir.push_back("");  
 
     linhasParaImprimir.push_back("[ EQUIPAMENTO ]");
-    if (armaEquipada) linhasParaImprimir.push_back(" [1A] ARMA:     " + armaEquipada->obterNomeItem());
-    if (escudoEquipado) linhasParaImprimir.push_back(" [2A] ESCUDO:   " + escudoEquipado->obterNomeItem());
-    if (armaduraEquipada) linhasParaImprimir.push_back(" [3A] ARMADURA: " + armaduraEquipada->obterNomeItem());
+    if (armaEquipada) linhasParaImprimir.push_back(" [1E] ARMA:     " + armaEquipada->obterNomeItem());
+    if (escudoEquipado) linhasParaImprimir.push_back(" [2E] ESCUDO:   " + escudoEquipado->obterNomeItem());
+    if (armaduraEquipada) linhasParaImprimir.push_back(" [3E] ARMADURA: " + armaduraEquipada->obterNomeItem());
     linhasParaImprimir.push_back(""); 
 
     linhasParaImprimir.push_back("[ ARSENAL ]");
     if (outrosEquipamentos.empty()) linhasParaImprimir.push_back(" (Vazio)");
     for (size_t indice = 0; indice < outrosEquipamentos.size(); indice++) {
-        linhasParaImprimir.push_back(" [" + std::to_string(indice + 1) + "E] " + outrosEquipamentos[indice]->obterNomeItem() + " [" + outrosEquipamentos[indice]->raridadeParaString() + "]");
+        linhasParaImprimir.push_back(" [" + std::to_string(indice + 1) + "A] " + outrosEquipamentos[indice]->obterNomeItem() + " [" + outrosEquipamentos[indice]->raridadeParaString() + "] (Venda: " + std::to_string(obterPrecoVendaPorNome(outrosEquipamentos[indice]->obterNomeItem())) + "G)");
     }
     linhasParaImprimir.push_back(""); 
 
@@ -57,7 +64,7 @@ void Inventario::exibirInventarioOrganizadoPorCategorias(Item* armaEquipada, Ite
     if (contagemDeConsumiveis.empty()) linhasParaImprimir.push_back(" (Vazio)");
     int contadorDeConsumiveis = 1;
     for (auto const& [nomeDoItem, quantidade] : contagemDeConsumiveis) {
-        linhasParaImprimir.push_back(" [" + std::to_string(contadorDeConsumiveis++) + "C] " + std::to_string(quantidade) + "x " + nomeDoItem);
+        linhasParaImprimir.push_back(" [" + std::to_string(contadorDeConsumiveis++) + "C] " + std::to_string(quantidade) + "x " + nomeDoItem + " (Venda: " + std::to_string(obterPrecoVendaPorNome(nomeDoItem)) + "G / un)");
     }
     linhasParaImprimir.push_back("");
 
@@ -99,26 +106,23 @@ Item* Inventario::buscarItemPeloCodigoDigitado(std::string codigoDigitado, Item*
     int indiceDoItem = std::stoi(parteNumerica);
     if (indiceDoItem <= 0) return nullptr;
 
-    if (letraDaCategoria == 'A')
+    if (letraDaCategoria == 'E')
     {
         if (indiceDoItem == 1) return armaEquipada;
         if (indiceDoItem == 2) return escudoEquipado;
         if (indiceDoItem == 3) return armaduraEquipada;
     }
-    else if (letraDaCategoria == 'E')
+    else if (letraDaCategoria == 'A')
     {
-        std::vector<Item*> outrosEquipamentos;
+        int contadorAtual = 0;
         for (Item* itemAtual : listaDeItens) {
             TipoEquipamento tipoDoItem = itemAtual->obterTipo();
 
             if ((tipoDoItem == TipoEquipamento::ARMA || tipoDoItem == TipoEquipamento::ESCUDO || tipoDoItem == TipoEquipamento::ARMADURA) 
                 && itemAtual != armaEquipada && itemAtual != escudoEquipado && itemAtual != armaduraEquipada) {
-                outrosEquipamentos.push_back(itemAtual);
+                contadorAtual++;
+                if (contadorAtual == indiceDoItem) return itemAtual;
             }
-        }
-
-        if (indiceDoItem <= static_cast<int>(outrosEquipamentos.size())) {
-            return outrosEquipamentos[indiceDoItem - 1];
         }
     }
     else if (letraDaCategoria == 'C')
@@ -143,15 +147,12 @@ Item* Inventario::buscarItemPeloCodigoDigitado(std::string codigoDigitado, Item*
     }
     else if (letraDaCategoria == 'M')
     {
-        std::vector<Item*> itensDeMissao;
+        int contadorAtual = 0;
         for (Item* itemAtual : listaDeItens) {
             if (itemAtual->obterTipo() == TipoEquipamento::MISSAO) {
-                itensDeMissao.push_back(itemAtual);
+                contadorAtual++;
+                if (contadorAtual == indiceDoItem) return itemAtual;
             }
-        }
-
-        if (indiceDoItem <= static_cast<int>(itensDeMissao.size())) {
-            return itensDeMissao[indiceDoItem - 1];
         }
     }
     

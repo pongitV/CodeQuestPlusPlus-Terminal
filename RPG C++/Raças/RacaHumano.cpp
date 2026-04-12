@@ -58,8 +58,8 @@ std::vector<std::string> RacaHumano::obterAparenciaRaca() const
 
 Atributos RacaHumano::obterAtributosRaca() const 
 {
-    return { 0, 10, 10, 10, 10, 10, 10 };
-}
+    return { 0, 10, 10, 0, 10, 10, 10 };
+} // Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria
 
 std::string RacaHumano::obterNomeHabilidadeRaca() const { return "Espirito indomavel"; }
 std::string RacaHumano::obterDescricaoHabilidadeRaca() const { return "Revive com metade da vida maxima uma vez"; }

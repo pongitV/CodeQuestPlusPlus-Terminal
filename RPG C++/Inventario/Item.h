@@ -27,7 +27,8 @@ public:
     virtual std::string obterNomeItem() const = 0;
     virtual Raridade obterRaridade() const = 0;
     virtual TipoEquipamento obterTipo() const { return TipoEquipamento::NENHUM; }
-    virtual int obterBonusDano() const { return 0; }
+    virtual int obterDanoFisico() const { return 0; }
+    virtual int obterDanoMagico() const { return 0; }
     virtual double obterReducaoPercentual() const { return 0.0; }
     virtual int obterReducaoFixa() const { return 0; }
     virtual int obterReducaoDanoFixaEscudo() const { return 0; }
@@ -54,14 +55,16 @@ class Arma : public Item
 {
 private:
     std::string nome;
-    int bonus;        
+    int danoFisico;
+    int danoMagico;
 
 public:
-    Arma(std::string n, int b) : nome(n), bonus(b) {}
+    Arma(std::string n, int dFisico, int dMagico) : nome(n), danoFisico(dFisico), danoMagico(dMagico) {}
     std::string obterNomeItem() const override { return nome; }
     Raridade obterRaridade() const override { return Raridade::COMUM; }
     TipoEquipamento obterTipo() const override { return TipoEquipamento::ARMA; }
-    int obterBonusDano() const override { return bonus; }
+    int obterDanoFisico() const override { return danoFisico; }
+    int obterDanoMagico() const override { return danoMagico; }
 };
 
 class Escudo : public Item 

@@ -208,7 +208,6 @@ Personagem* Menu::iniciarCriacaoDePersonagem()
             std::cout << "JOGADOR: " << nomeDoPersonagem << "\n";
             std::cout << std::string(obterLarguraDoTerminalEmColunas(), '-') << "\n";
             imprimirTextoComEfeitoDeDigitacao(" [NARRACAO]: Qual sua origem?\n\n", 35);
-            
             std::cout << "  [1] Dwarf\n";
             std::cout << "  [2] Elfo\n";
             std::cout << "  [3] Humano\n";
@@ -622,7 +621,7 @@ void Menu::exibirLogoParaTelaDeCombate(const std::string& tituloDaTela)
     std::cout << std::string(larguraConsole, '=') << "\n\n";
 }
 
-void Menu::exibirTelaDeVitoria(Personagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido)
+void Menu::exibirTelaDeVitoria(Personagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido, const std::vector<std::string>& itensObtidos)
 {
     limparTelaDoTerminal();
 
@@ -647,7 +646,8 @@ void Menu::exibirTelaDeVitoria(Personagem* jogadorAtual, int quantidadeDeOuroObt
     imprimirLinhasCentralizadasNaTela(logoVitoria, 85, "\033[32m");
     std::cout << "\n" << std::string(largura, '=') << "\n\n";
 
-    std::vector<std::string> linhas = {
+    std::vector<std::string> linhas = 
+    {
         "NOME:           " + jogadorAtual->obterNome(),
         "RACA:           " + jogadorAtual->obterRaca()->obterNomeRaca(),
         "CLASSE:         " + jogadorAtual->obterNomeClasse(),
@@ -659,8 +659,23 @@ void Menu::exibirTelaDeVitoria(Personagem* jogadorAtual, int quantidadeDeOuroObt
         "OURO OBTIDO:   +" + std::to_string(quantidadeDeOuroObtido) + "G",
         "XP OBTIDO:     +" + std::to_string(quantidadeDeXpObtido) + " XP",
         "DANO CAUSADO:   " + std::to_string(totalDeDanoCausado),
-        "DANO RECEBIDO:  " + std::to_string(totalDeDanoRecebido)
+        "DANO RECEBIDO:  " + std::to_string(totalDeDanoRecebido),
+        ""
     };
+
+    if (!itensObtidos.empty()) 
+    {
+        linhas.push_back("ITENS OBTIDOS:");
+        std::map<std::string, int> contagem;
+        for (const std::string& item : itensObtidos) contagem[item]++;
+        for (auto const& [nome, qtd] : contagem) {
+            linhas.push_back("  +" + std::to_string(qtd) + "x " + nome);
+        }
+    } 
+    else 
+    {
+        linhas.push_back("ITENS OBTIDOS: Nenhum");
+    }
 
     // Imprime as estatisticas centralizadas e verdes (largura automatica = 0)
     imprimirLinhasCentralizadasNaTela(linhas, 0, "\033[32m");
