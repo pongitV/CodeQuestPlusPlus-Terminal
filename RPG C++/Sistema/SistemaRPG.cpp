@@ -17,6 +17,9 @@
 #include "../Classes/ClasseBase.h"
 #include "../Inventario/Item.h"
 
+#include "../Interfaces/TelaVitoria.h"
+#include "../Interfaces/TelaDerrota.h"
+
 SistemaRPG::SistemaRPG(Personagem* jogadorParaOCombate, std::vector<Personagem*> inimigosParaOCombate) 
     : jogadorAtual(jogadorParaOCombate), listaDeInimigos(inimigosParaOCombate), contadorDoTurnoAtual(1), quantidadeDeOuroObtido(0), quantidadeDeXpObtido(0), totalDeDanoCausado(0), totalDeDanoRecebido(0)
 {
@@ -50,6 +53,12 @@ void SistemaRPG::iniciarCombate()
     for (Personagem* inimigo : listaDeInimigos) 
     {
         if (inimigo->obterDestreza() > maxDestrezaInimigos) maxDestrezaInimigos = inimigo->obterDestreza();
+    }
+    
+    bool turnoExtraFirstTurn = false;
+    if (jogadorAtual->obterDestreza() > (maxDestrezaInimigos * 2)) 
+    {
+        turnoExtraFirstTurn = true;
     }
     
     // Destreza decide quem ataca primeiro no combate
@@ -129,23 +138,7 @@ void SistemaRPG::iniciarCombate()
                 {
                     if ((*iteradorInimigos)->obterVida() <= 0) 
                     {
-                        int ouroDerrubado = (*iteradorInimigos)->obterOuroRecompensa();
-                        int xpDerrubado = (*iteradorInimigos)->obterXpRecompensa();
-                        jogadorAtual->ganharOuro(ouroDerrubado);
-                        jogadorAtual->ganharXp(xpDerrubado);
-                        quantidadeDeOuroObtido += ouroDerrubado;
-                        quantidadeDeXpObtido += xpDerrubado;
-                        std::cout << "\n[!] " << (*iteradorInimigos)->obterNome() << " derrotado! ";
-                        std::cout << "\033[43m+" << ouroDerrubado << "G\033[0m "; 
-                        std::cout << "\033[44m+" << xpDerrubado << " XP\033[0m\n"; 
-                    
-                    if ((*iteradorInimigos)->obterArma() && (*iteradorInimigos)->obterArma()->obterNomeItem() == "Adaga artesanal de pedra") 
-                    {
-                        jogadorAtual->obterInventario()->adicionarItem(new Arma("Adaga artesanal de pedra", 5, 0));
-                        std::cout << "\033[37m+Adaga artesanal de pedra\033[0m\n";
-                        itensObtidos.push_back("Adaga artesanal de pedra");
-                    }
-                    
+                        processarMorteDeInimigo(*iteradorInimigos);
                         delete *iteradorInimigos;
                         iteradorInimigos = listaDeInimigos.erase(iteradorInimigos);
                         Menu::aguardarPressionamentoDeEnter();
@@ -183,78 +176,12 @@ void SistemaRPG::iniciarCombate()
             }
             case 4: // --- 4. INVENTARIO ---
             {
-                std::string codigoDoItemDigitado;
-                do 
-                {
-                    Menu::exibirTelaDeInventario(jogadorAtual);
-                    std::string mensagemDoPrompt = "Digite o codigo do item ou [0] VOLTAR: ";
-                    int espacosDaMensagem = (larguraDoTerminal - (int)mensagemDoPrompt.length()) / 2;
-                    std::cout << "\n" << std::string(espacosDaMensagem > 0 ? espacosDaMensagem : 0, ' ') << mensagemDoPrompt;
-                    std::cin >> codigoDoItemDigitado;
-    
-                    if (codigoDoItemDigitado != "0")
-                    {
-                        Item* itemEncontrado = jogadorAtual->obterInventario()->buscarItemPorCodigo(
-                            codigoDoItemDigitado, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura()
-                        );
-    
-                        if (itemEncontrado && dynamic_cast<PocaoCura*>(itemEncontrado))
-                        {
-                            if (turnoFoiConsumido) 
-                            {
-                                std::cout << "\n[SISTEMA]: Voce ja usou um item neste turno!\n";
-                                Menu::aguardarPressionamentoDeEnter();
-                            } 
-                            else 
-                            {
-                                std::string nomeDoItemEncontrado = itemEncontrado->obterNomeItem(); 
-                                int quantidadeDeCura = static_cast<int>(jogadorAtual->obterVidaMaxima() * 0.30);
-                                
-                                jogadorAtual->modificarVida(quantidadeDeCura); 
-                                jogadorAtual->obterInventario()->removerItem(nomeDoItemEncontrado);
-                                
-                                std::cout << "\n[SISTEMA]: " << nomeDoItemEncontrado << " usada! +" << quantidadeDeCura << " HP.\n";
-                                Menu::aguardarPressionamentoDeEnter();
-                                turnoFoiConsumido = true;
-                            }
-                        }
-                        else if (itemEncontrado)
-                        {
-                            std::cout << "\n[SISTEMA]: Este item nao pode ser usado em combate!\n";
-                            Menu::aguardarPressionamentoDeEnter();
-                        }
-                    }
-                } while (codigoDoItemDigitado != "0");
+                Menu::gerenciarInventario(jogadorAtual, &turnoFoiConsumido);
                 break;
             }
             case 5: // --- 5. JOGADOR ---
             {
-                std::string opcaoEscolhidaNoMenuJogador;
-                do 
-                {
-                    Menu::exibirTelaDeAtributosDoJogador(jogadorAtual);
-                    std::string mensagemDeOpcoes = "[0] VOLTAR (combate) | [1] ALTERAR PARRY";
-                    if (jogadorAtual->podeSubirDeNivel()) mensagemDeOpcoes += " | [2] SUBIR DE NIVEL";
-                    mensagemDeOpcoes += ": ";
-                    int espacosDaMensagem = (larguraDoTerminal - (int)mensagemDeOpcoes.length()) / 2;
-                    std::cout << "\n" << std::string(espacosDaMensagem > 0 ? espacosDaMensagem : 0, ' ') << mensagemDeOpcoes;
-                    std::cin >> opcaoEscolhidaNoMenuJogador;
-
-                    if (opcaoEscolhidaNoMenuJogador == "1") {
-                        jogadorAtual->definirParryAtivado(!jogadorAtual->obterParryAtivado());
-                    } else if (opcaoEscolhidaNoMenuJogador == "2" && jogadorAtual->podeSubirDeNivel()) {
-                        std::string atributoEscolhidoParaEvoluir;
-                        std::cout << "\nDigite o atributo para melhorar (Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria): ";
-                        std::cin >> atributoEscolhidoParaEvoluir;
-                        if (jogadorAtual->subirDeNivel(atributoEscolhidoParaEvoluir)) {
-                            std::cout << "[SISTEMA]: Nivel subiu! " << atributoEscolhidoParaEvoluir << " melhorado.\n";
-                            Menu::aguardarPressionamentoDeEnter();
-                        } else {
-                            std::cout << "[ERRO]: Atributo invalido.\n";
-                            Menu::aguardarPressionamentoDeEnter();
-                        }
-                    }
-                } while (opcaoEscolhidaNoMenuJogador != "0");
+                Menu::gerenciarFichaDoJogador(jogadorAtual);
                 break;
             }
             default:
@@ -262,6 +189,14 @@ void SistemaRPG::iniciarCombate()
             }
             
             if (verificarCondicaoDeVitoriaOuDerrota()) return; 
+        }
+        
+        if (turnoExtraFirstTurn && contadorDoTurnoAtual == 1) 
+        {
+            std::cout << "\n\033[36m[SISTEMA]: Sua agilidade extrema (" << jogadorAtual->obterDestreza() << " VS " << maxDestrezaInimigos << ") permite que voce aja novamente!\033[0m\n";
+            Menu::aguardarPressionamentoDeEnter();
+            turnoExtraFirstTurn = false;
+            continue; // Pula o turno inimigo e permite que o jogador jogue o turno novamente
         }
 
         executarTurnoDeTodosOsInimigos();
@@ -282,6 +217,15 @@ void SistemaRPG::executarTurnoDeTodosOsInimigos()
         std::cout << "\n--- TURNO DOS INIMIGOS ---" << std::endl;
         for (Personagem* inimigoAtual : listaDeInimigos) 
         {
+            if (inimigoAtual->obterSangramento() && inimigoAtual->obterVida() > 0) 
+            {
+                int danoSangramento = std::max(1, inimigoAtual->obterVida() / 10);
+                inimigoAtual->modificarVida(-danoSangramento);
+                std::cout << "\033[31m[EFEITO]: " << inimigoAtual->obterNome() << " perdeu " << danoSangramento << " HP devido ao sangramento!\033[0m\n";
+                
+                if (inimigoAtual->obterVida() <= 0) continue; // Pula o ataque se o inimigo morreu para o sangramento
+            }
+
             if (jogadorAtual->obterVida() > 0) 
             {
                 // Na Dificuldade Dificil(3), os inimigos poderao ativar suas habilidades de Classe
@@ -464,6 +408,19 @@ void SistemaRPG::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* p
             totalDeDanoCausado += danoFinalAposReducoes;
             std::cout << ">> " << personagemAlvo->obterNome() << " recebeu " << danoFinalAposReducoes << " de dano" << std::endl;
         }
+        
+        // Aplicação dos efeitos no acerto
+        if (personagemAtacante->obterArma()) 
+        {
+            if (personagemAtacante->obterArma()->possuiEfeitoSangramento() && !personagemAlvo->obterSangramento()) {
+                personagemAlvo->definirSangramento(true);
+                std::cout << "\033[31m>> " << personagemAlvo->obterNome() << " comecou a sangrar profundamente!\033[0m\n";
+            }
+            if (personagemAtacante->obterArma()->possuiEfeitoLentidao() && !personagemAlvo->obterLentidao()) {
+                personagemAlvo->aplicarLentidaoEstatistica();
+                std::cout << "\033[35m>> " << personagemAlvo->obterNome() << " foi coberto por gosma e sua destreza caiu pela metade!\033[0m\n";
+            }
+        }
     }
     else if (danoFinalAposReducoes == 0 && personagemAlvo->obterDefendendo()) 
     {
@@ -540,13 +497,73 @@ bool SistemaRPG::verificarCondicaoDeVitoriaOuDerrota()
 {
     if (listaDeInimigos.empty()) 
     { 
-        Menu::exibirTelaDeVitoria(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, itensObtidos);
+        TelaVitoria::exibir(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, itensObtidos);
         return true; 
     }
     if (jogadorAtual->obterVida() <= 0) 
     { 
-        Menu::exibirTelaDeDerrota(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido); 
+        TelaDerrota::exibir(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido); 
         return true; 
     }
     return false;
+}
+
+void SistemaRPG::processarMorteDeInimigo(Personagem* inimigo)
+{
+    int ouroDerrubado = inimigo->obterOuroRecompensa();
+    int xpDerrubado = inimigo->obterXpRecompensa();
+    jogadorAtual->ganharOuro(ouroDerrubado);
+    jogadorAtual->ganharXp(xpDerrubado);
+    quantidadeDeOuroObtido += ouroDerrubado;
+    quantidadeDeXpObtido += xpDerrubado;
+    std::cout << "\n[!] " << inimigo->obterNome() << " derrotado! ";
+    std::cout << "\033[43m+" << ouroDerrubado << "G\033[0m "; 
+    std::cout << "\033[44m+" << xpDerrubado << " XP\033[0m\n"; 
+
+    if (inimigo->obterArma() && inimigo->obterArma()->obterNomeItem() == "Adaga artesanal de pedra") 
+    {
+        if ((std::rand() % 100) < 65) 
+        {
+            jogadorAtual->obterInventario()->adicionarItem(new Arma("Adaga artesanal de pedra", 5, 0));
+            std::cout << "\033[37m+1x Adaga artesanal de pedra\033[0m\n";
+            itensObtidos.push_back("Adaga artesanal de pedra");
+        }
+    }
+    
+    if (inimigo->obterNome() == "Goblin") 
+    {
+        int qtdDentes = (std::rand() % 5) + 4;
+        for (int i = 0; i < qtdDentes; ++i) {
+            jogadorAtual->obterInventario()->adicionarItem(new Material("Dente de goblin"));
+            itensObtidos.push_back("Dente de goblin");
+        }
+        std::cout << "\033[37m+" << qtdDentes << "x Dente de goblin\033[0m\n";
+    }
+    else if (inimigo->obterNome() == "Slime") 
+    {
+        for (int i = 0; i < 3; ++i) {
+            jogadorAtual->obterInventario()->adicionarItem(new Material("Gosma acida"));
+            itensObtidos.push_back("Gosma acida");
+        }
+        std::cout << "\033[37m+3x Gosma acida\033[0m\n";
+        
+        if ((std::rand() % 100) < 30) 
+        {
+            jogadorAtual->obterInventario()->adicionarItem(new Material("Nucleo pegajoso"));
+            std::cout << "\033[37m+Nucleo pegajoso\033[0m\n";
+            itensObtidos.push_back("Nucleo pegajoso");
+        }
+    }
+    else if (inimigo->obterNome() == "Ork [mini-boss]") 
+    {
+        for (int i = 0; i < 2; ++i) {
+            jogadorAtual->obterInventario()->adicionarItem(new Arma("Machado de guerra danificado", 12, 0));
+            itensObtidos.push_back("Machado de guerra danificado");
+        }
+        std::cout << "\033[37m+2x Machado de guerra danificado\033[0m\n";
+        
+        jogadorAtual->obterInventario()->adicionarItem(new Armadura("Armadura de trapos e sucata", 3));
+        std::cout << "\033[37m+1x Armadura de trapos e sucata\033[0m\n";
+        itensObtidos.push_back("Armadura de trapos e sucata");
+    }
 }

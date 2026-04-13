@@ -62,7 +62,7 @@ std::vector<std::string> ClasseGuerreiro::obterAparenciaClasseMenu() const
 Atributos ClasseGuerreiro::obterAtributosClasse() const
 {
     // Ordem: { Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria }
-    return { 0, 20, 10, 2, 10, 5, 5 };
+    return { 0, 2000000, 10, 2, 10, 5, 5 };
 }
 
 std::vector<Item*> ClasseGuerreiro::obterEquipamentoClasse() const 

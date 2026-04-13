@@ -2,10 +2,13 @@
 #include <vector>
 #include <conio.h> 
 #include <windows.h> 
+#include <cstdlib>
 
 #include "Mapa2Floresta.h"
 #include "../Sistema/Menu.h"
 #include "../Inventario/Item.h"
+#include "../Sistema/GeradorInimigos.h"
+#include "../Sistema/SistemaRPG.h"
 
 Mapa2Floresta::Mapa2Floresta(Personagem* personagemJogador) : 
     jogadorAtual(personagemJogador), posicaoXDoJogador(2), posicaoYDoJogador(2),
@@ -16,23 +19,23 @@ Mapa2Floresta::Mapa2Floresta(Personagem* personagemJogador) :
     {   "##############################################################################################################",
         "#...................**........................................**.............................................#",
         "#...[^V]...........****......................................****......................**....................#",
-        "#...................||........................................||......................****...................#",
-        "#...................||........................................||.......................||....................#",
-        "#......................................................................................||....................#",
+        "#...................||...................S....................||......................****...................#",
+        "#...................||........................................||.......................||.............S......#",
+        "#............................................................................S.........||....................#",
         "#.....................................**.....................................................................#",
-        "#....................................****....................................................................#",
-        "#.....................................||.....................................................**..............#",
+        "#....................................****................S...................................................#",
+        "#.......................S.............||.....................................................**..............#",
         "#.....................................||....................................................****.............#",
         "#............................................................................................||..............#",
         "#.................**............................................**...........................||..............#",
-        "#................****..........................................****..........................................#",
-        "#.................||............................................||...........................................#",
-        "#.................||............................................||...........................................#",
+        "#................****........................S.................****..........................................#",
+        "#.................||............................................||...............S...........................#",
+        "#.................||...........S................................||...........................................#",
         "#............................................................................................................#",
         "#.........................................................................**.................................#",
-        "#........................................................................****................................#",
-        "#......................................**.................................||.................................#",
-        "#.....................................****................................||.................................#",
+        "#........................................................................****........................S.......#",
+        "#......................................**..................S..............||.................................#",
+        "#.....................S...............****................................||.................................#",
         "#......................................||....................................................................#",
         "#......................................||.......................................................**...........#",
         "#..............................................................................................****..........#",
@@ -101,6 +104,12 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
                     linhaSendoRenderizada = "";        
                     std::cout << "\x1b[1;32m@\x1b[0m"; // Verde para o jogador
                 }
+                else if (matrizDoMapaAtual[y][x] == 'S')
+                {
+                    std::cout << linhaSendoRenderizada;
+                    linhaSendoRenderizada = "";
+                    std::cout << "\x1b[1;31mS\x1b[0m"; // Vermelho para os Slimes
+                }
                 else 
                 {
                     linhaSendoRenderizada += matrizDoMapaAtual[y][x];
@@ -123,39 +132,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
 
         if (teclaPressionadaPeloJogador == 'i' || teclaPressionadaPeloJogador == 'I') 
         {
-            std::string codigoDoItemDigitado;
-            do 
-            {
-                Menu::exibirTelaDeInventario(jogadorAtual);
-                std::string mensagemDoPrompt = "Digite o codigo do item ou [0] VOLTAR (exploracao): ";
-                int espacosParaCentralizarMensagem = (larguraDoTerminal - (int)mensagemDoPrompt.length()) / 2;
-                std::cout << "\n" << std::string(espacosParaCentralizarMensagem > 0 ? espacosParaCentralizarMensagem : 0, ' ') << mensagemDoPrompt;
-                std::cin >> codigoDoItemDigitado;
-    
-                if (codigoDoItemDigitado != "0")
-                {
-                    Item* itemEncontrado = jogadorAtual->obterInventario()->buscarItemPorCodigo(
-                        codigoDoItemDigitado, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura()
-                    );
-    
-                    if (itemEncontrado && dynamic_cast<PocaoCura*>(itemEncontrado))
-                    {
-                        std::string nomeDoItemEncontrado = itemEncontrado->obterNomeItem(); 
-                        int quantidadeDeCura = static_cast<int>(jogadorAtual->obterVidaMaxima() * 0.30);
-                        
-                        jogadorAtual->modificarVida(quantidadeDeCura); 
-                        jogadorAtual->obterInventario()->removerItem(nomeDoItemEncontrado);
-                        
-                        std::cout << "\n[SISTEMA]: " << nomeDoItemEncontrado << " usada! +" << quantidadeDeCura << " HP.\n";
-                        Menu::aguardarPressionamentoDeEnter();
-                    }
-                    else if (itemEncontrado)
-                    {
-                        std::cout << "\n[SISTEMA]: Este item nao pode ser usado fora de combate!\n";
-                        Menu::aguardarPressionamentoDeEnter();
-                    }
-                }
-            } while (codigoDoItemDigitado != "0");
+            Menu::gerenciarInventario(jogadorAtual);
 
             Menu::limparTelaDoTerminal();
             Menu::exibirLogoDoJogo(tituloDoMapaAtual);
@@ -166,8 +143,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
 
         if (teclaPressionadaPeloJogador == 'c' || teclaPressionadaPeloJogador == 'C') 
         {
-            Menu::exibirTelaDeAtributosDoJogador(jogadorAtual);
-            Menu::aguardarPressionamentoDeEnter();
+            Menu::gerenciarFichaDoJogador(jogadorAtual);
 
             Menu::limparTelaDoTerminal();
             Menu::exibirLogoDoJogo(tituloDoMapaAtual);
@@ -180,7 +156,48 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
 
         if (celulaDestinoDoMapa != '#') 
         {
-            if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'V') 
+            if (celulaDestinoDoMapa == 'S') 
+            {
+                Menu::limparTelaDoTerminal();
+                Menu::exibirLogoDoJogo("ENCONTRO PEGAJOSO");
+                
+                int espacosParaCentralizarMensagem = (larguraDoTerminal - 40) / 2; 
+                std::string margemEsquerdaDaMensagem(espacosParaCentralizarMensagem > 0 ? espacosParaCentralizarMensagem : 0, ' ');
+
+                std::cout << "\n" << margemEsquerdaDaMensagem << "[!] Voce encontrou Slimes selvagens!\n";
+                std::cout << margemEsquerdaDaMensagem << "Deseja enfrentar a gosma?\n";
+                std::cout << margemEsquerdaDaMensagem << "[0] Nao, recuar com cuidado\n";
+                std::cout << margemEsquerdaDaMensagem << "[1] Sim, para a batalha!\n";
+                std::cout << "\n" << margemEsquerdaDaMensagem << "Escolha: ";
+
+                int opcaoEscolhidaNoDialogo;
+                if (std::cin >> opcaoEscolhidaNoDialogo && opcaoEscolhidaNoDialogo == 1) 
+                {
+                    int quantidadeDeInimigos = (std::rand() % 3) + 1;
+                    std::vector<Personagem*> listaDeInimigosGerados = GeradorInimigos::criarHordaDeSlimes(quantidadeDeInimigos);
+                    SistemaRPG sessaoDeCombate(jogadorAtual, listaDeInimigosGerados);
+                    sessaoDeCombate.iniciarCombate();
+
+                    if (jogadorAtual->obterVida() > 0) 
+                    {
+                        matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX] = '.'; 
+                        posicaoXDoJogador = proximaPosicaoX;
+                        posicaoYDoJogador = proximaPosicaoY;
+                    }
+                } 
+                else 
+                {
+                    std::cin.clear(); std::cin.ignore(1000, '\n');
+                }
+
+                if (exploracaoEstaAtiva) {
+                    Menu::limparTelaDoTerminal();
+                    Menu::exibirLogoDoJogo(tituloDoMapaAtual);
+                    GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
+                    linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
+                }
+            }
+            else if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'V') 
             {
                 Menu::limparTelaDoTerminal();
                 

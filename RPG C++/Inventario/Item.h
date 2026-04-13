@@ -16,7 +16,8 @@ enum class TipoEquipamento
     ESCUDO,     
     ARMADURA,   
     CONSUMIVEL, 
-    MISSAO      
+    MISSAO,
+    MATERIAL
 };
 
 class Item 
@@ -33,6 +34,13 @@ public:
     virtual int obterReducaoFixa() const { return 0; }
     virtual int obterReducaoDanoFixaEscudo() const { return 0; }
     virtual int obterDurabilidadeAtualEscudo() const { return 0; }
+    
+    virtual void alterarNome(std::string n) {}
+    virtual bool possuiEfeitoSangramento() const { return false; }
+    virtual bool possuiEfeitoLentidao() const { return false; }
+    virtual void aplicarEfeitoSangramento() {}
+    virtual void aplicarEfeitoLentidao() {}
+
     virtual void reduzirDurabilidade(int qtd) {}
     virtual void aumentarDurabilidade(int qtd) {}
     std::string raridadeParaString() const 
@@ -57,14 +65,22 @@ private:
     std::string nome;
     int danoFisico;
     int danoMagico;
+    bool efeitoSangramento = false;
+    bool efeitoLentidao = false;
 
 public:
     Arma(std::string n, int dFisico, int dMagico) : nome(n), danoFisico(dFisico), danoMagico(dMagico) {}
     std::string obterNomeItem() const override { return nome; }
+    void alterarNome(std::string n) override { nome = n; }
     Raridade obterRaridade() const override { return Raridade::COMUM; }
     TipoEquipamento obterTipo() const override { return TipoEquipamento::ARMA; }
     int obterDanoFisico() const override { return danoFisico; }
     int obterDanoMagico() const override { return danoMagico; }
+    
+    bool possuiEfeitoSangramento() const override { return efeitoSangramento; }
+    bool possuiEfeitoLentidao() const override { return efeitoLentidao; }
+    void aplicarEfeitoSangramento() override { efeitoSangramento = true; }
+    void aplicarEfeitoLentidao() override { efeitoLentidao = true; }
 };
 
 class Escudo : public Item 
@@ -106,4 +122,16 @@ public:
     TipoEquipamento obterTipo() const override { return TipoEquipamento::ARMADURA; }
 
     int obterReducaoFixa() const override { return red; }
+};
+
+class Material : public Item 
+{
+private:
+    std::string nome;
+
+public:
+    Material(std::string n) : nome(n) {}
+    std::string obterNomeItem() const override { return nome; }
+    Raridade obterRaridade() const override { return Raridade::COMUM; }
+    TipoEquipamento obterTipo() const override { return TipoEquipamento::MATERIAL; }
 };

@@ -14,7 +14,7 @@ public:
     Inventario();
     ~Inventario();
 
-    void exibirInventario(Item* armaEquipada, Item* escudoEquipado, Item* armaduraEquipada) const;
+    void exibirInventario(Item* armaEquipada, Item* escudoEquipado, Item* armaduraEquipada, bool mostrarPrecos = false) const;
     
     Item* buscarItemPorCodigo(const std::string& codigoDigitado, Item* armaEquipada, Item* escudoEquipado, Item* armaduraEquipada);
     Item* selecionarEscudo();

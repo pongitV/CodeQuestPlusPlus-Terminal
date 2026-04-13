@@ -32,6 +32,8 @@ Personagem::Personagem(std::string nome, RacaBase* r, ClasseBase* c)
     this->recargaHabilidade = false;
     this->modoAtaqueArea = false;
     this->pularTurnoInimigo = false;
+    this->sofrendoSangramento = false;
+    this->sofrendoLentidao = false;
     this->parryAtivado = false;
     this->dificuldadeAtual = 2; // Padrao: Normal
 
@@ -109,6 +111,15 @@ void Personagem::modificarVida(int valor)
     this->vidaAtual += valor;
     if (this->vidaAtual < 0) this->vidaAtual = 0;
     if (this->vidaAtual > statsFinais.vida) this->vidaAtual = statsFinais.vida;
+}
+
+void Personagem::aplicarLentidaoEstatistica() 
+{
+    if (!sofrendoLentidao) 
+    {
+        statsFinais.destreza /= 2;
+        sofrendoLentidao = true;
+    }
 }
 
 void Personagem::mostrarStatus() const 

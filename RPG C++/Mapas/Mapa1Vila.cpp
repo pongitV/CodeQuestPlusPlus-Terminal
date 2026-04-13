@@ -2,12 +2,17 @@
 #include <vector>
 #include <conio.h> 
 #include <windows.h> 
+#include <map>
+#include <cstdlib>
 
 #include "Mapa1Vila.h"
 #include "Mapa2Floresta.h"
 #include "../Sistema/Menu.h"
 #include "../Sistema/GeradorInimigos.h"
 #include "../Sistema/SistemaRPG.h"
+#include "../Inventario/Item.h"
+#include "../NPCs/NPCBjorn.h"
+#include "../NPCs/NPCFranchesco.h"
 
 Mapa::Mapa(Personagem* personagemJogador) : 
 jogadorAtual(personagemJogador), posicaoXDoJogador(2), posicaoYDoJogador(2), jogadorEstaDentroDeUmSubMapa(false), 
@@ -19,11 +24,11 @@ posicaoXSalvaAntesDeEntrarNoSubMapa(0), posicaoYSalvaAntesDeEntrarNoSubMapa(0)
         " ########################################################################################",
         "##.###############......#######################..........################################",
         "##..........._____........_____...._____.........................##########################",
-        "####........| { } |......| { } |..| { } |.........**.............##########################",
+        "####........| { } |......| {%} |..| { } |.........**.............##########################",
         "###.........|  _  |......|  _  |..|  _  |........****..............#########################",
         "##..........| | | |......| | | |..| | | |.........||...............#########################",
-        "##..........._____................................||..**...........#####^C##################",
-        "###.........| {$} |..........G.......................****............##...##################",
+        "##..........._____.......[^Forja].................||..**...........####^C##################",
+        "###.........| {$} |..................................****............##...##################",
         "##..........|  _  |...................................||...................################",
         "###.........| | | |.......G.........~~~~~~~~~~~.......||....................################",
         "####........[^Loja]...............~~~~~~~~~~~~~~~~.......................###################",
@@ -35,7 +40,7 @@ posicaoXSalvaAntesDeEntrarNoSubMapa(0), posicaoYSalvaAntesDeEntrarNoSubMapa(0)
         "###........G................G...........................................###############",
         "###.....................................................................##############",
         "#####...........############.............################..........###################",
-        "##############################################################^F#####################",
+        "##############################################################^Floresta##############",
         "    ###############################################################################",
         "             ######                                              ################",
     };
@@ -45,6 +50,10 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
 {
     bool exploracaoEstaAtiva = true;
     std::string tituloDoMapaAtual = "EXPLORACAO";
+
+    static bool bjornResgatado = false;
+    static bool forjaJaFoiVisitada = false;
+    static std::vector<std::string> matrizDoMapaDaForjaSalva;
     
     HANDLE manipuladorDoTerminal = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_CURSOR_INFO informacoesDoCursor;
@@ -107,9 +116,27 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
                     std::cout << linhaSendoRenderizada;
                     linhaSendoRenderizada = "";
                             std::cout << "\x1b[1;31m"; // Vermelho para o Ork
-                            std::cout << 'O';
+                    if (x + 1 < matrizDoMapaAtual[y].size() && matrizDoMapaAtual[y][x+1] == 'm') {
+                        std::cout << "Om";
+                        x++; // Pula a letra 'm' no loop para nao renderizar duas vezes
+                    } else {
+                        std::cout << 'O';
+                    }
                             std::cout << "\x1b[0m";     // Reset para branco
                         }
+                else if (matrizDoMapaAtual[y][x] == 'B')
+                    {
+                    std::cout << linhaSendoRenderizada;
+                    linhaSendoRenderizada = "";
+                        std::cout << "\x1b[1;36m"; // Ciano para o Bjorn
+                    if (x + 1 < matrizDoMapaAtual[y].size() && matrizDoMapaAtual[y][x+1] == 'n') {
+                        std::cout << "Bn";
+                        x++; // Pula a letra 'n' no loop
+                    } else {
+                        std::cout << 'B';
+                    }
+                        std::cout << "\x1b[0m";     // Reset para branco
+                    }
                 else linhaSendoRenderizada += matrizDoMapaAtual[y][x];
                     }
             std::cout << linhaSendoRenderizada << "\n";
@@ -129,39 +156,7 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
 
         if (teclaPressionadaPeloJogador == 'i' || teclaPressionadaPeloJogador == 'I') 
         {
-            std::string codigoDoItemDigitado;
-            do 
-            {
-                Menu::exibirTelaDeInventario(jogadorAtual);
-                std::string mensagemDoPrompt = "Digite o codigo do item ou [0] VOLTAR (exploracao): ";
-                int espacosParaCentralizarMensagem = (larguraDoTerminal - (int)mensagemDoPrompt.length()) / 2;
-                std::cout << "\n" << std::string(espacosParaCentralizarMensagem > 0 ? espacosParaCentralizarMensagem : 0, ' ') << mensagemDoPrompt;
-                std::cin >> codigoDoItemDigitado;
-    
-                if (codigoDoItemDigitado != "0")
-                {
-                    Item* itemEncontrado = jogadorAtual->obterInventario()->buscarItemPorCodigo(
-                        codigoDoItemDigitado, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura()
-                    );
-    
-                    if (itemEncontrado && dynamic_cast<PocaoCura*>(itemEncontrado))
-                    {
-                        std::string nomeDoItemEncontrado = itemEncontrado->obterNomeItem(); 
-                        int quantidadeDeCura = static_cast<int>(jogadorAtual->obterVidaMaxima() * 0.30);
-                        
-                        jogadorAtual->modificarVida(quantidadeDeCura); 
-                        jogadorAtual->obterInventario()->removerItem(nomeDoItemEncontrado);
-                        
-                        std::cout << "\n[SISTEMA]: " << nomeDoItemEncontrado << " usada! +" << quantidadeDeCura << " HP.\n";
-                        Menu::aguardarPressionamentoDeEnter();
-                    }
-                    else if (itemEncontrado)
-                    {
-                        std::cout << "\n[SISTEMA]: Este item nao pode ser usado fora de combate!\n";
-                        Menu::aguardarPressionamentoDeEnter();
-                    }
-                }
-            } while (codigoDoItemDigitado != "0");
+            Menu::gerenciarInventario(jogadorAtual);
 
             // Restaura a renderizacao padrao do mapa apos fechar o inventario
             Menu::limparTelaDoTerminal();
@@ -173,32 +168,7 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
 
         if (teclaPressionadaPeloJogador == 'c' || teclaPressionadaPeloJogador == 'C') 
         {
-            std::string opcaoEscolhidaNoMenuJogador;
-            do 
-            {
-                Menu::exibirTelaDeAtributosDoJogador(jogadorAtual);
-                std::string mensagemDoPrompt = "[0] VOLTAR (exploracao) | [1] LIGAR/DESLIGAR PARRY";
-                if (jogadorAtual->podeSubirDeNivel()) mensagemDoPrompt += " | [2] SUBIR DE NIVEL";
-                mensagemDoPrompt += ": ";
-                int espacosParaCentralizarMensagem = (larguraDoTerminal - (int)mensagemDoPrompt.length()) / 2;
-                std::cout << "\n" << std::string(espacosParaCentralizarMensagem > 0 ? espacosParaCentralizarMensagem : 0, ' ') << mensagemDoPrompt;
-                std::cin >> opcaoEscolhidaNoMenuJogador;
-
-                if (opcaoEscolhidaNoMenuJogador == "1") {
-                    jogadorAtual->definirParryAtivado(!jogadorAtual->obterParryAtivado());
-                } else if (opcaoEscolhidaNoMenuJogador == "2" && jogadorAtual->podeSubirDeNivel()) {
-                    std::string atributoEscolhidoParaEvoluir;
-                    std::cout << "\nDigite o atributo para melhorar (Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria): ";
-                    std::cin >> atributoEscolhidoParaEvoluir;
-                    if (jogadorAtual->subirDeNivel(atributoEscolhidoParaEvoluir)) {
-                        std::cout << "[SISTEMA]: Nivel subiu! " << atributoEscolhidoParaEvoluir << " melhorado.\n";
-                        Menu::aguardarPressionamentoDeEnter();
-                    } else {
-                        std::cout << "[ERRO]: Atributo invalido.\n";
-                        Menu::aguardarPressionamentoDeEnter();
-                    }
-                }
-            } while (opcaoEscolhidaNoMenuJogador != "0");
+            Menu::gerenciarFichaDoJogador(jogadorAtual);
 
             // Restaura a tela do mapa
             Menu::limparTelaDoTerminal();
@@ -229,7 +199,8 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
                 int opcaoEscolhidaNoDialogo;
                 if (std::cin >> opcaoEscolhidaNoDialogo && opcaoEscolhidaNoDialogo == 1) 
                 {
-                    std::vector<Personagem*> listaDeInimigosGerados = GeradorInimigos::criarHordaDeGoblins(3);
+                    int quantidadeDeInimigos = (std::rand() % 3) + 1;
+                    std::vector<Personagem*> listaDeInimigosGerados = GeradorInimigos::criarHordaDeGoblins(quantidadeDeInimigos);
                     SistemaRPG sessaoDeCombate(jogadorAtual, listaDeInimigosGerados);
                     sessaoDeCombate.iniciarCombate(); // A chamada do combate acontece aqui!
 
@@ -264,11 +235,15 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
                         "  ########################################",
                         "#############################################",
                         "###########.........###########################",
-                        "######[^S]......................O.....##########",
-                        "#######.............................###########",
+                        "######[^S]......................Om...Bn.########",
+                        "#######.........................###############",
                         "###############################################",
                         "  ########################################",
                     };
+                    if (bjornResgatado) {
+                        // Remove o 'Bn' do mapa caso ele já tenha sido salvo, mantendo apenas o Ork
+                        matrizDoMapaAtual[3] = "######[^S]......................Om......########";
+                    }
                     cavernaJaFoiVisitada = true;
                 } else {
                     matrizDoMapaAtual = matrizDoMapaDaCavernaSalva;
@@ -290,6 +265,7 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
                 // Salva o sub-mapa correto de acordo com a area atual antes de sair
                 if (tituloDoMapaAtual == "CAVERNA DO ORK") matrizDoMapaDaCavernaSalva = matrizDoMapaAtual;
                 else if (tituloDoMapaAtual == "LOJA DA VILA") matrizDoMapaDaLojaSalva = matrizDoMapaAtual;
+                else if (tituloDoMapaAtual == "FORJA DA VILA") matrizDoMapaDaForjaSalva = matrizDoMapaAtual;
 
                 matrizDoMapaAtual = matrizDoMapaPrincipalSalva;
                 posicaoXDoJogador = posicaoXSalvaAntesDeEntrarNoSubMapa;
@@ -303,7 +279,7 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
                 linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
                 continue;
             }
-            else if (celulaDestinoDoMapa == 'O') 
+            else if (celulaDestinoDoMapa == 'O' || (celulaDestinoDoMapa == 'm' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX-1] == 'O')) 
             {
                 Menu::limparTelaDoTerminal();
                 Menu::exibirLogoDoJogo("ENCONTRO NA CAVERNA");
@@ -311,7 +287,7 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
                 int espacosParaCentralizarMensagem = (larguraDoTerminal - 40) / 2;
                 std::string margemEsquerdaDaMensagem(espacosParaCentralizarMensagem > 0 ? espacosParaCentralizarMensagem : 0, ' ');
 
-                std::cout << "\n" << margemEsquerdaDaMensagem << "[!] Voce encontrou um Ork!\n";
+                std::cout << "\n" << margemEsquerdaDaMensagem << "[!] Voce encontrou um Ork [m]!\n";
                 std::cout << margemEsquerdaDaMensagem << "A criatura ruge desafiando voce!\n";
                 std::cout << margemEsquerdaDaMensagem << "Deseja enfrentar o Ork?\n";
                 std::cout << margemEsquerdaDaMensagem << "[0] Nao, recuar com cuidado\n";
@@ -328,7 +304,13 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
 
                     if (jogadorAtual->obterVida() > 0) 
                     {
-                        matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX] = '.'; 
+                        if (celulaDestinoDoMapa == 'O') {
+                            matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX] = '.'; 
+                            if (matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'm') matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] = '.';
+                        } else {
+                            matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX] = '.'; 
+                            matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX-1] = '.';
+                        }
                         posicaoXDoJogador = proximaPosicaoX;
                         posicaoYDoJogador = proximaPosicaoY;
                     }
@@ -344,6 +326,90 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
                     GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
                     linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
                 }
+            }
+            else if (celulaDestinoDoMapa == 'B' || (celulaDestinoDoMapa == 'n' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX-1] == 'B')) 
+            {
+                if (tituloDoMapaAtual == "FORJA DA VILA" && celulaDestinoDoMapa == 'B')
+                {
+                    NPCBjorn::interagir(jogadorAtual);
+                }
+                else if (tituloDoMapaAtual == "CAVERNA DO ORK")
+                {
+                    Menu::limparTelaDoTerminal();
+                    Menu::exibirLogoDoJogo("RESGATE NA CAVERNA");
+                    
+                    int espacosMsg = (larguraDoTerminal - 50) / 2;
+                    std::string margemMsg(espacosMsg > 0 ? espacosMsg : 0, ' ');
+
+                    std::cout << "\n" << margemMsg << "[Bjorn]: Pelos deuses, muito obrigado por me salvar!\n";
+                    std::cout << margemMsg << "[Bjorn]: Aquele Ork me encurralou e eu achei que era o fim.\n";
+                    std::cout << margemMsg << "[Bjorn]: Sou o ferreiro da vila. Passe na Forja e eu ajudarei voce!\n";
+                    
+                    bjornResgatado = true;
+                    
+                    if (celulaDestinoDoMapa == 'B') {
+                        matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX] = '.'; 
+                        if (matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'n') matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] = '.';
+                    } else {
+                        matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX] = '.'; 
+                        matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX-1] = '.';
+                    }
+                    
+                    Menu::aguardarPressionamentoDeEnter();
+                }
+                
+                if (exploracaoEstaAtiva) {
+                    Menu::limparTelaDoTerminal();
+                    Menu::exibirLogoDoJogo(tituloDoMapaAtual);
+                    GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
+                    linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
+                }
+            }
+            else if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'F' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+2] == 'o' && !jogadorEstaDentroDeUmSubMapa)
+            {
+                if (!bjornResgatado) 
+                {
+                    Menu::limparTelaDoTerminal();
+                    Menu::exibirLogoDoJogo(tituloDoMapaAtual);
+                    
+                    int espacosMsg = (larguraDoTerminal - 60) / 2;
+                    std::cout << "\n" << std::string(espacosMsg > 0 ? espacosMsg : 0, ' ') << "[SISTEMA]: A Forja esta trancada. O ferreiro sumiu...\n";
+                    Menu::aguardarPressionamentoDeEnter();
+                    
+                    Menu::limparTelaDoTerminal();
+                    Menu::exibirLogoDoJogo(tituloDoMapaAtual);
+                    GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
+                    linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
+                    continue;
+                }
+                
+                matrizDoMapaPrincipalSalva = matrizDoMapaAtual;
+                posicaoXSalvaAntesDeEntrarNoSubMapa = posicaoXDoJogador;
+                posicaoYSalvaAntesDeEntrarNoSubMapa = posicaoYDoJogador;
+                
+                if (!forjaJaFoiVisitada) {
+                    matrizDoMapaAtual = {
+                        " ##################################",
+                        "##.........................../--/|##",
+                        "##..[^S]......................B.$|##",
+                        "##.........................../--/|##",
+                        " ##################################",
+                    };
+                    forjaJaFoiVisitada = true;
+                } else {
+                    matrizDoMapaAtual = matrizDoMapaDaForjaSalva;
+                }
+
+                posicaoXDoJogador = 8;
+                posicaoYDoJogador = 2;
+                jogadorEstaDentroDeUmSubMapa = true;
+                tituloDoMapaAtual = "FORJA DA VILA";
+                
+                Menu::limparTelaDoTerminal();
+                Menu::exibirLogoDoJogo(tituloDoMapaAtual);
+                GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
+                linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
+                continue;
             }
             else if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'L' && !jogadorEstaDentroDeUmSubMapa)
             {
@@ -377,91 +443,7 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
             }
             else if (celulaDestinoDoMapa == 'V')
             {
-                std::string opcaoEscolhidaNoMenuJogador;
-                do {
-                    Menu::limparTelaDoTerminal();
-                    Menu::exibirLogoDoJogo("LOJA AMBULANTE");
-                    
-                    int espacosParaCentralizarMensagem = (larguraDoTerminal - 55) / 2;
-                    std::string margemEsquerdaDaMensagem(espacosParaCentralizarMensagem > 0 ? espacosParaCentralizarMensagem : 0, ' ');
-
-                    std::cout << "\n" << margemEsquerdaDaMensagem << "[Lojista]: Bem-vindo! De uma olhada nas minhas mercadorias.\n";
-                    std::cout << margemEsquerdaDaMensagem << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
-
-                    std::cout << margemEsquerdaDaMensagem << "[1] Pocao de Cura (30% HP)         - 10G\n";
-                    std::cout << margemEsquerdaDaMensagem << "[2] Manto Encantado (Mago)         - 15G\n";
-                    std::cout << margemEsquerdaDaMensagem << "[3] Escudo Medio (Guerreiro)       - 15G\n";
-                    std::cout << margemEsquerdaDaMensagem << "[4] Capa Magica (Bardo)            - 15G\n";
-                    std::cout << margemEsquerdaDaMensagem << "[5] Escudo Leve (Arqueiro)         - 15G\n";
-                    std::cout << margemEsquerdaDaMensagem << "[V] VENDER ITENS (Arsenal)\n";
-                    std::cout << margemEsquerdaDaMensagem << "[0] VOLTAR (exploracao)\n\n";
-                    std::cout << "\n" << std::string(larguraDoTerminal, '=') << "\n";
-                    std::cout << "\n" << margemEsquerdaDaMensagem << "Escolha: ";
-
-                    std::cin >> opcaoEscolhidaNoMenuJogador;
-
-                    if (opcaoEscolhidaNoMenuJogador >= "1" && opcaoEscolhidaNoMenuJogador <= "5") 
-                    {
-                        int preco = (opcaoEscolhidaNoMenuJogador == "1") ? 10 : 15;
-                        if (jogadorAtual->obterInventario()->obterOuro() >= preco) 
-                        {
-                            jogadorAtual->obterInventario()->adicionarOuro(-preco); // Subtrai o ouro
-
-                            if (opcaoEscolhidaNoMenuJogador == "1") { jogadorAtual->obterInventario()->adicionarItem(new PocaoCura()); std::cout << "\n" << margemEsquerdaDaMensagem << "[SISTEMA]: Pocao de Cura comprada!\n"; }
-                            else if (opcaoEscolhidaNoMenuJogador == "2") { jogadorAtual->obterInventario()->adicionarItem(new Escudo("Manto encantado", 5, 3)); std::cout << "\n" << margemEsquerdaDaMensagem << "[SISTEMA]: Manto Encantado comprado!\n"; }
-                            else if (opcaoEscolhidaNoMenuJogador == "3") { jogadorAtual->obterInventario()->adicionarItem(new Escudo("Escudo medio de metal", 12, 6)); std::cout << "\n" << margemEsquerdaDaMensagem << "[SISTEMA]: Escudo Medio comprado!\n"; }
-                            else if (opcaoEscolhidaNoMenuJogador == "4") { jogadorAtual->obterInventario()->adicionarItem(new Escudo("Capa magica", 5, 2)); std::cout << "\n" << margemEsquerdaDaMensagem << "[SISTEMA]: Capa Magica comprada!\n"; }
-                            else if (opcaoEscolhidaNoMenuJogador == "5") { jogadorAtual->obterInventario()->adicionarItem(new Escudo("Escudo leve de madeira", 8, 4)); std::cout << "\n" << margemEsquerdaDaMensagem << "[SISTEMA]: Escudo Leve comprado!\n"; }
-                        } 
-                        else 
-                        {
-                            std::cout << "\n" << margemEsquerdaDaMensagem << "[SISTEMA]: Ouro insuficiente!\n";
-                        }
-                        Menu::aguardarPressionamentoDeEnter();
-                    }
-                    else if (opcaoEscolhidaNoMenuJogador == "V" || opcaoEscolhidaNoMenuJogador == "v") 
-                    {
-                        std::string codigoVenda;
-                        do {
-                            Menu::exibirTelaDeInventario(jogadorAtual);
-                            std::string promptVenda = "Digite o codigo do item para vender ou [0] VOLTAR: ";
-                            int espacosVenda = (larguraDoTerminal - (int)promptVenda.length()) / 2;
-                            std::cout << "\n" << std::string(espacosVenda > 0 ? espacosVenda : 0, ' ') << promptVenda;
-                            std::cin >> codigoVenda;
-
-                            if (codigoVenda != "0") {
-                                Item* itemParaVenda = jogadorAtual->obterInventario()->buscarItemPorCodigo(
-                                    codigoVenda, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura()
-                                );
-
-                                if (itemParaVenda) {
-                                    // Bloqueia itens ativamente equipados
-                                    if (itemParaVenda == jogadorAtual->obterArma() || itemParaVenda == jogadorAtual->obterEscudo() || itemParaVenda == jogadorAtual->obterArmadura()) {
-                                        std::cout << "\n[SISTEMA]: Nao e possivel vender itens que estao equipados!\n";
-                                        Menu::aguardarPressionamentoDeEnter();
-                                        continue;
-                                    }
-
-                                    std::string nomeItemVenda = itemParaVenda->obterNomeItem();
-                                    int precoVenda = 3; // Valor base de recuo para itens não listados (ex: trapos)
-                                    
-                                    if (nomeItemVenda == "Adaga artesanal de pedra") precoVenda = 5;
-                                    else if (dynamic_cast<PocaoCura*>(itemParaVenda)) precoVenda = 6; // 60% de 10G
-                                    else if (nomeItemVenda == "Manto encantado" || nomeItemVenda == "Escudo medio de metal" || nomeItemVenda == "Capa magica" || nomeItemVenda == "Escudo leve de madeira") precoVenda = 9; // 60% de 15G
-                                    
-                                    jogadorAtual->obterInventario()->adicionarOuro(precoVenda);
-                                    jogadorAtual->obterInventario()->removerItem(nomeItemVenda);
-                                    
-                                    std::cout << "\n[SISTEMA]: Voce vendeu " << nomeItemVenda << " por " << precoVenda << "G!\n";
-                                    Menu::aguardarPressionamentoDeEnter();
-                                } else {
-                                    std::cout << "\n[SISTEMA]: Item invalido!\n";
-                                    Menu::aguardarPressionamentoDeEnter();
-                                }
-                            }
-                        } while (codigoVenda != "0");
-                    }
-                } while (opcaoEscolhidaNoMenuJogador != "0");
+                NPCFranchesco::interagir(jogadorAtual);
 
                 if (exploracaoEstaAtiva) {
                     Menu::limparTelaDoTerminal();
@@ -470,7 +452,7 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
                     linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
                 }
             }
-            else if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'F' && !jogadorEstaDentroDeUmSubMapa)
+            else if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'F' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+2] == 'l' && !jogadorEstaDentroDeUmSubMapa)
             {
                 Menu::limparTelaDoTerminal();
                 
@@ -544,6 +526,34 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
                 mapaFloresta.iniciarLoopDeExploracaoDoMapa();
                 
                 // Quando a exploracao da floresta terminar (o jogador usar a saida ^V), o jogo continuara na Vila
+                // Respawn dos inimigos da Vila e recarregamento do mapa
+                matrizDoMapaAtual = {
+                    "             #######################################################################",
+                    " ########################################################################################",
+                    "##.###############......#######################..........################################",
+                    "##..........._____........_____...._____.........................##########################",
+                    "####........| { } |......| {%} |..| { } |.........**.............##########################",
+                    "###.........|  _  |......|  _  |..|  _  |........****..............#########################",
+                    "##..........| | | |......| | | |..| | | |.........||...............#########################",
+                    "##..........._____.......[^Forja].................||..**...........####^C##################",
+                    "###.........| {$} |..................................****............##...##################",
+                    "##..........|  _  |...................................||...................################",
+                    "###.........| | | |.......G.........~~~~~~~~~~~.......||....................################",
+                    "####........[^Loja]...............~~~~~~~~~~~~~~~~.......................###################",
+                    "#####................**.......~~~~~~~~~~~~~~~~~~~~......................###################",
+                    "##..................****......~~~~~~~~~~~~~~~~~~~~~~...........G........##################",
+                    "##...................||..........~~~~~~~~~~~~~~.........................#################",
+                    "####.................||..............~~~~~~~~~~~~.......................#################",
+                    "##...................................................G.................#################",
+                    "###........G................G...........................................###############",
+                    "###.....................................................................##############",
+                    "#####...........############.............################..........###################",
+                    "##############################################################^Floresta##############",
+                    "    ###############################################################################",
+                    "             ######                                              ################",
+                };
+                cavernaJaFoiVisitada = false;
+
                 Menu::limparTelaDoTerminal();
                 Menu::exibirLogoDoJogo(tituloDoMapaAtual);
                 GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);

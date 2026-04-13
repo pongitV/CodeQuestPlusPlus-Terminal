@@ -46,6 +46,9 @@ protected:
     bool recargaHabilidade;   // Arqueiro/Bardo: uso seguido
     bool modoAtaqueArea;      // Mago: estrategia arcana
     bool pularTurnoInimigo;   // Bardo: flashing lights
+    
+    bool sofrendoSangramento; // Controle de debuff
+    bool sofrendoLentidao;    // Controle de debuff
 
     bool estaDefendendo;      // Controle de Defesa Ativa
     bool recargaDefesa;       // Cooldown de 1 turno da Defesa
@@ -124,11 +127,19 @@ public:
     void definirPularTurnoInimigo(bool p) { pularTurnoInimigo = p; }
     bool obterPularTurnoInimigo() const { return pularTurnoInimigo; }
     
+    void definirSangramento(bool s) { sofrendoSangramento = s; }
+    bool obterSangramento() const { return sofrendoSangramento; }
+    void definirLentidao(bool l) { sofrendoLentidao = l; }
+    bool obterLentidao() const { return sofrendoLentidao; }
+    void aplicarLentidaoEstatistica();
+    
     void definirDefendendo(bool d) { estaDefendendo = d; }
     bool obterDefendendo() const { return estaDefendendo; }
     void definirRecargaDefesa(bool r) { recargaDefesa = r; }
     bool obterRecargaDefesa() const { return recargaDefesa; }
     void desequiparEscudo() { escudo = nullptr; }
+    void desequiparArma() { arma = nullptr; }
+    void desequiparArmadura() { armadura = nullptr; }
 
     void definirParryAtivado(bool p) { parryAtivado = p; }
     bool obterParryAtivado() const { return parryAtivado; }

@@ -20,6 +20,9 @@
 #include "../Inventario/Item.h"
 #include "../Sistema/GeradorInimigos.h"
 
+#include "../Interfaces/TelaInventario.h"
+#include "../Interfaces/TelaAtributos.h"
+
 // Inclusao das Racas
 #include "../Raças/RacaBase.h"
 #include "../Raças/RacaDwarf.h"
@@ -621,243 +624,113 @@ void Menu::exibirLogoParaTelaDeCombate(const std::string& tituloDaTela)
     std::cout << std::string(larguraConsole, '=') << "\n\n";
 }
 
-void Menu::exibirTelaDeVitoria(Personagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido, const std::vector<std::string>& itensObtidos)
-{
-    limparTelaDoTerminal();
-
-    int largura = obterLarguraDoTerminalEmColunas();
-
-    std::vector<std::string> logoVitoria = 
-    {
-       " █████   █████ █████ ███████████    ███████    ███████████   █████   █████████   ███ ",
-       "░░███   ░░███ ░░███ ░█░░░███░░░█  ███░░░░░███ ░░███░░░░░███ ░░███   ███░░░░░███ ░███ ",
-       " ░███    ░███  ░███ ░   ░███  ░  ███     ░░███ ░███    ░███  ░███  ░███    ░███ ░███ ",
-       " ░███    ░███  ░███     ░███    ░███      ░███ ░██████████   ░███  ░███████████ ░███ ",
-       " ░░███   ███   ░███     ░███    ░███      ░███ ░███░░░░░███  ░███  ░███░░░░░███ ░███ ",
-       "  ░░░█████░    ░███     ░███    ░░███     ███  ░███    ░███  ░███  ░███    ░███ ░░░  ",
-       "    ░░███      █████    █████    ░░░███████░   █████   █████ █████ █████   █████ ███ ",
-       "     ░░░      ░░░░░    ░░░░░       ░░░░░░░    ░░░░░   ░░░░░ ░░░░░ ░░░░░   ░░░░░ ░░░  "
-    };
-
-    std::cout << "\n";
-    std::cout << std::string(largura, '=') << "\n\n";
-
-    // Imprime a logo centralizada com cor Verde (largura visual corrigida para 85)
-    imprimirLinhasCentralizadasNaTela(logoVitoria, 85, "\033[32m");
-    std::cout << "\n" << std::string(largura, '=') << "\n\n";
-
-    std::vector<std::string> linhas = 
-    {
-        "NOME:           " + jogadorAtual->obterNome(),
-        "RACA:           " + jogadorAtual->obterRaca()->obterNomeRaca(),
-        "CLASSE:         " + jogadorAtual->obterNomeClasse(),
-        "HP RESTANTE:    " + std::to_string(jogadorAtual->obterVida()) + "/" + std::to_string(jogadorAtual->obterVidaMaxima()),
-        "OURO TOTAL:     " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G",
-        "NIVEL:          " + std::to_string(jogadorAtual->obterNivel()) + " (XP: " + std::to_string(jogadorAtual->obterXpAtual()) + "/" + std::to_string(jogadorAtual->obterXpParaSubir()) + ")",
-        "",
-        "--- ESTATISTICAS DA BATALHA ---",
-        "OURO OBTIDO:   +" + std::to_string(quantidadeDeOuroObtido) + "G",
-        "XP OBTIDO:     +" + std::to_string(quantidadeDeXpObtido) + " XP",
-        "DANO CAUSADO:   " + std::to_string(totalDeDanoCausado),
-        "DANO RECEBIDO:  " + std::to_string(totalDeDanoRecebido),
-        ""
-    };
-
-    if (!itensObtidos.empty()) 
-    {
-        linhas.push_back("ITENS OBTIDOS:");
-        std::map<std::string, int> contagem;
-        for (const std::string& item : itensObtidos) contagem[item]++;
-        for (auto const& [nome, qtd] : contagem) {
-            linhas.push_back("  +" + std::to_string(qtd) + "x " + nome);
-        }
-    } 
-    else 
-    {
-        linhas.push_back("ITENS OBTIDOS: Nenhum");
-    }
-
-    // Imprime as estatisticas centralizadas e verdes (largura automatica = 0)
-    imprimirLinhasCentralizadasNaTela(linhas, 0, "\033[32m");
-
-    std::cout << "\n" << std::string(largura, '=') << "\n";
-
-    aguardarPressionamentoDeEnter();
-}
-
-void Menu::exibirTelaDeDerrota(Personagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido)
-{
-    limparTelaDoTerminal();
-
-    int largura = obterLarguraDoTerminalEmColunas();
-
-    std::vector<std::string> logoDerrota = 
-    {
-        " ██████████   ██████████ ███████████   ███████████      ███████    ███████████   █████████           ",
-        "░░███░░░░███ ░░███░░░░░█░░███░░░░░███ ░░███░░░░░███   ███░░░░░███ ░█░░░███░░░█  ███░░░░░███          ",
-        " ░███   ░░███ ░███  █ ░  ░███    ░███  ░███    ░███  ███     ░░███░   ░███  ░  ░███    ░███          ",
-        " ░███    ░███ ░██████    ░██████████   ░██████████  ░███      ░███    ░███     ░███████████          ",
-        " ░███    ░███ ░███░░█    ░███░░░░░███  ░███░░░░░███ ░███      ░███    ░███     ░███░░░░░███          ",
-        " ░███    ███  ░███ ░   █ ░███    ░███  ░███    ░███ ░░███     ███     ░███     ░███    ░███          ",
-        " ██████████   ██████████ █████   █████ █████   █████ ░░░███████░      █████    █████   █████ ██ ██ ██",
-        "░░░░░░░░░░   ░░░░░░░░░░ ░░░░░   ░░░░░ ░░░░░   ░░░░░    ░░░░░░░       ░░░░░    ░░░░░   ░░░░░ ░░ ░░ ░░ "
-    };
-
-    std::cout << "\n";
-    std::cout << std::string(largura, '=') << "\n\n";
-
-    // Imprime a logo centralizada com cor Vermelha (largura visual corrigida para 101)
-    imprimirLinhasCentralizadasNaTela(logoDerrota, 101, "\033[31m");
-    std::cout << "\n" << std::string(largura, '=') << "\n\n";
-
-    std::vector<std::string> linhas = {
-        "NOME:           " + jogadorAtual->obterNome(),
-        "RACA:           " + jogadorAtual->obterRaca()->obterNomeRaca(),
-        "CLASSE:         " + jogadorAtual->obterNomeClasse(),
-        "HP RESTANTE:    " + std::to_string(jogadorAtual->obterVida()) + "/" + std::to_string(jogadorAtual->obterVidaMaxima()),
-        "OURO TOTAL:     " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G",
-        "NIVEL:          " + std::to_string(jogadorAtual->obterNivel()) + " (XP: " + std::to_string(jogadorAtual->obterXpAtual()) + "/" + std::to_string(jogadorAtual->obterXpParaSubir()) + ")",
-        "",
-        "--- ESTATISTICAS DA BATALHA ---",
-        "OURO OBTIDO:   +" + std::to_string(quantidadeDeOuroObtido) + "G",
-        "XP OBTIDO:     +" + std::to_string(quantidadeDeXpObtido) + " XP",
-        "DANO CAUSADO:   " + std::to_string(totalDeDanoCausado),
-        "DANO RECEBIDO:  " + std::to_string(totalDeDanoRecebido)
-    };
-
-    // Imprime as estatisticas centralizadas e vermelhas
-    imprimirLinhasCentralizadasNaTela(linhas, 0, "\033[31m");
-    
-    std::cout << "\n";
-    
-    std::string msgMorte = "Voce pereceu em combate...";
-    std::cout << "\n";
-    imprimirLinhasCentralizadasNaTela({msgMorte}, 0, "\033[31m");
-    
-    std::cout << "\n" << std::string(largura, '=') << "\n";
-
-    aguardarPressionamentoDeEnter();
-}
-
-void Menu::exibirTelaDeInventario(Personagem* jogadorAtual) 
+void Menu::gerenciarInventario(Personagem* jogadorAtual, bool* turnoFoiConsumido)
 {
     if (jogadorAtual == nullptr) return;
-    limparTelaDoTerminal();
-    
-#ifdef _WIN32
-    // Configura o console para aceitar blocos UTF-8
-    SetConsoleOutputCP(65001); 
-#endif
-
-    int largura = obterLarguraDoTerminalEmColunas();
-    std::vector<std::string> logoInventario = 
+    int larguraDoTerminal = obterLarguraDoTerminalEmColunas();
+    std::string codigoDoItemDigitado;
+    do 
     {
-        " █████ ██████   █████ █████   █████ ██████████ ██████   █████ ███████████   █████████   ███████████   █████    ███████   ",
-        "░░███ ░░██████ ░░███ ░░███   ░░███ ░░███░░░░░█░░██████ ░░███ ░█░░░███░░░█  ███░░░░░███ ░░███░░░░░███ ░░███   ███░░░░░███ ",
-        " ░███  ░███░███ ░███  ░███    ░███  ░███  █ ░  ░███░███ ░███ ░   ░███  ░  ░███    ░███  ░███    ░███  ░███  ███     ░░███",
-        " ░███  ░███░░███░███  ░███    ░███  ░██████    ░███░░███░███     ░███     ░███████████  ░██████████   ░███ ░███      ░███",
-        " ░███  ░███ ░░██████  ░░███   ███   ░███░░█    ░███ ░░██████     ░███     ░███░░░░░███  ░███░░░░░███  ░███ ░███      ░███",
-        " ░███  ░███  ░░█████   ░░░█████░    ░███ ░   █ ░███  ░░█████     ░███     ░███    ░███  ░███    ░███  ░███ ░░███     ███ ",
-        " █████ █████  ░░█████    ░░███      ██████████ █████  ░░█████    █████    █████   █████ █████   █████ █████ ░░░███████░  ",
-        "░░░░░ ░░░░░    ░░░░░      ░░░      ░░░░░░░░░░ ░░░░░    ░░░░░    ░░░░░    ░░░░░   ░░░░░ ░░░░░   ░░░░░ ░░░░░    ░░░░░░░  "
-    };
+        TelaInventario::exibir(jogadorAtual);
+        std::string mensagemDoPrompt = "Digite o codigo do item ou [0] VOLTAR: ";
+        int espacosParaCentralizarMensagem = (larguraDoTerminal - (int)mensagemDoPrompt.length()) / 2;
+        std::cout << "\n" << std::string(espacosParaCentralizarMensagem > 0 ? espacosParaCentralizarMensagem : 0, ' ') << mensagemDoPrompt;
+        std::cin >> codigoDoItemDigitado;
 
-    std::cout << "\n" << std::string(largura, '=') << "\n\n";
-    imprimirLinhasCentralizadasNaTela(logoInventario, 121, "\033[33m"); 
-    std::cout << "\n" << std::string(largura, '=') << "\n\n";
+        if (codigoDoItemDigitado != "0")
+        {
+            Item* itemEncontrado = jogadorAtual->obterInventario()->buscarItemPorCodigo(
+                codigoDoItemDigitado, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura()
+            );
 
-    jogadorAtual->obterInventario()->exibirInventario(jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura()); 
+            if (itemEncontrado)
+            {
+                bool ehEquipamento = (itemEncontrado->obterTipo() == TipoEquipamento::ARMA || 
+                                      itemEncontrado->obterTipo() == TipoEquipamento::ESCUDO || 
+                                      itemEncontrado->obterTipo() == TipoEquipamento::ARMADURA);
+                bool isPocao = dynamic_cast<PocaoCura*>(itemEncontrado) != nullptr;
+
+                if (isPocao || itemEncontrado == jogadorAtual->obterArma() || itemEncontrado == jogadorAtual->obterEscudo() || itemEncontrado == jogadorAtual->obterArmadura() || ehEquipamento)
+                {
+                    if (turnoFoiConsumido && *turnoFoiConsumido) 
+                    {
+                        std::cout << "\n[SISTEMA]: Voce ja usou um item neste turno!\n";
+                        Menu::aguardarPressionamentoDeEnter();
+                        continue;
+                    }
+
+                    if (isPocao) 
+                    {
+                        std::string nomeDoItemEncontrado = itemEncontrado->obterNomeItem(); 
+                        int quantidadeDeCura = static_cast<int>(jogadorAtual->obterVidaMaxima() * 0.30);
+                        
+                        jogadorAtual->modificarVida(quantidadeDeCura); 
+                        jogadorAtual->obterInventario()->removerItem(nomeDoItemEncontrado);
+                        
+                        std::cout << "\n[SISTEMA]: " << nomeDoItemEncontrado << " usada! +" << quantidadeDeCura << " HP.\n";
+                    } 
+                    else if (itemEncontrado == jogadorAtual->obterArma()) 
+                    {
+                        jogadorAtual->desequiparArma();
+                        std::cout << "\n[SISTEMA]: " << itemEncontrado->obterNomeItem() << " desequipado(a)!\n";
+                    } 
+                    else if (itemEncontrado == jogadorAtual->obterEscudo()) 
+                    {
+                        jogadorAtual->desequiparEscudo();
+                        std::cout << "\n[SISTEMA]: " << itemEncontrado->obterNomeItem() << " desequipado(a)!\n";
+                    } 
+                    else if (itemEncontrado == jogadorAtual->obterArmadura()) 
+                    {
+                        jogadorAtual->desequiparArmadura();
+                        std::cout << "\n[SISTEMA]: " << itemEncontrado->obterNomeItem() << " desequipado(a)!\n";
+                    } 
+                    else 
+                    {
+                        jogadorAtual->equiparItem(itemEncontrado);
+                        std::cout << "\n[SISTEMA]: " << itemEncontrado->obterNomeItem() << " equipado(a)!\n";
+                    }
+                    
+                    Menu::aguardarPressionamentoDeEnter();
+                    if (turnoFoiConsumido) *turnoFoiConsumido = true;
+                }
+                else 
+                {
+                    std::cout << "\n[SISTEMA]: Este item nao pode ser usado " << (turnoFoiConsumido ? "em combate!" : "fora de combate!") << "\n";
+                    Menu::aguardarPressionamentoDeEnter();
+                }
+            }
+        }
+    } while (codigoDoItemDigitado != "0");
 }
 
-void Menu::exibirTelaDeAtributosDoJogador(Personagem* jogadorAtual)
+void Menu::gerenciarFichaDoJogador(Personagem* jogadorAtual)
 {
     if (jogadorAtual == nullptr) return;
-    
-    limparTelaDoTerminal();
-    
-#ifdef _WIN32
-    // Configura o console para aceitar blocos UTF-8
-    SetConsoleOutputCP(65001); 
-#endif
-
-    int largura = obterLarguraDoTerminalEmColunas();
-    std::vector<std::string> logoFicha = 
+    int larguraDoTerminal = obterLarguraDoTerminalEmColunas();
+    std::string opcaoEscolhidaNoMenuJogador;
+    do 
     {
-        " ███████████ █████   █████████  █████   █████   █████████  ",
-        "░░███░░░░░░█░░███   ███░░░░░███░░███   ░░███   ███░░░░░███ ",
-        " ░███   █ ░  ░███  ███     ░░░  ░███    ░███  ░███    ░███ ",
-        " ░███████    ░███ ░███          ░███████████  ░███████████ ",
-        " ░███░░░█    ░███ ░███          ░███░░░░░███  ░███░░░░░███ ",
-        " ░███  ░     ░███ ░░███     ███ ░███    ░███  ░███    ░███ ",
-        " █████       █████ ░░█████████  █████   █████ █████   █████",
-        "░░░░░       ░░░░░   ░░░░░░░░░  ░░░░░   ░░░░░ ░░░░░   ░░░░░ "
-    };
+        TelaAtributos::exibir(jogadorAtual);
+        std::string mensagemDoPrompt = "[0] VOLTAR | [1] LIGAR/DESLIGAR PARRY";
+        if (jogadorAtual->podeSubirDeNivel()) mensagemDoPrompt += " | [2] SUBIR DE NIVEL";
+        mensagemDoPrompt += ": ";
+        int espacosParaCentralizarMensagem = (larguraDoTerminal - (int)mensagemDoPrompt.length()) / 2;
+        std::cout << "\n" << std::string(espacosParaCentralizarMensagem > 0 ? espacosParaCentralizarMensagem : 0, ' ') << mensagemDoPrompt;
+        std::cin >> opcaoEscolhidaNoMenuJogador;
 
-    std::cout << "\n" << std::string(largura, '=') << "\n\n";
-    imprimirLinhasCentralizadasNaTela(logoFicha, 59, "\033[34m"); 
-    std::cout << "\n" << std::string(largura, '=') << "\n\n";
-
-    double multiplicadorDeAtributosAtual = jogadorAtual->obterMultiplicador();
-    int quantidadeDeTurnosRestantesDoBuff = jogadorAtual->obterTurnosBuff();
-
-    std::vector<std::string> linhas = {
-        "NOME:           " + jogadorAtual->obterNome(),
-        "RACA:           " + jogadorAtual->obterRaca()->obterNomeRaca(),
-        "CLASSE:         " + jogadorAtual->obterNomeClasse(),
-        "NIVEL:          " + std::to_string(jogadorAtual->obterNivel()),
-        "XP:             " + std::to_string(jogadorAtual->obterXpAtual()) + " / " + std::to_string(jogadorAtual->obterXpParaSubir()),
-        "DIFICULDADE:    " + std::string(jogadorAtual->obterDificuldade() == 1 ? "Facil" : (jogadorAtual->obterDificuldade() == 2 ? "Normal" : "Dificil")),
-        "[PARRY]:        " + std::string(jogadorAtual->obterParryAtivado() ? "Ligado" : "Desligado"),
-        "OURO:           " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G",
-        "",
-        "PASSIVA RACA:   " + jogadorAtual->obterRaca()->obterNomeHabilidadeRaca(),
-        "-> " + jogadorAtual->obterRaca()->obterDescricaoHabilidadeRaca(),
-        "",
-        "ATIVA CLASSE:   " + jogadorAtual->obterClasse()->obterNomeHabilidadeClasse(),
-        "-> " + jogadorAtual->obterClasse()->obterDescricaoHabilidadeClasse(),
-        "",
-        "ATRIBUTOS TOTAIS:",
-        "- HP: " + std::to_string(jogadorAtual->obterVida()) + "/" + std::to_string(jogadorAtual->obterVidaMaxima()) + " (0)"
-    };
-
-    auto addAtributo = [&](std::string nome, int valorBase) 
-    {
-        std::string linha = "- " + nome + ": " + std::to_string(valorBase);
-        if (quantidadeDeTurnosRestantesDoBuff > 0) 
-        {
-            std::string sm = std::to_string(multiplicadorDeAtributosAtual);
-            sm.erase(sm.find_last_not_of('0') + 1, std::string::npos);
-            if (sm.back() == '.') sm += "0";
-            linha += " (" + std::to_string(static_cast<int>(valorBase * multiplicadorDeAtributosAtual)) + "){x" + sm + "} por " + std::to_string(quantidadeDeTurnosRestantesDoBuff) + " turnos";
-        } 
-        else
-        {
-            linha += " (0)";
+        if (opcaoEscolhidaNoMenuJogador == "1") {
+            jogadorAtual->definirParryAtivado(!jogadorAtual->obterParryAtivado());
+        } else if (opcaoEscolhidaNoMenuJogador == "2" && jogadorAtual->podeSubirDeNivel()) {
+            std::string atributoEscolhidoParaEvoluir;
+            std::cout << "\nDigite o atributo para melhorar (Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria): ";
+            std::cin >> atributoEscolhidoParaEvoluir;
+            if (jogadorAtual->subirDeNivel(atributoEscolhidoParaEvoluir)) {
+                std::cout << "[SISTEMA]: Nivel subiu! " << atributoEscolhidoParaEvoluir << " melhorado.\n";
+                Menu::aguardarPressionamentoDeEnter();
+            } else {
+                std::cout << "[ERRO]: Atributo invalido.\n";
+                Menu::aguardarPressionamentoDeEnter();
+            }
         }
-        linhas.push_back(linha);
-    };
-
-    std::string nomeDaClasse = jogadorAtual->obterNomeClasse();
-    addAtributo(nomeDaClasse == "Guerreiro" ? "Forca [DANO]" : "Forca", jogadorAtual->obterForca());
-    addAtributo(nomeDaClasse == "Arqueiro" ? "Destreza [DANO]" : "Destreza", jogadorAtual->obterDestreza());
-    addAtributo("Resistencia", jogadorAtual->obterResistencia());
-    addAtributo("Constituicao", jogadorAtual->obterConstituicao());
-    addAtributo(nomeDaClasse == "Mago" ? "Inteligencia [DANO]" : "Inteligencia", jogadorAtual->obterInteligencia());
-    addAtributo(nomeDaClasse == "Bardo" ? "Sabedoria [DANO]" : "Sabedoria", jogadorAtual->obterSabedoria());
-    
-    int larguraConsole = obterLarguraDoTerminalEmColunas();
-    int maxLen = 0;
-    for (const std::string& linha : linhas) 
-    {
-        if ((int)linha.length() > maxLen) maxLen = (int)linha.length();
-    }
-    int espacos = (larguraConsole - maxLen) / 2;
-    std::string margem(espacos > 0 ? espacos : 0, ' ');
-
-    for (const std::string& linha : linhas) 
-    {
-        std::cout << margem << linha << "\n";
-    }
-    
-    std::cout << "\n" << std::string(larguraConsole, '=') << "\n";
+    } while (opcaoEscolhidaNoMenuJogador != "0");
 }

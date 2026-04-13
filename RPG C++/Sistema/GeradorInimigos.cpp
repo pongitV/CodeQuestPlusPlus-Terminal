@@ -6,77 +6,10 @@
 #include "../Raças/RacaOrk.h"
 #include "../Classes/ClasseBase.h"
 #include "../Inventario/Item.h"
-
-class ClasseInimigoPadrao : public ClasseBase
-{
-public:
-    std::string obterNomeClasse() const override { return "Monstro"; }
-    Atributos obterAtributosClasse() const override { return { 0, 0, 0, 0, 0, 0, 0 }; }
-    std::vector<std::string> obterAparenciaClasseMenu() const override { return {}; }
-    std::vector<Item*> obterEquipamentoClasse() const override { return {}; }
-
-    void usarHabilidadeClasse(Personagem* /*usuario*/, std::vector<Personagem*>& /*inimigos*/) override 
-    {
-    }
-
-    std::string obterNomeHabilidadeClasse() const override 
-    { 
-        return "Nenhuma"; 
-    }
-
-    std::string obterDescricaoHabilidadeClasse() const override 
-    { 
-        return "Inimigos basicos nao possuem habilidades ativas."; 
-    }
-};
-
-class RacaGoblin : public RacaBase
-{
-public:
-    std::string obterNomeRaca() const override { return "Goblin"; }
-    Atributos obterAtributosRaca() const override { return { -60, 7, 10, 3, 3, -15, -10 }; }
-    
-    std::string obterNomeHabilidadeRaca() const override { return "Nenhuma"; }
-    std::string obterDescricaoHabilidadeRaca() const override { return "Monstros nao possuem passivas"; }
-
-    std::vector<std::string> obterAparenciaRaca() const override
-    {
-        static const std::vector<std::string> aparencia =
-        {                    
-            "                  --=++++++++*.        ..          ",
-            "      #=:      .::+++++*++++++++*.. =#*+=..        ",
-            "       #-*:. .+=+++++++=:====+*+**%=%=*=#==+.+     ",
-            "       .=--+=:=:=+++*:==*::-***++++-=#+##*### .    ",
-            "        ++-=+..-=++#*=#..@#:**++*+#+++++==+=*..    ",
-            "        ===+#..@%*-+++..%%+*%%++++-%+=+====+* =    ",
-            "        :=+-++%*+:=+++++*:=====++*+=+.==#+=* =     ",
-            "    *..  #==#===+:===*++==+*==++++*...:+**# +      ",
-            "  -*+#*+%..+#:==+%=+*+++#=*+++***...  ..=+..       ",
-            " #%*=*:=*. ..%++#:::*%+=*%+++****+===...*=* .      ",
-            " -=***+:=+.= -..++#+*=**%+*+**+++*+-===+==+.-      ",
-            " .*.=.=+=+.+.  .+.+++-=:=*++====+*#.*+++==+..      ",
-            " .=+. ...=+*.   .#====+++=====+=+*# = ...*# =      ",
-            "       .. %=++##==*.:+=========++*@ .   .=-.       ",
-            "           .:=+**# ..-=+=====++**%# .              ",
-            "            .... +.  #*+++++*%#%##%%..             ",
-            "             . .   .########%#%%%%%%%..            ",
-            "                 .############%%%%%%%%..           ",
-            "               .+*%#####%%%%%%%%%%%%%%%.=          ",
-            "               .-=+%#@=%%%%%+%+%*.*@*=+*..         ",
-            "               +=+* *.. :--=-=--+-..:+=*.+         ",
-            "               .=**=.              .:=++.:         ",
-            "               ..=+* .             .:=+..          ",
-            "                .#=* -              *=*.=          ",
-            "                 .#+ -               =*.:          ",
-            "                  .=# .              ++.           ",
-            "              .#===+*#              ++===%.        ",
-            "         %===+=+=++#..:            ..#-======*=..  ",
-            "         #*=+=#==*# =                ..%===--+++%. ",
-            "          ....##...                   :.#+++#*.=   "
-        };
-        return aparencia;
-    }
-};
+#include "../Inimigos/ClasseInimigoPadrao.h"
+#include "../Inimigos/RacaGoblin.h"
+#include "../Inimigos/RacaSlime.h"
+#include "../Inimigos/RacaOrkMiniBoss.h"
 
 Personagem* GeradorInimigos::criarInimigoGoblinPadrao()
 {
@@ -102,16 +35,30 @@ std::vector<Personagem*> GeradorInimigos::criarHordaDeGoblins(int quantidadeDeGo
     return listaDeGoblinsGerados;
 }
 
-class RacaOrkMiniBoss : public RacaOrk
+Personagem* GeradorInimigos::criarInimigoSlime()
 {
-public:
-    std::string obterNomeRaca() const override { return "Ork (Mini-Boss)"; }
-    Atributos obterAtributosRaca() const override { return { 100, 25, 5, 10, 12, -10, -8 }; }
-};
+    Personagem* slime = new Personagem("Slime", new RacaSlime(), new ClasseInimigoPadrao());
+    slime->definirXpRecompensa(35);
+    slime->definirOuroRecompensa(15);
+    return slime;
+}
+
+std::vector<std::string> GeradorInimigos::obterArteAsciiDoSlime()
+{
+    RacaSlime temp;
+    return temp.obterAparenciaRaca();
+}
+
+std::vector<Personagem*> GeradorInimigos::criarHordaDeSlimes(int quantidadeDeSlimes)
+{
+    std::vector<Personagem*> listaDeSlimesGerados;
+    for (int indiceAtual = 0; indiceAtual < quantidadeDeSlimes; indiceAtual++) listaDeSlimesGerados.push_back(criarInimigoSlime());
+    return listaDeSlimesGerados;
+}
 
 Personagem* GeradorInimigos::criarInimigoOrkMiniBoss()
 {
-    Personagem* ork = new Personagem("Ork (Mini-Boss)", new RacaOrkMiniBoss(), new ClasseInimigoPadrao());
+    Personagem* ork = new Personagem("Ork [mini-boss]", new RacaOrkMiniBoss(), new ClasseInimigoPadrao());
     ork->definirXpRecompensa(120);
     ork->definirOuroRecompensa(100);
     return ork;

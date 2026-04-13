@@ -16,10 +16,8 @@ public:
     
     static Personagem* iniciarCriacaoDePersonagem();
     static void exibirBarraDeStatusDoJogador(Personagem* jogadorAtual);
-    static void exibirTelaDeInventario(Personagem* jogadorAtual); 
-    static void exibirTelaDeAtributosDoJogador(Personagem* jogadorAtual);
-    static void exibirTelaDeVitoria(Personagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido, const std::vector<std::string>& itensObtidos);
-    static void exibirTelaDeDerrota(Personagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido);
+    static void gerenciarInventario(Personagem* jogadorAtual, bool* turnoFoiConsumido = nullptr);
+    static void gerenciarFichaDoJogador(Personagem* jogadorAtual);
 
     static void exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>& listaDeInimigos);
     static void imprimirLinhasCentralizadasNaTela(const std::vector<std::string>& linhasParaImprimir, int larguraVisualDaArte = 0, const std::string& codigoDeCorAnsi = "");
