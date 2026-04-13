@@ -59,8 +59,9 @@ std::vector<std::string> RacaOrk::obterAparenciaRaca() const
 
 Atributos RacaOrk::obterAtributosRaca() const
 {
+    // Ordem: { Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria }
     return { 0, 20, 10, 0, 10, 5, 5 };
-} // Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria
+}
 
 std::string RacaOrk::obterNomeHabilidadeRaca() const { return "Furia cega"; }
 std::string RacaOrk::obterDescricaoHabilidadeRaca() const { return "Dano extra baseado na porcentagem de vida perdida"; }

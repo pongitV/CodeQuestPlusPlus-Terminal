@@ -12,22 +12,20 @@ private:
 
 public:
     Inventario();
-    virtual ~Inventario();
+    ~Inventario();
 
-    // Listagem adaptada ao terminal com títulos horizontais
-    void exibirInventarioOrganizadoPorCategorias(Item* armaEquipada, Item* escudoEquipado, Item* armaduraEquipada) const;
+    void exibirInventario(Item* armaEquipada, Item* escudoEquipado, Item* armaduraEquipada) const;
     
-    // Sistema de busca por atalho (ex: 1C)
-    Item* buscarItemPeloCodigoDigitado(std::string codigoDigitado, Item* armaEquipada, Item* escudoEquipado, Item* armaduraEquipada);
-    Item* abrirMenuParaSelecionarEscudoDeDefesa();
+    Item* buscarItemPorCodigo(const std::string& codigoDigitado, Item* armaEquipada, Item* escudoEquipado, Item* armaduraEquipada);
+    Item* selecionarEscudo();
     
-    void adicionarItemAoInventario(Item* novoItem);
-    void removerItemDoInventarioPeloNome(std::string nomeDoItemParaRemover);
-    int contarQuantidadeDeUmItemPeloNome(std::string nomeDoItem) const;
+    void adicionarItem(Item* novoItem);
+    void removerItem(const std::string& nomeDoItem);
+    int contarItem(const std::string& nomeDoItem) const;
 
-    bool verificarSePossuiPocaoDeCura() const;
+    bool possuiPocaoDeCura() const;
     
-    void adicionarOuroAoInventario(int quantidadeAdicional);
-    int obterQuantidadeDeOuro() const;
-    bool verificarSeInventarioEstaVazio() const;
+    void adicionarOuro(int quantidadeAdicional);
+    int obterOuro() const;
+    bool estaVazio() const;
 };

@@ -9,7 +9,7 @@ std::string ClasseMago::obterNomeClasse() const
 
 std::vector<std::string> ClasseMago::obterAparenciaClasseMenu() const 
 {
-    return 
+    static const std::vector<std::string> aparencia = 
     {
         "                                        =@@@%%   ",
         "                                        *%%***.  ",
@@ -55,12 +55,14 @@ std::vector<std::string> ClasseMago::obterAparenciaClasseMenu() const
         "                   %%%#                          ",
         "                  @%%%%                          "
     };
+    return aparencia;
 }
 
 Atributos ClasseMago::obterAtributosClasse() const
 { 
+    // Ordem: { Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria }
     return { 0, 5, 5, 2, 10, 15, 15 };
-} // Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria
+}
 
 std::vector<Item*> ClasseMago::obterEquipamentoClasse() const 
 {
@@ -75,9 +77,9 @@ std::vector<Item*> ClasseMago::obterEquipamentoClasse() const
 
 std::string ClasseMago::obterNomeHabilidadeClasse() const { return "Estrategia arcana"; }
 std::string ClasseMago::obterDescricaoHabilidadeClasse() const { return "Alterna entre ataque em area ou alvo unico (não gasta seu turno)"; }
-void ClasseMago::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*>& inimigos) 
+void ClasseMago::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*>& /*inimigos*/) 
 {
     u->alternarModoAtaque();
-    std::string modo = u->obterModoAtaqueArea() ? "AREA (Dano dividido)" : "UNICO (Dano total)";
+    const char* modo = u->obterModoAtaqueArea() ? "AREA (Dano dividido)" : "UNICO (Dano total)";
     std::cout << "[HABILIDADE]: Estrategia arcana! Modo de ataque: " << modo << "\n";
 }

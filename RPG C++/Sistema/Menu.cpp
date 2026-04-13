@@ -458,7 +458,7 @@ void Menu::exibirBarraDeStatusDoJogador(Personagem* jogadorAtual)
     {
         "| " + arteDoCoracao[0] + " |",
         "| " + arteDoCoracao[1] + " |  JOGADOR: " + jogadorAtual->obterNome() + " (" + jogadorAtual->obterRaca()->obterNomeRaca() + " / " + jogadorAtual->obterNomeClasse() + ") | NIVEL: " + std::to_string(jogadorAtual->obterNivel()),
-        "| " + arteDoCoracao[2] + " |  HP: " + corSelecionadaParaOValorDeVida + std::to_string(jogadorAtual->obterVida()) + corReset + "/" + std::to_string(jogadorAtual->obterVidaMaxima()) + " | OURO: \033[33m" + std::to_string(jogadorAtual->obterInventario()->obterQuantidadeDeOuro()) + "G\033[0m | XP: " + arteDeBarraDeXp,
+        "| " + arteDoCoracao[2] + " |  HP: " + corSelecionadaParaOValorDeVida + std::to_string(jogadorAtual->obterVida()) + corReset + "/" + std::to_string(jogadorAtual->obterVidaMaxima()) + " | OURO: \033[33m" + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G\033[0m | XP: " + arteDeBarraDeXp,
         "| " + arteDoCoracao[3] + " |  EQUIP: " + nomeDaArma + " | " + nomeDoEscudo + " | " + nomeDaArmadura,
         "| " + std::string(11, ' ') + " |"
     };
@@ -652,7 +652,7 @@ void Menu::exibirTelaDeVitoria(Personagem* jogadorAtual, int quantidadeDeOuroObt
         "RACA:           " + jogadorAtual->obterRaca()->obterNomeRaca(),
         "CLASSE:         " + jogadorAtual->obterNomeClasse(),
         "HP RESTANTE:    " + std::to_string(jogadorAtual->obterVida()) + "/" + std::to_string(jogadorAtual->obterVidaMaxima()),
-        "OURO TOTAL:     " + std::to_string(jogadorAtual->obterInventario()->obterQuantidadeDeOuro()) + "G",
+        "OURO TOTAL:     " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G",
         "NIVEL:          " + std::to_string(jogadorAtual->obterNivel()) + " (XP: " + std::to_string(jogadorAtual->obterXpAtual()) + "/" + std::to_string(jogadorAtual->obterXpParaSubir()) + ")",
         "",
         "--- ESTATISTICAS DA BATALHA ---",
@@ -715,7 +715,7 @@ void Menu::exibirTelaDeDerrota(Personagem* jogadorAtual, int quantidadeDeOuroObt
         "RACA:           " + jogadorAtual->obterRaca()->obterNomeRaca(),
         "CLASSE:         " + jogadorAtual->obterNomeClasse(),
         "HP RESTANTE:    " + std::to_string(jogadorAtual->obterVida()) + "/" + std::to_string(jogadorAtual->obterVidaMaxima()),
-        "OURO TOTAL:     " + std::to_string(jogadorAtual->obterInventario()->obterQuantidadeDeOuro()) + "G",
+        "OURO TOTAL:     " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G",
         "NIVEL:          " + std::to_string(jogadorAtual->obterNivel()) + " (XP: " + std::to_string(jogadorAtual->obterXpAtual()) + "/" + std::to_string(jogadorAtual->obterXpParaSubir()) + ")",
         "",
         "--- ESTATISTICAS DA BATALHA ---",
@@ -766,7 +766,7 @@ void Menu::exibirTelaDeInventario(Personagem* jogadorAtual)
     imprimirLinhasCentralizadasNaTela(logoInventario, 121, "\033[33m"); 
     std::cout << "\n" << std::string(largura, '=') << "\n\n";
 
-    jogadorAtual->obterInventario()->exibirInventarioOrganizadoPorCategorias(jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura()); 
+    jogadorAtual->obterInventario()->exibirInventario(jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura()); 
 }
 
 void Menu::exibirTelaDeAtributosDoJogador(Personagem* jogadorAtual)
@@ -808,7 +808,7 @@ void Menu::exibirTelaDeAtributosDoJogador(Personagem* jogadorAtual)
         "XP:             " + std::to_string(jogadorAtual->obterXpAtual()) + " / " + std::to_string(jogadorAtual->obterXpParaSubir()),
         "DIFICULDADE:    " + std::string(jogadorAtual->obterDificuldade() == 1 ? "Facil" : (jogadorAtual->obterDificuldade() == 2 ? "Normal" : "Dificil")),
         "[PARRY]:        " + std::string(jogadorAtual->obterParryAtivado() ? "Ligado" : "Desligado"),
-        "OURO:           " + std::to_string(jogadorAtual->obterInventario()->obterQuantidadeDeOuro()) + "G",
+        "OURO:           " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G",
         "",
         "PASSIVA RACA:   " + jogadorAtual->obterRaca()->obterNomeHabilidadeRaca(),
         "-> " + jogadorAtual->obterRaca()->obterDescricaoHabilidadeRaca(),

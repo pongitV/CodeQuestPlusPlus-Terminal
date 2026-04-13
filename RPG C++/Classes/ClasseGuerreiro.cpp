@@ -9,7 +9,7 @@ std::string ClasseGuerreiro::obterNomeClasse() const
 
 std::vector<std::string> ClasseGuerreiro::obterAparenciaClasseMenu() const 
 {
-    return 
+    static const std::vector<std::string> aparencia = 
     {
         "                                                          ",
         "                              *###:                       ",
@@ -56,12 +56,14 @@ std::vector<std::string> ClasseGuerreiro::obterAparenciaClasseMenu() const
         "                                    ##%*#@@%%             ",
         "                                                          "
     };
+    return aparencia;
 }
 
 Atributos ClasseGuerreiro::obterAtributosClasse() const
 {
+    // Ordem: { Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria }
     return { 0, 20, 10, 2, 10, 5, 5 };
-} // Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria
+}
 
 std::vector<Item*> ClasseGuerreiro::obterEquipamentoClasse() const 
 {
@@ -76,7 +78,7 @@ std::vector<Item*> ClasseGuerreiro::obterEquipamentoClasse() const
 
 std::string ClasseGuerreiro::obterNomeHabilidadeClasse() const { return "Determinacao no combate"; }
 std::string ClasseGuerreiro::obterDescricaoHabilidadeClasse() const { return "Gasta seu turno para aumentar seus atributos em 1.5x por 2 turnos."; }
-void ClasseGuerreiro::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*>& inimigos) 
+void ClasseGuerreiro::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*>& /*inimigos*/) 
 {
     if (u->obterTurnosBuff() <= 0) 
     {

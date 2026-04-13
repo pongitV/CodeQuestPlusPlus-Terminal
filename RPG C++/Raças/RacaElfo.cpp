@@ -58,8 +58,9 @@ std::vector<std::string> RacaElfo::obterAparenciaRaca() const
 
 Atributos RacaElfo::obterAtributosRaca() const
 { 
+    // Ordem: { Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria }
     return { 0, 5, 15, 0, 10, 15, 5 };
-} // Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria
+}
 
 std::string RacaElfo::obterNomeHabilidadeRaca() const { return "Agil e preciso"; }
 std::string RacaElfo::obterDescricaoHabilidadeRaca() const { return "Possui 33% chance de causar 1.5x de dano em cada ataque"; }

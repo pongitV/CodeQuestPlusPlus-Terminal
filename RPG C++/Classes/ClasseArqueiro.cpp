@@ -9,7 +9,7 @@ std::string ClasseArqueiro::obterNomeClasse() const
 
 std::vector<std::string> ClasseArqueiro::obterAparenciaClasseMenu() const 
 {
-    return 
+    static const std::vector<std::string> aparencia = 
     {
         "                  = --%=-                        ",
         "                    #@* @=                       ",
@@ -55,12 +55,14 @@ std::vector<std::string> ClasseArqueiro::obterAparenciaClasseMenu() const
         "                                    *=:*         ",
         "                                     *:*         "
     };
+    return aparencia;
 }
 
 Atributos ClasseArqueiro::obterAtributosClasse() const
 {
+    // Ordem: { Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria }
     return { 0, 10, 20, 2, 10, 5, 5 };
-} // Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria
+}
 
 std::vector<Item*> ClasseArqueiro::obterEquipamentoClasse() const 
 {
@@ -75,7 +77,7 @@ std::vector<Item*> ClasseArqueiro::obterEquipamentoClasse() const
 
 std::string ClasseArqueiro::obterNomeHabilidadeClasse() const { return "Retirada com pontaria"; }
 std::string ClasseArqueiro::obterDescricaoHabilidadeClasse() const { return "Se afasta durante um turno, no proximo turno causa 2x dano"; }
-void ClasseArqueiro::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*>& inimigos) {
+void ClasseArqueiro::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*>& /*inimigos*/) {
     if (u->obterRecarga()) 
     {
         std::cout << "[SISTEMA]: Habilidade em recarga\n";

@@ -15,7 +15,7 @@ public:
     std::vector<std::string> obterAparenciaClasseMenu() const override { return {}; }
     std::vector<Item*> obterEquipamentoClasse() const override { return {}; }
 
-    void usarHabilidadeClasse(Personagem* usuario, std::vector<Personagem*>& inimigos) override 
+    void usarHabilidadeClasse(Personagem* /*usuario*/, std::vector<Personagem*>& /*inimigos*/) override 
     {
     }
 
@@ -41,7 +41,7 @@ public:
 
     std::vector<std::string> obterAparenciaRaca() const override
     {
-        return
+        static const std::vector<std::string> aparencia =
         {                    
             "                  --=++++++++*.        ..          ",
             "      #=:      .::+++++*++++++++*.. =#*+=..        ",
@@ -74,6 +74,7 @@ public:
             "         #*=+=#==*# =                ..%===--+++%. ",
             "          ....##...                   :.#+++#*.=   "
         };
+        return aparencia;
     }
 };
 
@@ -81,7 +82,7 @@ Personagem* GeradorInimigos::criarInimigoGoblinPadrao()
 {
     Personagem* goblin = new Personagem("Goblin", new RacaGoblin(), new ClasseInimigoPadrao());
     Item* adagaGoblin = new Arma("Adaga artesanal de pedra", 6, 0);
-    goblin->obterInventario()->adicionarItemAoInventario(adagaGoblin);
+    goblin->obterInventario()->adicionarItem(adagaGoblin);
     goblin->equiparItem(adagaGoblin);
     goblin->definirXpRecompensa(40);
     goblin->definirOuroRecompensa(20);

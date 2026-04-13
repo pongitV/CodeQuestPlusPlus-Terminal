@@ -103,7 +103,7 @@ public:
 
     void definirOuroRecompensa(int valor) { ouroRecompensa = valor; }
     int obterOuroRecompensa() const { return ouroRecompensa; }
-    void ganharOuro(int valor) { mochila->adicionarOuroAoInventario(valor); }
+    void ganharOuro(int valor) { mochila->adicionarOuro(valor); }
     void definirXpRecompensa(int valor) { xpRecompensa = valor; }
     int obterXpRecompensa() const { return xpRecompensa; }
 

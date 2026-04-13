@@ -141,7 +141,7 @@ void SistemaRPG::iniciarCombate()
                     
                     if ((*iteradorInimigos)->obterArma() && (*iteradorInimigos)->obterArma()->obterNomeItem() == "Adaga artesanal de pedra") 
                     {
-                        jogadorAtual->obterInventario()->adicionarItemAoInventario(new Arma("Adaga artesanal de pedra", 5, 0));
+                        jogadorAtual->obterInventario()->adicionarItem(new Arma("Adaga artesanal de pedra", 5, 0));
                         std::cout << "\033[37m+Adaga artesanal de pedra\033[0m\n";
                         itensObtidos.push_back("Adaga artesanal de pedra");
                     }
@@ -162,7 +162,7 @@ void SistemaRPG::iniciarCombate()
                     break; 
                 }
                 
-                Item* escudoEscolhido = jogadorAtual->obterInventario()->abrirMenuParaSelecionarEscudoDeDefesa();
+                Item* escudoEscolhido = jogadorAtual->obterInventario()->selecionarEscudo();
                 if (escudoEscolhido != nullptr) 
                 {
                     jogadorAtual->equiparItem(escudoEscolhido);
@@ -194,7 +194,7 @@ void SistemaRPG::iniciarCombate()
     
                     if (codigoDoItemDigitado != "0")
                     {
-                        Item* itemEncontrado = jogadorAtual->obterInventario()->buscarItemPeloCodigoDigitado(
+                        Item* itemEncontrado = jogadorAtual->obterInventario()->buscarItemPorCodigo(
                             codigoDoItemDigitado, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura()
                         );
     
@@ -211,7 +211,7 @@ void SistemaRPG::iniciarCombate()
                                 int quantidadeDeCura = static_cast<int>(jogadorAtual->obterVidaMaxima() * 0.30);
                                 
                                 jogadorAtual->modificarVida(quantidadeDeCura); 
-                                jogadorAtual->obterInventario()->removerItemDoInventarioPeloNome(nomeDoItemEncontrado);
+                                jogadorAtual->obterInventario()->removerItem(nomeDoItemEncontrado);
                                 
                                 std::cout << "\n[SISTEMA]: " << nomeDoItemEncontrado << " usada! +" << quantidadeDeCura << " HP.\n";
                                 Menu::aguardarPressionamentoDeEnter();
@@ -441,7 +441,7 @@ void SistemaRPG::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* p
         if (personagemAlvo->obterEscudo()->obterDurabilidadeAtualEscudo() <= 0) 
         {
             std::cout << "[!] ALERTA: O escudo " << personagemAlvo->obterEscudo()->obterNomeItem() << " foi DESTRUIDO em pedacos!\n";
-            personagemAlvo->obterInventario()->removerItemDoInventarioPeloNome(personagemAlvo->obterEscudo()->obterNomeItem());
+            personagemAlvo->obterInventario()->removerItem(personagemAlvo->obterEscudo()->obterNomeItem());
             personagemAlvo->desequiparEscudo(); // Fica sem escudo
         }
     }

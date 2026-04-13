@@ -58,8 +58,9 @@ std::vector<std::string> RacaDwarf::obterAparenciaRaca() const
 
 Atributos RacaDwarf::obterAtributosRaca() const
 {
+    // Ordem: { Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria }
     return { 0, 15, 5, 0, 10, 5, 15 };
-} // Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria
+}
 
 std::string RacaDwarf::obterNomeHabilidadeRaca() const { return "Forjado com determinacao"; }
 std::string RacaDwarf::obterDescricaoHabilidadeRaca() const { return "Escudos possuem o dobro de durabilidade"; }

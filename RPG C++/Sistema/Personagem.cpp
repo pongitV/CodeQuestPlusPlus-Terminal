@@ -38,7 +38,7 @@ Personagem::Personagem(std::string nome, RacaBase* r, ClasseBase* c)
     std::vector<Item*> kit = c->obterEquipamentoClasse();
     for (Item* item : kit) 
     {
-        this->mochila->adicionarItemAoInventario(item); 
+        this->mochila->adicionarItem(item); 
         this->equiparItem(item);            
     }
     calcularAtributos();

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <map>
+#include <algorithm>
 
 #include "Inventario.h"
 #include "Item.h"
@@ -9,11 +10,14 @@ Inventario::Inventario() : quantidadeDeOuro(0) {}
 
 Inventario::~Inventario() 
 {
-    for (Item* itemAtual : listaDeItens) delete itemAtual;
+    for (Item* itemAtual : listaDeItens) 
+    {
+        delete itemAtual;
+    }
     listaDeItens.clear();
 }
 
-void Inventario::exibirInventarioOrganizadoPorCategorias(Item* armaEquipada, Item* escudoEquipado, Item* armaduraEquipada) const 
+void Inventario::exibirInventario(Item* armaEquipada, Item* escudoEquipado, Item* armaduraEquipada) const 
 {
     int larguraDoTerminal = Menu::obterLarguraDoTerminalEmColunas();
 
@@ -77,13 +81,11 @@ void Inventario::exibirInventarioOrganizadoPorCategorias(Item* armaEquipada, Ite
     // Centraliza todo o bloco de inventario na tela
     int tamanhoDaLinhaMaisLonga = 0;
     for (const std::string& linhaAtual : linhasParaImprimir) {
-        if ((int)linhaAtual.length() > tamanhoDaLinhaMaisLonga) {
-            tamanhoDaLinhaMaisLonga = (int)linhaAtual.length();
-        }
+        tamanhoDaLinhaMaisLonga = std::max(tamanhoDaLinhaMaisLonga, static_cast<int>(linhaAtual.length()));
     }
     
-    int espacosEmBranco = (larguraDoTerminal - tamanhoDaLinhaMaisLonga) / 2;
-    std::string margemEsquerda(espacosEmBranco > 0 ? espacosEmBranco : 0, ' ');
+    int espacosEmBranco = std::max(0, (larguraDoTerminal - tamanhoDaLinhaMaisLonga) / 2);
+    std::string margemEsquerda(espacosEmBranco, ' ');
 
     for (const std::string& linhaAtual : linhasParaImprimir) {
         std::cout << margemEsquerda << linhaAtual << "\n";
@@ -92,16 +94,14 @@ void Inventario::exibirInventarioOrganizadoPorCategorias(Item* armaEquipada, Ite
     std::cout << "\n" << std::string(larguraDoTerminal, '=') << "\n";
 }
 
-Item* Inventario::buscarItemPeloCodigoDigitado(std::string codigoDigitado, Item* armaEquipada, Item* escudoEquipado, Item* armaduraEquipada)
+Item* Inventario::buscarItemPorCodigo(const std::string& codigoDigitado, Item* armaEquipada, Item* escudoEquipado, Item* armaduraEquipada)
 {
     if (codigoDigitado.length() < 2) return nullptr;
 
     char letraDaCategoria = std::toupper(codigoDigitado.back());
     std::string parteNumerica = codigoDigitado.substr(0, codigoDigitado.length() - 1);
     
-    for(char caractere : parteNumerica) {
-        if(!isdigit(caractere)) return nullptr;
-    }
+    if (!std::all_of(parteNumerica.begin(), parteNumerica.end(), ::isdigit)) return nullptr;
     
     int indiceDoItem = std::stoi(parteNumerica);
     if (indiceDoItem <= 0) return nullptr;
@@ -120,29 +120,22 @@ Item* Inventario::buscarItemPeloCodigoDigitado(std::string codigoDigitado, Item*
 
             if ((tipoDoItem == TipoEquipamento::ARMA || tipoDoItem == TipoEquipamento::ESCUDO || tipoDoItem == TipoEquipamento::ARMADURA) 
                 && itemAtual != armaEquipada && itemAtual != escudoEquipado && itemAtual != armaduraEquipada) {
-                contadorAtual++;
-                if (contadorAtual == indiceDoItem) return itemAtual;
+                if (++contadorAtual == indiceDoItem) return itemAtual;
             }
         }
     }
     else if (letraDaCategoria == 'C')
     {
-        std::map<std::string, int> contagemDeConsumiveis;
-
+        std::map<std::string, Item*> consumiveisUnicos;
         for (Item* itemAtual : listaDeItens) {
             if (itemAtual->obterTipo() == TipoEquipamento::CONSUMIVEL) {
-                contagemDeConsumiveis[itemAtual->obterNomeItem()]++;
+                consumiveisUnicos.emplace(itemAtual->obterNomeItem(), itemAtual);
             }
         }
 
         int contadorAtual = 1;
-
-        for (auto const& [nomeDoItem, quantidade] : contagemDeConsumiveis) {
-            if (contadorAtual++ == indiceDoItem) {
-                for (Item* itemAtual : listaDeItens) {
-                    if (itemAtual->obterNomeItem() == nomeDoItem) return itemAtual;
-                }
-            }
+        for (auto const& par : consumiveisUnicos) {
+            if (contadorAtual++ == indiceDoItem) return par.second;
         }
     }
     else if (letraDaCategoria == 'M')
@@ -150,8 +143,7 @@ Item* Inventario::buscarItemPeloCodigoDigitado(std::string codigoDigitado, Item*
         int contadorAtual = 0;
         for (Item* itemAtual : listaDeItens) {
             if (itemAtual->obterTipo() == TipoEquipamento::MISSAO) {
-                contadorAtual++;
-                if (contadorAtual == indiceDoItem) return itemAtual;
+                if (++contadorAtual == indiceDoItem) return itemAtual;
             }
         }
     }
@@ -159,7 +151,7 @@ Item* Inventario::buscarItemPeloCodigoDigitado(std::string codigoDigitado, Item*
     return nullptr;
 }
 
-Item* Inventario::abrirMenuParaSelecionarEscudoDeDefesa() 
+Item* Inventario::selecionarEscudo() 
 {
     std::vector<Item*> listaDeEscudos;
     for (Item* itemAtual : listaDeItens) 
@@ -182,8 +174,7 @@ Item* Inventario::abrirMenuParaSelecionarEscudoDeDefesa()
                   << " (Bloqueio Fixo: " << listaDeEscudos[indice]->obterReducaoDanoFixaEscudo() 
                   << " | Durabilidade: " << listaDeEscudos[indice]->obterDurabilidadeAtualEscudo() << " usos)\n";
     }
-    std::cout << " [0] Cancelar\n";
-    std::cout << "\nEscolha: ";
+    std::cout << " [0] Cancelar\n\nEscolha: ";
 
     int opcaoEscolhida;
 
@@ -198,38 +189,45 @@ Item* Inventario::abrirMenuParaSelecionarEscudoDeDefesa()
     return listaDeEscudos[opcaoEscolhida - 1];
 }
 
-void Inventario::adicionarItemAoInventario(Item* novoItem) { if(novoItem) listaDeItens.push_back(novoItem); }
+void Inventario::adicionarItem(Item* novoItem) 
+{ 
+    if (novoItem) listaDeItens.push_back(novoItem); 
+}
 
-void Inventario::removerItemDoInventarioPeloNome(std::string nomeDoItemParaRemover) 
+void Inventario::removerItem(const std::string& nomeDoItem) 
 {
-    for (size_t indice = 0; indice < listaDeItens.size(); indice++) 
+    auto it = std::find_if(listaDeItens.begin(), listaDeItens.end(), [&](Item* item) 
     {
-        if (listaDeItens[indice]->obterNomeItem() == nomeDoItemParaRemover) 
-        { 
-            delete listaDeItens[indice];  // Libera a memoria
-            listaDeItens.erase(listaDeItens.begin() + indice);  // Remove do vetor
-            break;  // Para apos remover o primeiro
-        }
+        return item->obterNomeItem() == nomeDoItem;
+    });
+    
+    if (it != listaDeItens.end()) 
+    {
+        delete *it;
+        listaDeItens.erase(it);
     }
 }
 
-int Inventario::contarQuantidadeDeUmItemPeloNome(std::string nomeDoItem) const 
+int Inventario::contarItem(const std::string& nomeDoItem) const 
 {
-    int quantidadeEncontrada = 0; 
-    for (Item* itemAtual : listaDeItens) {
-        if (itemAtual->obterNomeItem() == nomeDoItem) quantidadeEncontrada++; 
-    }
-    return quantidadeEncontrada;
+    return std::count_if(listaDeItens.begin(), listaDeItens.end(), [&](Item* item) 
+    {
+        return item->obterNomeItem() == nomeDoItem;
+    });
 }
 
-bool Inventario::verificarSePossuiPocaoDeCura() const 
+bool Inventario::possuiPocaoDeCura() const 
 {
-    for (Item* itemAtual : listaDeItens) {
-        if (dynamic_cast<PocaoCura*>(itemAtual)) return true; 
-    }
-    return false;
+    return std::any_of(listaDeItens.begin(), listaDeItens.end(), [](Item* item) 
+    {
+        return dynamic_cast<PocaoCura*>(item) != nullptr;
+    });
 }
 
-void Inventario::adicionarOuroAoInventario(int quantidadeAdicional) { quantidadeDeOuro += quantidadeAdicional; if (quantidadeDeOuro < 0) quantidadeDeOuro = 0; }
-int Inventario::obterQuantidadeDeOuro() const { return quantidadeDeOuro; }
-bool Inventario::verificarSeInventarioEstaVazio() const { return listaDeItens.empty(); }
+void Inventario::adicionarOuro(int quantidadeAdicional) 
+{ 
+    quantidadeDeOuro = std::max(0, quantidadeDeOuro + quantidadeAdicional); 
+}
+
+int Inventario::obterOuro() const { return quantidadeDeOuro; }
+bool Inventario::estaVazio() const { return listaDeItens.empty(); }

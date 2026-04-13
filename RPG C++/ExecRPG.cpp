@@ -9,7 +9,8 @@
 
 #include "Sistema/Menu.h"
 #include "Sistema/Personagem.h"
-#include "Mapas/Mapa.h"
+#include "Mapas/Mapa1Vila.h"
+#include "Mapas/Mapa2Floresta.h"
 #include "Sistema/SistemaRPG.h"
 #include "Sistema/GeradorInimigos.h"
 

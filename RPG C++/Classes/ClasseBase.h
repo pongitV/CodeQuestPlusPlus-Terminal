@@ -10,14 +10,16 @@ class Item;
 class ClasseBase 
 {
 public:
-    // Metodos para criação de todas classes
+    // Destrutor virtual para garantir a destruicao polimorfica correta das subclasses
     virtual ~ClasseBase() {}
+
+    // INFORMACOES DA CLASSE
     virtual std::string obterNomeClasse() const = 0;
     virtual std::vector<std::string> obterAparenciaClasseMenu() const = 0;
     virtual Atributos obterAtributosClasse() const = 0;
     virtual std::vector<Item*> obterEquipamentoClasse() const = 0;
  
-    // Metodos para criação e definição da habilidade de classe
+    // HABILIDADE DA CLASSE
     virtual std::string obterNomeHabilidadeClasse() const = 0;
     virtual std::string obterDescricaoHabilidadeClasse() const = 0;
     virtual void usarHabilidadeClasse(Personagem* usuario, std::vector<Personagem*>& inimigos) = 0;
