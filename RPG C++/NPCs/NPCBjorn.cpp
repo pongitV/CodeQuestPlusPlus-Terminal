@@ -8,6 +8,9 @@
 #include "NPCBjorn.h"
 #include "../Sistema/Menu.h"
 #include "../Inventario/Item.h"
+#include "../Inventario/Arma.h"
+#include "../Inventario/Armadura.h"
+#include "../Inventario/Escudo.h"
 #include "../Interfaces/TelaInventario.h"
 
 void NPCBjorn::interagir(Personagem* jogadorAtual)
@@ -141,7 +144,10 @@ void NPCBjorn::interagir(Personagem* jogadorAtual)
                 for (auto const& [id, par] : estoqueAtual) {
                     std::string preco = "40G";
                     std::string status = par.second ? "Em Estoque" : "ESGOTADO";
-                    std::cout << margemMsg << "[" << id << "] " << par.first << " (" << preco << ") - " << status << "\n";
+                    Item* tempItem = instanciarEquipamentoBjorn(par.first);
+                    std::string infoStatus = tempItem ? tempItem->obterInfoStatus() : "";
+                    delete tempItem;
+                    std::cout << margemMsg << "[" << id << "] " << par.first << infoStatus << " (" << preco << ") - " << status << "\n";
                 }
                 std::cout << "\n" << margemMsg << "[0] VOLTAR\n\n" << margemMsg << "Escolha: ";
                 std::cin >> opcaoCompra;
@@ -236,4 +242,15 @@ void NPCBjorn::interagir(Personagem* jogadorAtual)
             } while (codigo1 != "0");
         }
     } while (opcaoBjorn != "0");
+}
+
+std::vector<std::string> NPCBjorn::obterMapaForja()
+{
+    return {
+        " ##################################",
+        "##.........................../--/|##",
+        "##..[^S]......................B.$|##",
+        "##.........................../--/|##",
+        " ##################################"
+    };
 }

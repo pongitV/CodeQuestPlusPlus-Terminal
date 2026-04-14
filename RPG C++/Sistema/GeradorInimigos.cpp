@@ -6,6 +6,7 @@
 #include "../Raças/RacaOrk.h"
 #include "../Classes/ClasseBase.h"
 #include "../Inventario/Item.h"
+#include "../Inventario/Arma.h"
 #include "../Inimigos/ClasseInimigoPadrao.h"
 #include "../Inimigos/RacaGoblin.h"
 #include "../Inimigos/RacaSlime.h"
@@ -57,9 +58,9 @@ std::vector<Personagem*> GeradorInimigos::criarHordaDeSlimes(int quantidadeDeSli
     return listaDeSlimesGerados;
 }
 
-Personagem* GeradorInimigos::criarInimigoOrkMiniBoss()
+Personagem* GeradorInimigos::criarInimigoOrkExilado()
 {
-    Personagem* ork = new Personagem("Ork [mini-boss]", new RacaOrkExilado(), new ClasseInimigoPadrao());
+    Personagem* ork = new Personagem("Ork Exilado", new RacaOrkExilado(), new ClasseInimigoPadrao());
     ork->definirXpRecompensa(120);
     ork->definirOuroRecompensa(100);
     return ork;

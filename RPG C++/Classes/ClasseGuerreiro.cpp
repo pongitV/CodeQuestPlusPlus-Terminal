@@ -1,6 +1,10 @@
 #include <iostream>
 
 #include "ClasseGuerreiro.h"
+#include "../Inventario/Arma.h"
+#include "../Inventario/Escudo.h"
+#include "../Inventario/Armadura.h"
+#include "../Inventario/PocaoCura.h"
 
 std::string ClasseGuerreiro::obterNomeClasse() const 
 { 

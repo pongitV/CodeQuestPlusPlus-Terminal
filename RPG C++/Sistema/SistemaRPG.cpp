@@ -20,6 +20,12 @@
 #include "../Interfaces/TelaVitoria.h"
 #include "../Interfaces/TelaDerrota.h"
 
+#include "../Inimigos/RacaGoblin.h"
+#include "../Inimigos/RacaSlime.h"
+#include "../Inimigos/RacaFada.h"
+#include "../Inimigos/RacaOrkExilado.h"
+#include "../Inimigos/RacaAbominacaoFloresta.h"
+
 static std::vector<Personagem*> inimigosPresosComCipos;
 static int danoMagicoPerfuranteAtual = 0;
 
@@ -400,12 +406,25 @@ void SistemaRPG::realizarAtaqueFisico(Personagem* personagemAtacante, Personagem
         }
     }
 
+    double forcaEfetiva = personagemAtacante->obterForca();
+    double destrezaEfetiva = personagemAtacante->obterDestreza();
+    double inteligenciaEfetiva = personagemAtacante->obterInteligencia();
+    double sabedoriaEfetiva = personagemAtacante->obterSabedoria();
+
+    if (danoFisicoDaArma == 0 && danoMagicoDaArma > 0) {
+        forcaEfetiva *= 0.1;
+        destrezaEfetiva *= 0.1;
+    } else if (danoFisicoDaArma > 0 && danoMagicoDaArma == 0) {
+        inteligenciaEfetiva *= 0.1;
+        sabedoriaEfetiva *= 0.1;
+    }
+
     // Força soma dano fisico, Destreza multiplica dano fisico
-    double danoFisicoCalculado = (danoFisicoDaArma + personagemAtacante->obterForca()) * (1.0 + (personagemAtacante->obterDestreza() / 100.0));
+    double danoFisicoCalculado = (danoFisicoDaArma + forcaEfetiva) * (1.0 + (destrezaEfetiva / 100.0));
     if (danoFisicoCalculado < 0) danoFisicoCalculado = 0; // Evita que atributos negativos reduzam o dano total
     
     // Inteligencia soma dano magico, Sabedoria multiplica dano magico
-    double danoMagicoCalculado = (danoMagicoDaArma + personagemAtacante->obterInteligencia()) * (1.0 + (personagemAtacante->obterSabedoria() / 100.0));
+    double danoMagicoCalculado = (danoMagicoDaArma + inteligenciaEfetiva) * (1.0 + (sabedoriaEfetiva / 100.0));
     if (danoMagicoCalculado < 0) danoMagicoCalculado = 0; // Evita que magias negativas curem ou enfraquecam o ataque fisico
 
     double danoTotalCalculado = danoFisicoCalculado + danoMagicoCalculado;
@@ -670,12 +689,6 @@ bool SistemaRPG::verificarCondicaoDeVitoriaOuDerrota()
     return false;
 }
 
-void realizarDropsGoblin(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos);
-void realizarDropsSlime(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos);
-void realizarDropsOrkExilado(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos);
-void realizarDropsFada(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos);
-void realizarDropsAbominacaoFloresta(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos);
-
 void SistemaRPG::processarMorteDeInimigo(Personagem* inimigo)
 {
     int ouroDerrubado = inimigo->obterOuroRecompensa();
@@ -693,22 +706,22 @@ void SistemaRPG::processarMorteDeInimigo(Personagem* inimigo)
 
     if (inimigo->obterNome() == "Goblin") 
     {
-        realizarDropsGoblin(inimigo, jogadorAtual, itensObtidos);
+        RacaGoblin::realizarDrops(inimigo, jogadorAtual, itensObtidos);
     }
     else if (inimigo->obterNome() == "Slime") 
     {
-        realizarDropsSlime(inimigo, jogadorAtual, itensObtidos);
+        RacaSlime::realizarDrops(inimigo, jogadorAtual, itensObtidos);
     }
-    else if (inimigo->obterNome() == "Ork [mini-boss]" || inimigo->obterRaca()->obterNomeRaca() == "Ork [exilado]") 
+    else if (inimigo->obterNome() == "Ork Exilado" || inimigo->obterRaca()->obterNomeRaca() == "Ork Exilado") 
     {
-        realizarDropsOrkExilado(inimigo, jogadorAtual, itensObtidos);
+        RacaOrkExilado::realizarDrops(inimigo, jogadorAtual, itensObtidos);
     }
     else if (inimigo->obterRaca()->obterNomeRaca() == "Fada") 
     {
-        realizarDropsFada(inimigo, jogadorAtual, itensObtidos);
+        RacaFada::realizarDrops(inimigo, jogadorAtual, itensObtidos);
     }
     else if (inimigo->obterNome() == "Abominacao da Floresta" || inimigo->obterRaca()->obterNomeRaca() == "Abominacao da Floresta") 
     {
-        realizarDropsAbominacaoFloresta(inimigo, jogadorAtual, itensObtidos);
+        RacaAbominacaoFloresta::realizarDrops(inimigo, jogadorAtual, itensObtidos);
     }
 }

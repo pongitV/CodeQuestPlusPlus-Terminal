@@ -2,6 +2,8 @@
 #include <iostream>
 #include "../Sistema/Personagem.h"
 #include "../Inventario/Item.h"
+#include "../Inventario/Arma.h"
+#include "../Inventario/Armadura.h"
 
 std::string RacaOrkExilado::obterNomeRaca() const { return "Ork [exilado]"; }
 Atributos RacaOrkExilado::obterAtributosRaca() const { return { 80, 20, 5, 10, 12, -10, -8 }; }
@@ -69,7 +71,7 @@ std::vector<std::string> RacaOrkExilado::obterAparenciaRaca() const
     return aparencia;
 }
 
-void realizarDropsOrkExilado(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos)
+void RacaOrkExilado::realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos)
 {
     for (int i = 0; i < 2; ++i) {
         jogadorAtual->obterInventario()->adicionarItem(new Arma("Machado de guerra danificado", 15, 0));
@@ -80,4 +82,19 @@ void realizarDropsOrkExilado(Personagem* inimigo, Personagem* jogadorAtual, std:
     jogadorAtual->obterInventario()->adicionarItem(new Armadura("Armadura de trapos e sucata", 3));
     std::cout << "\033[37m+1x Armadura de trapos e sucata\033[0m\n";
     itensObtidos.push_back("Armadura de trapos e sucata");
+}
+
+std::vector<std::string> RacaOrkExilado::obterMapaCaverna(bool bjornResgatado)
+{
+    std::vector<std::string> mapa = {
+        "  ########################################",
+        "#############################################",
+        "###########.........###########################",
+        "######[^S]......................Om...Bn.########",
+        "#######.........................###############",
+        "###############################################",
+        "  ########################################",
+    };
+    if (bjornResgatado) mapa[3] = "######[^S]......................Om......########";
+    return mapa;
 }

@@ -58,6 +58,15 @@ void TelaAtributos::exibir(Personagem* jogadorAtual)
     std::cout << margem << "[PARRY]:        " << (jogadorAtual->obterParryAtivado() ? "\033[32mLigado\033[0m" : "\033[31mDesligado\033[0m") << "\n";
     std::cout << margem << "OURO:           \033[33m" << jogadorAtual->obterInventario()->obterOuro() << "G\033[0m\n\n";
 
+    std::string nomeDaArma = (jogadorAtual->obterArma()) ? jogadorAtual->obterArma()->obterNomeItem() + jogadorAtual->obterArma()->obterInfoStatus() : "Punhos";
+    std::string nomeDoEscudo = (jogadorAtual->obterEscudo()) ? jogadorAtual->obterEscudo()->obterNomeItem() + jogadorAtual->obterEscudo()->obterInfoStatus() : "Nenhum";
+    std::string nomeDaArmadura = (jogadorAtual->obterArmadura()) ? jogadorAtual->obterArmadura()->obterNomeItem() + jogadorAtual->obterArmadura()->obterInfoStatus() : "Trapos";
+
+    std::cout << margem << "EQUIPAMENTO ATUAL:\n";
+    std::cout << margem << " > Arma         : " << nomeDaArma << "\n";
+    std::cout << margem << " > Escudo       : " << nomeDoEscudo << "\n";
+    std::cout << margem << " > Armadura     : " << nomeDaArmadura << "\n\n";
+
     std::cout << margem << "PASSIVA RACA:   " << jogadorAtual->obterRaca()->obterNomeHabilidadeRaca() << "\n";
     std::cout << margem << "-> " << jogadorAtual->obterRaca()->obterDescricaoHabilidadeRaca() << "\n\n";
 

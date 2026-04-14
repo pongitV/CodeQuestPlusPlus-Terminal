@@ -1,6 +1,10 @@
 #include <iostream>
 
 #include "ClasseMago.h"
+#include "../Inventario/Arma.h"
+#include "../Inventario/Escudo.h"
+#include "../Inventario/Armadura.h"
+#include "../Inventario/PocaoCura.h"
 
 std::string ClasseMago::obterNomeClasse() const 
 {
@@ -70,7 +74,7 @@ std::vector<Item*> ClasseMago::obterEquipamentoClasse() const
     {
         new PocaoCura(), new PocaoCura(), new PocaoCura(),
         new Arma("Cajado", 0, 30), // Dano Fisico, Dano Magico
-        new Escudo("Barreira magica", 2, 50), // Durabilidade, Reducao Fixa
+        new Escudo("Barreira magica", 50, 2), // Reducao Fixa, Durabilidade
         new Armadura("Tunica", 2) // Reducao Fixa
     };
 }

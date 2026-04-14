@@ -16,6 +16,6 @@ public:
     static std::vector<std::string> obterArteAsciiDoSlime();
     static std::vector<Personagem*> criarHordaDeSlimes(int quantidadeDeSlimes);
 
-    static Personagem* criarInimigoOrkMiniBoss();
+    static Personagem* criarInimigoOrkExilado();
     static Personagem* criarInimigoAbominacaoFloresta();
 };

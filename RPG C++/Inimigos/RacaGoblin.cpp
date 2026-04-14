@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include "../Sistema/Personagem.h"
 #include "../Inventario/Item.h"
+#include "../Inventario/Arma.h"
+#include "../Inventario/Material.h"
 
 std::string RacaGoblin::obterNomeRaca() const { return "Goblin"; }
 Atributos RacaGoblin::obterAtributosRaca() const { return { -60, 7, 12, 3, 3, -15, -10 }; }
@@ -47,7 +49,7 @@ std::vector<std::string> RacaGoblin::obterAparenciaRaca() const
     return aparencia;
 }
 
-void realizarDropsGoblin(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos)
+void RacaGoblin::realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos)
 {
     if (inimigo->obterArma() && inimigo->obterArma()->obterNomeItem() == "Adaga artesanal de pedra") 
     {

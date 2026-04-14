@@ -101,6 +101,8 @@ public:
     void ganharXp(int valor) { xpAtual += valor; }
     bool podeSubirDeNivel() const { return xpAtual >= xpParaSubir; }
     bool subirDeNivel(std::string atributo);
+    
+    void alterarAtributoEstatico(const std::string& atributo, int valor);
 
     RacaBase* obterRaca() const;
     ClasseBase* obterClasse() const;

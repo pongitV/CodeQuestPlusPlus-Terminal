@@ -4,6 +4,7 @@
 
 #include "Inventario.h"
 #include "Item.h"
+#include "PocaoCura.h"
 #include "../Sistema/Menu.h"
 
 Inventario::Inventario() : quantidadeDeOuro(0) {}
@@ -22,8 +23,8 @@ void Inventario::exibirInventario(Item* armaEquipada, Item* escudoEquipado, Item
     int larguraDoTerminal = Menu::obterLarguraDoTerminalEmColunas();
 
     std::map<std::string, std::vector<Item*>> equipamentosAgrupados;  
-    std::map<std::string, int> contagemDeConsumiveis;  
-    std::map<std::string, int> contagemDeMateriais;  
+    std::map<std::string, std::vector<Item*>> consumiveisAgrupados;  
+    std::map<std::string, std::vector<Item*>> materiaisAgrupados;  
     std::map<std::string, std::vector<Item*>> missoesAgrupadas;  
 
     // Organiza os itens do inventario por categoria para exibicao
@@ -31,51 +32,26 @@ void Inventario::exibirInventario(Item* armaEquipada, Item* escudoEquipado, Item
         TipoEquipamento tipoDoItem = itemAtual->obterTipo();
         
         if (tipoDoItem == TipoEquipamento::CONSUMIVEL) {
-            contagemDeConsumiveis[itemAtual->obterNomeItem()]++;
+            consumiveisAgrupados[itemAtual->obterNomeItem()].push_back(itemAtual);
         } else if (tipoDoItem == TipoEquipamento::MISSAO) {
             missoesAgrupadas[itemAtual->obterNomeItem()].push_back(itemAtual);
         } else if (tipoDoItem == TipoEquipamento::MATERIAL) {
-            contagemDeMateriais[itemAtual->obterNomeItem()]++;
+            materiaisAgrupados[itemAtual->obterNomeItem()].push_back(itemAtual);
         } else if ((tipoDoItem == TipoEquipamento::ARMA || tipoDoItem == TipoEquipamento::ESCUDO || tipoDoItem == TipoEquipamento::ARMADURA) 
                    && itemAtual != armaEquipada && itemAtual != escudoEquipado && itemAtual != armaduraEquipada) {
             equipamentosAgrupados[itemAtual->obterNomeItem()].push_back(itemAtual);
         }
     }
     
-    auto obterPrecoVendaPorNome = [](const std::string& nome) -> int {
-        if (nome == "Adaga artesanal de pedra") return 5;
-        if (nome == "Gosma acida") return 5;
-        if (nome == "Dente de goblin") return 1;
-        if (nome == "Nucleo pegajoso") return 30;
-        if (nome == "Po magico") return 15;
-        if (nome.find("Pocao") != std::string::npos || nome.find("Poção") != std::string::npos) return 6;
-        if (nome == "Manto encantado" || nome == "Escudo medio de metal" || nome == "Capa magica" || nome == "Escudo leve de madeira") return 9;
-        return 3;
-    };
-
     std::vector<std::string> linhasParaImprimir;
-
-    auto obterInfoStatus = [](Item* item) -> std::string {
-        if (!item) return "";
-        if (item->obterTipo() == TipoEquipamento::ARMA) {
-            std::string ef = "";
-            if (item->possuiEfeitoSangramento()) ef += " | +Sangramento";
-            if (item->possuiEfeitoLentidao()) ef += " | +Lentidao";
-            if (item->obterNomeItem().find("(Penetrante)") != std::string::npos) ef += " | +Penetracao";
-            return " (Dano: " + std::to_string(item->obterDanoFisico()) + "F/" + std::to_string(item->obterDanoMagico()) + "M" + ef + ")";
-        }
-        if (item->obterTipo() == TipoEquipamento::ESCUDO) return " (Def: " + std::to_string(item->obterReducaoDanoFixaEscudo()) + " | Dur: " + std::to_string(item->obterDurabilidadeAtualEscudo()) + ")";
-        if (item->obterTipo() == TipoEquipamento::ARMADURA) return " (Def: " + std::to_string(item->obterReducaoFixa()) + ")";
-        return "";
-    };
 
     linhasParaImprimir.push_back("DINHEIRO: " + std::to_string(quantidadeDeOuro) + " moedas");
     linhasParaImprimir.push_back("");  
 
     linhasParaImprimir.push_back("[ EQUIPAMENTO ]");
-    if (armaEquipada) linhasParaImprimir.push_back(" [1E] ARMA:     " + armaEquipada->obterNomeItem() + obterInfoStatus(armaEquipada));
-    if (escudoEquipado) linhasParaImprimir.push_back(" [2E] ESCUDO:   " + escudoEquipado->obterNomeItem() + obterInfoStatus(escudoEquipado));
-    if (armaduraEquipada) linhasParaImprimir.push_back(" [3E] ARMADURA: " + armaduraEquipada->obterNomeItem() + obterInfoStatus(armaduraEquipada));
+    if (armaEquipada) linhasParaImprimir.push_back(" [1E] ARMA:     " + armaEquipada->obterNomeItem() + armaEquipada->obterInfoStatus());
+    if (escudoEquipado) linhasParaImprimir.push_back(" [2E] ESCUDO:   " + escudoEquipado->obterNomeItem() + escudoEquipado->obterInfoStatus());
+    if (armaduraEquipada) linhasParaImprimir.push_back(" [3E] ARMADURA: " + armaduraEquipada->obterNomeItem() + armaduraEquipada->obterInfoStatus());
     linhasParaImprimir.push_back(""); 
 
     linhasParaImprimir.push_back("[ ARSENAL ]");
@@ -83,28 +59,28 @@ void Inventario::exibirInventario(Item* armaEquipada, Item* escudoEquipado, Item
     int indiceArs = 1;
     for (auto const& [nome, lista] : equipamentosAgrupados) {
         Item* itemExemplo = lista.front();
-        std::string infoVenda = mostrarPrecos ? " (Venda: " + std::to_string(obterPrecoVendaPorNome(nome)) + "G)" : "";
+        std::string infoVenda = mostrarPrecos ? " (Venda: " + std::to_string(itemExemplo->obterPrecoVenda()) + "G)" : "";
         std::string prefixo = lista.size() > 1 ? std::to_string(lista.size()) + "x " : "";
-        linhasParaImprimir.push_back(" [" + std::to_string(indiceArs++) + "A] " + prefixo + nome + " [" + itemExemplo->raridadeParaString() + "]" + obterInfoStatus(itemExemplo) + infoVenda);
+        linhasParaImprimir.push_back(" [" + std::to_string(indiceArs++) + "A] " + prefixo + nome + " [" + itemExemplo->raridadeParaString() + "]" + itemExemplo->obterInfoStatus() + infoVenda);
     }
     linhasParaImprimir.push_back(""); 
 
     linhasParaImprimir.push_back("[ CONSUMIVEIS ]");
-    if (contagemDeConsumiveis.empty()) linhasParaImprimir.push_back(" (Vazio)");
+    if (consumiveisAgrupados.empty()) linhasParaImprimir.push_back(" (Vazio)");
     int contadorDeConsumiveis = 1;
-    for (auto const& [nomeDoItem, quantidade] : contagemDeConsumiveis) {
-        std::string infoVenda = mostrarPrecos ? " (Venda: " + std::to_string(obterPrecoVendaPorNome(nomeDoItem)) + "G / un)" : "";
-        std::string prefixo = quantidade > 1 ? std::to_string(quantidade) + "x " : "";
+    for (auto const& [nomeDoItem, lista] : consumiveisAgrupados) {
+        std::string infoVenda = mostrarPrecos ? " (Venda: " + std::to_string(lista.front()->obterPrecoVenda()) + "G / un)" : "";
+        std::string prefixo = lista.size() > 1 ? std::to_string(lista.size()) + "x " : "";
         linhasParaImprimir.push_back(" [" + std::to_string(contadorDeConsumiveis++) + "C] " + prefixo + nomeDoItem + infoVenda);
     }
     linhasParaImprimir.push_back("");
 
     linhasParaImprimir.push_back("[ ESTOQUE ]");
-    if (contagemDeMateriais.empty()) linhasParaImprimir.push_back(" (Vazio)");
+    if (materiaisAgrupados.empty()) linhasParaImprimir.push_back(" (Vazio)");
     int contadorDeMateriais = 1;
-    for (auto const& [nomeDoItem, quantidade] : contagemDeMateriais) {
-        std::string infoVenda = mostrarPrecos ? " (Venda: " + std::to_string(obterPrecoVendaPorNome(nomeDoItem)) + "G / un)" : "";
-        std::string prefixo = quantidade > 1 ? std::to_string(quantidade) + "x " : "";
+    for (auto const& [nomeDoItem, lista] : materiaisAgrupados) {
+        std::string infoVenda = mostrarPrecos ? " (Venda: " + std::to_string(lista.front()->obterPrecoVenda()) + "G / un)" : "";
+        std::string prefixo = lista.size() > 1 ? std::to_string(lista.size()) + "x " : "";
         linhasParaImprimir.push_back(" [" + std::to_string(contadorDeMateriais++) + "S] " + prefixo + nomeDoItem + infoVenda);
     }
     linhasParaImprimir.push_back("");
@@ -204,9 +180,8 @@ Item* Inventario::selecionarEscudo()
     std::cout << "=== SELECIONE SEU ESCUDO ===\n";
     for (size_t indice = 0; indice < listaDeEscudos.size(); indice++) 
     {
-        std::cout << " [" << indice + 1 << "] " << listaDeEscudos[indice]->obterNomeItem() 
-                  << " (Bloqueio Fixo: " << listaDeEscudos[indice]->obterReducaoDanoFixaEscudo() 
-                  << " | Durabilidade: " << listaDeEscudos[indice]->obterDurabilidadeAtualEscudo() << " usos)\n";
+        std::cout << " [" << indice + 1 << "] " << listaDeEscudos[indice]->obterNomeItem()
+                  << listaDeEscudos[indice]->obterInfoStatus() << "\n";
     }
     std::cout << " [0] Cancelar\n\nEscolha: ";
 

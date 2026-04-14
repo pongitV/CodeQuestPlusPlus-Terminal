@@ -12,6 +12,7 @@
 #include "../Inimigos/RacaFada.h"
 #include "../Inimigos/ClasseInimigoPadrao.h"
 #include "../NPCs/NPCMorgana.h"
+#include "../Inimigos/RacaAbominacaoFloresta.h"
 
 Mapa2Floresta::Mapa2Floresta(Personagem* personagemJogador) : 
     jogadorAtual(personagemJogador), posicaoXDoJogador(8), posicaoYDoJogador(8),
@@ -127,7 +128,14 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
                 {
                     std::cout << linhaSendoRenderizada;
                     linhaSendoRenderizada = "";
-                    std::cout << "\x1b[1;35mA\x1b[0m"; // Magenta para a Abominacao
+                    std::cout << "\x1b[1;31m"; // Vermelho para a Abominacao
+                    if (x + 1 < matrizDoMapaAtual[y].size() && matrizDoMapaAtual[y][x+1] == 'm') {
+                        std::cout << "Am";
+                        x++; // Pula a letra 'm' no loop para nao renderizar duas vezes
+                    } else {
+                        std::cout << 'A';
+                    }
+                    std::cout << "\x1b[0m";
                 }
                 else if (matrizDoMapaAtual[y][x] == 'M')
                 {
@@ -269,7 +277,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
                     linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
                 }
             }
-            else if (celulaDestinoDoMapa == 'A') 
+            else if (celulaDestinoDoMapa == 'A' || (celulaDestinoDoMapa == 'm' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX-1] == 'A')) 
             {
                 Menu::limparTelaDoTerminal();
                 Menu::exibirLogoDoJogo("ENCONTRO BOSS");
@@ -292,7 +300,13 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
 
                     if (jogadorAtual->obterVida() > 0) 
                     {
-                        matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX] = '.'; 
+                        if (celulaDestinoDoMapa == 'A') {
+                            matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX] = '.'; 
+                            if (matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'm') matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] = '.';
+                        } else {
+                            matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX] = '.'; 
+                            matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX-1] = '.';
+                        }
                         posicaoXDoJogador = proximaPosicaoX;
                         posicaoYDoJogador = proximaPosicaoY;
                     }
@@ -327,13 +341,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
                 posicaoYSalvaAntesDeEntrarNoSubMapa = posicaoYDoJogador;
                 
                 if (!cabanaJaFoiVisitada) {
-                    matrizDoMapaAtual = {
-                        " ######################",
-                        "##..........;<>......##",
-                        "##..[^S]..........M..##",
-                        "##..........;<>......##",
-                        " ######################",
-                    };
+                    matrizDoMapaAtual = NPCMorgana::obterMapaCabana();
                     cabanaJaFoiVisitada = true;
                 } else {
                     matrizDoMapaAtual = matrizDoMapaDaCabanaSalva;
@@ -396,16 +404,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
                 posicaoYSalvaAntesDeEntrarNoSubMapa = posicaoYDoJogador;
                 
                 if (!coracaoDaArvoreJaFoiVisitado) {
-                    matrizDoMapaAtual = {
-                        "      ######################################",
-                        "    ####..................................####",
-                        "   ###......................................###",
-                        "  ##....[^S]..................................##",
-                        "  ##........................A.................##",
-                        "   ###......................................###",
-                        "    ####..................................####",
-                        "      ######################################",
-                    };
+                    matrizDoMapaAtual = RacaAbominacaoFloresta::obterMapaCoracaoDaArvore();
                     coracaoDaArvoreJaFoiVisitado = true;
                 } else {
                     matrizDoMapaAtual = matrizDoMapaDoCoracaoDaArvoreSalva;

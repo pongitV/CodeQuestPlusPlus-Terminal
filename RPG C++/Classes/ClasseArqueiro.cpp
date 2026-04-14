@@ -1,6 +1,10 @@
 #include <iostream>
 
 #include "ClasseArqueiro.h"
+#include "../Inventario/Arma.h"
+#include "../Inventario/Escudo.h"
+#include "../Inventario/Armadura.h"
+#include "../Inventario/PocaoCura.h"
 
 std::string ClasseArqueiro::obterNomeClasse() const 
 {
@@ -70,7 +74,7 @@ std::vector<Item*> ClasseArqueiro::obterEquipamentoClasse() const
     {
         new PocaoCura(), new PocaoCura(), new PocaoCura(),
         new Arma("Arco recurvo de madeira", 10, 0), // Dano Fisico, Dano Magico
-        new Escudo("Bracedeiras de prata", 5, 2), // Durabilidade, Reducao Fixa
+        new Escudo("Bracedeiras de prata", 5, 3), // Reducao Fixa, Durabilidade
         new Armadura("Armadura leve de couro com malha", 5) // Reducao Fixa
     };
 }

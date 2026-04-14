@@ -93,6 +93,19 @@ bool Personagem::subirDeNivel(std::string atributo)
     return false;
 }
 
+void Personagem::alterarAtributoEstatico(const std::string& atributo, int valor)
+{
+    if (atributo == "forca") statsFinais.forca += valor;
+    else if (atributo == "destreza") statsFinais.destreza += valor;
+    else if (atributo == "inteligencia") statsFinais.inteligencia += valor;
+    else if (atributo == "sabedoria") statsFinais.sabedoria += valor;
+    
+    if (statsFinais.forca < 0) statsFinais.forca = 0;
+    if (statsFinais.destreza < 0) statsFinais.destreza = 0;
+    if (statsFinais.inteligencia < 0) statsFinais.inteligencia = 0;
+    if (statsFinais.sabedoria < 0) statsFinais.sabedoria = 0;
+}
+
 void Personagem::calcularAtributos() 
 {
     this->statsFinais.calcularAtributos(raca->obterAtributosRaca());

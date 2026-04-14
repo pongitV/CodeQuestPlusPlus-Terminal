@@ -18,6 +18,8 @@
 
 #include "Menu.h"
 #include "../Inventario/Item.h"
+#include "../Inventario/PocaoCura.h"
+#include "../Inventario/Talisma.h"
 #include "../Sistema/GeradorInimigos.h"
 
 #include "../Interfaces/TelaInventario.h"
@@ -310,9 +312,23 @@ Personagem* Menu::iniciarCriacaoDePersonagem()
                 };
                 
                 std::vector<Item*> kit = temp->obterEquipamentoClasse();
-                std::map<std::string, int> contagem;
-                for (Item* i : kit) contagem[i->obterNomeItem()]++;
-                for (auto const& [nomeI, qtd] : contagem) info.push_back(" - " + std::to_string(qtd) + "x " + nomeI);
+                std::map<std::string, std::pair<int, TipoEquipamento>> contagem;
+                for (Item* i : kit) {
+                    contagem[i->obterNomeItem() + i->obterInfoStatus()].first++;
+                    contagem[i->obterNomeItem() + i->obterInfoStatus()].second = i->obterTipo();
+                }
+                
+                std::vector<TipoEquipamento> ordemPrioridade = {
+                    TipoEquipamento::ARMA, TipoEquipamento::ESCUDO, 
+                    TipoEquipamento::ARMADURA, TipoEquipamento::CONSUMIVEL
+                };
+                for (TipoEquipamento tipo : ordemPrioridade) {
+                    for (auto const& [nomeI, dados] : contagem) {
+                        if (dados.second == tipo) {
+                            info.push_back(" - " + std::to_string(dados.first) + "x " + nomeI);
+                        }
+                    }
+                }
                 for (Item* i : kit) delete i;
 
                 if (exibirConfirmacaoDeEscolhaComArteLadoALado("CLASSE", temp->obterNomeClasse(), info, temp->obterAparenciaClasseMenu())) 
@@ -389,9 +405,9 @@ void Menu::exibirBarraDeStatusDoJogador(Personagem* jogadorAtual)
 {
     if (jogadorAtual == nullptr) return;
     int larguraDoTerminal = obterLarguraDoTerminalEmColunas();
-    std::string nomeDaArma = (jogadorAtual->obterArma()) ? jogadorAtual->obterArma()->obterNomeItem() : "Punhos";
-    std::string nomeDoEscudo = (jogadorAtual->obterEscudo()) ? jogadorAtual->obterEscudo()->obterNomeItem() : "Nenhum";
-    std::string nomeDaArmadura = (jogadorAtual->obterArmadura()) ? jogadorAtual->obterArmadura()->obterNomeItem() : "Trapos";
+    std::string nomeDaArma = (jogadorAtual->obterArma()) ? jogadorAtual->obterArma()->obterNomeItem() + jogadorAtual->obterArma()->obterInfoStatus() : "Punhos";
+    std::string nomeDoEscudo = (jogadorAtual->obterEscudo()) ? jogadorAtual->obterEscudo()->obterNomeItem() + jogadorAtual->obterEscudo()->obterInfoStatus() : "Nenhum";
+    std::string nomeDaArmadura = (jogadorAtual->obterArmadura()) ? jogadorAtual->obterArmadura()->obterNomeItem() + jogadorAtual->obterArmadura()->obterInfoStatus() : "Trapos";
     
     double porcentagemDeVida = static_cast<double>(jogadorAtual->obterVida()) / jogadorAtual->obterVidaMaxima();
     std::string corVerde = "\033[32m";    // Verde
@@ -688,8 +704,9 @@ void Menu::gerenciarInventario(Personagem* jogadorAtual, bool* turnoFoiConsumido
                 bool isPocao = dynamic_cast<PocaoCura*>(itemEncontrado) != nullptr;
                 bool isBuff = itemEncontrado->obterNomeItem().find("(Buff)") != std::string::npos;
                 bool isDebuff = itemEncontrado->obterNomeItem().find("(Debuff)") != std::string::npos;
+                bool isTalisma = dynamic_cast<Talisma*>(itemEncontrado) != nullptr;
 
-                if (isPocao || isBuff || isDebuff || itemEncontrado == jogadorAtual->obterArma() || itemEncontrado == jogadorAtual->obterEscudo() || itemEncontrado == jogadorAtual->obterArmadura() || ehEquipamento)
+                if (isPocao || isBuff || isDebuff || isTalisma || itemEncontrado == jogadorAtual->obterArma() || itemEncontrado == jogadorAtual->obterEscudo() || itemEncontrado == jogadorAtual->obterArmadura() || ehEquipamento)
                 {
                     if (turnoFoiConsumido && *turnoFoiConsumido) 
                     {
@@ -719,6 +736,28 @@ void Menu::gerenciarInventario(Personagem* jogadorAtual, bool* turnoFoiConsumido
                         jogadorAtual->definirMultiplicador(1.5);
                         jogadorAtual->obterInventario()->removerItem(nomeDoItemEncontrado);
                         std::cout << "\n[SISTEMA]: " << nomeDoItemEncontrado << " consumida! Atributos ampliados em 1.5x por 2 turnos!\n";
+                    }
+                    else if (isTalisma)
+                    {
+                        std::string nomeTalisma = itemEncontrado->obterNomeItem();
+                        if (nomeTalisma.find("Urso") != std::string::npos) {
+                            jogadorAtual->alterarAtributoEstatico("forca", 5);
+                            jogadorAtual->alterarAtributoEstatico("inteligencia", -5);
+                            std::cout << "\n[SISTEMA]: Talisma do Urso consumido! +5 Forca / -5 Inteligencia.\n";
+                        } else if (nomeTalisma.find("Coruja") != std::string::npos) {
+                            jogadorAtual->alterarAtributoEstatico("inteligencia", 5);
+                            jogadorAtual->alterarAtributoEstatico("forca", -5);
+                            std::cout << "\n[SISTEMA]: Talisma da Coruja consumido! +5 Inteligencia / -5 Forca.\n";
+                        } else if (nomeTalisma.find("Leopardo") != std::string::npos) {
+                            jogadorAtual->alterarAtributoEstatico("destreza", 5);
+                            jogadorAtual->alterarAtributoEstatico("sabedoria", -5);
+                            std::cout << "\n[SISTEMA]: Talisma do Leopardo consumido! +5 Destreza / -5 Sabedoria.\n";
+                        } else if (nomeTalisma.find("Raposa") != std::string::npos) {
+                            jogadorAtual->alterarAtributoEstatico("sabedoria", 5);
+                            jogadorAtual->alterarAtributoEstatico("destreza", -5);
+                            std::cout << "\n[SISTEMA]: Talisma da Raposa consumido! +5 Sabedoria / -5 Destreza.\n";
+                        }
+                        jogadorAtual->obterInventario()->removerItem(nomeTalisma);
                     }
                     else if (isPocao) 
                     {

@@ -7,6 +7,8 @@
 #include "NPCMorgana.h"
 #include "../Sistema/Menu.h"
 #include "../Inventario/Item.h"
+#include "../Inventario/Arma.h"
+#include "../Inventario/Material.h"
 #include "../Interfaces/TelaInventario.h"
 
 void NPCMorgana::interagir(Personagem* jogadorAtual)
@@ -281,4 +283,15 @@ void NPCMorgana::interagir(Personagem* jogadorAtual)
             } while (opcaoCompra != "0");
         }
     } while (opcaoMorgana != "0");
+}
+
+std::vector<std::string> NPCMorgana::obterMapaCabana()
+{
+    return {
+        " ######################",
+        "##..........;<>......##",
+        "##..[^S]..........M..##",
+        "##..........;<>......##",
+        " ######################"
+    };
 }

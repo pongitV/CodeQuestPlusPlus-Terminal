@@ -2,24 +2,56 @@
 #include <iostream>
 #include "../Sistema/Personagem.h"
 #include "../Inventario/Item.h"
+#include "../Inventario/Material.h"
 
 std::string RacaAbominacaoFloresta::obterNomeRaca() const { return "Abominacao da Floresta"; }
 
-Atributos RacaAbominacaoFloresta::obterAtributosRaca() const { 
+Atributos RacaAbominacaoFloresta::obterAtributosRaca() const 
+{ 
     // Ordem: { Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria }
-    return { -20, 25, 10, 15, 20, -10, 5 }; 
+    return { 100, 15, 5, 15, 20, -10, 5 }; 
 }
 
 std::string RacaAbominacaoFloresta::obterNomeHabilidadeRaca() const { return "Raizes Parasitas"; }
 
-std::string RacaAbominacaoFloresta::obterDescricaoHabilidadeRaca() const { return "Recupera HP equivalente a 50% do dano causado no ataque"; }
+std::string RacaAbominacaoFloresta::obterDescricaoHabilidadeRaca() const { return "Abaixo de 40% de HP, recupera HP igual a 100% do dano causado ate 60% de HP"; }
 
 int RacaAbominacaoFloresta::processarDanoOfensivo(int danoBase, Personagem* atacante) 
 {
-    int cura = danoBase / 2;
-    if (cura > 0) {
-        atacante->modificarVida(cura);
-        std::cout << "\033[32m[PASSIVA]: Raizes Parasitas! A Abominacao absorveu " << cura << " de HP!\033[0m\n";
+    int vidaMax = atacante->obterVidaMaxima();
+    int vidaAtual = atacante->obterVida();
+
+    if (vidaAtual < (vidaMax * 0.40)) 
+    {
+        curandoAtivamente = true;
+    } else if (vidaAtual >= (vidaMax * 0.60)) 
+    {
+        curandoAtivamente = false;
+    }
+
+    if (curandoAtivamente) 
+    {
+        int cura = danoBase;
+        if (cura > 0) 
+        {
+            int vidaFaltantePara60 = static_cast<int>(vidaMax * 0.60) - vidaAtual;
+            if (vidaFaltantePara60 < 0) vidaFaltantePara60 = 0;
+            
+            if (cura > vidaFaltantePara60) 
+            {
+                cura = vidaFaltantePara60;
+            }
+            
+            if (cura > 0) 
+            {
+                atacante->modificarVida(cura);
+                std::cout << "\033[32m[PASSIVA]: Raizes Parasitas! A Abominacao absorveu " << cura << " de HP!\033[0m\n";
+                if (atacante->obterVida() >= (vidaMax * 0.60)) 
+                {
+                    curandoAtivamente = false;
+                }
+            }
+        }
     }
     return danoBase;
 }
@@ -113,7 +145,7 @@ std::vector<std::string> RacaAbominacaoFloresta::obterAparenciaRaca() const
     return aparencia;
 }
 
-void realizarDropsAbominacaoFloresta(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos)
+void RacaAbominacaoFloresta::realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos)
 {
     jogadorAtual->obterInventario()->adicionarItem(new Material("Madeira enfeiticada"));
     itensObtidos.push_back("Madeira enfeiticada");
@@ -122,4 +154,18 @@ void realizarDropsAbominacaoFloresta(Personagem* inimigo, Personagem* jogadorAtu
     jogadorAtual->obterInventario()->adicionarItem(new Material("Coracao da floresta"));
     itensObtidos.push_back("Coracao da floresta");
     std::cout << "\033[37m+1x Coracao da floresta\033[0m\n";
+}
+
+std::vector<std::string> RacaAbominacaoFloresta::obterMapaCoracaoDaArvore()
+{
+    return {
+        "      ######################################",
+        "    ####..................................####",
+        "   ###......................................###",
+        "  ##....[^S]..................................##",
+        "  ##........................Am................##",
+        "   ###......................................###",
+        "    ####..................................####",
+        "      ######################################"
+    };
 }

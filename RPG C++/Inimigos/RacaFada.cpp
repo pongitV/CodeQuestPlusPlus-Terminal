@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include "../Sistema/Personagem.h"
 #include "../Inventario/Item.h"
+#include "../Inventario/Material.h"
 
 std::string RacaFada::obterNomeRaca() const { return "Fada"; }
 Atributos RacaFada::obterAtributosRaca() const { return { -70, 0, 15, 0, 0, 10, 30 }; }
@@ -48,7 +49,7 @@ std::vector<std::string> RacaFada::obterAparenciaRaca() const
     return aparencia;
 }
 
-void realizarDropsFada(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos)
+void RacaFada::realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos)
 {
     int qtdPo = (std::rand() % 6) + 1;
     for (int i = 0; i < qtdPo; ++i) {

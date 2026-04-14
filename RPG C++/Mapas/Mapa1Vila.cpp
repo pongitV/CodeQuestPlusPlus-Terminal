@@ -13,6 +13,7 @@
 #include "../Inventario/Item.h"
 #include "../NPCs/NPCBjorn.h"
 #include "../NPCs/NPCFranchesco.h"
+#include "../Inimigos/RacaOrkExilado.h"
 
 Mapa::Mapa(Personagem* personagemJogador) : 
 jogadorAtual(personagemJogador), posicaoXDoJogador(2), posicaoYDoJogador(2), jogadorEstaDentroDeUmSubMapa(false), 
@@ -137,6 +138,14 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
                     }
                         std::cout << "\x1b[0m";     // Reset para branco
                     }
+                else if (matrizDoMapaAtual[y][x] == 'F' && x > 0 && matrizDoMapaAtual[y][x-1] == '.')
+                    {
+                    std::cout << linhaSendoRenderizada;
+                    linhaSendoRenderizada = "";
+                        std::cout << "\x1b[1;33m"; // Amarelo para Franchesco
+                        std::cout << 'F';
+                        std::cout << "\x1b[0m";     // Reset para branco
+                    }
                 else linhaSendoRenderizada += matrizDoMapaAtual[y][x];
                     }
             std::cout << linhaSendoRenderizada << "\n";
@@ -231,19 +240,7 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
                 posicaoYSalvaAntesDeEntrarNoSubMapa = posicaoYDoJogador;
                 
                 if (!cavernaJaFoiVisitada) {
-                    matrizDoMapaAtual = {
-                        "  ########################################",
-                        "#############################################",
-                        "###########.........###########################",
-                        "######[^S]......................Om...Bn.########",
-                        "#######.........................###############",
-                        "###############################################",
-                        "  ########################################",
-                    };
-                    if (bjornResgatado) {
-                        // Remove o 'Bn' do mapa caso ele já tenha sido salvo, mantendo apenas o Ork
-                        matrizDoMapaAtual[3] = "######[^S]......................Om......########";
-                    }
+                    matrizDoMapaAtual = RacaOrkExilado::obterMapaCaverna(bjornResgatado);
                     cavernaJaFoiVisitada = true;
                 } else {
                     matrizDoMapaAtual = matrizDoMapaDaCavernaSalva;
@@ -271,7 +268,7 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
                 posicaoXDoJogador = posicaoXSalvaAntesDeEntrarNoSubMapa;
                 posicaoYDoJogador = posicaoYSalvaAntesDeEntrarNoSubMapa;
                 jogadorEstaDentroDeUmSubMapa = false;
-                tituloDoMapaAtual = "EXPLORACAO";
+                tituloDoMapaAtual = "VILA INICIAL";
                 
                 Menu::limparTelaDoTerminal();
                 Menu::exibirLogoDoJogo(tituloDoMapaAtual);
@@ -298,7 +295,7 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
                 if (std::cin >> opcaoEscolhidaNoDialogo && opcaoEscolhidaNoDialogo == 1) 
                 {
                     // Inicia o combate com o Ork Mini-Boss gerado pelo Gerador de Inimigos
-                    std::vector<Personagem*> listaDeInimigosGerados = { GeradorInimigos::criarInimigoOrkMiniBoss() };
+                    std::vector<Personagem*> listaDeInimigosGerados = { GeradorInimigos::criarInimigoOrkExilado() };
                     SistemaRPG sessaoDeCombate(jogadorAtual, listaDeInimigosGerados);
                     sessaoDeCombate.iniciarCombate();
 
@@ -391,13 +388,7 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
                 posicaoYSalvaAntesDeEntrarNoSubMapa = posicaoYDoJogador;
                 
                 if (!forjaJaFoiVisitada) {
-                    matrizDoMapaAtual = {
-                        " ##################################",
-                        "##.........................../--/|##",
-                        "##..[^S]......................B.$|##",
-                        "##.........................../--/|##",
-                        " ##################################",
-                    };
+                    matrizDoMapaAtual = NPCBjorn::obterMapaForja();
                     forjaJaFoiVisitada = true;
                 } else {
                     matrizDoMapaAtual = matrizDoMapaDaForjaSalva;
@@ -421,13 +412,7 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
                 posicaoYSalvaAntesDeEntrarNoSubMapa = posicaoYDoJogador;
                 
                 if (!lojaJaFoiVisitada) {
-                    matrizDoMapaAtual = {
-                        " ##################################",
-                        "##.........................../--/|##",
-                        "##..[^S]......................V.$|##",
-                        "##.........................../--/|##",
-                        " ##################################",
-                    };
+                    matrizDoMapaAtual = NPCFranchesco::obterMapaLoja();
                     lojaJaFoiVisitada = true;
                 } else {
                     matrizDoMapaAtual = matrizDoMapaDaLojaSalva;
@@ -444,7 +429,7 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
                 linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
                 continue;
             }
-            else if (celulaDestinoDoMapa == 'V')
+            else if (celulaDestinoDoMapa == 'F' && tituloDoMapaAtual == "LOJA DA VILA")
             {
                 NPCFranchesco::interagir(jogadorAtual);
 

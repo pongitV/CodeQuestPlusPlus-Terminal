@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include "../Sistema/Personagem.h"
 #include "../Inventario/Item.h"
+#include "../Inventario/Material.h"
 
 std::string RacaSlime::obterNomeRaca() const { return "Slime"; }
 Atributos RacaSlime::obterAtributosRaca() const { return { -40, 10, 2, 8, 10, -15, -10 }; }
@@ -54,7 +55,7 @@ std::vector<std::string> RacaSlime::obterAparenciaRaca() const
     return aparencia;
 }
 
-void realizarDropsSlime(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos)
+void RacaSlime::realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos)
 {
     for (int i = 0; i < 3; ++i) {
         jogadorAtual->obterInventario()->adicionarItem(new Material("Gosma acida"));
