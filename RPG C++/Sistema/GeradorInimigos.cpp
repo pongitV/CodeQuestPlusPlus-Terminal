@@ -9,7 +9,8 @@
 #include "../Inimigos/ClasseInimigoPadrao.h"
 #include "../Inimigos/RacaGoblin.h"
 #include "../Inimigos/RacaSlime.h"
-#include "../Inimigos/RacaOrkMiniBoss.h"
+#include "../Inimigos/RacaOrkExilado.h"
+#include "../Inimigos/RacaAbominacaoFloresta.h"
 
 Personagem* GeradorInimigos::criarInimigoGoblinPadrao()
 {
@@ -58,8 +59,16 @@ std::vector<Personagem*> GeradorInimigos::criarHordaDeSlimes(int quantidadeDeSli
 
 Personagem* GeradorInimigos::criarInimigoOrkMiniBoss()
 {
-    Personagem* ork = new Personagem("Ork [mini-boss]", new RacaOrkMiniBoss(), new ClasseInimigoPadrao());
+    Personagem* ork = new Personagem("Ork [mini-boss]", new RacaOrkExilado(), new ClasseInimigoPadrao());
     ork->definirXpRecompensa(120);
     ork->definirOuroRecompensa(100);
     return ork;
+}
+
+Personagem* GeradorInimigos::criarInimigoAbominacaoFloresta()
+{
+    Personagem* abominacao = new Personagem("Abominacao da Floresta", new RacaAbominacaoFloresta(), new ClasseInimigoPadrao());
+    abominacao->definirXpRecompensa(250);
+    abominacao->definirOuroRecompensa(200);
+    return abominacao;
 }

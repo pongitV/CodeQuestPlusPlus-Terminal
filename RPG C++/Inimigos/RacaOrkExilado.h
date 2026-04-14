@@ -5,7 +5,7 @@
 
 #include "../Raças/RacaOrk.h"
 
-class RacaOrkMiniBoss : public RacaOrk
+class RacaOrkExilado : public RacaOrk
 {
 public:
     std::string obterNomeRaca() const override;

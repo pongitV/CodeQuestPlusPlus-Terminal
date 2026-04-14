@@ -47,6 +47,7 @@ void Inventario::exibirInventario(Item* armaEquipada, Item* escudoEquipado, Item
         if (nome == "Gosma acida") return 5;
         if (nome == "Dente de goblin") return 1;
         if (nome == "Nucleo pegajoso") return 30;
+        if (nome == "Po magico") return 15;
         if (nome.find("Pocao") != std::string::npos || nome.find("Poção") != std::string::npos) return 6;
         if (nome == "Manto encantado" || nome == "Escudo medio de metal" || nome == "Capa magica" || nome == "Escudo leve de madeira") return 9;
         return 3;
@@ -60,6 +61,7 @@ void Inventario::exibirInventario(Item* armaEquipada, Item* escudoEquipado, Item
             std::string ef = "";
             if (item->possuiEfeitoSangramento()) ef += " | +Sangramento";
             if (item->possuiEfeitoLentidao()) ef += " | +Lentidao";
+            if (item->obterNomeItem().find("(Penetrante)") != std::string::npos) ef += " | +Penetracao";
             return " (Dano: " + std::to_string(item->obterDanoFisico()) + "F/" + std::to_string(item->obterDanoMagico()) + "M" + ef + ")";
         }
         if (item->obterTipo() == TipoEquipamento::ESCUDO) return " (Def: " + std::to_string(item->obterReducaoDanoFixaEscudo()) + " | Dur: " + std::to_string(item->obterDurabilidadeAtualEscudo()) + ")";

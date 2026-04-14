@@ -17,4 +17,5 @@ public:
     static std::vector<Personagem*> criarHordaDeSlimes(int quantidadeDeSlimes);
 
     static Personagem* criarInimigoOrkMiniBoss();
+    static Personagem* criarInimigoAbominacaoFloresta();
 };

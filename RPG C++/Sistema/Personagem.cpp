@@ -33,7 +33,10 @@ Personagem::Personagem(std::string nome, RacaBase* r, ClasseBase* c)
     this->modoAtaqueArea = false;
     this->pularTurnoInimigo = false;
     this->sofrendoSangramento = false;
+    this->turnosSangramento = 0;
     this->sofrendoLentidao = false;
+    this->turnosLentidao = 0;
+    this->sofrendoQuebraResistencia = false;
     this->parryAtivado = false;
     this->dificuldadeAtual = 2; // Padrao: Normal
 
@@ -119,6 +122,25 @@ void Personagem::aplicarLentidaoEstatistica()
     {
         statsFinais.destreza /= 2;
         sofrendoLentidao = true;
+    }
+}
+
+void Personagem::removerLentidaoEstatistica()
+{
+    if (sofrendoLentidao)
+    {
+        statsFinais.destreza *= 2;
+        sofrendoLentidao = false;
+    }
+}
+
+void Personagem::aplicarQuebraResistenciaEstatistica() 
+{
+    if (!sofrendoQuebraResistencia) 
+    {
+        statsFinais.resistencia /= 2; // Reduz pela metade
+        statsFinais.constituicao -= statsFinais.constituicao / 3; // Reduz em 1/3
+        sofrendoQuebraResistencia = true;
     }
 }
 

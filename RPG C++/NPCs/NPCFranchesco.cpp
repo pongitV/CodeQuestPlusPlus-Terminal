@@ -159,6 +159,7 @@ void NPCFranchesco::interagir(Personagem* jogadorAtual)
                         if (nomeItemVenda == "Adaga artesanal de pedra") precoVenda = 5;
                         else if (nomeItemVenda == "Gosma acida") precoVenda = 5;
                         else if (nomeItemVenda == "Nucleo pegajoso") precoVenda = 30;
+                        else if (nomeItemVenda == "Po magico") precoVenda = 15;
                         else if (dynamic_cast<PocaoCura*>(itemParaVenda)) precoVenda = 6; 
                         else if (nomeItemVenda == "Manto encantado" || nomeItemVenda == "Escudo medio de metal" || nomeItemVenda == "Capa magica" || nomeItemVenda == "Escudo leve de madeira") precoVenda = 9; 
                         jogadorAtual->obterInventario()->adicionarOuro(precoVenda);

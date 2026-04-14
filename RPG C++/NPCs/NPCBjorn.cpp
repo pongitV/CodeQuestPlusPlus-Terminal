@@ -100,6 +100,7 @@ void NPCBjorn::interagir(Personagem* jogadorAtual)
             "[2] MELHORAR Equipamento na Bigorna",
             "[3] ENCANTAR Arma: Sangramento (40x Dente de Goblin)",
             "[4] ENCANTAR Arma: Lentidao (5x Nucleo pegajoso)",
+            "[5] ENCANTAR Arma: Reducao Resist. (25x Po magico)",
             "[0] VOLTAR",
             ""
         };
@@ -220,10 +221,13 @@ void NPCBjorn::interagir(Personagem* jogadorAtual)
                 }
             } while (codigo1 != "0");
         }
-        else if (opcaoBjorn == "3" || opcaoBjorn == "4") {
+        else if (opcaoBjorn == "3" || opcaoBjorn == "4" || opcaoBjorn == "5") {
             bool isSangramento = (opcaoBjorn == "3");
-            std::string itemNecessario = isSangramento ? "Dente de goblin" : "Nucleo pegajoso";
-            int qtdNecessaria = isSangramento ? 40 : 5;
+            bool isLentidao = (opcaoBjorn == "4");
+            bool isResistencia = (opcaoBjorn == "5");
+            
+            std::string itemNecessario = isSangramento ? "Dente de goblin" : (isLentidao ? "Nucleo pegajoso" : "Po magico");
+            int qtdNecessaria = isSangramento ? 40 : (isLentidao ? 5 : 25);
             
             int qtdAtual = jogadorAtual->obterInventario()->contarItem(itemNecessario);
             if (qtdAtual < qtdNecessaria) {
@@ -246,7 +250,8 @@ void NPCBjorn::interagir(Personagem* jogadorAtual)
             if (!armaEscolhida) { std::cout << "\n[Bjorn]: Eu so posso encantar ARMAS com isso!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
             
             if (isSangramento && armaEscolhida->possuiEfeitoSangramento()) { std::cout << "\n[Bjorn]: Essa arma ja causa sangramento!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
-            if (!isSangramento && armaEscolhida->possuiEfeitoLentidao()) { std::cout << "\n[Bjorn]: Essa arma ja possui lentidao!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
+            if (isLentidao && armaEscolhida->possuiEfeitoLentidao()) { std::cout << "\n[Bjorn]: Essa arma ja possui lentidao!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
+            if (isResistencia && armaEscolhida->obterNomeItem().find("(Penetrante)") != std::string::npos) { std::cout << "\n[Bjorn]: Essa arma ja possui reducao de resistencia!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
             
             // Remove os itens necessários do inventário
             for (int i = 0; i < qtdNecessaria; ++i) {
@@ -257,9 +262,11 @@ void NPCBjorn::interagir(Personagem* jogadorAtual)
             if (isSangramento) {
                 armaEscolhida->aplicarEfeitoSangramento();
                 armaEscolhida->alterarNome(armaEscolhida->obterNomeItem() + " (Sangrenta)");
-            } else {
+            } else if (isLentidao) {
                 armaEscolhida->aplicarEfeitoLentidao();
                 armaEscolhida->alterarNome(armaEscolhida->obterNomeItem() + " (Viscosa)");
+            } else if (isResistencia) {
+                armaEscolhida->alterarNome(armaEscolhida->obterNomeItem() + " (Penetrante)");
             }
             
             Menu::limparTelaDoTerminal();

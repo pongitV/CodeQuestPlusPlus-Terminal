@@ -74,6 +74,37 @@ void SistemaRPG::iniciarCombate()
 
     while (jogadorAtual->obterVida() > 0 && !listaDeInimigos.empty()) 
     {
+        // --- PROCESSAMENTO DE DEBUFFS DO JOGADOR NO INICIO DO TURNO ---
+        if (jogadorAtual->obterSangramento()) 
+        {
+            int danoSangramento = std::max(1, jogadorAtual->obterVidaMaxima() / 10);
+            jogadorAtual->modificarVida(-danoSangramento);
+            
+            Menu::limparTelaDoTerminal();
+            std::cout << "\n\033[31m[EFEITO]: Voce perdeu " << danoSangramento << " HP devido ao sangramento! (" << jogadorAtual->obterTurnosSangramento() - 1 << " turnos restantes)\033[0m\n";
+            
+            jogadorAtual->definirTurnosSangramento(jogadorAtual->obterTurnosSangramento() - 1);
+            if (jogadorAtual->obterTurnosSangramento() <= 0) {
+                jogadorAtual->definirSangramento(false);
+                std::cout << "\033[31m[EFEITO]: O seu sangramento parou.\033[0m\n";
+            }
+            if (verificarCondicaoDeVitoriaOuDerrota()) return;
+            Menu::aguardarPressionamentoDeEnter();
+        }
+
+        if (jogadorAtual->obterLentidao()) 
+        {
+            jogadorAtual->definirTurnosLentidao(jogadorAtual->obterTurnosLentidao() - 1);
+            if (jogadorAtual->obterTurnosLentidao() <= 0) 
+            {
+                jogadorAtual->removerLentidaoEstatistica();
+                Menu::limparTelaDoTerminal();
+                std::cout << "\n\033[35m[EFEITO]: Voce se livrou da gosma e recuperou sua agilidade.\033[0m\n";
+                Menu::aguardarPressionamentoDeEnter();
+            }
+        }
+        // --- FIM DO PROCESSAMENTO DE DEBUFFS ---
+
         bool turnoFoiConsumido = false;
 
         while (!turnoFoiConsumido) 
@@ -217,13 +248,29 @@ void SistemaRPG::executarTurnoDeTodosOsInimigos()
         std::cout << "\n--- TURNO DOS INIMIGOS ---" << std::endl;
         for (Personagem* inimigoAtual : listaDeInimigos) 
         {
-            if (inimigoAtual->obterSangramento() && inimigoAtual->obterVida() > 0) 
+            if (inimigoAtual->obterSangramento() && inimigoAtual->obterVida() > 0)
             {
                 int danoSangramento = std::max(1, inimigoAtual->obterVida() / 10);
                 inimigoAtual->modificarVida(-danoSangramento);
-                std::cout << "\033[31m[EFEITO]: " << inimigoAtual->obterNome() << " perdeu " << danoSangramento << " HP devido ao sangramento!\033[0m\n";
+                std::cout << "\033[31m[EFEITO]: " << inimigoAtual->obterNome() << " perdeu " << danoSangramento << " HP devido ao sangramento! (" << inimigoAtual->obterTurnosSangramento() - 1 << " turnos restantes)\033[0m\n";
                 
+                inimigoAtual->definirTurnosSangramento(inimigoAtual->obterTurnosSangramento() - 1);
+                if (inimigoAtual->obterTurnosSangramento() <= 0) {
+                    inimigoAtual->definirSangramento(false);
+                    std::cout << "\033[31m[EFEITO]: O sangramento em " << inimigoAtual->obterNome() << " parou.\033[0m\n";
+                }
+
                 if (inimigoAtual->obterVida() <= 0) continue; // Pula o ataque se o inimigo morreu para o sangramento
+            }
+
+            if (inimigoAtual->obterLentidao())
+            {
+                inimigoAtual->definirTurnosLentidao(inimigoAtual->obterTurnosLentidao() - 1);
+                if (inimigoAtual->obterTurnosLentidao() <= 0)
+                {
+                    inimigoAtual->removerLentidaoEstatistica();
+                    std::cout << "\033[35m[EFEITO]: " << inimigoAtual->obterNome() << " se livrou da gosma e recuperou sua agilidade.\033[0m\n";
+                }
             }
 
             if (jogadorAtual->obterVida() > 0) 
@@ -325,6 +372,12 @@ void SistemaRPG::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* p
         return;
     }
 
+    // Logica da Quebra de Resistencia (Pó Mágico)
+    if (personagemAtacante->obterArma() && personagemAtacante->obterArma()->obterNomeItem().find("(Penetrante)") != std::string::npos && !personagemAlvo->obterQuebraResistencia()) {
+        personagemAlvo->aplicarQuebraResistenciaEstatistica();
+        std::cout << "\033[36m>> A arma de " << personagemAtacante->obterNome() << " perfurou a armadura, reduzindo a resistencia de " << personagemAlvo->obterNome() << " pela metade e a constituicao em um terco!\033[0m\n";
+    }
+
     int bonusDeDefesaDaArmadura = (personagemAlvo->obterArmadura()) ? personagemAlvo->obterArmadura()->obterReducaoFixa() : 0;
     
     // Resistencia atua como reduçao fixa base
@@ -344,7 +397,7 @@ void SistemaRPG::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* p
     {
         int quantidadeDeNumerosDoParry = std::max(1, danoFinalAposReducoes / 4);
         int destrezaDoAtacante = std::max(1, personagemAtacante->obterDestreza());
-        int tempoLimiteParaParryEmSegundos = std::max(1, 50 / destrezaDoAtacante);
+        int tempoLimiteParaParryEmSegundos = std::max(1, 60 / destrezaDoAtacante);
 
         int quantidadeDeDanoReduzidoPeloParry = 0;
         bool parryFoiBemSucedido = executarSistemaDeParry(quantidadeDeNumerosDoParry, tempoLimiteParaParryEmSegundos, quantidadeDeDanoReduzidoPeloParry);
@@ -414,11 +467,13 @@ void SistemaRPG::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* p
         {
             if (personagemAtacante->obterArma()->possuiEfeitoSangramento() && !personagemAlvo->obterSangramento()) {
                 personagemAlvo->definirSangramento(true);
-                std::cout << "\033[31m>> " << personagemAlvo->obterNome() << " comecou a sangrar profundamente!\033[0m\n";
+                personagemAlvo->definirTurnosSangramento(3);
+                std::cout << "\033[31m>> " << personagemAlvo->obterNome() << " comecou a sangrar profundamente! (3 turnos)\033[0m\n";
             }
             if (personagemAtacante->obterArma()->possuiEfeitoLentidao() && !personagemAlvo->obterLentidao()) {
                 personagemAlvo->aplicarLentidaoEstatistica();
-                std::cout << "\033[35m>> " << personagemAlvo->obterNome() << " foi coberto por gosma e sua destreza caiu pela metade!\033[0m\n";
+                personagemAlvo->definirTurnosLentidao(3);
+                std::cout << "\033[35m>> " << personagemAlvo->obterNome() << " foi coberto por gosma e sua destreza caiu pela metade! (3 turnos)\033[0m\n";
             }
         }
     }
@@ -508,6 +563,11 @@ bool SistemaRPG::verificarCondicaoDeVitoriaOuDerrota()
     return false;
 }
 
+void realizarDropsGoblin(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos);
+void realizarDropsSlime(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos);
+void realizarDropsOrkExilado(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos);
+void realizarDropsFada(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos);
+
 void SistemaRPG::processarMorteDeInimigo(Personagem* inimigo)
 {
     int ouroDerrubado = inimigo->obterOuroRecompensa();
@@ -520,50 +580,20 @@ void SistemaRPG::processarMorteDeInimigo(Personagem* inimigo)
     std::cout << "\033[43m+" << ouroDerrubado << "G\033[0m "; 
     std::cout << "\033[44m+" << xpDerrubado << " XP\033[0m\n"; 
 
-    if (inimigo->obterArma() && inimigo->obterArma()->obterNomeItem() == "Adaga artesanal de pedra") 
-    {
-        if ((std::rand() % 100) < 65) 
-        {
-            jogadorAtual->obterInventario()->adicionarItem(new Arma("Adaga artesanal de pedra", 5, 0));
-            std::cout << "\033[37m+1x Adaga artesanal de pedra\033[0m\n";
-            itensObtidos.push_back("Adaga artesanal de pedra");
-        }
-    }
-    
     if (inimigo->obterNome() == "Goblin") 
     {
-        int qtdDentes = (std::rand() % 5) + 4;
-        for (int i = 0; i < qtdDentes; ++i) {
-            jogadorAtual->obterInventario()->adicionarItem(new Material("Dente de goblin"));
-            itensObtidos.push_back("Dente de goblin");
-        }
-        std::cout << "\033[37m+" << qtdDentes << "x Dente de goblin\033[0m\n";
+        realizarDropsGoblin(inimigo, jogadorAtual, itensObtidos);
     }
     else if (inimigo->obterNome() == "Slime") 
     {
-        for (int i = 0; i < 3; ++i) {
-            jogadorAtual->obterInventario()->adicionarItem(new Material("Gosma acida"));
-            itensObtidos.push_back("Gosma acida");
-        }
-        std::cout << "\033[37m+3x Gosma acida\033[0m\n";
-        
-        if ((std::rand() % 100) < 30) 
-        {
-            jogadorAtual->obterInventario()->adicionarItem(new Material("Nucleo pegajoso"));
-            std::cout << "\033[37m+Nucleo pegajoso\033[0m\n";
-            itensObtidos.push_back("Nucleo pegajoso");
-        }
+        realizarDropsSlime(inimigo, jogadorAtual, itensObtidos);
     }
-    else if (inimigo->obterNome() == "Ork [mini-boss]") 
+    else if (inimigo->obterNome() == "Ork [exilado]") 
     {
-        for (int i = 0; i < 2; ++i) {
-            jogadorAtual->obterInventario()->adicionarItem(new Arma("Machado de guerra danificado", 12, 0));
-            itensObtidos.push_back("Machado de guerra danificado");
-        }
-        std::cout << "\033[37m+2x Machado de guerra danificado\033[0m\n";
-        
-        jogadorAtual->obterInventario()->adicionarItem(new Armadura("Armadura de trapos e sucata", 3));
-        std::cout << "\033[37m+1x Armadura de trapos e sucata\033[0m\n";
-        itensObtidos.push_back("Armadura de trapos e sucata");
+        realizarDropsOrkExilado(inimigo, jogadorAtual, itensObtidos);
+    }
+    else if (inimigo->obterRaca()->obterNomeRaca() == "Fada") 
+    {
+        realizarDropsFada(inimigo, jogadorAtual, itensObtidos);
     }
 }
