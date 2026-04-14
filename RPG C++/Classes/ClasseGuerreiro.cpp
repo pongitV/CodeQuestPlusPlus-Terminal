@@ -4,7 +4,7 @@
 #include "../Inventario/Arma.h"
 #include "../Inventario/Escudo.h"
 #include "../Inventario/Armadura.h"
-#include "../Inventario/PocaoCura.h"
+#include "../Inventario/ItemConsumivel.h"
 
 std::string ClasseGuerreiro::obterNomeClasse() const 
 { 
@@ -73,7 +73,7 @@ std::vector<Item*> ClasseGuerreiro::obterEquipamentoClasse() const
 {
     return 
     {
-        new PocaoCura(), new PocaoCura(), new PocaoCura(),
+        new ItemConsumivel("Pocao de Cura (30%)"), new ItemConsumivel("Pocao de Cura (30%)"), new ItemConsumivel("Pocao de Cura (30%)"),
         new Arma("Espada longa de ferro", 10, 0), // Dano Fisico, Dano Magico
         new Escudo("Escudo medio de metal", 15, 5), // Reducao Fixa, Durabilidade
         new Armadura("Armadura de malha e metal", 7) // Reducao Fixa

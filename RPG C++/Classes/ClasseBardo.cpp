@@ -4,7 +4,7 @@
 #include "../Inventario/Arma.h"
 #include "../Inventario/Escudo.h"
 #include "../Inventario/Armadura.h"
-#include "../Inventario/PocaoCura.h"
+#include "../Inventario/ItemConsumivel.h"
 
 std::string ClasseBardo::obterNomeClasse() const 
 {
@@ -73,7 +73,7 @@ std::vector<Item*> ClasseBardo::obterEquipamentoClasse() const
 {
     return 
     {
-        new PocaoCura(), new PocaoCura(), new PocaoCura(),
+        new ItemConsumivel("Pocao de Cura (30%)"), new ItemConsumivel("Pocao de Cura (30%)"), new ItemConsumivel("Pocao de Cura (30%)"),
         new Arma("Violao encantado", 0, 10), // dano fisico, dano magico
         new Escudo("Capa magica", 6, 10), // Reducao Fixa, Durabilidade
         new Armadura("Traje de Couro e tecido nobre", 4) // reducao fixa

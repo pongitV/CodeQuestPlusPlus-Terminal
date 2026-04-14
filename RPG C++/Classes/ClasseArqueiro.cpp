@@ -4,7 +4,7 @@
 #include "../Inventario/Arma.h"
 #include "../Inventario/Escudo.h"
 #include "../Inventario/Armadura.h"
-#include "../Inventario/PocaoCura.h"
+#include "../Inventario/ItemConsumivel.h"
 
 std::string ClasseArqueiro::obterNomeClasse() const 
 {
@@ -72,7 +72,7 @@ std::vector<Item*> ClasseArqueiro::obterEquipamentoClasse() const
 {
     return 
     {
-        new PocaoCura(), new PocaoCura(), new PocaoCura(),
+        new ItemConsumivel("Pocao de Cura (30%)"), new ItemConsumivel("Pocao de Cura (30%)"), new ItemConsumivel("Pocao de Cura (30%)"),
         new Arma("Arco recurvo de madeira", 10, 0), // Dano Fisico, Dano Magico
         new Escudo("Bracedeiras de prata", 5, 3), // Reducao Fixa, Durabilidade
         new Armadura("Armadura leve de couro com malha", 5) // Reducao Fixa

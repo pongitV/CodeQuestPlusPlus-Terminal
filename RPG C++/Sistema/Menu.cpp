@@ -18,8 +18,7 @@
 
 #include "Menu.h"
 #include "../Inventario/Item.h"
-#include "../Inventario/PocaoCura.h"
-#include "../Inventario/Talisma.h"
+#include "../Inventario/ItemConsumivel.h"
 #include "../Sistema/GeradorInimigos.h"
 
 #include "../Interfaces/TelaInventario.h"
@@ -701,10 +700,10 @@ void Menu::gerenciarInventario(Personagem* jogadorAtual, bool* turnoFoiConsumido
                 bool ehEquipamento = (itemEncontrado->obterTipo() == TipoEquipamento::ARMA || 
                                       itemEncontrado->obterTipo() == TipoEquipamento::ESCUDO || 
                                       itemEncontrado->obterTipo() == TipoEquipamento::ARMADURA);
-                bool isPocao = dynamic_cast<PocaoCura*>(itemEncontrado) != nullptr;
+                bool isPocao = itemEncontrado->obterNomeItem().find("Pocao de Cura") != std::string::npos;
                 bool isBuff = itemEncontrado->obterNomeItem().find("(Buff)") != std::string::npos;
                 bool isDebuff = itemEncontrado->obterNomeItem().find("(Debuff)") != std::string::npos;
-                bool isTalisma = dynamic_cast<Talisma*>(itemEncontrado) != nullptr;
+                bool isTalisma = itemEncontrado->obterNomeItem().find("Talisma") != std::string::npos;
 
                 if (isPocao || isBuff || isDebuff || isTalisma || itemEncontrado == jogadorAtual->obterArma() || itemEncontrado == jogadorAtual->obterEscudo() || itemEncontrado == jogadorAtual->obterArmadura() || ehEquipamento)
                 {

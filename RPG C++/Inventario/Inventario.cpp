@@ -4,7 +4,7 @@
 
 #include "Inventario.h"
 #include "Item.h"
-#include "PocaoCura.h"
+#include "ItemConsumivel.h"
 #include "../Sistema/Menu.h"
 
 Inventario::Inventario() : quantidadeDeOuro(0) {}
@@ -229,7 +229,7 @@ bool Inventario::possuiPocaoDeCura() const
 {
     return std::any_of(listaDeItens.begin(), listaDeItens.end(), [](Item* item) 
     {
-        return dynamic_cast<PocaoCura*>(item) != nullptr;
+        return item->obterNomeItem() == "Pocao de Cura (30%)";
     });
 }
 

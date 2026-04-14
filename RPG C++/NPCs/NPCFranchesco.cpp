@@ -8,8 +8,7 @@
 #include "../Sistema/Menu.h"
 #include "../Inventario/Item.h"
 #include "../Inventario/Escudo.h"
-#include "../Inventario/PocaoCura.h"
-#include "../Inventario/Talisma.h"
+#include "../Inventario/ItemConsumivel.h"
 #include "../Inventario/ItemMissao.h"
 #include "../Interfaces/TelaInventario.h"
 
@@ -126,7 +125,7 @@ void NPCFranchesco::interagir(Personagem* jogadorAtual)
                     if (jogadorAtual->obterInventario()->obterOuro() >= preco) 
                     {
                         jogadorAtual->obterInventario()->adicionarOuro(-preco);
-                        jogadorAtual->obterInventario()->adicionarItem(new PocaoCura()); 
+                        jogadorAtual->obterInventario()->adicionarItem(new ItemConsumivel("Pocao de Cura (30%)")); 
                         std::cout << "\n" << margemMsg << "[SISTEMA]: Pocao de Cura comprada!\n"; 
                     } 
                     else 
@@ -160,10 +159,10 @@ void NPCFranchesco::interagir(Personagem* jogadorAtual)
                     if (jogadorAtual->obterInventario()->obterOuro() >= preco) 
                     {
                         jogadorAtual->obterInventario()->adicionarOuro(-preco);
-                        if (opcaoCompra == "1") { jogadorAtual->obterInventario()->adicionarItem(new Talisma("Talisma do Urso")); std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma do Urso comprado!\n"; }
-                        else if (opcaoCompra == "2") { jogadorAtual->obterInventario()->adicionarItem(new Talisma("Talisma da Coruja")); std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma da Coruja comprado!\n"; }
-                        else if (opcaoCompra == "3") { jogadorAtual->obterInventario()->adicionarItem(new Talisma("Talisma do Leopardo")); std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma do Leopardo comprado!\n"; }
-                        else if (opcaoCompra == "4") { jogadorAtual->obterInventario()->adicionarItem(new Talisma("Talisma da Raposa")); std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma da Raposa comprado!\n"; }
+                        if (opcaoCompra == "1") { jogadorAtual->obterInventario()->adicionarItem(new ItemConsumivel("Talisma do Urso")); std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma do Urso comprado!\n"; }
+                        else if (opcaoCompra == "2") { jogadorAtual->obterInventario()->adicionarItem(new ItemConsumivel("Talisma da Coruja")); std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma da Coruja comprado!\n"; }
+                        else if (opcaoCompra == "3") { jogadorAtual->obterInventario()->adicionarItem(new ItemConsumivel("Talisma do Leopardo")); std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma do Leopardo comprado!\n"; }
+                        else if (opcaoCompra == "4") { jogadorAtual->obterInventario()->adicionarItem(new ItemConsumivel("Talisma da Raposa")); std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma da Raposa comprado!\n"; }
                     } 
                     else 
                     {
