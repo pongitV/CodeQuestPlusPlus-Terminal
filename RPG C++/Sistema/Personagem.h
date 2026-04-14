@@ -52,6 +52,9 @@ protected:
     bool sofrendoLentidao;    // Controle de debuff
     int turnosLentidao;
     bool sofrendoQuebraResistencia; // Controle de debuff
+    bool sofrendoFraqueza;
+    int turnosFraqueza;
+    int forcaPerdidaFraqueza;
 
     bool estaDefendendo;      // Controle de Defesa Ativa
     bool recargaDefesa;       // Cooldown de 1 turno da Defesa
@@ -64,6 +67,7 @@ protected:
     Item* arma;    
     Item* escudo;   
     Item* armadura;
+    Item* itemSelecionadoParaUso;
     int ouroRecompensa;
     
     int nivel;
@@ -106,6 +110,8 @@ public:
     Item* obterEscudo() const { return escudo; }
     Item* obterArmadura() const { return armadura; }
     Inventario* obterInventario() const { return mochila; }
+    Item* obterItemSelecionadoParaUso() const { return itemSelecionadoParaUso; }
+    void definirItemSelecionadoParaUso(Item* item) { itemSelecionadoParaUso = item; }
 
     void definirOuroRecompensa(int valor) { ouroRecompensa = valor; }
     int obterOuroRecompensa() const { return ouroRecompensa; }
@@ -141,6 +147,13 @@ public:
     void aplicarLentidaoEstatistica();
     void removerLentidaoEstatistica();
     
+    void definirFraqueza(bool f) { sofrendoFraqueza = f; }
+    bool obterFraqueza() const { return sofrendoFraqueza; }
+    void definirTurnosFraqueza(int t) { turnosFraqueza = t; }
+    int obterTurnosFraqueza() const { return turnosFraqueza; }
+    void aplicarFraquezaEstatistica();
+    void removerFraquezaEstatistica();
+
     bool obterQuebraResistencia() const { return sofrendoQuebraResistencia; }
     void aplicarQuebraResistenciaEstatistica();
 

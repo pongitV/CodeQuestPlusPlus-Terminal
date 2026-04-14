@@ -456,6 +456,14 @@ void Menu::exibirBarraDeStatusDoJogador(Personagem* jogadorAtual)
     if (tamanhoBarra > preenchido) arteDeBarraDeXp += std::string(tamanhoBarra - preenchido, '-');
     arteDeBarraDeXp += "] \033[34m" + std::to_string(jogadorAtual->obterXpAtual()) + "\033[0m/" + std::to_string(jogadorAtual->obterXpParaSubir());
     
+    std::string statusStr = "";
+    if (jogadorAtual->obterTurnosBuff() > 0) statusStr += "\033[32m[Buff Atributos]\033[0m ";
+    if (jogadorAtual->obterSangramento()) statusStr += "\033[31m[Sangramento]\033[0m ";
+    if (jogadorAtual->obterLentidao()) statusStr += "\033[35m[Lentidao]\033[0m ";
+    if (jogadorAtual->obterFraqueza()) statusStr += "\033[33m[Fraqueza]\033[0m ";
+    if (jogadorAtual->obterQuebraResistencia()) statusStr += "\033[36m[Quebra Def.]\033[0m ";
+    if (statusStr.empty()) statusStr = "Nenhum";
+
     // Aplicando a cor dinâmica ao HP na linha do status
     std::vector<std::string> linhasParaImprimir = 
     {
@@ -463,7 +471,7 @@ void Menu::exibirBarraDeStatusDoJogador(Personagem* jogadorAtual)
         "| " + arteDoCoracao[1] + " |  JOGADOR: " + jogadorAtual->obterNome() + " (" + jogadorAtual->obterRaca()->obterNomeRaca() + " / " + jogadorAtual->obterNomeClasse() + ") | NIVEL: " + std::to_string(jogadorAtual->obterNivel()),
         "| " + arteDoCoracao[2] + " |  HP: " + corSelecionadaParaOValorDeVida + std::to_string(jogadorAtual->obterVida()) + corReset + "/" + std::to_string(jogadorAtual->obterVidaMaxima()) + " | OURO: \033[33m" + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G\033[0m | XP: " + arteDeBarraDeXp,
         "| " + arteDoCoracao[3] + " |  EQUIP: " + nomeDaArma + " | " + nomeDoEscudo + " | " + nomeDaArmadura,
-        "| " + std::string(11, ' ') + " |"
+        "| " + std::string(11, ' ') + " |  STATUS: " + statusStr
     };
 
     int maxLen = 0;
@@ -505,7 +513,36 @@ void Menu::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>& listaD
         int espacosParaCentralizarOHp = (larguraSeparadaParaCadaColuna - (int)valorDePontosDeVidaDoInimigo.length()) / 2;
         std::cout << std::string(espacosParaCentralizarOHp > 0 ? espacosParaCentralizarOHp : 0, ' ') << std::left << std::setw(larguraSeparadaParaCadaColuna - espacosParaCentralizarOHp) << valorDePontosDeVidaDoInimigo;
     }
-    std::cout << "\n\n";
+        std::cout << "\n";
+        
+        for (size_t indiceInimigo = 0; indiceInimigo < listaDeInimigos.size(); indiceInimigo++) 
+        {
+            std::vector<std::pair<std::string, std::string>> debuffs;
+            if (listaDeInimigos[indiceInimigo]->obterSangramento()) debuffs.push_back({"[Sangramento]", "\033[31m[Sangramento]\033[0m"});
+            if (listaDeInimigos[indiceInimigo]->obterLentidao()) debuffs.push_back({"[Lentidao]", "\033[35m[Lentidao]\033[0m"});
+            if (listaDeInimigos[indiceInimigo]->obterFraqueza()) debuffs.push_back({"[Fraqueza]", "\033[33m[Fraqueza]\033[0m"});
+            if (listaDeInimigos[indiceInimigo]->obterQuebraResistencia()) debuffs.push_back({"[Quebra Def.]", "\033[36m[Quebra Def.]\033[0m"});
+
+            std::string visualStr = "";
+            std::string printStr = "";
+            for (size_t i = 0; i < debuffs.size(); ++i) {
+                visualStr += debuffs[i].first;
+                printStr += debuffs[i].second;
+                if (i < debuffs.size() - 1) {
+                    visualStr += " ";
+                    printStr += " ";
+                }
+            }
+
+            int espacosEsquerda = (larguraSeparadaParaCadaColuna - (int)visualStr.length()) / 2;
+            if (espacosEsquerda < 0) espacosEsquerda = 0;
+            int espacosDireita = larguraSeparadaParaCadaColuna - espacosEsquerda - (int)visualStr.length();
+            if (espacosDireita < 0) espacosDireita = 0;
+            
+            std::cout << std::string(espacosEsquerda, ' ') << printStr << std::string(espacosDireita, ' ');
+        }
+        std::cout << "\n\n";
+        
     for (size_t indiceDaLinhaDaArte = 0; indiceDaLinhaDaArte < arteDoInimigo.size(); indiceDaLinhaDaArte++) 
     {
         for (size_t indiceDoInimigoParaDesenhar = 0; indiceDoInimigoParaDesenhar < listaDeInimigos.size(); indiceDoInimigoParaDesenhar++) 
@@ -649,8 +686,10 @@ void Menu::gerenciarInventario(Personagem* jogadorAtual, bool* turnoFoiConsumido
                                       itemEncontrado->obterTipo() == TipoEquipamento::ESCUDO || 
                                       itemEncontrado->obterTipo() == TipoEquipamento::ARMADURA);
                 bool isPocao = dynamic_cast<PocaoCura*>(itemEncontrado) != nullptr;
+                bool isBuff = itemEncontrado->obterNomeItem().find("(Buff)") != std::string::npos;
+                bool isDebuff = itemEncontrado->obterNomeItem().find("(Debuff)") != std::string::npos;
 
-                if (isPocao || itemEncontrado == jogadorAtual->obterArma() || itemEncontrado == jogadorAtual->obterEscudo() || itemEncontrado == jogadorAtual->obterArmadura() || ehEquipamento)
+                if (isPocao || isBuff || isDebuff || itemEncontrado == jogadorAtual->obterArma() || itemEncontrado == jogadorAtual->obterEscudo() || itemEncontrado == jogadorAtual->obterArmadura() || ehEquipamento)
                 {
                     if (turnoFoiConsumido && *turnoFoiConsumido) 
                     {
@@ -659,7 +698,29 @@ void Menu::gerenciarInventario(Personagem* jogadorAtual, bool* turnoFoiConsumido
                         continue;
                     }
 
-                    if (isPocao) 
+                    if (isDebuff) 
+                    {
+                        if (turnoFoiConsumido) 
+                        {
+                            jogadorAtual->definirItemSelecionadoParaUso(itemEncontrado);
+                            break; // Sai do inventario para abrir o alvo
+                        } 
+                        else 
+                        {
+                            std::cout << "\n[SISTEMA]: Frascos de debuff so podem ser usados em combate!\n";
+                            Menu::aguardarPressionamentoDeEnter();
+                            continue;
+                        }
+                    }
+                    else if (isBuff) 
+                    {
+                        std::string nomeDoItemEncontrado = itemEncontrado->obterNomeItem();
+                        jogadorAtual->definirTurnosBuff(2); 
+                        jogadorAtual->definirMultiplicador(1.5);
+                        jogadorAtual->obterInventario()->removerItem(nomeDoItemEncontrado);
+                        std::cout << "\n[SISTEMA]: " << nomeDoItemEncontrado << " consumida! Atributos ampliados em 1.5x por 2 turnos!\n";
+                    }
+                    else if (isPocao) 
                     {
                         std::string nomeDoItemEncontrado = itemEncontrado->obterNomeItem(); 
                         int quantidadeDeCura = static_cast<int>(jogadorAtual->obterVidaMaxima() * 0.30);

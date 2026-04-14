@@ -5,9 +5,9 @@
 #include "../Inventario/Item.h"
 
 std::string RacaSlime::obterNomeRaca() const { return "Slime"; }
-Atributos RacaSlime::obterAtributosRaca() const { return { -40, 5, 2, 8, 10, -15, -10 }; }
-std::string RacaSlime::obterNomeHabilidadeRaca() const { return "Nenhuma"; }
-std::string RacaSlime::obterDescricaoHabilidadeRaca() const { return "Monstros nao possuem passivas"; }
+Atributos RacaSlime::obterAtributosRaca() const { return { -40, 10, 2, 8, 10, -15, -10 }; }
+std::string RacaSlime::obterNomeHabilidadeRaca() const { return "Toque Gosmento"; }
+std::string RacaSlime::obterDescricaoHabilidadeRaca() const { return "Ataques tem 20% de chance de causar Lentidao"; }
 
 std::vector<std::string> RacaSlime::obterAparenciaRaca() const
 {

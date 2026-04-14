@@ -49,7 +49,7 @@ posicaoXSalvaAntesDeEntrarNoSubMapa(0), posicaoYSalvaAntesDeEntrarNoSubMapa(0)
 void Mapa::iniciarLoopDeExploracaoDoMapa() 
 {
     bool exploracaoEstaAtiva = true;
-    std::string tituloDoMapaAtual = "EXPLORACAO";
+    std::string tituloDoMapaAtual = "VILA INICIAL";
 
     static bool bjornResgatado = false;
     static bool forjaJaFoiVisitada = false;
@@ -347,10 +347,13 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
                     
                     bjornResgatado = true;
                     
-                    if (celulaDestinoDoMapa == 'B') {
+                    if (celulaDestinoDoMapa == 'B') 
+                    {
                         matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX] = '.'; 
                         if (matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'n') matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] = '.';
-                    } else {
+                    } 
+                    else 
+                    {
                         matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX] = '.'; 
                         matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX-1] = '.';
                     }

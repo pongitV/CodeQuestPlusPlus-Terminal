@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <iomanip>
 
 #ifdef _WIN32
     #include <windows.h>
@@ -39,32 +40,68 @@ void TelaAtributos::exibir(Personagem* jogadorAtual)
 
     double multiplicadorDeAtributosAtual = jogadorAtual->obterMultiplicador();
     int quantidadeDeTurnosRestantesDoBuff = jogadorAtual->obterTurnosBuff();
+    bool temBuff = (quantidadeDeTurnosRestantesDoBuff > 0 && multiplicadorDeAtributosAtual > 1.0);
 
-    std::vector<std::string> linhas = {
-        "NOME:           " + jogadorAtual->obterNome(), "RACA:           " + jogadorAtual->obterRaca()->obterNomeRaca(), "CLASSE:         " + jogadorAtual->obterNomeClasse(),
-        "NIVEL:          " + std::to_string(jogadorAtual->obterNivel()), "XP:             " + std::to_string(jogadorAtual->obterXpAtual()) + " / " + std::to_string(jogadorAtual->obterXpParaSubir()),
-        "DIFICULDADE:    " + std::string(jogadorAtual->obterDificuldade() == 1 ? "Facil" : (jogadorAtual->obterDificuldade() == 2 ? "Normal" : "Dificil")),
-        "[PARRY]:        " + std::string(jogadorAtual->obterParryAtivado() ? "Ligado" : "Desligado"), "OURO:           " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G", "",
-        "PASSIVA RACA:   " + jogadorAtual->obterRaca()->obterNomeHabilidadeRaca(), "-> " + jogadorAtual->obterRaca()->obterDescricaoHabilidadeRaca(), "",
-        "ATIVA CLASSE:   " + jogadorAtual->obterClasse()->obterNomeHabilidadeClasse(), "-> " + jogadorAtual->obterClasse()->obterDescricaoHabilidadeClasse(), "",
-        "ATRIBUTOS TOTAIS:", "- HP: " + std::to_string(jogadorAtual->obterVida()) + "/" + std::to_string(jogadorAtual->obterVidaMaxima()) + " (0)"
-    };
+    int forcaPerdida = jogadorAtual->obterFraqueza() ? (jogadorAtual->obterForca() / 3) : 0;
+    int destrezaPerdida = jogadorAtual->obterLentidao() ? jogadorAtual->obterDestreza() : 0; 
+    int resPerdida = jogadorAtual->obterQuebraResistencia() ? jogadorAtual->obterResistencia() : 0;
+    int constPerdida = jogadorAtual->obterQuebraResistencia() ? (jogadorAtual->obterConstituicao() / 2) : 0;
 
-    auto addAtributo = [&](std::string nome, int valorBase) 
+    int espacos = (largura - 50) / 2;
+    std::string margem(espacos > 0 ? espacos : 0, ' ');
+
+    std::cout << margem << "NOME:           " << jogadorAtual->obterNome() << "\n";
+    std::cout << margem << "RACA:           " << jogadorAtual->obterRaca()->obterNomeRaca() << "\n";
+    std::cout << margem << "CLASSE:         " << jogadorAtual->obterNomeClasse() << "\n";
+    std::cout << margem << "NIVEL:          " << jogadorAtual->obterNivel() << " (XP: " << jogadorAtual->obterXpAtual() << " / " << jogadorAtual->obterXpParaSubir() << ")\n";
+    std::cout << margem << "DIFICULDADE:    " << (jogadorAtual->obterDificuldade() == 1 ? "Facil" : (jogadorAtual->obterDificuldade() == 2 ? "Normal" : "Dificil")) << "\n";
+    std::cout << margem << "[PARRY]:        " << (jogadorAtual->obterParryAtivado() ? "\033[32mLigado\033[0m" : "\033[31mDesligado\033[0m") << "\n";
+    std::cout << margem << "OURO:           \033[33m" << jogadorAtual->obterInventario()->obterOuro() << "G\033[0m\n\n";
+
+    std::cout << margem << "PASSIVA RACA:   " << jogadorAtual->obterRaca()->obterNomeHabilidadeRaca() << "\n";
+    std::cout << margem << "-> " << jogadorAtual->obterRaca()->obterDescricaoHabilidadeRaca() << "\n\n";
+
+    std::cout << margem << "ATIVA CLASSE:   " << jogadorAtual->obterClasse()->obterNomeHabilidadeClasse() << "\n";
+    std::cout << margem << "-> " << jogadorAtual->obterClasse()->obterDescricaoHabilidadeClasse() << "\n\n";
+
+    std::cout << margem << "--- ATRIBUTOS TOTAIS ---\n";
+    std::cout << margem << " > Vida           : " << jogadorAtual->obterVida() << "/" << jogadorAtual->obterVidaMaxima() << "\n";
+
+    auto printAtributo = [&](std::string nome, int valorAtual, int valorPerdido) 
     {
-        std::string linha = "- " + nome + ": " + std::to_string(valorBase);
-        if (quantidadeDeTurnosRestantesDoBuff > 0) {
-            std::string sm = std::to_string(multiplicadorDeAtributosAtual); sm.erase(sm.find_last_not_of('0') + 1, std::string::npos); if (sm.back() == '.') sm += "0";
-            linha += " (" + std::to_string(static_cast<int>(valorBase * multiplicadorDeAtributosAtual)) + "){x" + sm + "} por " + std::to_string(quantidadeDeTurnosRestantesDoBuff) + " turnos";
-        } else linha += " (0)";
-        linhas.push_back(linha);
+        int valorBase = valorAtual + valorPerdido;
+        int bonusBuff = temBuff ? static_cast<int>(valorBase * multiplicadorDeAtributosAtual) - valorBase : 0;
+        
+        std::cout << margem << " > " << std::left << std::setw(15) << nome << ": " << valorBase;
+        
+        if (temBuff && bonusBuff > 0) {
+            std::cout << " \033[32m(+" << bonusBuff << " Buff)\033[0m";
+        }
+        if (valorPerdido > 0) {
+            std::cout << " \033[31m(-" << valorPerdido << " Debuff)\033[0m";
+        }
+        if (!temBuff && valorPerdido == 0) {
+            std::cout << " (0)";
+        }
+        std::cout << "\n";
     };
 
     std::string nomeDaClasse = jogadorAtual->obterNomeClasse();
-    addAtributo(nomeDaClasse == "Guerreiro" ? "Forca [DANO]" : "Forca", jogadorAtual->obterForca()); addAtributo(nomeDaClasse == "Arqueiro" ? "Destreza [DANO]" : "Destreza", jogadorAtual->obterDestreza());
-    addAtributo("Resistencia", jogadorAtual->obterResistencia()); addAtributo("Constituicao", jogadorAtual->obterConstituicao());
-    addAtributo(nomeDaClasse == "Mago" ? "Inteligencia [DANO]" : "Inteligencia", jogadorAtual->obterInteligencia()); addAtributo(nomeDaClasse == "Bardo" ? "Sabedoria [DANO]" : "Sabedoria", jogadorAtual->obterSabedoria());
-    
-    Menu::imprimirLinhasCentralizadasNaTela(linhas, 0, "");
+    printAtributo(nomeDaClasse == "Guerreiro" ? "Forca [DANO]" : "Forca", jogadorAtual->obterForca(), forcaPerdida);
+    printAtributo(nomeDaClasse == "Arqueiro" ? "Destreza [DANO]" : "Destreza", jogadorAtual->obterDestreza(), destrezaPerdida);
+    printAtributo("Resistencia", jogadorAtual->obterResistencia(), resPerdida);
+    printAtributo("Constituicao", jogadorAtual->obterConstituicao(), constPerdida);
+    printAtributo(nomeDaClasse == "Mago" ? "Inteligencia [DANO]" : "Inteligencia", jogadorAtual->obterInteligencia(), 0);
+    printAtributo(nomeDaClasse == "Bardo" ? "Sabedoria [DANO]" : "Sabedoria", jogadorAtual->obterSabedoria(), 0);
+
+    std::cout << "\n" << margem << "--- STATUS ATUAIS ---\n";
+    bool temStatus = false;
+    if (jogadorAtual->obterTurnosBuff() > 0) { std::cout << margem << "Efeito: \033[32mBuff Atributos (" << jogadorAtual->obterTurnosBuff() << " turnos)\033[0m\n"; temStatus = true; }
+    if (jogadorAtual->obterSangramento()) { std::cout << margem << "Efeito: \033[31mSangramento (" << jogadorAtual->obterTurnosSangramento() << " turnos)\033[0m\n"; temStatus = true; }
+    if (jogadorAtual->obterLentidao()) { std::cout << margem << "Efeito: \033[35mLentidao (" << jogadorAtual->obterTurnosLentidao() << " turnos)\033[0m\n"; temStatus = true; }
+    if (jogadorAtual->obterFraqueza()) { std::cout << margem << "Efeito: \033[33mFraqueza (" << jogadorAtual->obterTurnosFraqueza() << " turnos)\033[0m\n"; temStatus = true; }
+    if (jogadorAtual->obterQuebraResistencia()) { std::cout << margem << "Efeito: \033[36mQuebra de Resistencia\033[0m\n"; temStatus = true; }
+    if (!temStatus) std::cout << margem << "Nenhum status ativo.\n";
+
     std::cout << "\n" << std::string(largura, '=') << "\n";
 }

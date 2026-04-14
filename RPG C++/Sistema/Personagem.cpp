@@ -17,6 +17,7 @@ Personagem::Personagem(std::string nome, RacaBase* r, ClasseBase* c)
     this->arma = nullptr;
     this->escudo = nullptr;
     this->armadura = nullptr;
+    this->itemSelecionadoParaUso = nullptr;
     this->ouroRecompensa = 15;
     
     this->nivel = 1;
@@ -37,6 +38,9 @@ Personagem::Personagem(std::string nome, RacaBase* r, ClasseBase* c)
     this->sofrendoLentidao = false;
     this->turnosLentidao = 0;
     this->sofrendoQuebraResistencia = false;
+    this->sofrendoFraqueza = false;
+    this->turnosFraqueza = 0;
+    this->forcaPerdidaFraqueza = 0;
     this->parryAtivado = false;
     this->dificuldadeAtual = 2; // Padrao: Normal
 
@@ -131,6 +135,26 @@ void Personagem::removerLentidaoEstatistica()
     {
         statsFinais.destreza *= 2;
         sofrendoLentidao = false;
+    }
+}
+
+void Personagem::aplicarFraquezaEstatistica() 
+{
+    if (!sofrendoFraqueza) 
+    {
+        forcaPerdidaFraqueza = statsFinais.forca / 4; // Reduz em 25% exatos
+        statsFinais.forca -= forcaPerdidaFraqueza;
+        sofrendoFraqueza = true;
+    }
+}
+
+void Personagem::removerFraquezaEstatistica()
+{
+    if (sofrendoFraqueza)
+    {
+        statsFinais.forca += forcaPerdidaFraqueza; // Devolve o valor exato perdido
+        forcaPerdidaFraqueza = 0;
+        sofrendoFraqueza = false;
     }
 }
 

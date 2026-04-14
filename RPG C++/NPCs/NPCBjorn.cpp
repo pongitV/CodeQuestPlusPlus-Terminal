@@ -12,15 +12,18 @@
 
 void NPCBjorn::interagir(Personagem* jogadorAtual)
 {
-    static std::map<int, std::pair<std::string, bool>> estoqueForja = {
+    static std::map<int, std::pair<std::string, bool>> estoqueArmas = {
         {1, {"Espada longa de ferro", true}},
         {2, {"Arco recurvo de madeira", true}},
         {3, {"Cajado", true}},
-        {4, {"Violao encantado", true}},
-        {5, {"Armadura de malha e metal", true}},
-        {6, {"Armadura leve de couro com malha", true}},
-        {7, {"Tunica", true}},
-        {8, {"Traje de Couro e tecido nobre", true}}
+        {4, {"Violao encantado", true}}
+    };
+    
+    static std::map<int, std::pair<std::string, bool>> estoqueArmaduras = {
+        {1, {"Armadura de malha e metal", true}},
+        {2, {"Armadura leve de couro com malha", true}},
+        {3, {"Tunica", true}},
+        {4, {"Traje de Couro e tecido nobre", true}}
     };
     
     auto instanciarEquipamentoBjorn = [](const std::string& n) -> Item* {
@@ -96,11 +99,9 @@ void NPCBjorn::interagir(Personagem* jogadorAtual)
             "",
             "Seu Ouro: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G",
             "",
-            "[1] COMPRAR Equipamentos das Classes",
-            "[2] MELHORAR Equipamento na Bigorna",
-            "[3] ENCANTAR Arma: Sangramento (40x Dente de Goblin)",
-            "[4] ENCANTAR Arma: Lentidao (5x Nucleo pegajoso)",
-            "[5] ENCANTAR Arma: Reducao Resist. (25x Po magico)",
+            "[1] COMPRAR Armas das Classes",
+            "[2] COMPRAR Armaduras das Classes",
+            "[3] MELHORAR Equipamento na Bigorna",
             "[0] VOLTAR",
             ""
         };
@@ -127,13 +128,17 @@ void NPCBjorn::interagir(Personagem* jogadorAtual)
         std::cout << "\n" << std::string(recuo, ' ') << "Escolha: ";
         std::cin >> opcaoBjorn;
 
-        if (opcaoBjorn == "1") {
+        if (opcaoBjorn == "1" || opcaoBjorn == "2") {
+            bool comprandoArmas = (opcaoBjorn == "1");
+            auto& estoqueAtual = comprandoArmas ? estoqueArmas : estoqueArmaduras;
+            std::string tituloLoja = comprandoArmas ? "FORJA - ARMAS" : "FORJA - ARMADURAS";
+
             std::string opcaoCompra;
             do {
                 Menu::limparTelaDoTerminal();
-                Menu::exibirLogoDoJogo("FORJA - EQUIPAMENTOS");
+                Menu::exibirLogoDoJogo(tituloLoja);
                 std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
-                for (auto const& [id, par] : estoqueForja) {
+                for (auto const& [id, par] : estoqueAtual) {
                     std::string preco = "40G";
                     std::string status = par.second ? "Em Estoque" : "ESGOTADO";
                     std::cout << margemMsg << "[" << id << "] " << par.first << " (" << preco << ") - " << status << "\n";
@@ -144,14 +149,14 @@ void NPCBjorn::interagir(Personagem* jogadorAtual)
                 if (opcaoCompra != "0") {
                     try {
                         int idCompra = std::stoi(opcaoCompra);
-                        if (estoqueForja.count(idCompra)) {
-                            if (!estoqueForja[idCompra].second) {
+                        if (estoqueAtual.count(idCompra)) {
+                            if (!estoqueAtual[idCompra].second) {
                                 std::cout << "\n" << margemMsg << "[Bjorn]: Ja vendi este item, nao tenho mais em estoque!\n";
                             } else if (jogadorAtual->obterInventario()->obterOuro() >= 40) {
                                 jogadorAtual->obterInventario()->adicionarOuro(-40);
-                                estoqueForja[idCompra].second = false;
-                                jogadorAtual->obterInventario()->adicionarItem(instanciarEquipamentoBjorn(estoqueForja[idCompra].first));
-                                std::cout << "\n" << margemMsg << "[Bjorn]: Otima escolha! Voce comprou " << estoqueForja[idCompra].first << ".\n";
+                                estoqueAtual[idCompra].second = false;
+                                jogadorAtual->obterInventario()->adicionarItem(instanciarEquipamentoBjorn(estoqueAtual[idCompra].first));
+                                std::cout << "\n" << margemMsg << "[Bjorn]: Otima escolha! Voce comprou " << estoqueAtual[idCompra].first << ".\n";
                             } else {
                                 std::cout << "\n" << margemMsg << "[Bjorn]: Voce nao tem ouro suficiente para isso!\n";
                             }
@@ -160,7 +165,7 @@ void NPCBjorn::interagir(Personagem* jogadorAtual)
                     } catch (...) {}
                 }
             } while (opcaoCompra != "0");
-        } else if (opcaoBjorn == "2") {
+        } else if (opcaoBjorn == "3") {
             std::string codigo1, codigo2;
             do {
                 TelaInventario::exibir(jogadorAtual);
@@ -180,9 +185,18 @@ void NPCBjorn::interagir(Personagem* jogadorAtual)
 
                 Item* item2 = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigo2, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
                 if (!item2) { std::cout << "\n[SISTEMA]: Item invalido!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
-                if (item1 == item2) { std::cout << "\n[Bjorn]: Voce nao pode selecionar o MESMO item duas vezes! Voce precisa de DUAS COPIAS!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
-                if (item2 == jogadorAtual->obterArma() || item2 == jogadorAtual->obterEscudo() || item2 == jogadorAtual->obterArmadura()) { std::cout << "\n[Bjorn]: Voce precisa DESEQUIPAR a copia antes de usa-la na bigorna!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
                 if (item1->obterNomeItem() != item2->obterNomeItem()) { std::cout << "\n[Bjorn]: Os itens precisam ser EXATAMENTE iguais para serem fundidos!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
+
+                if (jogadorAtual->obterInventario()->contarItem(item1->obterNomeItem()) < 2) {
+                    std::cout << "\n[Bjorn]: Voce nao possui DUAS COPIAS deste item!\n"; Menu::aguardarPressionamentoDeEnter(); continue; 
+                }
+
+                if ((jogadorAtual->obterArma() && jogadorAtual->obterArma()->obterNomeItem() == item1->obterNomeItem()) ||
+                    (jogadorAtual->obterEscudo() && jogadorAtual->obterEscudo()->obterNomeItem() == item1->obterNomeItem()) ||
+                    (jogadorAtual->obterArmadura() && jogadorAtual->obterArmadura()->obterNomeItem() == item1->obterNomeItem())) {
+                    std::cout << "\n[Bjorn]: Voce possui uma copia deste item equipada! DESEQUIPE antes de fundir.\n";
+                    Menu::aguardarPressionamentoDeEnter(); continue;
+                }
 
                 std::string novoNome = item1->obterNomeItem() + "+";
                 Item* novoItem = nullptr;
@@ -214,69 +228,12 @@ void NPCBjorn::interagir(Personagem* jogadorAtual)
                     };
                     std::string equacao = "[" + nomeAntigo + "] + [" + nomeAntigo + "] = [" + novoNome + "]";
                     Menu::imprimirLinhasCentralizadasNaTela({equacao, ""}, 0, "\033[33m");
-                    Menu::imprimirLinhasCentralizadasNaTela(arteBigorna, 29, "\033[37m");
+                    Menu::imprimirLinhasCentralizadasNaTela(arteBigorna, 29, "\033[0m");
                     
                     std::cout << "\n[Bjorn]: Ha! Trabalho feito! Seu equipamento esta mais forte do que nunca!\n";
                     Menu::aguardarPressionamentoDeEnter();
                 }
             } while (codigo1 != "0");
-        }
-        else if (opcaoBjorn == "3" || opcaoBjorn == "4" || opcaoBjorn == "5") {
-            bool isSangramento = (opcaoBjorn == "3");
-            bool isLentidao = (opcaoBjorn == "4");
-            bool isResistencia = (opcaoBjorn == "5");
-            
-            std::string itemNecessario = isSangramento ? "Dente de goblin" : (isLentidao ? "Nucleo pegajoso" : "Po magico");
-            int qtdNecessaria = isSangramento ? 40 : (isLentidao ? 5 : 25);
-            
-            int qtdAtual = jogadorAtual->obterInventario()->contarItem(itemNecessario);
-            if (qtdAtual < qtdNecessaria) {
-                std::cout << "\n[Bjorn]: Voce nao tem " << itemNecessario << " suficiente! (Possui: " << qtdAtual << "/" << qtdNecessaria << ")\n";
-                Menu::aguardarPressionamentoDeEnter();
-                continue;
-            }
-            
-            std::string codigoArma;
-            TelaInventario::exibir(jogadorAtual);
-            std::cout << "\n[Bjorn]: Escolha a ARMA para encantar ou [0] VOLTAR: ";
-            std::cin >> codigoArma;
-            if (codigoArma == "0") continue;
-            
-            Item* itemEscolhido = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigoArma, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
-            
-            if (!itemEscolhido) { std::cout << "\n[SISTEMA]: Item invalido!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
-            
-            Arma* armaEscolhida = dynamic_cast<Arma*>(itemEscolhido);
-            if (!armaEscolhida) { std::cout << "\n[Bjorn]: Eu so posso encantar ARMAS com isso!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
-            
-            if (isSangramento && armaEscolhida->possuiEfeitoSangramento()) { std::cout << "\n[Bjorn]: Essa arma ja causa sangramento!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
-            if (isLentidao && armaEscolhida->possuiEfeitoLentidao()) { std::cout << "\n[Bjorn]: Essa arma ja possui lentidao!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
-            if (isResistencia && armaEscolhida->obterNomeItem().find("(Penetrante)") != std::string::npos) { std::cout << "\n[Bjorn]: Essa arma ja possui reducao de resistencia!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
-            
-            // Remove os itens necessários do inventário
-            for (int i = 0; i < qtdNecessaria; ++i) {
-                jogadorAtual->obterInventario()->removerItem(itemNecessario);
-            }
-            
-            // Aplica o encantamento
-            if (isSangramento) {
-                armaEscolhida->aplicarEfeitoSangramento();
-                armaEscolhida->alterarNome(armaEscolhida->obterNomeItem() + " (Sangrenta)");
-            } else if (isLentidao) {
-                armaEscolhida->aplicarEfeitoLentidao();
-                armaEscolhida->alterarNome(armaEscolhida->obterNomeItem() + " (Viscosa)");
-            } else if (isResistencia) {
-                armaEscolhida->alterarNome(armaEscolhida->obterNomeItem() + " (Penetrante)");
-            }
-            
-            Menu::limparTelaDoTerminal();
-            Menu::exibirLogoDoJogo("FORJA - ENCANTAMENTO SUCESSO");
-            std::vector<std::string> arteBigorna = { "⠀⠀⠀⠀⠀⠀⠀⢰⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⡄⠀⠀⠀⠀⠀", "⠀⠹⣿⣿⣿⣿⡇⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⢠⣄⡀⠀⠀", "⠀⠀⠙⢿⣿⣿⡇⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⢸⣿⣿⡶⠀", "⠀⠀⠀⠀⠉⠛⠇⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠸⠟⠋⠀⠀", "⠀⠀⠀⠀⠀⠀⠀⠸⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠇⠀⠀⠀⠀⠀", "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣶⣶⣶⣶⣶⣶⣶⣶⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀", "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣷⡀⠀⠀⠀⠀⠀⠀⠀⠀", "⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣄⠀⠀⠀⠀⠀⠀⠀", "⠀⠀⠀⠀⠀⠀⣀⣀⣈⣉⣉⣉⣉⣉⣉⣉⣉⣉⣉⣉⣉⣉⣉⣁⣀⣀⠀⠀⠀⠀", "⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠀⠀⠀⠀" };
-            
-            Menu::imprimirLinhasCentralizadasNaTela(arteBigorna, 29, "\033[37m");
-            
-            std::cout << "\n[Bjorn]: Ha! Trabalho feito! Este encantamento a tornara terrivel em combate!\n";
-            Menu::aguardarPressionamentoDeEnter();
         }
     } while (opcaoBjorn != "0");
 }
