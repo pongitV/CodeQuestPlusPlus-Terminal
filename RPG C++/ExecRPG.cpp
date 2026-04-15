@@ -47,10 +47,9 @@ int main()
     Menu::limparTelaDoTerminal();
 
     // 3. Inicia o fluxo do jogo
-    Personagem* jogador = Menu::iniciarCriacaoDePersonagem();
-    Mapa mapaDoJogo(jogador);
+    std::unique_ptr<Personagem> jogador = Menu::iniciarCriacaoDePersonagem();
+    Mapa mapaDoJogo(jogador.get());
     mapaDoJogo.iniciarLoopDeExploracaoDoMapa();
 
-    delete jogador;
     return 0;
 }

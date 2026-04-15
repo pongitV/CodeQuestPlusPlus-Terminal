@@ -198,9 +198,13 @@ Item* Inventario::selecionarEscudo()
     return listaDeEscudos[opcaoEscolhida - 1];
 }
 
-void Inventario::adicionarItem(Item* novoItem) 
+void Inventario::adicionarItem(std::unique_ptr<Item> novoItem) 
 { 
-    if (novoItem) listaDeItens.push_back(novoItem); 
+    if (novoItem) {
+        Item* ptr = novoItem.get();
+        listaDeItens.push_back(ptr);
+        novoItem.release(); // Libera a posse da memória APENAS se a inserção no vetor for um sucesso
+    }
 }
 
 void Inventario::removerItem(const std::string& nomeDoItem) 

@@ -114,3 +114,40 @@ void TelaAtributos::exibir(Personagem* jogadorAtual)
 
     std::cout << "\n" << std::string(largura, '=') << "\n";
 }
+
+void TelaAtributos::gerenciarFichaDoJogador(Personagem* jogadorAtual)
+{
+    if (jogadorAtual == nullptr) return;
+    int larguraDoTerminal = Menu::obterLarguraDoTerminalEmColunas();
+    std::string opcaoEscolhidaNoMenuJogador;
+    do 
+    {
+        TelaAtributos::exibir(jogadorAtual);
+        std::string mensagemDoPrompt = "[0] VOLTAR | [1] LIGAR/DESLIGAR PARRY";
+        if (jogadorAtual->podeSubirDeNivel()) mensagemDoPrompt += " | [2] SUBIR DE NIVEL";
+        mensagemDoPrompt += ": ";
+        int espacosParaCentralizarMensagem = (larguraDoTerminal - (int)mensagemDoPrompt.length()) / 2;
+        std::cout << "\n" << std::string(espacosParaCentralizarMensagem > 0 ? espacosParaCentralizarMensagem : 0, ' ') << mensagemDoPrompt;
+        std::cin >> opcaoEscolhidaNoMenuJogador;
+
+        if (opcaoEscolhidaNoMenuJogador == "1") {
+            jogadorAtual->definirParryAtivado(!jogadorAtual->obterParryAtivado());
+        } else if (opcaoEscolhidaNoMenuJogador == "2" && jogadorAtual->podeSubirDeNivel()) {
+            int opcaoAtributo;
+            std::cout << "\nEscolha o atributo para melhorar:\n";
+            std::cout << "1. Vida\n2. Forca\n3. Destreza\n4. Resistencia\n5. Constituicao\n6. Inteligencia\n7. Sabedoria\n";
+            std::cout << "Opcao: ";
+            if (std::cin >> opcaoAtributo && opcaoAtributo >= 1 && opcaoAtributo <= 7) {
+                TipoAtributo atributo = static_cast<TipoAtributo>(opcaoAtributo);
+                if (jogadorAtual->subirDeNivel(atributo)) {
+                    std::cout << "[SISTEMA]: Nivel subiu! Atributo melhorado.\n";
+                    Menu::aguardarPressionamentoDeEnter();
+                }
+            } else {
+                std::cin.clear(); std::cin.ignore(1000, '\n');
+                std::cout << "[ERRO]: Opcao invalida.\n";
+                Menu::aguardarPressionamentoDeEnter();
+            }
+        }
+    } while (opcaoEscolhidaNoMenuJogador != "0");
+}

@@ -12,6 +12,6 @@ public:
     Atributos obterAtributosRaca() const override;
     std::vector<std::string> obterAparenciaRaca() const override;
 
-    static void realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos);
+    void realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal) override;
     static std::vector<std::string> obterMapaCaverna(bool bjornResgatado);
 };

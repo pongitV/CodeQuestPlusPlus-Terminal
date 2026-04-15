@@ -175,11 +175,11 @@ void Menu::imprimirLinhasCentralizadasNaTela(const std::vector<std::string>& lin
     }
 }
 
-Personagem* Menu::iniciarCriacaoDePersonagem() 
+std::unique_ptr<Personagem> Menu::iniciarCriacaoDePersonagem() 
 {
     std::string nomeDoPersonagem = "";
-    RacaBase* racaEscolhida = nullptr;
-    ClasseBase* classeEscolhida = nullptr;
+    std::unique_ptr<RacaBase> racaEscolhida;
+    std::unique_ptr<ClasseBase> classeEscolhida;
     bool sistemaDeParryAtivado = false;
     int nivelDeDificuldadeEscolhido = 2;
     int etapaDeCriacaoAtual = 1; 
@@ -223,12 +223,12 @@ Personagem* Menu::iniciarCriacaoDePersonagem()
             if (!(std::cin >> escolha)) { std::cin.clear(); std::cin.ignore(1000, '\n'); continue; }
             if (escolha == 0) { etapaDeCriacaoAtual = 1; continue; }
 
-            RacaBase* tempRaca = nullptr;
+            std::unique_ptr<RacaBase> tempRaca;
             switch(escolha) {
-                case 1: tempRaca = new RacaDwarf(); break;
-                case 2: tempRaca = new RacaElfo();  break;
-                case 3: tempRaca = new RacaHumano(); break;
-                case 4: tempRaca = new RacaOrk();   break;
+                case 1: tempRaca = std::make_unique<RacaDwarf>(); break;
+                case 2: tempRaca = std::make_unique<RacaElfo>();  break;
+                case 3: tempRaca = std::make_unique<RacaHumano>(); break;
+                case 4: tempRaca = std::make_unique<RacaOrk>();   break;
             }
 
             if (tempRaca) 
@@ -251,13 +251,8 @@ Personagem* Menu::iniciarCriacaoDePersonagem()
                 
                 if (exibirConfirmacaoDeEscolhaComArteLadoALado("RACA", tempRaca->obterNomeRaca(), info, tempRaca->obterAparenciaRaca())) 
                 {
-                    racaEscolhida = tempRaca; 
+                    racaEscolhida = std::move(tempRaca); 
                     etapaDeCriacaoAtual = 3;
-                } 
-                
-                else 
-                { 
-                    delete tempRaca; 
                 }
             }
         }
@@ -278,15 +273,15 @@ Personagem* Menu::iniciarCriacaoDePersonagem()
             
             int escolha;
             if (!(std::cin >> escolha)) { std::cin.clear(); std::cin.ignore(1000, '\n'); continue; }
-            if (escolha == 0) { delete racaEscolhida; racaEscolhida = nullptr; etapaDeCriacaoAtual = 2; continue; }
+            if (escolha == 0) { racaEscolhida.reset(); etapaDeCriacaoAtual = 2; continue; }
 
-            ClasseBase* temp = nullptr;
+            std::unique_ptr<ClasseBase> temp;
             switch(escolha) 
             {
-                case 1: temp = new ClasseArqueiro(); break;
-                case 2: temp = new ClasseBardo(); break;
-                case 3: temp = new ClasseGuerreiro(); break;
-                case 4: temp = new ClasseMago(); break;
+                case 1: temp = std::make_unique<ClasseArqueiro>(); break;
+                case 2: temp = std::make_unique<ClasseBardo>(); break;
+                case 3: temp = std::make_unique<ClasseGuerreiro>(); break;
+                case 4: temp = std::make_unique<ClasseMago>(); break;
             }
 
             if (temp) 
@@ -310,9 +305,9 @@ Personagem* Menu::iniciarCriacaoDePersonagem()
                     "[ EQUIPAMENTO INICIAL ]"
                 };
                 
-                std::vector<Item*> kit = temp->obterEquipamentoClasse();
+                auto kit = temp->obterEquipamentoClasse();
                 std::map<std::string, std::pair<int, TipoEquipamento>> contagem;
-                for (Item* i : kit) {
+                for (const auto& i : kit) {
                     contagem[i->obterNomeItem() + i->obterInfoStatus()].first++;
                     contagem[i->obterNomeItem() + i->obterInfoStatus()].second = i->obterTipo();
                 }
@@ -328,17 +323,11 @@ Personagem* Menu::iniciarCriacaoDePersonagem()
                         }
                     }
                 }
-                for (Item* i : kit) delete i;
 
                 if (exibirConfirmacaoDeEscolhaComArteLadoALado("CLASSE", temp->obterNomeClasse(), info, temp->obterAparenciaClasseMenu())) 
                 {
-                    classeEscolhida = temp; 
+                    classeEscolhida = std::move(temp); 
                     etapaDeCriacaoAtual = 4;
-                } 
-
-                else 
-                { 
-                    delete temp; 
                 }
             }
         }
@@ -358,7 +347,7 @@ Personagem* Menu::iniciarCriacaoDePersonagem()
             
             int escolha;
             if (!(std::cin >> escolha)) { std::cin.clear(); std::cin.ignore(1000, '\n'); continue; }
-            if (escolha == 0) { delete classeEscolhida; classeEscolhida = nullptr; etapaDeCriacaoAtual = 3; continue; }
+            if (escolha == 0) { classeEscolhida.reset(); etapaDeCriacaoAtual = 3; continue; }
 
             if (escolha == 1 || escolha == 2) 
             {
@@ -391,118 +380,13 @@ Personagem* Menu::iniciarCriacaoDePersonagem()
             }
         }
     }
-    Personagem* personagemCriado = new Personagem(nomeDoPersonagem, racaEscolhida, classeEscolhida);
+    auto personagemCriado = std::make_unique<Personagem>(nomeDoPersonagem, std::move(racaEscolhida), std::move(classeEscolhida));
     personagemCriado->definirParryAtivado(sistemaDeParryAtivado);
     personagemCriado->definirDificuldade(nivelDeDificuldadeEscolhido);
     std::cout << "\n";
     imprimirTextoComEfeitoDeDigitacao(" [SISTEMA]: Personagem criado com sucesso! Iniciando jornada...\n", 35);
     aguardarPressionamentoDeEnter();
     return personagemCriado;
-}
-
-void Menu::exibirBarraDeStatusDoJogador(Personagem* jogadorAtual) 
-{
-    if (jogadorAtual == nullptr) return;
-    int larguraDoTerminal = obterLarguraDoTerminalEmColunas();
-    std::string nomeDaArma = (jogadorAtual->obterArma()) ? jogadorAtual->obterArma()->obterNomeItem() + jogadorAtual->obterArma()->obterInfoStatus() : "Punhos";
-    std::string nomeDoEscudo = (jogadorAtual->obterEscudo()) ? jogadorAtual->obterEscudo()->obterNomeItem() + jogadorAtual->obterEscudo()->obterInfoStatus() : "Nenhum";
-    std::string nomeDaArmadura = (jogadorAtual->obterArmadura()) ? jogadorAtual->obterArmadura()->obterNomeItem() + jogadorAtual->obterArmadura()->obterInfoStatus() : "Trapos";
-    
-    double porcentagemDeVida = static_cast<double>(jogadorAtual->obterVida()) / jogadorAtual->obterVidaMaxima();
-    std::string corVerde = "\033[32m";    // Verde
-    std::string corLaranja = "\033[33m";  // Laranja
-    std::string corVermelho = "\033[31m"; // Vermelho
-    std::string corReset = "\033[0m";     // Reset
-    
-    // --- LÓGICA DE COR PARA O HP ---
-    std::string corSelecionadaParaOValorDeVida;
-    if (porcentagemDeVida > 0.70)      corSelecionadaParaOValorDeVida = corVerde;
-    else if (porcentagemDeVida > 0.30) corSelecionadaParaOValorDeVida = corLaranja;
-    else                               corSelecionadaParaOValorDeVida = corVermelho;
-    // -------------------------------
-
-    std::vector<std::string> arteDoCoracao;
-    
-    if (porcentagemDeVida > 0.70) 
-    {
-        arteDoCoracao = {
-            "   _   _   ",
-            "  / \\_/ \\  ",
-            "  \\     /  ",
-            "   \\___/   "
-        };
-        arteDoCoracao[0] = corVerde + arteDoCoracao[0] + corReset;
-        arteDoCoracao[1] = corVerde + arteDoCoracao[1] + corReset;
-        arteDoCoracao[2] = corVerde + arteDoCoracao[2] + corReset;
-        arteDoCoracao[3] = corVerde + arteDoCoracao[3] + corReset;
-    }
-    else if (porcentagemDeVida > 0.30) 
-    {
-        arteDoCoracao = {
-            "   _   _   ",
-            "  / \\// \\  ",
-            "  \\  \\ /   ",
-            "   \\___/   "
-        };
-        arteDoCoracao[0] = corLaranja + arteDoCoracao[0] + corReset;
-        arteDoCoracao[1] = corLaranja + arteDoCoracao[1] + corReset;
-        arteDoCoracao[2] = corLaranja + arteDoCoracao[2] + corReset;
-        arteDoCoracao[3] = corLaranja + arteDoCoracao[3] + corReset;
-    }
-    else 
-    {
-        arteDoCoracao = {
-            "  _     _  ",
-            " / \\   / \\ ",
-            " \\     \\_/ ",
-            "  \\___/    "
-        };
-        arteDoCoracao[0] = corVermelho + arteDoCoracao[0] + corReset;
-        arteDoCoracao[1] = corVermelho + arteDoCoracao[1] + corReset;
-        arteDoCoracao[2] = corVermelho + arteDoCoracao[2] + corReset;
-        arteDoCoracao[3] = corVermelho + arteDoCoracao[3] + corReset;
-    }
-    
-    std::string arteDeBarraDeXp = "[";
-    int tamanhoBarra = 10;
-    int preenchido = (jogadorAtual->obterXpAtual() * tamanhoBarra) / jogadorAtual->obterXpParaSubir();
-    if (preenchido > tamanhoBarra) preenchido = tamanhoBarra;
-    if (preenchido > 0) arteDeBarraDeXp += "\033[34m" + std::string(preenchido, '#') + "\033[0m";
-    if (tamanhoBarra > preenchido) arteDeBarraDeXp += std::string(tamanhoBarra - preenchido, '-');
-    arteDeBarraDeXp += "] \033[34m" + std::to_string(jogadorAtual->obterXpAtual()) + "\033[0m/" + std::to_string(jogadorAtual->obterXpParaSubir());
-    
-    std::string statusStr = "";
-    if (jogadorAtual->obterTurnosBuff() > 0) statusStr += "\033[32m[Buff Atributos]\033[0m ";
-    if (jogadorAtual->obterSangramento()) statusStr += "\033[31m[Sangramento]\033[0m ";
-    if (jogadorAtual->obterLentidao()) statusStr += "\033[35m[Lentidao]\033[0m ";
-    if (jogadorAtual->obterFraqueza()) statusStr += "\033[33m[Fraqueza]\033[0m ";
-    if (jogadorAtual->obterQuebraResistencia()) statusStr += "\033[36m[Quebra Def.]\033[0m ";
-    if (statusStr.empty()) statusStr = "Nenhum";
-
-    // Aplicando a cor dinâmica ao HP na linha do status
-    std::vector<std::string> linhasParaImprimir = 
-    {
-        "| " + arteDoCoracao[0] + " |",
-        "| " + arteDoCoracao[1] + " |  JOGADOR: " + jogadorAtual->obterNome() + " (" + jogadorAtual->obterRaca()->obterNomeRaca() + " / " + jogadorAtual->obterNomeClasse() + ") | NIVEL: " + std::to_string(jogadorAtual->obterNivel()),
-        "| " + arteDoCoracao[2] + " |  HP: " + corSelecionadaParaOValorDeVida + std::to_string(jogadorAtual->obterVida()) + corReset + "/" + std::to_string(jogadorAtual->obterVidaMaxima()) + " | OURO: \033[33m" + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G\033[0m | XP: " + arteDeBarraDeXp,
-        "| " + arteDoCoracao[3] + " |  EQUIP: " + nomeDaArma + " | " + nomeDoEscudo + " | " + nomeDaArmadura,
-        "| " + std::string(11, ' ') + " |  STATUS: " + statusStr
-    };
-
-    int maxLen = 0;
-    for (const std::string& linhaDeTextoAtual : linhasParaImprimir) 
-    {
-        if ((int)linhaDeTextoAtual.length() > maxLen) maxLen = (int)linhaDeTextoAtual.length();
-    }
-    int espacosParaCentralizar = (larguraDoTerminal - maxLen) / 2;
-    std::string margemEsquerda(espacosParaCentralizar > 0 ? espacosParaCentralizar : 0, ' ');
-
-    std::cout << std::string(larguraDoTerminal, '=') << "\n";
-    for (const std::string& linhaDeTextoAtual : linhasParaImprimir) 
-    {
-        std::cout << margemEsquerda << linhaDeTextoAtual << "\n";
-    }
-    std::cout << std::string(larguraDoTerminal, '=') << "\n";
 }
 
 void Menu::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>& listaDeInimigos) 
@@ -577,7 +461,6 @@ void Menu::exibirLogoDoJogo(const std::string& tituloDaTela)
 #endif
     int larguraConsole = obterLarguraDoTerminalEmColunas();
     
-    // 1. SEU VETOR DE ASCII (Apenas o texto "CODE QUEST", sem o ++)
     std::vector<std::string> logoTexto = 
     {
         "   █████████     ███████    ██████████   ██████████       ██████    █████  █████ ██████████  █████████  ███████████  ",
@@ -590,7 +473,6 @@ void Menu::exibirLogoDoJogo(const std::string& tituloDaTela)
         "  ░░░░░░░░░     ░░░░░░░    ░░░░░░░░░░   ░░░░░░░░░░      ░░░░░░ ░░   ░░░░░░░░   ░░░░░░░░░░  ░░░░░░░░░     ░░░░░       "
     };
 
-    // 2. SEU VETOR DE ASCII (Apenas o "++")
     std::vector<std::string> logoPlus = 
     {
        "                          ",
@@ -605,8 +487,6 @@ void Menu::exibirLogoDoJogo(const std::string& tituloDaTela)
 
     std::cout << "\n" << std::string(larguraConsole, '=') << "\n\n";
 
-    // 3. LÓGICA DE IMPRESSÃO CENTRALIZADA COM CORES DIFERENTES
-    // Calculamos a largura total da linha (Texto + Espaço + ++) para centralizar corretamente
     int larguraLinhaCompleta = 140; 
 
     for (size_t i = 0; i < logoTexto.size(); ++i) 
@@ -639,197 +519,4 @@ void Menu::exibirLogoDoJogo(const std::string& tituloDaTela)
         std::cout << std::string(espacos > 0 ? espacos : 0, ' ') << tituloDaTela << "\n";
         std::cout << std::string(larguraConsole, '=') << "\n\n";
     }
-}
-
-void Menu::exibirLogoParaTelaDeCombate(const std::string& tituloDaTela) 
-{
-#ifdef _WIN32
-    // Configura o console para aceitar blocos UTF-8
-    SetConsoleOutputCP(65001); 
-#endif
-
-    int larguraConsole = obterLarguraDoTerminalEmColunas();
-    
-    std::vector<std::string> logo = 
-    {
-        "   █████████     ███████    ██████   ██████ ███████████    █████████    ███████████ ██████████",
-        "  ███░░░░░███  ███░░░░░███ ░░██████ ██████ ░░███░░░░░███  ███░░░░░███ ░█░░░███░░░█░░███░░░░░█ ",
-        " ███     ░░░  ███     ░░███ ░███░█████░███  ░███    ░███ ░███    ░███ ░   ░███  ░  ░███  █ ░  ",
-        "░███         ░███      ░███ ░███░░███ ░███  ░██████████  ░███████████     ░███     ░██████    ",
-        "░███         ░███      ░███ ░███ ░░░  ░███  ░███░░░░░███ ░███░░░░░███     ░███     ░███░░█    ",
-        "░░███     ███░░███     ███  ░███      ░███  ░███    ░███ ░███    ░███     ░███     ░███ ░   █ ",
-        " ░░█████████  ░░░███████░   █████     █████ ███████████  █████   █████    █████    ██████████ ",
-        "  ░░░░░░░░░     ░░░░░░░    ░░░░░     ░░░░░ ░░░░░░░░░░░  ░░░░░   ░░░░░    ░░░░░    ░░░░░░░░░░  "
-    };
-
-    std::cout << "\n";
-    std::cout << std::string(larguraConsole, '=') << "\n\n";
-
-    // Imprime a logo centralizada com cor Vermelha
-    imprimirLinhasCentralizadasNaTela(logo, 95, "\033[31m");
-
-    std::cout << "\n";
-    
-    std::cout << std::string(larguraConsole, '=') << "\n";
-    int espacos = (larguraConsole - (int)tituloDaTela.length()) / 2;
-    std::cout << std::string(espacos > 0 ? espacos : 0, ' ') << tituloDaTela << "\n";
-    std::cout << std::string(larguraConsole, '=') << "\n\n";
-}
-
-void Menu::gerenciarInventario(Personagem* jogadorAtual, bool* turnoFoiConsumido)
-{
-    if (jogadorAtual == nullptr) return;
-    int larguraDoTerminal = obterLarguraDoTerminalEmColunas();
-    std::string codigoDoItemDigitado;
-    do 
-    {
-        TelaInventario::exibir(jogadorAtual);
-        std::string mensagemDoPrompt = "Digite o codigo do item ou [0] VOLTAR: ";
-        int espacosParaCentralizarMensagem = (larguraDoTerminal - (int)mensagemDoPrompt.length()) / 2;
-        std::cout << "\n" << std::string(espacosParaCentralizarMensagem > 0 ? espacosParaCentralizarMensagem : 0, ' ') << mensagemDoPrompt;
-        std::cin >> codigoDoItemDigitado;
-
-        if (codigoDoItemDigitado != "0")
-        {
-            Item* itemEncontrado = jogadorAtual->obterInventario()->buscarItemPorCodigo(
-                codigoDoItemDigitado, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura()
-            );
-
-            if (itemEncontrado)
-            {
-                bool ehEquipamento = (itemEncontrado->obterTipo() == TipoEquipamento::ARMA || 
-                                      itemEncontrado->obterTipo() == TipoEquipamento::ESCUDO || 
-                                      itemEncontrado->obterTipo() == TipoEquipamento::ARMADURA);
-                bool isPocao = itemEncontrado->obterNomeItem().find("Pocao de Cura") != std::string::npos;
-                bool isBuff = itemEncontrado->obterNomeItem().find("(Buff)") != std::string::npos;
-                bool isDebuff = itemEncontrado->obterNomeItem().find("(Debuff)") != std::string::npos;
-                bool isTalisma = itemEncontrado->obterNomeItem().find("Talisma") != std::string::npos;
-
-                if (isPocao || isBuff || isDebuff || isTalisma || itemEncontrado == jogadorAtual->obterArma() || itemEncontrado == jogadorAtual->obterEscudo() || itemEncontrado == jogadorAtual->obterArmadura() || ehEquipamento)
-                {
-                    if (turnoFoiConsumido && *turnoFoiConsumido) 
-                    {
-                        std::cout << "\n[SISTEMA]: Voce ja usou um item neste turno!\n";
-                        Menu::aguardarPressionamentoDeEnter();
-                        continue;
-                    }
-
-                    if (isDebuff) 
-                    {
-                        if (turnoFoiConsumido) 
-                        {
-                            jogadorAtual->definirItemSelecionadoParaUso(itemEncontrado);
-                            break; // Sai do inventario para abrir o alvo
-                        } 
-                        else 
-                        {
-                            std::cout << "\n[SISTEMA]: Frascos de debuff so podem ser usados em combate!\n";
-                            Menu::aguardarPressionamentoDeEnter();
-                            continue;
-                        }
-                    }
-                    else if (isBuff) 
-                    {
-                        std::string nomeDoItemEncontrado = itemEncontrado->obterNomeItem();
-                        jogadorAtual->definirTurnosBuff(2); 
-                        jogadorAtual->definirMultiplicador(1.5);
-                        jogadorAtual->obterInventario()->removerItem(nomeDoItemEncontrado);
-                        std::cout << "\n[SISTEMA]: " << nomeDoItemEncontrado << " consumida! Atributos ampliados em 1.5x por 2 turnos!\n";
-                    }
-                    else if (isTalisma)
-                    {
-                        std::string nomeTalisma = itemEncontrado->obterNomeItem();
-                        if (nomeTalisma.find("Urso") != std::string::npos) {
-                            jogadorAtual->alterarAtributoEstatico("forca", 5);
-                            jogadorAtual->alterarAtributoEstatico("inteligencia", -5);
-                            std::cout << "\n[SISTEMA]: Talisma do Urso consumido! +5 Forca / -5 Inteligencia.\n";
-                        } else if (nomeTalisma.find("Coruja") != std::string::npos) {
-                            jogadorAtual->alterarAtributoEstatico("inteligencia", 5);
-                            jogadorAtual->alterarAtributoEstatico("forca", -5);
-                            std::cout << "\n[SISTEMA]: Talisma da Coruja consumido! +5 Inteligencia / -5 Forca.\n";
-                        } else if (nomeTalisma.find("Leopardo") != std::string::npos) {
-                            jogadorAtual->alterarAtributoEstatico("destreza", 5);
-                            jogadorAtual->alterarAtributoEstatico("sabedoria", -5);
-                            std::cout << "\n[SISTEMA]: Talisma do Leopardo consumido! +5 Destreza / -5 Sabedoria.\n";
-                        } else if (nomeTalisma.find("Raposa") != std::string::npos) {
-                            jogadorAtual->alterarAtributoEstatico("sabedoria", 5);
-                            jogadorAtual->alterarAtributoEstatico("destreza", -5);
-                            std::cout << "\n[SISTEMA]: Talisma da Raposa consumido! +5 Sabedoria / -5 Destreza.\n";
-                        }
-                        jogadorAtual->obterInventario()->removerItem(nomeTalisma);
-                    }
-                    else if (isPocao) 
-                    {
-                        std::string nomeDoItemEncontrado = itemEncontrado->obterNomeItem(); 
-                        int quantidadeDeCura = static_cast<int>(jogadorAtual->obterVidaMaxima() * 0.30);
-                        
-                        jogadorAtual->modificarVida(quantidadeDeCura); 
-                        jogadorAtual->obterInventario()->removerItem(nomeDoItemEncontrado);
-                        
-                        std::cout << "\n[SISTEMA]: " << nomeDoItemEncontrado << " usada! +" << quantidadeDeCura << " HP.\n";
-                    } 
-                    else if (itemEncontrado == jogadorAtual->obterArma()) 
-                    {
-                        jogadorAtual->desequiparArma();
-                        std::cout << "\n[SISTEMA]: " << itemEncontrado->obterNomeItem() << " desequipado(a)!\n";
-                    } 
-                    else if (itemEncontrado == jogadorAtual->obterEscudo()) 
-                    {
-                        jogadorAtual->desequiparEscudo();
-                        std::cout << "\n[SISTEMA]: " << itemEncontrado->obterNomeItem() << " desequipado(a)!\n";
-                    } 
-                    else if (itemEncontrado == jogadorAtual->obterArmadura()) 
-                    {
-                        jogadorAtual->desequiparArmadura();
-                        std::cout << "\n[SISTEMA]: " << itemEncontrado->obterNomeItem() << " desequipado(a)!\n";
-                    } 
-                    else 
-                    {
-                        jogadorAtual->equiparItem(itemEncontrado);
-                        std::cout << "\n[SISTEMA]: " << itemEncontrado->obterNomeItem() << " equipado(a)!\n";
-                    }
-                    
-                    Menu::aguardarPressionamentoDeEnter();
-                    if (turnoFoiConsumido) *turnoFoiConsumido = true;
-                }
-                else 
-                {
-                    std::cout << "\n[SISTEMA]: Este item nao pode ser usado " << (turnoFoiConsumido ? "em combate!" : "fora de combate!") << "\n";
-                    Menu::aguardarPressionamentoDeEnter();
-                }
-            }
-        }
-    } while (codigoDoItemDigitado != "0");
-}
-
-void Menu::gerenciarFichaDoJogador(Personagem* jogadorAtual)
-{
-    if (jogadorAtual == nullptr) return;
-    int larguraDoTerminal = obterLarguraDoTerminalEmColunas();
-    std::string opcaoEscolhidaNoMenuJogador;
-    do 
-    {
-        TelaAtributos::exibir(jogadorAtual);
-        std::string mensagemDoPrompt = "[0] VOLTAR | [1] LIGAR/DESLIGAR PARRY";
-        if (jogadorAtual->podeSubirDeNivel()) mensagemDoPrompt += " | [2] SUBIR DE NIVEL";
-        mensagemDoPrompt += ": ";
-        int espacosParaCentralizarMensagem = (larguraDoTerminal - (int)mensagemDoPrompt.length()) / 2;
-        std::cout << "\n" << std::string(espacosParaCentralizarMensagem > 0 ? espacosParaCentralizarMensagem : 0, ' ') << mensagemDoPrompt;
-        std::cin >> opcaoEscolhidaNoMenuJogador;
-
-        if (opcaoEscolhidaNoMenuJogador == "1") {
-            jogadorAtual->definirParryAtivado(!jogadorAtual->obterParryAtivado());
-        } else if (opcaoEscolhidaNoMenuJogador == "2" && jogadorAtual->podeSubirDeNivel()) {
-            std::string atributoEscolhidoParaEvoluir;
-            std::cout << "\nDigite o atributo para melhorar (Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria): ";
-            std::cin >> atributoEscolhidoParaEvoluir;
-            if (jogadorAtual->subirDeNivel(atributoEscolhidoParaEvoluir)) {
-                std::cout << "[SISTEMA]: Nivel subiu! " << atributoEscolhidoParaEvoluir << " melhorado.\n";
-                Menu::aguardarPressionamentoDeEnter();
-            } else {
-                std::cout << "[ERRO]: Atributo invalido.\n";
-                Menu::aguardarPressionamentoDeEnter();
-            }
-        }
-    } while (opcaoEscolhidaNoMenuJogador != "0");
 }

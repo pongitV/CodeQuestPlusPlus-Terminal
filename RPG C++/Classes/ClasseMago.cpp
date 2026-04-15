@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 
 #include "ClasseMago.h"
 #include "../Inventario/Arma.h"
@@ -68,22 +69,26 @@ Atributos ClasseMago::obterAtributosClasse() const
     return { 0, 5, 5, 2, 10, 15, 15 };
 }
 
-std::vector<Item*> ClasseMago::obterEquipamentoClasse() const 
+std::vector<std::unique_ptr<Item>> ClasseMago::obterEquipamentoClasse() const 
 {
-    return 
-    {
-        new ItemConsumivel("Pocao de Cura (30%)"), new ItemConsumivel("Pocao de Cura (30%)"), new ItemConsumivel("Pocao de Cura (30%)"),
-        new Arma("Cajado", 0, 30), // Dano Fisico, Dano Magico
-        new Escudo("Barreira magica", 50, 2), // Reducao Fixa, Durabilidade
-        new Armadura("Tunica", 2) // Reducao Fixa
-    };
+    std::vector<std::unique_ptr<Item>> equipamentos;
+    equipamentos.push_back(std::make_unique<ItemConsumivel>("Pocao de Cura (30%)"));
+    equipamentos.push_back(std::make_unique<ItemConsumivel>("Pocao de Cura (30%)"));
+    equipamentos.push_back(std::make_unique<ItemConsumivel>("Pocao de Cura (30%)"));
+    equipamentos.push_back(std::make_unique<Arma>("Cajado", 0, 30));
+    equipamentos.push_back(std::make_unique<Escudo>("Barreira magica", 50, 2));
+    equipamentos.push_back(std::make_unique<Armadura>("Tunica", 2));
+    return equipamentos;
 }
 
 std::string ClasseMago::obterNomeHabilidadeClasse() const { return "Estrategia arcana"; }
 std::string ClasseMago::obterDescricaoHabilidadeClasse() const { return "Alterna entre ataque em area ou alvo unico (não gasta seu turno)"; }
 void ClasseMago::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*>& /*inimigos*/) 
 {
-    u->alternarModoAtaque();
-    const char* modo = u->obterModoAtaqueArea() ? "AREA (Dano dividido)" : "UNICO (Dano total)";
+    tipoAtaqueAtual = (tipoAtaqueAtual == TipoAtaque::UNICO) ? TipoAtaque::AREA : TipoAtaque::UNICO;
+    const char* modo = (tipoAtaqueAtual == TipoAtaque::AREA) ? "AREA (Dano dividido)" : "UNICO (Dano total)";
     std::cout << "[HABILIDADE]: Estrategia arcana! Modo de ataque: " << modo << "\n";
 }
+
+TipoAtaque ClasseMago::obterTipoAtaque() const { return tipoAtaqueAtual; }
+bool ClasseMago::habilidadeConsomeTurno() const { return false; }

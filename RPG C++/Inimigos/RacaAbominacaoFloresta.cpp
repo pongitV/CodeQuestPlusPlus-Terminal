@@ -145,13 +145,22 @@ std::vector<std::string> RacaAbominacaoFloresta::obterAparenciaRaca() const
     return aparencia;
 }
 
-void RacaAbominacaoFloresta::realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos)
+void RacaAbominacaoFloresta::realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)
 {
-    jogadorAtual->obterInventario()->adicionarItem(new Material("Madeira enfeiticada"));
+    int xpDrop = 250;
+    int ouroDrop = 200;
+    jogadorAtual->ganharXp(xpDrop);
+    jogadorAtual->ganharOuro(ouroDrop);
+    xpTotal += xpDrop;
+    ouroTotal += ouroDrop;
+    
+    std::cout << "\033[43m+" << ouroDrop << "G\033[0m \033[44m+" << xpDrop << " XP\033[0m\n";
+
+    jogadorAtual->obterInventario()->adicionarItem(std::make_unique<Material>("Madeira enfeiticada"));
     itensObtidos.push_back("Madeira enfeiticada");
     std::cout << "\033[37m+1x Madeira enfeiticada\033[0m\n";
 
-    jogadorAtual->obterInventario()->adicionarItem(new Material("Coracao da floresta"));
+    jogadorAtual->obterInventario()->adicionarItem(std::make_unique<Material>("Coracao da floresta"));
     itensObtidos.push_back("Coracao da floresta");
     std::cout << "\033[37m+1x Coracao da floresta\033[0m\n";
 }

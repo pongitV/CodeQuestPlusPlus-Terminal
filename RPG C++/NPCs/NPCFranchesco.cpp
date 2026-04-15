@@ -125,7 +125,9 @@ void NPCFranchesco::interagir(Personagem* jogadorAtual)
                     if (jogadorAtual->obterInventario()->obterOuro() >= preco) 
                     {
                         jogadorAtual->obterInventario()->adicionarOuro(-preco);
-                        jogadorAtual->obterInventario()->adicionarItem(new ItemConsumivel("Pocao de Cura (30%)")); 
+                            auto pocao = std::make_unique<ItemConsumivel>("Pocao de Cura (30%)");
+                            pocao->adicionarPropriedade(Propriedade::ConsumivelCura);
+                            jogadorAtual->obterInventario()->adicionarItem(std::move(pocao)); 
                         std::cout << "\n" << margemMsg << "[SISTEMA]: Pocao de Cura comprada!\n"; 
                     } 
                     else 
@@ -159,10 +161,25 @@ void NPCFranchesco::interagir(Personagem* jogadorAtual)
                     if (jogadorAtual->obterInventario()->obterOuro() >= preco) 
                     {
                         jogadorAtual->obterInventario()->adicionarOuro(-preco);
-                        if (opcaoCompra == "1") { jogadorAtual->obterInventario()->adicionarItem(new ItemConsumivel("Talisma do Urso")); std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma do Urso comprado!\n"; }
-                        else if (opcaoCompra == "2") { jogadorAtual->obterInventario()->adicionarItem(new ItemConsumivel("Talisma da Coruja")); std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma da Coruja comprado!\n"; }
-                        else if (opcaoCompra == "3") { jogadorAtual->obterInventario()->adicionarItem(new ItemConsumivel("Talisma do Leopardo")); std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma do Leopardo comprado!\n"; }
-                        else if (opcaoCompra == "4") { jogadorAtual->obterInventario()->adicionarItem(new ItemConsumivel("Talisma da Raposa")); std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma da Raposa comprado!\n"; }
+                            std::unique_ptr<ItemConsumivel> novoTalisma = nullptr;
+                            if (opcaoCompra == "1") { 
+                                novoTalisma = std::make_unique<ItemConsumivel>("Talisma do Urso"); 
+                                novoTalisma->adicionarPropriedade(Propriedade::TalismaForca); 
+                                std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma do Urso comprado!\n"; 
+                            } else if (opcaoCompra == "2") { 
+                                novoTalisma = std::make_unique<ItemConsumivel>("Talisma da Coruja"); 
+                                novoTalisma->adicionarPropriedade(Propriedade::TalismaInteligencia); 
+                                std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma da Coruja comprado!\n"; 
+                            } else if (opcaoCompra == "3") { 
+                                novoTalisma = std::make_unique<ItemConsumivel>("Talisma do Leopardo"); 
+                                novoTalisma->adicionarPropriedade(Propriedade::TalismaDestreza); 
+                                std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma do Leopardo comprado!\n"; 
+                            } else if (opcaoCompra == "4") { 
+                                novoTalisma = std::make_unique<ItemConsumivel>("Talisma da Raposa"); 
+                                novoTalisma->adicionarPropriedade(Propriedade::TalismaSabedoria); 
+                                std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma da Raposa comprado!\n"; 
+                            }
+                            if (novoTalisma) jogadorAtual->obterInventario()->adicionarItem(std::move(novoTalisma));
                     } 
                     else 
                     {
@@ -192,7 +209,7 @@ void NPCFranchesco::interagir(Personagem* jogadorAtual)
                     if (jogadorAtual->obterInventario()->obterOuro() >= preco) 
                     {
                         jogadorAtual->obterInventario()->adicionarOuro(-preco);
-                        jogadorAtual->obterInventario()->adicionarItem(new ItemMissao("Dispositivo de teclas de linguagem desconhecida")); 
+                        jogadorAtual->obterInventario()->adicionarItem(std::make_unique<ItemMissao>("Dispositivo de teclas de linguagem desconhecida")); 
                         std::cout << "\n" << margemMsg << "[SISTEMA]: Dispositivo misterioso comprado!\n";
                     } 
                     else 

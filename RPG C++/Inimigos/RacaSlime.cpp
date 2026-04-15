@@ -55,18 +55,35 @@ std::vector<std::string> RacaSlime::obterAparenciaRaca() const
     return aparencia;
 }
 
-void RacaSlime::realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos)
+void RacaSlime::realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)
 {
+    int xpDrop = 35;
+    int ouroDrop = 15;
+    jogadorAtual->ganharXp(xpDrop);
+    jogadorAtual->ganharOuro(ouroDrop);
+    xpTotal += xpDrop;
+    ouroTotal += ouroDrop;
+    
+    std::cout << "\033[43m+" << ouroDrop << "G\033[0m \033[44m+" << xpDrop << " XP\033[0m\n";
+
     for (int i = 0; i < 3; ++i) {
-        jogadorAtual->obterInventario()->adicionarItem(new Material("Gosma acida"));
+        jogadorAtual->obterInventario()->adicionarItem(std::make_unique<Material>("Gosma acida"));
         itensObtidos.push_back("Gosma acida");
     }
     std::cout << "\033[37m+3x Gosma acida\033[0m\n";
     
     if ((std::rand() % 100) < 30) 
     {
-        jogadorAtual->obterInventario()->adicionarItem(new Material("Nucleo pegajoso"));
+        jogadorAtual->obterInventario()->adicionarItem(std::make_unique<Material>("Nucleo pegajoso"));
         std::cout << "\033[37m+Nucleo pegajoso\033[0m\n";
         itensObtidos.push_back("Nucleo pegajoso");
+    }
+}
+
+void RacaSlime::aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCausado) {
+    if (!alvo->obterLentidao() && danoCausado > 0 && (std::rand() % 100) < 20) {
+        alvo->aplicarLentidaoEstatistica();
+        alvo->definirTurnosLentidao(3);
+        std::cout << "\033[35m>> O ataque de " << atacante->obterNome() << " espalhou gosma! " << alvo->obterNome() << " perdeu destreza! (3 turnos)\033[0m\n";
     }
 }

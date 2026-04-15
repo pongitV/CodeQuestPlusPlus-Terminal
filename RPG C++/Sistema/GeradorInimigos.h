@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "../Sistema/Personagem.h"
 
@@ -8,14 +9,9 @@
 class GeradorInimigos
 {
 public:
-    static Personagem* criarInimigoGoblinPadrao();
-    static std::vector<std::string> obterArteAsciiDoGoblin();
-    static std::vector<Personagem*> criarHordaDeGoblins(int quantidadeDeGoblins);
-
-    static Personagem* criarInimigoSlime();
-    static std::vector<std::string> obterArteAsciiDoSlime();
-    static std::vector<Personagem*> criarHordaDeSlimes(int quantidadeDeSlimes);
-
-    static Personagem* criarInimigoOrkExilado();
-    static Personagem* criarInimigoAbominacaoFloresta();
+    static std::vector<std::unique_ptr<Personagem>> criarInimigoGoblin(int quantidade = 1);
+    static std::vector<std::unique_ptr<Personagem>> criarInimigoSlime(int quantidade = 1);
+    static std::vector<std::unique_ptr<Personagem>> criarInimigoFada(int quantidade = 1);
+    static std::vector<std::unique_ptr<Personagem>> criarInimigoOrkExilado(int quantidade = 1);
+    static std::vector<std::unique_ptr<Personagem>> criarInimigoAbominacaoFloresta(int quantidade = 1);
 };

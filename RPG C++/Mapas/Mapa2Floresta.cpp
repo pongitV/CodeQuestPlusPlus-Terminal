@@ -3,11 +3,15 @@
 #include <conio.h> 
 #include <windows.h> 
 #include <cstdlib>
+#include <memory>
+#include <utility>
 
 #include "Mapa2Floresta.h"
 #include "../Sistema/Menu.h"
 #include "../Inventario/Item.h"
 #include "../Sistema/GeradorInimigos.h"
+#include "../Inventario/InventarioCombate.h"
+#include "../Interfaces/TelaAtributos.h"
 #include "../Sistema/SistemaRPG.h"
 #include "../Inimigos/RacaFada.h"
 #include "../Inimigos/ClasseInimigoPadrao.h"
@@ -165,7 +169,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
 
         if (teclaPressionadaPeloJogador == 'i' || teclaPressionadaPeloJogador == 'I') 
         {
-            Menu::gerenciarInventario(jogadorAtual);
+            InventarioCombate::gerenciarInventario(jogadorAtual);
 
             Menu::limparTelaDoTerminal();
             Menu::exibirLogoDoJogo(tituloDoMapaAtual);
@@ -176,7 +180,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
 
         if (teclaPressionadaPeloJogador == 'c' || teclaPressionadaPeloJogador == 'C') 
         {
-            Menu::gerenciarFichaDoJogador(jogadorAtual);
+            TelaAtributos::gerenciarFichaDoJogador(jogadorAtual);
 
             Menu::limparTelaDoTerminal();
             Menu::exibirLogoDoJogo(tituloDoMapaAtual);
@@ -207,8 +211,8 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
                 if (std::cin >> opcaoEscolhidaNoDialogo && opcaoEscolhidaNoDialogo == 1) 
                 {
                     int quantidadeDeInimigos = (std::rand() % 3) + 1;
-                    std::vector<Personagem*> listaDeInimigosGerados = GeradorInimigos::criarHordaDeSlimes(quantidadeDeInimigos);
-                    SistemaRPG sessaoDeCombate(jogadorAtual, listaDeInimigosGerados);
+                    std::vector<std::unique_ptr<Personagem>> listaDeInimigosGerados = GeradorInimigos::criarInimigoSlime(quantidadeDeInimigos);
+                    SistemaRPG sessaoDeCombate(jogadorAtual, std::move(listaDeInimigosGerados));
                     sessaoDeCombate.iniciarCombate();
 
                     if (jogadorAtual->obterVida() > 0) 
@@ -248,14 +252,8 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
                 if (std::cin >> opcaoEscolhidaNoDialogo && opcaoEscolhidaNoDialogo == 1) 
                 {
                     int quantidadeDeInimigos = (std::rand() % 3) + 1;
-                    std::vector<Personagem*> listaDeInimigosGerados;
-                    for (int i = 0; i < quantidadeDeInimigos; ++i) {
-                        Personagem* fada = new Personagem("Fada", new RacaFada(), new ClasseInimigoPadrao());
-                        fada->definirXpRecompensa(45);
-                        fada->definirOuroRecompensa(20);
-                        listaDeInimigosGerados.push_back(fada);
-                    }
-                    SistemaRPG sessaoDeCombate(jogadorAtual, listaDeInimigosGerados);
+                    std::vector<std::unique_ptr<Personagem>> listaDeInimigosGerados = GeradorInimigos::criarInimigoFada(quantidadeDeInimigos);
+                    SistemaRPG sessaoDeCombate(jogadorAtual, std::move(listaDeInimigosGerados));
                     sessaoDeCombate.iniciarCombate();
 
                     if (jogadorAtual->obterVida() > 0) 
@@ -294,8 +292,8 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
                 int opcaoEscolhidaNoDialogo;
                 if (std::cin >> opcaoEscolhidaNoDialogo && opcaoEscolhidaNoDialogo == 1) 
                 {
-                    std::vector<Personagem*> listaDeInimigosGerados = { GeradorInimigos::criarInimigoAbominacaoFloresta() };
-                    SistemaRPG sessaoDeCombate(jogadorAtual, listaDeInimigosGerados);
+                    std::vector<std::unique_ptr<Personagem>> listaDeInimigosGerados = GeradorInimigos::criarInimigoAbominacaoFloresta();
+                    SistemaRPG sessaoDeCombate(jogadorAtual, std::move(listaDeInimigosGerados));
                     sessaoDeCombate.iniciarCombate();
 
                     if (jogadorAtual->obterVida() > 0) 

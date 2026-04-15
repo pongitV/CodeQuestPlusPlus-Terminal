@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "GeradorInimigos.h"
 #include "../Raças/RacaBase.h"
@@ -10,66 +11,48 @@
 #include "../Inimigos/ClasseInimigoPadrao.h"
 #include "../Inimigos/RacaGoblin.h"
 #include "../Inimigos/RacaSlime.h"
+#include "../Inimigos/RacaFada.h"
 #include "../Inimigos/RacaOrkExilado.h"
 #include "../Inimigos/RacaAbominacaoFloresta.h"
 
-Personagem* GeradorInimigos::criarInimigoGoblinPadrao()
+std::vector<std::unique_ptr<Personagem>> GeradorInimigos::criarInimigoGoblin(int quantidade)
 {
-    Personagem* goblin = new Personagem("Goblin", new RacaGoblin(), new ClasseInimigoPadrao());
-    Item* adagaGoblin = new Arma("Adaga artesanal de pedra", 6, 0);
-    goblin->obterInventario()->adicionarItem(adagaGoblin);
-    goblin->equiparItem(adagaGoblin);
-    goblin->definirXpRecompensa(40);
-    goblin->definirOuroRecompensa(20);
-    return goblin;
+    std::vector<std::unique_ptr<Personagem>> horda;
+    for (int i = 0; i < quantidade; ++i) {
+        auto goblin = std::make_unique<Personagem>("Goblin", std::make_unique<RacaGoblin>(), std::make_unique<ClasseInimigoPadrao>());
+        auto adagaGoblin = std::make_unique<Arma>("Adaga artesanal de pedra", 6, 0);
+        Item* ptrAdaga = adagaGoblin.get();
+        goblin->obterInventario()->adicionarItem(std::move(adagaGoblin));
+        goblin->equiparItem(ptrAdaga);
+        horda.push_back(std::move(goblin));
+    }
+    return horda;
 }
 
-std::vector<std::string> GeradorInimigos::obterArteAsciiDoGoblin()
+std::vector<std::unique_ptr<Personagem>> GeradorInimigos::criarInimigoSlime(int quantidade)
 {
-    RacaGoblin temp;
-    return temp.obterAparenciaRaca();
+    std::vector<std::unique_ptr<Personagem>> horda;
+    for (int i = 0; i < quantidade; ++i) horda.push_back(std::make_unique<Personagem>("Slime", std::make_unique<RacaSlime>(), std::make_unique<ClasseInimigoPadrao>()));
+    return horda;
 }
 
-std::vector<Personagem*> GeradorInimigos::criarHordaDeGoblins(int quantidadeDeGoblins)
+std::vector<std::unique_ptr<Personagem>> GeradorInimigos::criarInimigoFada(int quantidade)
 {
-    std::vector<Personagem*> listaDeGoblinsGerados;
-    for (int indiceAtual = 0; indiceAtual < quantidadeDeGoblins; indiceAtual++) listaDeGoblinsGerados.push_back(criarInimigoGoblinPadrao());
-    return listaDeGoblinsGerados;
+    std::vector<std::unique_ptr<Personagem>> horda;
+    for (int i = 0; i < quantidade; ++i) horda.push_back(std::make_unique<Personagem>("Fada", std::make_unique<RacaFada>(), std::make_unique<ClasseInimigoPadrao>()));
+    return horda;
 }
 
-Personagem* GeradorInimigos::criarInimigoSlime()
+std::vector<std::unique_ptr<Personagem>> GeradorInimigos::criarInimigoOrkExilado(int quantidade)
 {
-    Personagem* slime = new Personagem("Slime", new RacaSlime(), new ClasseInimigoPadrao());
-    slime->definirXpRecompensa(35);
-    slime->definirOuroRecompensa(15);
-    return slime;
+    std::vector<std::unique_ptr<Personagem>> horda;
+    for (int i = 0; i < quantidade; ++i) horda.push_back(std::make_unique<Personagem>("Ork Exilado", std::make_unique<RacaOrkExilado>(), std::make_unique<ClasseInimigoPadrao>()));
+    return horda;
 }
 
-std::vector<std::string> GeradorInimigos::obterArteAsciiDoSlime()
+std::vector<std::unique_ptr<Personagem>> GeradorInimigos::criarInimigoAbominacaoFloresta(int quantidade)
 {
-    RacaSlime temp;
-    return temp.obterAparenciaRaca();
-}
-
-std::vector<Personagem*> GeradorInimigos::criarHordaDeSlimes(int quantidadeDeSlimes)
-{
-    std::vector<Personagem*> listaDeSlimesGerados;
-    for (int indiceAtual = 0; indiceAtual < quantidadeDeSlimes; indiceAtual++) listaDeSlimesGerados.push_back(criarInimigoSlime());
-    return listaDeSlimesGerados;
-}
-
-Personagem* GeradorInimigos::criarInimigoOrkExilado()
-{
-    Personagem* ork = new Personagem("Ork Exilado", new RacaOrkExilado(), new ClasseInimigoPadrao());
-    ork->definirXpRecompensa(120);
-    ork->definirOuroRecompensa(100);
-    return ork;
-}
-
-Personagem* GeradorInimigos::criarInimigoAbominacaoFloresta()
-{
-    Personagem* abominacao = new Personagem("Abominacao da Floresta", new RacaAbominacaoFloresta(), new ClasseInimigoPadrao());
-    abominacao->definirXpRecompensa(250);
-    abominacao->definirOuroRecompensa(200);
-    return abominacao;
+    std::vector<std::unique_ptr<Personagem>> horda;
+    for (int i = 0; i < quantidade; ++i) horda.push_back(std::make_unique<Personagem>("Abominacao da Floresta", std::make_unique<RacaAbominacaoFloresta>(), std::make_unique<ClasseInimigoPadrao>()));
+    return horda;
 }

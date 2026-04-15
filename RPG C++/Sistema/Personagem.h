@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <memory>
 
 #include "../Inventario/Inventario.h"
 
@@ -28,23 +29,69 @@ struct Atributos
     }
 };
 
+enum class TipoAtributo 
+{
+    Vida = 1,
+    Forca,
+    Destreza,
+    Resistencia,
+    Constituicao,
+    Inteligencia,
+    Sabedoria
+};
+
+enum class TipoAtaque 
+{
+    UNICO,
+    AREA
+};
+
 class RacaBase;   
 class ClasseBase; 
+
+class EfeitoStatus {
+protected:
+    std::string nome;
+    int turnosRestantes;
+public:
+    EfeitoStatus(const std::string& n, int t) : nome(n), turnosRestantes(t) {}
+    virtual ~EfeitoStatus() = default;
+    std::string obterNome() const { return nome; }
+    void decrementarTurno() { turnosRestantes--; }
+    bool expirou() const { return turnosRestantes <= 0; }
+    virtual void aplicarInicioTurno(Personagem* alvo) {}
+    virtual bool impedeAcao() const { return false; }
+};
+
+class EfeitoAtordoamento : public EfeitoStatus {
+public:
+    EfeitoAtordoamento(const std::string& n, int t) : EfeitoStatus(n, t) {}
+    bool impedeAcao() const override { return true; }
+};
+
+class EfeitoSugaSangue : public EfeitoStatus {
+private:
+    Personagem* atacante;
+public:
+    EfeitoSugaSangue(const std::string& n, int t, Personagem* atk) : EfeitoStatus(n, t), atacante(atk) {}
+    void aplicarInicioTurno(Personagem* alvo) override;
+};
 
 class Personagem 
 {
 protected:
     std::string nomePersonagem;
     int vidaAtual;
-    RacaBase* raca;
-    ClasseBase* classe;
+    std::unique_ptr<RacaBase> raca;
+    std::unique_ptr<ClasseBase> classe;
     Atributos statsFinais;
-    Inventario* mochila;
+    std::unique_ptr<Inventario> mochila;
+
+    std::vector<std::unique_ptr<EfeitoStatus>> efeitosAtivos;
 
     bool estaInviolavel;      // Arqueiro: retirada com pontaria
     int turnosBuff;           // Guerreiro: determinacao no combate
     bool recargaHabilidade;   // Arqueiro/Bardo: uso seguido
-    bool modoAtaqueArea;      // Mago: estrategia arcana
     bool pularTurnoInimigo;   // Bardo: flashing lights
     
     bool sofrendoSangramento; // Controle de debuff
@@ -76,7 +123,7 @@ protected:
     int xpRecompensa;
 
 public:
-    Personagem(std::string nome, RacaBase* r, ClasseBase* c);
+    Personagem(std::string nome, std::unique_ptr<RacaBase> r, std::unique_ptr<ClasseBase> c);
     virtual ~Personagem();
 
     void calcularAtributos();
@@ -100,7 +147,7 @@ public:
     int obterXpParaSubir() const { return xpParaSubir; }
     void ganharXp(int valor) { xpAtual += valor; }
     bool podeSubirDeNivel() const { return xpAtual >= xpParaSubir; }
-    bool subirDeNivel(std::string atributo);
+    bool subirDeNivel(TipoAtributo atributo);
     
     void alterarAtributoEstatico(const std::string& atributo, int valor);
 
@@ -111,7 +158,7 @@ public:
     Item* obterArma() const { return arma; }
     Item* obterEscudo() const { return escudo; }
     Item* obterArmadura() const { return armadura; }
-    Inventario* obterInventario() const { return mochila; }
+    Inventario* obterInventario() const { return mochila.get(); }
     Item* obterItemSelecionadoParaUso() const { return itemSelecionadoParaUso; }
     void definirItemSelecionadoParaUso(Item* item) { itemSelecionadoParaUso = item; }
 
@@ -133,8 +180,6 @@ public:
     int obterTurnosBuff() const { return turnosBuff; }
     void definirRecarga(bool r) { recargaHabilidade = r; }
     bool obterRecarga() const { return recargaHabilidade; }
-    void alternarModoAtaque() { modoAtaqueArea = !modoAtaqueArea; }
-    bool obterModoAtaqueArea() const { return modoAtaqueArea; }
     void definirPularTurnoInimigo(bool p) { pularTurnoInimigo = p; }
     bool obterPularTurnoInimigo() const { return pularTurnoInimigo; }
     
@@ -173,4 +218,16 @@ public:
     void definirDificuldade(int d) { dificuldadeAtual = d; }
     int obterDificuldade() const { return dificuldadeAtual; }
     void aplicarMultiplicadorDificuldade(double mult);
+
+    TipoAtaque obterTipoAtaque() const;
+    bool habilidadeDaClasseConsomeTurno() const;
+
+    void adicionarEfeito(std::unique_ptr<EfeitoStatus> efeito);
+    void processarEfeitosInicioTurno();
+    bool podeAgir() const;
+
+    int calcularDefesaBase(int danoBruto, int danoPerfurante) const;
+    int receberDano(int danoBruto, int danoPerfurante, int danoReduzidoParry, Personagem* atacante, bool aplicarPassivas);
+
+    virtual void executarDrops(Personagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal);
 };

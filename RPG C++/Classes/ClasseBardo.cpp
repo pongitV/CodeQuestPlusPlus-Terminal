@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 
 #include "ClasseBardo.h"
 #include "../Inventario/Arma.h"
@@ -69,15 +70,16 @@ Atributos ClasseBardo::obterAtributosClasse() const
     return { 0, 10, 10, 2, 10, 10, 10 };
 }
 
-std::vector<Item*> ClasseBardo::obterEquipamentoClasse() const 
+std::vector<std::unique_ptr<Item>> ClasseBardo::obterEquipamentoClasse() const 
 {
-    return 
-    {
-        new ItemConsumivel("Pocao de Cura (30%)"), new ItemConsumivel("Pocao de Cura (30%)"), new ItemConsumivel("Pocao de Cura (30%)"),
-        new Arma("Violao encantado", 0, 10), // dano fisico, dano magico
-        new Escudo("Capa magica", 6, 10), // Reducao Fixa, Durabilidade
-        new Armadura("Traje de Couro e tecido nobre", 4) // reducao fixa
-    };
+    std::vector<std::unique_ptr<Item>> equipamentos;
+    equipamentos.push_back(std::make_unique<ItemConsumivel>("Pocao de Cura (30%)"));
+    equipamentos.push_back(std::make_unique<ItemConsumivel>("Pocao de Cura (30%)"));
+    equipamentos.push_back(std::make_unique<ItemConsumivel>("Pocao de Cura (30%)"));
+    equipamentos.push_back(std::make_unique<Arma>("Violao encantado", 0, 10));
+    equipamentos.push_back(std::make_unique<Escudo>("Capa magica", 6, 10));
+    equipamentos.push_back(std::make_unique<Armadura>("Traje de Couro e tecido nobre", 4));
+    return equipamentos;
 }
 
 std::string ClasseBardo::obterNomeHabilidadeClasse() const { return "Flashing lights"; }
@@ -100,3 +102,6 @@ void ClasseBardo::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*>& 
 
     std::cout << "[HABILIDADE]: !Flashing lights! Voce recuperou " << cura << " HP e encantou os inimigos, pulando o proximo turno.\n";
 }
+
+TipoAtaque ClasseBardo::obterTipoAtaque() const { return TipoAtaque::UNICO; }
+bool ClasseBardo::habilidadeConsomeTurno() const { return true; }

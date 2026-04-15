@@ -49,13 +49,22 @@ std::vector<std::string> RacaGoblin::obterAparenciaRaca() const
     return aparencia;
 }
 
-void RacaGoblin::realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos)
+void RacaGoblin::realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)
 {
+    int xpDrop = 40;
+    int ouroDrop = 20;
+    jogadorAtual->ganharXp(xpDrop);
+    jogadorAtual->ganharOuro(ouroDrop);
+    xpTotal += xpDrop;
+    ouroTotal += ouroDrop;
+    
+    std::cout << "\033[43m+" << ouroDrop << "G\033[0m \033[44m+" << xpDrop << " XP\033[0m\n";
+
     if (inimigo->obterArma() && inimigo->obterArma()->obterNomeItem() == "Adaga artesanal de pedra") 
     {
         if ((std::rand() % 100) < 65) 
         {
-            jogadorAtual->obterInventario()->adicionarItem(new Arma("Adaga artesanal de pedra", 5, 0));
+            jogadorAtual->obterInventario()->adicionarItem(std::make_unique<Arma>("Adaga artesanal de pedra", 5, 0));
             std::cout << "\033[37m+1x Adaga artesanal de pedra\033[0m\n";
             itensObtidos.push_back("Adaga artesanal de pedra");
         }
@@ -63,7 +72,7 @@ void RacaGoblin::realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, st
     
     int qtdDentes = (std::rand() % 5) + 4;
     for (int i = 0; i < qtdDentes; ++i) {
-        jogadorAtual->obterInventario()->adicionarItem(new Material("Dente de goblin"));
+        jogadorAtual->obterInventario()->adicionarItem(std::make_unique<Material>("Dente de goblin"));
         itensObtidos.push_back("Dente de goblin");
     }
     std::cout << "\033[37m+" << qtdDentes << "x Dente de goblin\033[0m\n";

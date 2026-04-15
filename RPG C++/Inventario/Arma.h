@@ -2,6 +2,7 @@
 
 #include "Item.h"
 #include <string>
+#include <set>
 
 class Arma : public Item 
 {
@@ -31,4 +32,8 @@ public:
 
     void aplicarEfeitoSangramento() override;
     void aplicarEfeitoLentidao() override;
+    
+    void antesDeCausarDano(Personagem* atacante, Personagem* alvo) override;
+    void aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCausado) override;
+    int garantirDanoMinimo(int danoFinal) override;
 };

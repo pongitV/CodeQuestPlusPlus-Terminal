@@ -8,6 +8,7 @@
 #include "../Sistema/Menu.h"
 #include "../Inventario/Item.h"
 #include "../Inventario/Arma.h"
+#include "../Inventario/ItemConsumivel.h"
 #include "../Inventario/Material.h"
 #include "../Interfaces/TelaInventario.h"
 
@@ -165,10 +166,10 @@ void NPCMorgana::interagir(Personagem* jogadorAtual)
                     
                     if (isSangramento && armaEscolhida->possuiEfeitoSangramento()) { std::cout << "\n[Morgana]: Esta arma ja esta encantada com Sangramento!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
                     if (isLentidao && armaEscolhida->possuiEfeitoLentidao()) { std::cout << "\n[Morgana]: Esta arma ja esta encantada com Lentidao!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
-                    if (isResistencia && armaEscolhida->obterNomeItem().find("(Penetrante)") != std::string::npos) { std::cout << "\n[Morgana]: Esta arma ja esta encantada com Reducao de Resistencia!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
-                    if (isMagia && armaEscolhida->obterNomeItem().find("enfeiticada") != std::string::npos) { std::cout << "\n[Morgana]: Esta arma ja esta encantada com Magia!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
-                    if (isCipos && armaEscolhida->obterNomeItem().find("cipos") != std::string::npos) { std::cout << "\n[Morgana]: Esta arma ja esta encantada com Cipos!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
-                    if (isRaizes && armaEscolhida->obterNomeItem().find("enfeiticado") != std::string::npos) { std::cout << "\n[Morgana]: Esta arma ja esta encantada com Raizes!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
+                    if (isResistencia && armaEscolhida->temPropriedade(Propriedade::Penetrante)) { std::cout << "\n[Morgana]: Esta arma ja esta encantada com Reducao de Resistencia!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
+                    if (isMagia && armaEscolhida->temPropriedade(Propriedade::Magica)) { std::cout << "\n[Morgana]: Esta arma ja esta encantada com Magia!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
+                    if (isCipos && armaEscolhida->temPropriedade(Propriedade::CipoPrisao)) { std::cout << "\n[Morgana]: Esta arma ja esta encantada com Cipos!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
+                    if (isRaizes && armaEscolhida->temPropriedade(Propriedade::ViolaoMagico)) { std::cout << "\n[Morgana]: Esta arma ja esta encantada com Raizes!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
                     
                     std::string nomeAntigoArma = armaEscolhida->obterNomeItem();
 
@@ -176,26 +177,29 @@ void NPCMorgana::interagir(Personagem* jogadorAtual)
                     
                     if (isSangramento) { armaEscolhida->aplicarEfeitoSangramento(); armaEscolhida->alterarNome(armaEscolhida->obterNomeItem() + " (Sangrenta)"); }
                     else if (isLentidao) { armaEscolhida->aplicarEfeitoLentidao(); armaEscolhida->alterarNome(armaEscolhida->obterNomeItem() + " (Viscosa)"); }
-                    else if (isResistencia) { armaEscolhida->alterarNome(armaEscolhida->obterNomeItem() + " (Penetrante)"); }
+                    else if (isResistencia) { armaEscolhida->alterarNome(armaEscolhida->obterNomeItem() + " (Penetrante)"); armaEscolhida->adicionarPropriedade(Propriedade::Penetrante); }
                     else if (isMagia) { 
                         std::string nome = armaEscolhida->obterNomeItem(); 
                         size_t pos = nome.find("Arco recurvo de madeira"); 
                         if (pos != std::string::npos) nome.replace(pos, 23, "Arco recurvo de madeira enfeiticada"); 
                         
                         int novoDanoMagico = armaEscolhida->obterDanoMagico() + (armaEscolhida->obterDanoFisico() / 2);
-                        Arma* novoArco = new Arma(nome, armaEscolhida->obterDanoFisico(), novoDanoMagico);
+                        auto novoArcoObj = std::make_unique<Arma>(nome, armaEscolhida->obterDanoFisico(), novoDanoMagico);
+                        Arma* novoArco = novoArcoObj.get();
                         if (armaEscolhida->possuiEfeitoSangramento()) novoArco->aplicarEfeitoSangramento();
                         if (armaEscolhida->possuiEfeitoLentidao()) novoArco->aplicarEfeitoLentidao();
+                        if (armaEscolhida->temPropriedade(Propriedade::Penetrante)) novoArco->adicionarPropriedade(Propriedade::Penetrante);
+                        novoArco->adicionarPropriedade(Propriedade::Magica);
                         
                         bool estavaEquipado = (jogadorAtual->obterArma() == armaEscolhida);
                         if (estavaEquipado) jogadorAtual->desequiparArma();
                         jogadorAtual->obterInventario()->removerItem(nomeAntigoArma);
-                        jogadorAtual->obterInventario()->adicionarItem(novoArco);
+                        jogadorAtual->obterInventario()->adicionarItem(std::move(novoArcoObj));
                         if (estavaEquipado) jogadorAtual->equiparItem(novoArco);
                         armaEscolhida = novoArco; 
                     }
-                    else if (isCipos) { std::string nome = armaEscolhida->obterNomeItem(); size_t pos = nome.find("Cajado"); if (pos != std::string::npos) nome.replace(pos, 6, "Cajado de cipos"); armaEscolhida->alterarNome(nome); }
-                    else if (isRaizes) { std::string nome = armaEscolhida->obterNomeItem(); size_t pos = nome.find("Violao encantado"); if (pos != std::string::npos) nome.replace(pos, 16, "Violao enfeiticado"); else nome += " enfeiticado"; armaEscolhida->alterarNome(nome); }
+                    else if (isCipos) { std::string nome = armaEscolhida->obterNomeItem(); size_t pos = nome.find("Cajado"); if (pos != std::string::npos) nome.replace(pos, 6, "Cajado de cipos"); armaEscolhida->alterarNome(nome); armaEscolhida->adicionarPropriedade(Propriedade::CipoPrisao); }
+                    else if (isRaizes) { std::string nome = armaEscolhida->obterNomeItem(); size_t pos = nome.find("Violao encantado"); if (pos != std::string::npos) nome.replace(pos, 16, "Violao enfeiticado"); else nome += " enfeiticado"; armaEscolhida->alterarNome(nome); armaEscolhida->adicionarPropriedade(Propriedade::ViolaoMagico); }
                     
                     Menu::limparTelaDoTerminal();
                     Menu::exibirLogoDoJogo("ENCANTAMENTO SUCESSO");
@@ -256,21 +260,33 @@ void NPCMorgana::interagir(Personagem* jogadorAtual)
                     if (jogadorAtual->obterInventario()->obterOuro() >= preco) 
                     {
                         jogadorAtual->obterInventario()->adicionarOuro(-preco);
-                        Item* novoItem = nullptr;
+                        std::unique_ptr<Item> novoItem = nullptr;
                         if (isBuff) 
                         {
-                            if (opcaoCompra == "1") novoItem = new Material("Pocao de Furia (Buff)");
-                            else if (opcaoCompra == "2") novoItem = new Material("Elixir Arcano (Buff)");
+                                if (opcaoCompra == "1") {
+                                    novoItem = std::make_unique<ItemConsumivel>("Pocao de Furia (Buff)");
+                                    novoItem->adicionarPropriedade(Propriedade::ConsumivelBuff);
+                                } else if (opcaoCompra == "2") {
+                                    novoItem = std::make_unique<ItemConsumivel>("Elixir Arcano (Buff)");
+                                    novoItem->adicionarPropriedade(Propriedade::ConsumivelBuff);
+                                }
                         } 
                         else 
                         {
-                            if (opcaoCompra == "1") novoItem = new Material("Frasco de Gosma (Debuff)");
-                            else if (opcaoCompra == "2") novoItem = new Material("Frasco de Fraqueza (Debuff)");
+                                if (opcaoCompra == "1") {
+                                    novoItem = std::make_unique<ItemConsumivel>("Frasco de Gosma (Debuff)");
+                                    novoItem->adicionarPropriedade(Propriedade::ConsumivelDebuffLentidao);
+                                }
+                                else if (opcaoCompra == "2") {
+                                    novoItem = std::make_unique<ItemConsumivel>("Frasco de Fraqueza (Debuff)");
+                                    novoItem->adicionarPropriedade(Propriedade::ConsumivelDebuffFraqueza);
+                                }
                         }
                         if (novoItem) 
                         {
-                            jogadorAtual->obterInventario()->adicionarItem(novoItem);
-                            std::cout << "\n" << margemMsg << "[Morgana]: Heehee... Use com sabedoria! " << novoItem->obterNomeItem() << " adicionado.\n";
+                            std::string nomeDoNovoItem = novoItem->obterNomeItem();
+                            jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
+                            std::cout << "\n" << margemMsg << "[Morgana]: Heehee... Use com sabedoria! " << nomeDoNovoItem << " adicionado.\n";
                         }
                     } 
                     else 

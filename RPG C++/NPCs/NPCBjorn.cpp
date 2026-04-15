@@ -29,15 +29,15 @@ void NPCBjorn::interagir(Personagem* jogadorAtual)
         {4, {"Traje de Couro e tecido nobre", true}}
     };
     
-    auto instanciarEquipamentoBjorn = [](const std::string& n) -> Item* {
-        if (n == "Espada longa de ferro") return new Arma(n, 10, 0);
-        if (n == "Arco recurvo de madeira") return new Arma(n, 10, 0);
-        if (n == "Cajado") return new Arma(n, 0, 30);
-        if (n == "Violao encantado") return new Arma(n, 0, 7);
-        if (n == "Armadura de malha e metal") return new Armadura(n, 7);
-        if (n == "Armadura leve de couro com malha") return new Armadura(n, 5);
-        if (n == "Tunica") return new Armadura(n, 2);
-        if (n == "Traje de Couro e tecido nobre") return new Armadura(n, 4);
+    auto instanciarEquipamentoBjorn = [](const std::string& n) -> std::unique_ptr<Item> {
+        if (n == "Espada longa de ferro") return std::make_unique<Arma>(n, 10, 0);
+        if (n == "Arco recurvo de madeira") return std::make_unique<Arma>(n, 10, 0);
+        if (n == "Cajado") return std::make_unique<Arma>(n, 0, 30);
+        if (n == "Violao encantado") return std::make_unique<Arma>(n, 0, 7);
+        if (n == "Armadura de malha e metal") return std::make_unique<Armadura>(n, 7);
+        if (n == "Armadura leve de couro com malha") return std::make_unique<Armadura>(n, 5);
+        if (n == "Tunica") return std::make_unique<Armadura>(n, 2);
+        if (n == "Traje de Couro e tecido nobre") return std::make_unique<Armadura>(n, 4);
         return nullptr;
     };
 
@@ -144,9 +144,8 @@ void NPCBjorn::interagir(Personagem* jogadorAtual)
                 for (auto const& [id, par] : estoqueAtual) {
                     std::string preco = "40G";
                     std::string status = par.second ? "Em Estoque" : "ESGOTADO";
-                    Item* tempItem = instanciarEquipamentoBjorn(par.first);
+                    std::unique_ptr<Item> tempItem = instanciarEquipamentoBjorn(par.first);
                     std::string infoStatus = tempItem ? tempItem->obterInfoStatus() : "";
-                    delete tempItem;
                     std::cout << margemMsg << "[" << id << "] " << par.first << infoStatus << " (" << preco << ") - " << status << "\n";
                 }
                 std::cout << "\n" << margemMsg << "[0] VOLTAR\n\n" << margemMsg << "Escolha: ";
@@ -161,7 +160,7 @@ void NPCBjorn::interagir(Personagem* jogadorAtual)
                             } else if (jogadorAtual->obterInventario()->obterOuro() >= 40) {
                                 jogadorAtual->obterInventario()->adicionarOuro(-40);
                                 estoqueAtual[idCompra].second = false;
-                                jogadorAtual->obterInventario()->adicionarItem(instanciarEquipamentoBjorn(estoqueAtual[idCompra].first));
+                            jogadorAtual->obterInventario()->adicionarItem(std::move(instanciarEquipamentoBjorn(estoqueAtual[idCompra].first)));
                                 std::cout << "\n" << margemMsg << "[Bjorn]: Otima escolha! Voce comprou " << estoqueAtual[idCompra].first << ".\n";
                             } else {
                                 std::cout << "\n" << margemMsg << "[Bjorn]: Voce nao tem ouro suficiente para isso!\n";
@@ -182,7 +181,7 @@ void NPCBjorn::interagir(Personagem* jogadorAtual)
                 Item* item1 = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigo1, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
                 if (!item1) { std::cout << "\n[SISTEMA]: Item invalido!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
                 if (item1 == jogadorAtual->obterArma() || item1 == jogadorAtual->obterEscudo() || item1 == jogadorAtual->obterArmadura()) { std::cout << "\n[Bjorn]: Voce precisa DESEQUIPAR o item antes de usa-lo na bigorna!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
-                if (item1->obterNomeItem().back() == '+') { std::cout << "\n[Bjorn]: Este item ja atingiu o limite de melhoria basica!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
+                if (item1->temPropriedade(Propriedade::Melhorado)) { std::cout << "\n[Bjorn]: Este item ja atingiu o limite de melhoria basica!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
                 if (!dynamic_cast<Arma*>(item1) && !dynamic_cast<Escudo*>(item1) && !dynamic_cast<Armadura*>(item1)) { std::cout << "\n[Bjorn]: Eu so posso melhorar Armas, Escudos e Armaduras!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
 
                 std::cout << "[Bjorn]: Agora, escolha o SEGUNDO item identico (copia) ou [0] CANCELAR: ";
@@ -205,17 +204,22 @@ void NPCBjorn::interagir(Personagem* jogadorAtual)
                 }
 
                 std::string novoNome = item1->obterNomeItem() + "+";
-                Item* novoItem = nullptr;
+            std::unique_ptr<Item> novoItem = nullptr;
 
-                if (Arma* a1 = dynamic_cast<Arma*>(item1)) novoItem = new Arma(novoNome, static_cast<int>(a1->obterDanoFisico() * 1.5), static_cast<int>(a1->obterDanoMagico() * 1.5));
-                else if (Escudo* e1 = dynamic_cast<Escudo*>(item1)) novoItem = new Escudo(novoNome, static_cast<int>(e1->obterDurabilidadeAtualEscudo() * 1.5), static_cast<int>(e1->obterReducaoDanoFixaEscudo() * 1.5));
-                else if (Armadura* ar1 = dynamic_cast<Armadura*>(item1)) novoItem = new Armadura(novoNome, static_cast<int>(ar1->obterReducaoFixa() * 1.5));
+            if (Arma* a1 = dynamic_cast<Arma*>(item1)) novoItem = std::make_unique<Arma>(novoNome, static_cast<int>(a1->obterDanoFisico() * 1.5), static_cast<int>(a1->obterDanoMagico() * 1.5));
+            else if (Escudo* e1 = dynamic_cast<Escudo*>(item1)) novoItem = std::make_unique<Escudo>(novoNome, static_cast<int>(e1->obterDurabilidadeAtualEscudo() * 1.5), static_cast<int>(e1->obterReducaoDanoFixaEscudo() * 1.5));
+            else if (Armadura* ar1 = dynamic_cast<Armadura*>(item1)) novoItem = std::make_unique<Armadura>(novoNome, static_cast<int>(ar1->obterReducaoFixa() * 1.5));
 
                 if (novoItem) {
+                    if (item1->possuiEfeitoSangramento()) novoItem->aplicarEfeitoSangramento();
+                    if (item1->possuiEfeitoLentidao()) novoItem->aplicarEfeitoLentidao();
+                    for (Propriedade prop : item1->obterPropriedades()) novoItem->adicionarPropriedade(prop);
+                    novoItem->adicionarPropriedade(Propriedade::Melhorado);
+
                     std::string nomeAntigo = item1->obterNomeItem();
                     jogadorAtual->obterInventario()->removerItem(nomeAntigo); 
                     jogadorAtual->obterInventario()->removerItem(nomeAntigo); 
-                    jogadorAtual->obterInventario()->adicionarItem(novoItem);
+                    jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
                     
                     Menu::limparTelaDoTerminal();
                     Menu::exibirLogoDoJogo("FORJA - SUCESSO");

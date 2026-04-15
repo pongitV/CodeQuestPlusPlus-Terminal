@@ -71,15 +71,24 @@ std::vector<std::string> RacaOrkExilado::obterAparenciaRaca() const
     return aparencia;
 }
 
-void RacaOrkExilado::realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos)
+void RacaOrkExilado::realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)
 {
+    int xpDrop = 120;
+    int ouroDrop = 100;
+    jogadorAtual->ganharXp(xpDrop);
+    jogadorAtual->ganharOuro(ouroDrop);
+    xpTotal += xpDrop;
+    ouroTotal += ouroDrop;
+    
+    std::cout << "\033[43m+" << ouroDrop << "G\033[0m \033[44m+" << xpDrop << " XP\033[0m\n";
+
     for (int i = 0; i < 2; ++i) {
-        jogadorAtual->obterInventario()->adicionarItem(new Arma("Machado de guerra danificado", 15, 0));
+        jogadorAtual->obterInventario()->adicionarItem(std::make_unique<Arma>("Machado de guerra danificado", 15, 0));
         itensObtidos.push_back("Machado de guerra danificado");
     }
     std::cout << "\033[37m+2x Machado de guerra danificado\033[0m\n";
     
-    jogadorAtual->obterInventario()->adicionarItem(new Armadura("Armadura de trapos e sucata", 3));
+    jogadorAtual->obterInventario()->adicionarItem(std::make_unique<Armadura>("Armadura de trapos e sucata", 3));
     std::cout << "\033[37m+1x Armadura de trapos e sucata\033[0m\n";
     itensObtidos.push_back("Armadura de trapos e sucata");
 }

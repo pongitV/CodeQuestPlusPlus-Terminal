@@ -4,6 +4,8 @@
 #include <windows.h> 
 #include <map>
 #include <cstdlib>
+#include <memory>
+#include <utility>
 
 #include "Mapa1Vila.h"
 #include "Mapa2Floresta.h"
@@ -11,6 +13,8 @@
 #include "../Sistema/GeradorInimigos.h"
 #include "../Sistema/SistemaRPG.h"
 #include "../Inventario/Item.h"
+#include "../Inventario/InventarioCombate.h"
+#include "../Interfaces/TelaAtributos.h"
 #include "../NPCs/NPCBjorn.h"
 #include "../NPCs/NPCFranchesco.h"
 #include "../Inimigos/RacaOrkExilado.h"
@@ -165,7 +169,7 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
 
         if (teclaPressionadaPeloJogador == 'i' || teclaPressionadaPeloJogador == 'I') 
         {
-            Menu::gerenciarInventario(jogadorAtual);
+            InventarioCombate::gerenciarInventario(jogadorAtual);
 
             // Restaura a renderizacao padrao do mapa apos fechar o inventario
             Menu::limparTelaDoTerminal();
@@ -177,7 +181,7 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
 
         if (teclaPressionadaPeloJogador == 'c' || teclaPressionadaPeloJogador == 'C') 
         {
-            Menu::gerenciarFichaDoJogador(jogadorAtual);
+            TelaAtributos::gerenciarFichaDoJogador(jogadorAtual);
 
             // Restaura a tela do mapa
             Menu::limparTelaDoTerminal();
@@ -209,8 +213,8 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
                 if (std::cin >> opcaoEscolhidaNoDialogo && opcaoEscolhidaNoDialogo == 1) 
                 {
                     int quantidadeDeInimigos = (std::rand() % 3) + 1;
-                    std::vector<Personagem*> listaDeInimigosGerados = GeradorInimigos::criarHordaDeGoblins(quantidadeDeInimigos);
-                    SistemaRPG sessaoDeCombate(jogadorAtual, listaDeInimigosGerados);
+                    std::vector<std::unique_ptr<Personagem>> listaDeInimigosGerados = GeradorInimigos::criarInimigoGoblin(quantidadeDeInimigos);
+                    SistemaRPG sessaoDeCombate(jogadorAtual, std::move(listaDeInimigosGerados));
                     sessaoDeCombate.iniciarCombate(); // A chamada do combate acontece aqui!
 
                     if (jogadorAtual->obterVida() > 0) 
@@ -295,8 +299,8 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
                 if (std::cin >> opcaoEscolhidaNoDialogo && opcaoEscolhidaNoDialogo == 1) 
                 {
                     // Inicia o combate com o Ork Mini-Boss gerado pelo Gerador de Inimigos
-                    std::vector<Personagem*> listaDeInimigosGerados = { GeradorInimigos::criarInimigoOrkExilado() };
-                    SistemaRPG sessaoDeCombate(jogadorAtual, listaDeInimigosGerados);
+                    std::vector<std::unique_ptr<Personagem>> listaDeInimigosGerados = GeradorInimigos::criarInimigoOrkExilado();
+                    SistemaRPG sessaoDeCombate(jogadorAtual, std::move(listaDeInimigosGerados));
                     sessaoDeCombate.iniciarCombate();
 
                     if (jogadorAtual->obterVida() > 0) 

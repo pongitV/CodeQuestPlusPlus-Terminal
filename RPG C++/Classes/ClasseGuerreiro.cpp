@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 
 #include "ClasseGuerreiro.h"
 #include "../Inventario/Arma.h"
@@ -69,15 +70,16 @@ Atributos ClasseGuerreiro::obterAtributosClasse() const
     return { 0, 2000000, 10, 2, 10, 5, 5 };
 }
 
-std::vector<Item*> ClasseGuerreiro::obterEquipamentoClasse() const 
+std::vector<std::unique_ptr<Item>> ClasseGuerreiro::obterEquipamentoClasse() const 
 {
-    return 
-    {
-        new ItemConsumivel("Pocao de Cura (30%)"), new ItemConsumivel("Pocao de Cura (30%)"), new ItemConsumivel("Pocao de Cura (30%)"),
-        new Arma("Espada longa de ferro", 10, 0), // Dano Fisico, Dano Magico
-        new Escudo("Escudo medio de metal", 15, 5), // Reducao Fixa, Durabilidade
-        new Armadura("Armadura de malha e metal", 7) // Reducao Fixa
-    };
+    std::vector<std::unique_ptr<Item>> equipamentos;
+    equipamentos.push_back(std::make_unique<ItemConsumivel>("Pocao de Cura (30%)"));
+    equipamentos.push_back(std::make_unique<ItemConsumivel>("Pocao de Cura (30%)"));
+    equipamentos.push_back(std::make_unique<ItemConsumivel>("Pocao de Cura (30%)"));
+    equipamentos.push_back(std::make_unique<Arma>("Espada longa de ferro", 10, 0));
+    equipamentos.push_back(std::make_unique<Escudo>("Escudo medio de metal", 15, 5));
+    equipamentos.push_back(std::make_unique<Armadura>("Armadura de malha e metal", 7));
+    return equipamentos;
 }
 
 std::string ClasseGuerreiro::obterNomeHabilidadeClasse() const { return "Determinacao no combate"; }
@@ -99,3 +101,6 @@ void ClasseGuerreiro::usarHabilidadeClasse(Personagem* u, std::vector<Personagem
         std::cout << "(" << u->obterTurnosBuff() - 1 << " turnos restantes).\n";
     }
 }
+
+TipoAtaque ClasseGuerreiro::obterTipoAtaque() const { return TipoAtaque::UNICO; }
+bool ClasseGuerreiro::habilidadeConsomeTurno() const { return true; }

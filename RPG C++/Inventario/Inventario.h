@@ -1,5 +1,7 @@
 #include <vector>
 #include <string>
+#include <memory>
+
 #include "Item.h"
 
 #pragma once
@@ -19,7 +21,7 @@ public:
     Item* buscarItemPorCodigo(const std::string& codigoDigitado, Item* armaEquipada, Item* escudoEquipado, Item* armaduraEquipada);
     Item* selecionarEscudo();
     
-    void adicionarItem(Item* novoItem);
+    void adicionarItem(std::unique_ptr<Item> novoItem);
     void removerItem(const std::string& nomeDoItem);
     int contarItem(const std::string& nomeDoItem) const;
 

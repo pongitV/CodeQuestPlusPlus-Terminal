@@ -1,4 +1,5 @@
 #include "Personagem.h"
+#include <memory>
 
 #pragma once
 
@@ -12,12 +13,8 @@ public:
     static int obterLarguraDoTerminalEmColunas();
 
     static void exibirLogoDoJogo(const std::string& tituloDaTela = "");
-    static void exibirLogoParaTelaDeCombate(const std::string& tituloDaTela = "");
     
-    static Personagem* iniciarCriacaoDePersonagem();
-    static void exibirBarraDeStatusDoJogador(Personagem* jogadorAtual);
-    static void gerenciarInventario(Personagem* jogadorAtual, bool* turnoFoiConsumido = nullptr);
-    static void gerenciarFichaDoJogador(Personagem* jogadorAtual);
+    static std::unique_ptr<Personagem> iniciarCriacaoDePersonagem();
 
     static void exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>& listaDeInimigos);
     static void imprimirLinhasCentralizadasNaTela(const std::vector<std::string>& linhasParaImprimir, int larguraVisualDaArte = 0, const std::string& codigoDeCorAnsi = "");

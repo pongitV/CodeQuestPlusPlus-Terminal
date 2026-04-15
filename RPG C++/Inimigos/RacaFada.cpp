@@ -49,11 +49,20 @@ std::vector<std::string> RacaFada::obterAparenciaRaca() const
     return aparencia;
 }
 
-void RacaFada::realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos)
+void RacaFada::realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)
 {
+    int xpDrop = 45;
+    int ouroDrop = 20;
+    jogadorAtual->ganharXp(xpDrop);
+    jogadorAtual->ganharOuro(ouroDrop);
+    xpTotal += xpDrop;
+    ouroTotal += ouroDrop;
+    
+    std::cout << "\033[43m+" << ouroDrop << "G\033[0m \033[44m+" << xpDrop << " XP\033[0m\n";
+
     int qtdPo = (std::rand() % 6) + 1;
     for (int i = 0; i < qtdPo; ++i) {
-        jogadorAtual->obterInventario()->adicionarItem(new Material("Po magico"));
+        jogadorAtual->obterInventario()->adicionarItem(std::make_unique<Material>("Po magico"));
         itensObtidos.push_back("Po magico");
     }
     std::cout << "\033[37m+" << qtdPo << "x Po magico\033[0m\n";

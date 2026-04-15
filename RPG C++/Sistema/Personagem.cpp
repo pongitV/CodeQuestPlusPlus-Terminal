@@ -1,17 +1,18 @@
 #include <iostream>
 #include <algorithm>
 #include <cctype>
+#include <memory>
 
 #include "Personagem.h"
 #include "../Raças/RacaBase.h"
 #include "../Classes/ClasseBase.h"
 
-Personagem::Personagem(std::string nome, RacaBase* r, ClasseBase* c) 
+Personagem::Personagem(std::string nome, std::unique_ptr<RacaBase> r, std::unique_ptr<ClasseBase> c) 
 {
     this->nomePersonagem = nome;
-    this->raca = r;
-    this->classe = c;
-    this->mochila = new Inventario();
+    this->raca = std::move(r);
+    this->classe = std::move(c);
+    this->mochila = std::make_unique<Inventario>();
     this->statsFinais = { 100, 0, 0, 0, 0, 0, 0 }; // Atributos base
 
     this->arma = nullptr;
@@ -31,7 +32,6 @@ Personagem::Personagem(std::string nome, RacaBase* r, ClasseBase* c)
     this->estaInviolavel = false;
     this->turnosBuff = 0;
     this->recargaHabilidade = false;
-    this->modoAtaqueArea = false;
     this->pularTurnoInimigo = false;
     this->sofrendoSangramento = false;
     this->turnosSangramento = 0;
@@ -44,11 +44,12 @@ Personagem::Personagem(std::string nome, RacaBase* r, ClasseBase* c)
     this->parryAtivado = false;
     this->dificuldadeAtual = 2; // Padrao: Normal
 
-    std::vector<Item*> kit = c->obterEquipamentoClasse();
-    for (Item* item : kit) 
+    auto kit = this->classe->obterEquipamentoClasse();
+    for (auto& itemUnique : kit) 
     {
-        this->mochila->adicionarItem(item); 
-        this->equiparItem(item);            
+        Item* ptr = itemUnique.get();
+        this->mochila->adicionarItem(std::move(itemUnique)); 
+        this->equiparItem(ptr);            
     }
     calcularAtributos();
 
@@ -57,31 +58,27 @@ Personagem::Personagem(std::string nome, RacaBase* r, ClasseBase* c)
 
 Personagem::~Personagem() 
 {
-    delete raca;
-    delete classe;
-    delete mochila;
 }  
 
-bool Personagem::subirDeNivel(std::string atributo) 
+bool Personagem::subirDeNivel(TipoAtributo atributo) 
 {
     if (xpAtual < xpParaSubir) return false;
 
-    std::transform(atributo.begin(), atributo.end(), atributo.begin(),
-                   [](unsigned char c){ return std::tolower(c); });
-
     bool upou = false;
-    if (atributo == "vida") 
+    switch (atributo) 
     {
-        statsFinais.vida += 20;
-        vidaAtual += 20;
-        upou = true;
+        case TipoAtributo::Vida: 
+            statsFinais.vida += 20;
+            vidaAtual += 20;
+            upou = true;
+            break;
+        case TipoAtributo::Forca: statsFinais.forca += 1; upou = true; break;
+        case TipoAtributo::Destreza: statsFinais.destreza += 1; upou = true; break;
+        case TipoAtributo::Resistencia: statsFinais.resistencia += 1; upou = true; break;
+        case TipoAtributo::Constituicao: statsFinais.constituicao += 1; upou = true; break;
+        case TipoAtributo::Inteligencia: statsFinais.inteligencia += 1; upou = true; break;
+        case TipoAtributo::Sabedoria: statsFinais.sabedoria += 1; upou = true; break;
     }
-    else if (atributo == "forca" || atributo == "força") { statsFinais.forca += 1; upou = true; }
-    else if (atributo == "destreza") { statsFinais.destreza += 1; upou = true; }
-    else if (atributo == "resistencia" || atributo == "resistência") { statsFinais.resistencia += 1; upou = true; }
-    else if (atributo == "constituicao" || atributo == "constituição") { statsFinais.constituicao += 1; upou = true; }
-    else if (atributo == "inteligencia" || atributo == "inteligência") { statsFinais.inteligencia += 1; upou = true; }
-    else if (atributo == "sabedoria") { statsFinais.sabedoria += 1; upou = true; }
 
     if (upou) 
     {
@@ -203,10 +200,110 @@ void Personagem::equiparItem(Item* item)
 
 RacaBase* Personagem::obterRaca() const 
 {
-    return this->raca;
+    return this->raca.get();
 }
 
 ClasseBase* Personagem::obterClasse() const 
 {
-    return this->classe;
+    return this->classe.get();
+}
+
+TipoAtaque Personagem::obterTipoAtaque() const 
+{
+    if (this->classe) return this->classe->obterTipoAtaque();
+    return TipoAtaque::UNICO;
+}
+
+bool Personagem::habilidadeDaClasseConsomeTurno() const 
+{
+    if (this->classe) return this->classe->habilidadeConsomeTurno();
+    return true;
+}
+
+int Personagem::calcularDefesaBase(int danoBruto, int danoPerfurante) const {
+    int danoSemPerfuracao = danoBruto - danoPerfurante;
+    if (danoSemPerfuracao < 0) danoSemPerfuracao = 0;
+
+    int bonusArmadura = armadura ? armadura->obterReducaoFixa() : 0;
+    int reducaoFixa = statsFinais.resistencia + bonusArmadura;
+
+    double percentualReducao = statsFinais.constituicao / 100.0;
+    if (percentualReducao > 0.50) percentualReducao = 0.50; // Hardcap de 50%
+
+    int danoFinal = static_cast<int>((danoSemPerfuracao - reducaoFixa) * (1.0 - percentualReducao));
+    if (danoFinal < 1 && danoSemPerfuracao > 0) danoFinal = 1;
+    else if (danoSemPerfuracao == 0) danoFinal = 0;
+
+    return danoFinal + danoPerfurante;
+}
+
+int Personagem::receberDano(int danoBruto, int danoPerfurante, int danoReduzidoParry, Personagem* atacante, bool aplicarPassivas) {
+    int danoFinal = calcularDefesaBase(danoBruto, danoPerfurante);
+
+    danoFinal -= danoReduzidoParry;
+    if (danoFinal < 0) danoFinal = 0;
+
+    if (estaDefendendo && escudo != nullptr) {
+        int bloqueio = escudo->obterReducaoDanoFixaEscudo();
+        std::cout << ">> [DEFESA]: O escudo bloqueou " << bloqueio << " de dano!\n";
+        danoFinal -= bloqueio;
+        if (danoFinal < 0) danoFinal = 0;
+
+        escudo->reduzirDurabilidade(1);
+        if (escudo->obterDurabilidadeAtualEscudo() <= 0) {
+            std::cout << "[!] ALERTA: O escudo " << escudo->obterNomeItem() << " foi DESTRUIDO em pedacos!\n";
+            mochila->removerItem(escudo->obterNomeItem());
+            desequiparEscudo();
+        }
+    }
+
+    if (aplicarPassivas && raca) danoFinal = raca->processarDanoDefensivo(danoFinal, this);
+    
+    if (atacante && atacante->obterArma()) danoFinal = atacante->obterArma()->garantirDanoMinimo(danoFinal);
+
+    if (danoFinal > 0) modificarVida(-danoFinal);
+
+    return danoFinal;
+}
+
+void EfeitoSugaSangue::aplicarInicioTurno(Personagem* alvo) {
+    if (!atacante || atacante->obterVida() <= 0) return;
+    int danoRaizes = alvo->obterVida() * 0.20;
+    if (danoRaizes > 0) 
+    {
+        alvo->modificarVida(-danoRaizes);
+        atacante->modificarVida(danoRaizes);
+        std::cout << "\033[32m>> [" << nome << "]: Drenou " << danoRaizes << " de HP de " << alvo->obterNome() << " e curou " << atacante->obterNome() << "!\033[0m\n";
+    }
+}
+
+void Personagem::adicionarEfeito(std::unique_ptr<EfeitoStatus> efeito) {
+    efeitosAtivos.push_back(std::move(efeito));
+}
+
+void Personagem::processarEfeitosInicioTurno() {
+    for (auto& ef : efeitosAtivos) {
+        ef->aplicarInicioTurno(this);
+        ef->decrementarTurno();
+    }
+    efeitosAtivos.erase(std::remove_if(efeitosAtivos.begin(), efeitosAtivos.end(),
+        [](const std::unique_ptr<EfeitoStatus>& ef) { return ef->expirou(); }), efeitosAtivos.end());
+}
+
+bool Personagem::podeAgir() const {
+    for (auto& ef : efeitosAtivos) {
+        if (ef->impedeAcao()) {
+            std::cout << "\033[32m[EFEITO]: " << nomePersonagem << " esta sob efeito de " << ef->obterNome() << " e nao pode agir neste turno!\033[0m\n";
+            return false;
+        }
+    }
+    return true;
+}
+
+void Personagem::executarDrops(Personagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)
+{
+    if (this->raca) 
+    {
+        this->raca->realizarDrops(this, jogadorAtual, itensObtidos, ouroTotal, xpTotal);
+    }
 }

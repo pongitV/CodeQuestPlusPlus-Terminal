@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <set>
 
 enum class Raridade 
 {
@@ -20,8 +21,31 @@ enum class TipoEquipamento
     MATERIAL
 };
 
+enum class Propriedade 
+{
+    Nenhuma,
+    Magica,
+    Penetrante,
+    ViolaoBase,
+    ViolaoMagico,
+    CipoPrisao,
+    Melhorado,
+    ConsumivelCura,
+    ConsumivelBuff,
+    ConsumivelDebuffLentidao,
+    ConsumivelDebuffFraqueza,
+    TalismaForca,
+    TalismaInteligencia,
+    TalismaDestreza,
+    TalismaSabedoria
+};
+
+class Personagem;
+
 class Item 
 {
+protected:
+    std::set<Propriedade> propriedades;
 public:
 
     virtual ~Item() = default;
@@ -44,8 +68,17 @@ public:
     virtual void reduzirDurabilidade(int qtd) {}
     virtual void aumentarDurabilidade(int qtd) {}
     
+    virtual void antesDeCausarDano(Personagem* atacante, Personagem* alvo) {}
+    virtual void aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCausado) {}
+    virtual int garantirDanoMinimo(int danoFinal) { return danoFinal; }
+
     virtual int obterPrecoVenda() const { return 3; } // Preço padrão para a maioria dos itens
     virtual std::string obterInfoStatus() const { return ""; } // Vazio por padrão para itens sem status extra
+    
+    virtual bool temPropriedade(Propriedade prop) const { return propriedades.find(prop) != propriedades.end(); }
+    virtual void adicionarPropriedade(Propriedade prop) { propriedades.insert(prop); }
+    virtual void removerPropriedade(Propriedade prop) { propriedades.erase(prop); }
+    virtual std::set<Propriedade> obterPropriedades() const { return propriedades; }
 
     std::string raridadeParaString() const 
     {
