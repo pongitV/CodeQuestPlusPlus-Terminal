@@ -5,6 +5,7 @@
 #include <ctime>
 #include <chrono>
 #include <thread>
+#include <iomanip>
 
 #ifdef _WIN32
     #include <conio.h>
@@ -16,6 +17,7 @@
 #include "../Raças/RacaBase.h"
 #include "../Classes/ClasseBase.h"
 #include "../Inventario/Item.h"
+#include "../Inventario/Arma.h"
 
 #include "../Interfaces/TelaVitoria.h"
 #include "../Interfaces/TelaDerrota.h"
@@ -123,7 +125,7 @@ void SistemaRPG::iniciarCombate()
             TelaCombate::exibirLogoParaTelaDeCombate(tituloDoCombate);
             std::vector<Personagem*> inimigosRaw;
             for (auto& ini : listaDeInimigos) inimigosRaw.push_back(ini.get());
-            Menu::exibirHordaDeInimigosLadoALado(inimigosRaw);
+            exibirHordaDeInimigosLadoALado(inimigosRaw);
             TelaCombate::exibirBarraDeStatusDoJogador(jogadorAtual); 
 
             int larguraDoTerminal = Menu::obterLarguraDoTerminalEmColunas();
@@ -149,7 +151,7 @@ void SistemaRPG::iniciarCombate()
             {
                 if (jogadorAtual->obterTipoAtaque() == TipoAtaque::AREA) 
                 {
-                    realizarAtaqueFisico(jogadorAtual, nullptr, contadorDoTurnoAtual);
+                    realizarAtaqueFisico(*jogadorAtual, nullptr, contadorDoTurnoAtual);
                     turnoFoiConsumido = true;
                 }
                 else 
@@ -165,7 +167,7 @@ void SistemaRPG::iniciarCombate()
                         break; 
                     }
 
-                    realizarAtaqueFisico(jogadorAtual, listaDeInimigos[indiceDoAlvoEscolhido].get(), contadorDoTurnoAtual);
+                    realizarAtaqueFisico(*jogadorAtual, listaDeInimigos[indiceDoAlvoEscolhido].get(), contadorDoTurnoAtual);
                     turnoFoiConsumido = true;
                 }
 
@@ -206,7 +208,7 @@ void SistemaRPG::iniciarCombate()
                 std::vector<Personagem*> alvosRaw;
                 for (auto& ini : listaDeInimigos) alvosRaw.push_back(ini.get());
 
-                jogadorAtual->obterClasse()->usarHabilidadeClasse(jogadorAtual, alvosRaw);
+                jogadorAtual->obterClasse()->usarHabilidadeClasse(*jogadorAtual, alvosRaw);
                 
                 if (jogadorAtual->habilidadeDaClasseConsomeTurno()) turnoFoiConsumido = true;
                 else Menu::aguardarPressionamentoDeEnter();
@@ -339,10 +341,10 @@ void SistemaRPG::executarTurnoDeTodosOsInimigos()
                     if (jogadorAtual->obterDificuldade() == 3) 
                     {
                         std::vector<Personagem*> listaDeAlvosDoInimigo = { jogadorAtual };
-                        inimigoAtual->obterClasse()->usarHabilidadeClasse(inimigoAtual, listaDeAlvosDoInimigo);
+                        inimigoAtual->obterClasse()->usarHabilidadeClasse(*inimigoAtual, listaDeAlvosDoInimigo);
                     }
                     
-                    realizarAtaqueFisico(inimigoAtual, jogadorAtual, contadorDoTurnoAtual);
+                    realizarAtaqueFisico(*inimigoAtual, jogadorAtual, contadorDoTurnoAtual);
                 }
             }
         }
@@ -375,37 +377,39 @@ void SistemaRPG::executarTurnoDeTodosOsInimigos()
     Menu::aguardarPressionamentoDeEnter();
 }
 
-void SistemaRPG::realizarAtaqueFisico(Personagem* personagemAtacante, Personagem* personagemDefensor, int turnoAtualDoCombate) 
+void SistemaRPG::realizarAtaqueFisico(Personagem& personagemAtacante, Personagem* personagemDefensor, int turnoAtualDoCombate) 
 {
-    double multiplicadorDeAtributos = personagemAtacante->obterMultiplicador(); // Aplica o multiplicador acumulado
+    double multiplicadorDeAtributos = personagemAtacante.obterMultiplicador(); // Aplica o multiplicador acumulado
 
-    if (personagemAtacante->obterInviolavel()) 
+    if (personagemAtacante.obterInviolavel()) 
     {
         multiplicadorDeAtributos *= 2.0; // Bonus fixo do Arqueiro
-        personagemAtacante->definirInviolavel(false);
+        personagemAtacante.definirInviolavel(false);
     }
 
     int danoFisicoDaArma = 1; // Dano base desarmado
     int danoMagicoDaArma = 0;
     danoMagicoPerfuranteAtual = 0;
 
-    if (personagemAtacante->obterArma()) 
+    if (personagemAtacante.obterArma()) 
     {
-        danoFisicoDaArma = personagemAtacante->obterArma()->obterDanoFisico();
-        danoMagicoDaArma = personagemAtacante->obterArma()->obterDanoMagico();
+        if (Arma* arma = dynamic_cast<Arma*>(personagemAtacante.obterArma())) {
+            danoFisicoDaArma = arma->obterDanoFisico();
+            danoMagicoDaArma = arma->obterDanoMagico();
+        }
 
-        if (personagemAtacante->obterArma()->temPropriedade(Propriedade::Magica)) {
+        if (personagemAtacante.obterArma()->temPropriedade(Propriedade::Magica)) {
             int bonusMagico = danoFisicoDaArma / 2;
             
-            double bonusEscalado = bonusMagico * (1.0 + (personagemAtacante->obterSabedoria() / 100.0));
+            double bonusEscalado = bonusMagico * (1.0 + (personagemAtacante.obterSabedoria() / 100.0));
             danoMagicoPerfuranteAtual = static_cast<int>(bonusEscalado * multiplicadorDeAtributos);
         }
     }
 
-    double forcaEfetiva = personagemAtacante->obterForca();
-    double destrezaEfetiva = personagemAtacante->obterDestreza();
-    double inteligenciaEfetiva = personagemAtacante->obterInteligencia();
-    double sabedoriaEfetiva = personagemAtacante->obterSabedoria();
+    double forcaEfetiva = personagemAtacante.obterForca();
+    double destrezaEfetiva = personagemAtacante.obterDestreza();
+    double inteligenciaEfetiva = personagemAtacante.obterInteligencia();
+    double sabedoriaEfetiva = personagemAtacante.obterSabedoria();
 
     if (danoFisicoDaArma == 0 && danoMagicoDaArma > 0) {
         forcaEfetiva *= 0.1;
@@ -428,44 +432,44 @@ void SistemaRPG::realizarAtaqueFisico(Personagem* personagemAtacante, Personagem
 
     int danoBaseCalculado = static_cast<int>(danoTotalCalculado * multiplicadorDeAtributos);
 
-    if (personagemAtacante == jogadorAtual || jogadorAtual->obterDificuldade() >= 2) 
+    if (&personagemAtacante == jogadorAtual || jogadorAtual->obterDificuldade() >= 2) 
     {
-        danoBaseCalculado = personagemAtacante->obterRaca()->processarDanoOfensivo(danoBaseCalculado, personagemAtacante);
+        danoBaseCalculado = personagemAtacante.obterRaca()->processarDanoOfensivo(danoBaseCalculado, &personagemAtacante);
     }
 
-    if (personagemAtacante->obterTipoAtaque() == TipoAtaque::AREA && !listaDeInimigos.empty()) 
+    if (personagemAtacante.obterTipoAtaque() == TipoAtaque::AREA && !listaDeInimigos.empty()) 
     {
         int danoDivididoParaArea = danoBaseCalculado / static_cast<int>(listaDeInimigos.size());
         danoMagicoPerfuranteAtual /= static_cast<int>(listaDeInimigos.size());
-        std::cout << personagemAtacante->obterNome() << " desfere um ataque em area!\n";
-        for (auto& inimigoAtualPtr : listaDeInimigos) aplicarDanoAoAlvo(personagemAtacante, inimigoAtualPtr.get(), danoDivididoParaArea, turnoAtualDoCombate);
+        std::cout << personagemAtacante.obterNome() << " desfere um ataque em area!\n";
+        for (auto& inimigoAtualPtr : listaDeInimigos) aplicarDanoAoAlvo(personagemAtacante, *inimigoAtualPtr, danoDivididoParaArea, turnoAtualDoCombate);
     } 
     else if (personagemDefensor != nullptr) 
     {
-        std::cout << personagemAtacante->obterNome() << " ataca " << personagemDefensor->obterNome() << "!" << std::endl;
-        aplicarDanoAoAlvo(personagemAtacante, personagemDefensor, danoBaseCalculado, turnoAtualDoCombate);
+        std::cout << personagemAtacante.obterNome() << " ataca " << personagemDefensor->obterNome() << "!" << std::endl;
+        aplicarDanoAoAlvo(personagemAtacante, *personagemDefensor, danoBaseCalculado, turnoAtualDoCombate);
     }
 }
 
-void SistemaRPG::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* personagemAlvo, int quantidadeDeDanoBruto, int turnoAtualDoCombate) 
+void SistemaRPG::aplicarDanoAoAlvo(Personagem& personagemAtacante, Personagem& personagemAlvo, int quantidadeDeDanoBruto, int turnoAtualDoCombate) 
 {
-    if (personagemAlvo->obterInviolavel()) 
+    if (personagemAlvo.obterInviolavel()) 
     {
-        std::cout << ">> " << personagemAlvo->obterNome() << " esquivou totalmente!\n";
+        std::cout << ">> " << personagemAlvo.obterNome() << " esquivou totalmente!\n";
         return;
     }
 
     // Logica da Quebra de Resistencia (Pó Mágico)
-    if (personagemAtacante->obterArma()) personagemAtacante->obterArma()->antesDeCausarDano(personagemAtacante, personagemAlvo);
+    if (personagemAtacante.obterArma()) personagemAtacante.obterArma()->antesDeCausarDano(personagemAtacante, personagemAlvo);
 
-    int danoBaseMitigado = personagemAlvo->calcularDefesaBase(quantidadeDeDanoBruto, danoMagicoPerfuranteAtual);
+    int danoBaseMitigado = personagemAlvo.calcularDefesaBase(quantidadeDeDanoBruto, danoMagicoPerfuranteAtual);
     int quantidadeDeDanoReduzidoPeloParry = 0;
 
     // Logica do Parry
-    if (personagemAlvo == jogadorAtual && jogadorAtual->obterParryAtivado()) 
+    if (&personagemAlvo == jogadorAtual && jogadorAtual->obterParryAtivado()) 
     {
         int quantidadeDeNumerosDoParry = std::max(1, danoBaseMitigado / 4);
-        int destrezaDoAtacante = std::max(1, personagemAtacante->obterDestreza());
+        int destrezaDoAtacante = std::max(1, personagemAtacante.obterDestreza());
         int tempoLimiteParaParryEmSegundos = std::max(1, 60 / destrezaDoAtacante);
 
         bool parryFoiBemSucedido = executarSistemaDeParry(quantidadeDeNumerosDoParry, tempoLimiteParaParryEmSegundos, quantidadeDeDanoReduzidoPeloParry);
@@ -490,29 +494,29 @@ void SistemaRPG::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* p
         }
     }
 
-    bool aplicarPassivas = (personagemAlvo == jogadorAtual || jogadorAtual->obterDificuldade() >= 2);
-    int danoFinalAposReducoes = personagemAlvo->receberDano(quantidadeDeDanoBruto, danoMagicoPerfuranteAtual, quantidadeDeDanoReduzidoPeloParry, personagemAtacante, aplicarPassivas);
+    bool aplicarPassivas = (&personagemAlvo == jogadorAtual || jogadorAtual->obterDificuldade() >= 2);
+    int danoFinalAposReducoes = personagemAlvo.receberDano(quantidadeDeDanoBruto, danoMagicoPerfuranteAtual, quantidadeDeDanoReduzidoPeloParry, &personagemAtacante, aplicarPassivas);
 
     if (danoFinalAposReducoes > 0) 
     {
-        if (personagemAlvo == jogadorAtual) 
+        if (&personagemAlvo == jogadorAtual) 
         {
             totalDeDanoRecebido += danoFinalAposReducoes;
-            std::cout << "\033[41m>> " << personagemAlvo->obterNome() << " recebeu " << danoFinalAposReducoes << " de dano\033[0m" << std::endl;
+            std::cout << "\033[41m>> " << personagemAlvo.obterNome() << " recebeu " << danoFinalAposReducoes << " de dano\033[0m" << std::endl;
         } else {
             totalDeDanoCausado += danoFinalAposReducoes;
-            std::cout << ">> " << personagemAlvo->obterNome() << " recebeu " << danoFinalAposReducoes << " de dano" << std::endl;
+            std::cout << ">> " << personagemAlvo.obterNome() << " recebeu " << danoFinalAposReducoes << " de dano" << std::endl;
         }
         
         // Aplicação dos efeitos no acerto
-        if (personagemAtacante->obterArma()) 
+        if (personagemAtacante.obterArma()) 
         {
-            personagemAtacante->obterArma()->aoCausarDano(personagemAtacante, personagemAlvo, danoFinalAposReducoes);
+            personagemAtacante.obterArma()->aoCausarDano(personagemAtacante, personagemAlvo, danoFinalAposReducoes);
         }
 
-        personagemAtacante->obterRaca()->aoCausarDano(personagemAtacante, personagemAlvo, danoFinalAposReducoes);
+        personagemAtacante.obterRaca()->aoCausarDano(personagemAtacante, personagemAlvo, danoFinalAposReducoes);
     }
-    else if (danoFinalAposReducoes == 0 && personagemAlvo->obterDefendendo()) 
+    else if (danoFinalAposReducoes == 0 && personagemAlvo.obterDefendendo()) 
     {
         std::cout << ">> O dano foi totalmente absorvido pela sua defesa!" << std::endl;
     }
@@ -603,4 +607,69 @@ void SistemaRPG::processarMorteDeInimigo(Personagem* inimigo)
     std::cout << "\n[!] " << inimigo->obterNome() << " derrotado! ";
 
     inimigo->executarDrops(jogadorAtual, itensObtidos, quantidadeDeOuroObtido, quantidadeDeXpObtido);
+}
+
+void SistemaRPG::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>& listaDeInimigos) 
+{
+    if (listaDeInimigos.empty()) return;
+    int larguraTerminal = Menu::obterLarguraDoTerminalEmColunas();
+    // Pega a arte dinamicamente da raca do inimigo que esta sendo enfrentado
+    std::vector<std::string> arteDoInimigo = listaDeInimigos[0]->obterRaca()->obterAparenciaRaca();
+    int quantidadeTotalDeInimigosNaHorda = static_cast<int>(listaDeInimigos.size());
+    int larguraSeparadaParaCadaColuna = larguraTerminal / quantidadeTotalDeInimigosNaHorda; 
+
+    std::cout << std::string(larguraTerminal, '-') << "\n";
+    for (size_t indiceInimigo = 0; indiceInimigo < listaDeInimigos.size(); indiceInimigo++) 
+    {
+        std::string tagIdentificadoraDoInimigo = listaDeInimigos[indiceInimigo]->obterNome() + " [" + std::to_string(indiceInimigo) + "]";
+        int espacosParaCentralizarOId = (larguraSeparadaParaCadaColuna - (int)tagIdentificadoraDoInimigo.length()) / 2;
+        std::cout << std::string(espacosParaCentralizarOId > 0 ? espacosParaCentralizarOId : 0, ' ') << std::left << std::setw(larguraSeparadaParaCadaColuna - espacosParaCentralizarOId) << tagIdentificadoraDoInimigo;
+    }
+    std::cout << "\n";
+    for (size_t indiceInimigo = 0; indiceInimigo < listaDeInimigos.size(); indiceInimigo++) 
+    {
+        std::string valorDePontosDeVidaDoInimigo = "HP: " + std::to_string(listaDeInimigos[indiceInimigo]->obterVida()) + "/" + std::to_string(listaDeInimigos[indiceInimigo]->obterVidaMaxima());
+        int espacosParaCentralizarOHp = (larguraSeparadaParaCadaColuna - (int)valorDePontosDeVidaDoInimigo.length()) / 2;
+        std::cout << std::string(espacosParaCentralizarOHp > 0 ? espacosParaCentralizarOHp : 0, ' ') << std::left << std::setw(larguraSeparadaParaCadaColuna - espacosParaCentralizarOHp) << valorDePontosDeVidaDoInimigo;
+    }
+    std::cout << "\n";
+    
+    for (size_t indiceInimigo = 0; indiceInimigo < listaDeInimigos.size(); indiceInimigo++) 
+    {
+        std::vector<std::pair<std::string, std::string>> debuffs;
+        if (listaDeInimigos[indiceInimigo]->obterSangramento()) debuffs.push_back({"[Sangramento]", "\033[31m[Sangramento]\033[0m"});
+        if (listaDeInimigos[indiceInimigo]->obterLentidao()) debuffs.push_back({"[Lentidao]", "\033[35m[Lentidao]\033[0m"});
+        if (listaDeInimigos[indiceInimigo]->obterFraqueza()) debuffs.push_back({"[Fraqueza]", "\033[33m[Fraqueza]\033[0m"});
+        if (listaDeInimigos[indiceInimigo]->obterQuebraResistencia()) debuffs.push_back({"[Quebra Def.]", "\033[36m[Quebra Def.]\033[0m"});
+
+        std::string visualStr = "";
+        std::string printStr = "";
+        for (size_t i = 0; i < debuffs.size(); ++i) {
+            visualStr += debuffs[i].first;
+            printStr += debuffs[i].second;
+            if (i < debuffs.size() - 1) {
+                visualStr += " ";
+                printStr += " ";
+            }
+        }
+
+        int espacosEsquerda = (larguraSeparadaParaCadaColuna - (int)visualStr.length()) / 2;
+        if (espacosEsquerda < 0) espacosEsquerda = 0;
+        int espacosDireita = larguraSeparadaParaCadaColuna - espacosEsquerda - (int)visualStr.length();
+        if (espacosDireita < 0) espacosDireita = 0;
+        
+        std::cout << std::string(espacosEsquerda, ' ') << printStr << std::string(espacosDireita, ' ');
+    }
+    std::cout << "\n\n";
+    
+    for (size_t indiceDaLinhaDaArte = 0; indiceDaLinhaDaArte < arteDoInimigo.size(); indiceDaLinhaDaArte++) 
+    {
+        for (size_t indiceDoInimigoParaDesenhar = 0; indiceDoInimigoParaDesenhar < listaDeInimigos.size(); indiceDoInimigoParaDesenhar++) 
+        {
+            int espacosParaCentralizarAArte = (larguraSeparadaParaCadaColuna - (int)arteDoInimigo[indiceDaLinhaDaArte].length()) / 2;
+            std::cout << std::string(espacosParaCentralizarAArte > 0 ? espacosParaCentralizarAArte : 0, ' ') << std::left << std::setw(larguraSeparadaParaCadaColuna - espacosParaCentralizarAArte) << arteDoInimigo[indiceDaLinhaDaArte];
+        }
+        std::cout << "\n";
+    }
+    std::cout << std::string(larguraTerminal, '-') << "\n\n";
 }

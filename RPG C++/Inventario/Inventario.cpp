@@ -11,38 +11,43 @@ Inventario::Inventario() : quantidadeDeOuro(0) {}
 
 Inventario::~Inventario() 
 {
-    for (Item* itemAtual : listaDeItens) 
-    {
-        delete itemAtual;
-    }
-    listaDeItens.clear();
+    equipamentos.clear();
+    consumiveis.clear();
+    materiais.clear();
+    missoes.clear();
 }
 
 void Inventario::exibirInventario(Item* armaEquipada, Item* escudoEquipado, Item* armaduraEquipada, bool mostrarPrecos) const 
 {
     int larguraDoTerminal = Menu::obterLarguraDoTerminalEmColunas();
 
-    std::map<std::string, std::vector<Item*>> equipamentosAgrupados;  
-    std::map<std::string, std::vector<Item*>> consumiveisAgrupados;  
-    std::map<std::string, std::vector<Item*>> materiaisAgrupados;  
-    std::map<std::string, std::vector<Item*>> missoesAgrupadas;  
-
-    // Organiza os itens do inventario por categoria para exibicao
-    for (Item* itemAtual : listaDeItens) {
-        TipoEquipamento tipoDoItem = itemAtual->obterTipo();
+    auto formatarGrupo = [&](const std::vector<std::unique_ptr<Item>>& lista, const std::string& titulo, std::string tag, Item* eq1 = nullptr, Item* eq2 = nullptr, Item* eq3 = nullptr) {
+        std::vector<std::string> linhas;
+        linhas.push_back(titulo);
         
-        if (tipoDoItem == TipoEquipamento::CONSUMIVEL) {
-            consumiveisAgrupados[itemAtual->obterNomeItem()].push_back(itemAtual);
-        } else if (tipoDoItem == TipoEquipamento::MISSAO) {
-            missoesAgrupadas[itemAtual->obterNomeItem()].push_back(itemAtual);
-        } else if (tipoDoItem == TipoEquipamento::MATERIAL) {
-            materiaisAgrupados[itemAtual->obterNomeItem()].push_back(itemAtual);
-        } else if ((tipoDoItem == TipoEquipamento::ARMA || tipoDoItem == TipoEquipamento::ESCUDO || tipoDoItem == TipoEquipamento::ARMADURA) 
-                   && itemAtual != armaEquipada && itemAtual != escudoEquipado && itemAtual != armaduraEquipada) {
-            equipamentosAgrupados[itemAtual->obterNomeItem()].push_back(itemAtual);
+        std::map<std::string, std::vector<Item*>> agrupados;
+        for (const auto& item : lista) {
+            if (item.get() != eq1 && item.get() != eq2 && item.get() != eq3) {
+                agrupados[item->obterNomeItem()].push_back(item.get());
+            }
         }
-    }
-    
+        
+        if (agrupados.empty()) {
+            linhas.push_back(" (Vazio)");
+        } else {
+            int indice = 1;
+            for (auto const& [nome, itens] : agrupados) {
+                Item* ex = itens.front();
+                std::string infoVenda = mostrarPrecos ? " (Venda: " + std::to_string(ex->obterPrecoVenda()) + "G)" : "";
+                std::string prefixo = itens.size() > 1 ? std::to_string(itens.size()) + "x " : "";
+                std::string raridade = tag == "A" ? " [" + ex->raridadeParaString() + "]" : "";
+                linhas.push_back(" [" + std::to_string(indice++) + tag + "] " + prefixo + nome + raridade + ex->obterInfoStatus() + infoVenda);
+            }
+        }
+        linhas.push_back("");
+        return linhas;
+    };
+
     std::vector<std::string> linhasParaImprimir;
 
     linhasParaImprimir.push_back("DINHEIRO: " + std::to_string(quantidadeDeOuro) + " moedas");
@@ -54,44 +59,17 @@ void Inventario::exibirInventario(Item* armaEquipada, Item* escudoEquipado, Item
     if (armaduraEquipada) linhasParaImprimir.push_back(" [3E] ARMADURA: " + armaduraEquipada->obterNomeItem() + armaduraEquipada->obterInfoStatus());
     linhasParaImprimir.push_back(""); 
 
-    linhasParaImprimir.push_back("[ ARSENAL ]");
-    if (equipamentosAgrupados.empty()) linhasParaImprimir.push_back(" (Vazio)");
-    int indiceArs = 1;
-    for (auto const& [nome, lista] : equipamentosAgrupados) {
-        Item* itemExemplo = lista.front();
-        std::string infoVenda = mostrarPrecos ? " (Venda: " + std::to_string(itemExemplo->obterPrecoVenda()) + "G)" : "";
-        std::string prefixo = lista.size() > 1 ? std::to_string(lista.size()) + "x " : "";
-        linhasParaImprimir.push_back(" [" + std::to_string(indiceArs++) + "A] " + prefixo + nome + " [" + itemExemplo->raridadeParaString() + "]" + itemExemplo->obterInfoStatus() + infoVenda);
-    }
-    linhasParaImprimir.push_back(""); 
-
-    linhasParaImprimir.push_back("[ CONSUMIVEIS ]");
-    if (consumiveisAgrupados.empty()) linhasParaImprimir.push_back(" (Vazio)");
-    int contadorDeConsumiveis = 1;
-    for (auto const& [nomeDoItem, lista] : consumiveisAgrupados) {
-        std::string infoVenda = mostrarPrecos ? " (Venda: " + std::to_string(lista.front()->obterPrecoVenda()) + "G / un)" : "";
-        std::string prefixo = lista.size() > 1 ? std::to_string(lista.size()) + "x " : "";
-        linhasParaImprimir.push_back(" [" + std::to_string(contadorDeConsumiveis++) + "C] " + prefixo + nomeDoItem + infoVenda);
-    }
-    linhasParaImprimir.push_back("");
-
-    linhasParaImprimir.push_back("[ ESTOQUE ]");
-    if (materiaisAgrupados.empty()) linhasParaImprimir.push_back(" (Vazio)");
-    int contadorDeMateriais = 1;
-    for (auto const& [nomeDoItem, lista] : materiaisAgrupados) {
-        std::string infoVenda = mostrarPrecos ? " (Venda: " + std::to_string(lista.front()->obterPrecoVenda()) + "G / un)" : "";
-        std::string prefixo = lista.size() > 1 ? std::to_string(lista.size()) + "x " : "";
-        linhasParaImprimir.push_back(" [" + std::to_string(contadorDeMateriais++) + "S] " + prefixo + nomeDoItem + infoVenda);
-    }
-    linhasParaImprimir.push_back("");
-
-    linhasParaImprimir.push_back("[ ITENS DE MISSAO ]");
-    if (missoesAgrupadas.empty()) linhasParaImprimir.push_back(" (Vazio)");
-    int indiceMis = 1;
-    for (auto const& [nome, lista] : missoesAgrupadas) {
-        std::string prefixo = lista.size() > 1 ? std::to_string(lista.size()) + "x " : "";
-        linhasParaImprimir.push_back(" [" + std::to_string(indiceMis++) + "M] " + prefixo + nome);
-    }
+    auto linEquip = formatarGrupo(equipamentos, "[ ARSENAL ]", "A", armaEquipada, escudoEquipado, armaduraEquipada);
+    linhasParaImprimir.insert(linhasParaImprimir.end(), linEquip.begin(), linEquip.end());
+    
+    auto linCons = formatarGrupo(consumiveis, "[ CONSUMIVEIS ]", "C");
+    linhasParaImprimir.insert(linhasParaImprimir.end(), linCons.begin(), linCons.end());
+    
+    auto linMat = formatarGrupo(materiais, "[ ESTOQUE ]", "S");
+    linhasParaImprimir.insert(linhasParaImprimir.end(), linMat.begin(), linMat.end());
+    
+    auto linMiss = formatarGrupo(missoes, "[ ITENS DE MISSAO ]", "M");
+    linhasParaImprimir.insert(linhasParaImprimir.end(), linMiss.begin(), linMiss.end());
 
     // Centraliza todo o bloco de inventario na tela
     int tamanhoDaLinhaMaisLonga = 0;
@@ -129,12 +107,12 @@ Item* Inventario::buscarItemPorCodigo(const std::string& codigoDigitado, Item* a
         return nullptr;
     }
 
-    auto buscarPorTipoAgrupado = [&](auto condicao) -> Item* {
+    auto buscarPorTipoAgrupado = [&](const std::vector<std::unique_ptr<Item>>& lista) -> Item* {
         std::map<std::string, Item*> itensAgrupados;
-        for (Item* itemAtual : listaDeItens) {
-            if (condicao(itemAtual)) {
-                if (itensAgrupados.find(itemAtual->obterNomeItem()) == itensAgrupados.end()) {
-                    itensAgrupados[itemAtual->obterNomeItem()] = itemAtual;
+        for (const auto& item : lista) {
+            if (item.get() != armaEquipada && item.get() != escudoEquipado && item.get() != armaduraEquipada) {
+                if (itensAgrupados.find(item->obterNomeItem()) == itensAgrupados.end()) {
+                    itensAgrupados[item->obterNomeItem()] = item.get();
                 }
             }
         }
@@ -145,18 +123,10 @@ Item* Inventario::buscarItemPorCodigo(const std::string& codigoDigitado, Item* a
         return nullptr;
     };
 
-    if (letraDaCategoria == 'A') {
-        return buscarPorTipoAgrupado([&](Item* i) { 
-            auto t = i->obterTipo(); 
-            return (t == TipoEquipamento::ARMA || t == TipoEquipamento::ESCUDO || t == TipoEquipamento::ARMADURA) && i != armaEquipada && i != escudoEquipado && i != armaduraEquipada; 
-        });
-    } else if (letraDaCategoria == 'C') {
-        return buscarPorTipoAgrupado([](Item* i) { return i->obterTipo() == TipoEquipamento::CONSUMIVEL; });
-    } else if (letraDaCategoria == 'S') {
-        return buscarPorTipoAgrupado([](Item* i) { return i->obterTipo() == TipoEquipamento::MATERIAL; });
-    } else if (letraDaCategoria == 'M') {
-        return buscarPorTipoAgrupado([](Item* i) { return i->obterTipo() == TipoEquipamento::MISSAO; });
-    }
+    if (letraDaCategoria == 'A') return buscarPorTipoAgrupado(equipamentos);
+    if (letraDaCategoria == 'C') return buscarPorTipoAgrupado(consumiveis);
+    if (letraDaCategoria == 'S') return buscarPorTipoAgrupado(materiais);
+    if (letraDaCategoria == 'M') return buscarPorTipoAgrupado(missoes);
     
     return nullptr;
 }
@@ -164,10 +134,10 @@ Item* Inventario::buscarItemPorCodigo(const std::string& codigoDigitado, Item* a
 Item* Inventario::selecionarEscudo() 
 {
     std::vector<Item*> listaDeEscudos;
-    for (Item* itemAtual : listaDeItens) 
+    for (const auto& item : equipamentos) 
     {
-        if (itemAtual->obterTipo() == TipoEquipamento::ESCUDO) {
-            listaDeEscudos.push_back(itemAtual);
+        if (item->obterTipo() == TipoEquipamento::ESCUDO) {
+            listaDeEscudos.push_back(item.get());
         }
     }
 
@@ -199,41 +169,58 @@ Item* Inventario::selecionarEscudo()
 }
 
 void Inventario::adicionarItem(std::unique_ptr<Item> novoItem) 
-{ 
-    if (novoItem) {
-        Item* ptr = novoItem.get();
-        listaDeItens.push_back(ptr);
-        novoItem.release(); // Libera a posse da memória APENAS se a inserção no vetor for um sucesso
+{
+    if (!novoItem) return;
+    TipoEquipamento tipo = novoItem->obterTipo();
+    if (tipo == TipoEquipamento::ARMA || tipo == TipoEquipamento::ESCUDO || tipo == TipoEquipamento::ARMADURA) {
+        equipamentos.push_back(std::move(novoItem));
+    } else if (tipo == TipoEquipamento::CONSUMIVEL) {
+        consumiveis.push_back(std::move(novoItem));
+    } else if (tipo == TipoEquipamento::MATERIAL) {
+        materiais.push_back(std::move(novoItem));
+    } else if (tipo == TipoEquipamento::MISSAO) {
+        missoes.push_back(std::move(novoItem));
     }
 }
 
 void Inventario::removerItem(const std::string& nomeDoItem) 
 {
-    auto it = std::find_if(listaDeItens.begin(), listaDeItens.end(), [&](Item* item) 
-    {
-        return item->obterNomeItem() == nomeDoItem;
-    });
-    
-    if (it != listaDeItens.end()) 
-    {
-        delete *it;
-        listaDeItens.erase(it);
-    }
+    auto apagarSeEncontrado = [&](std::vector<std::unique_ptr<Item>>& lista) -> bool {
+        auto it = std::find_if(lista.begin(), lista.end(), [&](const std::unique_ptr<Item>& item) {
+            return item->obterNomeItem() == nomeDoItem;
+        });
+        if (it != lista.end()) {
+            lista.erase(it);
+            return true;
+        }
+        return false;
+    };
+
+    if (apagarSeEncontrado(equipamentos)) return;
+    if (apagarSeEncontrado(consumiveis)) return;
+    if (apagarSeEncontrado(materiais)) return;
+    apagarSeEncontrado(missoes);
 }
 
 int Inventario::contarItem(const std::string& nomeDoItem) const 
 {
-    return std::count_if(listaDeItens.begin(), listaDeItens.end(), [&](Item* item) 
-    {
-        return item->obterNomeItem() == nomeDoItem;
-    });
+    int count = 0;
+    auto contarNaLista = [&](const std::vector<std::unique_ptr<Item>>& lista) {
+        count += std::count_if(lista.begin(), lista.end(), [&](const std::unique_ptr<Item>& item) {
+            return item->obterNomeItem() == nomeDoItem;
+        });
+    };
+    contarNaLista(equipamentos);
+    contarNaLista(consumiveis);
+    contarNaLista(materiais);
+    contarNaLista(missoes);
+    return count;
 }
 
 bool Inventario::possuiPocaoDeCura() const 
 {
-    return std::any_of(listaDeItens.begin(), listaDeItens.end(), [](Item* item) 
-    {
-        return item->obterNomeItem() == "Pocao de Cura (30%)";
+    return std::any_of(consumiveis.begin(), consumiveis.end(), [](const std::unique_ptr<Item>& item) {
+        return item->temPropriedade(Propriedade::ConsumivelCura);
     });
 }
 
@@ -243,4 +230,4 @@ void Inventario::adicionarOuro(int quantidadeAdicional)
 }
 
 int Inventario::obterOuro() const { return quantidadeDeOuro; }
-bool Inventario::estaVazio() const { return listaDeItens.empty(); }
+bool Inventario::estaVazio() const { return equipamentos.empty() && consumiveis.empty() && materiais.empty() && missoes.empty(); }

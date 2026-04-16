@@ -332,7 +332,7 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
             {
                 if (tituloDoMapaAtual == "FORJA DA VILA" && celulaDestinoDoMapa == 'B')
                 {
-                    NPCBjorn::interagir(jogadorAtual);
+                    NPCBjorn::interagir(*jogadorAtual);
                 }
                 else if (tituloDoMapaAtual == "CAVERNA DO ORK")
                 {
@@ -435,7 +435,7 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
             }
             else if (celulaDestinoDoMapa == 'F' && tituloDoMapaAtual == "LOJA DA VILA")
             {
-                NPCFranchesco::interagir(jogadorAtual);
+                NPCFranchesco::interagir(*jogadorAtual);
 
                 if (exploracaoEstaAtiva) {
                     Menu::limparTelaDoTerminal();

@@ -38,6 +38,10 @@
 #include "../Classes/ClasseGuerreiro.h"
 #include "../Classes/ClasseMago.h"
 
+// ==========================================
+// CONTROLE DE JANELA E TERMINAL
+// ==========================================
+
 void Menu::maximizarJanelaDoTerminal()
 {
 #ifdef _WIN32
@@ -69,6 +73,10 @@ void Menu::limparTelaDoTerminal()
     #endif
 }
 
+// ==========================================
+// CONTROLE DE INPUT
+// ==========================================
+
 void Menu::aguardarPressionamentoDeEnter() 
 {
     std::cout << "\nPressione Enter para continuar...";
@@ -85,6 +93,77 @@ void Menu::aguardarPressionamentoDeEnter()
     std::getline(std::cin, temp);
 #endif
 }
+
+void Menu::exibirLogoDoJogo(const std::string& tituloDaTela) 
+{
+#ifdef _WIN32
+    SetConsoleOutputCP(65001); 
+#endif
+    int larguraConsole = obterLarguraDoTerminalEmColunas();
+    
+    std::vector<std::string> logoTexto = 
+    {
+        "   █████████     ███████    ██████████   ██████████       ██████    █████  █████ ██████████  █████████  ███████████  ",
+        "  ███░░░░░███  ███░░░░░███ ░░███░░░░███ ░░███░░░░░█     ███░░░░███ ░░███  ░░███ ░░███░░░░░█ ███░░░░░███░█░░░███░░░█  ",
+        " ███     ░░░  ███     ░░███ ░███   ░░███ ░███  █ ░     ███    ░░███ ░███   ░███  ░███  █ ░ ░███    ░░░ ░   ░███  ░   ",
+        "░███         ░███      ░███ ░███    ░███ ░██████      ░███     ░███ ░███   ░███  ░██████   ░░█████████     ░███      ",
+        "░███         ░███      ░███ ░███    ░███ ░███░░█      ░███   ██░███ ░███   ░███  ░███░░█    ░░░░░░░░███    ░███      ",
+        "░░███     ███░░███     ███  ░███    ███  ░███ ░   █   ░░███ ░░████  ░███   ░███  ░███ ░   █ ███    ░███    ░███      ",
+        " ░░█████████  ░░░███████░   ██████████   ██████████    ░░░██████░██ ░░████████   ██████████░░█████████     █████     ",
+        "  ░░░░░░░░░     ░░░░░░░    ░░░░░░░░░░   ░░░░░░░░░░      ░░░░░░ ░░   ░░░░░░░░   ░░░░░░░░░░  ░░░░░░░░░     ░░░░░       "
+    };
+
+    std::vector<std::string> logoPlus = 
+    {
+       "                          ",
+       "     ███         ███      ",
+       "    ░███        ░███      ",
+       " ███████████ ███████████  ",
+       "░░░░░███░░░ ░░░░░███░░░   ",
+       "    ░███        ░███      ",
+       "    ░░░         ░░░       ",
+       "                          "               
+    };
+
+    std::cout << "\n" << std::string(larguraConsole, '=') << "\n\n";
+
+    int larguraLinhaCompleta = 140; 
+
+    for (size_t i = 0; i < logoTexto.size(); ++i) 
+    {
+        // Cálculo de recuo para centralizar a linha inteira
+        int recuo = (larguraConsole - larguraLinhaCompleta) / 2;
+        if (recuo < 0) recuo = 0;
+        std::cout << std::string(recuo, ' ');
+
+        // Imprime a parte principal (Branco/Padrão)
+        std::cout << logoTexto[i];
+
+        // Imprime o ++ (Laranja)
+        std::cout << "\x1b[38;5;208m" << logoPlus[i] << "\x1b[0m";
+
+        std::cout << "\n";
+    }
+
+    std::cout << "\n";
+    
+    // 4. IMPRESSÃO DO TÍTULO (Igual ao seu original)
+    if (tituloDaTela.empty()) 
+    {
+        std::cout << std::string(larguraConsole, '=') << "\n\n";
+    } 
+    else 
+    {
+        std::cout << std::string(larguraConsole, '=') << "\n";
+        int espacos = (larguraConsole - (int)tituloDaTela.length()) / 2;
+        std::cout << std::string(espacos > 0 ? espacos : 0, ' ') << tituloDaTela << "\n";
+        std::cout << std::string(larguraConsole, '=') << "\n\n";
+    }
+}
+
+// ==========================================
+// RENDERIZACAO DE TEXTO E UI
+// ==========================================
 
 void Menu::imprimirTextoComEfeitoDeDigitacao(const std::string& textoParaImprimir, int tempoDeEsperaEmMilissegundos)
 {
@@ -387,136 +466,4 @@ std::unique_ptr<Personagem> Menu::iniciarCriacaoDePersonagem()
     imprimirTextoComEfeitoDeDigitacao(" [SISTEMA]: Personagem criado com sucesso! Iniciando jornada...\n", 35);
     aguardarPressionamentoDeEnter();
     return personagemCriado;
-}
-
-void Menu::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>& listaDeInimigos) 
-{
-    if (listaDeInimigos.empty()) return;
-    int larguraTerminal = obterLarguraDoTerminalEmColunas();
-    // Pega a arte dinamicamente da raca do inimigo que esta sendo enfrentado
-    std::vector<std::string> arteDoInimigo = listaDeInimigos[0]->obterRaca()->obterAparenciaRaca();
-    int quantidadeTotalDeInimigosNaHorda = static_cast<int>(listaDeInimigos.size());
-    int larguraSeparadaParaCadaColuna = larguraTerminal / quantidadeTotalDeInimigosNaHorda; 
-
-    std::cout << std::string(larguraTerminal, '-') << "\n";
-    for (size_t indiceInimigo = 0; indiceInimigo < listaDeInimigos.size(); indiceInimigo++) 
-    {
-        std::string tagIdentificadoraDoInimigo = listaDeInimigos[indiceInimigo]->obterNome() + " [" + std::to_string(indiceInimigo) + "]";
-        int espacosParaCentralizarOId = (larguraSeparadaParaCadaColuna - (int)tagIdentificadoraDoInimigo.length()) / 2;
-        std::cout << std::string(espacosParaCentralizarOId > 0 ? espacosParaCentralizarOId : 0, ' ') << std::left << std::setw(larguraSeparadaParaCadaColuna - espacosParaCentralizarOId) << tagIdentificadoraDoInimigo;
-    }
-    std::cout << "\n";
-    for (size_t indiceInimigo = 0; indiceInimigo < listaDeInimigos.size(); indiceInimigo++) 
-    {
-        std::string valorDePontosDeVidaDoInimigo = "HP: " + std::to_string(listaDeInimigos[indiceInimigo]->obterVida()) + "/" + std::to_string(listaDeInimigos[indiceInimigo]->obterVidaMaxima());
-        int espacosParaCentralizarOHp = (larguraSeparadaParaCadaColuna - (int)valorDePontosDeVidaDoInimigo.length()) / 2;
-        std::cout << std::string(espacosParaCentralizarOHp > 0 ? espacosParaCentralizarOHp : 0, ' ') << std::left << std::setw(larguraSeparadaParaCadaColuna - espacosParaCentralizarOHp) << valorDePontosDeVidaDoInimigo;
-    }
-        std::cout << "\n";
-        
-        for (size_t indiceInimigo = 0; indiceInimigo < listaDeInimigos.size(); indiceInimigo++) 
-        {
-            std::vector<std::pair<std::string, std::string>> debuffs;
-            if (listaDeInimigos[indiceInimigo]->obterSangramento()) debuffs.push_back({"[Sangramento]", "\033[31m[Sangramento]\033[0m"});
-            if (listaDeInimigos[indiceInimigo]->obterLentidao()) debuffs.push_back({"[Lentidao]", "\033[35m[Lentidao]\033[0m"});
-            if (listaDeInimigos[indiceInimigo]->obterFraqueza()) debuffs.push_back({"[Fraqueza]", "\033[33m[Fraqueza]\033[0m"});
-            if (listaDeInimigos[indiceInimigo]->obterQuebraResistencia()) debuffs.push_back({"[Quebra Def.]", "\033[36m[Quebra Def.]\033[0m"});
-
-            std::string visualStr = "";
-            std::string printStr = "";
-            for (size_t i = 0; i < debuffs.size(); ++i) {
-                visualStr += debuffs[i].first;
-                printStr += debuffs[i].second;
-                if (i < debuffs.size() - 1) {
-                    visualStr += " ";
-                    printStr += " ";
-                }
-            }
-
-            int espacosEsquerda = (larguraSeparadaParaCadaColuna - (int)visualStr.length()) / 2;
-            if (espacosEsquerda < 0) espacosEsquerda = 0;
-            int espacosDireita = larguraSeparadaParaCadaColuna - espacosEsquerda - (int)visualStr.length();
-            if (espacosDireita < 0) espacosDireita = 0;
-            
-            std::cout << std::string(espacosEsquerda, ' ') << printStr << std::string(espacosDireita, ' ');
-        }
-        std::cout << "\n\n";
-        
-    for (size_t indiceDaLinhaDaArte = 0; indiceDaLinhaDaArte < arteDoInimigo.size(); indiceDaLinhaDaArte++) 
-    {
-        for (size_t indiceDoInimigoParaDesenhar = 0; indiceDoInimigoParaDesenhar < listaDeInimigos.size(); indiceDoInimigoParaDesenhar++) 
-        {
-            int espacosParaCentralizarAArte = (larguraSeparadaParaCadaColuna - (int)arteDoInimigo[indiceDaLinhaDaArte].length()) / 2;
-            std::cout << std::string(espacosParaCentralizarAArte > 0 ? espacosParaCentralizarAArte : 0, ' ') << std::left << std::setw(larguraSeparadaParaCadaColuna - espacosParaCentralizarAArte) << arteDoInimigo[indiceDaLinhaDaArte];
-        }
-        std::cout << "\n";
-    }
-    std::cout << std::string(larguraTerminal, '-') << "\n\n";
-}
-
-void Menu::exibirLogoDoJogo(const std::string& tituloDaTela) 
-{
-#ifdef _WIN32
-    SetConsoleOutputCP(65001); 
-#endif
-    int larguraConsole = obterLarguraDoTerminalEmColunas();
-    
-    std::vector<std::string> logoTexto = 
-    {
-        "   █████████     ███████    ██████████   ██████████       ██████    █████  █████ ██████████  █████████  ███████████  ",
-        "  ███░░░░░███  ███░░░░░███ ░░███░░░░███ ░░███░░░░░█     ███░░░░███ ░░███  ░░███ ░░███░░░░░█ ███░░░░░███░█░░░███░░░█  ",
-        " ███     ░░░  ███     ░░███ ░███   ░░███ ░███  █ ░     ███    ░░███ ░███   ░███  ░███  █ ░ ░███    ░░░ ░   ░███  ░   ",
-        "░███         ░███      ░███ ░███    ░███ ░██████      ░███     ░███ ░███   ░███  ░██████   ░░█████████     ░███      ",
-        "░███         ░███      ░███ ░███    ░███ ░███░░█      ░███   ██░███ ░███   ░███  ░███░░█    ░░░░░░░░███    ░███      ",
-        "░░███     ███░░███     ███  ░███    ███  ░███ ░   █   ░░███ ░░████  ░███   ░███  ░███ ░   █ ███    ░███    ░███      ",
-        " ░░█████████  ░░░███████░   ██████████   ██████████    ░░░██████░██ ░░████████   ██████████░░█████████     █████     ",
-        "  ░░░░░░░░░     ░░░░░░░    ░░░░░░░░░░   ░░░░░░░░░░      ░░░░░░ ░░   ░░░░░░░░   ░░░░░░░░░░  ░░░░░░░░░     ░░░░░       "
-    };
-
-    std::vector<std::string> logoPlus = 
-    {
-       "                          ",
-       "     ███         ███      ",
-       "    ░███        ░███      ",
-       " ███████████ ███████████  ",
-       "░░░░░███░░░ ░░░░░███░░░   ",
-       "    ░███        ░███      ",
-       "    ░░░         ░░░       ",
-       "                          "               
-    };
-
-    std::cout << "\n" << std::string(larguraConsole, '=') << "\n\n";
-
-    int larguraLinhaCompleta = 140; 
-
-    for (size_t i = 0; i < logoTexto.size(); ++i) 
-    {
-        // Cálculo de recuo para centralizar a linha inteira
-        int recuo = (larguraConsole - larguraLinhaCompleta) / 2;
-        if (recuo < 0) recuo = 0;
-        std::cout << std::string(recuo, ' ');
-
-        // Imprime a parte principal (Branco/Padrão)
-        std::cout << logoTexto[i];
-
-        // Imprime o ++ (Laranja)
-        std::cout << "\x1b[38;5;208m" << logoPlus[i] << "\x1b[0m";
-
-        std::cout << "\n";
-    }
-
-    std::cout << "\n";
-    
-    // 4. IMPRESSÃO DO TÍTULO (Igual ao seu original)
-    if (tituloDaTela.empty()) 
-    {
-        std::cout << std::string(larguraConsole, '=') << "\n\n";
-    } 
-    else 
-    {
-        std::cout << std::string(larguraConsole, '=') << "\n";
-        int espacos = (larguraConsole - (int)tituloDaTela.length()) / 2;
-        std::cout << std::string(espacos > 0 ? espacos : 0, ' ') << tituloDaTela << "\n";
-        std::cout << std::string(larguraConsole, '=') << "\n\n";
-    }
 }

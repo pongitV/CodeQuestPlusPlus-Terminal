@@ -80,10 +80,10 @@ void RacaSlime::realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, std
     }
 }
 
-void RacaSlime::aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCausado) {
-    if (!alvo->obterLentidao() && danoCausado > 0 && (std::rand() % 100) < 20) {
-        alvo->aplicarLentidaoEstatistica();
-        alvo->definirTurnosLentidao(3);
-        std::cout << "\033[35m>> O ataque de " << atacante->obterNome() << " espalhou gosma! " << alvo->obterNome() << " perdeu destreza! (3 turnos)\033[0m\n";
+void RacaSlime::aoCausarDano(Personagem& atacante, Personagem& alvo, int danoCausado) {
+    if (!alvo.obterLentidao() && danoCausado > 0 && (std::rand() % 100) < 20) {
+        alvo.aplicarLentidaoEstatistica();
+        alvo.definirTurnosLentidao(3);
+        std::cout << "\033[35m>> O ataque de " << atacante.obterNome() << " espalhou gosma! " << alvo.obterNome() << " perdeu destreza! (3 turnos)\033[0m\n";
     }
 }

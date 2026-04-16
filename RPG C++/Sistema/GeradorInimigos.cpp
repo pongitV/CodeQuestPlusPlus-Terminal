@@ -20,7 +20,7 @@ std::vector<std::unique_ptr<Personagem>> GeradorInimigos::criarInimigoGoblin(int
     std::vector<std::unique_ptr<Personagem>> horda;
     for (int i = 0; i < quantidade; ++i) {
         auto goblin = std::make_unique<Personagem>("Goblin", std::make_unique<RacaGoblin>(), std::make_unique<ClasseInimigoPadrao>());
-        auto adagaGoblin = std::make_unique<Arma>("Adaga artesanal de pedra", 6, 0);
+        auto adagaGoblin = std::make_unique<Arma>("Adaga artesanal de pedra", 6, 0, 5);
         Item* ptrAdaga = adagaGoblin.get();
         goblin->obterInventario()->adicionarItem(std::move(adagaGoblin));
         goblin->equiparItem(ptrAdaga);

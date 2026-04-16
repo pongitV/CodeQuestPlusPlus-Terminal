@@ -7,33 +7,29 @@
 class Arma : public Item 
 {
 private:
-    std::string nome;
     int danoFisico;
     int danoMagico;
     bool efeitoSangramento;
     bool efeitoLentidao;
 
 public:
-    Arma(std::string nome, int danoFisico, int danoMagico);
+    Arma(std::string nome, int danoFisico, int danoMagico, int precoVenda = 3);
     
-    std::string obterNomeItem() const override;
-    void alterarNome(const std::string& n) override;
     Raridade obterRaridade() const override;
     TipoEquipamento obterTipo() const override;
 
-    int obterDanoFisico() const override;
-    int obterDanoMagico() const override;
+    int obterDanoFisico() const { return danoFisico; }
+    int obterDanoMagico() const { return danoMagico; }
     
-    bool possuiEfeitoSangramento() const override;
-    bool possuiEfeitoLentidao() const override;
+    bool possuiEfeitoSangramento() const { return efeitoSangramento; }
+    bool possuiEfeitoLentidao() const { return efeitoLentidao; }
 
-    int obterPrecoVenda() const override;
     std::string obterInfoStatus() const override;
 
-    void aplicarEfeitoSangramento() override;
-    void aplicarEfeitoLentidao() override;
+    void aplicarEfeitoSangramento() { efeitoSangramento = true; }
+    void aplicarEfeitoLentidao() { efeitoLentidao = true; }
     
-    void antesDeCausarDano(Personagem* atacante, Personagem* alvo) override;
-    void aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCausado) override;
+    void antesDeCausarDano(Personagem& atacante, Personagem& alvo) override;
+    void aoCausarDano(Personagem& atacante, Personagem& alvo, int danoCausado) override;
     int garantirDanoMinimo(int danoFinal) override;
 };

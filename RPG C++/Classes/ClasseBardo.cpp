@@ -73,32 +73,34 @@ Atributos ClasseBardo::obterAtributosClasse() const
 std::vector<std::unique_ptr<Item>> ClasseBardo::obterEquipamentoClasse() const 
 {
     std::vector<std::unique_ptr<Item>> equipamentos;
-    equipamentos.push_back(std::make_unique<ItemConsumivel>("Pocao de Cura (30%)"));
-    equipamentos.push_back(std::make_unique<ItemConsumivel>("Pocao de Cura (30%)"));
-    equipamentos.push_back(std::make_unique<ItemConsumivel>("Pocao de Cura (30%)"));
+    for (int i = 0; i < 3; ++i) {
+        auto pocao = std::make_unique<ItemConsumivel>("Pocao de Cura (30%)", 6);
+        pocao->adicionarPropriedade(Propriedade::ConsumivelCura);
+        equipamentos.push_back(std::move(pocao));
+    }
     equipamentos.push_back(std::make_unique<Arma>("Violao encantado", 0, 10));
-    equipamentos.push_back(std::make_unique<Escudo>("Capa magica", 6, 10));
+    equipamentos.push_back(std::make_unique<Escudo>("Capa magica", 6, 10, 9));
     equipamentos.push_back(std::make_unique<Armadura>("Traje de Couro e tecido nobre", 4));
     return equipamentos;
 }
 
 std::string ClasseBardo::obterNomeHabilidadeClasse() const { return "Flashing lights"; }
 std::string ClasseBardo::obterDescricaoHabilidadeClasse() const { return "Cura 30% da vida perdida e pula o turno do inimigo. Recarga: 1 turno."; }
-void ClasseBardo::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*>& /*inimigos*/) 
+void ClasseBardo::usarHabilidadeClasse(Personagem& u, std::vector<Personagem*>& /*inimigos*/) 
 {
-    if (u->obterRecarga()) 
+    if (u.obterRecarga()) 
     {
         std::cout << "[SISTEMA]: Habilidade em recarga\n";
         return; 
     }
 
     // Cura 30% da vida perdida
-    int vidaPerdida = u->obterVidaMaxima() - u->obterVida();
+    int vidaPerdida = u.obterVidaMaxima() - u.obterVida();
     int cura = static_cast<int>(vidaPerdida * 0.3);
-    u->modificarVida(cura);
+    u.modificarVida(cura);
 
-    u->definirPularTurnoInimigo(true);
-    u->definirRecarga(true); // Ativa recarga para o proximo turno
+    u.definirPularTurnoInimigo(true);
+    u.definirRecarga(true); // Ativa recarga para o proximo turno
 
     std::cout << "[HABILIDADE]: !Flashing lights! Voce recuperou " << cura << " HP e encantou os inimigos, pulando o proximo turno.\n";
 }
