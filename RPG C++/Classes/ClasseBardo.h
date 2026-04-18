@@ -14,7 +14,7 @@ public:
     std::vector<std::unique_ptr<Item>> obterEquipamentoClasse() const override;
 
     // Criação e Definição da habilidade do Bardo: "Flashing Lights"
-    void usarHabilidadeClasse(Personagem* usuario, std::vector<Personagem*>& inimigos) override;
+    void usarHabilidadeClasse(Personagem& usuario, std::vector<Personagem*>& inimigos);
     std::string obterNomeHabilidadeClasse() const override;
     std::string obterDescricaoHabilidadeClasse() const override;
     

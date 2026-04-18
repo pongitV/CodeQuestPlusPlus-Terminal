@@ -31,7 +31,7 @@ public:
         // Implementação padrão vazia (sem drops)
     }
 
-    virtual void aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCausado) {}
+    virtual void aoCausarDano(Personagem& atacante, Personagem& alvo, int danoCausado) {}
 
 private:
 };

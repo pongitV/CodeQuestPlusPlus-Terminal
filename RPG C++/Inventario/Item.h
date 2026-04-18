@@ -45,11 +45,14 @@ class Personagem;
 class Item 
 {
 protected:
+    std::string nome;
+    int precoVenda;
     std::set<Propriedade> propriedades;
 public:
+    Item(std::string nome, int precoVenda = 3) : nome(nome), precoVenda(precoVenda) {}
 
     virtual ~Item() = default;
-    virtual std::string obterNomeItem() const = 0;
+    virtual std::string obterNomeItem() const { return nome; }
     virtual Raridade obterRaridade() const = 0;
     virtual TipoEquipamento obterTipo() const { return TipoEquipamento::NENHUM; }
     virtual int obterDanoFisico() const { return 0; }
@@ -59,7 +62,7 @@ public:
     virtual int obterReducaoDanoFixaEscudo() const { return 0; }
     virtual int obterDurabilidadeAtualEscudo() const { return 0; }
     
-    virtual void alterarNome(const std::string& n) {}
+    virtual void alterarNome(const std::string& n) { nome = n; }
     virtual bool possuiEfeitoSangramento() const { return false; }
     virtual bool possuiEfeitoLentidao() const { return false; }
     virtual void aplicarEfeitoSangramento() {}
@@ -68,11 +71,12 @@ public:
     virtual void reduzirDurabilidade(int qtd) {}
     virtual void aumentarDurabilidade(int qtd) {}
     
-    virtual void antesDeCausarDano(Personagem* atacante, Personagem* alvo) {}
-    virtual void aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCausado) {}
+    virtual void antesDeCausarDano(Personagem& atacante, Personagem& alvo) {}
+    virtual void aoCausarDano(Personagem& atacante, Personagem& alvo, int danoCausado) {}
     virtual int garantirDanoMinimo(int danoFinal) { return danoFinal; }
+    virtual bool aoUsar(Personagem& jogador) { return false; }
 
-    virtual int obterPrecoVenda() const { return 3; } // Preço padrão para a maioria dos itens
+    virtual int obterPrecoVenda() const { return precoVenda; }
     virtual std::string obterInfoStatus() const { return ""; } // Vazio por padrão para itens sem status extra
     
     virtual bool temPropriedade(Propriedade prop) const { return propriedades.find(prop) != propriedades.end(); }

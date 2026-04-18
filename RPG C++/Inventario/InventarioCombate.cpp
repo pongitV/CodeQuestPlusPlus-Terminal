@@ -61,63 +61,19 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
                             continue;
                         }
                     }
-                    else if (isBuff) 
+                    else if (isBuff || isTalisma || isPocao) 
                     {
-                        if (!turnoFoiConsumido) 
-                        {
+                        if (isBuff && !turnoFoiConsumido) {
                             std::cout << "\n[SISTEMA]: Pocoes de buff so podem ser usadas em combate!\n";
                             Menu::aguardarPressionamentoDeEnter();
                             continue;
                         }
-
-                        std::string nomeDoItemEncontrado = itemEncontrado->obterNomeItem();
-                        jogadorAtual->definirTurnosBuff(2); 
-                        jogadorAtual->definirMultiplicador(1.5);
-                        jogadorAtual->obterInventario()->removerItem(nomeDoItemEncontrado);
-                        std::cout << "\n[SISTEMA]: " << nomeDoItemEncontrado << " consumida! Atributos ampliados em 1.5x por 2 turnos!\n";
-                    }
-                    else if (isTalisma)
-                    {
-                        std::string nomeTalisma = itemEncontrado->obterNomeItem();
-                        if (itemEncontrado->temPropriedade(Propriedade::TalismaForca)) 
-                        {
-                            jogadorAtual->alterarAtributoEstatico("forca", 5);
-                            jogadorAtual->alterarAtributoEstatico("inteligencia", -5);
-                        } 
-                        else if (itemEncontrado->temPropriedade(Propriedade::TalismaInteligencia)) 
-                        {
-                            jogadorAtual->alterarAtributoEstatico("inteligencia", 5);
-                            jogadorAtual->alterarAtributoEstatico("forca", -5);
-                        } 
-                        else if (itemEncontrado->temPropriedade(Propriedade::TalismaDestreza)) 
-                        {
-                            jogadorAtual->alterarAtributoEstatico("destreza", 5);
-                            jogadorAtual->alterarAtributoEstatico("sabedoria", -5);
-                        } 
-                        else if (itemEncontrado->temPropriedade(Propriedade::TalismaSabedoria)) 
-                        {
-                            jogadorAtual->alterarAtributoEstatico("sabedoria", 5);
-                            jogadorAtual->alterarAtributoEstatico("destreza", -5);
-                        }
-                        std::cout << "\n[SISTEMA]: " << nomeTalisma << " consumido!\n";
-                        jogadorAtual->obterInventario()->removerItem(nomeTalisma);
-                    }
-                    else if (isPocao) 
-                    {
-                        if (jogadorAtual->obterVida() >= jogadorAtual->obterVidaMaxima()) 
-                        {
-                            std::cout << "\n[SISTEMA]: Sua vida ja esta cheia!\n";
-                            Menu::aguardarPressionamentoDeEnter();
-                            continue;
-                        }
-
-                        std::string nomeDoItemEncontrado = itemEncontrado->obterNomeItem(); 
-                        int quantidadeDeCura = static_cast<int>(jogadorAtual->obterVidaMaxima() * 0.30);
                         
-                        jogadorAtual->modificarVida(quantidadeDeCura); 
-                        jogadorAtual->obterInventario()->removerItem(nomeDoItemEncontrado);
-                        
-                        std::cout << "\n[SISTEMA]: " << nomeDoItemEncontrado << " usada! +" << quantidadeDeCura << " HP.\n";
+                        bool sucesso = itemEncontrado->aoUsar(*jogadorAtual);
+                        if (sucesso) {
+                            jogadorAtual->obterInventario()->removerItem(itemEncontrado->obterNomeItem());
+                            if (turnoFoiConsumido) *turnoFoiConsumido = true;
+                        }
                     } 
                     else if (itemEncontrado == jogadorAtual->obterArma()) 
                     {

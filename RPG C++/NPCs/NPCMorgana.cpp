@@ -12,7 +12,7 @@
 #include "../Inventario/Material.h"
 #include "../Interfaces/TelaInventario.h"
 
-void NPCMorgana::interagir(Personagem* jogadorAtual)
+void NPCMorgana::interagir(Personagem& jogadorAtual)
 {
     int larguraDoTerminal = Menu::obterLarguraDoTerminalEmColunas();
     std::string opcaoMorgana;
@@ -140,7 +140,7 @@ void NPCMorgana::interagir(Personagem* jogadorAtual)
                     else if (isCipos) { itemNecessario = "Coracao da floresta"; qtdNecessaria = 1; }
                     else if (isRaizes) { itemNecessario = "Madeira enfeiticada"; qtdNecessaria = 1; }
                     
-                    int qtdAtual = jogadorAtual->obterInventario()->contarItem(itemNecessario);
+                    int qtdAtual = jogadorAtual.obterInventario()->contarItem(itemNecessario);
                     if (qtdAtual < qtdNecessaria) 
                     {
                         std::cout << "\n[Morgana]: Voce nao tem " << itemNecessario << " suficiente! (Possui: " << qtdAtual << "/" << qtdNecessaria << ")\n";
@@ -149,12 +149,12 @@ void NPCMorgana::interagir(Personagem* jogadorAtual)
                     }
                     
                     std::string codigoArma;
-                    TelaInventario::exibir(jogadorAtual);
+                TelaInventario::exibir(&jogadorAtual);
                     std::cout << "\n[Morgana]: Escolha a ARMA para encantar ou [0] VOLTAR: ";
                     std::cin >> codigoArma;
                     if (codigoArma == "0") continue;
                     
-                    Item* itemEscolhido = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigoArma, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
+                    Item* itemEscolhido = jogadorAtual.obterInventario()->buscarItemPorCodigo(codigoArma, jogadorAtual.obterArma(), jogadorAtual.obterEscudo(), jogadorAtual.obterArmadura());
                     if (!itemEscolhido) { std::cout << "\n[SISTEMA]: Item invalido!\n"; Menu::aguardarPressionamentoDeEnter(); continue; }
                     
                     Arma* armaEscolhida = dynamic_cast<Arma*>(itemEscolhido);
@@ -173,7 +173,7 @@ void NPCMorgana::interagir(Personagem* jogadorAtual)
                     
                     std::string nomeAntigoArma = armaEscolhida->obterNomeItem();
 
-                    for (int i = 0; i < qtdNecessaria; ++i) jogadorAtual->obterInventario()->removerItem(itemNecessario);
+                for (int i = 0; i < qtdNecessaria; ++i) jogadorAtual.obterInventario()->removerItem(itemNecessario);
                     
                     if (isSangramento) { armaEscolhida->aplicarEfeitoSangramento(); armaEscolhida->alterarNome(armaEscolhida->obterNomeItem() + " (Sangrenta)"); }
                     else if (isLentidao) { armaEscolhida->aplicarEfeitoLentidao(); armaEscolhida->alterarNome(armaEscolhida->obterNomeItem() + " (Viscosa)"); }
@@ -191,11 +191,11 @@ void NPCMorgana::interagir(Personagem* jogadorAtual)
                         if (armaEscolhida->temPropriedade(Propriedade::Penetrante)) novoArco->adicionarPropriedade(Propriedade::Penetrante);
                         novoArco->adicionarPropriedade(Propriedade::Magica);
                         
-                        bool estavaEquipado = (jogadorAtual->obterArma() == armaEscolhida);
-                        if (estavaEquipado) jogadorAtual->desequiparArma();
-                        jogadorAtual->obterInventario()->removerItem(nomeAntigoArma);
-                        jogadorAtual->obterInventario()->adicionarItem(std::move(novoArcoObj));
-                        if (estavaEquipado) jogadorAtual->equiparItem(novoArco);
+                        bool estavaEquipado = (jogadorAtual.obterArma() == armaEscolhida);
+                        if (estavaEquipado) jogadorAtual.desequiparArma();
+                        jogadorAtual.obterInventario()->removerItem(nomeAntigoArma);
+                        jogadorAtual.obterInventario()->adicionarItem(std::move(novoArcoObj));
+                        if (estavaEquipado) jogadorAtual.equiparItem(novoArco);
                         armaEscolhida = novoArco; 
                     }
                     else if (isCipos) { std::string nome = armaEscolhida->obterNomeItem(); size_t pos = nome.find("Cajado"); if (pos != std::string::npos) nome.replace(pos, 6, "Cajado de cipos"); armaEscolhida->alterarNome(nome); armaEscolhida->adicionarPropriedade(Propriedade::CipoPrisao); }
@@ -239,7 +239,7 @@ void NPCMorgana::interagir(Personagem* jogadorAtual)
             do {
                 Menu::limparTelaDoTerminal();
                 Menu::exibirLogoDoJogo(titulo);
-                std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
+                std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual.obterInventario()->obterOuro() << "G\n\n";
 
                 if (isBuff) 
                 {
@@ -257,9 +257,9 @@ void NPCMorgana::interagir(Personagem* jogadorAtual)
                 if (opcaoCompra >= "1" && opcaoCompra <= "2") 
                 {
                     int preco = (isBuff ? 25 : 30);
-                    if (jogadorAtual->obterInventario()->obterOuro() >= preco) 
+                    if (jogadorAtual.obterInventario()->obterOuro() >= preco) 
                     {
-                        jogadorAtual->obterInventario()->adicionarOuro(-preco);
+                        jogadorAtual.obterInventario()->adicionarOuro(-preco);
                         std::unique_ptr<Item> novoItem = nullptr;
                         if (isBuff) 
                         {
@@ -285,7 +285,7 @@ void NPCMorgana::interagir(Personagem* jogadorAtual)
                         if (novoItem) 
                         {
                             std::string nomeDoNovoItem = novoItem->obterNomeItem();
-                            jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
+                            jogadorAtual.obterInventario()->adicionarItem(std::move(novoItem));
                             std::cout << "\n" << margemMsg << "[Morgana]: Heehee... Use com sabedoria! " << nomeDoNovoItem << " adicionado.\n";
                         }
                     } 

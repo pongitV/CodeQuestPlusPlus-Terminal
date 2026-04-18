@@ -323,7 +323,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
             }
             else if (celulaDestinoDoMapa == 'M') 
             {
-                NPCMorgana::interagir(jogadorAtual);
+                NPCMorgana::interagir(*jogadorAtual);
 
                 if (exploracaoEstaAtiva) {
                     Menu::limparTelaDoTerminal();
