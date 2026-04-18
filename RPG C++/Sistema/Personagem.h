@@ -109,6 +109,16 @@ protected:
     bool parryAtivado;        // Controle do sistema de Parry
     int dificuldadeAtual;     // 1 = Facil, 2 = Normal, 3 = Dificil
 
+    int cooldownHab1;
+    int cooldownHab2;
+    int cooldownHab3;
+    bool habilidadeCancelada;
+    bool recebendoMetadeDano;
+    int turnosMetadeDano;
+    int turnosGrito;
+    int bonusForcaGrito;
+    int bonusDestrezaGrito;
+
     double multiplicadorAtual;  // Para buffs temporarios
 
     Item* arma;    
@@ -136,7 +146,12 @@ public:
     int obterVida() const { return vidaAtual; }
     int obterVidaMaxima() const { return statsFinais.vida; }
     int obterForca() const { return statsFinais.forca; }
-    int obterDestreza() const { return statsFinais.destreza; }
+    int obterDestreza() const { 
+        int penalidade = armadura ? (armadura->obterReducaoFixa() / 3) : 0;
+        if (obterNomeClasse() == "Arqueiro") penalidade /= 2;
+        int destrezaFinal = statsFinais.destreza - penalidade;
+        return destrezaFinal > 0 ? destrezaFinal : 0; 
+    }
     int obterResistencia() const { return statsFinais.resistencia; }
     int obterConstituicao() const { return statsFinais.constituicao; }
     int obterInteligencia() const { return statsFinais.inteligencia; }
@@ -168,7 +183,13 @@ public:
     void definirXpRecompensa(int valor) { xpRecompensa = valor; }
     int obterXpRecompensa() const { return xpRecompensa; }
 
-    void definirMultiplicador(double m) { multiplicadorAtual = m; }
+    void definirMultiplicador(double m) { 
+        if (m > 1.0 && obterNomeClasse() == "Bardo") {
+            multiplicadorAtual = 1.0 + (m - 1.0) * 1.4;
+        } else {
+            multiplicadorAtual = m; 
+        }
+    }
     double obterMultiplicador() const { return multiplicadorAtual; }
 
     bool podeUsarRessurreicao() const { return podeReviver; }
@@ -183,6 +204,27 @@ public:
     void definirPularTurnoInimigo(bool p) { pularTurnoInimigo = p; }
     bool obterPularTurnoInimigo() const { return pularTurnoInimigo; }
     
+    int obterCooldownHab1() const { return cooldownHab1; }
+    void definirCooldownHab1(int v) { cooldownHab1 = v; }
+    int obterCooldownHab2() const { return cooldownHab2; }
+    void definirCooldownHab2(int v) { cooldownHab2 = v; }
+    int obterCooldownHab3() const { return cooldownHab3; }
+    void definirCooldownHab3(int v) { cooldownHab3 = v; }
+    
+    bool obterHabilidadeCancelada() const { return habilidadeCancelada; }
+    void definirHabilidadeCancelada(bool v) { habilidadeCancelada = v; }
+    bool obterRecebendoMetadeDano() const { return recebendoMetadeDano; }
+    void definirRecebendoMetadeDano(bool v) { recebendoMetadeDano = v; }
+    int obterTurnosMetadeDano() const { return turnosMetadeDano; }
+    void definirTurnosMetadeDano(int v) { turnosMetadeDano = v; }
+    
+    int obterTurnosGrito() const { return turnosGrito; }
+    void definirTurnosGrito(int v) { turnosGrito = v; }
+    int obterBonusForcaGrito() const { return bonusForcaGrito; }
+    int obterBonusDestrezaGrito() const { return bonusDestrezaGrito; }
+    void definirBonusGrito(int f, int d) { bonusForcaGrito = f; bonusDestrezaGrito = d; }
+    void reduzirCooldowns();
+
     void definirSangramento(bool s) { sofrendoSangramento = s; }
     bool obterSangramento() const { return sofrendoSangramento; }
     void definirTurnosSangramento(int t) { turnosSangramento = t; }

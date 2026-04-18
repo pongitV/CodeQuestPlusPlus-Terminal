@@ -140,8 +140,12 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
                         std::cout << "\n[SISTEMA]: " << itemEncontrado->obterNomeItem() << " equipado(a)!\n";
                     }
                     
+                    if (turnoFoiConsumido) 
+                    {
+                        *turnoFoiConsumido = true;
+                        std::cout << "[SISTEMA]: Turno gasto usando um consumivel...\n";
+                    }
                     Menu::aguardarPressionamentoDeEnter();
-                    if (turnoFoiConsumido) *turnoFoiConsumido = true;
                 }
                 else 
                 {

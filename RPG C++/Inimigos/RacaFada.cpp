@@ -6,7 +6,7 @@
 #include "../Inventario/Material.h"
 
 std::string RacaFada::obterNomeRaca() const { return "Fada"; }
-Atributos RacaFada::obterAtributosRaca() const { return { -70, 0, 15, 0, 0, 10, 30 }; }
+Atributos RacaFada::obterAtributosRaca() const { return { -50, 0, 30, 2, 5, 10, 10 }; }
 std::string RacaFada::obterNomeHabilidadeRaca() const { return "Nenhuma"; }
 std::string RacaFada::obterDescricaoHabilidadeRaca() const { return "Monstros nao possuem passivas"; }
 

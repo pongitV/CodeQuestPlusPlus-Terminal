@@ -6,7 +6,7 @@
 #include "../Inventario/Armadura.h"
 
 std::string RacaOrkExilado::obterNomeRaca() const { return "Ork [exilado]"; }
-Atributos RacaOrkExilado::obterAtributosRaca() const { return { 80, 20, 5, 10, 12, -10, -8 }; }
+Atributos RacaOrkExilado::obterAtributosRaca() const { return { 200, 25, 10, 15, 20, 0, 0 }; }
 
 std::vector<std::string> RacaOrkExilado::obterAparenciaRaca() const
 {

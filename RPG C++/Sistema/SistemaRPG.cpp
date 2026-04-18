@@ -65,9 +65,21 @@ void SistemaRPG::iniciarCombate()
     // Destreza decide quem ataca primeiro no combate
     if (maxDestrezaInimigos > jogadorAtual->obterDestreza()) 
     {
+        std::string tituloDoCombate = "EM COMBATE (";
+        for (size_t indice = 0; indice < listaDeInimigos.size(); ++indice) {
+            tituloDoCombate += listaDeInimigos[indice]->obterNome();
+            if (indice < listaDeInimigos.size() - 1) tituloDoCombate += ", ";
+        }
+        tituloDoCombate += ")";
+
         Menu::limparTelaDoTerminal();
-        TelaCombate::exibirLogoParaTelaDeCombate("EM COMBATE");
-        std::cout << "\n[SISTEMA]: Os inimigos sao mais ageis e atacam primeiro!\n";
+        TelaCombate::exibirLogoParaTelaDeCombate(tituloDoCombate);
+        std::vector<Personagem*> inimigosRaw;
+        for (auto& ini : listaDeInimigos) inimigosRaw.push_back(ini.get());
+        Menu::exibirHordaDeInimigosLadoALado(inimigosRaw);
+        TelaCombate::exibirBarraDeStatusDoJogador(jogadorAtual); 
+
+        std::cout << "\n\033[31m[SISTEMA]: Os inimigos sao mais ageis e atacam primeiro!\033[0m\n";
         Menu::aguardarPressionamentoDeEnter();
         executarTurnoDeTodosOsInimigos();
         if (verificarCondicaoDeVitoriaOuDerrota()) return;
@@ -76,6 +88,7 @@ void SistemaRPG::iniciarCombate()
     while (jogadorAtual->obterVida() > 0 && !listaDeInimigos.empty()) 
     {
         // --- PROCESSAMENTO DE DEBUFFS DO JOGADOR NO INICIO DO TURNO ---
+        jogadorAtual->reduzirCooldowns();
         if (jogadorAtual->obterSangramento()) 
         {
             int danoSangramento = std::max(1, jogadorAtual->obterVidaMaxima() / 10);
@@ -109,6 +122,7 @@ void SistemaRPG::iniciarCombate()
         // --- FIM DO PROCESSAMENTO DE DEBUFFS ---
 
         bool turnoFoiConsumido = false;
+        bool usouInventarioNoTurno = false;
 
         while (!turnoFoiConsumido) 
         {
@@ -206,15 +220,25 @@ void SistemaRPG::iniciarCombate()
                 std::vector<Personagem*> alvosRaw;
                 for (auto& ini : listaDeInimigos) alvosRaw.push_back(ini.get());
 
+                jogadorAtual->definirHabilidadeCancelada(false);
                 jogadorAtual->obterClasse()->usarHabilidadeClasse(jogadorAtual, alvosRaw);
                 
+                if (jogadorAtual->obterHabilidadeCancelada()) {
+                    break; // Volta pro menu principal da batalha sem gastar o turno
+                }
+
                 if (jogadorAtual->habilidadeDaClasseConsomeTurno()) turnoFoiConsumido = true;
                 else Menu::aguardarPressionamentoDeEnter();
                 break;
             }
             case 4: // --- 4. INVENTARIO ---
             {
-                InventarioCombate::gerenciarInventario(jogadorAtual, &turnoFoiConsumido);
+                bool inventarioConsumiu = false;
+                InventarioCombate::gerenciarInventario(jogadorAtual, &inventarioConsumiu);
+                if (inventarioConsumiu) {
+                    turnoFoiConsumido = true;
+                    usouInventarioNoTurno = true;
+                }
                 if (jogadorAtual->obterItemSelecionadoParaUso() != nullptr) 
                 {
                     Item* frasco = jogadorAtual->obterItemSelecionadoParaUso();
@@ -251,6 +275,7 @@ void SistemaRPG::iniciarCombate()
                         jogadorAtual->obterInventario()->removerItem(nomeFrasco);
                         jogadorAtual->definirItemSelecionadoParaUso(nullptr);
                         turnoFoiConsumido = true;
+                        usouInventarioNoTurno = true;
                     }
                     Menu::aguardarPressionamentoDeEnter();
                 }
@@ -274,6 +299,25 @@ void SistemaRPG::iniciarCombate()
             Menu::aguardarPressionamentoDeEnter();
             turnoExtraFirstTurn = false;
             continue; // Pula o turno inimigo e permite que o jogador jogue o turno novamente
+        }
+
+        if (usouInventarioNoTurno) 
+        {
+            std::string tituloDoCombate = "EM COMBATE (";
+            for (size_t indice = 0; indice < listaDeInimigos.size(); ++indice) {
+                tituloDoCombate += listaDeInimigos[indice]->obterNome();
+                if (indice < listaDeInimigos.size() - 1) tituloDoCombate += ", ";
+            }
+            tituloDoCombate += ")";
+
+            Menu::limparTelaDoTerminal();
+            TelaCombate::exibirLogoParaTelaDeCombate(tituloDoCombate);
+            std::vector<Personagem*> inimigosRaw;
+            for (auto& ini : listaDeInimigos) inimigosRaw.push_back(ini.get());
+            Menu::exibirHordaDeInimigosLadoALado(inimigosRaw);
+            TelaCombate::exibirBarraDeStatusDoJogador(jogadorAtual); 
+            
+            std::cout << "\n\033[33m[SISTEMA]: O inimigo te pegou desprevinido enquanto voce usava o inventario!\033[0m\n";
         }
 
         executarTurnoDeTodosOsInimigos();
@@ -371,6 +415,29 @@ void SistemaRPG::executarTurnoDeTodosOsInimigos()
         }
     }
 
+    if (jogadorAtual->obterTurnosMetadeDano() > 0) 
+    {
+        jogadorAtual->definirTurnosMetadeDano(jogadorAtual->obterTurnosMetadeDano() - 1);
+        
+        if (jogadorAtual->obterTurnosMetadeDano() <= 0) 
+        {
+            jogadorAtual->definirRecebendoMetadeDano(false);
+            std::cout << "\n[SISTEMA]: O efeito de protecao (Through the wire) expirou!\n";
+        }
+    }
+
+    if (jogadorAtual->obterTurnosGrito() > 0) 
+    {
+        jogadorAtual->definirTurnosGrito(jogadorAtual->obterTurnosGrito() - 1);
+        if (jogadorAtual->obterTurnosGrito() <= 0) 
+        {
+            jogadorAtual->alterarAtributoEstatico("forca", -jogadorAtual->obterBonusForcaGrito());
+            jogadorAtual->alterarAtributoEstatico("destreza", -jogadorAtual->obterBonusDestrezaGrito());
+            jogadorAtual->definirBonusGrito(0, 0);
+            std::cout << "\n[SISTEMA]: O Grito de Guerra expirou e seus atributos voltaram ao normal!\n";
+        }
+    }
+
     if (jogadorAtual->obterRecarga()) jogadorAtual->definirRecarga(false);
     Menu::aguardarPressionamentoDeEnter();
 }
@@ -433,6 +500,21 @@ void SistemaRPG::realizarAtaqueFisico(Personagem* personagemAtacante, Personagem
         danoBaseCalculado = personagemAtacante->obterRaca()->processarDanoOfensivo(danoBaseCalculado, personagemAtacante);
     }
 
+    if (personagemAtacante->obterNomeClasse() == "Guerreiro" && personagemDefensor != nullptr) 
+    {
+        double percVida = (double)personagemDefensor->obterVida() / personagemDefensor->obterVidaMaxima();
+        if (percVida < 0.10) {
+            danoBaseCalculado = static_cast<int>(danoBaseCalculado * 1.30);
+            std::cout << "\033[31m[Golpe Decisivo]: O inimigo esta nas ultimas! Dano aumentado em 30%!\033[0m\n";
+        } else if (percVida < 0.20) {
+            danoBaseCalculado = static_cast<int>(danoBaseCalculado * 1.20);
+            std::cout << "\033[31m[Golpe Decisivo]: O inimigo esta gravemente ferido! Dano aumentado em 20%!\033[0m\n";
+        } else if (percVida < 0.30) {
+            danoBaseCalculado = static_cast<int>(danoBaseCalculado * 1.10);
+            std::cout << "\033[31m[Golpe Decisivo]: O inimigo esta ferido! Dano aumentado em 10%!\033[0m\n";
+        }
+    }
+
     if (personagemAtacante->obterTipoAtaque() == TipoAtaque::AREA && !listaDeInimigos.empty()) 
     {
         int danoDivididoParaArea = danoBaseCalculado / static_cast<int>(listaDeInimigos.size());
@@ -442,8 +524,46 @@ void SistemaRPG::realizarAtaqueFisico(Personagem* personagemAtacante, Personagem
     } 
     else if (personagemDefensor != nullptr) 
     {
-        std::cout << personagemAtacante->obterNome() << " ataca " << personagemDefensor->obterNome() << "!" << std::endl;
-        aplicarDanoAoAlvo(personagemAtacante, personagemDefensor, danoBaseCalculado, turnoAtualDoCombate);
+        if (personagemAtacante->obterNomeClasse() == "Mago") 
+        {
+            if (personagemAtacante == jogadorAtual) 
+            {
+                if (listaDeInimigos.size() == 1) {
+                    danoBaseCalculado = static_cast<int>(danoBaseCalculado * 1.25);
+                    std::cout << "\033[35m[Foco Arcano]: Dano concentrado em alvo unico aumentado em 25%!\033[0m\n";
+                    std::cout << personagemAtacante->obterNome() << " ataca " << personagemDefensor->obterNome() << "!" << std::endl;
+                    aplicarDanoAoAlvo(personagemAtacante, personagemDefensor, danoBaseCalculado, turnoAtualDoCombate);
+                } else {
+                    std::cout << personagemAtacante->obterNome() << " ataca " << personagemDefensor->obterNome() << "!" << std::endl;
+                    aplicarDanoAoAlvo(personagemAtacante, personagemDefensor, danoBaseCalculado, turnoAtualDoCombate);
+                    
+                    int danoArea = static_cast<int>(danoBaseCalculado * 0.25);
+                    int perfuranteArea = static_cast<int>(danoMagicoPerfuranteAtual * 0.25);
+                    std::cout << "\033[35m[Foco Arcano]: A magia ressoa, causando " << danoArea << " de dano aos inimigos proximos!\033[0m\n";
+                    
+                    int perfuranteBackup = danoMagicoPerfuranteAtual;
+                    danoMagicoPerfuranteAtual = perfuranteArea;
+                    for (auto& inimigoAtualPtr : listaDeInimigos) {
+                        if (inimigoAtualPtr.get() != personagemDefensor && inimigoAtualPtr->obterVida() > 0) {
+                            aplicarDanoAoAlvo(personagemAtacante, inimigoAtualPtr.get(), danoArea, turnoAtualDoCombate);
+                        }
+                    }
+                    danoMagicoPerfuranteAtual = perfuranteBackup;
+                }
+            } 
+            else 
+            {
+                danoBaseCalculado = static_cast<int>(danoBaseCalculado * 1.25);
+                std::cout << "\033[35m[Foco Arcano]: Dano concentrado do Mago aumentado em 25%!\033[0m\n";
+                std::cout << personagemAtacante->obterNome() << " ataca " << personagemDefensor->obterNome() << "!" << std::endl;
+                aplicarDanoAoAlvo(personagemAtacante, personagemDefensor, danoBaseCalculado, turnoAtualDoCombate);
+            }
+        }
+        else
+        {
+            std::cout << personagemAtacante->obterNome() << " ataca " << personagemDefensor->obterNome() << "!" << std::endl;
+            aplicarDanoAoAlvo(personagemAtacante, personagemDefensor, danoBaseCalculado, turnoAtualDoCombate);
+        }
     }
 }
 
@@ -460,15 +580,18 @@ void SistemaRPG::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* p
 
     int danoBaseMitigado = personagemAlvo->calcularDefesaBase(quantidadeDeDanoBruto, danoMagicoPerfuranteAtual);
     int quantidadeDeDanoReduzidoPeloParry = 0;
+    bool tentouParry = false;
+    bool parryFoiBemSucedido = false;
 
     // Logica do Parry
     if (personagemAlvo == jogadorAtual && jogadorAtual->obterParryAtivado()) 
     {
+        tentouParry = true;
         int quantidadeDeNumerosDoParry = std::max(1, danoBaseMitigado / 4);
         int destrezaDoAtacante = std::max(1, personagemAtacante->obterDestreza());
         int tempoLimiteParaParryEmSegundos = std::max(1, 60 / destrezaDoAtacante);
 
-        bool parryFoiBemSucedido = executarSistemaDeParry(quantidadeDeNumerosDoParry, tempoLimiteParaParryEmSegundos, quantidadeDeDanoReduzidoPeloParry);
+        parryFoiBemSucedido = executarSistemaDeParry(quantidadeDeNumerosDoParry, tempoLimiteParaParryEmSegundos, quantidadeDeDanoReduzidoPeloParry);
         if (parryFoiBemSucedido) 
         {
             // Aplica o limite de 50% de reducao do dano (com um minimo de 1 para danos baixos)
@@ -476,24 +599,34 @@ void SistemaRPG::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* p
             if (quantidadeDeDanoReduzidoPeloParry > limiteMaximoDeReducaoPeloParry) {
                 quantidadeDeDanoReduzidoPeloParry = limiteMaximoDeReducaoPeloParry;
             }
-
-            if (danoBaseMitigado - quantidadeDeDanoReduzidoPeloParry <= 0) {
-                std::cout << ">> [PARRY]: Parry perfeito, reducao total!\n";
-            } else {
-                std::cout << ">> [PARRY]: Parry efetivo, dano reduzido em " << quantidadeDeDanoReduzidoPeloParry << "\n";
-            }
         }
         else 
         {
             quantidadeDeDanoReduzidoPeloParry = 0;
-            std::cout << ">> [PARRY]: FALHA! A defesa falhou!\n";
         }
     }
 
     bool aplicarPassivas = (personagemAlvo == jogadorAtual || jogadorAtual->obterDificuldade() >= 2);
     int danoFinalAposReducoes = personagemAlvo->receberDano(quantidadeDeDanoBruto, danoMagicoPerfuranteAtual, quantidadeDeDanoReduzidoPeloParry, personagemAtacante, aplicarPassivas);
 
-    if (danoFinalAposReducoes > 0) 
+    if (personagemAlvo == jogadorAtual && tentouParry) 
+    {
+        if (parryFoiBemSucedido) 
+        {
+            if (danoFinalAposReducoes <= 1) {
+                std::cout << "\033[41m>> [PARRY]: parry efetivo! Ataque anulado! Inimigo causou " << danoFinalAposReducoes << " de dano\033[0m\n";
+            } else {
+                std::cout << "\033[41m>> [PARRY]: parry efetivo! Mas o ataque e muito forte! Inimigo causou " << danoFinalAposReducoes << " de dano\033[0m\n";
+            }
+        } 
+        else 
+        {
+            std::cout << "\033[41m>> [PARRY]: parry falhou! Inimigo causou " << danoFinalAposReducoes << " de dano\033[0m\n";
+        }
+        
+        if (danoFinalAposReducoes > 0) totalDeDanoRecebido += danoFinalAposReducoes;
+    }
+    else if (danoFinalAposReducoes > 0) 
     {
         if (personagemAlvo == jogadorAtual) 
         {
@@ -503,7 +636,14 @@ void SistemaRPG::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* p
             totalDeDanoCausado += danoFinalAposReducoes;
             std::cout << ">> " << personagemAlvo->obterNome() << " recebeu " << danoFinalAposReducoes << " de dano" << std::endl;
         }
-        
+    }
+    else if (danoFinalAposReducoes == 0 && personagemAlvo->obterDefendendo()) 
+    {
+        std::cout << ">> O dano foi totalmente absorvido pelo seu parry!" << std::endl;
+    }
+
+    if (danoFinalAposReducoes > 0) 
+    {
         // Aplicação dos efeitos no acerto
         if (personagemAtacante->obterArma()) 
         {
@@ -511,10 +651,6 @@ void SistemaRPG::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* p
         }
 
         personagemAtacante->obterRaca()->aoCausarDano(personagemAtacante, personagemAlvo, danoFinalAposReducoes);
-    }
-    else if (danoFinalAposReducoes == 0 && personagemAlvo->obterDefendendo()) 
-    {
-        std::cout << ">> O dano foi totalmente absorvido pela sua defesa!" << std::endl;
     }
 }
 

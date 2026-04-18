@@ -66,7 +66,7 @@ std::vector<std::string> ClasseArqueiro::obterAparenciaClasseMenu() const
 Atributos ClasseArqueiro::obterAtributosClasse() const
 {
     // Ordem: { Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria }
-    return { 0, 10, 20, 2, 10, 5, 5 };
+    return { 0, 10, 20, 3, 10, 5, 5 };
 }
 
 std::vector<std::unique_ptr<Item>> ClasseArqueiro::obterEquipamentoClasse() const 
@@ -87,6 +87,7 @@ void ClasseArqueiro::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*
     if (u->obterRecarga()) 
     {
         std::cout << "[SISTEMA]: Habilidade em recarga\n";
+        u->definirHabilidadeCancelada(true);
         return;
     }
     u->definirInviolavel(true);

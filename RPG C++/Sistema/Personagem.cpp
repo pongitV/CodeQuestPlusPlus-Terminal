@@ -44,6 +44,16 @@ Personagem::Personagem(std::string nome, std::unique_ptr<RacaBase> r, std::uniqu
     this->parryAtivado = false;
     this->dificuldadeAtual = 2; // Padrao: Normal
 
+    this->cooldownHab1 = 0;
+    this->cooldownHab2 = 0;
+    this->cooldownHab3 = 0;
+    this->habilidadeCancelada = false;
+    this->recebendoMetadeDano = false;
+    this->turnosMetadeDano = 0;
+    this->turnosGrito = 0;
+    this->bonusForcaGrito = 0;
+    this->bonusDestrezaGrito = 0;
+
     auto kit = this->classe->obterEquipamentoClasse();
     for (auto& itemUnique : kit) 
     {
@@ -51,6 +61,15 @@ Personagem::Personagem(std::string nome, std::unique_ptr<RacaBase> r, std::uniqu
         this->mochila->adicionarItem(std::move(itemUnique)); 
         this->equiparItem(ptr);            
     }
+
+    auto kitRaca = this->raca->obterEquipamentoRaca();
+    for (auto& itemUnique : kitRaca) 
+    {
+        Item* ptr = itemUnique.get();
+        this->mochila->adicionarItem(std::move(itemUnique)); 
+        this->equiparItem(ptr);            
+    }
+
     calcularAtributos();
 
     this->podeReviver = true; // Habilidade de raça "Espirito indomavel" ativa por padrão
@@ -103,6 +122,12 @@ void Personagem::alterarAtributoEstatico(const std::string& atributo, int valor)
     if (statsFinais.sabedoria < 0) statsFinais.sabedoria = 0;
 }
 
+void Personagem::reduzirCooldowns() {
+    if (cooldownHab1 > 0) cooldownHab1--;
+    if (cooldownHab2 > 0) cooldownHab2--;
+    if (cooldownHab3 > 0) cooldownHab3--;
+}
+
 void Personagem::calcularAtributos() 
 {
     this->statsFinais.calcularAtributos(raca->obterAtributosRaca());
@@ -125,6 +150,10 @@ void Personagem::aplicarMultiplicadorDificuldade(double mult)
 
 void Personagem::modificarVida(int valor) 
 {
+    if (valor > 0 && obterNomeClasse() == "Bardo") {
+        valor = static_cast<int>(valor * 1.4);
+    }
+
     this->vidaAtual += valor;
     if (this->vidaAtual < 0) this->vidaAtual = 0;
     if (this->vidaAtual > statsFinais.vida) this->vidaAtual = statsFinais.vida;
@@ -134,7 +163,11 @@ void Personagem::aplicarLentidaoEstatistica()
 {
     if (!sofrendoLentidao) 
     {
-        statsFinais.destreza /= 2;
+        if (obterNomeClasse() == "Arqueiro") {
+            statsFinais.destreza = (statsFinais.destreza * 3) / 4; // 25% em vez de 50%
+        } else {
+            statsFinais.destreza /= 2;
+        }
         sofrendoLentidao = true;
     }
 }
@@ -143,7 +176,11 @@ void Personagem::removerLentidaoEstatistica()
 {
     if (sofrendoLentidao)
     {
-        statsFinais.destreza *= 2;
+        if (obterNomeClasse() == "Arqueiro") {
+            statsFinais.destreza = (statsFinais.destreza * 4) / 3;
+        } else {
+            statsFinais.destreza *= 2;
+        }
         sofrendoLentidao = false;
     }
 }
@@ -239,6 +276,11 @@ int Personagem::calcularDefesaBase(int danoBruto, int danoPerfurante) const {
 
 int Personagem::receberDano(int danoBruto, int danoPerfurante, int danoReduzidoParry, Personagem* atacante, bool aplicarPassivas) {
     int danoFinal = calcularDefesaBase(danoBruto, danoPerfurante);
+
+    if (recebendoMetadeDano) {
+        danoFinal /= 2;
+        std::cout << "\033[36m>> [EFEITO]: O dano foi reduzido pela metade! (Through the wire)\033[0m\n";
+    }
 
     danoFinal -= danoReduzidoParry;
     if (danoFinal < 0) danoFinal = 0;

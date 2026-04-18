@@ -4,11 +4,19 @@
 #include "../Sistema/Personagem.h"
 #include "../Inventario/Item.h"
 #include "../Inventario/Material.h"
+#include "../Inventario/Arma.h"
+#include <memory>
 
 std::string RacaSlime::obterNomeRaca() const { return "Slime"; }
-Atributos RacaSlime::obterAtributosRaca() const { return { -40, 10, 2, 8, 10, -15, -10 }; }
+Atributos RacaSlime::obterAtributosRaca() const { return { -20, 15, 5, 10, 15, 0, 0 }; }
 std::string RacaSlime::obterNomeHabilidadeRaca() const { return "Toque Gosmento"; }
 std::string RacaSlime::obterDescricaoHabilidadeRaca() const { return "Ataques tem 20% de chance de causar Lentidao"; }
+
+std::vector<std::unique_ptr<Item>> RacaSlime::obterEquipamentoRaca() const {
+    std::vector<std::unique_ptr<Item>> equipamentos;
+    equipamentos.push_back(std::make_unique<Arma>("Gosma acida", 2, 7));
+    return equipamentos;
+}
 
 std::vector<std::string> RacaSlime::obterAparenciaRaca() const
 {

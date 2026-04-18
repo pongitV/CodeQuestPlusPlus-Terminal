@@ -53,24 +53,41 @@ void TelaAtributos::exibir(Personagem* jogadorAtual)
     std::cout << margem << "NOME:           " << jogadorAtual->obterNome() << "\n";
     std::cout << margem << "RACA:           " << jogadorAtual->obterRaca()->obterNomeRaca() << "\n";
     std::cout << margem << "CLASSE:         " << jogadorAtual->obterNomeClasse() << "\n";
-    std::cout << margem << "NIVEL:          " << jogadorAtual->obterNivel() << " (XP: " << jogadorAtual->obterXpAtual() << " / " << jogadorAtual->obterXpParaSubir() << ")\n";
-    std::cout << margem << "DIFICULDADE:    " << (jogadorAtual->obterDificuldade() == 1 ? "Facil" : (jogadorAtual->obterDificuldade() == 2 ? "Normal" : "Dificil")) << "\n";
+    std::cout << margem << "NIVEL:          " << jogadorAtual->obterNivel() << " (XP: \033[34m" << jogadorAtual->obterXpAtual() << " / " << jogadorAtual->obterXpParaSubir() << "\033[0m)\n";
+    std::cout << margem << "DIFICULDADE:    \033[31m" << (jogadorAtual->obterDificuldade() == 1 ? "Facil" : (jogadorAtual->obterDificuldade() == 2 ? "Normal" : "Dificil")) << "\033[0m\n";
     std::cout << margem << "[PARRY]:        " << (jogadorAtual->obterParryAtivado() ? "\033[32mLigado\033[0m" : "\033[31mDesligado\033[0m") << "\n";
     std::cout << margem << "OURO:           \033[33m" << jogadorAtual->obterInventario()->obterOuro() << "G\033[0m\n\n";
 
-    std::string nomeDaArma = (jogadorAtual->obterArma()) ? jogadorAtual->obterArma()->obterNomeItem() + jogadorAtual->obterArma()->obterInfoStatus() : "Punhos";
-    std::string nomeDoEscudo = (jogadorAtual->obterEscudo()) ? jogadorAtual->obterEscudo()->obterNomeItem() + jogadorAtual->obterEscudo()->obterInfoStatus() : "Nenhum";
-    std::string nomeDaArmadura = (jogadorAtual->obterArmadura()) ? jogadorAtual->obterArmadura()->obterNomeItem() + jogadorAtual->obterArmadura()->obterInfoStatus() : "Trapos";
+    std::string nomeDaClasse = jogadorAtual->obterNomeClasse();
+    std::string passivaNome = "Nenhuma";
+    std::string passivaDesc = "";
+    std::string recargaHab = "";
 
-    std::cout << margem << "EQUIPAMENTO ATUAL:\n";
-    std::cout << margem << " > Arma         : " << nomeDaArma << "\n";
-    std::cout << margem << " > Escudo       : " << nomeDoEscudo << "\n";
-    std::cout << margem << " > Armadura     : " << nomeDaArmadura << "\n\n";
+    if (nomeDaClasse == "Arqueiro") {
+        passivaNome = "Passos leves";
+        passivaDesc = "Penalidade de armaduras e debuffs de lentidao reduzidos pela metade.";
+        recargaHab = "Recarga: 1 turno.";
+    } else if (nomeDaClasse == "Bardo") {
+        passivaNome = "Touch the sky";
+        passivaDesc = "Curas e buffs recebidos sao 40% mais fortes.";
+        recargaHab = "Recarga: 3 turnos (Individuais).";
+    } else if (nomeDaClasse == "Guerreiro") {
+        passivaNome = "Golpe decisivo";
+        passivaDesc = "Causa +10%/+20%/+30% de dano em inimigos com menos de 30%/20%/10% de HP.";
+        recargaHab = "Recarga: 3 turnos.";
+    } else if (nomeDaClasse == "Mago") {
+        passivaNome = "Foco arcano";
+        passivaDesc = "Ataques ressoam (25% em area) ou causam +25% de dano em alvo unico.";
+        recargaHab = "Recarga: 3 turnos.";
+    }
 
     std::cout << margem << "PASSIVA RACA:   " << jogadorAtual->obterRaca()->obterNomeHabilidadeRaca() << "\n";
     std::cout << margem << "-> " << jogadorAtual->obterRaca()->obterDescricaoHabilidadeRaca() << "\n\n";
 
-    std::cout << margem << "ATIVA CLASSE:   " << jogadorAtual->obterClasse()->obterNomeHabilidadeClasse() << "\n";
+    std::cout << margem << "PASSIVA CLASSE: " << passivaNome << "\n";
+    std::cout << margem << "-> " << passivaDesc << "\n\n";
+
+    std::cout << margem << "ATIVA CLASSE:   " << jogadorAtual->obterClasse()->obterNomeHabilidadeClasse() << " (" << recargaHab << ")\n";
     std::cout << margem << "-> " << jogadorAtual->obterClasse()->obterDescricaoHabilidadeClasse() << "\n\n";
 
     std::cout << margem << "--- ATRIBUTOS TOTAIS ---\n";
@@ -95,7 +112,6 @@ void TelaAtributos::exibir(Personagem* jogadorAtual)
         std::cout << "\n";
     };
 
-    std::string nomeDaClasse = jogadorAtual->obterNomeClasse();
     printAtributo(nomeDaClasse == "Guerreiro" ? "Forca [DANO]" : "Forca", jogadorAtual->obterForca(), forcaPerdida);
     printAtributo(nomeDaClasse == "Arqueiro" ? "Destreza [DANO]" : "Destreza", jogadorAtual->obterDestreza(), destrezaPerdida);
     printAtributo("Resistencia", jogadorAtual->obterResistencia(), resPerdida);

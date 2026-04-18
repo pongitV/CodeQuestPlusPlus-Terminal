@@ -287,9 +287,32 @@ std::unique_ptr<Personagem> Menu::iniciarCriacaoDePersonagem()
             if (temp) 
             {
                 Atributos stats = temp->obterAtributosClasse();
+                
+                std::string passivaNome = "Nenhuma";
+                std::string passivaDesc = "";
+                std::string recargaHab = "";
+
+                if (temp->obterNomeClasse() == "Arqueiro") {
+                    passivaNome = "Passos leves";
+                    passivaDesc = "Penalidade de armaduras e debuffs de lentidao reduzidos pela metade.";
+                    recargaHab = "Recarga: 1 turno.";
+                } else if (temp->obterNomeClasse() == "Bardo") {
+                    passivaNome = "Touch the sky";
+                    passivaDesc = "Curas e buffs recebidos sao 40% mais fortes.";
+                    recargaHab = "Recarga: 3 turnos (Individuais).";
+                } else if (temp->obterNomeClasse() == "Guerreiro") {
+                    passivaNome = "Golpe decisivo";
+                    passivaDesc = "Causa +10%/+20%/+30% de dano em inimigos com menos de 30%/20%/10% de HP.";
+                    recargaHab = "Recarga: 3 turnos.";
+                } else if (temp->obterNomeClasse() == "Mago") {
+                    passivaNome = "Foco arcano";
+                    passivaDesc = "Ataques ressoam (25% em area) ou causam +25% de dano em alvo unico.";
+                    recargaHab = "Recarga: 3 turnos.";
+                }
+
                 std::vector<std::string> info = 
                 {
-                    "[ ATRIBUTOS BONUS DE CLASSE ]",
+                    "[ ATRIBUTOS BONUS DA CLASSE ]",
                     formatarAtributo("Vida", stats.vida),
                     formatarAtributo("Forca", stats.forca),
                     formatarAtributo("Destreza", stats.destreza),
@@ -298,11 +321,16 @@ std::unique_ptr<Personagem> Menu::iniciarCriacaoDePersonagem()
                     formatarAtributo("Inteligencia", stats.inteligencia),
                     formatarAtributo("Sabedoria", stats.sabedoria),
                     "",
-                    "[ HABILIDADE ATIVA ]",
+                    "[ HABILIDADE PASSIVA DA CLASSE ]",
+                    " " + passivaNome,
+                    " - " + passivaDesc,
+                    "",
+                    "[ HABILIDADE ATIVA DA CLASSE ]",
                     " " + temp->obterNomeHabilidadeClasse(),
                     " - " + temp->obterDescricaoHabilidadeClasse(),
+                    " - " + recargaHab,
                     "",
-                    "[ EQUIPAMENTO INICIAL ]"
+                    "[ EQUIPAMENTO INICIAL DA CLASSE ]"
                 };
                 
                 auto kit = temp->obterEquipamentoClasse();

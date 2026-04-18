@@ -67,7 +67,7 @@ std::vector<std::string> ClasseGuerreiro::obterAparenciaClasseMenu() const
 Atributos ClasseGuerreiro::obterAtributosClasse() const
 {
     // Ordem: { Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria }
-    return { 0, 2000000, 10, 2, 10, 5, 5 };
+    return { 0, 20, 10, 5, 10, 5, 5 };
 }
 
 std::vector<std::unique_ptr<Item>> ClasseGuerreiro::obterEquipamentoClasse() const 
@@ -82,24 +82,32 @@ std::vector<std::unique_ptr<Item>> ClasseGuerreiro::obterEquipamentoClasse() con
     return equipamentos;
 }
 
-std::string ClasseGuerreiro::obterNomeHabilidadeClasse() const { return "Determinacao no combate"; }
-std::string ClasseGuerreiro::obterDescricaoHabilidadeClasse() const { return "Gasta seu turno para aumentar seus atributos em 1.5x por 2 turnos."; }
+std::string ClasseGuerreiro::obterNomeHabilidadeClasse() const { return "Grito de guerra"; }
+std::string ClasseGuerreiro::obterDescricaoHabilidadeClasse() const { return "Gasta seu turno para aumentar Forca e Destreza em 1.5x por 2 turnos."; }
 void ClasseGuerreiro::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*>& /*inimigos*/) 
 {
-    if (u->obterTurnosBuff() <= 0) 
-    {
-        u->definirTurnosBuff(3);
-        u->definirMultiplicador(1.5);
-        std::cout << "[HABILIDADE]: Determinacao no combate! Atributos x1.5\n";
-    } 
-    else 
-    {
-        // Se ja tiver buff, acumula o multiplicador mas NAO aumenta a duracao
-        double novoMult = u->obterMultiplicador() + 1.5;
-        u->definirMultiplicador(novoMult);
-        std::cout << "[HABILIDADE]: Furia acumulada! Multiplicador agora e x" << novoMult << ".\n";
-        std::cout << "(" << u->obterTurnosBuff() - 1 << " turnos restantes).\n";
+    if (u->obterCooldownHab1() > 0) {
+        std::cout << "[SISTEMA]: Grito de guerra em recarga!\n";
+        u->definirHabilidadeCancelada(true);
+        return;
     }
+    if (u->obterTurnosGrito() > 0) {
+        std::cout << "[SISTEMA]: Grito de guerra ja esta ativo!\n";
+        u->definirHabilidadeCancelada(true);
+        return;
+    }
+
+    int bonusForca = u->obterForca() / 2;
+    int bonusDestreza = u->obterDestreza() / 2;
+    
+    u->alterarAtributoEstatico("forca", bonusForca);
+    u->alterarAtributoEstatico("destreza", bonusDestreza);
+    
+    u->definirBonusGrito(bonusForca, bonusDestreza);
+    u->definirTurnosGrito(2);
+    u->definirCooldownHab1(4); // 3 turnos de recarga
+    
+    std::cout << "[HABILIDADE]: Grito de guerra! Forca +" << bonusForca << " e Destreza +" << bonusDestreza << "!\n";
 }
 
 TipoAtaque ClasseGuerreiro::obterTipoAtaque() const { return TipoAtaque::UNICO; }

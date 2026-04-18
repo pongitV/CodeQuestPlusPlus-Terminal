@@ -33,7 +33,7 @@ void NPCBjorn::interagir(Personagem* jogadorAtual)
         if (n == "Espada longa de ferro") return std::make_unique<Arma>(n, 10, 0);
         if (n == "Arco recurvo de madeira") return std::make_unique<Arma>(n, 10, 0);
         if (n == "Cajado") return std::make_unique<Arma>(n, 0, 30);
-        if (n == "Violao encantado") return std::make_unique<Arma>(n, 0, 7);
+        if (n == "Violao encantado") return std::make_unique<Arma>(n, 0, 10);
         if (n == "Armadura de malha e metal") return std::make_unique<Armadura>(n, 7);
         if (n == "Armadura leve de couro com malha") return std::make_unique<Armadura>(n, 5);
         if (n == "Tunica") return std::make_unique<Armadura>(n, 2);

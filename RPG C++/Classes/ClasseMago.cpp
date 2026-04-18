@@ -66,7 +66,7 @@ std::vector<std::string> ClasseMago::obterAparenciaClasseMenu() const
 Atributos ClasseMago::obterAtributosClasse() const
 { 
     // Ordem: { Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria }
-    return { 0, 5, 5, 2, 10, 15, 15 };
+    return { 0, 5, 5, 3, 10, 15, 15 };
 }
 
 std::vector<std::unique_ptr<Item>> ClasseMago::obterEquipamentoClasse() const 
@@ -81,14 +81,28 @@ std::vector<std::unique_ptr<Item>> ClasseMago::obterEquipamentoClasse() const
     return equipamentos;
 }
 
-std::string ClasseMago::obterNomeHabilidadeClasse() const { return "Estrategia arcana"; }
-std::string ClasseMago::obterDescricaoHabilidadeClasse() const { return "Alterna entre ataque em area ou alvo unico (não gasta seu turno)"; }
+std::string ClasseMago::obterNomeHabilidadeClasse() const { return "Canalizacao arcana"; }
+std::string ClasseMago::obterDescricaoHabilidadeClasse() const { return "Pula seu turno para se defender e dobra o dano no proximo turno. Recarga: 3 turnos."; }
 void ClasseMago::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*>& /*inimigos*/) 
 {
-    tipoAtaqueAtual = (tipoAtaqueAtual == TipoAtaque::UNICO) ? TipoAtaque::AREA : TipoAtaque::UNICO;
-    const char* modo = (tipoAtaqueAtual == TipoAtaque::AREA) ? "AREA (Dano dividido)" : "UNICO (Dano total)";
-    std::cout << "[HABILIDADE]: Estrategia arcana! Modo de ataque: " << modo << "\n";
+    if (u->obterCooldownHab1() > 0) {
+        std::cout << "[SISTEMA]: Canalizacao arcana em recarga!\n";
+        u->definirHabilidadeCancelada(true);
+        return;
+    }
+    
+    u->definirMultiplicador(2.0);
+    u->definirTurnosBuff(2); 
+    u->definirCooldownHab1(4);
+    
+    Item* escudo = u->obterEscudo();
+    if (escudo) {
+        u->definirDefendendo(true);
+        std::cout << "[HABILIDADE]: Canalizacao arcana! Voce se defende com " << escudo->obterNomeItem() << " e prepara um ataque devastador (2x Dano)!\n";
+    } else {
+        std::cout << "[HABILIDADE]: Canalizacao arcana! Voce foca sua energia para um ataque devastador (2x Dano) no proximo turno!\n";
+    }
 }
 
-TipoAtaque ClasseMago::obterTipoAtaque() const { return tipoAtaqueAtual; }
-bool ClasseMago::habilidadeConsomeTurno() const { return false; }
+TipoAtaque ClasseMago::obterTipoAtaque() const { return TipoAtaque::UNICO; }
+bool ClasseMago::habilidadeConsomeTurno() const { return true; }

@@ -5,11 +5,18 @@
 #include "../Inventario/Item.h"
 #include "../Inventario/Arma.h"
 #include "../Inventario/Material.h"
+#include <memory>
 
 std::string RacaGoblin::obterNomeRaca() const { return "Goblin"; }
-Atributos RacaGoblin::obterAtributosRaca() const { return { -60, 7, 12, 3, 3, -15, -10 }; }
+Atributos RacaGoblin::obterAtributosRaca() const { return { -40, 10, 15, 5, 5, 0, 0 }; }
 std::string RacaGoblin::obterNomeHabilidadeRaca() const { return "Nenhuma"; }
 std::string RacaGoblin::obterDescricaoHabilidadeRaca() const { return "Monstros nao possuem passivas"; }
+
+std::vector<std::unique_ptr<Item>> RacaGoblin::obterEquipamentoRaca() const {
+    std::vector<std::unique_ptr<Item>> equipamentos;
+    equipamentos.push_back(std::make_unique<Arma>("Adaga artesanal de pedra", 8, 0));
+    return equipamentos;
+}
 
 std::vector<std::string> RacaGoblin::obterAparenciaRaca() const
 {

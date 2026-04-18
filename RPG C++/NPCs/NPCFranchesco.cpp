@@ -146,9 +146,9 @@ void NPCFranchesco::interagir(Personagem* jogadorAtual)
                 std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
 
                 std::cout << margemMsg << "[1] Talisma do Urso (+5 Forca | -5 Int)             - 200G\n";
-                std::cout << margemMsg << "[2] Talisma da Coruja (+5 Int | -5 Forca)           - 200G\n";
+                std::cout << margemMsg << "[2] Talisma do Corvo (+5 Int | -5 Forca)            - 200G\n";
                 std::cout << margemMsg << "[3] Talisma do Leopardo (+5 Dest | -5 Sab)          - 200G\n";
-                std::cout << margemMsg << "[4] Talisma da Raposa (+5 Sab | -5 Dest)            - 200G\n";
+                std::cout << margemMsg << "[4] Talisma da Coruja (+5 Sab | -5 Dest)            - 200G\n";
                 std::cout << margemMsg << "[0] VOLTAR\n\n";
                 std::cout << "\n" << std::string(larguraDoTerminal, '=') << "\n";
                 std::cout << "\n" << margemMsg << "Escolha: ";
@@ -167,17 +167,17 @@ void NPCFranchesco::interagir(Personagem* jogadorAtual)
                                 novoTalisma->adicionarPropriedade(Propriedade::TalismaForca); 
                                 std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma do Urso comprado!\n"; 
                             } else if (opcaoCompra == "2") { 
-                                novoTalisma = std::make_unique<ItemConsumivel>("Talisma da Coruja"); 
+                                novoTalisma = std::make_unique<ItemConsumivel>("Talisma do Corvo"); 
                                 novoTalisma->adicionarPropriedade(Propriedade::TalismaInteligencia); 
-                                std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma da Coruja comprado!\n"; 
+                                std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma do Corvo comprado!\n"; 
                             } else if (opcaoCompra == "3") { 
                                 novoTalisma = std::make_unique<ItemConsumivel>("Talisma do Leopardo"); 
                                 novoTalisma->adicionarPropriedade(Propriedade::TalismaDestreza); 
                                 std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma do Leopardo comprado!\n"; 
                             } else if (opcaoCompra == "4") { 
-                                novoTalisma = std::make_unique<ItemConsumivel>("Talisma da Raposa"); 
+                                novoTalisma = std::make_unique<ItemConsumivel>("Talisma da Coruja"); 
                                 novoTalisma->adicionarPropriedade(Propriedade::TalismaSabedoria); 
-                                std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma da Raposa comprado!\n"; 
+                                std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma da Coruja comprado!\n"; 
                             }
                             if (novoTalisma) jogadorAtual->obterInventario()->adicionarItem(std::move(novoTalisma));
                     } 

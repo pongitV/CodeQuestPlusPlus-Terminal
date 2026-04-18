@@ -9,7 +9,7 @@ std::string RacaAbominacaoFloresta::obterNomeRaca() const { return "Abominacao d
 Atributos RacaAbominacaoFloresta::obterAtributosRaca() const 
 { 
     // Ordem: { Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria }
-    return { 100, 15, 5, 15, 20, -10, 5 }; 
+    return { 250, 40, 5, 20, 25, 0, 20 }; 
 }
 
 std::string RacaAbominacaoFloresta::obterNomeHabilidadeRaca() const { return "Raizes Parasitas"; }

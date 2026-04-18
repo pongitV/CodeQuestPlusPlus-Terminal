@@ -2,7 +2,9 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 #include "../Sistema/Personagem.h"
+#include "../Inventario/Item.h"
 
 class RacaBase {
 public:
@@ -14,6 +16,8 @@ public:
 
     virtual std::string obterNomeHabilidadeRaca() const = 0;
     virtual std::string obterDescricaoHabilidadeRaca() const = 0;
+
+    virtual std::vector<std::unique_ptr<Item>> obterEquipamentoRaca() const { return {}; }
 
     virtual int processarDanoOfensivo(int danoBase, Personagem* /*atacante*/) {
         return danoBase;
