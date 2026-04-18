@@ -9,10 +9,7 @@
 class Inventario
 {
 private:
-    std::vector<std::unique_ptr<Item>> equipamentos;
-    std::vector<std::unique_ptr<Item>> consumiveis;
-    std::vector<std::unique_ptr<Item>> materiais;
-    std::vector<std::unique_ptr<Item>> missoes;
+    std::vector<Item*> listaDeItens;
     int quantidadeDeOuro;
 
 public:

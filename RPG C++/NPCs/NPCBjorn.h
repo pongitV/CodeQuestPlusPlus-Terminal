@@ -5,6 +5,6 @@
 class NPCBjorn 
 {
 public:
-    static void interagir(Personagem& jogadorAtual);
+    static void interagir(Personagem* jogadorAtual);
     static std::vector<std::string> obterMapaForja();
 };

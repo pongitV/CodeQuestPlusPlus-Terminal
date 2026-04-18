@@ -7,19 +7,22 @@
 class Escudo : public Item 
 {
 private:
+    std::string nome;
     int reducaoFixa;
     int durabilidade;
 
 public:
-    Escudo(std::string nome, int reducaoFixa, int durabilidade, int precoVenda = 3);
+    Escudo(std::string nome, int reducaoFixa, int durabilidade);
     
+    std::string obterNomeItem() const override;
     Raridade obterRaridade() const override;
     TipoEquipamento obterTipo() const override;
 
-    int obterDurabilidadeAtualEscudo() const { return durabilidade; }
-    int obterReducaoDanoFixaEscudo() const { return reducaoFixa; }
-    void reduzirDurabilidade(int qtd) { durabilidade -= qtd; }
-    void aumentarDurabilidade(int qtd) { durabilidade += qtd; }
+    int obterDurabilidadeAtualEscudo() const override;
+    int obterReducaoDanoFixaEscudo() const override;
+    void reduzirDurabilidade(int qtd) override;
+    void aumentarDurabilidade(int qtd) override;
 
+    int obterPrecoVenda() const override;
     std::string obterInfoStatus() const override;
 };

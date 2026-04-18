@@ -3,14 +3,16 @@
 #include "Item.h"
 #include <string>
 
-class Personagem; // Declaracao antecipada para evitar erros de tipo incompleto
-
 class ItemConsumivel : public Item 
 {
+private:
+    std::string nome;
+
 public:
-    ItemConsumivel(std::string nome, int precoVenda = 3);
+    ItemConsumivel(std::string nome);
     
+    std::string obterNomeItem() const override;
     Raridade obterRaridade() const override;
     TipoEquipamento obterTipo() const override;
-    bool aoUsar(Personagem& jogador) override;
+    int obterPrecoVenda() const override;
 };

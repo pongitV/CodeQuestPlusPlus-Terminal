@@ -6,9 +6,6 @@
 #include "Personagem.h"
 #include "../Raças/RacaBase.h"
 #include "../Classes/ClasseBase.h"
-#include "../Inventario/Armadura.h"
-#include "../Inventario/Escudo.h"
-#include "../Inventario/Arma.h"
 
 Personagem::Personagem(std::string nome, std::unique_ptr<RacaBase> r, std::unique_ptr<ClasseBase> c) 
 {
@@ -264,11 +261,7 @@ int Personagem::calcularDefesaBase(int danoBruto, int danoPerfurante) const {
     int danoSemPerfuracao = danoBruto - danoPerfurante;
     if (danoSemPerfuracao < 0) danoSemPerfuracao = 0;
 
-    int bonusArmadura = 0;
-    if (armadura) {
-        if (Armadura* arm = dynamic_cast<Armadura*>(armadura))
-            bonusArmadura = arm->obterReducaoFixa();
-    }
+    int bonusArmadura = armadura ? armadura->obterReducaoFixa() : 0;
     int reducaoFixa = statsFinais.resistencia + bonusArmadura;
 
     double percentualReducao = statsFinais.constituicao / 100.0;
@@ -293,18 +286,16 @@ int Personagem::receberDano(int danoBruto, int danoPerfurante, int danoReduzidoP
     if (danoFinal < 0) danoFinal = 0;
 
     if (estaDefendendo && escudo != nullptr) {
-        if (Escudo* esc = dynamic_cast<Escudo*>(escudo)) {
-            int bloqueio = esc->obterReducaoDanoFixaEscudo();
-            std::cout << ">> [DEFESA]: O escudo bloqueou " << bloqueio << " de dano!\n";
-            danoFinal -= bloqueio;
-            if (danoFinal < 0) danoFinal = 0;
+        int bloqueio = escudo->obterReducaoDanoFixaEscudo();
+        std::cout << ">> [DEFESA]: O escudo bloqueou " << bloqueio << " de dano!\n";
+        danoFinal -= bloqueio;
+        if (danoFinal < 0) danoFinal = 0;
 
-            esc->reduzirDurabilidade(1);
-            if (esc->obterDurabilidadeAtualEscudo() <= 0) {
-                std::cout << "[!] ALERTA: O escudo " << esc->obterNomeItem() << " foi DESTRUIDO em pedacos!\n";
-                mochila->removerItem(esc->obterNomeItem());
-                desequiparEscudo();
-            }
+        escudo->reduzirDurabilidade(1);
+        if (escudo->obterDurabilidadeAtualEscudo() <= 0) {
+            std::cout << "[!] ALERTA: O escudo " << escudo->obterNomeItem() << " foi DESTRUIDO em pedacos!\n";
+            mochila->removerItem(escudo->obterNomeItem());
+            desequiparEscudo();
         }
     }
 

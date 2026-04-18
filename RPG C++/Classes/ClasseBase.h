@@ -23,7 +23,7 @@ public:
     // HABILIDADE DA CLASSE
     virtual std::string obterNomeHabilidadeClasse() const = 0;
     virtual std::string obterDescricaoHabilidadeClasse() const = 0;
-    virtual void usarHabilidadeClasse(Personagem& usuario, std::vector<Personagem*>& inimigos) = 0;
+    virtual void usarHabilidadeClasse(Personagem* usuario, std::vector<Personagem*>& inimigos) = 0;
     virtual TipoAtaque obterTipoAtaque() const = 0;
     virtual bool habilidadeConsomeTurno() const = 0;
 

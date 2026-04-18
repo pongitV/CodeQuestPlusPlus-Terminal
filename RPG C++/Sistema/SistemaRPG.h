@@ -21,9 +21,8 @@ private:
     std::vector<std::string> itensObtidos;
     int danoMagicoPerfuranteAtual;
     
-    void aplicarDanoAoAlvo(Personagem& personagemAtacante, Personagem& personagemAlvo, int quantidadeDeDanoBruto, int turnoAtualDoCombate);
+    void aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* personagemAlvo, int quantidadeDeDanoBruto, int turnoAtualDoCombate);
     bool executarSistemaDeParry(int quantidadeDeNumerosParaDigitar, int tempoLimiteEmSegundos, int& quantidadeDeDanoReduzido);
-    void exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>& listaDeInimigos);
     void processarMorteDeInimigo(Personagem* inimigo);
 
 public:
@@ -33,5 +32,5 @@ public:
     void iniciarCombate();
     void executarTurnoDeTodosOsInimigos();
     bool verificarCondicaoDeVitoriaOuDerrota();
-    void realizarAtaqueFisico(Personagem& personagemAtacante, Personagem* personagemDefensor, int turnoAtualDoCombate);
+    void realizarAtaqueFisico(Personagem* personagemAtacante, Personagem* personagemDefensor, int turnoAtualDoCombate);
 };
