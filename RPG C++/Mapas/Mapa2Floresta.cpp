@@ -9,6 +9,9 @@
 #include "Mapa2Floresta.h"
 #include "../Sistema/Menu.h"
 #include "../Inventario/Item.h"
+#include "../Inventario/Armadura.h"
+#include "../Inventario/ItemConsumivel.h"
+#include "../Inventario/Material.h"
 #include "../Sistema/GeradorInimigos.h"
 #include "../Inventario/InventarioCombate.h"
 #include "../Interfaces/TelaAtributos.h"
@@ -17,6 +20,9 @@
 #include "../Inimigos/ClasseInimigoPadrao.h"
 #include "../NPCs/NPCMorgana.h"
 #include "../Inimigos/RacaAbominacaoFloresta.h"
+#include "TransicoesDeMapa.h"
+
+extern bool g_labirintoDesbloqueado;
 
 Mapa2Floresta::Mapa2Floresta(Personagem* personagemJogador) : 
     jogadorAtual(personagemJogador), posicaoXDoJogador(8), posicaoYDoJogador(8),
@@ -70,6 +76,8 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
 {
     static bool cabanaJaFoiVisitada = false;
     static std::vector<std::string> matrizDoMapaDaCabanaSalva;
+    static bool labirintoJaFoiVisitado = false;
+    static std::vector<std::string> matrizDoMapaDoLabirintoSalva;
     bool exploracaoEstaAtiva = true;
     std::string tituloDoMapaAtual = "FLORESTA";
     
@@ -94,6 +102,14 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
         int larguraDoMapaEmColunas = matrizDoMapaAtual.empty() ? 0 : matrizDoMapaAtual[0].length();
         int espacosParaCentralizarOMapa = (larguraDoTerminal - larguraDoMapaEmColunas) / 2;
         std::string margemEsquerdaDoMapa(espacosParaCentralizarOMapa > 0 ? espacosParaCentralizarOMapa : 0, ' ');
+        std::string margemDireitaDoMapa = "";
+        
+        if (tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") {
+            std::string corFundoRoxa = "\033[48;5;54m";
+            margemEsquerdaDoMapa = corFundoRoxa + std::string(espacosParaCentralizarOMapa > 0 ? espacosParaCentralizarOMapa : 0, ' ') + "\033[0m";
+            int espacosDireita = larguraDoTerminal - espacosParaCentralizarOMapa - larguraDoMapaEmColunas;
+            margemDireitaDoMapa = corFundoRoxa + std::string(espacosDireita > 0 ? espacosDireita : 0, ' ') + "\033[0m";
+        }
 
         std::string textoDeControlesDoJogador = "W,A,S,D: Mover | I: Inventario | C: Ficha";
         int espacosParaCentralizarOsControles = (larguraDoTerminal - (int)textoDeControlesDoJogador.length()) / 2;
@@ -147,12 +163,18 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
                     linhaSendoRenderizada = "";
                     std::cout << "\x1b[1;35mM\x1b[0m"; // Magenta para a Bruxa
                 }
+                else if (matrizDoMapaAtual[y][x] == 'B')
+                {
+                    std::cout << linhaSendoRenderizada;
+                    linhaSendoRenderizada = "";
+                    std::cout << "\x1b[1;33mB\x1b[0m"; // Amarelo para o Bau
+                }
                 else 
                 {
                     linhaSendoRenderizada += matrizDoMapaAtual[y][x];
                 }
             }
-            std::cout << linhaSendoRenderizada << "\n";
+            std::cout << linhaSendoRenderizada << margemDireitaDoMapa << "\n";
         }
         
         std::cout << "\n" << margemEsquerdaDosControles << textoDeControlesDoJogador << "\n";
@@ -191,7 +213,16 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
 
         char celulaDestinoDoMapa = matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX];
 
-        if (celulaDestinoDoMapa != '#') 
+        bool ehParede = false;
+        if (tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") {
+            // No labirinto, permitimos andar nos caminhos (espaço), entrada/saída (^, S, E) e Baú (B)
+            ehParede = (celulaDestinoDoMapa != ' ' && celulaDestinoDoMapa != '^' && celulaDestinoDoMapa != 'S' && celulaDestinoDoMapa != 'E' && celulaDestinoDoMapa != 'B');
+        } else {
+            // Na floresta, a parede padrão é o '#'
+            ehParede = (celulaDestinoDoMapa == '#');
+        }
+
+        if (!ehParede) 
         {
             if (celulaDestinoDoMapa == 'S' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX-1] != '^') 
             {
@@ -332,6 +363,64 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
                     linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
                 }
             }
+            else if (celulaDestinoDoMapa == 'B' && tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") 
+            {
+                Menu::limparTelaDoTerminal();
+                Menu::exibirLogoDoJogo("TESOURO ESCONDIDO");
+                
+                int espacosParaCentralizarMensagem = (larguraDoTerminal - 40) / 2; 
+                std::string margemEsquerdaDaMensagem(espacosParaCentralizarMensagem > 0 ? espacosParaCentralizarMensagem : 0, ' ');
+
+                std::cout << "\n" << margemEsquerdaDaMensagem << "[!] Voce encontrou um Bau ancestral!\n";
+                std::cout << margemEsquerdaDaMensagem << "Deseja abri-lo?\n";
+                std::cout << margemEsquerdaDaMensagem << "[0] Nao, deixar intocado\n";
+                std::cout << margemEsquerdaDaMensagem << "[1] Sim, destrancar a fechadura!\n";
+                std::cout << "\n" << margemEsquerdaDaMensagem << "Escolha: ";
+
+                int opcaoEscolhida;
+                if (std::cin >> opcaoEscolhida && opcaoEscolhida == 1) 
+                {
+                    std::cout << "\n" << margemEsquerdaDaMensagem << "[SISTEMA]: O bau se abre rangendo... Voce obteve itens valiosos!\n";
+                    
+                    int qtdPocoes = (std::rand() % 3) + 2; // Gera entre 2 a 4
+                    for (int i = 0; i < qtdPocoes; ++i) {
+                        auto pocao = std::make_unique<ItemConsumivel>("Pocao de Cura (30%VM)");
+                        pocao->adicionarPropriedade(Propriedade::ConsumivelCura);
+                        jogadorAtual->obterInventario()->adicionarItem(std::move(pocao));
+                    }
+                    std::cout << margemEsquerdaDaMensagem << "+ " << qtdPocoes << "x Pocoes de Cura (30%VM)\n";
+                    
+                    int qtdOuro = (std::rand() % 151) + 150; // Gera entre 150 a 300
+                    jogadorAtual->obterInventario()->adicionarOuro(qtdOuro);
+                    std::cout << margemEsquerdaDaMensagem << "+ " << qtdOuro << "G\n";
+
+                    bool isFuria = (std::rand() % 2 == 0);
+                    std::string nomeBuff = isFuria ? "Pocao de Furia (Buff)" : "Elixir Arcano (Buff)";
+                    auto buff = std::make_unique<ItemConsumivel>(nomeBuff);
+                    buff->adicionarPropriedade(Propriedade::ConsumivelBuff);
+                    jogadorAtual->obterInventario()->adicionarItem(std::move(buff));
+                    std::cout << margemEsquerdaDaMensagem << "+ 1x " << nomeBuff << "\n";
+
+                    jogadorAtual->obterInventario()->adicionarItem(std::make_unique<Material>("Pedra magica de upgrade"));
+                    std::cout << margemEsquerdaDaMensagem << "+ 1x Pedra magica de upgrade\n";
+                    
+                    matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX] = ' '; 
+                    posicaoXDoJogador = proximaPosicaoX;
+                    posicaoYDoJogador = proximaPosicaoY;
+                    Menu::aguardarPressionamentoDeEnter();
+                } 
+                else 
+                {
+                    std::cin.clear(); std::cin.ignore(1000, '\n');
+                }
+
+                if (exploracaoEstaAtiva) {
+                    Menu::limparTelaDoTerminal();
+                    Menu::exibirLogoDoJogo(tituloDoMapaAtual);
+                    GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
+                    linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
+                }
+            }
             else if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'C' && !jogadorEstaDentroDeUmSubMapa)
             {
                 matrizDoMapaPrincipalSalva = matrizDoMapaAtual;
@@ -358,41 +447,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
             }
             else if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'V') 
             {
-                Menu::limparTelaDoTerminal();
-                
-                std::vector<std::string> arteVila = {
-                    "                                                           |>>>",
-                    "                   _                      _                |",
-                    "    ____________ .' '.    _____/----/-\\ .' './========\\   / \\",
-                    "   //// ////// /V_.-._\\  |.-.-.|===| _ |-----| u    u |  /___\\",
-                    "  // /// // ///==\\ u |.  || | ||===||||| |T| |   ||   | .| u |_ _ _ _ _ _",
-                    " ///////-\\\\////====\\==|:::::::::::::::::::::::::::::::::::|u u| U U U U U",
-                    " |----/\\u |--|++++|..|'''''''''''::::::::::::::''''''''''|+++|+-+-+-+-+-+",
-                    " |u u|u | |u ||||||..|              '::::::::'           |===|>=== _ _ ==",
-                    " |===|  |u|==|++++|==|              .::::::::.           | T |....| V |..",
-                    " |u u|u | |u ||HH||         \\|/    .::::::::::.",
-                    " |===|_.|u|_.|+HH+|_              .::::::::::::.              _",
-                    "                __(_)___         .::::::::::::::.         ___(_)__",
-                    "---------------/  / \\  /|       .:::::;;;:::;;:::.       |\\  / \\  \\-------",
-                    "______________/_______/ |      .::::::;;:::::;;:::.      | \\_______\\________",
-                    "|       |     [===  =] /|     .:::::;;;::::::;;;:::.     |\\ [==  = ]   |",
-                    "|_______|_____[ = == ]/ |    .:::::;;;:::::::;;;::::.    | \\[ ===  ]___|____",
-                    "     |       |[  === ] /|   .:::::;;;::::::::;;;:::::.   |\\ [=  ===] |",
-                    "_____|_______|[== = =]/ |  .:::::;;;::::::::::;;;:::::.  | \\[ ==  =]_|______",
-                    " |       |    [ == = ] /| .::::::;;:::::::::::;;;::::::. |\\ [== == ]      |",
-                    "_|_______|____[=  == ]/ |.::::::;;:::::::::::::;;;::::::.| \\[  === ]______|_",
-                    "   |       |  [ === =] /.::::::;;::::::::::::::;;;:::::::.\\ [===  =]   |",
-                    "___|_______|__[ == ==]/.::::::;;;:::::::::::::::;;;:::::::.\\[=  == ]___|_____"
-                };
-
-                std::cout << "\n\n";
-                Menu::imprimirLinhasCentralizadasNaTela(arteVila, 75, "\033[33m");
-
-                std::string textoTransicao = "Voltando para a Vila...";
-                int larguraDoTerminal = Menu::obterLarguraDoTerminalEmColunas();
-                int espacosParaCentralizar = (larguraDoTerminal - (int)textoTransicao.length()) / 2;
-                std::cout << "\n\n" << std::string(espacosParaCentralizar > 0 ? espacosParaCentralizar : 0, ' ') << textoTransicao << "\n";
-                Sleep(3000); 
+                TransicoesDeMapa::exibirTransicaoParaVila();
                 return;
             }
             else if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'T' && !jogadorEstaDentroDeUmSubMapa)
@@ -419,21 +474,109 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
                 linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
                 continue;
             }
-            else if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'S' && jogadorEstaDentroDeUmSubMapa)
+            else if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'L' && jogadorEstaDentroDeUmSubMapa)
             {
-                if (tituloDoMapaAtual == "CORACAO DA ARVORE") matrizDoMapaDoCoracaoDaArvoreSalva = matrizDoMapaAtual;
-                else if (tituloDoMapaAtual == "CABANA DA BRUXA") matrizDoMapaDaCabanaSalva = matrizDoMapaAtual;
+                if (!g_labirintoDesbloqueado) {
+                    Menu::limparTelaDoTerminal();
+                    Menu::exibirLogoDoJogo("PASSAGEM BLOQUEADA");
+                    int espacosMsg = (larguraDoTerminal - 60) / 2;
+                    std::cout << "\n" << std::string(espacosMsg > 0 ? espacosMsg : 0, ' ') << "[SISTEMA]: A passagem esta selada por magia. Fale com Morgana.\n";
+                    Menu::aguardarPressionamentoDeEnter();
+                    
+                    Menu::limparTelaDoTerminal();
+                    Menu::exibirLogoDoJogo(tituloDoMapaAtual);
+                    GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
+                    linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
+                    continue;
+                }
+                
+                if (tituloDoMapaAtual == "CABANA DA BRUXA") matrizDoMapaDaCabanaSalva = matrizDoMapaAtual;
 
-                matrizDoMapaAtual = matrizDoMapaPrincipalSalva;
-                posicaoXDoJogador = posicaoXSalvaAntesDeEntrarNoSubMapa;
-                posicaoYDoJogador = posicaoYSalvaAntesDeEntrarNoSubMapa;
-                jogadorEstaDentroDeUmSubMapa = false;
-                tituloDoMapaAtual = "FLORESTA";
+                if (!labirintoJaFoiVisitado) {
+                    matrizDoMapaAtual = {
+        " .===================================================================================================. ",
+        " |B|   |       |             |     |     |                     |     |   |   |       |       |       | ",
+        " | |== | ==. ==| .===. | ====' ==. | | | '=. | ==. .=========. | .=. | | | | | .===. | ==. | '=. | ==| ",
+        " | |   |   |   | |   | |         |   | |   | |   | |   |     | | |B|   |   | | |   | |   | |   | |   | ",
+        " | | | '=. '=. | | | |=============. | '=. | |== |=' | | .=. | | | '=======| | |== | '===| '=. '=| | | ",
+        " | | |   |   |   | | |             | |   | | |   |   | | | | |   |       | |   |   |     |   |   | | | ",
+        " | | '=====. '===' | | .========== | '=. | '=| .=' ==| | | | '=======. | | '===' ==+==== |== |=. '=| | ",
+        " | |       |   |   | | |   |       |   | |   | |     | |   |         | |     |     |     |   | |   | | ",
+        " | '=. ==. | .=' .=' | | | '=====. |===' |=. | | ====' |=. |=. ===== | |===. '==== | .===| ==| '== | | ",
+        " |   |   |   |   |   | | |       | |     | | |     |   | | | |   |     |   |       | |   |   |     | | ",
+        " |=. '=======' .=' .=| | |=====. | | .===' | | .===' .=' | | '=. '===. | | '=. .===| | ==' | | .===' | ",
+        " | |       |   |   | |   |     | | | | |   | | |     |   | |   |     | | |   | |   | |     | | |     | ",
+        " | '=====. | .=| ==| | ==' .===' | | | | | | '=' .===' | | | | |==== | | '=. '=' | | | .===' | '==== | ",
+        " ^S  |   |   | |   |       |     |   |   | |     | |   | |   | | |   | |   |     |   | |     |       ^E",
+        " | | | | '===' '=. '=====. | ====+=====. | '=====' | .=| '===| | | ======. |=====+===' | .=========. | ",
+        " | |   |   |     |   |   | |     |     | |         | | |     | | |       | |     |     | | |       | | ",
+        " |===. |== | ==. |== | | | |===. | ==. '===. ===== | | '===. | | '=====. | | ====' ====| | | .== | | | ",
+        " |   | |   |   | |   | |   |   | |   |     |   |   |     | |   |       | | |   |       | |   |   | | | ",
+        " | | '=' | '=. | | ======. | .=' |== |==== |== | | |===. | |===' | ==. | | | | | .===. | |===' .=' | | ",
+        " | |     |   | | |       |   |   |   |     |   | | |   | | |     |   | | | | |   |   | | |     |   | | ",
+        " | '=========' | |=====. '===| ==' ==| .===| .=| | | | | | | ======= | | | |=====' | |=' | .===| .=' | ",
+        " |     |       | |     |     |       | |   | | | |   | | |     |     | |   |       | |   | |   |B|   | ",
+        " | ==. | ======| | ==. '==== '=======' | | | | | '=====' '=====' .===' '===' .=====' | .=' | | '=' ==| ",
+        " |   |         |     |                 |B|     |                 |           |         |     |       | ",
+        " '===================================================================================================' "
+                    };
+                    labirintoJaFoiVisitado = true;
+                } else {
+                    matrizDoMapaAtual = matrizDoMapaDoLabirintoSalva;
+                }
+
+                posicaoXDoJogador = 3;
+                posicaoYDoJogador = 13;
+                tituloDoMapaAtual = "LABIRINTO SUBTERRANEO";
                 
                 Menu::limparTelaDoTerminal();
                 Menu::exibirLogoDoJogo(tituloDoMapaAtual);
                 GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
                 linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
+                continue;
+            }
+            else if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'S' && jogadorEstaDentroDeUmSubMapa)
+            {
+                if (tituloDoMapaAtual == "CORACAO DA ARVORE") matrizDoMapaDoCoracaoDaArvoreSalva = matrizDoMapaAtual;
+                else if (tituloDoMapaAtual == "CABANA DA BRUXA") matrizDoMapaDaCabanaSalva = matrizDoMapaAtual;
+                else if (tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") matrizDoMapaDoLabirintoSalva = matrizDoMapaAtual;
+
+                if (tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") {
+                    matrizDoMapaAtual = matrizDoMapaDaCabanaSalva;
+                    posicaoXDoJogador = 20; 
+                    posicaoYDoJogador = 2;
+                    tituloDoMapaAtual = "CABANA DA BRUXA";
+                } else {
+                    matrizDoMapaAtual = matrizDoMapaPrincipalSalva;
+                    posicaoXDoJogador = posicaoXSalvaAntesDeEntrarNoSubMapa;
+                    posicaoYDoJogador = posicaoYSalvaAntesDeEntrarNoSubMapa;
+                    jogadorEstaDentroDeUmSubMapa = false;
+                    tituloDoMapaAtual = "FLORESTA";
+                }
+                
+                Menu::limparTelaDoTerminal();
+                Menu::exibirLogoDoJogo(tituloDoMapaAtual);
+                GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
+                linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
+                continue;
+            }
+            else if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'E' && tituloDoMapaAtual == "LABIRINTO SUBTERRANEO")
+            {
+                Menu::limparTelaDoTerminal();
+                Menu::exibirLogoDoJogo("FIM DO LABIRINTO");
+                int espacosMsg = (larguraDoTerminal - 60) / 2;
+                std::cout << "\n" << std::string(espacosMsg > 0 ? espacosMsg : 0, ' ') << "[SISTEMA]: Voce encontrou a saida! Destino em breve...\n";
+                Menu::aguardarPressionamentoDeEnter();
+                
+                posicaoXDoJogador = 3;
+                posicaoYDoJogador = 13;
+                
+                if (exploracaoEstaAtiva) {
+                    Menu::limparTelaDoTerminal();
+                    Menu::exibirLogoDoJogo(tituloDoMapaAtual);
+                    GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
+                    linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
+                }
                 continue;
             }
             else

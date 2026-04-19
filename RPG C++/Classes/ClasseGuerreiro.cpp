@@ -67,15 +67,19 @@ std::vector<std::string> ClasseGuerreiro::obterAparenciaClasseMenu() const
 Atributos ClasseGuerreiro::obterAtributosClasse() const
 {
     // Ordem: { Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria }
-    return { 0, 20, 10, 5, 10, 5, 5 };
+    return { 0, 2000000, 10, 5, 10, 5, 5 };
 }
 
 std::vector<std::unique_ptr<Item>> ClasseGuerreiro::obterEquipamentoClasse() const 
 {
     std::vector<std::unique_ptr<Item>> equipamentos;
-    equipamentos.push_back(std::make_unique<ItemConsumivel>("Pocao de Cura (30%)"));
-    equipamentos.push_back(std::make_unique<ItemConsumivel>("Pocao de Cura (30%)"));
-    equipamentos.push_back(std::make_unique<ItemConsumivel>("Pocao de Cura (30%)"));
+    
+    int quantidadePocoes = 3;
+    int porcentagemCura = 30;
+    for (int i = 0; i < quantidadePocoes; ++i) {
+        equipamentos.push_back(std::make_unique<ItemConsumivel>("Pocao de Cura (" + std::to_string(porcentagemCura) + "%VM)"));
+    }
+    
     equipamentos.push_back(std::make_unique<Arma>("Espada longa de ferro", 10, 0));
     equipamentos.push_back(std::make_unique<Escudo>("Escudo medio de metal", 15, 5));
     equipamentos.push_back(std::make_unique<Armadura>("Armadura de malha e metal", 7));

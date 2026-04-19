@@ -233,7 +233,7 @@ bool Inventario::possuiPocaoDeCura() const
 {
     return std::any_of(listaDeItens.begin(), listaDeItens.end(), [](Item* item) 
     {
-        return item->obterNomeItem() == "Pocao de Cura (30%)";
+        return item->obterNomeItem().find("Pocao de Cura") != std::string::npos;
     });
 }
 

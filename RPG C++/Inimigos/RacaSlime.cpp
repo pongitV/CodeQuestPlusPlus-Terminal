@@ -8,7 +8,7 @@
 #include <memory>
 
 std::string RacaSlime::obterNomeRaca() const { return "Slime"; }
-Atributos RacaSlime::obterAtributosRaca() const { return { -20, 15, 5, 10, 15, 0, 0 }; }
+Atributos RacaSlime::obterAtributosRaca() const { return { 50, 15, 5, 10, 15, 0, 0 }; }
 std::string RacaSlime::obterNomeHabilidadeRaca() const { return "Toque Gosmento"; }
 std::string RacaSlime::obterDescricaoHabilidadeRaca() const { return "Ataques tem 20% de chance de causar Lentidao"; }
 

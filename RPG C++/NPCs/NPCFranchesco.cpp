@@ -112,7 +112,7 @@ void NPCFranchesco::interagir(Personagem* jogadorAtual)
                 Menu::exibirLogoDoJogo("LOJA - POCOES");
                 std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
 
-                std::cout << margemMsg << "[1] Pocao de Cura (30% HP)                          - 10G\n";
+                std::cout << margemMsg << "[1] Pocao de Cura (30%VM)                          - 10G\n";
                 std::cout << margemMsg << "[0] VOLTAR\n\n";
                 std::cout << "\n" << std::string(larguraDoTerminal, '=') << "\n";
                 std::cout << "\n" << margemMsg << "Escolha: ";

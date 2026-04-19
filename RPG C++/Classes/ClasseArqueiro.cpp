@@ -72,9 +72,13 @@ Atributos ClasseArqueiro::obterAtributosClasse() const
 std::vector<std::unique_ptr<Item>> ClasseArqueiro::obterEquipamentoClasse() const 
 {
     std::vector<std::unique_ptr<Item>> equipamentos;
-    equipamentos.push_back(std::make_unique<ItemConsumivel>("Pocao de Cura (30%)"));
-    equipamentos.push_back(std::make_unique<ItemConsumivel>("Pocao de Cura (30%)"));
-    equipamentos.push_back(std::make_unique<ItemConsumivel>("Pocao de Cura (30%)"));
+    
+    int quantidadePocoes = 3;
+    int porcentagemCura = 30;
+    for (int i = 0; i < quantidadePocoes; ++i) {
+        equipamentos.push_back(std::make_unique<ItemConsumivel>("Pocao de Cura (" + std::to_string(porcentagemCura) + "%VM)"));
+    }
+    
     equipamentos.push_back(std::make_unique<Arma>("Arco recurvo de madeira", 10, 0));
     equipamentos.push_back(std::make_unique<Escudo>("Bracedeiras de prata", 5, 3));
     equipamentos.push_back(std::make_unique<Armadura>("Armadura leve de couro com malha", 5));

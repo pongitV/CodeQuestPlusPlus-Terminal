@@ -12,6 +12,8 @@
 #include "../Inventario/Material.h"
 #include "../Interfaces/TelaInventario.h"
 
+bool g_labirintoDesbloqueado = false;
+
 void NPCMorgana::interagir(Personagem* jogadorAtual)
 {
     int larguraDoTerminal = Menu::obterLarguraDoTerminalEmColunas();
@@ -75,10 +77,15 @@ void NPCMorgana::interagir(Personagem* jogadorAtual)
             "",
             "[1] ENCANTAR Armas",
             "[2] COMPRAR Pocoes de Buff",
-            "[3] COMPRAR Frascos de Debuff",
-            "[0] VOLTAR",
-            ""
+            "[3] COMPRAR Frascos de Debuff"
         };
+        
+        if (!g_labirintoDesbloqueado) {
+            menuEsquerda.push_back("[4] [M] Consiga 3x Coracoes da floresta");
+        }
+        
+        menuEsquerda.push_back("[0] VOLTAR");
+        menuEsquerda.push_back("");
 
         int maxLinhas = std::max(menuEsquerda.size(), arteMorgana.size());
         int larguraInfo = 45;
@@ -298,6 +305,33 @@ void NPCMorgana::interagir(Personagem* jogadorAtual)
                 }
             } while (opcaoCompra != "0");
         }
+        else if (opcaoMorgana == "4" && !g_labirintoDesbloqueado)
+        {
+            int qtdCoracoes = jogadorAtual->obterInventario()->contarItem("Coracao da floresta");
+            if (qtdCoracoes >= 3)
+            {
+                jogadorAtual->obterInventario()->removerItem("Coracao da floresta");
+                jogadorAtual->obterInventario()->removerItem("Coracao da floresta");
+                jogadorAtual->obterInventario()->removerItem("Coracao da floresta");
+                g_labirintoDesbloqueado = true;
+                
+                Menu::limparTelaDoTerminal();
+                Menu::exibirLogoDoJogo("MISSAO CONCLUIDA");
+                std::cout << "\n" << margemMsg << "[Morgana]: Ah, perfeitos! Estes coracoes pulsam com uma magia ancestral.\n";
+                std::cout << margemMsg << "[Morgana]: Como recompensa, revelarei um segredo... Atrás de mim, ha uma passagem secreta.\n";
+                std::cout << margemMsg << "[Morgana]: Use a entrada [^L] para explorar o meu Labirinto Subterraneo.\n";
+                std::cout << margemMsg << "[Morgana]: E um lugar perigoso, mergulhado em uma nevoa de cor roxa, mas guarda grandes tesouros.\n";
+            }
+            else
+            {
+                Menu::limparTelaDoTerminal();
+                Menu::exibirLogoDoJogo("MISSAO");
+                std::cout << "\n" << margemMsg << "[Morgana]: Voce ainda nao possui os 3 Coracoes da floresta que eu pedi.\n";
+                std::cout << margemMsg << "[Morgana]: (Voce possui: " << qtdCoracoes << "/3)\n";
+                std::cout << margemMsg << "[Morgana]: Eles sao dropados por Abominacoes no Coracao da Arvore.\n";
+            }
+            Menu::aguardarPressionamentoDeEnter();
+        }
     } while (opcaoMorgana != "0");
 }
 
@@ -306,7 +340,7 @@ std::vector<std::string> NPCMorgana::obterMapaCabana()
     return {
         " ######################",
         "##..........;<>......##",
-        "##..[^S]..........M..##",
+        "##..[^S]..........M..^L#",
         "##..........;<>......##",
         " ######################"
     };
