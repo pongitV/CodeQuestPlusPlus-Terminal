@@ -166,7 +166,7 @@ void TelaAtributos::gerenciarFichaDoJogador(Personagem* jogadorAtual)
             }
         } else if (opcaoEscolhidaNoMenuJogador == "3") {
             std::string confirmacao;
-            std::cout << "\n[AVISO]: Deseja realmente voltar ao menu principal? Todo o progresso nao salvo sera perdido. (S/N): ";
+            std::cout << "\n[AVISO]: Deseja realmente voltar ao menu principal? Todo o progresso sera perdido. (S/N): ";
             std::cin >> confirmacao;
             if (confirmacao == "S" || confirmacao == "s") {
                 std::cout << "[AVISO]: Tem certeza absoluta? (S/N): ";
