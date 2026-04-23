@@ -47,9 +47,16 @@ int main()
     Menu::limparTelaDoTerminal();
 
     // 3. Inicia o fluxo do jogo
-    std::unique_ptr<Personagem> jogador = Menu::iniciarCriacaoDePersonagem();
-    Mapa mapaDoJogo(jogador.get());
-    mapaDoJogo.iniciarLoopDeExploracaoDoMapa();
+    while (true) {
+        auto jogador{Menu::iniciarCriacaoDePersonagem()};
+        Mapa mapaDoJogo{jogador.get()};
+        mapaDoJogo.iniciarLoopDeExploracaoDoMapa();
+        
+        // Se saiu do mapa mas nao pediu pra voltar pro menu, o jogo encerra
+        if (!jogador->obterVoltarProMenu()) {
+            break;
+        }
+    }
 
     return 0;
 }

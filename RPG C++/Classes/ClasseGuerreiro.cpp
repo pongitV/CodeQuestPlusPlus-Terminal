@@ -90,13 +90,13 @@ std::string ClasseGuerreiro::obterNomeHabilidadeClasse() const { return "Grito d
 std::string ClasseGuerreiro::obterDescricaoHabilidadeClasse() const { return "Gasta seu turno para aumentar Forca e Destreza em 1.5x por 2 turnos."; }
 void ClasseGuerreiro::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*>& /*inimigos*/) 
 {
-    if (u->obterCooldownHab1() > 0) {
+    if (u->obterCooldown("Determinacao") > 0) {
         std::cout << "[SISTEMA]: Grito de guerra em recarga!\n";
         u->definirHabilidadeCancelada(true);
         return;
     }
-    if (u->obterTurnosGrito() > 0) {
-        std::cout << "[SISTEMA]: Grito de guerra ja esta ativo!\n";
+    if (u->possuiEfeito("GritoDeGuerra")) {
+        std::cout << "[SISTEMA]: O grito de guerra ja esta ativo!\n";
         u->definirHabilidadeCancelada(true);
         return;
     }
@@ -104,12 +104,8 @@ void ClasseGuerreiro::usarHabilidadeClasse(Personagem* u, std::vector<Personagem
     int bonusForca = u->obterForca() / 2;
     int bonusDestreza = u->obterDestreza() / 2;
     
-    u->alterarAtributoEstatico("forca", bonusForca);
-    u->alterarAtributoEstatico("destreza", bonusDestreza);
-    
-    u->definirBonusGrito(bonusForca, bonusDestreza);
-    u->definirTurnosGrito(2);
-    u->definirCooldownHab1(4); // 3 turnos de recarga
+    u->adicionarEfeito(std::make_unique<EfeitoGritoGuerra>(2, bonusForca, bonusDestreza));
+    u->definirCooldown("Determinacao", 4); // 3 turnos de recarga
     
     std::cout << "[HABILIDADE]: Grito de guerra! Forca +" << bonusForca << " e Destreza +" << bonusDestreza << "!\n";
 }

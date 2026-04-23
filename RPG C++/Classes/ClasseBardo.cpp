@@ -92,9 +92,9 @@ void ClasseBardo::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*>& 
 {
     while (true) {
         std::cout << "\n--- SINFONIA DO BARDO ---\n";
-        std::cout << "[1] Flashing lights (Cura e pula o turno | Recarga: " << u->obterCooldownHab1() << ")\n";
-        std::cout << "[2] On sight (1.5x Dano no proximo ataque | Recarga: " << u->obterCooldownHab2() << ")\n";
-        std::cout << "[3] Through the wire (Metade do dano recebido | Recarga: " << u->obterCooldownHab3() << ")\n";
+        std::cout << "[1] Flashing lights (Cura e pula o turno | Recarga: " << u->obterCooldown("FlashingLights") << ")\n";
+        std::cout << "[2] On sight (1.5x Dano no proximo ataque | Recarga: " << u->obterCooldown("OnSight") << ")\n";
+        std::cout << "[3] Through the wire (Metade do dano recebido | Recarga: " << u->obterCooldown("ThroughTheWire") << ")\n";
         std::cout << "[0] CANCELAR\n";
         std::cout << "Escolha: ";
         
@@ -106,28 +106,28 @@ void ClasseBardo::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*>& 
             return;
         }
         if (escolha == 1) {
-            if (u->obterCooldownHab1() > 0) { std::cout << "[SISTEMA]: Em recarga!\n"; continue; }
-            int vidaPerdida = u->obterVidaMaxima() - u->obterVida();
-            int cura = static_cast<int>(vidaPerdida * 0.3);
-            u->modificarVida(cura);
+            if (u->obterCooldown("FlashingLights") > 0) { std::cout << "[SISTEMA]: Em recarga!\n"; continue; }
             u->definirPularTurnoInimigo(true);
-            u->definirCooldownHab1(3);
+            
+            // Cura baseada na sabedoria do Bardo + % da vida maxima
+            int cura = (u->obterSabedoria() * 2) + (u->obterVidaMaxima() * 0.15);
+            u->modificarVida(cura);
+            u->definirCooldown("FlashingLights", 3);
             std::cout << "[HABILIDADE]: !Flashing lights! Voce recuperou " << cura << " HP e encantou os inimigos!\n";
             return;
         }
         if (escolha == 2) {
-            if (u->obterCooldownHab2() > 0) { std::cout << "[SISTEMA]: Em recarga!\n"; continue; }
+            if (u->obterCooldown("OnSight") > 0) { std::cout << "[SISTEMA]: Em recarga!\n"; continue; }
             u->definirMultiplicador(1.5);
-            u->definirTurnosBuff(2); 
-            u->definirCooldownHab2(3);
+            std::cout << u->obterNome() << " tocou 'On sight' e ganhara 1.5x de dano!\n";
+            u->definirCooldown("OnSight", 3);
             std::cout << "[HABILIDADE]: !On sight! Seu proximo ataque causara 1.5x de dano!\n";
             return;
         }
         if (escolha == 3) {
-            if (u->obterCooldownHab3() > 0) { std::cout << "[SISTEMA]: Em recarga!\n"; continue; }
-            u->definirRecebendoMetadeDano(true);
-            u->definirTurnosMetadeDano(2);
-            u->definirCooldownHab3(3);
+            if (u->obterCooldown("ThroughTheWire") > 0) { std::cout << "[SISTEMA]: Em recarga!\n"; continue; }
+            u->adicionarEfeito(std::make_unique<EfeitoMetadeDano>(1));
+            u->definirCooldown("ThroughTheWire", 3);
             std::cout << "[HABILIDADE]: !Through the wire! Voce esta protegido contra metade do dano recebido!\n";
             return;
         }

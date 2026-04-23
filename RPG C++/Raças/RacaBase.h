@@ -5,12 +5,14 @@
 #include <memory>
 #include "../Sistema/Personagem.h"
 #include "../Inventario/Item.h"
+#include "../Sistema/Tipos.h"
 
 class RacaBase {
 public:
     virtual ~RacaBase() = default;
 
     virtual std::string obterNomeRaca() const = 0;
+    virtual TipoRaca obterTipoRaca() const = 0;
     virtual std::vector<std::string> obterAparenciaRaca() const = 0;
     virtual Atributos obterAtributosRaca() const = 0;
 

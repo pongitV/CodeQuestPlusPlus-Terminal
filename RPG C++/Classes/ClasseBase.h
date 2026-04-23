@@ -2,6 +2,7 @@
 #include "../Inventario/Inventario.h"
 #include "../Inventario/Item.h"
 #include <memory>
+#include "../Sistema/Tipos.h"
 
 #pragma once
 
@@ -16,6 +17,7 @@ public:
 
     // INFORMACOES DA CLASSE
     virtual std::string obterNomeClasse() const = 0;
+    virtual TipoClasse obterTipoClasse() const = 0;
     virtual std::vector<std::string> obterAparenciaClasseMenu() const = 0;
     virtual Atributos obterAtributosClasse() const = 0;
     virtual std::vector<std::unique_ptr<Item>> obterEquipamentoClasse() const = 0;

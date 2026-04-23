@@ -16,10 +16,13 @@ std::vector<std::unique_ptr<Personagem>> GeradorInimigos::criarInimigosGenericos
 {
     std::vector<std::unique_ptr<Personagem>> horda;
     horda.reserve(quantidade); 
-    for (int i = 0; i < quantidade; ++i) {
+    for (auto i{0}; i < quantidade; ++i) 
+    {
+        auto raca{std::make_unique<RacaType>()};
+        auto nomeRaca{raca->obterNomeRaca()};
         horda.push_back(std::make_unique<Personagem>(
-            RacaType::obterNomeRaca(),
-            std::make_unique<RacaType>(),
+            nomeRaca,
+            std::move(raca),
             std::make_unique<ClasseType>()
         ));
     }

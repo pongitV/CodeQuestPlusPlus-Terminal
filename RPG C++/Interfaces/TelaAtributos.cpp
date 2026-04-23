@@ -39,13 +39,13 @@ void TelaAtributos::exibir(Personagem* jogadorAtual)
     std::cout << "\n" << std::string(largura, '=') << "\n\n";
 
     double multiplicadorDeAtributosAtual = jogadorAtual->obterMultiplicador();
-    int quantidadeDeTurnosRestantesDoBuff = jogadorAtual->obterTurnosBuff();
+    int quantidadeDeTurnosRestantesDoBuff = jogadorAtual->obterTurnosEfeito("BuffAtributos");
     bool temBuff = (quantidadeDeTurnosRestantesDoBuff > 0 && multiplicadorDeAtributosAtual > 1.0);
 
-    int forcaPerdida = jogadorAtual->obterFraqueza() ? (jogadorAtual->obterForca() / 3) : 0;
-    int destrezaPerdida = jogadorAtual->obterLentidao() ? jogadorAtual->obterDestreza() : 0; 
-    int resPerdida = jogadorAtual->obterQuebraResistencia() ? jogadorAtual->obterResistencia() : 0;
-    int constPerdida = jogadorAtual->obterQuebraResistencia() ? (jogadorAtual->obterConstituicao() / 2) : 0;
+    int forcaPerdida = jogadorAtual->possuiEfeito("Fraqueza") ? (jogadorAtual->obterForca() / 3) : 0;
+    int destrezaPerdida = jogadorAtual->possuiEfeito("Lentidao") ? jogadorAtual->obterDestreza() : 0; 
+    int resPerdida = jogadorAtual->possuiEfeito("QuebraResistencia") ? jogadorAtual->obterResistencia() : 0;
+    int constPerdida = jogadorAtual->possuiEfeito("QuebraResistencia") ? (jogadorAtual->obterConstituicao() / 2) : 0;
 
     int espacos = (largura - 50) / 2;
     std::string margem(espacos > 0 ? espacos : 0, ' ');
@@ -121,11 +121,11 @@ void TelaAtributos::exibir(Personagem* jogadorAtual)
 
     std::cout << "\n" << margem << "--- STATUS ATUAIS ---\n";
     bool temStatus = false;
-    if (jogadorAtual->obterTurnosBuff() > 0) { std::cout << margem << "Efeito: \033[32mBuff Atributos (" << jogadorAtual->obterTurnosBuff() << " turnos)\033[0m\n"; temStatus = true; }
-    if (jogadorAtual->obterSangramento()) { std::cout << margem << "Efeito: \033[31mSangramento (" << jogadorAtual->obterTurnosSangramento() << " turnos)\033[0m\n"; temStatus = true; }
-    if (jogadorAtual->obterLentidao()) { std::cout << margem << "Efeito: \033[35mLentidao (" << jogadorAtual->obterTurnosLentidao() << " turnos)\033[0m\n"; temStatus = true; }
-    if (jogadorAtual->obterFraqueza()) { std::cout << margem << "Efeito: \033[33mFraqueza (" << jogadorAtual->obterTurnosFraqueza() << " turnos)\033[0m\n"; temStatus = true; }
-    if (jogadorAtual->obterQuebraResistencia()) { std::cout << margem << "Efeito: \033[36mQuebra de Resistencia\033[0m\n"; temStatus = true; }
+    if (jogadorAtual->possuiEfeito("BuffAtributos")) { std::cout << margem << "Efeito: \033[32mBuff Atributos (" << jogadorAtual->obterTurnosEfeito("BuffAtributos") << " turnos)\033[0m\n"; temStatus = true; }
+    if (jogadorAtual->possuiEfeito("Lentidao")) { std::cout << margem << "Efeito: \033[35mLentidao (" << jogadorAtual->obterTurnosEfeito("Lentidao") << " turnos)\033[0m\n"; temStatus = true; }
+    if (jogadorAtual->possuiEfeito("Sangramento")) { std::cout << margem << "Efeito: \033[31mSangramento (" << jogadorAtual->obterTurnosEfeito("Sangramento") << " turnos)\033[0m\n"; temStatus = true; }
+    if (jogadorAtual->possuiEfeito("Fraqueza")) { std::cout << margem << "Efeito: \033[31mFraqueza (" << jogadorAtual->obterTurnosEfeito("Fraqueza") << " turnos)\033[0m\n"; temStatus = true; }
+    if (jogadorAtual->possuiEfeito("QuebraResistencia")) { std::cout << margem << "Efeito: \033[36mQuebra de Resistencia\033[0m\n"; temStatus = true; }
     if (!temStatus) std::cout << margem << "Nenhum status ativo.\n";
 
     std::cout << "\n" << std::string(largura, '=') << "\n";
@@ -141,7 +141,7 @@ void TelaAtributos::gerenciarFichaDoJogador(Personagem* jogadorAtual)
         TelaAtributos::exibir(jogadorAtual);
         std::string mensagemDoPrompt = "[0] VOLTAR | [1] LIGAR/DESLIGAR PARRY";
         if (jogadorAtual->podeSubirDeNivel()) mensagemDoPrompt += " | [2] SUBIR DE NIVEL";
-        mensagemDoPrompt += ": ";
+        mensagemDoPrompt += " | [3] VOLTAR AO MENU PRINCIPAL: ";
         int espacosParaCentralizarMensagem = (larguraDoTerminal - (int)mensagemDoPrompt.length()) / 2;
         std::cout << "\n" << std::string(espacosParaCentralizarMensagem > 0 ? espacosParaCentralizarMensagem : 0, ' ') << mensagemDoPrompt;
         std::cin >> opcaoEscolhidaNoMenuJogador;
@@ -163,6 +163,18 @@ void TelaAtributos::gerenciarFichaDoJogador(Personagem* jogadorAtual)
                 std::cin.clear(); std::cin.ignore(1000, '\n');
                 std::cout << "[ERRO]: Opcao invalida.\n";
                 Menu::aguardarPressionamentoDeEnter();
+            }
+        } else if (opcaoEscolhidaNoMenuJogador == "3") {
+            std::string confirmacao;
+            std::cout << "\n[AVISO]: Deseja realmente voltar ao menu principal? Todo o progresso nao salvo sera perdido. (S/N): ";
+            std::cin >> confirmacao;
+            if (confirmacao == "S" || confirmacao == "s") {
+                std::cout << "[AVISO]: Tem certeza absoluta? (S/N): ";
+                std::cin >> confirmacao;
+                if (confirmacao == "S" || confirmacao == "s") {
+                    jogadorAtual->definirVoltarProMenu(true);
+                    return;
+                }
             }
         }
     } while (opcaoEscolhidaNoMenuJogador != "0");

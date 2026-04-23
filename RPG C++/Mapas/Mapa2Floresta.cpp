@@ -26,7 +26,7 @@ extern bool g_labirintoDesbloqueado;
 
 Mapa2Floresta::Mapa2Floresta(Personagem* personagemJogador) : 
     jogadorAtual(personagemJogador), posicaoXDoJogador(8), posicaoYDoJogador(8),
-    jogadorEstaDentroDeUmSubMapa(false), coracaoDaArvoreJaFoiVisitado(false),
+    jogadorEstaDentroDeUmSubMapa(false),
     posicaoXSalvaAntesDeEntrarNoSubMapa(0), posicaoYSalvaAntesDeEntrarNoSubMapa(0)
 {
     matrizDoMapaAtual = 
@@ -74,10 +74,12 @@ Mapa2Floresta::Mapa2Floresta(Personagem* personagemJogador) :
 
 void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa() 
 {
-    static bool cabanaJaFoiVisitada = false;
     static std::vector<std::string> matrizDoMapaDaCabanaSalva;
-    static bool labirintoJaFoiVisitado = false;
     static std::vector<std::string> matrizDoMapaDoLabirintoSalva;
+    static std::vector<std::string> matrizDoMapaDoCoracaoDaArvoreSalva;
+    static bool cabanaJaFoiVisitada = false;
+    static bool coracaoDaArvoreJaFoiVisitado = false;
+    static bool labirintoJaFoiVisitado = false;
     bool exploracaoEstaAtiva = true;
     std::string tituloDoMapaAtual = "FLORESTA";
     
@@ -203,6 +205,8 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
         if (teclaPressionadaPeloJogador == 'c' || teclaPressionadaPeloJogador == 'C') 
         {
             TelaAtributos::gerenciarFichaDoJogador(jogadorAtual);
+
+            if (jogadorAtual->obterVoltarProMenu()) break;
 
             Menu::limparTelaDoTerminal();
             Menu::exibirLogoDoJogo(tituloDoMapaAtual);

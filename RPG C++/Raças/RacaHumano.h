@@ -8,6 +8,7 @@ class RacaHumano : public RacaBase
 {
 public:
     std::string obterNomeRaca() const override;
+    TipoRaca obterTipoRaca() const override { return TipoRaca::Humano; }
     std::vector<std::string> obterAparenciaRaca() const override;
     Atributos obterAtributosRaca() const override;
 

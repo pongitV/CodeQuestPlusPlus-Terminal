@@ -22,7 +22,6 @@
 
 Mapa::Mapa(Personagem* personagemJogador) : 
 jogadorAtual(personagemJogador), posicaoXDoJogador(2), posicaoYDoJogador(2), jogadorEstaDentroDeUmSubMapa(false), 
-cavernaJaFoiVisitada(false), lojaJaFoiVisitada(false), 
 posicaoXSalvaAntesDeEntrarNoSubMapa(0), posicaoYSalvaAntesDeEntrarNoSubMapa(0) 
 {
     matrizDoMapaAtual = {
@@ -57,9 +56,11 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
     bool exploracaoEstaAtiva = true;
     std::string tituloDoMapaAtual = "VILA INICIAL";
 
+    static std::vector<std::string> matrizDoMapaDaForjaSalva;
     static bool bjornResgatado = false;
     static bool forjaJaFoiVisitada = false;
-    static std::vector<std::string> matrizDoMapaDaForjaSalva;
+    static bool lojaJaFoiVisitada = false;
+    static bool cavernaJaFoiVisitada = false;
     
     HANDLE manipuladorDoTerminal = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_CURSOR_INFO informacoesDoCursor;
@@ -183,6 +184,8 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
         if (teclaPressionadaPeloJogador == 'c' || teclaPressionadaPeloJogador == 'C') 
         {
             TelaAtributos::gerenciarFichaDoJogador(jogadorAtual);
+
+            if (jogadorAtual->obterVoltarProMenu()) break;
 
             // Restaura a tela do mapa
             Menu::limparTelaDoTerminal();
@@ -453,6 +456,8 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
                 Mapa2Floresta mapaFloresta(jogadorAtual);
                 mapaFloresta.iniciarLoopDeExploracaoDoMapa();
                 
+                if (jogadorAtual->obterVoltarProMenu()) break;
+
                 // Quando a exploracao da floresta terminar (o jogador usar a saida ^V), o jogo continuara na Vila
                 // Respawn dos inimigos da Vila e recarregamento do mapa
                 matrizDoMapaAtual = {

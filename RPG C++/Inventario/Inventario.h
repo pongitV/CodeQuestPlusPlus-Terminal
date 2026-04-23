@@ -13,6 +13,7 @@ private:
     int quantidadeDeOuro;
 
 public:
+    const std::vector<Item*>& obterTodosOsItens() const { return listaDeItens; }
     Inventario();
     ~Inventario();
 

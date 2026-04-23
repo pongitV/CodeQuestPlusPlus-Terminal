@@ -89,9 +89,10 @@ void RacaSlime::realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, std
 }
 
 void RacaSlime::aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCausado) {
-    if (!alvo->obterLentidao() && danoCausado > 0 && (std::rand() % 100) < 20) {
-        alvo->aplicarLentidaoEstatistica();
-        alvo->definirTurnosLentidao(3);
-        std::cout << "\033[35m>> O ataque de " << atacante->obterNome() << " espalhou gosma! " << alvo->obterNome() << " perdeu destreza! (3 turnos)\033[0m\n";
+    if (std::rand() % 100 < 15) { // 15% de chance
+        if (!alvo->possuiEfeito("Lentidao")) {
+            alvo->adicionarEfeito(std::make_unique<EfeitoLentidao>(3));
+            std::cout << "\033[35m>> [PASSIVA SLIME]: Uma gosma esverdeada grudou e deixou " << alvo->obterNome() << " mais lento!\033[0m\n";
+        }
     }
 }

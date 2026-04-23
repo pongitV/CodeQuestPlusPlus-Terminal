@@ -36,30 +36,38 @@ void Arma::aplicarEfeitoSangramento() { efeitoSangramento = true; }
 void Arma::aplicarEfeitoLentidao() { efeitoLentidao = true; }
 
 void Arma::antesDeCausarDano(Personagem* atacante, Personagem* alvo) {
-    if (temPropriedade(Propriedade::Penetrante) && !alvo->obterQuebraResistencia()) {
-        alvo->aplicarQuebraResistenciaEstatistica();
+    if (temPropriedade(Propriedade::Penetrante) && !alvo->possuiEfeito("QuebraResistencia")) {
+        alvo->adicionarEfeito(std::make_unique<EfeitoQuebraResistencia>(3));
         std::cout << "\033[36m>> A arma de " << atacante->obterNome() << " perfurou a armadura, reduzindo a resistencia de " << alvo->obterNome() << " pela metade e a constituicao em um terco!\033[0m\n";
     }
 }
 
 void Arma::aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCausado) {
     if (temPropriedade(Propriedade::ViolaoMagico) && danoCausado > 0) {
-        alvo->adicionarEfeito(std::make_unique<EfeitoSugaSangue>("Raizes Sangue Suga", 1, atacante));
-    }
-    if (temPropriedade(Propriedade::CipoPrisao) && danoCausado > 0) {
-        if ((std::rand() % 100) < 30) {
-            alvo->adicionarEfeito(std::make_unique<EfeitoAtordoamento>("Cipos", 1));
+        if (!alvo->possuiEfeito("SugaSangue")) {
+            alvo->adicionarEfeito(std::make_unique<EfeitoSugaSangue>(2, atacante));
         }
     }
-    if (possuiEfeitoSangramento() && !alvo->obterSangramento() && danoCausado > 0) {
-        alvo->definirSangramento(true);
-        alvo->definirTurnosSangramento(3);
-        std::cout << "\033[31m>> " << alvo->obterNome() << " comecou a sangrar profundamente! (3 turnos)\033[0m\n";
+    
+    if (temPropriedade(Propriedade::CipoPrisao) && danoCausado > 0) {
+        if ((std::rand() % 100) < 30 && !alvo->possuiEfeito("Atordoamento")) {
+            alvo->adicionarEfeito(std::make_unique<EfeitoAtordoamento>(1));
+        }
     }
-    if (possuiEfeitoLentidao() && !alvo->obterLentidao() && danoCausado > 0) {
-        alvo->aplicarLentidaoEstatistica();
-        alvo->definirTurnosLentidao(3);
-        std::cout << "\033[35m>> " << alvo->obterNome() << " foi coberto por gosma e sua destreza caiu pela metade! (3 turnos)\033[0m\n";
+
+    if (possuiEfeitoSangramento() && danoCausado > 0) {
+        if (!alvo->possuiEfeito("Sangramento")) {
+            int danoSangramento = std::max(1, alvo->obterVidaMaxima() / 10);
+            alvo->adicionarEfeito(std::make_unique<EfeitoSangramento>(3, danoSangramento));
+            std::cout << "\033[31m>> " << alvo->obterNome() << " comecou a sangrar profundamente! (3 turnos)\033[0m\n";
+        }
+    }
+
+    if (possuiEfeitoLentidao() && danoCausado > 0) {
+        if (!alvo->possuiEfeito("Lentidao")) {
+            alvo->adicionarEfeito(std::make_unique<EfeitoLentidao>(3));
+            std::cout << "\033[35m>> " << alvo->obterNome() << " foi coberto por gosma e sua destreza caiu pela metade! (3 turnos)\033[0m\n";
+        }
     }
 }
 

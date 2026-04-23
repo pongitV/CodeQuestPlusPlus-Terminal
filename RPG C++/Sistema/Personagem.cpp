@@ -30,29 +30,13 @@ Personagem::Personagem(std::string nome, std::unique_ptr<RacaBase> r, std::uniqu
     this->estaDefendendo = false;
     this->recargaDefesa = false;
     this->estaInviolavel = false;
-    this->turnosBuff = 0;
     this->recargaHabilidade = false;
     this->pularTurnoInimigo = false;
-    this->sofrendoSangramento = false;
-    this->turnosSangramento = 0;
-    this->sofrendoLentidao = false;
-    this->turnosLentidao = 0;
-    this->sofrendoQuebraResistencia = false;
-    this->sofrendoFraqueza = false;
-    this->turnosFraqueza = 0;
-    this->forcaPerdidaFraqueza = 0;
     this->parryAtivado = false;
     this->dificuldadeAtual = 2; // Padrao: Normal
-
-    this->cooldownHab1 = 0;
-    this->cooldownHab2 = 0;
-    this->cooldownHab3 = 0;
     this->habilidadeCancelada = false;
-    this->recebendoMetadeDano = false;
-    this->turnosMetadeDano = 0;
-    this->turnosGrito = 0;
-    this->bonusForcaGrito = 0;
-    this->bonusDestrezaGrito = 0;
+    this->querVoltarProMenu = false;
+
 
     auto kit = this->classe->obterEquipamentoClasse();
     for (auto& itemUnique : kit) 
@@ -122,10 +106,14 @@ void Personagem::alterarAtributoEstatico(const std::string& atributo, int valor)
     if (statsFinais.sabedoria < 0) statsFinais.sabedoria = 0;
 }
 
-void Personagem::reduzirCooldowns() {
-    if (cooldownHab1 > 0) cooldownHab1--;
-    if (cooldownHab2 > 0) cooldownHab2--;
-    if (cooldownHab3 > 0) cooldownHab3--;
+void Personagem::reduzirCooldowns() 
+{
+    if (recargaDefesa) recargaDefesa = false;
+    if (recargaHabilidade) recargaHabilidade = false;
+    for (auto& par : cooldownsAtivos) 
+    {
+        if (par.second > 0) par.second--;
+    }
 }
 
 void Personagem::calcularAtributos() 
@@ -150,7 +138,8 @@ void Personagem::aplicarMultiplicadorDificuldade(double mult)
 
 void Personagem::modificarVida(int valor) 
 {
-    if (valor > 0 && obterNomeClasse() == "Bardo") {
+    if (valor > 0 && obterTipoClasse() == TipoClasse::Bardo) 
+    {
         valor = static_cast<int>(valor * 1.4);
     }
 
@@ -159,60 +148,18 @@ void Personagem::modificarVida(int valor)
     if (this->vidaAtual > statsFinais.vida) this->vidaAtual = statsFinais.vida;
 }
 
-void Personagem::aplicarLentidaoEstatistica() 
-{
-    if (!sofrendoLentidao) 
-    {
-        if (obterNomeClasse() == "Arqueiro") {
-            statsFinais.destreza = (statsFinais.destreza * 3) / 4; // 25% em vez de 50%
-        } else {
-            statsFinais.destreza /= 2;
-        }
-        sofrendoLentidao = true;
+bool Personagem::possuiEfeito(const std::string& nome) const {
+    for (const auto& ef : efeitosAtivos) {
+        if (ef->obterNome() == nome) return true;
     }
+    return false;
 }
 
-void Personagem::removerLentidaoEstatistica()
-{
-    if (sofrendoLentidao)
-    {
-        if (obterNomeClasse() == "Arqueiro") {
-            statsFinais.destreza = (statsFinais.destreza * 4) / 3;
-        } else {
-            statsFinais.destreza *= 2;
-        }
-        sofrendoLentidao = false;
+int Personagem::obterTurnosEfeito(const std::string& nome) const {
+    for (const auto& ef : efeitosAtivos) {
+        if (ef->obterNome() == nome) return ef->obterTurnosRestantes();
     }
-}
-
-void Personagem::aplicarFraquezaEstatistica() 
-{
-    if (!sofrendoFraqueza) 
-    {
-        forcaPerdidaFraqueza = statsFinais.forca / 4; // Reduz em 25% exatos
-        statsFinais.forca -= forcaPerdidaFraqueza;
-        sofrendoFraqueza = true;
-    }
-}
-
-void Personagem::removerFraquezaEstatistica()
-{
-    if (sofrendoFraqueza)
-    {
-        statsFinais.forca += forcaPerdidaFraqueza; // Devolve o valor exato perdido
-        forcaPerdidaFraqueza = 0;
-        sofrendoFraqueza = false;
-    }
-}
-
-void Personagem::aplicarQuebraResistenciaEstatistica() 
-{
-    if (!sofrendoQuebraResistencia) 
-    {
-        statsFinais.resistencia /= 2; // Reduz pela metade
-        statsFinais.constituicao -= statsFinais.constituicao / 3; // Reduz em 1/3
-        sofrendoQuebraResistencia = true;
-    }
+    return 0;
 }
 
 void Personagem::mostrarStatus() const 
@@ -223,6 +170,18 @@ void Personagem::mostrarStatus() const
 std::string Personagem::obterNomeClasse() const 
 {
     return this->classe->obterNomeClasse();
+}
+
+TipoClasse Personagem::obterTipoClasse() const 
+{
+    if (this->classe) return this->classe->obterTipoClasse();
+    return TipoClasse::Nenhum;
+}
+
+TipoRaca Personagem::obterTipoRaca() const 
+{
+    if (this->raca) return this->raca->obterTipoRaca();
+    return TipoRaca::Nenhum;
 }
 
 void Personagem::equiparItem(Item* item) 
@@ -277,7 +236,7 @@ int Personagem::calcularDefesaBase(int danoBruto, int danoPerfurante) const {
 int Personagem::receberDano(int danoBruto, int danoPerfurante, int danoReduzidoParry, Personagem* atacante, bool aplicarPassivas) {
     int danoFinal = calcularDefesaBase(danoBruto, danoPerfurante);
 
-    if (recebendoMetadeDano) {
+    if (possuiEfeito("MetadeDano")) {
         danoFinal /= 2;
         std::cout << "\033[36m>> [EFEITO]: O dano foi reduzido pela metade! (Through the wire)\033[0m\n";
     }
@@ -308,28 +267,22 @@ int Personagem::receberDano(int danoBruto, int danoPerfurante, int danoReduzidoP
     return danoFinal;
 }
 
-void EfeitoSugaSangue::aplicarInicioTurno(Personagem* alvo) {
-    if (!atacante || atacante->obterVida() <= 0) return;
-    int danoRaizes = alvo->obterVida() * 0.20;
-    if (danoRaizes > 0) 
-    {
-        alvo->modificarVida(-danoRaizes);
-        atacante->modificarVida(danoRaizes);
-        std::cout << "\033[32m>> [" << nome << "]: Drenou " << danoRaizes << " de HP de " << alvo->obterNome() << " e curou " << atacante->obterNome() << "!\033[0m\n";
-    }
-}
-
 void Personagem::adicionarEfeito(std::unique_ptr<EfeitoStatus> efeito) {
+    efeito->aoEntrar(this);
     efeitosAtivos.push_back(std::move(efeito));
 }
 
 void Personagem::processarEfeitosInicioTurno() {
-    for (auto& ef : efeitosAtivos) {
-        ef->aplicarInicioTurno(this);
-        ef->decrementarTurno();
+    for (auto it = efeitosAtivos.begin(); it != efeitosAtivos.end(); ) {
+        (*it)->aplicarInicioTurno(this);
+        (*it)->decrementarTurno();
+        if ((*it)->expirou()) {
+            (*it)->aoSair(this);
+            it = efeitosAtivos.erase(it);
+        } else {
+            ++it;
+        }
     }
-    efeitosAtivos.erase(std::remove_if(efeitosAtivos.begin(), efeitosAtivos.end(),
-        [](const std::unique_ptr<EfeitoStatus>& ef) { return ef->expirou(); }), efeitosAtivos.end());
 }
 
 bool Personagem::podeAgir() const {

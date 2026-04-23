@@ -94,7 +94,7 @@ void ClasseArqueiro::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*
         u->definirHabilidadeCancelada(true);
         return;
     }
-    u->definirInviolavel(true);
+    u->adicionarEfeito(std::make_unique<EfeitoInviolavel>(1));
     u->definirRecarga(true);
     std::cout << "[HABILIDADE]: Retirada com pontaria! Voce se afasta neste turno.\n";
 }

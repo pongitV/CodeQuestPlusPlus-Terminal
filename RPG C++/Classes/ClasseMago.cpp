@@ -89,15 +89,15 @@ std::string ClasseMago::obterNomeHabilidadeClasse() const { return "Canalizacao 
 std::string ClasseMago::obterDescricaoHabilidadeClasse() const { return "Pula seu turno para se defender e dobra o dano no proximo turno. Recarga: 3 turnos."; }
 void ClasseMago::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*>& /*inimigos*/) 
 {
-    if (u->obterCooldownHab1() > 0) {
+    if (u->obterCooldown("EstrategiaArcana") > 0) {
         std::cout << "[SISTEMA]: Canalizacao arcana em recarga!\n";
         u->definirHabilidadeCancelada(true);
         return;
     }
     
     u->definirMultiplicador(2.0);
-    u->definirTurnosBuff(2); 
-    u->definirCooldownHab1(4);
+    u->adicionarEfeito(std::make_unique<EfeitoBuffAtributos>(2)); 
+    u->definirCooldown("EstrategiaArcana", 4);
     
     Item* escudo = u->obterEscudo();
     if (escudo) {

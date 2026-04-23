@@ -120,11 +120,13 @@ void TelaCombate::exibirBarraDeStatusDoJogador(Personagem* jogadorAtual)
     arteDeBarraDeXp += "] \033[34m" + std::to_string(jogadorAtual->obterXpAtual()) + "\033[0m/" + std::to_string(jogadorAtual->obterXpParaSubir());
     
     std::string statusStr = "";
-    if (jogadorAtual->obterTurnosBuff() > 0) statusStr += "\033[32m[Buff Atributos]\033[0m ";
-    if (jogadorAtual->obterSangramento()) statusStr += "\033[31m[Sangramento]\033[0m ";
-    if (jogadorAtual->obterLentidao()) statusStr += "\033[35m[Lentidao]\033[0m ";
-    if (jogadorAtual->obterFraqueza()) statusStr += "\033[33m[Fraqueza]\033[0m ";
-    if (jogadorAtual->obterQuebraResistencia()) statusStr += "\033[36m[Quebra Def.]\033[0m ";
+    if (jogadorAtual->possuiEfeito("BuffAtributos")) statusStr += "\033[32m[Buff Atributos]\033[0m ";
+    if (jogadorAtual->possuiEfeito("MetadeDano")) statusStr += "\033[36m[Metade Dano]\033[0m ";
+    if (jogadorAtual->possuiEfeito("Inviolavel")) statusStr += "\033[34m[Inviolavel]\033[0m ";
+    if (jogadorAtual->possuiEfeito("Sangramento")) statusStr += "\033[31m[Sangrando]\033[0m ";
+    if (jogadorAtual->possuiEfeito("Lentidao")) statusStr += "\033[35m[Lento]\033[0m ";
+    if (jogadorAtual->possuiEfeito("Fraqueza")) statusStr += "\033[33m[Fraqueza]\033[0m ";
+    if (jogadorAtual->possuiEfeito("QuebraResistencia")) statusStr += "\033[36m[Quebra Def.]\033[0m ";
     if (statusStr.empty()) statusStr = "Nenhum";
 
     // Aplicando a cor dinâmica ao HP na linha do status

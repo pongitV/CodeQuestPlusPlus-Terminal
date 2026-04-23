@@ -199,10 +199,11 @@ std::unique_ptr<Personagem> Menu::iniciarCriacaoDePersonagem()
             imprimirTextoComEfeitoDeDigitacao(" [NARRACAO]: E todas lendas possuem um nome.\n\n", 35);
             std::cout << " > Escolha o nome do seu personagem (ou '0' para sair): ";
             
-            std::cin.ignore(std::cin.rdbuf()->in_avail(), '\n');
-            std::getline(std::cin, nomeDoPersonagem);
+            std::string entrada;
+            std::getline(std::cin >> std::ws, entrada);
 
-            if (nomeDoPersonagem == "0") exit(0);
+            if (entrada == "0") exit(0);
+            nomeDoPersonagem = entrada;
             if (!nomeDoPersonagem.empty()) etapaDeCriacaoAtual = 2;
         }
         else if (etapaDeCriacaoAtual == 2) // --- ETAPA 2: RACA ---
@@ -292,19 +293,19 @@ std::unique_ptr<Personagem> Menu::iniciarCriacaoDePersonagem()
                 std::string passivaDesc = "";
                 std::string recargaHab = "";
 
-                if (temp->obterNomeClasse() == "Arqueiro") {
+                if (temp->obterTipoClasse() == TipoClasse::Arqueiro) {
                     passivaNome = "Passos leves";
                     passivaDesc = "Penalidade de armaduras e debuffs de lentidao reduzidos pela metade.";
                     recargaHab = "Recarga: 1 turno.";
-                } else if (temp->obterNomeClasse() == "Bardo") {
+                } else if (temp->obterTipoClasse() == TipoClasse::Bardo) {
                     passivaNome = "Touch the sky";
                     passivaDesc = "Curas e buffs recebidos sao 40% mais fortes.";
                     recargaHab = "Recarga: 3 turnos (Individuais).";
-                } else if (temp->obterNomeClasse() == "Guerreiro") {
+                } else if (temp->obterTipoClasse() == TipoClasse::Guerreiro) {
                     passivaNome = "Golpe decisivo";
                     passivaDesc = "Causa +10%/+20%/+30% de dano em inimigos com menos de 30%/20%/10% de HP.";
                     recargaHab = "Recarga: 3 turnos.";
-                } else if (temp->obterNomeClasse() == "Mago") {
+                } else if (temp->obterTipoClasse() == TipoClasse::Mago) {
                     passivaNome = "Foco arcano";
                     passivaDesc = "Ataques ressoam (25% em area) ou causam +25% de dano em alvo unico.";
                     recargaHab = "Recarga: 3 turnos.";
@@ -445,10 +446,10 @@ void Menu::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>& listaD
         for (size_t indiceInimigo = 0; indiceInimigo < listaDeInimigos.size(); indiceInimigo++) 
         {
             std::vector<std::pair<std::string, std::string>> debuffs;
-            if (listaDeInimigos[indiceInimigo]->obterSangramento()) debuffs.push_back({"[Sangramento]", "\033[31m[Sangramento]\033[0m"});
-            if (listaDeInimigos[indiceInimigo]->obterLentidao()) debuffs.push_back({"[Lentidao]", "\033[35m[Lentidao]\033[0m"});
-            if (listaDeInimigos[indiceInimigo]->obterFraqueza()) debuffs.push_back({"[Fraqueza]", "\033[33m[Fraqueza]\033[0m"});
-            if (listaDeInimigos[indiceInimigo]->obterQuebraResistencia()) debuffs.push_back({"[Quebra Def.]", "\033[36m[Quebra Def.]\033[0m"});
+            if (listaDeInimigos[indiceInimigo]->possuiEfeito("Sangramento")) debuffs.push_back({"[Sangramento]", "\033[31m[Sangramento]\033[0m"});
+            if (listaDeInimigos[indiceInimigo]->possuiEfeito("Lentidao")) debuffs.push_back({"[Lentidao]", "\033[35m[Lentidao]\033[0m"});
+            if (listaDeInimigos[indiceInimigo]->possuiEfeito("Fraqueza")) debuffs.push_back({"[Fraqueza]", "\033[33m[Fraqueza]\033[0m"});
+            if (listaDeInimigos[indiceInimigo]->possuiEfeito("QuebraResistencia")) debuffs.push_back({"[Quebra Def.]", "\033[36m[Quebra Def.]\033[0m"});
 
             std::string visualStr = "";
             std::string printStr = "";

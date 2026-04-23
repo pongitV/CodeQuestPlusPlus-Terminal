@@ -2,7 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <limits>
-#include <ctime>
+#include <random>
 #include <chrono>
 #include <thread>
 
@@ -26,7 +26,6 @@
 SistemaRPG::SistemaRPG(Personagem* jogadorParaOCombate, std::vector<std::unique_ptr<Personagem>>&& inimigosParaOCombate) 
     : jogadorAtual(jogadorParaOCombate), listaDeInimigos(std::move(inimigosParaOCombate)), contadorDoTurnoAtual(1), quantidadeDeOuroObtido(0), quantidadeDeXpObtido(0), totalDeDanoCausado(0), totalDeDanoRecebido(0), danoMagicoPerfuranteAtual(0)
 {
-    std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
     int nivelDeDificuldade = jogadorAtual->obterDificuldade();
     double multiplicadorDeDificuldadeDosInimigos = 1.0;
@@ -89,34 +88,6 @@ void SistemaRPG::iniciarCombate()
     {
         // --- PROCESSAMENTO DE DEBUFFS DO JOGADOR NO INICIO DO TURNO ---
         jogadorAtual->reduzirCooldowns();
-        if (jogadorAtual->obterSangramento()) 
-        {
-            int danoSangramento = std::max(1, jogadorAtual->obterVidaMaxima() / 10);
-            jogadorAtual->modificarVida(-danoSangramento);
-            
-            Menu::limparTelaDoTerminal();
-            std::cout << "\n\033[31m[EFEITO]: Voce perdeu " << danoSangramento << " HP devido ao sangramento! (" << jogadorAtual->obterTurnosSangramento() - 1 << " turnos restantes)\033[0m\n";
-            
-            jogadorAtual->definirTurnosSangramento(jogadorAtual->obterTurnosSangramento() - 1);
-            if (jogadorAtual->obterTurnosSangramento() <= 0) {
-                jogadorAtual->definirSangramento(false);
-                std::cout << "\033[31m[EFEITO]: O seu sangramento parou.\033[0m\n";
-            }
-            if (verificarCondicaoDeVitoriaOuDerrota()) return;
-            Menu::aguardarPressionamentoDeEnter();
-        }
-
-        if (jogadorAtual->obterLentidao()) 
-        {
-            jogadorAtual->definirTurnosLentidao(jogadorAtual->obterTurnosLentidao() - 1);
-            if (jogadorAtual->obterTurnosLentidao() <= 0) 
-            {
-                jogadorAtual->removerLentidaoEstatistica();
-                Menu::limparTelaDoTerminal();
-                std::cout << "\n\033[35m[EFEITO]: Voce se livrou da gosma e recuperou sua agilidade.\033[0m\n";
-                Menu::aguardarPressionamentoDeEnter();
-            }
-        }
     
     jogadorAtual->processarEfeitosInicioTurno();
         // --- FIM DO PROCESSAMENTO DE DEBUFFS ---
@@ -263,12 +234,10 @@ void SistemaRPG::iniciarCombate()
                         std::string nomeFrasco = frasco->obterNomeItem();
                         
                         if (frasco->temPropriedade(Propriedade::ConsumivelDebuffLentidao)) {
-                            alvo->aplicarLentidaoEstatistica();
-                            alvo->definirTurnosLentidao(3);
+                            alvo->adicionarEfeito(std::make_unique<EfeitoLentidao>(3));
                             std::cout << "\n\033[35m>> Voce jogou o frasco! " << alvo->obterNome() << " esta com lentidao por 3 turnos!\033[0m\n";
                         } else if (frasco->temPropriedade(Propriedade::ConsumivelDebuffFraqueza)) {
-                            alvo->aplicarFraquezaEstatistica();
-                            alvo->definirTurnosFraqueza(3);
+                            alvo->adicionarEfeito(std::make_unique<EfeitoFraqueza>(3));
                             std::cout << "\n\033[31m>> Voce jogou o frasco! " << alvo->obterNome() << " teve sua forca reduzida em 25% por 3 turnos!\033[0m\n";
                         }
                         
@@ -339,42 +308,8 @@ void SistemaRPG::executarTurnoDeTodosOsInimigos()
         for (auto& inimigoAtualPtr : listaDeInimigos) 
         {
             Personagem* inimigoAtual = inimigoAtualPtr.get();
-            if (inimigoAtual->obterSangramento() && inimigoAtual->obterVida() > 0)
-            {
-                int danoSangramento = std::max(1, inimigoAtual->obterVida() / 10);
-                inimigoAtual->modificarVida(-danoSangramento);
-                std::cout << "\033[31m[EFEITO]: " << inimigoAtual->obterNome() << " perdeu " << danoSangramento << " HP devido ao sangramento! (" << inimigoAtual->obterTurnosSangramento() - 1 << " turnos restantes)\033[0m\n";
-                
-                inimigoAtual->definirTurnosSangramento(inimigoAtual->obterTurnosSangramento() - 1);
-                if (inimigoAtual->obterTurnosSangramento() <= 0) {
-                    inimigoAtual->definirSangramento(false);
-                    std::cout << "\033[31m[EFEITO]: O sangramento em " << inimigoAtual->obterNome() << " parou.\033[0m\n";
-                }
-
-                if (inimigoAtual->obterVida() <= 0) continue; // Pula o ataque se o inimigo morreu para o sangramento
-            }
-
         inimigoAtual->processarEfeitosInicioTurno();
-
-            if (inimigoAtual->obterLentidao())
-            {
-                inimigoAtual->definirTurnosLentidao(inimigoAtual->obterTurnosLentidao() - 1);
-                if (inimigoAtual->obterTurnosLentidao() <= 0)
-                {
-                    inimigoAtual->removerLentidaoEstatistica();
-                    std::cout << "\033[35m[EFEITO]: " << inimigoAtual->obterNome() << " se livrou da gosma e recuperou sua agilidade.\033[0m\n";
-                }
-            }
-
-            if (inimigoAtual->obterFraqueza()) 
-            {
-                inimigoAtual->definirTurnosFraqueza(inimigoAtual->obterTurnosFraqueza() - 1);
-                if (inimigoAtual->obterTurnosFraqueza() <= 0) 
-                {
-                    inimigoAtual->removerFraquezaEstatistica();
-                    std::cout << "\033[31m[EFEITO]: " << inimigoAtual->obterNome() << " recuperou sua forca original.\033[0m\n";
-                }
-            }
+            if (inimigoAtual->obterVida() <= 0) continue;
 
             if (jogadorAtual->obterVida() > 0) 
             {
@@ -403,40 +338,7 @@ void SistemaRPG::executarTurnoDeTodosOsInimigos()
         jogadorAtual->definirRecargaDefesa(false); // Resfria o Cooldown
     }
 
-    // Gerencia a duracao do buff acumulativo
-    if (jogadorAtual->obterTurnosBuff() > 0) 
-    {
-        jogadorAtual->definirTurnosBuff(jogadorAtual->obterTurnosBuff() - 1);
-        
-        if (jogadorAtual->obterTurnosBuff() <= 0) 
-        {
-            jogadorAtual->definirMultiplicador(1.0); // Reseta multiplicador ao expirar
-            std::cout << "\n[SISTEMA]: O efeito da habilidade expirou!\n";
-        }
-    }
 
-    if (jogadorAtual->obterTurnosMetadeDano() > 0) 
-    {
-        jogadorAtual->definirTurnosMetadeDano(jogadorAtual->obterTurnosMetadeDano() - 1);
-        
-        if (jogadorAtual->obterTurnosMetadeDano() <= 0) 
-        {
-            jogadorAtual->definirRecebendoMetadeDano(false);
-            std::cout << "\n[SISTEMA]: O efeito de protecao (Through the wire) expirou!\n";
-        }
-    }
-
-    if (jogadorAtual->obterTurnosGrito() > 0) 
-    {
-        jogadorAtual->definirTurnosGrito(jogadorAtual->obterTurnosGrito() - 1);
-        if (jogadorAtual->obterTurnosGrito() <= 0) 
-        {
-            jogadorAtual->alterarAtributoEstatico("forca", -jogadorAtual->obterBonusForcaGrito());
-            jogadorAtual->alterarAtributoEstatico("destreza", -jogadorAtual->obterBonusDestrezaGrito());
-            jogadorAtual->definirBonusGrito(0, 0);
-            std::cout << "\n[SISTEMA]: O Grito de Guerra expirou e seus atributos voltaram ao normal!\n";
-        }
-    }
 
     if (jogadorAtual->obterRecarga()) jogadorAtual->definirRecarga(false);
     Menu::aguardarPressionamentoDeEnter();
@@ -446,10 +348,9 @@ void SistemaRPG::realizarAtaqueFisico(Personagem* personagemAtacante, Personagem
 {
     double multiplicadorDeAtributos = personagemAtacante->obterMultiplicador(); // Aplica o multiplicador acumulado
 
-    if (personagemAtacante->obterInviolavel()) 
+    if (personagemAtacante->possuiEfeito("Inviolavel")) 
     {
         multiplicadorDeAtributos *= 2.0; // Bonus fixo do Arqueiro
-        personagemAtacante->definirInviolavel(false);
     }
 
     int danoFisicoDaArma = 1; // Dano base desarmado
@@ -500,7 +401,7 @@ void SistemaRPG::realizarAtaqueFisico(Personagem* personagemAtacante, Personagem
         danoBaseCalculado = personagemAtacante->obterRaca()->processarDanoOfensivo(danoBaseCalculado, personagemAtacante);
     }
 
-    if (personagemAtacante->obterNomeClasse() == "Guerreiro" && personagemDefensor != nullptr) 
+    if (personagemAtacante->obterTipoClasse() == TipoClasse::Guerreiro && personagemDefensor != nullptr) 
     {
         double percVida = (double)personagemDefensor->obterVida() / personagemDefensor->obterVidaMaxima();
         if (percVida < 0.10) {
@@ -524,7 +425,7 @@ void SistemaRPG::realizarAtaqueFisico(Personagem* personagemAtacante, Personagem
     } 
     else if (personagemDefensor != nullptr) 
     {
-        if (personagemAtacante->obterNomeClasse() == "Mago") 
+        if (personagemAtacante->obterTipoClasse() == TipoClasse::Mago) 
         {
             if (personagemAtacante == jogadorAtual) 
             {
@@ -569,9 +470,9 @@ void SistemaRPG::realizarAtaqueFisico(Personagem* personagemAtacante, Personagem
 
 void SistemaRPG::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* personagemAlvo, int quantidadeDeDanoBruto, int turnoAtualDoCombate) 
 {
-    if (personagemAlvo->obterInviolavel()) 
+    if (personagemAlvo->possuiEfeito("Inviolavel")) 
     {
-        std::cout << ">> " << personagemAlvo->obterNome() << " esquivou totalmente!\n";
+        std::cout << "[COMBATE]: O alvo esta Inviolavel e desviou do ataque perfeitamente!\n";
         return;
     }
 
@@ -658,9 +559,14 @@ bool SistemaRPG::executarSistemaDeParry(int quantidadeDeNumerosParaDigitar, int 
 {
     std::string sequenciaGeradaPeloSistema = "";
     quantidadeDeDanoReduzido = 0;
+    
+    std::random_device rd;
+    std::mt19937 gerador(rd());
+    std::uniform_int_distribution<int> distribuicao(1, 9);
+    
     for (int indiceAtual = 0; indiceAtual < quantidadeDeNumerosParaDigitar; ++indiceAtual) 
     {
-        int numeroAleatorio = (std::rand() % 9) + 1; // 1 to 9
+        int numeroAleatorio = distribuicao(gerador);
         sequenciaGeradaPeloSistema += std::to_string(numeroAleatorio);
         quantidadeDeDanoReduzido += numeroAleatorio;
     }

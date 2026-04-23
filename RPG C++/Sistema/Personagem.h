@@ -2,8 +2,10 @@
 #include <iostream>
 #include <vector>
 #include <memory>
+#include <unordered_map>
 
 #include "../Inventario/Inventario.h"
+#include "Tipos.h"
 
 #pragma once
 
@@ -49,33 +51,7 @@ enum class TipoAtaque
 class RacaBase;   
 class ClasseBase; 
 
-class EfeitoStatus {
-protected:
-    std::string nome;
-    int turnosRestantes;
-public:
-    EfeitoStatus(const std::string& n, int t) : nome(n), turnosRestantes(t) {}
-    virtual ~EfeitoStatus() = default;
-    std::string obterNome() const { return nome; }
-    void decrementarTurno() { turnosRestantes--; }
-    bool expirou() const { return turnosRestantes <= 0; }
-    virtual void aplicarInicioTurno(Personagem* alvo) {}
-    virtual bool impedeAcao() const { return false; }
-};
-
-class EfeitoAtordoamento : public EfeitoStatus {
-public:
-    EfeitoAtordoamento(const std::string& n, int t) : EfeitoStatus(n, t) {}
-    bool impedeAcao() const override { return true; }
-};
-
-class EfeitoSugaSangue : public EfeitoStatus {
-private:
-    Personagem* atacante;
-public:
-    EfeitoSugaSangue(const std::string& n, int t, Personagem* atk) : EfeitoStatus(n, t), atacante(atk) {}
-    void aplicarInicioTurno(Personagem* alvo) override;
-};
+#include "EfeitosStatus.h"
 
 class Personagem 
 {
@@ -90,18 +66,9 @@ protected:
     std::vector<std::unique_ptr<EfeitoStatus>> efeitosAtivos;
 
     bool estaInviolavel;      // Arqueiro: retirada com pontaria
-    int turnosBuff;           // Guerreiro: determinacao no combate
     bool recargaHabilidade;   // Arqueiro/Bardo: uso seguido
-    bool pularTurnoInimigo;   // Bardo: flashing lights
-    
-    bool sofrendoSangramento; // Controle de debuff
-    int turnosSangramento;
-    bool sofrendoLentidao;    // Controle de debuff
-    int turnosLentidao;
-    bool sofrendoQuebraResistencia; // Controle de debuff
-    bool sofrendoFraqueza;
-    int turnosFraqueza;
-    int forcaPerdidaFraqueza;
+    bool pularTurnoInimigo;
+    bool querVoltarProMenu;
 
     bool estaDefendendo;      // Controle de Defesa Ativa
     bool recargaDefesa;       // Cooldown de 1 turno da Defesa
@@ -109,15 +76,8 @@ protected:
     bool parryAtivado;        // Controle do sistema de Parry
     int dificuldadeAtual;     // 1 = Facil, 2 = Normal, 3 = Dificil
 
-    int cooldownHab1;
-    int cooldownHab2;
-    int cooldownHab3;
+    std::unordered_map<std::string, int> cooldownsAtivos;
     bool habilidadeCancelada;
-    bool recebendoMetadeDano;
-    int turnosMetadeDano;
-    int turnosGrito;
-    int bonusForcaGrito;
-    int bonusDestrezaGrito;
 
     double multiplicadorAtual;  // Para buffs temporarios
 
@@ -146,9 +106,10 @@ public:
     int obterVida() const { return vidaAtual; }
     int obterVidaMaxima() const { return statsFinais.vida; }
     int obterForca() const { return statsFinais.forca; }
-    int obterDestreza() const { 
+    int obterDestreza() const 
+    { 
         int penalidade = armadura ? (armadura->obterReducaoFixa() / 3) : 0;
-        if (obterNomeClasse() == "Arqueiro") penalidade /= 2;
+        if (obterTipoClasse() == TipoClasse::Arqueiro) penalidade /= 2;
         int destrezaFinal = statsFinais.destreza - penalidade;
         return destrezaFinal > 0 ? destrezaFinal : 0; 
     }
@@ -165,10 +126,13 @@ public:
     bool subirDeNivel(TipoAtributo atributo);
     
     void alterarAtributoEstatico(const std::string& atributo, int valor);
+    Atributos& obterAtributosFinais() { return statsFinais; }
 
     RacaBase* obterRaca() const;
     ClasseBase* obterClasse() const;
     std::string obterNomeClasse() const;
+    TipoClasse obterTipoClasse() const;
+    TipoRaca obterTipoRaca() const;
     
     Item* obterArma() const { return arma; }
     Item* obterEscudo() const { return escudo; }
@@ -183,10 +147,14 @@ public:
     void definirXpRecompensa(int valor) { xpRecompensa = valor; }
     int obterXpRecompensa() const { return xpRecompensa; }
 
-    void definirMultiplicador(double m) { 
-        if (m > 1.0 && obterNomeClasse() == "Bardo") {
+    void definirMultiplicador(double m) 
+    { 
+        if (m > 1.0 && obterTipoClasse() == TipoClasse::Bardo) 
+        {
             multiplicadorAtual = 1.0 + (m - 1.0) * 1.4;
-        } else {
+        } 
+        else 
+        {
             multiplicadorAtual = m; 
         }
     }
@@ -195,56 +163,31 @@ public:
     bool podeUsarRessurreicao() const { return podeReviver; }
     void consumirRessurreicao() { podeReviver = false; }
 
-    void definirInviolavel(bool v) { estaInviolavel = v; }
-    bool obterInviolavel() const { return estaInviolavel; }
-    void definirTurnosBuff(int t) { turnosBuff = t; }
-    int obterTurnosBuff() const { return turnosBuff; }
+    int obterCooldown(const std::string& habilidade) const 
+    {
+        auto it{cooldownsAtivos.find(habilidade)};
+        return (it != cooldownsAtivos.end()) ? it->second : 0;
+    }
+    void definirCooldown(const std::string& habilidade, int turnos) 
+    {
+        cooldownsAtivos[habilidade] = turnos;
+    }
+    
+    bool obterHabilidadeCancelada() const { return habilidadeCancelada; }
+    void definirHabilidadeCancelada(bool v) { habilidadeCancelada = v; }
+
     void definirRecarga(bool r) { recargaHabilidade = r; }
     bool obterRecarga() const { return recargaHabilidade; }
     void definirPularTurnoInimigo(bool p) { pularTurnoInimigo = p; }
     bool obterPularTurnoInimigo() const { return pularTurnoInimigo; }
     
-    int obterCooldownHab1() const { return cooldownHab1; }
-    void definirCooldownHab1(int v) { cooldownHab1 = v; }
-    int obterCooldownHab2() const { return cooldownHab2; }
-    void definirCooldownHab2(int v) { cooldownHab2 = v; }
-    int obterCooldownHab3() const { return cooldownHab3; }
-    void definirCooldownHab3(int v) { cooldownHab3 = v; }
-    
-    bool obterHabilidadeCancelada() const { return habilidadeCancelada; }
-    void definirHabilidadeCancelada(bool v) { habilidadeCancelada = v; }
-    bool obterRecebendoMetadeDano() const { return recebendoMetadeDano; }
-    void definirRecebendoMetadeDano(bool v) { recebendoMetadeDano = v; }
-    int obterTurnosMetadeDano() const { return turnosMetadeDano; }
-    void definirTurnosMetadeDano(int v) { turnosMetadeDano = v; }
-    
-    int obterTurnosGrito() const { return turnosGrito; }
-    void definirTurnosGrito(int v) { turnosGrito = v; }
-    int obterBonusForcaGrito() const { return bonusForcaGrito; }
-    int obterBonusDestrezaGrito() const { return bonusDestrezaGrito; }
-    void definirBonusGrito(int f, int d) { bonusForcaGrito = f; bonusDestrezaGrito = d; }
+    void definirVoltarProMenu(bool v) { querVoltarProMenu = v; }
+    bool obterVoltarProMenu() const { return querVoltarProMenu; }
+
     void reduzirCooldowns();
+    bool possuiEfeito(const std::string& nome) const;
+    int obterTurnosEfeito(const std::string& nome) const;
 
-    void definirSangramento(bool s) { sofrendoSangramento = s; }
-    bool obterSangramento() const { return sofrendoSangramento; }
-    void definirTurnosSangramento(int t) { turnosSangramento = t; }
-    int obterTurnosSangramento() const { return turnosSangramento; }
-    void definirLentidao(bool l) { sofrendoLentidao = l; }
-    bool obterLentidao() const { return sofrendoLentidao; }
-    void definirTurnosLentidao(int t) { turnosLentidao = t; }
-    int obterTurnosLentidao() const { return turnosLentidao; }
-    void aplicarLentidaoEstatistica();
-    void removerLentidaoEstatistica();
-    
-    void definirFraqueza(bool f) { sofrendoFraqueza = f; }
-    bool obterFraqueza() const { return sofrendoFraqueza; }
-    void definirTurnosFraqueza(int t) { turnosFraqueza = t; }
-    int obterTurnosFraqueza() const { return turnosFraqueza; }
-    void aplicarFraquezaEstatistica();
-    void removerFraquezaEstatistica();
-
-    bool obterQuebraResistencia() const { return sofrendoQuebraResistencia; }
-    void aplicarQuebraResistenciaEstatistica();
 
     void definirDefendendo(bool d) { estaDefendendo = d; }
     bool obterDefendendo() const { return estaDefendendo; }

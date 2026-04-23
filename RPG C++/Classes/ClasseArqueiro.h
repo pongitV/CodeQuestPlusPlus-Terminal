@@ -9,6 +9,7 @@ class ClasseArqueiro : public ClasseBase
 public:
     // Metodos específicos para a classe Arqueiro
     std::string obterNomeClasse() const override; 
+    TipoClasse obterTipoClasse() const override { return TipoClasse::Arqueiro; } 
     std::vector<std::string> obterAparenciaClasseMenu() const override;
     Atributos obterAtributosClasse() const override;
     std::vector<std::unique_ptr<Item>> obterEquipamentoClasse() const override;

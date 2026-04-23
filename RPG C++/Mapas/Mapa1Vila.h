@@ -17,10 +17,8 @@ private:
     bool jogadorEstaDentroDeUmSubMapa;
 
     std::vector<std::string> matrizDoMapaDaCavernaSalva;
-    bool cavernaJaFoiVisitada;
 
     std::vector<std::string> matrizDoMapaDaLojaSalva;
-    bool lojaJaFoiVisitada;
 
 public:
     Mapa(Personagem* personagemJogador);

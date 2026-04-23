@@ -9,6 +9,7 @@ class RacaOrkExilado : public RacaOrk
 {
 public:
     std::string obterNomeRaca() const override;
+    TipoRaca obterTipoRaca() const override { return TipoRaca::OrkExilado; }
     Atributos obterAtributosRaca() const override;
     std::vector<std::string> obterAparenciaRaca() const override;
 

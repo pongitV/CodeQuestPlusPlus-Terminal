@@ -71,7 +71,7 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
                         }
 
                         std::string nomeDoItemEncontrado = itemEncontrado->obterNomeItem();
-                        jogadorAtual->definirTurnosBuff(2); 
+                        jogadorAtual->adicionarEfeito(std::make_unique<EfeitoBuffAtributos>(2));
                         jogadorAtual->definirMultiplicador(1.5);
                         jogadorAtual->obterInventario()->removerItem(nomeDoItemEncontrado);
                         std::cout << "\n[SISTEMA]: " << nomeDoItemEncontrado << " consumida! Atributos ampliados em 1.5x por 2 turnos!\n";

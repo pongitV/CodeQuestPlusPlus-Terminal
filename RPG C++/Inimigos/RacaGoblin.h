@@ -9,6 +9,7 @@ class RacaGoblin : public RacaBase
 {
 public:
     std::string obterNomeRaca() const override;
+    TipoRaca obterTipoRaca() const override { return TipoRaca::Goblin; }
     Atributos obterAtributosRaca() const override;
     std::string obterNomeHabilidadeRaca() const override;
     std::string obterDescricaoHabilidadeRaca() const override;
