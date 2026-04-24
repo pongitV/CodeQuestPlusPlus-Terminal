@@ -3,7 +3,7 @@
 #include <string>
 #include <windows.h>
 
-#include "TransicoesDeMapa.h"
+#include "TransicaoDeMapa.h"
 #include "../Sistema/Menu.h"
 
 void TransicoesDeMapa::exibirTransicaoParaFloresta()

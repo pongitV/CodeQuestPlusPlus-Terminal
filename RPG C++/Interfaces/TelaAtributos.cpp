@@ -12,17 +12,39 @@
 #include "../Raças/RacaBase.h"
 #include "../Classes/ClasseBase.h"
 
+static constexpr const char* EF_BUFF_ATRIBUTOS     = "BuffAtributos";
+static constexpr const char* EF_LENTIDAO           = "Lentidao";
+static constexpr const char* EF_SANGRAMENTO        = "Sangramento";
+static constexpr const char* EF_FRAQUEZA           = "Fraqueza";
+static constexpr const char* EF_QUEBRA_RESISTENCIA = "QuebraResistencia";
+
+struct EfeitoInfo {
+    const char* efeitoNome;
+    const char* cor;
+    const char* exibirNome;
+    bool mostrarTurnos;
+};
+
+// Cores ANSI
+constexpr auto COR_VERDE   = "\033[32m";
+constexpr auto COR_VERMELHO = "\033[31m";
+constexpr auto COR_LARANJA = "\033[33m";
+constexpr auto COR_ROXO    = "\033[35m";
+constexpr auto COR_CIANO   = "\033[36m";
+constexpr auto COR_RESET   = "\033[0m";
+
 void TelaAtributos::exibir(Personagem* jogadorAtual)
 {
     if (jogadorAtual == nullptr) return;
     Menu::limparTelaDoTerminal();
-    
+
 #ifdef _WIN32
-    SetConsoleOutputCP(65001); 
+    SetConsoleOutputCP(65001);
 #endif
 
     int largura = Menu::obterLarguraDoTerminalEmColunas();
-    std::vector<std::string> logoFicha = 
+
+    static const std::vector<std::string> logoFicha =
     {
        "███████████  █████   █████████  █████   █████   █████████   ",
        "░░███░░░░░█ ░░███   ███░░░░░███░░███   ░░███   ███░░░░░███  ",
@@ -35,50 +57,69 @@ void TelaAtributos::exibir(Personagem* jogadorAtual)
     };
 
     std::cout << "\n" << std::string(largura, '=') << "\n\n";
-    Menu::imprimirLinhasCentralizadasNaTela(logoFicha, 59, "\033[34m"); 
+    Menu::imprimirLinhasCentralizadasNaTela(logoFicha, 59, COR_ROXO);
     std::cout << "\n" << std::string(largura, '=') << "\n\n";
 
     double multiplicadorDeAtributosAtual = jogadorAtual->obterMultiplicador();
-    int quantidadeDeTurnosRestantesDoBuff = jogadorAtual->obterTurnosEfeito("BuffAtributos");
-    bool temBuff = (quantidadeDeTurnosRestantesDoBuff > 0 && multiplicadorDeAtributosAtual > 1.0);
+    int turnosBuff = jogadorAtual->obterTurnosEfeito(EF_BUFF_ATRIBUTOS);
+    bool temBuff = (turnosBuff > 0 && multiplicadorDeAtributosAtual > 1.0);
 
-    int forcaPerdida = jogadorAtual->possuiEfeito("Fraqueza") ? (jogadorAtual->obterForca() / 3) : 0;
-    int destrezaPerdida = jogadorAtual->possuiEfeito("Lentidao") ? jogadorAtual->obterDestreza() : 0; 
-    int resPerdida = jogadorAtual->possuiEfeito("QuebraResistencia") ? jogadorAtual->obterResistencia() : 0;
-    int constPerdida = jogadorAtual->possuiEfeito("QuebraResistencia") ? (jogadorAtual->obterConstituicao() / 2) : 0;
+    int forcaPerdida     = jogadorAtual->possuiEfeito(EF_FRAQUEZA)     ? (jogadorAtual->obterForca() / 3)      : 0;
+    int destrezaPerdida  = jogadorAtual->possuiEfeito(EF_LENTIDAO)     ? jogadorAtual->obterDestreza()       : 0;
+    int resPerdida       = jogadorAtual->possuiEfeito(EF_QUEBRA_RESISTENCIA) ? jogadorAtual->obterResistencia() : 0;
+    int constPerdida     = jogadorAtual->possuiEfeito(EF_QUEBRA_RESISTENCIA) ? (jogadorAtual->obterConstituicao() / 2) : 0;
 
     int espacos = (largura - 50) / 2;
-    std::string margem(espacos > 0 ? espacos : 0, ' ');
+    std::string margem(std::max(0, espacos), ' ');
 
     std::cout << margem << "NOME:           " << jogadorAtual->obterNome() << "\n";
     std::cout << margem << "RACA:           " << jogadorAtual->obterRaca()->obterNomeRaca() << "\n";
     std::cout << margem << "CLASSE:         " << jogadorAtual->obterNomeClasse() << "\n";
-    std::cout << margem << "NIVEL:          " << jogadorAtual->obterNivel() << " (XP: \033[34m" << jogadorAtual->obterXpAtual() << " / " << jogadorAtual->obterXpParaSubir() << "\033[0m)\n";
-    std::cout << margem << "DIFICULDADE:    \033[31m" << (jogadorAtual->obterDificuldade() == 1 ? "Facil" : (jogadorAtual->obterDificuldade() == 2 ? "Normal" : "Dificil")) << "\033[0m\n";
-    std::cout << margem << "[PARRY]:        " << (jogadorAtual->obterParryAtivado() ? "\033[32mLigado\033[0m" : "\033[31mDesligado\033[0m") << "\n";
-    std::cout << margem << "OURO:           \033[33m" << jogadorAtual->obterInventario()->obterOuro() << "G\033[0m\n\n";
+    std::cout << margem << "NIVEL:          " << jogadorAtual->obterNivel() << " (XP: " << COR_ROXO << jogadorAtual->obterXpAtual() << " / " << jogadorAtual->obterXpParaSubir() << COR_RESET << ")\n";
+    std::cout << margem << "DIFICULDADE:    " << COR_VERMELHO;
+    switch (jogadorAtual->obterDificuldade()) {
+        case 1: std::cout << "Facil"; break;
+        case 2: std::cout << "Normal"; break;
+        default: std::cout << "Dificil"; break;
+    }
+    std::cout << COR_RESET << "\n";
+    std::cout << margem << "[PARRY]:        ";
+    if (jogadorAtual->obterParryAtivado()) {
+        std::cout << COR_VERDE << "Ligado" << COR_RESET;
+    } else {
+        std::cout << COR_VERMELHO << "Desligado" << COR_RESET;
+    }
+    std::cout << "\n";
+    std::cout << margem << "OURO:           " << COR_LARANJA << jogadorAtual->obterInventario()->obterOuro() << "G" << COR_RESET << "\n\n";
 
-    std::string nomeDaClasse = jogadorAtual->obterNomeClasse();
+    TipoClasse tipoClasse = jogadorAtual->obterTipoClasse();
     std::string passivaNome = "Nenhuma";
     std::string passivaDesc = "";
     std::string recargaHab = "";
 
-    if (nomeDaClasse == "Arqueiro") {
-        passivaNome = "Passos leves";
-        passivaDesc = "Penalidade de armaduras e debuffs de lentidao reduzidos pela metade.";
-        recargaHab = "Recarga: 1 turno.";
-    } else if (nomeDaClasse == "Bardo") {
-        passivaNome = "Touch the sky";
-        passivaDesc = "Curas e buffs recebidos sao 40% mais fortes.";
-        recargaHab = "Recarga: 3 turnos (Individuais).";
-    } else if (nomeDaClasse == "Guerreiro") {
-        passivaNome = "Golpe decisivo";
-        passivaDesc = "Causa +10%/+20%/+30% de dano em inimigos com menos de 30%/20%/10% de HP.";
-        recargaHab = "Recarga: 3 turnos.";
-    } else if (nomeDaClasse == "Mago") {
-        passivaNome = "Foco arcano";
-        passivaDesc = "Ataques ressoam (25% em area) ou causam +25% de dano em alvo unico.";
-        recargaHab = "Recarga: 3 turnos.";
+    switch (tipoClasse) {
+        case TipoClasse::Arqueiro:
+            passivaNome = "Passos leves";
+            passivaDesc = "Penalidade de armaduras e debuffs de lentidao reduzidos pela metade.";
+            recargaHab = "Recarga: 1 turno.";
+            break;
+        case TipoClasse::Bardo:
+            passivaNome = "Touch the sky";
+            passivaDesc = "Curas e buffs recebidos sao 40% mais fortes.";
+            recargaHab = "Recarga: 3 turnos (Individuais).";
+            break;
+        case TipoClasse::Guerreiro:
+            passivaNome = "Golpe decisivo";
+            passivaDesc = "Causa +10%/+20%/+30% de dano em inimigos com menos de 30%/20%/10% de HP.";
+            recargaHab = "Recarga: 3 turnos.";
+            break;
+        case TipoClasse::Mago:
+            passivaNome = "Foco arcano";
+            passivaDesc = "Ataques ressoam (25% em area) ou causam +25% de dano em alvo unico.";
+            recargaHab = "Recarga: 3 turnos.";
+            break;
+        default:
+            break;
     }
 
     std::cout << margem << "PASSIVA RACA:   " << jogadorAtual->obterRaca()->obterNomeHabilidadeRaca() << "\n";
@@ -93,18 +134,17 @@ void TelaAtributos::exibir(Personagem* jogadorAtual)
     std::cout << margem << "--- ATRIBUTOS TOTAIS ---\n";
     std::cout << margem << " > Vida           : " << jogadorAtual->obterVida() << "/" << jogadorAtual->obterVidaMaxima() << "\n";
 
-    auto printAtributo = [&](std::string nome, int valorAtual, int valorPerdido) 
+    auto printAtributo = [margem, temBuff, multiplicadorDeAtributosAtual](std::string nome, int valorBase, int valorPerdido, std::string_view sufixo)
     {
-        int valorBase = valorAtual + valorPerdido;
         int bonusBuff = temBuff ? static_cast<int>(valorBase * multiplicadorDeAtributosAtual) - valorBase : 0;
-        
-        std::cout << margem << " > " << std::left << std::setw(15) << nome << ": " << valorBase;
-        
+
+        std::cout << margem << " > " << std::left << std::setw(15) << nome << sufixo << ": " << valorBase;
+
         if (temBuff && bonusBuff > 0) {
-            std::cout << " \033[32m(+" << bonusBuff << " Buff)\033[0m";
+            std::cout << " " << COR_VERDE << "(+" << bonusBuff << " Buff)" << COR_RESET;
         }
         if (valorPerdido > 0) {
-            std::cout << " \033[31m(-" << valorPerdido << " Debuff)\033[0m";
+            std::cout << " " << COR_VERMELHO << "(-" << valorPerdido << " Debuff)" << COR_RESET;
         }
         if (!temBuff && valorPerdido == 0) {
             std::cout << " (0)";
@@ -112,20 +152,33 @@ void TelaAtributos::exibir(Personagem* jogadorAtual)
         std::cout << "\n";
     };
 
-    printAtributo(nomeDaClasse == "Guerreiro" ? "Forca [DANO]" : "Forca", jogadorAtual->obterForca(), forcaPerdida);
-    printAtributo(nomeDaClasse == "Arqueiro" ? "Destreza [DANO]" : "Destreza", jogadorAtual->obterDestreza(), destrezaPerdida);
-    printAtributo("Resistencia", jogadorAtual->obterResistencia(), resPerdida);
-    printAtributo("Constituicao", jogadorAtual->obterConstituicao(), constPerdida);
-    printAtributo(nomeDaClasse == "Mago" ? "Inteligencia [DANO]" : "Inteligencia", jogadorAtual->obterInteligencia(), 0);
-    printAtributo(nomeDaClasse == "Bardo" ? "Sabedoria [DANO]" : "Sabedoria", jogadorAtual->obterSabedoria(), 0);
+    printAtributo("Forca",     jogadorAtual->obterForca(),     forcaPerdida,     (tipoClasse == TipoClasse::Guerreiro) ? " [DANO]" : "");
+    printAtributo("Destreza",  jogadorAtual->obterDestreza(),  destrezaPerdida,  (tipoClasse == TipoClasse::Arqueiro)  ? " [DANO]" : "");
+    printAtributo("Resistencia", jogadorAtual->obterResistencia(), resPerdida, "");
+    printAtributo("Constituicao", jogadorAtual->obterConstituicao(), constPerdida, "");
+    printAtributo("Inteligencia", jogadorAtual->obterInteligencia(), 0, (tipoClasse == TipoClasse::Mago) ? " [DANO]" : "");
+    printAtributo("Sabedoria",  jogadorAtual->obterSabedoria(), 0, (tipoClasse == TipoClasse::Bardo)  ? " [DANO]" : "");
+
+    static const EfeitoInfo efeitosParaExibir[] = {
+        {EF_BUFF_ATRIBUTOS,   COR_VERDE,   "Buff Atributos",   true},
+        {EF_LENTIDAO,         COR_ROXO,    "Lentidao",         true},
+        {EF_SANGRAMENTO,      COR_VERMELHO,"Sangramento",      true},
+        {EF_FRAQUEZA,         COR_VERMELHO,"Fraqueza",         true},
+        {EF_QUEBRA_RESISTENCIA, COR_CIANO, "Quebra de Resistencia", false},
+    };
 
     std::cout << "\n" << margem << "--- STATUS ATUAIS ---\n";
     bool temStatus = false;
-    if (jogadorAtual->possuiEfeito("BuffAtributos")) { std::cout << margem << "Efeito: \033[32mBuff Atributos (" << jogadorAtual->obterTurnosEfeito("BuffAtributos") << " turnos)\033[0m\n"; temStatus = true; }
-    if (jogadorAtual->possuiEfeito("Lentidao")) { std::cout << margem << "Efeito: \033[35mLentidao (" << jogadorAtual->obterTurnosEfeito("Lentidao") << " turnos)\033[0m\n"; temStatus = true; }
-    if (jogadorAtual->possuiEfeito("Sangramento")) { std::cout << margem << "Efeito: \033[31mSangramento (" << jogadorAtual->obterTurnosEfeito("Sangramento") << " turnos)\033[0m\n"; temStatus = true; }
-    if (jogadorAtual->possuiEfeito("Fraqueza")) { std::cout << margem << "Efeito: \033[31mFraqueza (" << jogadorAtual->obterTurnosEfeito("Fraqueza") << " turnos)\033[0m\n"; temStatus = true; }
-    if (jogadorAtual->possuiEfeito("QuebraResistencia")) { std::cout << margem << "Efeito: \033[36mQuebra de Resistencia\033[0m\n"; temStatus = true; }
+    for (const auto& info : efeitosParaExibir) {
+        if (jogadorAtual->possuiEfeito(info.efeitoNome)) {
+            std::cout << margem << "Efeito: " << info.cor << info.exibirNome;
+            if (info.mostrarTurnos) {
+                std::cout << " (" << jogadorAtual->obterTurnosEfeito(info.efeitoNome) << " turnos)";
+            }
+            std::cout << COR_RESET << "\n";
+            temStatus = true;
+        }
+    }
     if (!temStatus) std::cout << margem << "Nenhum status ativo.\n";
 
     std::cout << "\n" << std::string(largura, '=') << "\n";
@@ -143,7 +196,7 @@ void TelaAtributos::gerenciarFichaDoJogador(Personagem* jogadorAtual)
         if (jogadorAtual->podeSubirDeNivel()) mensagemDoPrompt += " | [2] SUBIR DE NIVEL";
         mensagemDoPrompt += " | [3] VOLTAR AO MENU PRINCIPAL: ";
         int espacosParaCentralizarMensagem = (larguraDoTerminal - (int)mensagemDoPrompt.length()) / 2;
-        std::cout << "\n" << std::string(espacosParaCentralizarMensagem > 0 ? espacosParaCentralizarMensagem : 0, ' ') << mensagemDoPrompt;
+        std::cout << "\n" << std::string(std::max(0, espacosParaCentralizarMensagem), ' ') << mensagemDoPrompt;
         std::cin >> opcaoEscolhidaNoMenuJogador;
 
         if (opcaoEscolhidaNoMenuJogador == "1") {

@@ -18,7 +18,7 @@
 #include "../NPCs/NPCBjorn.h"
 #include "../NPCs/NPCFranchesco.h"
 #include "../Inimigos/RacaOrkExilado.h"
-#include "TransicoesDeMapa.h"
+#include "TransicaoDeMapa.h"
 
 Mapa::Mapa(Personagem* personagemJogador) : 
 jogadorAtual(personagemJogador), posicaoXDoJogador(2), posicaoYDoJogador(2), jogadorEstaDentroDeUmSubMapa(false), 

@@ -20,7 +20,7 @@
 #include "../Inimigos/ClasseInimigoPadrao.h"
 #include "../NPCs/NPCMorgana.h"
 #include "../Inimigos/RacaAbominacaoFloresta.h"
-#include "TransicoesDeMapa.h"
+#include "TransicaoDeMapa.h"
 
 extern bool g_labirintoDesbloqueado;
 
