@@ -65,7 +65,6 @@ std::vector<std::string> ClasseArqueiro::obterAparenciaClasseMenu() const
 
 Atributos ClasseArqueiro::obterAtributosClasse() const
 {
-    // Ordem: { Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria }
     return { 0, 10, 20, 3, 10, 5, 5 };
 }
 

@@ -1,8 +1,10 @@
 #pragma once
 
 #include "../Sistema/Personagem.h"
+#include <string>
+#include <vector>
 
-class NPCFranchesco 
+class NPCFranchesco
 {
 public:
     static void interagir(Personagem* jogadorAtual);

@@ -3,14 +3,15 @@
 #include "Item.h"
 #include <string>
 
-class ItemConsumivel : public Item 
+class ItemConsumivel : public Item
 {
 private:
     std::string nome;
+    bool ehTalisma() const;
 
 public:
     ItemConsumivel(std::string nome);
-    
+
     std::string obterNomeItem() const override;
     Raridade obterRaridade() const override;
     TipoEquipamento obterTipo() const override;

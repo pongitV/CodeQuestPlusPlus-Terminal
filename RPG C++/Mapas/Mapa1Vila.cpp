@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
-#include <conio.h> 
-#include <windows.h> 
+#include <conio.h>
+#include <windows.h>
 #include <map>
 #include <cstdlib>
 #include <memory>
@@ -20,9 +20,9 @@
 #include "../Inimigos/RacaOrkExilado.h"
 #include "TransicaoDeMapa.h"
 
-Mapa::Mapa(Personagem* personagemJogador) : 
-jogadorAtual(personagemJogador), posicaoXDoJogador(2), posicaoYDoJogador(2), jogadorEstaDentroDeUmSubMapa(false), 
-posicaoXSalvaAntesDeEntrarNoSubMapa(0), posicaoYSalvaAntesDeEntrarNoSubMapa(0) 
+Mapa::Mapa(Personagem* personagemJogador) :
+jogadorAtual(personagemJogador), posicaoXDoJogador(2), posicaoYDoJogador(2), jogadorEstaDentroDeUmSubMapa(false),
+posicaoXSalvaAntesDeEntrarNoSubMapa(0), posicaoYSalvaAntesDeEntrarNoSubMapa(0)
 {
     matrizDoMapaAtual = {
         "             #######################################################################",
@@ -51,7 +51,7 @@ posicaoXSalvaAntesDeEntrarNoSubMapa(0), posicaoYSalvaAntesDeEntrarNoSubMapa(0)
     };
 }
 
-void Mapa::iniciarLoopDeExploracaoDoMapa() 
+void Mapa::iniciarLoopDeExploracaoDoMapa()
 {
     bool exploracaoEstaAtiva = true;
     std::string tituloDoMapaAtual = "VILA INICIAL";
@@ -61,7 +61,7 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
     static bool forjaJaFoiVisitada = false;
     static bool lojaJaFoiVisitada = false;
     static bool cavernaJaFoiVisitada = false;
-    
+
     HANDLE manipuladorDoTerminal = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_CURSOR_INFO informacoesDoCursor;
     informacoesDoCursor.dwSize = 100;
@@ -71,14 +71,23 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
     Menu::limparTelaDoTerminal();
     Menu::exibirLogoDoJogo(tituloDoMapaAtual);
 
-    // Descobre onde a logo termina para renderizar o mapa perfeitamente logo abaixo dela
     CONSOLE_SCREEN_BUFFER_INFO informacoesDoBufferDaTela;
     GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
     int linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
 
-    while (exploracaoEstaAtiva && jogadorAtual->obterVida() > 0) 
+    // Lambda para restaurar a tela apos eventos sem piscar
+    auto restaurarTela = [&]() {
+        Menu::limparTelaDoTerminal();
+        Menu::exibirLogoDoJogo(tituloDoMapaAtual);
+        GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
+        linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
+    };
+
+    // Mapa base da vila — reutilizado no respawn apos a floresta
+    const auto mapaBaseDaVila = matrizDoMapaAtual;
+
+    while (exploracaoEstaAtiva && jogadorAtual->obterVida() > 0)
     {
-        // Calcula os espacos dinamicamente para manter o mapa e instrucoes sempre no centro da tela
         GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
         int larguraDoTerminal = informacoesDoBufferDaTela.srWindow.Right - informacoesDoBufferDaTela.srWindow.Left + 1;
 
@@ -90,163 +99,136 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
         int espacosParaCentralizarOsControles = (larguraDoTerminal - (int)textoDeControlesDoJogador.length()) / 2;
         std::string margemEsquerdaDosControles(espacosParaCentralizarOsControles > 0 ? espacosParaCentralizarOsControles : 0, ' ');
 
-        // Move o cursor para o topo do mapa invés de limpar a tela toda (evita piscar pesado)
         COORD posicaoDoCursorNoTerminal;
         posicaoDoCursorNoTerminal.X = 0;
         posicaoDoCursorNoTerminal.Y = linhaInicialParaDesenharOMapa;
         SetConsoleCursorPosition(manipuladorDoTerminal, posicaoDoCursorNoTerminal);
 
-        for (int y = 0; y < matrizDoMapaAtual.size(); y++) 
+        for (int y = 0; y < matrizDoMapaAtual.size(); y++)
                 {
-            std::string linhaSendoRenderizada = margemEsquerdaDoMapa; // Margem dinamica centralizada
-            linhaSendoRenderizada.reserve(margemEsquerdaDoMapa.size() + matrizDoMapaAtual[y].size() + 20); // Evita fragmentacao e saltos na RAM
-            for (int x = 0; x < matrizDoMapaAtual[y].size(); x++) 
+            std::string linhaSendoRenderizada = margemEsquerdaDoMapa;
+            linhaSendoRenderizada.reserve(margemEsquerdaDoMapa.size() + matrizDoMapaAtual[y].size() + 20);
+            for (int x = 0; x < matrizDoMapaAtual[y].size(); x++)
                     {
-                if (x == posicaoXDoJogador && y == posicaoYDoJogador) 
+                if (x == posicaoXDoJogador && y == posicaoYDoJogador)
                         {
-                    std::cout << linhaSendoRenderizada; 
-                    linhaSendoRenderizada = "";        
-                            std::cout << "\x1b[1;32m"; // Verde para o jogador
-                            std::cout << '@';            
-                            std::cout << "\x1b[0m";     // Reset para branco
+                    std::cout << linhaSendoRenderizada;
+                    linhaSendoRenderizada = "";
+                            std::cout << "\x1b[1;32m";
+                            std::cout << '@';
+                            std::cout << "\x1b[0m";
                         }
                 else if (matrizDoMapaAtual[y][x] == 'G')
                         {
                     std::cout << linhaSendoRenderizada;
                     linhaSendoRenderizada = "";
-                            std::cout << "\x1b[1;31m"; // Vermelho para goblins
+                            std::cout << "\x1b[1;31m";
                             std::cout << 'G';
-                            std::cout << "\x1b[0m";     // Reset para branco
+                            std::cout << "\x1b[0m";
                         }
                 else if (matrizDoMapaAtual[y][x] == 'O')
                         {
                     std::cout << linhaSendoRenderizada;
                     linhaSendoRenderizada = "";
-                            std::cout << "\x1b[1;31m"; // Vermelho para o Ork
+                            std::cout << "\x1b[1;31m";
                     if (x + 1 < matrizDoMapaAtual[y].size() && matrizDoMapaAtual[y][x+1] == 'm') {
                         std::cout << "Om";
-                        x++; // Pula a letra 'm' no loop para nao renderizar duas vezes
+                        x++;
                     } else {
                         std::cout << 'O';
                     }
-                            std::cout << "\x1b[0m";     // Reset para branco
+                            std::cout << "\x1b[0m";
                         }
                 else if (matrizDoMapaAtual[y][x] == 'B')
                     {
                     std::cout << linhaSendoRenderizada;
                     linhaSendoRenderizada = "";
-                        std::cout << "\x1b[1;36m"; // Ciano para o Bjorn
+                        std::cout << "\x1b[1;36m";
                     if (x + 1 < matrizDoMapaAtual[y].size() && matrizDoMapaAtual[y][x+1] == 'n') {
                         std::cout << "Bn";
-                        x++; // Pula a letra 'n' no loop
+                        x++;
                     } else {
                         std::cout << 'B';
                     }
-                        std::cout << "\x1b[0m";     // Reset para branco
+                        std::cout << "\x1b[0m";
                     }
                 else if (matrizDoMapaAtual[y][x] == 'F' && x > 0 && matrizDoMapaAtual[y][x-1] == '.')
                     {
                     std::cout << linhaSendoRenderizada;
                     linhaSendoRenderizada = "";
-                        std::cout << "\x1b[1;33m"; // Amarelo para Franchesco
+                        std::cout << "\x1b[1;33m";
                         std::cout << 'F';
-                        std::cout << "\x1b[0m";     // Reset para branco
+                        std::cout << "\x1b[0m";
                     }
                 else linhaSendoRenderizada += matrizDoMapaAtual[y][x];
                     }
             std::cout << linhaSendoRenderizada << "\n";
                 }
-        
+
         std::cout << "\n" << margemEsquerdaDosControles << textoDeControlesDoJogador << "\n";
 
         char teclaPressionadaPeloJogador = _getch();
-        
+
         int proximaPosicaoX = posicaoXDoJogador;
         int proximaPosicaoY = posicaoYDoJogador;
 
-        if (teclaPressionadaPeloJogador == 'w' || teclaPressionadaPeloJogador == 'W' || teclaPressionadaPeloJogador == 72) proximaPosicaoY--; 
-        if (teclaPressionadaPeloJogador == 's' || teclaPressionadaPeloJogador == 'S' || teclaPressionadaPeloJogador == 80) proximaPosicaoY++; 
-        if (teclaPressionadaPeloJogador == 'a' || teclaPressionadaPeloJogador == 'A' || teclaPressionadaPeloJogador == 75) proximaPosicaoX--; 
-        if (teclaPressionadaPeloJogador == 'd' || teclaPressionadaPeloJogador == 'D' || teclaPressionadaPeloJogador == 77) proximaPosicaoX++; 
+        if (teclaPressionadaPeloJogador == 'w' || teclaPressionadaPeloJogador == 'W' || teclaPressionadaPeloJogador == 72) proximaPosicaoY--;
+        if (teclaPressionadaPeloJogador == 's' || teclaPressionadaPeloJogador == 'S' || teclaPressionadaPeloJogador == 80) proximaPosicaoY++;
+        if (teclaPressionadaPeloJogador == 'a' || teclaPressionadaPeloJogador == 'A' || teclaPressionadaPeloJogador == 75) proximaPosicaoX--;
+        if (teclaPressionadaPeloJogador == 'd' || teclaPressionadaPeloJogador == 'D' || teclaPressionadaPeloJogador == 77) proximaPosicaoX++;
 
-        if (teclaPressionadaPeloJogador == 'i' || teclaPressionadaPeloJogador == 'I') 
+        if (teclaPressionadaPeloJogador == 'i' || teclaPressionadaPeloJogador == 'I')
         {
             InventarioCombate::gerenciarInventario(jogadorAtual);
-
-            // Restaura a renderizacao padrao do mapa apos fechar o inventario
-            Menu::limparTelaDoTerminal();
-            Menu::exibirLogoDoJogo(tituloDoMapaAtual);
-            GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
-            linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
+            restaurarTela();
             continue;
         }
 
-        if (teclaPressionadaPeloJogador == 'c' || teclaPressionadaPeloJogador == 'C') 
+        if (teclaPressionadaPeloJogador == 'c' || teclaPressionadaPeloJogador == 'C')
         {
             TelaAtributos::gerenciarFichaDoJogador(jogadorAtual);
-
             if (jogadorAtual->obterVoltarProMenu()) break;
-
-            // Restaura a tela do mapa
-            Menu::limparTelaDoTerminal();
-            Menu::exibirLogoDoJogo(tituloDoMapaAtual);
-            GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
-            linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
+            restaurarTela();
             continue;
         }
 
         char celulaDestinoDoMapa = matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX];
 
-        if (celulaDestinoDoMapa != '#') 
+        if (celulaDestinoDoMapa != '#')
         {
-            if (celulaDestinoDoMapa == 'G') 
+            // --- Goblin ---
+            if (celulaDestinoDoMapa == 'G')
             {
                 Menu::limparTelaDoTerminal();
                 Menu::exibirLogoDoJogo("ENCONTRO INESPERADO");
-                
-                int espacosParaCentralizarMensagem = (larguraDoTerminal - 40) / 2; 
-                std::string margemEsquerdaDaMensagem(espacosParaCentralizarMensagem > 0 ? espacosParaCentralizarMensagem : 0, ' ');
+                int espacosM = (larguraDoTerminal - 40) / 2;
+                std::string mE(espacosM > 0 ? espacosM : 0, ' ');
+                std::cout << "\n" << mE << "[!] Voce encontrou uma horda de Goblins!\n";
+                std::cout << mE << "[0] Nao, recuar | [1] Sim, batalha!\n" << mE << "Escolha: ";
 
-                std::cout << "\n" << margemEsquerdaDaMensagem << "[!] Voce encontrou uma horda de Goblins!\n";
-                std::cout << margemEsquerdaDaMensagem << "Deseja enfrentar a horda?\n";
-                std::cout << margemEsquerdaDaMensagem << "[0] Nao, recuar com cuidado\n";
-                std::cout << margemEsquerdaDaMensagem << "[1] Sim, para a batalha!\n";
-                std::cout << "\n" << margemEsquerdaDaMensagem << "Escolha: ";
-
-                int opcaoEscolhidaNoDialogo;
-                if (std::cin >> opcaoEscolhidaNoDialogo && opcaoEscolhidaNoDialogo == 1) 
+                int opcao;
+                if (std::cin >> opcao && opcao == 1)
                 {
-                    int quantidadeDeInimigos = (std::rand() % 3) + 1;
-                    std::vector<std::unique_ptr<Personagem>> listaDeInimigosGerados = GeradorInimigos::criarInimigoGoblin(quantidadeDeInimigos);
-                    SistemaRPG sessaoDeCombate(jogadorAtual, std::move(listaDeInimigosGerados));
-                    sessaoDeCombate.iniciarCombate(); // A chamada do combate acontece aqui!
+                    int qtd = (std::rand() % 3) + 1;
+                    SistemaRPG combate(jogadorAtual, GeradorInimigos::criarInimigoGoblin(qtd));
+                    combate.iniciarCombate();
 
-                    if (jogadorAtual->obterVida() > 0) 
-                    {
-                        matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX] = '.'; // Tira o 'G' do mapa se vencer
+                    if (jogadorAtual->obterVida() > 0) {
+                        matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX] = '.';
                         posicaoXDoJogador = proximaPosicaoX;
                         posicaoYDoJogador = proximaPosicaoY;
                     }
-                } 
-                else 
-                {
-                    std::cin.clear(); std::cin.ignore(1000, '\n');
-                }
+                } else { std::cin.clear(); std::cin.ignore(1000, '\n'); }
 
-                // Se sobreviveu e o loop continuar, restaura a tela do mapa perfeitamente
-                if (exploracaoEstaAtiva) {
-                    Menu::limparTelaDoTerminal();
-                    Menu::exibirLogoDoJogo(tituloDoMapaAtual);
-                    GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
-                    linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
-                }
-            } 
+                if (exploracaoEstaAtiva) restaurarTela();
+            }
+            // --- Entrar na Caverna do Ork ---
             else if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'C' && !jogadorEstaDentroDeUmSubMapa)
             {
                 matrizDoMapaPrincipalSalva = matrizDoMapaAtual;
                 posicaoXSalvaAntesDeEntrarNoSubMapa = posicaoXDoJogador;
                 posicaoYSalvaAntesDeEntrarNoSubMapa = posicaoYDoJogador;
-                
+
                 if (!cavernaJaFoiVisitada) {
                     matrizDoMapaAtual = RacaOrkExilado::obterMapaCaverna(bjornResgatado);
                     cavernaJaFoiVisitada = true;
@@ -258,16 +240,12 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
                 posicaoYDoJogador = 2;
                 jogadorEstaDentroDeUmSubMapa = true;
                 tituloDoMapaAtual = "CAVERNA DO ORK";
-                
-                Menu::limparTelaDoTerminal();
-                Menu::exibirLogoDoJogo(tituloDoMapaAtual);
-                GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
-                linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
+                restaurarTela();
                 continue;
             }
+            // --- Sair do sub-mapa ---
             else if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'S' && jogadorEstaDentroDeUmSubMapa)
             {
-                // Salva o sub-mapa correto de acordo com a area atual antes de sair
                 if (tituloDoMapaAtual == "CAVERNA DO ORK") matrizDoMapaDaCavernaSalva = matrizDoMapaAtual;
                 else if (tituloDoMapaAtual == "LOJA DA VILA") matrizDoMapaDaLojaSalva = matrizDoMapaAtual;
                 else if (tituloDoMapaAtual == "FORJA DA VILA") matrizDoMapaDaForjaSalva = matrizDoMapaAtual;
@@ -277,124 +255,83 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
                 posicaoYDoJogador = posicaoYSalvaAntesDeEntrarNoSubMapa;
                 jogadorEstaDentroDeUmSubMapa = false;
                 tituloDoMapaAtual = "VILA INICIAL";
-                
-                Menu::limparTelaDoTerminal();
-                Menu::exibirLogoDoJogo(tituloDoMapaAtual);
-                GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
-                linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
+                restaurarTela();
                 continue;
             }
-            else if (celulaDestinoDoMapa == 'O' || (celulaDestinoDoMapa == 'm' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX-1] == 'O')) 
+            // --- Ork Mini-Boss ---
+            else if (celulaDestinoDoMapa == 'O' || (celulaDestinoDoMapa == 'm' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX-1] == 'O'))
             {
                 Menu::limparTelaDoTerminal();
                 Menu::exibirLogoDoJogo("ENCONTRO NA CAVERNA");
-                
-                int espacosParaCentralizarMensagem = (larguraDoTerminal - 40) / 2;
-                std::string margemEsquerdaDaMensagem(espacosParaCentralizarMensagem > 0 ? espacosParaCentralizarMensagem : 0, ' ');
+                int espacosM = (larguraDoTerminal - 40) / 2;
+                std::string mE(espacosM > 0 ? espacosM : 0, ' ');
+                std::cout << "\n" << mE << "[!] Voce encontrou um Ork [m]!\n";
+                std::cout << mE << "[0] Nao, recuar | [1] Sim, batalha!\n" << mE << "Escolha: ";
 
-                std::cout << "\n" << margemEsquerdaDaMensagem << "[!] Voce encontrou um Ork [m]!\n";
-                std::cout << margemEsquerdaDaMensagem << "A criatura ruge desafiando voce!\n";
-                std::cout << margemEsquerdaDaMensagem << "Deseja enfrentar o Ork?\n";
-                std::cout << margemEsquerdaDaMensagem << "[0] Nao, recuar com cuidado\n";
-                std::cout << margemEsquerdaDaMensagem << "[1] Sim, para a batalha!\n";
-                std::cout << "\n" << margemEsquerdaDaMensagem << "Escolha: ";
-
-                int opcaoEscolhidaNoDialogo;
-                if (std::cin >> opcaoEscolhidaNoDialogo && opcaoEscolhidaNoDialogo == 1) 
+                int opcao;
+                if (std::cin >> opcao && opcao == 1)
                 {
-                    // Inicia o combate com o Ork Mini-Boss gerado pelo Gerador de Inimigos
-                    std::vector<std::unique_ptr<Personagem>> listaDeInimigosGerados = GeradorInimigos::criarInimigoOrkExilado();
-                    SistemaRPG sessaoDeCombate(jogadorAtual, std::move(listaDeInimigosGerados));
-                    sessaoDeCombate.iniciarCombate();
+                    SistemaRPG combate(jogadorAtual, GeradorInimigos::criarInimigoOrkExilado());
+                    combate.iniciarCombate();
 
-                    if (jogadorAtual->obterVida() > 0) 
-                    {
+                    if (jogadorAtual->obterVida() > 0) {
                         if (celulaDestinoDoMapa == 'O') {
-                            matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX] = '.'; 
+                            matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX] = '.';
                             if (matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'm') matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] = '.';
                         } else {
-                            matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX] = '.'; 
+                            matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX] = '.';
                             matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX-1] = '.';
                         }
                         posicaoXDoJogador = proximaPosicaoX;
                         posicaoYDoJogador = proximaPosicaoY;
                     }
-                } 
-                else 
-                {
-                    std::cin.clear(); std::cin.ignore(1000, '\n');
-                }
+                } else { std::cin.clear(); std::cin.ignore(1000, '\n'); }
 
-                if (exploracaoEstaAtiva) {
-                    Menu::limparTelaDoTerminal();
-                    Menu::exibirLogoDoJogo(tituloDoMapaAtual);
-                    GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
-                    linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
-                }
+                if (exploracaoEstaAtiva) restaurarTela();
             }
-            else if (celulaDestinoDoMapa == 'B' || (celulaDestinoDoMapa == 'n' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX-1] == 'B')) 
+            // --- Bjorn NPC ---
+            else if (celulaDestinoDoMapa == 'B' || (celulaDestinoDoMapa == 'n' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX-1] == 'B'))
             {
-                if (tituloDoMapaAtual == "FORJA DA VILA" && celulaDestinoDoMapa == 'B')
-                {
+                if (tituloDoMapaAtual == "FORJA DA VILA" && celulaDestinoDoMapa == 'B') {
                     NPCBjorn::interagir(jogadorAtual);
-                }
-                else if (tituloDoMapaAtual == "CAVERNA DO ORK")
-                {
+                } else if (tituloDoMapaAtual == "CAVERNA DO ORK") {
                     Menu::limparTelaDoTerminal();
                     Menu::exibirLogoDoJogo("RESGATE NA CAVERNA");
-                    
-                    int espacosMsg = (larguraDoTerminal - 50) / 2;
-                    std::string margemMsg(espacosMsg > 0 ? espacosMsg : 0, ' ');
-
-                    std::cout << "\n" << margemMsg << "[Bjorn]: Pelos deuses, muito obrigado por me salvar!\n";
-                    std::cout << margemMsg << "[Bjorn]: Aquele Ork me encurralou e eu achei que era o fim.\n";
-                    std::cout << margemMsg << "[Bjorn]: Sou o ferreiro da vila. Passe na Forja e eu ajudarei voce!\n";
-                    
+                    int espacosM = (larguraDoTerminal - 50) / 2;
+                    std::string mE(espacosM > 0 ? espacosM : 0, ' ');
+                    std::cout << "\n" << mE << "[Bjorn]: Pelos deuses, muito obrigado por me salvar!\n";
+                    std::cout << mE << "[Bjorn]: Passe na Forja e eu ajudarei voce!\n";
                     bjornResgatado = true;
-                    
-                    if (celulaDestinoDoMapa == 'B') 
-                    {
-                        matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX] = '.'; 
+
+                    if (celulaDestinoDoMapa == 'B') {
+                        matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX] = '.';
                         if (matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'n') matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] = '.';
-                    } 
-                    else 
-                    {
-                        matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX] = '.'; 
+                    } else {
+                        matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX] = '.';
                         matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX-1] = '.';
                     }
-                    
                     Menu::aguardarPressionamentoDeEnter();
                 }
-                
-                if (exploracaoEstaAtiva) {
-                    Menu::limparTelaDoTerminal();
-                    Menu::exibirLogoDoJogo(tituloDoMapaAtual);
-                    GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
-                    linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
-                }
+                if (exploracaoEstaAtiva) restaurarTela();
             }
+            // --- Entrar na Forja ---
             else if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'F' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+2] == 'o' && !jogadorEstaDentroDeUmSubMapa)
             {
-                if (!bjornResgatado) 
+                if (!bjornResgatado)
                 {
                     Menu::limparTelaDoTerminal();
                     Menu::exibirLogoDoJogo(tituloDoMapaAtual);
-                    
-                    int espacosMsg = (larguraDoTerminal - 60) / 2;
-                    std::cout << "\n" << std::string(espacosMsg > 0 ? espacosMsg : 0, ' ') << "[SISTEMA]: A Forja esta trancada. O ferreiro sumiu...\n";
+                    int espacosM = (larguraDoTerminal - 60) / 2;
+                    std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: A Forja esta trancada. O ferreiro sumiu...\n";
                     Menu::aguardarPressionamentoDeEnter();
-                    
-                    Menu::limparTelaDoTerminal();
-                    Menu::exibirLogoDoJogo(tituloDoMapaAtual);
-                    GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
-                    linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
+                    restaurarTela();
                     continue;
                 }
-                
+
                 matrizDoMapaPrincipalSalva = matrizDoMapaAtual;
                 posicaoXSalvaAntesDeEntrarNoSubMapa = posicaoXDoJogador;
                 posicaoYSalvaAntesDeEntrarNoSubMapa = posicaoYDoJogador;
-                
+
                 if (!forjaJaFoiVisitada) {
                     matrizDoMapaAtual = NPCBjorn::obterMapaForja();
                     forjaJaFoiVisitada = true;
@@ -406,19 +343,16 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
                 posicaoYDoJogador = 2;
                 jogadorEstaDentroDeUmSubMapa = true;
                 tituloDoMapaAtual = "FORJA DA VILA";
-                
-                Menu::limparTelaDoTerminal();
-                Menu::exibirLogoDoJogo(tituloDoMapaAtual);
-                GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
-                linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
+                restaurarTela();
                 continue;
             }
+            // --- Entrar na Loja ---
             else if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'L' && !jogadorEstaDentroDeUmSubMapa)
             {
                 matrizDoMapaPrincipalSalva = matrizDoMapaAtual;
                 posicaoXSalvaAntesDeEntrarNoSubMapa = posicaoXDoJogador;
                 posicaoYSalvaAntesDeEntrarNoSubMapa = posicaoYDoJogador;
-                
+
                 if (!lojaJaFoiVisitada) {
                     matrizDoMapaAtual = NPCFranchesco::obterMapaLoja();
                     lojaJaFoiVisitada = true;
@@ -430,70 +364,33 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
                 posicaoYDoJogador = 2;
                 jogadorEstaDentroDeUmSubMapa = true;
                 tituloDoMapaAtual = "LOJA DA VILA";
-                
-                Menu::limparTelaDoTerminal();
-                Menu::exibirLogoDoJogo(tituloDoMapaAtual);
-                GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
-                linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
+                restaurarTela();
                 continue;
             }
+            // --- Franchesco NPC na Loja ---
             else if (celulaDestinoDoMapa == 'F' && tituloDoMapaAtual == "LOJA DA VILA")
             {
                 NPCFranchesco::interagir(jogadorAtual);
-
-                if (exploracaoEstaAtiva) {
-                    Menu::limparTelaDoTerminal();
-                    Menu::exibirLogoDoJogo(tituloDoMapaAtual);
-                    GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
-                    linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
-                }
+                if (exploracaoEstaAtiva) restaurarTela();
             }
+            // --- Entrar na Floresta ---
             else if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'F' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+2] == 'l' && !jogadorEstaDentroDeUmSubMapa)
             {
                 TransicoesDeMapa::exibirTransicaoParaFloresta();
 
-                // Instancia e inicia o mapa da Floresta
                 Mapa2Floresta mapaFloresta(jogadorAtual);
                 mapaFloresta.iniciarLoopDeExploracaoDoMapa();
-                
+
                 if (jogadorAtual->obterVoltarProMenu()) break;
 
-                // Quando a exploracao da floresta terminar (o jogador usar a saida ^V), o jogo continuara na Vila
-                // Respawn dos inimigos da Vila e recarregamento do mapa
-                matrizDoMapaAtual = {
-                    "             #######################################################################",
-                    " ########################################################################################",
-                    "##.###############......#######################..........################################",
-                    "##..........._____........_____...._____.........................##########################",
-                    "####........| { } |......| {%} |..| { } |.........**.............##########################",
-                    "###.........|  _  |......|  _  |..|  _  |........****..............#########################",
-                    "##..........| | | |......| | | |..| | | |.........||...............#########################",
-                    "##..........._____.......[^Forja].................||..**...........####^C##################",
-                    "###.........| {$} |..................................****............##...##################",
-                    "##..........|  _  |...................................||...................################",
-                    "###.........| | | |.......G.........~~~~~~~~~~~.......||....................################",
-                    "####........[^Loja]...............~~~~~~~~~~~~~~~~.......................###################",
-                    "#####................**.......~~~~~~~~~~~~~~~~~~~~......................###################",
-                    "##..................****......~~~~~~~~~~~~~~~~~~~~~~...........G........##################",
-                    "##...................||..........~~~~~~~~~~~~~~.........................#################",
-                    "####.................||..............~~~~~~~~~~~~.......................#################",
-                    "##...................................................G.................#################",
-                    "###........G................G...........................................###############",
-                    "###.....................................................................##############",
-                    "#####...........############.............################..........###################",
-                    "##############################################################^Floresta##############",
-                    "    ###############################################################################",
-                    "             ######                                              ################",
-                };
+                // Respawn e recarregamento do mapa
+                matrizDoMapaAtual = mapaBaseDaVila;
                 cavernaJaFoiVisitada = false;
-
-                Menu::limparTelaDoTerminal();
-                Menu::exibirLogoDoJogo(tituloDoMapaAtual);
-                GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
-                linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
+                restaurarTela();
                 continue;
             }
-            else 
+            // --- Movimento livre ---
+            else
             {
                 posicaoXDoJogador = proximaPosicaoX;
                 posicaoYDoJogador = proximaPosicaoY;

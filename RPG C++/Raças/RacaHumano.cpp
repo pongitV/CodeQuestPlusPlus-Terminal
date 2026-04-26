@@ -4,7 +4,7 @@
 
 std::string RacaHumano::obterNomeRaca() const 
 {
-    return "Humano ";
+    return "Humano";
 }
 
 std::vector<std::string> RacaHumano::obterAparenciaRaca() const 
@@ -56,9 +56,8 @@ std::vector<std::string> RacaHumano::obterAparenciaRaca() const
     };
 }
 
-Atributos RacaHumano::obterAtributosRaca() const 
+Atributos RacaHumano::obterAtributosRaca() const
 {
-    // Ordem: { Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria }
     return { 0, 10, 10, 0, 10, 10, 10 };
 }
 

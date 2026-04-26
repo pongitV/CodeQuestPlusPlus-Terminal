@@ -59,7 +59,6 @@ std::vector<std::string> RacaOrk::obterAparenciaRaca() const
 
 Atributos RacaOrk::obterAtributosRaca() const
 {
-    // Ordem: { Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria }
     return { 0, 20, 10, 0, 10, 5, 5 };
 }
 

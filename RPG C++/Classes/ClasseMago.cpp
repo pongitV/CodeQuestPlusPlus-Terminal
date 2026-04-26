@@ -64,8 +64,7 @@ std::vector<std::string> ClasseMago::obterAparenciaClasseMenu() const
 }
 
 Atributos ClasseMago::obterAtributosClasse() const
-{ 
-    // Ordem: { Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria }
+{
     return { 0, 5, 5, 3, 10, 15, 15 };
 }
 

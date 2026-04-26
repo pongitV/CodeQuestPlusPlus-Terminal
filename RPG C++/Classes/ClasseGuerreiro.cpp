@@ -6,6 +6,7 @@
 #include "../Inventario/Escudo.h"
 #include "../Inventario/Armadura.h"
 #include "../Inventario/ItemConsumivel.h"
+#include "../Sistema/Tipos.h"
 
 std::string ClasseGuerreiro::obterNomeClasse() const 
 { 
@@ -66,7 +67,6 @@ std::vector<std::string> ClasseGuerreiro::obterAparenciaClasseMenu() const
 
 Atributos ClasseGuerreiro::obterAtributosClasse() const
 {
-    // Ordem: { Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria }
     return { 0, 2000000, 10, 5, 10, 5, 5 };
 }
 
@@ -79,7 +79,7 @@ std::vector<std::unique_ptr<Item>> ClasseGuerreiro::obterEquipamentoClasse() con
     for (int i = 0; i < quantidadePocoes; ++i) {
         equipamentos.push_back(std::make_unique<ItemConsumivel>("Pocao de Cura (" + std::to_string(porcentagemCura) + "%VM)"));
     }
-    
+
     equipamentos.push_back(std::make_unique<Arma>("Espada longa de ferro", 10, 0));
     equipamentos.push_back(std::make_unique<Escudo>("Escudo medio de metal", 15, 5));
     equipamentos.push_back(std::make_unique<Armadura>("Armadura de malha e metal", 7));
@@ -95,7 +95,7 @@ void ClasseGuerreiro::usarHabilidadeClasse(Personagem* u, std::vector<Personagem
         u->definirHabilidadeCancelada(true);
         return;
     }
-    if (u->possuiEfeito("GritoDeGuerra")) {
+    if (u->possuiEfeito(EfeitoNomes::GRITO_DE_GUERRA)) {
         std::cout << "[SISTEMA]: O grito de guerra ja esta ativo!\n";
         u->definirHabilidadeCancelada(true);
         return;

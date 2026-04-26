@@ -25,6 +25,10 @@ private:
     bool executarSistemaDeParry(int quantidadeDeNumerosParaDigitar, int tempoLimiteEmSegundos, int& quantidadeDeDanoReduzido);
     void processarMorteDeInimigo(Personagem* inimigo);
 
+    std::string obterTituloDoCombate() const;
+    std::vector<Personagem*> obterInimigosRaw() const;
+    void exibirTelaDeCombate() const;
+
 public:
     SistemaRPG(Personagem* jogadorParaOCombate, std::vector<std::unique_ptr<Personagem>>&& inimigosParaOCombate);
     virtual ~SistemaRPG();

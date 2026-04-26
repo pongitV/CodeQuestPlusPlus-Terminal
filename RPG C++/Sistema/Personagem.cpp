@@ -63,27 +63,27 @@ Personagem::~Personagem()
 {
 }  
 
-bool Personagem::subirDeNivel(TipoAtributo atributo) 
+bool Personagem::subirDeNivel(TipoAtributo atributo)
 {
     if (xpAtual < xpParaSubir) return false;
 
     bool upou = false;
-    switch (atributo) 
+    switch (atributo)
     {
-        case TipoAtributo::Vida: 
+        case TipoAtributo::Vida:
             statsFinais.vida += 20;
             vidaAtual += 20;
             upou = true;
             break;
         case TipoAtributo::Forca: statsFinais.forca += 1; upou = true; break;
-        case TipoAtributo::Destreza: statsFinais.destreza += 1; upou = true; break;
-        case TipoAtributo::Resistencia: statsFinais.resistencia += 1; upou = true; break;
-        case TipoAtributo::Constituicao: statsFinais.constituicao += 1; upou = true; break;
+        case TipoAtributo::Destreza: statsFinais.destreza += 1; destrezaCacheDirty_ = true; upou = true; break;
+        case TipoAtributo::Resistencia: statsFinais.resistencia += 1; reducaoPercentualCacheDirty_ = true; upou = true; break;
+        case TipoAtributo::Constituicao: statsFinais.constituicao += 1; reducaoPercentualCacheDirty_ = true; upou = true; break;
         case TipoAtributo::Inteligencia: statsFinais.inteligencia += 1; upou = true; break;
         case TipoAtributo::Sabedoria: statsFinais.sabedoria += 1; upou = true; break;
     }
 
-    if (upou) 
+    if (upou)
     {
         xpAtual -= xpParaSubir;
         xpParaSubir = static_cast<int>(xpParaSubir * 1.5);
@@ -93,44 +93,53 @@ bool Personagem::subirDeNivel(TipoAtributo atributo)
     return false;
 }
 
-void Personagem::alterarAtributoEstatico(const std::string& atributo, int valor)
+void Personagem::alterarAtributoEstatico(TipoAtributo atributo, int valor)
 {
-    if (atributo == "forca") statsFinais.forca += valor;
-    else if (atributo == "destreza") statsFinais.destreza += valor;
-    else if (atributo == "inteligencia") statsFinais.inteligencia += valor;
-    else if (atributo == "sabedoria") statsFinais.sabedoria += valor;
-    
+    switch (atributo) {
+        case TipoAtributo::Forca: statsFinais.forca += valor; break;
+        case TipoAtributo::Destreza: statsFinais.destreza += valor; destrezaCacheDirty_ = true; break;
+        case TipoAtributo::Inteligencia: statsFinais.inteligencia += valor; break;
+        case TipoAtributo::Sabedoria: statsFinais.sabedoria += valor; break;
+        default: break;
+    }
+
     if (statsFinais.forca < 0) statsFinais.forca = 0;
     if (statsFinais.destreza < 0) statsFinais.destreza = 0;
     if (statsFinais.inteligencia < 0) statsFinais.inteligencia = 0;
     if (statsFinais.sabedoria < 0) statsFinais.sabedoria = 0;
 }
 
-void Personagem::reduzirCooldowns() 
+void Personagem::reduzirCooldowns()
 {
     if (recargaDefesa) recargaDefesa = false;
     if (recargaHabilidade) recargaHabilidade = false;
-    for (auto& par : cooldownsAtivos) 
+    if (cooldownsAtivos.empty()) return;
+    for (auto& par : cooldownsAtivos)
     {
         if (par.second > 0) par.second--;
     }
 }
 
-void Personagem::calcularAtributos() 
+void Personagem::calcularAtributos()
 {
     this->statsFinais.calcularAtributos(raca->obterAtributosRaca());
     this->statsFinais.calcularAtributos(classe->obterAtributosClasse());
     this->vidaAtual = statsFinais.vida;
+    destrezaCacheDirty_ = true;
+    reducaoPercentualCacheDirty_ = true;
 }
 
-void Personagem::aplicarMultiplicadorDificuldade(double mult) 
+void Personagem::aplicarMultiplicadorDificuldade(double mult)
 {
-    if (mult <= 1.0) return; // Facil nao sofre alteracao (1x)
+    if (mult <= 1.0) return;
     this->statsFinais.vida = static_cast<int>(this->statsFinais.vida * mult);
     this->statsFinais.forca = static_cast<int>(this->statsFinais.forca * mult);
     this->statsFinais.destreza = static_cast<int>(this->statsFinais.destreza * mult);
+    destrezaCacheDirty_ = true;
     this->statsFinais.resistencia = static_cast<int>(this->statsFinais.resistencia * mult);
+    reducaoPercentualCacheDirty_ = true;
     this->statsFinais.constituicao = static_cast<int>(this->statsFinais.constituicao * mult);
+    reducaoPercentualCacheDirty_ = true;
     this->statsFinais.inteligencia = static_cast<int>(this->statsFinais.inteligencia * mult);
     this->statsFinais.sabedoria = static_cast<int>(this->statsFinais.sabedoria * mult);
     this->vidaAtual = this->statsFinais.vida;
@@ -148,18 +157,20 @@ void Personagem::modificarVida(int valor)
     if (this->vidaAtual > statsFinais.vida) this->vidaAtual = statsFinais.vida;
 }
 
-bool Personagem::possuiEfeito(const std::string& nome) const {
+const EfeitoStatus* Personagem::encontrarEfeito(const std::string& nome) const {
     for (const auto& ef : efeitosAtivos) {
-        if (ef->obterNome() == nome) return true;
+        if (ef->obterNome() == nome) return ef.get();
     }
-    return false;
+    return nullptr;
+}
+
+bool Personagem::possuiEfeito(const std::string& nome) const {
+    return encontrarEfeito(nome) != nullptr;
 }
 
 int Personagem::obterTurnosEfeito(const std::string& nome) const {
-    for (const auto& ef : efeitosAtivos) {
-        if (ef->obterNome() == nome) return ef->obterTurnosRestantes();
-    }
-    return 0;
+    const EfeitoStatus* ef = encontrarEfeito(nome);
+    return ef ? ef->obterTurnosRestantes() : 0;
 }
 
 void Personagem::mostrarStatus() const 
@@ -184,15 +195,18 @@ TipoRaca Personagem::obterTipoRaca() const
     return TipoRaca::Nenhum;
 }
 
-void Personagem::equiparItem(Item* item) 
+void Personagem::equiparItem(Item* item)
 {
     if (item == nullptr) return;
     if (item->obterTipo() == TipoEquipamento::ARMA) this->arma = item;
     else if (item->obterTipo() == TipoEquipamento::ESCUDO) this->escudo = item;
-    else if (item->obterTipo() == TipoEquipamento::ARMADURA) this->armadura = item;
+    else if (item->obterTipo() == TipoEquipamento::ARMADURA)
+    {
+        this->armadura = item;
+        destrezaCacheDirty_ = true;
+        reducaoPercentualCacheDirty_ = true;
+    }
 }
-
-// CORREÇÕES: Adicionando as definições dos métodos que causavam o erro de linkagem
 
 RacaBase* Personagem::obterRaca() const 
 {
@@ -220,13 +234,17 @@ int Personagem::calcularDefesaBase(int danoBruto, int danoPerfurante) const {
     int danoSemPerfuracao = danoBruto - danoPerfurante;
     if (danoSemPerfuracao < 0) danoSemPerfuracao = 0;
 
-    int bonusArmadura = armadura ? armadura->obterReducaoFixa() : 0;
-    int reducaoFixa = statsFinais.resistencia + bonusArmadura;
+    // Cache reducao fixa (resistencia + armadura)
+    if (reducaoPercentualCacheDirty_) {
+        int bonusArmadura = armadura ? armadura->obterReducaoFixa() : 0;
+        reducaoPercentualCache_ = statsFinais.resistencia + bonusArmadura;
+        double percentualReducao = statsFinais.constituicao / 100.0;
+        if (percentualReducao > 0.50) percentualReducao = 0.50;
+        reducaoPercentualCache_ = static_cast<int>(reducaoPercentualCache_ * (1.0 - percentualReducao));
+        reducaoPercentualCacheDirty_ = false;
+    }
 
-    double percentualReducao = statsFinais.constituicao / 100.0;
-    if (percentualReducao > 0.50) percentualReducao = 0.50; // Hardcap de 50%
-
-    int danoFinal = static_cast<int>((danoSemPerfuracao - reducaoFixa) * (1.0 - percentualReducao));
+    int danoFinal = static_cast<int>(danoSemPerfuracao - reducaoPercentualCache_);
     if (danoFinal < 1 && danoSemPerfuracao > 0) danoFinal = 1;
     else if (danoSemPerfuracao == 0) danoFinal = 0;
 
@@ -236,7 +254,7 @@ int Personagem::calcularDefesaBase(int danoBruto, int danoPerfurante) const {
 int Personagem::receberDano(int danoBruto, int danoPerfurante, int danoReduzidoParry, Personagem* atacante, bool aplicarPassivas) {
     int danoFinal = calcularDefesaBase(danoBruto, danoPerfurante);
 
-    if (possuiEfeito("MetadeDano")) {
+    if (possuiEfeito(EfeitoNomes::METADE_DANO)) {
         danoFinal /= 2;
         std::cout << "\033[36m>> [EFEITO]: O dano foi reduzido pela metade! (Through the wire)\033[0m\n";
     }
@@ -293,6 +311,15 @@ bool Personagem::podeAgir() const {
         }
     }
     return true;
+}
+
+std::vector<std::string> Personagem::obterNomesEfeitosAtivos() const {
+    std::vector<std::string> nomes;
+    nomes.reserve(efeitosAtivos.size());
+    for (auto& ef : efeitosAtivos) {
+        nomes.push_back(ef->obterNome());
+    }
+    return nomes;
 }
 
 void Personagem::executarDrops(Personagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)

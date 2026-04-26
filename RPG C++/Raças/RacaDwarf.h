@@ -1,8 +1,6 @@
-#include <iostream>
+#pragma once
 
 #include "RacaBase.h"
-
-#pragma once
 
 class RacaDwarf : public RacaBase
 {

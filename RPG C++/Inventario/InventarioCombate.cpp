@@ -4,6 +4,7 @@
 
 #include "InventarioCombate.h"
 #include "../Sistema/Personagem.h"
+#include "../Sistema/Tipos.h"
 #include "Item.h"
 #include "../Interfaces/TelaInventario.h"
 #include "../Sistema/Menu.h"
@@ -79,26 +80,28 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
                     else if (isTalisma)
                     {
                         std::string nomeTalisma = itemEncontrado->obterNomeItem();
-                        if (itemEncontrado->temPropriedade(Propriedade::TalismaForca)) 
+
+                        if (itemEncontrado->temPropriedade(Propriedade::TalismaForca))
                         {
-                            jogadorAtual->alterarAtributoEstatico("forca", 5);
-                            jogadorAtual->alterarAtributoEstatico("inteligencia", -5);
-                        } 
-                        else if (itemEncontrado->temPropriedade(Propriedade::TalismaInteligencia)) 
-                        {
-                            jogadorAtual->alterarAtributoEstatico("inteligencia", 5);
-                            jogadorAtual->alterarAtributoEstatico("forca", -5);
-                        } 
-                        else if (itemEncontrado->temPropriedade(Propriedade::TalismaDestreza)) 
-                        {
-                            jogadorAtual->alterarAtributoEstatico("destreza", 5);
-                            jogadorAtual->alterarAtributoEstatico("sabedoria", -5);
-                        } 
-                        else if (itemEncontrado->temPropriedade(Propriedade::TalismaSabedoria)) 
-                        {
-                            jogadorAtual->alterarAtributoEstatico("sabedoria", 5);
-                            jogadorAtual->alterarAtributoEstatico("destreza", -5);
+                            jogadorAtual->alterarAtributoEstatico(TipoAtributo::Forca, 5);
+                            jogadorAtual->alterarAtributoEstatico(TipoAtributo::Inteligencia, -5);
                         }
+                        else if (itemEncontrado->temPropriedade(Propriedade::TalismaInteligencia))
+                        {
+                            jogadorAtual->alterarAtributoEstatico(TipoAtributo::Inteligencia, 5);
+                            jogadorAtual->alterarAtributoEstatico(TipoAtributo::Forca, -5);
+                        }
+                        else if (itemEncontrado->temPropriedade(Propriedade::TalismaDestreza))
+                        {
+                            jogadorAtual->alterarAtributoEstatico(TipoAtributo::Destreza, 5);
+                            jogadorAtual->alterarAtributoEstatico(TipoAtributo::Sabedoria, -5);
+                        }
+                        else if (itemEncontrado->temPropriedade(Propriedade::TalismaSabedoria))
+                        {
+                            jogadorAtual->alterarAtributoEstatico(TipoAtributo::Sabedoria, 5);
+                            jogadorAtual->alterarAtributoEstatico(TipoAtributo::Destreza, -5);
+                        }
+
                         std::cout << "\n[SISTEMA]: " << nomeTalisma << " consumido!\n";
                         jogadorAtual->obterInventario()->removerItem(nomeTalisma);
                     }

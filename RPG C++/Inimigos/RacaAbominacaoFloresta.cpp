@@ -6,10 +6,9 @@
 
 std::string RacaAbominacaoFloresta::obterNomeRaca() const { return "Abominacao da Floresta"; }
 
-Atributos RacaAbominacaoFloresta::obterAtributosRaca() const 
-{ 
-    // Ordem: { Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria }
-    return { 250, 40, 5, 20, 25, 0, 20 }; 
+Atributos RacaAbominacaoFloresta::obterAtributosRaca() const
+{
+    return { 250, 40, 5, 20, 25, 0, 20 };
 }
 
 std::string RacaAbominacaoFloresta::obterNomeHabilidadeRaca() const { return "Raizes Parasitas"; }
@@ -21,36 +20,37 @@ int RacaAbominacaoFloresta::processarDanoOfensivo(int danoBase, Personagem* atac
     int vidaMax = atacante->obterVidaMaxima();
     int vidaAtual = atacante->obterVida();
 
-    if (vidaAtual < (vidaMax * 0.40)) 
+    if (vidaAtual < (vidaMax * 0.40))
     {
         curandoAtivamente = true;
-    } else if (vidaAtual >= (vidaMax * 0.60)) 
+    }
+    else
     {
         curandoAtivamente = false;
     }
 
-    if (curandoAtivamente) 
+    if (curandoAtivamente)
     {
         int cura = danoBase;
-        if (cura > 0) 
+        if (cura > 0)
         {
             int vidaFaltantePara60 = static_cast<int>(vidaMax * 0.60) - vidaAtual;
             if (vidaFaltantePara60 < 0) vidaFaltantePara60 = 0;
-            
-            if (cura > vidaFaltantePara60) 
+
+            if (cura > vidaFaltantePara60)
             {
                 cura = vidaFaltantePara60;
             }
-            
-            if (cura > 0) 
+
+            if (cura > 0)
             {
                 atacante->modificarVida(cura);
                 std::cout << "\033[32m[PASSIVA]: Raizes Parasitas! A Abominacao absorveu " << cura << " de HP!\033[0m\n";
-                if (atacante->obterVida() >= (vidaMax * 0.60)) 
-                {
-                    curandoAtivamente = false;
-                }
             }
+        }
+        if (atacante->obterVida() >= (vidaMax * 0.60))
+        {
+            curandoAtivamente = false;
         }
     }
     return danoBase;

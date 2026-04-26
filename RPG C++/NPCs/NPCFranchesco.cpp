@@ -119,25 +119,21 @@ void NPCFranchesco::interagir(Personagem* jogadorAtual)
 
                 std::cin >> opcaoCompra;
 
-                if (opcaoCompra == "1") 
-                {
+                if (opcaoCompra == "1") {
                     int preco = 10;
-                    if (jogadorAtual->obterInventario()->obterOuro() >= preco) 
-                    {
+                    if (jogadorAtual->obterInventario()->obterOuro() >= preco) {
                         jogadorAtual->obterInventario()->adicionarOuro(-preco);
-                            auto pocao = std::make_unique<ItemConsumivel>("Pocao de Cura (30%)");
-                            pocao->adicionarPropriedade(Propriedade::ConsumivelCura);
-                            jogadorAtual->obterInventario()->adicionarItem(std::move(pocao)); 
-                        std::cout << "\n" << margemMsg << "[SISTEMA]: Pocao de Cura comprada!\n"; 
-                    } 
-                    else 
-                    {
+                        auto pocao = std::make_unique<ItemConsumivel>("Pocao de Cura (30%)");
+                        pocao->adicionarPropriedade(Propriedade::ConsumivelCura);
+                        jogadorAtual->obterInventario()->adicionarItem(std::move(pocao));
+                        std::cout << "\n" << margemMsg << "[SISTEMA]: Pocao de Cura comprada!\n";
+                    } else {
                         std::cout << "\n" << margemMsg << "[SISTEMA]: Ouro insuficiente!\n";
                     }
                     Menu::aguardarPressionamentoDeEnter();
                 }
             } while (opcaoCompra != "0");
-        } 
+        }
         else if (opcaoFranchesco == "2") {
             std::string opcaoCompra;
             do {
@@ -155,34 +151,29 @@ void NPCFranchesco::interagir(Personagem* jogadorAtual)
 
                 std::cin >> opcaoCompra;
 
-                if (opcaoCompra >= "1" && opcaoCompra <= "4") 
-                {
+                if (opcaoCompra >= "1" && opcaoCompra <= "4") {
                     int preco = 200;
-                    if (jogadorAtual->obterInventario()->obterOuro() >= preco) 
-                    {
+                    if (jogadorAtual->obterInventario()->obterOuro() >= preco) {
                         jogadorAtual->obterInventario()->adicionarOuro(-preco);
-                            std::unique_ptr<ItemConsumivel> novoTalisma = nullptr;
-                            if (opcaoCompra == "1") { 
-                                novoTalisma = std::make_unique<ItemConsumivel>("Talisma do Urso"); 
-                                novoTalisma->adicionarPropriedade(Propriedade::TalismaForca); 
-                                std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma do Urso comprado!\n"; 
-                            } else if (opcaoCompra == "2") { 
-                                novoTalisma = std::make_unique<ItemConsumivel>("Talisma do Corvo"); 
-                                novoTalisma->adicionarPropriedade(Propriedade::TalismaInteligencia); 
-                                std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma do Corvo comprado!\n"; 
-                            } else if (opcaoCompra == "3") { 
-                                novoTalisma = std::make_unique<ItemConsumivel>("Talisma do Leopardo"); 
-                                novoTalisma->adicionarPropriedade(Propriedade::TalismaDestreza); 
-                                std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma do Leopardo comprado!\n"; 
-                            } else if (opcaoCompra == "4") { 
-                                novoTalisma = std::make_unique<ItemConsumivel>("Talisma da Coruja"); 
-                                novoTalisma->adicionarPropriedade(Propriedade::TalismaSabedoria); 
-                                std::cout << "\n" << margemMsg << "[SISTEMA]: Talisma da Coruja comprado!\n"; 
-                            }
-                            if (novoTalisma) jogadorAtual->obterInventario()->adicionarItem(std::move(novoTalisma));
-                    } 
-                    else 
-                    {
+                        std::unique_ptr<ItemConsumivel> novoTalisma = nullptr;
+                        if (opcaoCompra == "1") {
+                            novoTalisma = std::make_unique<ItemConsumivel>("Talisma do Urso");
+                            novoTalisma->adicionarPropriedade(Propriedade::TalismaForca);
+                        } else if (opcaoCompra == "2") {
+                            novoTalisma = std::make_unique<ItemConsumivel>("Talisma do Corvo");
+                            novoTalisma->adicionarPropriedade(Propriedade::TalismaInteligencia);
+                        } else if (opcaoCompra == "3") {
+                            novoTalisma = std::make_unique<ItemConsumivel>("Talisma do Leopardo");
+                            novoTalisma->adicionarPropriedade(Propriedade::TalismaDestreza);
+                        } else if (opcaoCompra == "4") {
+                            novoTalisma = std::make_unique<ItemConsumivel>("Talisma da Coruja");
+                            novoTalisma->adicionarPropriedade(Propriedade::TalismaSabedoria);
+                        }
+                        if (novoTalisma) {
+                            std::cout << "\n" << margemMsg << "[SISTEMA]: " << novoTalisma->obterNomeItem() << " comprado!\n";
+                            jogadorAtual->obterInventario()->adicionarItem(std::move(novoTalisma));
+                        }
+                    } else {
                         std::cout << "\n" << margemMsg << "[SISTEMA]: Ouro insuficiente!\n";
                     }
                     Menu::aguardarPressionamentoDeEnter();
@@ -203,17 +194,13 @@ void NPCFranchesco::interagir(Personagem* jogadorAtual)
 
                 std::cin >> opcaoCompra;
 
-                if (opcaoCompra == "1") 
-                {
+                if (opcaoCompra == "1") {
                     int preco = 1000;
-                    if (jogadorAtual->obterInventario()->obterOuro() >= preco) 
-                    {
+                    if (jogadorAtual->obterInventario()->obterOuro() >= preco) {
                         jogadorAtual->obterInventario()->adicionarOuro(-preco);
-                        jogadorAtual->obterInventario()->adicionarItem(std::make_unique<ItemMissao>("Dispositivo de teclas de linguagem desconhecida")); 
+                        jogadorAtual->obterInventario()->adicionarItem(std::make_unique<ItemMissao>("Dispositivo de teclas de linguagem desconhecida"));
                         std::cout << "\n" << margemMsg << "[SISTEMA]: Dispositivo misterioso comprado!\n";
-                    } 
-                    else 
-                    {
+                    } else {
                         std::cout << "\n" << margemMsg << "[SISTEMA]: Ouro insuficiente!\n";
                     }
                     Menu::aguardarPressionamentoDeEnter();

@@ -1,6 +1,5 @@
 #include <iostream>
 
-#include "RacaBase.h"
 #include "RacaElfo.h"
 
 std::string RacaElfo::obterNomeRaca() const 
@@ -57,8 +56,7 @@ std::vector<std::string> RacaElfo::obterAparenciaRaca() const
 }
 
 Atributos RacaElfo::obterAtributosRaca() const
-{ 
-    // Ordem: { Vida, Forca, Destreza, Resistencia, Constituicao, Inteligencia, Sabedoria }
+{
     return { 0, 5, 15, 0, 10, 15, 5 };
 }
 

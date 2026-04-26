@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../Sistema/Personagem.h"
+#include <string>
+#include <vector>
 
 class NPCBjorn 
 {

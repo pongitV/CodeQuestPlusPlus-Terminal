@@ -23,6 +23,7 @@
 
 #include "../Interfaces/TelaInventario.h"
 #include "../Interfaces/TelaAtributos.h"
+#include "../Sistema/Tipos.h"
 
 // Inclusao das Racas
 #include "../Raças/RacaBase.h"
@@ -46,18 +47,20 @@ void Menu::maximizarJanelaDoTerminal()
 #endif
 }
 
-int Menu::obterLarguraDoTerminalEmColunas() 
+int Menu::obterLarguraDoTerminalEmColunas()
 {
-    int largura = 120; // Tamanho padrão de fallback
+    static int cachedLargura = 0;
+    if (cachedLargura > 0) return cachedLargura;
 
 #ifdef _WIN32
     CONSOLE_SCREEN_BUFFER_INFO csbi;
-    if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi)) 
+    if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi))
     {
-        largura = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+        cachedLargura = csbi.srWindow.Right - csbi.srWindow.Left + 1;
     }
 #endif
-    return largura;
+    if (cachedLargura <= 0) cachedLargura = 120;
+    return cachedLargura;
 }
 
 void Menu::limparTelaDoTerminal() 
@@ -88,32 +91,23 @@ void Menu::aguardarPressionamentoDeEnter()
 
 void Menu::imprimirTextoComEfeitoDeDigitacao(const std::string& textoParaImprimir, int tempoDeEsperaEmMilissegundos)
 {
-    // 1. Salva a posição atual do cursor para não perder o lugar do texto
-    // 2. Move para a linha 24, coluna 1 (canto inferior esquerdo)
-    // 3. Imprime a mensagem em cinza para não distrair
-    // 4. Volta para a posição original
     std::cout << "\033[s\033[80;1H\033[1;90m[Pressione 'k' para pular]\033[u";
 
     for (size_t i = 0; i < textoParaImprimir.length(); ++i)
     {
-        // Verifica se o usuário pressionou a tecla 'k'
         #ifdef _WIN32
-            if (_kbhit()) 
+            if (_kbhit())
             {
                 char tecla = _getch();
-                if (tecla == 'k' || tecla == 'K') 
+                if (tecla == 'k' || tecla == 'K')
                 {
-                    // Limpa a linha do "pular" antes de sair para não deixar lixo
                     std::cout << "\033[s\033[24;1H\033[K\033[u";
-                    
-                    // Pula o restante do texto
                     std::cout << textoParaImprimir.substr(i) << std::flush;
-                    return; 
+                    return;
                 }
             }
         #endif
 
-        // Imprime o caractere atual do diálogo
         std::cout << textoParaImprimir[i] << std::flush;
         std::this_thread::sleep_for(std::chrono::milliseconds(tempoDeEsperaEmMilissegundos));
     }
@@ -443,13 +437,16 @@ void Menu::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>& listaD
     }
         std::cout << "\n";
         
-        for (size_t indiceInimigo = 0; indiceInimigo < listaDeInimigos.size(); indiceInimigo++) 
+        for (size_t indiceInimigo = 0; indiceInimigo < listaDeInimigos.size(); indiceInimigo++)
         {
             std::vector<std::pair<std::string, std::string>> debuffs;
-            if (listaDeInimigos[indiceInimigo]->possuiEfeito("Sangramento")) debuffs.push_back({"[Sangramento]", "\033[31m[Sangramento]\033[0m"});
-            if (listaDeInimigos[indiceInimigo]->possuiEfeito("Lentidao")) debuffs.push_back({"[Lentidao]", "\033[35m[Lentidao]\033[0m"});
-            if (listaDeInimigos[indiceInimigo]->possuiEfeito("Fraqueza")) debuffs.push_back({"[Fraqueza]", "\033[33m[Fraqueza]\033[0m"});
-            if (listaDeInimigos[indiceInimigo]->possuiEfeito("QuebraResistencia")) debuffs.push_back({"[Quebra Def.]", "\033[36m[Quebra Def.]\033[0m"});
+            auto nomesEfeitos = listaDeInimigos[indiceInimigo]->obterNomesEfeitosAtivos();
+            for (auto& nome : nomesEfeitos) {
+                if (nome == EfeitoNomes::SANGRAMENTO) debuffs.push_back({"[Sangramento]", "\033[31m[Sangramento]\033[0m"});
+                else if (nome == EfeitoNomes::LENTIDAO) debuffs.push_back({"[Lentidao]", "\033[35m[Lentidao]\033[0m"});
+                else if (nome == EfeitoNomes::FRAQUEZA) debuffs.push_back({"[Fraqueza]", "\033[33m[Fraqueza]\033[0m"});
+                else if (nome == EfeitoNomes::QUEBRA_RESISTENCIA) debuffs.push_back({"[Quebra Def.]", "\033[36m[Quebra Def.]\033[0m"});
+            }
 
             std::string visualStr = "";
             std::string printStr = "";

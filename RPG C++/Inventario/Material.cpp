@@ -1,4 +1,13 @@
 #include "Material.h"
+#include <string_view>
+#include <map>
+
+static const std::map<std::string_view, int> precosMateriais = {
+    {"Gosma acida", 5},
+    {"Dente de goblin", 1},
+    {"Nucleo pegajoso", 30},
+    {"Po magico", 15},
+};
 
 Material::Material(std::string nome) : nome(nome)
 {
@@ -9,9 +18,6 @@ Raridade Material::obterRaridade() const { return Raridade::COMUM; }
 TipoEquipamento Material::obterTipo() const { return TipoEquipamento::MATERIAL; }
 
 int Material::obterPrecoVenda() const {
-    if (nome == "Gosma acida") return 5;
-    if (nome == "Dente de goblin") return 1;
-    if (nome == "Nucleo pegajoso") return 30;
-    if (nome == "Po magico") return 15;
-    return 3;
+    auto it = precosMateriais.find(nome);
+    return (it != precosMateriais.end()) ? it->second : 3;
 }

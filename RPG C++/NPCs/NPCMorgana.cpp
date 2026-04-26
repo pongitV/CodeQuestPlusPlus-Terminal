@@ -95,16 +95,12 @@ void NPCMorgana::interagir(Personagem* jogadorAtual)
         std::cout << "\n";
         for (size_t i = 0; i < maxLinhas; ++i) {
             std::cout << std::string(recuo, ' ');
-            if (i < menuEsquerda.size()) 
-            {
+            if (i < menuEsquerda.size()) {
                 std::cout << std::left << std::setw(larguraInfo) << menuEsquerda[i];
-            } 
-            else 
-            {
+            } else {
                 std::cout << std::string(larguraInfo, ' ');
             }
-            if (i < arteMorgana.size()) 
-            {
+            if (i < arteMorgana.size()) {
                 std::cout << "\033[0m" << arteMorgana[i] << "\033[0m"; // Magenta
             }
             std::cout << "\n";
@@ -113,8 +109,7 @@ void NPCMorgana::interagir(Personagem* jogadorAtual)
         std::cout << "\n" << std::string(recuo, ' ') << "Escolha: ";
         std::cin >> opcaoMorgana;
 
-        if (opcaoMorgana == "1") 
-        {
+        if (opcaoMorgana == "1") {
             std::string opcaoEncantar;
             do {
                 Menu::limparTelaDoTerminal();
@@ -129,8 +124,13 @@ void NPCMorgana::interagir(Personagem* jogadorAtual)
                 std::cout << "\n" << margemMsg << "[0] VOLTAR\n\n" << margemMsg << "Escolha: ";
                 std::cin >> opcaoEncantar;
 
-                if (opcaoEncantar >= "1" && opcaoEncantar <= "6") 
-                {
+                if (opcaoEncantar >= "1" && opcaoEncantar <= "6") {
+                    struct EncantoInfo { std::string nome; int qtd; };
+                    EncantoInfo encantos[] = {
+                        {"Dente de goblin", 40}, {"Nucleo pegajoso", 5}, {"Po magico", 25},
+                        {"Madeira enfeiticada", 1}, {"Coracao da floresta", 1}, {"Madeira enfeiticada", 1}
+                    };
+                    auto [itemNecessario, qtdNecessaria] = encantos[opcaoEncantar[0] - '1'];
                     bool isSangramento = (opcaoEncantar == "1");
                     bool isLentidao = (opcaoEncantar == "2");
                     bool isResistencia = (opcaoEncantar == "3");
@@ -138,18 +138,8 @@ void NPCMorgana::interagir(Personagem* jogadorAtual)
                     bool isCipos = (opcaoEncantar == "5");
                     bool isRaizes = (opcaoEncantar == "6");
                     
-                    std::string itemNecessario;
-                    int qtdNecessaria = 0;
-                    if (isSangramento) { itemNecessario = "Dente de goblin"; qtdNecessaria = 40; }
-                    else if (isLentidao) { itemNecessario = "Nucleo pegajoso"; qtdNecessaria = 5; }
-                    else if (isResistencia) { itemNecessario = "Po magico"; qtdNecessaria = 25; }
-                    else if (isMagia) { itemNecessario = "Madeira enfeiticada"; qtdNecessaria = 1; }
-                    else if (isCipos) { itemNecessario = "Coracao da floresta"; qtdNecessaria = 1; }
-                    else if (isRaizes) { itemNecessario = "Madeira enfeiticada"; qtdNecessaria = 1; }
-                    
                     int qtdAtual = jogadorAtual->obterInventario()->contarItem(itemNecessario);
-                    if (qtdAtual < qtdNecessaria) 
-                    {
+                    if (qtdAtual < qtdNecessaria) {
                         std::cout << "\n[Morgana]: Voce nao tem " << itemNecessario << " suficiente! (Possui: " << qtdAtual << "/" << qtdNecessaria << ")\n";
                         Menu::aguardarPressionamentoDeEnter();
                         continue;
@@ -180,33 +170,50 @@ void NPCMorgana::interagir(Personagem* jogadorAtual)
                     
                     std::string nomeAntigoArma = armaEscolhida->obterNomeItem();
 
-                    for (int i = 0; i < qtdNecessaria; ++i) jogadorAtual->obterInventario()->removerItem(itemNecessario);
+                    for (int i = 0; i < qtdNecessaria; ++i)
+                        jogadorAtual->obterInventario()->removerItem(itemNecessario);
                     
                     if (isSangramento) { armaEscolhida->aplicarEfeitoSangramento(); armaEscolhida->alterarNome(armaEscolhida->obterNomeItem() + " (Sangrenta)"); }
                     else if (isLentidao) { armaEscolhida->aplicarEfeitoLentidao(); armaEscolhida->alterarNome(armaEscolhida->obterNomeItem() + " (Viscosa)"); }
                     else if (isResistencia) { armaEscolhida->alterarNome(armaEscolhida->obterNomeItem() + " (Penetrante)"); armaEscolhida->adicionarPropriedade(Propriedade::Penetrante); }
-                    else if (isMagia) { 
-                        std::string nome = armaEscolhida->obterNomeItem(); 
-                        size_t pos = nome.find("Arco recurvo de madeira"); 
-                        if (pos != std::string::npos) nome.replace(pos, 23, "Arco recurvo de madeira enfeiticada"); 
-                        
+                    else if (isMagia) {
+                        std::string nome = armaEscolhida->obterNomeItem();
+                        size_t pos = nome.find("Arco recurvo de madeira");
+                        if (pos != std::string::npos)
+                            nome.replace(pos, 23, "Arco recurvo de madeira enfeiticada");
                         int novoDanoMagico = armaEscolhida->obterDanoMagico() + (armaEscolhida->obterDanoFisico() / 2);
                         auto novoArcoObj = std::make_unique<Arma>(nome, armaEscolhida->obterDanoFisico(), novoDanoMagico);
                         Arma* novoArco = novoArcoObj.get();
                         if (armaEscolhida->possuiEfeitoSangramento()) novoArco->aplicarEfeitoSangramento();
                         if (armaEscolhida->possuiEfeitoLentidao()) novoArco->aplicarEfeitoLentidao();
-                        if (armaEscolhida->temPropriedade(Propriedade::Penetrante)) novoArco->adicionarPropriedade(Propriedade::Penetrante);
+                        if (armaEscolhida->temPropriedade(Propriedade::Penetrante))
+                            novoArco->adicionarPropriedade(Propriedade::Penetrante);
                         novoArco->adicionarPropriedade(Propriedade::Magica);
-                        
+
                         bool estavaEquipado = (jogadorAtual->obterArma() == armaEscolhida);
                         if (estavaEquipado) jogadorAtual->desequiparArma();
                         jogadorAtual->obterInventario()->removerItem(nomeAntigoArma);
                         jogadorAtual->obterInventario()->adicionarItem(std::move(novoArcoObj));
                         if (estavaEquipado) jogadorAtual->equiparItem(novoArco);
-                        armaEscolhida = novoArco; 
+                        armaEscolhida = novoArco;
                     }
-                    else if (isCipos) { std::string nome = armaEscolhida->obterNomeItem(); size_t pos = nome.find("Cajado"); if (pos != std::string::npos) nome.replace(pos, 6, "Cajado de cipos"); armaEscolhida->alterarNome(nome); armaEscolhida->adicionarPropriedade(Propriedade::CipoPrisao); }
-                    else if (isRaizes) { std::string nome = armaEscolhida->obterNomeItem(); size_t pos = nome.find("Violao encantado"); if (pos != std::string::npos) nome.replace(pos, 16, "Violao enfeiticado"); else nome += " enfeiticado"; armaEscolhida->alterarNome(nome); armaEscolhida->adicionarPropriedade(Propriedade::ViolaoMagico); }
+                    else if (isCipos) {
+                        std::string nome = armaEscolhida->obterNomeItem();
+                        size_t pos = nome.find("Cajado");
+                        if (pos != std::string::npos) nome.replace(pos, 6, "Cajado de cipos");
+                        armaEscolhida->alterarNome(nome);
+                        armaEscolhida->adicionarPropriedade(Propriedade::CipoPrisao);
+                    }
+                    else if (isRaizes) {
+                        std::string nome = armaEscolhida->obterNomeItem();
+                        size_t pos = nome.find("Violao encantado");
+                        if (pos != std::string::npos)
+                            nome.replace(pos, 16, "Violao enfeiticado");
+                        else
+                            nome += " enfeiticado";
+                        armaEscolhida->alterarNome(nome);
+                        armaEscolhida->adicionarPropriedade(Propriedade::ViolaoMagico);
+                    }
                     
                     Menu::limparTelaDoTerminal();
                     Menu::exibirLogoDoJogo("ENCANTAMENTO SUCESSO");
@@ -238,8 +245,7 @@ void NPCMorgana::interagir(Personagem* jogadorAtual)
                 }
             } while (opcaoEncantar != "0");
         }
-        else if (opcaoMorgana == "2" || opcaoMorgana == "3") 
-        {
+        else if (opcaoMorgana == "2" || opcaoMorgana == "3") {
             bool isBuff = (opcaoMorgana == "2");
             std::string titulo = isBuff ? "CABANA - POCOES DE BUFF" : "CABANA - FRASCOS DE DEBUFF";
             std::string opcaoCompra;
@@ -248,71 +254,56 @@ void NPCMorgana::interagir(Personagem* jogadorAtual)
                 Menu::exibirLogoDoJogo(titulo);
                 std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
 
-                if (isBuff) 
-                {
+                if (isBuff) {
                     std::cout << margemMsg << "[1] Pocao de Furia (Buff x1.5 Atributos | 2 Turnos) - 25G\n";
                     std::cout << margemMsg << "[2] Elixir Arcano (Buff x1.5 Atributos | 2 Turnos)  - 25G\n";
                 } 
-                else 
-                {
+               else {
                     std::cout << margemMsg << "[1] Frasco de Gosma (Debuff Lentidao | 3 Turnos)    - 30G\n";
                     std::cout << margemMsg << "[2] Frasco de Fraqueza (Debuff Fraqueza | 3 Turnos) - 30G\n";
                 }
                 std::cout << "\n" << margemMsg << "[0] VOLTAR\n\n" << margemMsg << "Escolha: ";
                 std::cin >> opcaoCompra;
 
-                if (opcaoCompra >= "1" && opcaoCompra <= "2") 
-                {
+                if (opcaoCompra >= "1" && opcaoCompra <= "2") {
                     int preco = (isBuff ? 25 : 30);
-                    if (jogadorAtual->obterInventario()->obterOuro() >= preco) 
-                    {
+                    if (jogadorAtual->obterInventario()->obterOuro() >= preco) {
                         jogadorAtual->obterInventario()->adicionarOuro(-preco);
                         std::unique_ptr<Item> novoItem = nullptr;
-                        if (isBuff) 
-                        {
-                                if (opcaoCompra == "1") {
-                                    novoItem = std::make_unique<ItemConsumivel>("Pocao de Furia (Buff)");
-                                    novoItem->adicionarPropriedade(Propriedade::ConsumivelBuff);
-                                } else if (opcaoCompra == "2") {
-                                    novoItem = std::make_unique<ItemConsumivel>("Elixir Arcano (Buff)");
-                                    novoItem->adicionarPropriedade(Propriedade::ConsumivelBuff);
-                                }
-                        } 
-                        else 
-                        {
-                                if (opcaoCompra == "1") {
-                                    novoItem = std::make_unique<ItemConsumivel>("Frasco de Gosma (Debuff)");
-                                    novoItem->adicionarPropriedade(Propriedade::ConsumivelDebuffLentidao);
-                                }
-                                else if (opcaoCompra == "2") {
-                                    novoItem = std::make_unique<ItemConsumivel>("Frasco de Fraqueza (Debuff)");
-                                    novoItem->adicionarPropriedade(Propriedade::ConsumivelDebuffFraqueza);
-                                }
+                        if (isBuff) {
+                            if (opcaoCompra == "1") {
+                                novoItem = std::make_unique<ItemConsumivel>("Pocao de Furia (Buff)");
+                                novoItem->adicionarPropriedade(Propriedade::ConsumivelBuff);
+                            } else if (opcaoCompra == "2") {
+                                novoItem = std::make_unique<ItemConsumivel>("Elixir Arcano (Buff)");
+                                novoItem->adicionarPropriedade(Propriedade::ConsumivelBuff);
+                            }
+                        } else {
+                            if (opcaoCompra == "1") {
+                                novoItem = std::make_unique<ItemConsumivel>("Frasco de Gosma (Debuff)");
+                                novoItem->adicionarPropriedade(Propriedade::ConsumivelDebuffLentidao);
+                            } else if (opcaoCompra == "2") {
+                                novoItem = std::make_unique<ItemConsumivel>("Frasco de Fraqueza (Debuff)");
+                                novoItem->adicionarPropriedade(Propriedade::ConsumivelDebuffFraqueza);
+                            }
                         }
-                        if (novoItem) 
-                        {
+                        if (novoItem) {
                             std::string nomeDoNovoItem = novoItem->obterNomeItem();
                             jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
                             std::cout << "\n" << margemMsg << "[Morgana]: Heehee... Use com sabedoria! " << nomeDoNovoItem << " adicionado.\n";
                         }
-                    } 
-                    else 
-                    {
-
+                    } else {
                         std::cout << "\n" << margemMsg << "[Morgana]: Voce nao tem ouro suficiente para as minhas preparacoes!\n";
                     }
                     Menu::aguardarPressionamentoDeEnter();
                 }
             } while (opcaoCompra != "0");
         }
-        else if (opcaoMorgana == "4" && !g_labirintoDesbloqueado)
-        {
+        else if (opcaoMorgana == "4" && !g_labirintoDesbloqueado) {
             int qtdCoracoes = jogadorAtual->obterInventario()->contarItem("Coracao da floresta");
-            if (qtdCoracoes >= 3)
-            {
-                jogadorAtual->obterInventario()->removerItem("Coracao da floresta");
-                jogadorAtual->obterInventario()->removerItem("Coracao da floresta");
-                jogadorAtual->obterInventario()->removerItem("Coracao da floresta");
+            if (qtdCoracoes >= 3) {
+                for (int i = 0; i < 3; ++i)
+                    jogadorAtual->obterInventario()->removerItem("Coracao da floresta");
                 g_labirintoDesbloqueado = true;
                 
                 Menu::limparTelaDoTerminal();
@@ -322,8 +313,7 @@ void NPCMorgana::interagir(Personagem* jogadorAtual)
                 std::cout << margemMsg << "[Morgana]: Use a entrada [^L] para explorar o meu Labirinto Subterraneo.\n";
                 std::cout << margemMsg << "[Morgana]: E um lugar perigoso, mergulhado em uma nevoa de cor roxa, mas guarda grandes tesouros.\n";
             }
-            else
-            {
+            else {
                 Menu::limparTelaDoTerminal();
                 Menu::exibirLogoDoJogo("MISSAO");
                 std::cout << "\n" << margemMsg << "[Morgana]: Voce ainda nao possui os 3 Coracoes da floresta que eu pedi.\n";

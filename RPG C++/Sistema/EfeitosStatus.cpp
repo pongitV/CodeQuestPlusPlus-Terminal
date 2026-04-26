@@ -4,7 +4,7 @@
 
 void EfeitoSugaSangue::aplicarInicioTurno(Personagem* alvo) {
     if (!atacante || atacante->obterVida() <= 0) return;
-    int danoRaizes = alvo->obterVida() * 0.20;
+    int danoRaizes = alvo->obterVida() / 5;
     if (danoRaizes > 0) 
     {
         alvo->modificarVida(-danoRaizes);
@@ -53,6 +53,7 @@ void EfeitoQuebraResistencia::aoSair(Personagem* alvo) {
 }
 
 void EfeitoSangramento::aplicarInicioTurno(Personagem* alvo) {
+    if (alvo->obterVida() <= 0) return;
     alvo->modificarVida(-danoPorTurno);
     std::cout << "\033[31m[EFEITO]: " << alvo->obterNome() << " sofreu " << danoPorTurno << " de dano por sangramento!\033[0m\n";
 }
@@ -68,6 +69,8 @@ void EfeitoGritoGuerra::aoSair(Personagem* alvo) {
 }
 
 void EfeitoBuffAtributos::aoSair(Personagem* alvo) {
-    alvo->definirMultiplicador(1.0);
+    if (alvo->obterMultiplicador() != 1.0) {
+        alvo->definirMultiplicador(1.0);
+    }
     std::cout << "\n[SISTEMA]: O efeito da habilidade expirou!\n";
 }

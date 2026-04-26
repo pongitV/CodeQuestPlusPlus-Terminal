@@ -59,18 +59,18 @@ void Inventario::exibirInventario(Item* armaEquipada, Item* escudoEquipado, Item
     int indiceArs = 1;
     for (auto const& [nome, lista] : equipamentosAgrupados) {
         Item* itemExemplo = lista.front();
+        std::string prefixo = (lista.size() > 1) ? std::to_string(lista.size()) + "x " : "";
         std::string infoVenda = mostrarPrecos ? " (Venda: " + std::to_string(itemExemplo->obterPrecoVenda()) + "G)" : "";
-        std::string prefixo = lista.size() > 1 ? std::to_string(lista.size()) + "x " : "";
         linhasParaImprimir.push_back(" [" + std::to_string(indiceArs++) + "A] " + prefixo + nome + " [" + itemExemplo->raridadeParaString() + "]" + itemExemplo->obterInfoStatus() + infoVenda);
     }
-    linhasParaImprimir.push_back(""); 
+    linhasParaImprimir.push_back("");
 
     linhasParaImprimir.push_back("[ CONSUMIVEIS ]");
     if (consumiveisAgrupados.empty()) linhasParaImprimir.push_back(" (Vazio)");
     int contadorDeConsumiveis = 1;
     for (auto const& [nomeDoItem, lista] : consumiveisAgrupados) {
+        std::string prefixo = (lista.size() > 1) ? std::to_string(lista.size()) + "x " : "";
         std::string infoVenda = mostrarPrecos ? " (Venda: " + std::to_string(lista.front()->obterPrecoVenda()) + "G / un)" : "";
-        std::string prefixo = lista.size() > 1 ? std::to_string(lista.size()) + "x " : "";
         linhasParaImprimir.push_back(" [" + std::to_string(contadorDeConsumiveis++) + "C] " + prefixo + nomeDoItem + infoVenda);
     }
     linhasParaImprimir.push_back("");
@@ -79,8 +79,8 @@ void Inventario::exibirInventario(Item* armaEquipada, Item* escudoEquipado, Item
     if (materiaisAgrupados.empty()) linhasParaImprimir.push_back(" (Vazio)");
     int contadorDeMateriais = 1;
     for (auto const& [nomeDoItem, lista] : materiaisAgrupados) {
+        std::string prefixo = (lista.size() > 1) ? std::to_string(lista.size()) + "x " : "";
         std::string infoVenda = mostrarPrecos ? " (Venda: " + std::to_string(lista.front()->obterPrecoVenda()) + "G / un)" : "";
-        std::string prefixo = lista.size() > 1 ? std::to_string(lista.size()) + "x " : "";
         linhasParaImprimir.push_back(" [" + std::to_string(contadorDeMateriais++) + "S] " + prefixo + nomeDoItem + infoVenda);
     }
     linhasParaImprimir.push_back("");
@@ -89,7 +89,7 @@ void Inventario::exibirInventario(Item* armaEquipada, Item* escudoEquipado, Item
     if (missoesAgrupadas.empty()) linhasParaImprimir.push_back(" (Vazio)");
     int indiceMis = 1;
     for (auto const& [nome, lista] : missoesAgrupadas) {
-        std::string prefixo = lista.size() > 1 ? std::to_string(lista.size()) + "x " : "";
+        std::string prefixo = (lista.size() > 1) ? std::to_string(lista.size()) + "x " : "";
         linhasParaImprimir.push_back(" [" + std::to_string(indiceMis++) + "M] " + prefixo + nome);
     }
 

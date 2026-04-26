@@ -29,10 +29,8 @@ SistemaRPG::SistemaRPG(Personagem* jogadorParaOCombate, std::vector<std::unique_
 
     int nivelDeDificuldade = jogadorAtual->obterDificuldade();
     double multiplicadorDeDificuldadeDosInimigos = 1.0;
-    
-    if (nivelDeDificuldade == 2) { // Normal
-    } 
-    else if (nivelDeDificuldade == 3) { // Dificil
+
+    if (nivelDeDificuldade == 3) {
         multiplicadorDeDificuldadeDosInimigos = 2.0;
     }
 
@@ -42,14 +40,40 @@ SistemaRPG::SistemaRPG(Personagem* jogadorParaOCombate, std::vector<std::unique_
     }
 }
 
-SistemaRPG::~SistemaRPG() 
+SistemaRPG::~SistemaRPG()
 {
-    listaDeInimigos.clear();
+}
+
+std::string SistemaRPG::obterTituloDoCombate() const
+{
+    std::string titulo = "EM COMBATE (";
+    for (size_t i = 0; i < listaDeInimigos.size(); ++i) {
+        titulo += listaDeInimigos[i]->obterNome();
+        if (i < listaDeInimigos.size() - 1) titulo += ", ";
+    }
+    titulo += ")";
+    return titulo;
+}
+
+std::vector<Personagem*> SistemaRPG::obterInimigosRaw() const
+{
+    std::vector<Personagem*> raw;
+    raw.reserve(listaDeInimigos.size());
+    for (auto& ini : listaDeInimigos) raw.push_back(ini.get());
+    return raw;
+}
+
+void SistemaRPG::exibirTelaDeCombate() const
+{
+    Menu::limparTelaDoTerminal();
+    TelaCombate::exibirLogoParaTelaDeCombate(obterTituloDoCombate());
+    Menu::exibirHordaDeInimigosLadoALado(obterInimigosRaw());
+    TelaCombate::exibirBarraDeStatusDoJogador(jogadorAtual);
 }
 
 void SistemaRPG::iniciarCombate() 
 {
-    int maxDestrezaInimigos = 0; // Declare this variable
+    int maxDestrezaInimigos = 0;
     for (auto& inimigoPtr : listaDeInimigos)
     {
         if (inimigoPtr->obterDestreza() > maxDestrezaInimigos) maxDestrezaInimigos = inimigoPtr->obterDestreza();
@@ -62,21 +86,9 @@ void SistemaRPG::iniciarCombate()
     }
     
     // Destreza decide quem ataca primeiro no combate
-    if (maxDestrezaInimigos > jogadorAtual->obterDestreza()) 
+    if (maxDestrezaInimigos > jogadorAtual->obterDestreza())
     {
-        std::string tituloDoCombate = "EM COMBATE (";
-        for (size_t indice = 0; indice < listaDeInimigos.size(); ++indice) {
-            tituloDoCombate += listaDeInimigos[indice]->obterNome();
-            if (indice < listaDeInimigos.size() - 1) tituloDoCombate += ", ";
-        }
-        tituloDoCombate += ")";
-
-        Menu::limparTelaDoTerminal();
-        TelaCombate::exibirLogoParaTelaDeCombate(tituloDoCombate);
-        std::vector<Personagem*> inimigosRaw;
-        for (auto& ini : listaDeInimigos) inimigosRaw.push_back(ini.get());
-        Menu::exibirHordaDeInimigosLadoALado(inimigosRaw);
-        TelaCombate::exibirBarraDeStatusDoJogador(jogadorAtual); 
+        exibirTelaDeCombate();
 
         std::cout << "\n\033[31m[SISTEMA]: Os inimigos sao mais ageis e atacam primeiro!\033[0m\n";
         Menu::aguardarPressionamentoDeEnter();
@@ -84,32 +96,17 @@ void SistemaRPG::iniciarCombate()
         if (verificarCondicaoDeVitoriaOuDerrota()) return;
     }
 
-    while (jogadorAtual->obterVida() > 0 && !listaDeInimigos.empty()) 
+    while (jogadorAtual->obterVida() > 0 && !listaDeInimigos.empty())
     {
-        // --- PROCESSAMENTO DE DEBUFFS DO JOGADOR NO INICIO DO TURNO ---
         jogadorAtual->reduzirCooldowns();
-    
-    jogadorAtual->processarEfeitosInicioTurno();
-        // --- FIM DO PROCESSAMENTO DE DEBUFFS ---
+        jogadorAtual->processarEfeitosInicioTurno();
 
         bool turnoFoiConsumido = false;
         bool usouInventarioNoTurno = false;
 
-        while (!turnoFoiConsumido) 
+        while (!turnoFoiConsumido)
         {
-            std::string tituloDoCombate = "EM COMBATE (";
-            for (size_t indice = 0; indice < listaDeInimigos.size(); ++indice) {
-                tituloDoCombate += listaDeInimigos[indice]->obterNome();
-                if (indice < listaDeInimigos.size() - 1) tituloDoCombate += ", ";
-            }
-            tituloDoCombate += ")";
-
-            Menu::limparTelaDoTerminal();
-            TelaCombate::exibirLogoParaTelaDeCombate(tituloDoCombate);
-            std::vector<Personagem*> inimigosRaw;
-            for (auto& ini : listaDeInimigos) inimigosRaw.push_back(ini.get());
-            Menu::exibirHordaDeInimigosLadoALado(inimigosRaw);
-            TelaCombate::exibirBarraDeStatusDoJogador(jogadorAtual); 
+            exibirTelaDeCombate();
 
             int larguraDoTerminal = Menu::obterLarguraDoTerminalEmColunas();
             std::string textoDoTurno = "TURNO " + std::to_string(contadorDoTurnoAtual) + " | SUA VEZ";
@@ -270,22 +267,10 @@ void SistemaRPG::iniciarCombate()
             continue; // Pula o turno inimigo e permite que o jogador jogue o turno novamente
         }
 
-        if (usouInventarioNoTurno) 
+        if (usouInventarioNoTurno)
         {
-            std::string tituloDoCombate = "EM COMBATE (";
-            for (size_t indice = 0; indice < listaDeInimigos.size(); ++indice) {
-                tituloDoCombate += listaDeInimigos[indice]->obterNome();
-                if (indice < listaDeInimigos.size() - 1) tituloDoCombate += ", ";
-            }
-            tituloDoCombate += ")";
+            exibirTelaDeCombate();
 
-            Menu::limparTelaDoTerminal();
-            TelaCombate::exibirLogoParaTelaDeCombate(tituloDoCombate);
-            std::vector<Personagem*> inimigosRaw;
-            for (auto& ini : listaDeInimigos) inimigosRaw.push_back(ini.get());
-            Menu::exibirHordaDeInimigosLadoALado(inimigosRaw);
-            TelaCombate::exibirBarraDeStatusDoJogador(jogadorAtual); 
-            
             std::cout << "\n\033[33m[SISTEMA]: O inimigo te pegou desprevinido enquanto voce usava o inventario!\033[0m\n";
         }
 
@@ -327,15 +312,14 @@ void SistemaRPG::executarTurnoDeTodosOsInimigos()
         }
     }
 
-    // Reseta o estado da defesa ativada APOS os inimigos atacarem
-    if (jogadorAtual->obterDefendendo()) 
+    if (jogadorAtual->obterDefendendo())
     {
         jogadorAtual->definirDefendendo(false);
-        jogadorAtual->definirRecargaDefesa(true); // Entra em Cooldown
-    } 
-    else if (jogadorAtual->obterRecargaDefesa()) 
+        jogadorAtual->definirRecargaDefesa(true);
+    }
+    else if (jogadorAtual->obterRecargaDefesa())
     {
-        jogadorAtual->definirRecargaDefesa(false); // Resfria o Cooldown
+        jogadorAtual->definirRecargaDefesa(false);
     }
 
 
@@ -348,9 +332,9 @@ void SistemaRPG::realizarAtaqueFisico(Personagem* personagemAtacante, Personagem
 {
     double multiplicadorDeAtributos = personagemAtacante->obterMultiplicador(); // Aplica o multiplicador acumulado
 
-    if (personagemAtacante->possuiEfeito("Inviolavel")) 
+    if (personagemAtacante->possuiEfeito(EfeitoNomes::INVOIVEL))
     {
-        multiplicadorDeAtributos *= 2.0; // Bonus fixo do Arqueiro
+        multiplicadorDeAtributos *= 2.0;
     }
 
     int danoFisicoDaArma = 1; // Dano base desarmado
@@ -470,7 +454,7 @@ void SistemaRPG::realizarAtaqueFisico(Personagem* personagemAtacante, Personagem
 
 void SistemaRPG::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* personagemAlvo, int quantidadeDeDanoBruto, int turnoAtualDoCombate) 
 {
-    if (personagemAlvo->possuiEfeito("Inviolavel")) 
+    if (personagemAlvo->possuiEfeito(EfeitoNomes::INVOIVEL))
     {
         std::cout << "[COMBATE]: O alvo esta Inviolavel e desviou do ataque perfeitamente!\n";
         return;

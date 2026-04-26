@@ -5,7 +5,6 @@
 #include "../Inventario/Item.h"
 #include "../Inventario/Arma.h"
 #include "../Inventario/Material.h"
-#include <memory>
 
 std::string RacaGoblin::obterNomeRaca() const { return "Goblin"; }
 Atributos RacaGoblin::obterAtributosRaca() const { return { -40, 10, 15, 5, 5, 0, 0 }; }

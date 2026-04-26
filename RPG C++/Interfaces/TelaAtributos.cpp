@@ -11,12 +11,7 @@
 #include "../Sistema/Menu.h"
 #include "../Raças/RacaBase.h"
 #include "../Classes/ClasseBase.h"
-
-static constexpr const char* EF_BUFF_ATRIBUTOS     = "BuffAtributos";
-static constexpr const char* EF_LENTIDAO           = "Lentidao";
-static constexpr const char* EF_SANGRAMENTO        = "Sangramento";
-static constexpr const char* EF_FRAQUEZA           = "Fraqueza";
-static constexpr const char* EF_QUEBRA_RESISTENCIA = "QuebraResistencia";
+#include "../Sistema/Tipos.h"
 
 struct EfeitoInfo {
     const char* efeitoNome;
@@ -61,13 +56,13 @@ void TelaAtributos::exibir(Personagem* jogadorAtual)
     std::cout << "\n" << std::string(largura, '=') << "\n\n";
 
     double multiplicadorDeAtributosAtual = jogadorAtual->obterMultiplicador();
-    int turnosBuff = jogadorAtual->obterTurnosEfeito(EF_BUFF_ATRIBUTOS);
+    int turnosBuff = jogadorAtual->obterTurnosEfeito(EfeitoNomes::BUFF_ATRIBUTOS);
     bool temBuff = (turnosBuff > 0 && multiplicadorDeAtributosAtual > 1.0);
 
-    int forcaPerdida     = jogadorAtual->possuiEfeito(EF_FRAQUEZA)     ? (jogadorAtual->obterForca() / 3)      : 0;
-    int destrezaPerdida  = jogadorAtual->possuiEfeito(EF_LENTIDAO)     ? jogadorAtual->obterDestreza()       : 0;
-    int resPerdida       = jogadorAtual->possuiEfeito(EF_QUEBRA_RESISTENCIA) ? jogadorAtual->obterResistencia() : 0;
-    int constPerdida     = jogadorAtual->possuiEfeito(EF_QUEBRA_RESISTENCIA) ? (jogadorAtual->obterConstituicao() / 2) : 0;
+    int forcaPerdida     = jogadorAtual->possuiEfeito(EfeitoNomes::FRAQUEZA)     ? (jogadorAtual->obterForca() / 3)      : 0;
+    int destrezaPerdida  = jogadorAtual->possuiEfeito(EfeitoNomes::LENTIDAO)     ? jogadorAtual->obterDestreza()       : 0;
+    int resPerdida       = jogadorAtual->possuiEfeito(EfeitoNomes::QUEBRA_RESISTENCIA) ? jogadorAtual->obterResistencia() : 0;
+    int constPerdida     = jogadorAtual->possuiEfeito(EfeitoNomes::QUEBRA_RESISTENCIA) ? (jogadorAtual->obterConstituicao() / 2) : 0;
 
     int espacos = (largura - 50) / 2;
     std::string margem(std::max(0, espacos), ' ');
@@ -160,11 +155,11 @@ void TelaAtributos::exibir(Personagem* jogadorAtual)
     printAtributo("Sabedoria",  jogadorAtual->obterSabedoria(), 0, (tipoClasse == TipoClasse::Bardo)  ? " [DANO]" : "");
 
     static const EfeitoInfo efeitosParaExibir[] = {
-        {EF_BUFF_ATRIBUTOS,   COR_VERDE,   "Buff Atributos",   true},
-        {EF_LENTIDAO,         COR_ROXO,    "Lentidao",         true},
-        {EF_SANGRAMENTO,      COR_VERMELHO,"Sangramento",      true},
-        {EF_FRAQUEZA,         COR_VERMELHO,"Fraqueza",         true},
-        {EF_QUEBRA_RESISTENCIA, COR_CIANO, "Quebra de Resistencia", false},
+        {EfeitoNomes::BUFF_ATRIBUTOS,   COR_VERDE,   "Buff Atributos",   true},
+        {EfeitoNomes::LENTIDAO,         COR_ROXO,    "Lentidao",         true},
+        {EfeitoNomes::SANGRAMENTO,      COR_VERMELHO,"Sangramento",      true},
+        {EfeitoNomes::FRAQUEZA,         COR_VERMELHO,"Fraqueza",         true},
+        {EfeitoNomes::QUEBRA_RESISTENCIA, COR_CIANO, "Quebra de Resistencia", false},
     };
 
     std::cout << "\n" << margem << "--- STATUS ATUAIS ---\n";

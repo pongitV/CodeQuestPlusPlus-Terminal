@@ -1,7 +1,16 @@
 #include "Escudo.h"
+#include <string_view>
+#include <map>
 
-Escudo::Escudo(std::string nome, int reducaoFixa, int durabilidade) 
-    : nome(nome), reducaoFixa(reducaoFixa), durabilidade(durabilidade) 
+static const std::map<std::string_view, int> precosEscudos = {
+    {"Manto encantado", 9},
+    {"Escudo medio de metal", 9},
+    {"Capa magica", 9},
+    {"Escudo leve de madeira", 9},
+};
+
+Escudo::Escudo(std::string nome, int reducaoFixa, int durabilidade)
+    : nome(nome), reducaoFixa(reducaoFixa), durabilidade(durabilidade)
 {
 }
 
@@ -15,8 +24,8 @@ void Escudo::reduzirDurabilidade(int qtd) { durabilidade -= qtd; }
 void Escudo::aumentarDurabilidade(int qtd) { durabilidade += qtd; }
 
 int Escudo::obterPrecoVenda() const {
-    if (nome == "Manto encantado" || nome == "Escudo medio de metal" || nome == "Capa magica" || nome == "Escudo leve de madeira") return 9;
-    return 3;
+    auto it = precosEscudos.find(nome);
+    return (it != precosEscudos.end()) ? it->second : 3;
 }
 
 std::string Escudo::obterInfoStatus() const {

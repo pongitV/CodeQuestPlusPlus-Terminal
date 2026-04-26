@@ -1,8 +1,6 @@
-#include <string>
+#pragma once
 
 #include "RacaBase.h"
-
-#pragma once
 
 class RacaOrk : public RacaBase
 {

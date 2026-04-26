@@ -81,11 +81,17 @@ protected:
 
     double multiplicadorAtual;  // Para buffs temporarios
 
-    Item* arma;    
-    Item* escudo;   
+    Item* arma;
+    Item* escudo;
     Item* armadura;
     Item* itemSelecionadoParaUso;
     int ouroRecompensa;
+
+    // Cache de getters calculados
+    mutable int destrezaCache_ = 0;
+    mutable bool destrezaCacheDirty_ = true;
+    mutable int reducaoPercentualCache_ = 0;
+    mutable bool reducaoPercentualCacheDirty_ = true;
     
     int nivel;
     int xpAtual;
@@ -106,12 +112,15 @@ public:
     int obterVida() const { return vidaAtual; }
     int obterVidaMaxima() const { return statsFinais.vida; }
     int obterForca() const { return statsFinais.forca; }
-    int obterDestreza() const 
-    { 
+    int obterDestreza() const
+    {
+        if (!destrezaCacheDirty_) return destrezaCache_;
         int penalidade = armadura ? (armadura->obterReducaoFixa() / 3) : 0;
         if (obterTipoClasse() == TipoClasse::Arqueiro) penalidade /= 2;
         int destrezaFinal = statsFinais.destreza - penalidade;
-        return destrezaFinal > 0 ? destrezaFinal : 0; 
+        destrezaCache_ = destrezaFinal > 0 ? destrezaFinal : 0;
+        destrezaCacheDirty_ = false;
+        return destrezaCache_;
     }
     int obterResistencia() const { return statsFinais.resistencia; }
     int obterConstituicao() const { return statsFinais.constituicao; }
@@ -125,7 +134,7 @@ public:
     bool podeSubirDeNivel() const { return xpAtual >= xpParaSubir; }
     bool subirDeNivel(TipoAtributo atributo);
     
-    void alterarAtributoEstatico(const std::string& atributo, int valor);
+    void alterarAtributoEstatico(TipoAtributo atributo, int valor);
     Atributos& obterAtributosFinais() { return statsFinais; }
 
     RacaBase* obterRaca() const;
@@ -187,6 +196,7 @@ public:
     void reduzirCooldowns();
     bool possuiEfeito(const std::string& nome) const;
     int obterTurnosEfeito(const std::string& nome) const;
+    const EfeitoStatus* encontrarEfeito(const std::string& nome) const;
 
 
     void definirDefendendo(bool d) { estaDefendendo = d; }
@@ -195,7 +205,7 @@ public:
     bool obterRecargaDefesa() const { return recargaDefesa; }
     void desequiparEscudo() { escudo = nullptr; }
     void desequiparArma() { arma = nullptr; }
-    void desequiparArmadura() { armadura = nullptr; }
+    void desequiparArmadura() { armadura = nullptr; destrezaCacheDirty_ = true; reducaoPercentualCacheDirty_ = true; }
 
     void definirParryAtivado(bool p) { parryAtivado = p; }
     bool obterParryAtivado() const { return parryAtivado; }
@@ -210,6 +220,9 @@ public:
     void adicionarEfeito(std::unique_ptr<EfeitoStatus> efeito);
     void processarEfeitosInicioTurno();
     bool podeAgir() const;
+
+    // Retorna set com nomes de todos os efeitos ativos (single-pass)
+    std::vector<std::string> obterNomesEfeitosAtivos() const;
 
     int calcularDefesaBase(int danoBruto, int danoPerfurante) const;
     int receberDano(int danoBruto, int danoPerfurante, int danoReduzidoParry, Personagem* atacante, bool aplicarPassivas);

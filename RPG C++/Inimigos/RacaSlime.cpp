@@ -5,6 +5,7 @@
 #include "../Inventario/Item.h"
 #include "../Inventario/Material.h"
 #include "../Inventario/Arma.h"
+#include "../Sistema/Tipos.h"
 #include <memory>
 
 std::string RacaSlime::obterNomeRaca() const { return "Slime"; }
@@ -89,8 +90,8 @@ void RacaSlime::realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, std
 }
 
 void RacaSlime::aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCausado) {
-    if (std::rand() % 100 < 15) { // 15% de chance
-        if (!alvo->possuiEfeito("Lentidao")) {
+    if (std::rand() % 100 < 15) {
+        if (!alvo->possuiEfeito(EfeitoNomes::LENTIDAO)) {
             alvo->adicionarEfeito(std::make_unique<EfeitoLentidao>(3));
             std::cout << "\033[35m>> [PASSIVA SLIME]: Uma gosma esverdeada grudou e deixou " << alvo->obterNome() << " mais lento!\033[0m\n";
         }

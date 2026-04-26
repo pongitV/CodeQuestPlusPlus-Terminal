@@ -4,6 +4,7 @@
 #include <string>
 #include <iomanip>
 #include <algorithm>
+#include <memory>
 
 #include "NPCBjorn.h"
 #include "../Sistema/Menu.h"
@@ -160,7 +161,7 @@ void NPCBjorn::interagir(Personagem* jogadorAtual)
                             } else if (jogadorAtual->obterInventario()->obterOuro() >= 40) {
                                 jogadorAtual->obterInventario()->adicionarOuro(-40);
                                 estoqueAtual[idCompra].second = false;
-                            jogadorAtual->obterInventario()->adicionarItem(std::move(instanciarEquipamentoBjorn(estoqueAtual[idCompra].first)));
+                                jogadorAtual->obterInventario()->adicionarItem(std::move(instanciarEquipamentoBjorn(estoqueAtual[idCompra].first)));
                                 std::cout << "\n" << margemMsg << "[Bjorn]: Otima escolha! Voce comprou " << estoqueAtual[idCompra].first << ".\n";
                             } else {
                                 std::cout << "\n" << margemMsg << "[Bjorn]: Voce nao tem ouro suficiente para isso!\n";
@@ -204,27 +205,32 @@ void NPCBjorn::interagir(Personagem* jogadorAtual)
                 }
 
                 std::string novoNome = item1->obterNomeItem() + "+";
-            std::unique_ptr<Item> novoItem = nullptr;
+                std::unique_ptr<Item> novoItem = nullptr;
 
-            if (Arma* a1 = dynamic_cast<Arma*>(item1)) novoItem = std::make_unique<Arma>(novoNome, static_cast<int>(a1->obterDanoFisico() * 1.5), static_cast<int>(a1->obterDanoMagico() * 1.5));
-            else if (Escudo* e1 = dynamic_cast<Escudo*>(item1)) novoItem = std::make_unique<Escudo>(novoNome, static_cast<int>(e1->obterDurabilidadeAtualEscudo() * 1.5), static_cast<int>(e1->obterReducaoDanoFixaEscudo() * 1.5));
-            else if (Armadura* ar1 = dynamic_cast<Armadura*>(item1)) novoItem = std::make_unique<Armadura>(novoNome, static_cast<int>(ar1->obterReducaoFixa() * 1.5));
+                if (Arma* a1 = dynamic_cast<Arma*>(item1))
+                    novoItem = std::make_unique<Arma>(novoNome, static_cast<int>(a1->obterDanoFisico() * 1.5), static_cast<int>(a1->obterDanoMagico() * 1.5));
+                else if (Escudo* e1 = dynamic_cast<Escudo*>(item1))
+                    novoItem = std::make_unique<Escudo>(novoNome, static_cast<int>(e1->obterDurabilidadeAtualEscudo() * 1.5), static_cast<int>(e1->obterReducaoDanoFixaEscudo() * 1.5));
+                else if (Armadura* ar1 = dynamic_cast<Armadura*>(item1))
+                    novoItem = std::make_unique<Armadura>(novoNome, static_cast<int>(ar1->obterReducaoFixa() * 1.5));
 
-                if (novoItem) {
-                    if (item1->possuiEfeitoSangramento()) novoItem->aplicarEfeitoSangramento();
-                    if (item1->possuiEfeitoLentidao()) novoItem->aplicarEfeitoLentidao();
-                    for (Propriedade prop : item1->obterPropriedades()) novoItem->adicionarPropriedade(prop);
+                 if (novoItem) {
+                    if (item1->possuiEfeitoSangramento())
+                        novoItem->aplicarEfeitoSangramento();
+                    if (item1->possuiEfeitoLentidao())
+                        novoItem->aplicarEfeitoLentidao();
+                    for (Propriedade prop : item1->obterPropriedades())
+                        novoItem->adicionarPropriedade(prop);
                     novoItem->adicionarPropriedade(Propriedade::Melhorado);
 
                     std::string nomeAntigo = item1->obterNomeItem();
-                    jogadorAtual->obterInventario()->removerItem(nomeAntigo); 
-                    jogadorAtual->obterInventario()->removerItem(nomeAntigo); 
+                    for (int i = 0; i < 2; ++i)
+                        jogadorAtual->obterInventario()->removerItem(nomeAntigo);
                     jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
-                    
+
                     Menu::limparTelaDoTerminal();
                     Menu::exibirLogoDoJogo("FORJA - SUCESSO");
-                    std::vector<std::string> arteBigorna = 
-                    {
+                    std::vector<std::string> arteBigorna = {
                         "⠀⠀⠀⠀⠀⠀⠀⢰⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⡄⠀⠀⠀⠀⠀",
                         "⠀⠹⣿⣿⣿⣿⡇⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⢠⣄⡀⠀⠀",
                         "⠀⠀⠙⢿⣿⣿⡇⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⢸⣿⣿⡶⠀",
@@ -239,7 +245,7 @@ void NPCBjorn::interagir(Personagem* jogadorAtual)
                     std::string equacao = "[" + nomeAntigo + "] + [" + nomeAntigo + "] = [" + novoNome + "]";
                     Menu::imprimirLinhasCentralizadasNaTela({equacao, ""}, 0, "\033[33m");
                     Menu::imprimirLinhasCentralizadasNaTela(arteBigorna, 29, "\033[0m");
-                    
+
                     std::cout << "\n[Bjorn]: Ha! Trabalho feito! Seu equipamento esta mais forte do que nunca!\n";
                     Menu::aguardarPressionamentoDeEnter();
                 }
