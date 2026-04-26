@@ -8,36 +8,29 @@
 #endif
 
 #include "TelaAtributos.h"
-#include "../Sistema/Menu.h"
+#include "../Sistema/FuncionalidadeMenu.h"
 #include "../Raças/RacaBase.h"
 #include "../Classes/ClasseBase.h"
 #include "../Sistema/Tipos.h"
+#include "../Sistema/SimplificacoesAparencia.h"
 
 struct EfeitoInfo {
     const char* efeitoNome;
-    const char* cor;
+    int corId;
     const char* exibirNome;
     bool mostrarTurnos;
 };
 
-// Cores ANSI
-constexpr auto COR_VERDE   = "\033[32m";
-constexpr auto COR_VERMELHO = "\033[31m";
-constexpr auto COR_LARANJA = "\033[33m";
-constexpr auto COR_ROXO    = "\033[35m";
-constexpr auto COR_CIANO   = "\033[36m";
-constexpr auto COR_RESET   = "\033[0m";
-
 void TelaAtributos::exibir(Personagem* jogadorAtual)
 {
     if (jogadorAtual == nullptr) return;
-    Menu::limparTelaDoTerminal();
+    SimplificacoesAparencia::limparTela();
 
 #ifdef _WIN32
     SetConsoleOutputCP(65001);
 #endif
 
-    int largura = Menu::obterLarguraDoTerminalEmColunas();
+    int largura = SimplificacoesAparencia::obterLarguraTerminal();
 
     static const std::vector<std::string> logoFicha =
     {
@@ -52,7 +45,7 @@ void TelaAtributos::exibir(Personagem* jogadorAtual)
     };
 
     std::cout << "\n" << std::string(largura, '=') << "\n\n";
-    Menu::imprimirLinhasCentralizadasNaTela(logoFicha, 59, COR_ROXO);
+    SimplificacoesAparencia::imprimirCentralizadoMultilinha(logoFicha, 59, SimplificacoesAparencia::cor(Cor::MAGENTA));
     std::cout << "\n" << std::string(largura, '=') << "\n\n";
 
     double multiplicadorDeAtributosAtual = jogadorAtual->obterMultiplicador();
@@ -70,60 +63,32 @@ void TelaAtributos::exibir(Personagem* jogadorAtual)
     std::cout << margem << "NOME:           " << jogadorAtual->obterNome() << "\n";
     std::cout << margem << "RACA:           " << jogadorAtual->obterRaca()->obterNomeRaca() << "\n";
     std::cout << margem << "CLASSE:         " << jogadorAtual->obterNomeClasse() << "\n";
-    std::cout << margem << "NIVEL:          " << jogadorAtual->obterNivel() << " (XP: " << COR_ROXO << jogadorAtual->obterXpAtual() << " / " << jogadorAtual->obterXpParaSubir() << COR_RESET << ")\n";
-    std::cout << margem << "DIFICULDADE:    " << COR_VERMELHO;
+    std::cout << margem << "NIVEL:          " << jogadorAtual->obterNivel() << " (XP: " << SimplificacoesAparencia::cor(Cor::MAGENTA) << jogadorAtual->obterXpAtual() << " / " << jogadorAtual->obterXpParaSubir() << SimplificacoesAparencia::cor(Cor::RESET) << ")\n";
+    std::cout << margem << "DIFICULDADE:    " << SimplificacoesAparencia::cor(Cor::VERMELHO);
     switch (jogadorAtual->obterDificuldade()) {
         case 1: std::cout << "Facil"; break;
         case 2: std::cout << "Normal"; break;
         default: std::cout << "Dificil"; break;
     }
-    std::cout << COR_RESET << "\n";
+    std::cout << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
     std::cout << margem << "[PARRY]:        ";
     if (jogadorAtual->obterParryAtivado()) {
-        std::cout << COR_VERDE << "Ligado" << COR_RESET;
+        std::cout << SimplificacoesAparencia::cor(Cor::VERDE) << "Ligado" << SimplificacoesAparencia::cor(Cor::RESET);
     } else {
-        std::cout << COR_VERMELHO << "Desligado" << COR_RESET;
+        std::cout << SimplificacoesAparencia::cor(Cor::VERMELHO) << "Desligado" << SimplificacoesAparencia::cor(Cor::RESET);
     }
     std::cout << "\n";
-    std::cout << margem << "OURO:           " << COR_LARANJA << jogadorAtual->obterInventario()->obterOuro() << "G" << COR_RESET << "\n\n";
+    std::cout << margem << "OURO:           " << SimplificacoesAparencia::cor(Cor::AMARELO) << jogadorAtual->obterInventario()->obterOuro() << "G" << SimplificacoesAparencia::cor(Cor::RESET) << "\n\n";
 
     TipoClasse tipoClasse = jogadorAtual->obterTipoClasse();
-    std::string passivaNome = "Nenhuma";
-    std::string passivaDesc = "";
-    std::string recargaHab = "";
-
-    switch (tipoClasse) {
-        case TipoClasse::Arqueiro:
-            passivaNome = "Passos leves";
-            passivaDesc = "Penalidade de armaduras e debuffs de lentidao reduzidos pela metade.";
-            recargaHab = "Recarga: 1 turno.";
-            break;
-        case TipoClasse::Bardo:
-            passivaNome = "Touch the sky";
-            passivaDesc = "Curas e buffs recebidos sao 40% mais fortes.";
-            recargaHab = "Recarga: 3 turnos (Individuais).";
-            break;
-        case TipoClasse::Guerreiro:
-            passivaNome = "Golpe decisivo";
-            passivaDesc = "Causa +10%/+20%/+30% de dano em inimigos com menos de 30%/20%/10% de HP.";
-            recargaHab = "Recarga: 3 turnos.";
-            break;
-        case TipoClasse::Mago:
-            passivaNome = "Foco arcano";
-            passivaDesc = "Ataques ressoam (25% em area) ou causam +25% de dano em alvo unico.";
-            recargaHab = "Recarga: 3 turnos.";
-            break;
-        default:
-            break;
-    }
 
     std::cout << margem << "PASSIVA RACA:   " << jogadorAtual->obterRaca()->obterNomeHabilidadeRaca() << "\n";
     std::cout << margem << "-> " << jogadorAtual->obterRaca()->obterDescricaoHabilidadeRaca() << "\n\n";
 
-    std::cout << margem << "PASSIVA CLASSE: " << passivaNome << "\n";
-    std::cout << margem << "-> " << passivaDesc << "\n\n";
+    std::cout << margem << "PASSIVA CLASSE: " << jogadorAtual->obterClasse()->obterNomePassivaClasse() << "\n";
+    std::cout << margem << "-> " << jogadorAtual->obterClasse()->obterDescricaoPassivaClasse() << "\n\n";
 
-    std::cout << margem << "ATIVA CLASSE:   " << jogadorAtual->obterClasse()->obterNomeHabilidadeClasse() << " (" << recargaHab << ")\n";
+    std::cout << margem << "ATIVA CLASSE:   " << jogadorAtual->obterClasse()->obterNomeHabilidadeClasse() << " (" << jogadorAtual->obterClasse()->obterRecargaHabilidadeClasse() << ")\n";
     std::cout << margem << "-> " << jogadorAtual->obterClasse()->obterDescricaoHabilidadeClasse() << "\n\n";
 
     std::cout << margem << "--- ATRIBUTOS TOTAIS ---\n";
@@ -136,10 +101,10 @@ void TelaAtributos::exibir(Personagem* jogadorAtual)
         std::cout << margem << " > " << std::left << std::setw(15) << nome << sufixo << ": " << valorBase;
 
         if (temBuff && bonusBuff > 0) {
-            std::cout << " " << COR_VERDE << "(+" << bonusBuff << " Buff)" << COR_RESET;
+            std::cout << " " << SimplificacoesAparencia::cor(Cor::VERDE) << "(+" << bonusBuff << " Buff)" << SimplificacoesAparencia::cor(Cor::RESET);
         }
         if (valorPerdido > 0) {
-            std::cout << " " << COR_VERMELHO << "(-" << valorPerdido << " Debuff)" << COR_RESET;
+            std::cout << " " << SimplificacoesAparencia::cor(Cor::VERMELHO) << "(-" << valorPerdido << " Debuff)" << SimplificacoesAparencia::cor(Cor::RESET);
         }
         if (!temBuff && valorPerdido == 0) {
             std::cout << " (0)";
@@ -155,22 +120,22 @@ void TelaAtributos::exibir(Personagem* jogadorAtual)
     printAtributo("Sabedoria",  jogadorAtual->obterSabedoria(), 0, (tipoClasse == TipoClasse::Bardo)  ? " [DANO]" : "");
 
     static const EfeitoInfo efeitosParaExibir[] = {
-        {EfeitoNomes::BUFF_ATRIBUTOS,   COR_VERDE,   "Buff Atributos",   true},
-        {EfeitoNomes::LENTIDAO,         COR_ROXO,    "Lentidao",         true},
-        {EfeitoNomes::SANGRAMENTO,      COR_VERMELHO,"Sangramento",      true},
-        {EfeitoNomes::FRAQUEZA,         COR_VERMELHO,"Fraqueza",         true},
-        {EfeitoNomes::QUEBRA_RESISTENCIA, COR_CIANO, "Quebra de Resistencia", false},
+        {EfeitoNomes::BUFF_ATRIBUTOS,     Cor::VERDE,   "Buff Atributos",   true},
+        {EfeitoNomes::LENTIDAO,           Cor::MAGENTA, "Lentidao",         true},
+        {EfeitoNomes::SANGRAMENTO,        Cor::VERMELHO,"Sangramento",      true},
+        {EfeitoNomes::FRAQUEZA,           Cor::VERMELHO,"Fraqueza",         true},
+        {EfeitoNomes::QUEBRA_RESISTENCIA, Cor::CIANO,   "Quebra de Resistencia", false},
     };
 
     std::cout << "\n" << margem << "--- STATUS ATUAIS ---\n";
     bool temStatus = false;
     for (const auto& info : efeitosParaExibir) {
         if (jogadorAtual->possuiEfeito(info.efeitoNome)) {
-            std::cout << margem << "Efeito: " << info.cor << info.exibirNome;
+            std::cout << margem << "Efeito: " << SimplificacoesAparencia::cor(info.corId) << info.exibirNome;
             if (info.mostrarTurnos) {
                 std::cout << " (" << jogadorAtual->obterTurnosEfeito(info.efeitoNome) << " turnos)";
             }
-            std::cout << COR_RESET << "\n";
+            std::cout << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
             temStatus = true;
         }
     }
@@ -182,7 +147,7 @@ void TelaAtributos::exibir(Personagem* jogadorAtual)
 void TelaAtributos::gerenciarFichaDoJogador(Personagem* jogadorAtual)
 {
     if (jogadorAtual == nullptr) return;
-    int larguraDoTerminal = Menu::obterLarguraDoTerminalEmColunas();
+    int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
     std::string opcaoEscolhidaNoMenuJogador;
     do 
     {
@@ -205,19 +170,19 @@ void TelaAtributos::gerenciarFichaDoJogador(Personagem* jogadorAtual)
                 TipoAtributo atributo = static_cast<TipoAtributo>(opcaoAtributo);
                 if (jogadorAtual->subirDeNivel(atributo)) {
                     std::cout << "[SISTEMA]: Nivel subiu! Atributo melhorado.\n";
-                    Menu::aguardarPressionamentoDeEnter();
+                    SimplificacoesAparencia::aguardarEnter();
                 }
             } else {
                 std::cin.clear(); std::cin.ignore(1000, '\n');
                 std::cout << "[ERRO]: Opcao invalida.\n";
-                Menu::aguardarPressionamentoDeEnter();
+                SimplificacoesAparencia::aguardarEnter();
             }
         } else if (opcaoEscolhidaNoMenuJogador == "3") {
             std::string confirmacao;
-            std::cout << "\n[AVISO]: Deseja realmente voltar ao menu principal? Todo o progresso sera perdido. (S/N): ";
+            std::cout << "\n[AVISO]: Deseja salvar jogo e voltar para o menu principal? (S/N): ";
             std::cin >> confirmacao;
             if (confirmacao == "S" || confirmacao == "s") {
-                std::cout << "[AVISO]: Tem certeza absoluta? (S/N): ";
+                std::cout << "[AVISO]: Tem certeza? (S/N): ";
                 std::cin >> confirmacao;
                 if (confirmacao == "S" || confirmacao == "s") {
                     jogadorAtual->definirVoltarProMenu(true);

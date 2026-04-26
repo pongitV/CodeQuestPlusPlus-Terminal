@@ -20,6 +20,7 @@ public:
     virtual void aplicarInicioTurno(Personagem* alvo) {}
     virtual void aoSair(Personagem* alvo) {}
     
+    virtual int processarDanoRecebido(int dano) { return dano; }
     virtual bool impedeAcao() const { return false; }
 };
 
@@ -74,6 +75,7 @@ public:
 class EfeitoMetadeDano : public EfeitoStatus {
 public:
     EfeitoMetadeDano(int t) : EfeitoStatus("MetadeDano", t) {}
+    int processarDanoRecebido(int dano) override;
 };
 
 class EfeitoBuffAtributos : public EfeitoStatus {

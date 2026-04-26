@@ -2,10 +2,8 @@
 #include <memory>
 
 #include "ClasseBardo.h"
-#include "../Inventario/Arma.h"
-#include "../Inventario/Escudo.h"
-#include "../Inventario/Armadura.h"
-#include "../Inventario/ItemConsumivel.h"
+#include "../Inventario/FabricaDeItens.h"
+#include "../Sistema/Constantes.h"
 
 std::string ClasseBardo::obterNomeClasse() const 
 {
@@ -76,17 +74,26 @@ std::vector<std::unique_ptr<Item>> ClasseBardo::obterEquipamentoClasse() const
     int quantidadePocoes = 3;
     int porcentagemCura = 30;
     for (int i = 0; i < quantidadePocoes; ++i) {
-        equipamentos.push_back(std::make_unique<ItemConsumivel>("Pocao de Cura (" + std::to_string(porcentagemCura) + "%VM)"));
+        equipamentos.push_back(FabricaDeItens::criarItem("Pocao de Cura (" + std::to_string(porcentagemCura) + "%VM)"));
     }
     
-    equipamentos.push_back(std::make_unique<Arma>("Violao encantado", 0, 10));
-    equipamentos.push_back(std::make_unique<Escudo>("Capa magica", 6, 10));
-    equipamentos.push_back(std::make_unique<Armadura>("Traje de Couro e tecido nobre", 4));
+    equipamentos.push_back(FabricaDeItens::criarItem("Violao encantado"));
+    equipamentos.push_back(FabricaDeItens::criarItem("Capa magica"));
+    equipamentos.push_back(FabricaDeItens::criarItem("Traje de Couro e tecido nobre"));
     return equipamentos;
 }
 
-std::string ClasseBardo::obterNomeHabilidadeClasse() const { return "Sinfonia do Bardo"; }
-std::string ClasseBardo::obterDescricaoHabilidadeClasse() const { return "Possui 3 habilidades: Flashing lights, On sight e Through the wire."; }
+std::string ClasseBardo::obterNomePassivaClasse() const 
+{ return "Touch the sky"; }
+std::string ClasseBardo::obterDescricaoPassivaClasse() const 
+{ return "Curas e buffs recebidos sao 40% mais fortes."; }
+std::string ClasseBardo::obterRecargaHabilidadeClasse() const 
+{ return "Recarga: 3 turnos (Individuais)."; }
+
+std::string ClasseBardo::obterNomeHabilidadeClasse() const 
+{ return "Sinfonia do Bardo"; }
+std::string ClasseBardo::obterDescricaoHabilidadeClasse() const 
+{ return "Possui 3 habilidades: Flashing lights, On sight e Through the wire."; }
 void ClasseBardo::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*>& /*inimigos*/)
 {
     int cdFlashing = u->obterCooldown("FlashingLights");
@@ -137,3 +144,14 @@ void ClasseBardo::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*>& 
 
 TipoAtaque ClasseBardo::obterTipoAtaque() const { return TipoAtaque::UNICO; }
 bool ClasseBardo::habilidadeConsomeTurno() const { return true; }
+
+int ClasseBardo::processarCuraPassivaBardo(int curaBase) const 
+{
+    return static_cast<int>(curaBase * Constantes::MULTIPLICADOR_CURA_BARDO);
+}
+
+double ClasseBardo::processarMultiplicadorBuffPassivaBardo(double multBase) const 
+{
+    if (multBase > 1.0) return 1.0 + (multBase - 1.0) * 1.4;
+    return multBase;
+}

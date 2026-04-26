@@ -6,6 +6,7 @@
 
 #include "../Inventario/Inventario.h"
 #include "Tipos.h"
+#include "EfeitosStatus.h"
 
 #pragma once
 
@@ -51,8 +52,6 @@ enum class TipoAtaque
 class RacaBase;   
 class ClasseBase; 
 
-#include "EfeitosStatus.h"
-
 class Personagem 
 {
 protected:
@@ -69,6 +68,7 @@ protected:
     bool recargaHabilidade;   // Arqueiro/Bardo: uso seguido
     bool pularTurnoInimigo;
     bool querVoltarProMenu;
+    bool labirintoDesbloqueado;
 
     bool estaDefendendo;      // Controle de Defesa Ativa
     bool recargaDefesa;       // Cooldown de 1 turno da Defesa
@@ -112,16 +112,7 @@ public:
     int obterVida() const { return vidaAtual; }
     int obterVidaMaxima() const { return statsFinais.vida; }
     int obterForca() const { return statsFinais.forca; }
-    int obterDestreza() const
-    {
-        if (!destrezaCacheDirty_) return destrezaCache_;
-        int penalidade = armadura ? (armadura->obterReducaoFixa() / 3) : 0;
-        if (obterTipoClasse() == TipoClasse::Arqueiro) penalidade /= 2;
-        int destrezaFinal = statsFinais.destreza - penalidade;
-        destrezaCache_ = destrezaFinal > 0 ? destrezaFinal : 0;
-        destrezaCacheDirty_ = false;
-        return destrezaCache_;
-    }
+    int obterDestreza() const;
     int obterResistencia() const { return statsFinais.resistencia; }
     int obterConstituicao() const { return statsFinais.constituicao; }
     int obterInteligencia() const { return statsFinais.inteligencia; }
@@ -130,6 +121,10 @@ public:
     int obterNivel() const { return nivel; }
     int obterXpAtual() const { return xpAtual; }
     int obterXpParaSubir() const { return xpParaSubir; }
+    void definirNivel(int n) { nivel = n; }
+    void definirXpAtual(int x) { xpAtual = x; }
+    void definirXpParaSubir(int x) { xpParaSubir = x; }
+    void definirVida(int v) { vidaAtual = v; }
     void ganharXp(int valor) { xpAtual += valor; }
     bool podeSubirDeNivel() const { return xpAtual >= xpParaSubir; }
     bool subirDeNivel(TipoAtributo atributo);
@@ -156,17 +151,7 @@ public:
     void definirXpRecompensa(int valor) { xpRecompensa = valor; }
     int obterXpRecompensa() const { return xpRecompensa; }
 
-    void definirMultiplicador(double m) 
-    { 
-        if (m > 1.0 && obterTipoClasse() == TipoClasse::Bardo) 
-        {
-            multiplicadorAtual = 1.0 + (m - 1.0) * 1.4;
-        } 
-        else 
-        {
-            multiplicadorAtual = m; 
-        }
-    }
+    void definirMultiplicador(double m);
     double obterMultiplicador() const { return multiplicadorAtual; }
 
     bool podeUsarRessurreicao() const { return podeReviver; }
@@ -192,6 +177,9 @@ public:
     
     void definirVoltarProMenu(bool v) { querVoltarProMenu = v; }
     bool obterVoltarProMenu() const { return querVoltarProMenu; }
+
+    void desbloquearLabirinto() { labirintoDesbloqueado = true; }
+    bool obterLabirintoDesbloqueado() const { return labirintoDesbloqueado; }
 
     void reduzirCooldowns();
     bool possuiEfeito(const std::string& nome) const;

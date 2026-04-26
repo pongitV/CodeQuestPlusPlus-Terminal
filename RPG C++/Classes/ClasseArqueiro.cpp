@@ -2,10 +2,7 @@
 #include <memory>
 
 #include "ClasseArqueiro.h"
-#include "../Inventario/Arma.h"
-#include "../Inventario/Escudo.h"
-#include "../Inventario/Armadura.h"
-#include "../Inventario/ItemConsumivel.h"
+#include "../Inventario/FabricaDeItens.h"
 
 std::string ClasseArqueiro::obterNomeClasse() const 
 {
@@ -75,17 +72,26 @@ std::vector<std::unique_ptr<Item>> ClasseArqueiro::obterEquipamentoClasse() cons
     int quantidadePocoes = 3;
     int porcentagemCura = 30;
     for (int i = 0; i < quantidadePocoes; ++i) {
-        equipamentos.push_back(std::make_unique<ItemConsumivel>("Pocao de Cura (" + std::to_string(porcentagemCura) + "%VM)"));
+        equipamentos.push_back(FabricaDeItens::criarItem("Pocao de Cura (" + std::to_string(porcentagemCura) + "%VM)"));
     }
     
-    equipamentos.push_back(std::make_unique<Arma>("Arco recurvo de madeira", 10, 0));
-    equipamentos.push_back(std::make_unique<Escudo>("Bracedeiras de prata", 5, 3));
-    equipamentos.push_back(std::make_unique<Armadura>("Armadura leve de couro com malha", 5));
+    equipamentos.push_back(FabricaDeItens::criarItem("Arco recurvo de madeira"));
+    equipamentos.push_back(FabricaDeItens::criarItem("Bracedeiras de prata"));
+    equipamentos.push_back(FabricaDeItens::criarItem("Armadura leve de couro com malha"));
     return equipamentos;
 }
 
-std::string ClasseArqueiro::obterNomeHabilidadeClasse() const { return "Retirada com pontaria"; }
-std::string ClasseArqueiro::obterDescricaoHabilidadeClasse() const { return "Se afasta durante um turno, no proximo turno causa 2x dano"; }
+std::string ClasseArqueiro::obterNomePassivaClasse() const 
+{ return "Passos leves"; }
+std::string ClasseArqueiro::obterDescricaoPassivaClasse() const 
+{ return "Penalidade de armaduras e debuffs de lentidao reduzidos pela metade."; }
+std::string ClasseArqueiro::obterRecargaHabilidadeClasse() const 
+{ return "Recarga: 1 turno."; }
+
+std::string ClasseArqueiro::obterNomeHabilidadeClasse() const 
+{ return "Retirada com pontaria"; }
+std::string ClasseArqueiro::obterDescricaoHabilidadeClasse() const 
+{ return "Se afasta durante um turno, no proximo turno causa 2x dano"; }
 void ClasseArqueiro::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*>& /*inimigos*/) {
     if (u->obterRecarga()) 
     {
@@ -100,3 +106,18 @@ void ClasseArqueiro::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*
 
 TipoAtaque ClasseArqueiro::obterTipoAtaque() const { return TipoAtaque::UNICO; }
 bool ClasseArqueiro::habilidadeConsomeTurno() const { return true; }
+
+int ClasseArqueiro::processarPenalidadeArmaduraPassivaArqueiro(int penalidadeBase) const 
+{
+    return penalidadeBase / 2;
+}
+
+int ClasseArqueiro::aplicarPenalidadeLentidaoPassivaArqueiro(int destrezaAtual) const 
+{
+    return (destrezaAtual * 3) / 4;
+}
+
+int ClasseArqueiro::reverterPenalidadeLentidaoPassivaArqueiro(int destrezaAtual) const 
+{
+    return (destrezaAtual * 4) / 3;
+}

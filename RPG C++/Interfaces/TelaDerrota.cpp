@@ -2,13 +2,14 @@
 #include <vector>
 
 #include "TelaDerrota.h"
-#include "../Sistema/Menu.h"
+#include "../Sistema/FuncionalidadeMenu.h"
 #include "../Raças/RacaBase.h"
+#include "../Sistema/SimplificacoesAparencia.h"
 
 void TelaDerrota::exibir(Personagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido)
 {
-    Menu::limparTelaDoTerminal();
-    int largura = Menu::obterLarguraDoTerminalEmColunas();
+    SimplificacoesAparencia::limparTela();
+    int largura = SimplificacoesAparencia::obterLarguraTerminal();
 
     std::vector<std::string> logoDerrota = 
     {
@@ -23,7 +24,7 @@ void TelaDerrota::exibir(Personagem* jogadorAtual, int quantidadeDeOuroObtido, i
     };
 
     std::cout << "\n" << std::string(largura, '=') << "\n\n";
-    Menu::imprimirLinhasCentralizadasNaTela(logoDerrota, 101, "\033[31m");
+    SimplificacoesAparencia::imprimirCentralizadoMultilinha(logoDerrota, 101, SimplificacoesAparencia::cor(Cor::VERMELHO));
     std::cout << "\n" << std::string(largura, '=') << "\n\n";
 
     std::vector<std::string> linhas = {
@@ -35,7 +36,7 @@ void TelaDerrota::exibir(Personagem* jogadorAtual, int quantidadeDeOuroObtido, i
         "NIVEL:          " + std::to_string(jogadorAtual->obterNivel()) + " (XP: " + std::to_string(jogadorAtual->obterXpAtual()) + "/" + std::to_string(jogadorAtual->obterXpParaSubir()) + ")",
         "", "--- ESTATISTICAS DA BATALHA ---", "OURO OBTIDO:   +" + std::to_string(quantidadeDeOuroObtido) + "G", "XP OBTIDO:     +" + std::to_string(quantidadeDeXpObtido) + " XP", "DANO CAUSADO:   " + std::to_string(totalDeDanoCausado), "DANO RECEBIDO:  " + std::to_string(totalDeDanoRecebido)
     };
-    Menu::imprimirLinhasCentralizadasNaTela(linhas, 0, "\033[31m");
+    SimplificacoesAparencia::imprimirCentralizadoMultilinha(linhas, 0, SimplificacoesAparencia::cor(Cor::VERMELHO));
     std::cout << "\n\n" << std::string(largura, '=') << "\n";
-    Menu::aguardarPressionamentoDeEnter();
+    SimplificacoesAparencia::aguardarEnter();
 }

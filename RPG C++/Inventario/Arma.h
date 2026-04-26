@@ -3,6 +3,7 @@
 #include "Item.h"
 #include <string>
 #include <set>
+#include <memory>
 
 class Arma : public Item 
 {
@@ -14,11 +15,10 @@ private:
     bool efeitoLentidao;
 
 public:
-    Arma(std::string nome, int danoFisico, int danoMagico);
+    Arma(std::string nome, int danoFisico, int danoMagico, int preco = 3);
     
     std::string obterNomeItem() const override;
     void alterarNome(const std::string& n) override;
-    Raridade obterRaridade() const override;
     TipoEquipamento obterTipo() const override;
 
     int obterDanoFisico() const override;
@@ -27,7 +27,6 @@ public:
     bool possuiEfeitoSangramento() const override;
     bool possuiEfeitoLentidao() const override;
 
-    int obterPrecoVenda() const override;
     std::string obterInfoStatus() const override;
 
     void aplicarEfeitoSangramento() override;
@@ -36,4 +35,6 @@ public:
     void antesDeCausarDano(Personagem* atacante, Personagem* alvo) override;
     void aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCausado) override;
     int garantirDanoMinimo(int danoFinal) override;
+
+    std::unique_ptr<Item> gerarCopiaMelhorada() const override;
 };

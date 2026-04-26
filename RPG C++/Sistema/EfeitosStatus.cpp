@@ -1,6 +1,8 @@
 #include "EfeitosStatus.h"
 #include "Personagem.h"
 #include <iostream>
+#include "SimplificacoesAparencia.h"
+#include "../Classes/ClasseBase.h"
 
 void EfeitoSugaSangue::aplicarInicioTurno(Personagem* alvo) {
     if (!atacante || atacante->obterVida() <= 0) return;
@@ -9,25 +11,19 @@ void EfeitoSugaSangue::aplicarInicioTurno(Personagem* alvo) {
     {
         alvo->modificarVida(-danoRaizes);
         atacante->modificarVida(danoRaizes);
-        std::cout << "\033[32m>> [" << nome << "]: Drenou " << danoRaizes << " de HP de " << alvo->obterNome() << " e curou " << atacante->obterNome() << "!\033[0m\n";
+        std::cout << SimplificacoesAparencia::cor(Cor::VERDE) << ">> [" << nome << "]: Drenou " << danoRaizes << " de HP de " << alvo->obterNome() << " e curou " << atacante->obterNome() << "!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
     }
 }
 
 void EfeitoLentidao::aoEntrar(Personagem* alvo) {
-    if (alvo->obterTipoClasse() == TipoClasse::Arqueiro) {
-        alvo->obterAtributosFinais().destreza = (alvo->obterAtributosFinais().destreza * 3) / 4;
-    } else {
-        alvo->obterAtributosFinais().destreza /= 2;
-    }
+    if (alvo->obterClasse()) alvo->obterAtributosFinais().destreza = alvo->obterClasse()->aplicarPenalidadeLentidaoPassivaArqueiro(alvo->obterAtributosFinais().destreza);
+    else alvo->obterAtributosFinais().destreza /= 2;
 }
 
 void EfeitoLentidao::aoSair(Personagem* alvo) {
-    if (alvo->obterTipoClasse() == TipoClasse::Arqueiro) {
-        alvo->obterAtributosFinais().destreza = (alvo->obterAtributosFinais().destreza * 4) / 3;
-    } else {
-        alvo->obterAtributosFinais().destreza *= 2;
-    }
-    std::cout << "\033[35m[EFEITO]: " << alvo->obterNome() << " se livrou da gosma e recuperou sua agilidade.\033[0m\n";
+    if (alvo->obterClasse()) alvo->obterAtributosFinais().destreza = alvo->obterClasse()->reverterPenalidadeLentidaoPassivaArqueiro(alvo->obterAtributosFinais().destreza);
+    else alvo->obterAtributosFinais().destreza *= 2;
+    std::cout << SimplificacoesAparencia::cor(Cor::MAGENTA) << "[EFEITO]: " << alvo->obterNome() << " se livrou da gosma e recuperou sua agilidade." << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
 }
 
 void EfeitoFraqueza::aoEntrar(Personagem* alvo) {
@@ -37,7 +33,7 @@ void EfeitoFraqueza::aoEntrar(Personagem* alvo) {
 
 void EfeitoFraqueza::aoSair(Personagem* alvo) {
     alvo->obterAtributosFinais().forca += forcaPerdida;
-    std::cout << "\033[31m[EFEITO]: " << alvo->obterNome() << " recuperou sua forca original.\033[0m\n";
+    std::cout << SimplificacoesAparencia::cor(Cor::VERMELHO) << "[EFEITO]: " << alvo->obterNome() << " recuperou sua forca original." << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
 }
 
 void EfeitoQuebraResistencia::aoEntrar(Personagem* alvo) {
@@ -55,7 +51,13 @@ void EfeitoQuebraResistencia::aoSair(Personagem* alvo) {
 void EfeitoSangramento::aplicarInicioTurno(Personagem* alvo) {
     if (alvo->obterVida() <= 0) return;
     alvo->modificarVida(-danoPorTurno);
-    std::cout << "\033[31m[EFEITO]: " << alvo->obterNome() << " sofreu " << danoPorTurno << " de dano por sangramento!\033[0m\n";
+    std::cout << SimplificacoesAparencia::cor(Cor::VERMELHO) << "[EFEITO]: " << alvo->obterNome() << " sofreu " << danoPorTurno << " de dano por sangramento!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+}
+
+int EfeitoMetadeDano::processarDanoRecebido(int dano) {
+    int danoReduzido = dano / 2;
+    std::cout << SimplificacoesAparencia::cor(Cor::CIANO) << ">> [EFEITO]: O dano foi reduzido pela metade! (Through the wire)" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+    return danoReduzido;
 }
 
 void EfeitoGritoGuerra::aoEntrar(Personagem* alvo) {

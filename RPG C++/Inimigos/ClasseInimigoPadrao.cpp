@@ -10,5 +10,9 @@ void ClasseInimigoPadrao::usarHabilidadeClasse(Personagem* /*usuario*/, std::vec
 std::string ClasseInimigoPadrao::obterNomeHabilidadeClasse() const { return "Nenhuma"; }
 std::string ClasseInimigoPadrao::obterDescricaoHabilidadeClasse() const { return "Inimigos basicos nao possuem habilidades ativas."; }
 
+std::string ClasseInimigoPadrao::obterNomePassivaClasse() const { return "Nenhuma"; }
+std::string ClasseInimigoPadrao::obterDescricaoPassivaClasse() const { return "Inimigos nao possuem passivas de classe."; }
+std::string ClasseInimigoPadrao::obterRecargaHabilidadeClasse() const { return ""; }
+
 TipoAtaque ClasseInimigoPadrao::obterTipoAtaque() const { return TipoAtaque::UNICO; }
 bool ClasseInimigoPadrao::habilidadeConsomeTurno() const { return true; }

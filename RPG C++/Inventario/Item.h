@@ -2,13 +2,7 @@
 
 #include <string>
 #include <set>
-
-enum class Raridade 
-{
-    COMUM,   
-    RARO,    
-    MITICO   
-};
+#include <memory>
 
 enum class TipoEquipamento 
 {
@@ -46,11 +40,11 @@ class Item
 {
 protected:
     std::set<Propriedade> propriedades;
+    int precoVenda;
 public:
-
+    Item(int preco = 3) : precoVenda(preco) {}
     virtual ~Item() = default;
     virtual std::string obterNomeItem() const = 0;
-    virtual Raridade obterRaridade() const = 0;
     virtual TipoEquipamento obterTipo() const { return TipoEquipamento::NENHUM; }
     virtual int obterDanoFisico() const { return 0; }
     virtual int obterDanoMagico() const { return 0; }
@@ -72,18 +66,12 @@ public:
     virtual void aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCausado) {}
     virtual int garantirDanoMinimo(int danoFinal) { return danoFinal; }
 
-    virtual int obterPrecoVenda() const { return 3; } // Preço padrão para a maioria dos itens
+    virtual int obterPrecoVenda() const { return precoVenda; }
     virtual std::string obterInfoStatus() const { return ""; } // Vazio por padrão para itens sem status extra
     
     virtual bool temPropriedade(Propriedade prop) const { return propriedades.find(prop) != propriedades.end(); }
     virtual void adicionarPropriedade(Propriedade prop) { propriedades.insert(prop); }
     virtual void removerPropriedade(Propriedade prop) { propriedades.erase(prop); }
     virtual std::set<Propriedade> obterPropriedades() const { return propriedades; }
-
-    std::string raridadeParaString() const 
-    {
-        if (obterRaridade() == Raridade::MITICO) return "Mitico";
-        if (obterRaridade() == Raridade::RARO) return "Raro";
-        return "Comum";
-    }
+    virtual std::unique_ptr<Item> gerarCopiaMelhorada() const { return nullptr; }
 };

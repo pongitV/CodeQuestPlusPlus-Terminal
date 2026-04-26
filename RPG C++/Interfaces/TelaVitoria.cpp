@@ -2,13 +2,14 @@
 #include <map>
 
 #include "TelaVitoria.h"
-#include "../Sistema/Menu.h"
+#include "../Sistema/FuncionalidadeMenu.h"
 #include "../Raças/RacaBase.h"
+#include "../Sistema/SimplificacoesAparencia.h"
 
 void TelaVitoria::exibir(Personagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido, const std::vector<std::string>& itensObtidos)
 {
-    Menu::limparTelaDoTerminal();
-    int largura = Menu::obterLarguraDoTerminalEmColunas();
+    SimplificacoesAparencia::limparTela();
+    int largura = SimplificacoesAparencia::obterLarguraTerminal();
 
     std::vector<std::string> logoVitoria = 
     {
@@ -23,7 +24,7 @@ void TelaVitoria::exibir(Personagem* jogadorAtual, int quantidadeDeOuroObtido, i
     };
 
     std::cout << "\n" << std::string(largura, '=') << "\n\n";
-    Menu::imprimirLinhasCentralizadasNaTela(logoVitoria, 85, "\033[32m");
+    SimplificacoesAparencia::imprimirCentralizadoMultilinha(logoVitoria, 85, SimplificacoesAparencia::cor(Cor::VERDE));
     std::cout << "\n" << std::string(largura, '=') << "\n\n";
 
     std::vector<std::string> linhas = 
@@ -50,7 +51,7 @@ void TelaVitoria::exibir(Personagem* jogadorAtual, int quantidadeDeOuroObtido, i
         for (auto const& [nome, qtd] : contagem) linhas.push_back("  +" + std::to_string(qtd) + "x " + nome);
     } else linhas.push_back("ITENS OBTIDOS: Nenhum");
 
-    Menu::imprimirLinhasCentralizadasNaTela(linhas, 0, "\033[32m");
+    SimplificacoesAparencia::imprimirCentralizadoMultilinha(linhas, 0, SimplificacoesAparencia::cor(Cor::VERDE));
     std::cout << "\n" << std::string(largura, '=') << "\n";
-    Menu::aguardarPressionamentoDeEnter();
+    SimplificacoesAparencia::aguardarEnter();
 }

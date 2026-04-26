@@ -35,5 +35,9 @@ public:
 
     virtual void aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCausado) {}
 
+    virtual bool tentarUsarHabilidadeAtiva(Personagem* /*esteInimigo*/, Personagem* /*alvo*/, int /*dificuldade*/) {
+        return false; // Por padrao, inimigos nao possuem habilidades ativas que consomem o turno
+    }
+
 private:
 };

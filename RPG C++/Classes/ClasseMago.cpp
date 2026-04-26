@@ -2,10 +2,8 @@
 #include <memory>
 
 #include "ClasseMago.h"
-#include "../Inventario/Arma.h"
-#include "../Inventario/Escudo.h"
-#include "../Inventario/Armadura.h"
-#include "../Inventario/ItemConsumivel.h"
+#include "../Inventario/FabricaDeItens.h"
+#include "../Sistema/SimplificacoesAparencia.h"
 
 std::string ClasseMago::obterNomeClasse() const 
 {
@@ -75,17 +73,26 @@ std::vector<std::unique_ptr<Item>> ClasseMago::obterEquipamentoClasse() const
     int quantidadePocoes = 3;
     int porcentagemCura = 30;
     for (int i = 0; i < quantidadePocoes; ++i) {
-        equipamentos.push_back(std::make_unique<ItemConsumivel>("Pocao de Cura (" + std::to_string(porcentagemCura) + "%VM)"));
+        equipamentos.push_back(FabricaDeItens::criarItem("Pocao de Cura (" + std::to_string(porcentagemCura) + "%VM)"));
     }
     
-    equipamentos.push_back(std::make_unique<Arma>("Cajado", 0, 30));
-    equipamentos.push_back(std::make_unique<Escudo>("Barreira magica", 50, 2));
-    equipamentos.push_back(std::make_unique<Armadura>("Tunica", 2));
+    equipamentos.push_back(FabricaDeItens::criarItem("Cajado"));
+    equipamentos.push_back(FabricaDeItens::criarItem("Barreira magica"));
+    equipamentos.push_back(FabricaDeItens::criarItem("Tunica"));
     return equipamentos;
 }
 
-std::string ClasseMago::obterNomeHabilidadeClasse() const { return "Canalizacao arcana"; }
-std::string ClasseMago::obterDescricaoHabilidadeClasse() const { return "Pula seu turno para se defender e dobra o dano no proximo turno. Recarga: 3 turnos."; }
+std::string ClasseMago::obterNomePassivaClasse() const 
+{ return "Foco arcano"; }
+std::string ClasseMago::obterDescricaoPassivaClasse() const 
+{ return "Ataques ressoam (25% em area) ou causam +25% de dano em alvo unico."; }
+std::string ClasseMago::obterRecargaHabilidadeClasse() const 
+{ return "Recarga: 3 turnos."; }
+
+std::string ClasseMago::obterNomeHabilidadeClasse() const 
+{ return "Canalizacao arcana"; }
+std::string ClasseMago::obterDescricaoHabilidadeClasse() const 
+{ return "Pula seu turno para se defender e dobra o dano no proximo turno. Recarga: 3 turnos."; }
 void ClasseMago::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*>& /*inimigos*/) 
 {
     if (u->obterCooldown("EstrategiaArcana") > 0) {
@@ -104,6 +111,36 @@ void ClasseMago::usarHabilidadeClasse(Personagem* u, std::vector<Personagem*>& /
         std::cout << "[HABILIDADE]: Canalizacao arcana! Voce se defende com " << escudo->obterNomeItem() << " e prepara um ataque devastador (2x Dano)!\n";
     } else {
         std::cout << "[HABILIDADE]: Canalizacao arcana! Voce foca sua energia para um ataque devastador (2x Dano) no proximo turno!\n";
+    }
+}
+
+void ClasseMago::executarAtaqueComPassivaDaClasse(Personagem* atacante, Personagem* defensor, int danoBase, int danoPerfurante, std::vector<std::unique_ptr<Personagem>>& inimigos, std::function<void(Personagem*, Personagem*, int, int)> aplicarDano) 
+{
+    if (defensor == nullptr) return;
+
+    bool isAtacanteJogador = true;
+    for (const auto& ini : inimigos) {
+        if (ini.get() == atacante) { isAtacanteJogador = false; break; }
+    }
+
+    if (isAtacanteJogador && inimigos.size() > 1) {
+        std::cout << atacante->obterNome() << " ataca " << defensor->obterNome() << "!\n";
+        aplicarDano(atacante, defensor, danoBase, danoPerfurante);
+        
+        int danoArea = static_cast<int>(danoBase * 0.25);
+        int perfuranteArea = static_cast<int>(danoPerfurante * 0.25);
+        std::cout << SimplificacoesAparencia::cor(Cor::MAGENTA) << "[Foco Arcano]: A magia ressoa, causando " << danoArea << " de dano aos inimigos proximos!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+        
+        for (auto& ini : inimigos) {
+            if (ini.get() != defensor && ini->obterVida() > 0) {
+                aplicarDano(atacante, ini.get(), danoArea, perfuranteArea);
+            }
+        }
+    } else {
+        int danoAumentado = static_cast<int>(danoBase * 1.25);
+        std::cout << SimplificacoesAparencia::cor(Cor::MAGENTA) << "[Foco Arcano]: Dano concentrado aumentado em 25%!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+        std::cout << atacante->obterNome() << " ataca " << defensor->obterNome() << "!\n";
+        aplicarDano(atacante, defensor, danoAumentado, danoPerfurante);
     }
 }
 

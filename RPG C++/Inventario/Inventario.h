@@ -9,13 +9,18 @@
 class Inventario
 {
 private:
-    std::vector<Item*> listaDeItens;
+    std::vector<std::unique_ptr<Item>> listaDeItens;
     int quantidadeDeOuro;
 
 public:
-    const std::vector<Item*>& obterTodosOsItens() const { return listaDeItens; }
+    std::vector<Item*> obterTodosOsItens() const { 
+        std::vector<Item*> itensCrus;
+        for(const auto& item : listaDeItens) itensCrus.push_back(item.get());
+        return itensCrus;
+    }
+    
     Inventario();
-    ~Inventario();
+    ~Inventario() = default;
 
     void exibirInventario(Item* armaEquipada, Item* escudoEquipado, Item* armaduraEquipada, bool mostrarPrecos = false) const;
     
@@ -24,6 +29,7 @@ public:
     
     void adicionarItem(std::unique_ptr<Item> novoItem);
     void removerItem(const std::string& nomeDoItem);
+    void removerItem(Item* itemExato);
     int contarItem(const std::string& nomeDoItem) const;
 
     bool possuiPocaoDeCura() const;

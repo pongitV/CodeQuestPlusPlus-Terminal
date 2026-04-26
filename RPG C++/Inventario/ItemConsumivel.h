@@ -10,10 +10,8 @@ private:
     bool ehTalisma() const;
 
 public:
-    ItemConsumivel(std::string nome);
+    ItemConsumivel(std::string nome, int preco = 3);
 
     std::string obterNomeItem() const override;
-    Raridade obterRaridade() const override;
     TipoEquipamento obterTipo() const override;
-    int obterPrecoVenda() const override;
 };

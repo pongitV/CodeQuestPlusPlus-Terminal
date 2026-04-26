@@ -2,8 +2,8 @@
 #include <iostream>
 #include <cstdlib>
 #include "../Sistema/Personagem.h"
-#include "../Inventario/Item.h"
-#include "../Inventario/Material.h"
+#include "../Inventario/FabricaDeItens.h"
+#include "../Sistema/SimplificacoesAparencia.h"
 
 std::string RacaFada::obterNomeRaca() const { return "Fada"; }
 Atributos RacaFada::obterAtributosRaca() const { return { -50, 0, 30, 2, 5, 10, 10 }; }
@@ -58,12 +58,12 @@ void RacaFada::realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, std:
     xpTotal += xpDrop;
     ouroTotal += ouroDrop;
     
-    std::cout << "\033[43m+" << ouroDrop << "G\033[0m \033[44m+" << xpDrop << " XP\033[0m\n";
+    std::cout << SimplificacoesAparencia::cor(Cor::FUNDO_AMARELO) << "+" << ouroDrop << "G" << SimplificacoesAparencia::cor(Cor::RESET) << " " << SimplificacoesAparencia::cor(Cor::FUNDO_AZUL) << "+" << xpDrop << " XP" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
 
     int qtdPo = (std::rand() % 6) + 1;
     for (int i = 0; i < qtdPo; ++i) {
-        jogadorAtual->obterInventario()->adicionarItem(std::make_unique<Material>("Po magico"));
+        jogadorAtual->obterInventario()->adicionarItem(FabricaDeItens::criarItem("Po magico"));
         itensObtidos.push_back("Po magico");
     }
-    std::cout << "\033[37m+" << qtdPo << "x Po magico\033[0m\n";
+    std::cout << SimplificacoesAparencia::cor(Cor::BRANCO) << "+" << qtdPo << "x Po magico" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
 }

@@ -17,6 +17,10 @@ public:
     Atributos obterAtributosClasse() const override;
     std::vector<std::unique_ptr<Item>> obterEquipamentoClasse() const override;
 
+    std::string obterNomePassivaClasse() const override;
+    std::string obterDescricaoPassivaClasse() const override;
+    std::string obterRecargaHabilidadeClasse() const override;
+
     // Criação e Definição da habilidade do Mago: "Estratégia Arcana"
     void usarHabilidadeClasse(Personagem* usuario, std::vector<Personagem*>& inimigos) override;
     std::string obterNomeHabilidadeClasse() const override;
@@ -24,5 +28,8 @@ public:
     
     TipoAtaque obterTipoAtaque() const override;
     bool habilidadeConsomeTurno() const override;
+
+    // Sobrescreve para processar a passiva Foco Arcano
+    void executarAtaqueComPassivaDaClasse(Personagem* atacante, Personagem* defensor, int danoBase, int danoPerfurante, std::vector<std::unique_ptr<Personagem>>& inimigos, std::function<void(Personagem*, Personagem*, int, int)> aplicarDano) override;
 
 };

@@ -6,6 +6,8 @@
 #include "Personagem.h"
 #include "../Raças/RacaBase.h"
 #include "../Classes/ClasseBase.h"
+#include "../Sistema/SimplificacoesAparencia.h"
+#include "Constantes.h"
 
 Personagem::Personagem(std::string nome, std::unique_ptr<RacaBase> r, std::unique_ptr<ClasseBase> c) 
 {
@@ -19,11 +21,11 @@ Personagem::Personagem(std::string nome, std::unique_ptr<RacaBase> r, std::uniqu
     this->escudo = nullptr;
     this->armadura = nullptr;
     this->itemSelecionadoParaUso = nullptr;
-    this->ouroRecompensa = 15;
+    this->ouroRecompensa = Constantes::OURO_RECOMPENSA_INICIAL;
     
     this->nivel = 1;
     this->xpAtual = 0;
-    this->xpParaSubir = 100;
+    this->xpParaSubir = Constantes::XP_BASE_PARA_SUBIR;
     this->xpRecompensa = 0;
 
     this->multiplicadorAtual = 1.0;
@@ -71,22 +73,22 @@ bool Personagem::subirDeNivel(TipoAtributo atributo)
     switch (atributo)
     {
         case TipoAtributo::Vida:
-            statsFinais.vida += 20;
-            vidaAtual += 20;
+            statsFinais.vida += Constantes::GANHO_VIDA_POR_NIVEL;
+            vidaAtual += Constantes::GANHO_VIDA_POR_NIVEL;
             upou = true;
             break;
-        case TipoAtributo::Forca: statsFinais.forca += 1; upou = true; break;
-        case TipoAtributo::Destreza: statsFinais.destreza += 1; destrezaCacheDirty_ = true; upou = true; break;
-        case TipoAtributo::Resistencia: statsFinais.resistencia += 1; reducaoPercentualCacheDirty_ = true; upou = true; break;
-        case TipoAtributo::Constituicao: statsFinais.constituicao += 1; reducaoPercentualCacheDirty_ = true; upou = true; break;
-        case TipoAtributo::Inteligencia: statsFinais.inteligencia += 1; upou = true; break;
-        case TipoAtributo::Sabedoria: statsFinais.sabedoria += 1; upou = true; break;
+        case TipoAtributo::Forca: statsFinais.forca += Constantes::GANHO_ATRIBUTO_POR_NIVEL; upou = true; break;
+        case TipoAtributo::Destreza: statsFinais.destreza += Constantes::GANHO_ATRIBUTO_POR_NIVEL; destrezaCacheDirty_ = true; upou = true; break;
+        case TipoAtributo::Resistencia: statsFinais.resistencia += Constantes::GANHO_ATRIBUTO_POR_NIVEL; reducaoPercentualCacheDirty_ = true; upou = true; break;
+        case TipoAtributo::Constituicao: statsFinais.constituicao += Constantes::GANHO_ATRIBUTO_POR_NIVEL; reducaoPercentualCacheDirty_ = true; upou = true; break;
+        case TipoAtributo::Inteligencia: statsFinais.inteligencia += Constantes::GANHO_ATRIBUTO_POR_NIVEL; upou = true; break;
+        case TipoAtributo::Sabedoria: statsFinais.sabedoria += Constantes::GANHO_ATRIBUTO_POR_NIVEL; upou = true; break;
     }
 
     if (upou)
     {
         xpAtual -= xpParaSubir;
-        xpParaSubir = static_cast<int>(xpParaSubir * 1.5);
+        xpParaSubir = static_cast<int>(xpParaSubir * Constantes::MULTIPLICADOR_XP_POR_NIVEL);
         nivel++;
         return true;
     }
@@ -129,6 +131,26 @@ void Personagem::calcularAtributos()
     reducaoPercentualCacheDirty_ = true;
 }
 
+int Personagem::obterDestreza() const
+{
+    if (!destrezaCacheDirty_) return destrezaCache_;
+    int penalidade = armadura ? (armadura->obterReducaoFixa() / 3) : 0;
+    if (classe) penalidade = classe->processarPenalidadeArmaduraPassivaArqueiro(penalidade);
+    int destrezaFinal = statsFinais.destreza - penalidade;
+    destrezaCache_ = destrezaFinal > 0 ? destrezaFinal : 0;
+    destrezaCacheDirty_ = false;
+    return destrezaCache_;
+}
+
+void Personagem::definirMultiplicador(double m) 
+{ 
+    if (classe) {
+        multiplicadorAtual = classe->processarMultiplicadorBuffPassivaBardo(m);
+    } else {
+        multiplicadorAtual = m;
+    }
+}
+
 void Personagem::aplicarMultiplicadorDificuldade(double mult)
 {
     if (mult <= 1.0) return;
@@ -147,10 +169,7 @@ void Personagem::aplicarMultiplicadorDificuldade(double mult)
 
 void Personagem::modificarVida(int valor) 
 {
-    if (valor > 0 && obterTipoClasse() == TipoClasse::Bardo) 
-    {
-        valor = static_cast<int>(valor * 1.4);
-    }
+    if (valor > 0 && classe) valor = classe->processarCuraPassivaBardo(valor);
 
     this->vidaAtual += valor;
     if (this->vidaAtual < 0) this->vidaAtual = 0;
@@ -254,9 +273,8 @@ int Personagem::calcularDefesaBase(int danoBruto, int danoPerfurante) const {
 int Personagem::receberDano(int danoBruto, int danoPerfurante, int danoReduzidoParry, Personagem* atacante, bool aplicarPassivas) {
     int danoFinal = calcularDefesaBase(danoBruto, danoPerfurante);
 
-    if (possuiEfeito(EfeitoNomes::METADE_DANO)) {
-        danoFinal /= 2;
-        std::cout << "\033[36m>> [EFEITO]: O dano foi reduzido pela metade! (Through the wire)\033[0m\n";
+    for (auto& ef : efeitosAtivos) {
+        danoFinal = ef->processarDanoRecebido(danoFinal);
     }
 
     danoFinal -= danoReduzidoParry;
@@ -306,7 +324,7 @@ void Personagem::processarEfeitosInicioTurno() {
 bool Personagem::podeAgir() const {
     for (auto& ef : efeitosAtivos) {
         if (ef->impedeAcao()) {
-            std::cout << "\033[32m[EFEITO]: " << nomePersonagem << " esta sob efeito de " << ef->obterNome() << " e nao pode agir neste turno!\033[0m\n";
+            std::cout << SimplificacoesAparencia::cor(Cor::VERDE) << "[EFEITO]: " << nomePersonagem << " esta sob efeito de " << ef->obterNome() << " e nao pode agir neste turno!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
             return false;
         }
     }

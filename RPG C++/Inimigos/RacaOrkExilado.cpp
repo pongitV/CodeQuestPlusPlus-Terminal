@@ -1,11 +1,10 @@
 #include "RacaOrkExilado.h"
 #include <iostream>
 #include "../Sistema/Personagem.h"
-#include "../Inventario/Item.h"
-#include "../Inventario/Arma.h"
-#include "../Inventario/Armadura.h"
+#include "../Inventario/FabricaDeItens.h"
+#include "../Sistema/SimplificacoesAparencia.h"
 
-std::string RacaOrkExilado::obterNomeRaca() const { return "Ork [exilado]"; }
+std::string RacaOrkExilado::obterNomeRaca() const { return "Ork Exilado"; }
 Atributos RacaOrkExilado::obterAtributosRaca() const { return { 200, 25, 10, 15, 20, 0, 0 }; }
 
 std::vector<std::string> RacaOrkExilado::obterAparenciaRaca() const
@@ -80,16 +79,16 @@ void RacaOrkExilado::realizarDrops(Personagem* inimigo, Personagem* jogadorAtual
     xpTotal += xpDrop;
     ouroTotal += ouroDrop;
     
-    std::cout << "\033[43m+" << ouroDrop << "G\033[0m \033[44m+" << xpDrop << " XP\033[0m\n";
+    std::cout << SimplificacoesAparencia::cor(Cor::FUNDO_AMARELO) << "+" << ouroDrop << "G" << SimplificacoesAparencia::cor(Cor::RESET) << " " << SimplificacoesAparencia::cor(Cor::FUNDO_AZUL) << "+" << xpDrop << " XP" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
 
     for (int i = 0; i < 2; ++i) {
-        jogadorAtual->obterInventario()->adicionarItem(std::make_unique<Arma>("Machado de guerra danificado", 15, 0));
+        jogadorAtual->obterInventario()->adicionarItem(FabricaDeItens::criarItem("Machado de guerra danificado"));
         itensObtidos.push_back("Machado de guerra danificado");
     }
-    std::cout << "\033[37m+2x Machado de guerra danificado\033[0m\n";
+    std::cout << SimplificacoesAparencia::cor(Cor::BRANCO) << "+2x Machado de guerra danificado" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
     
-    jogadorAtual->obterInventario()->adicionarItem(std::make_unique<Armadura>("Armadura de trapos e sucata", 3));
-    std::cout << "\033[37m+1x Armadura de trapos e sucata\033[0m\n";
+    jogadorAtual->obterInventario()->adicionarItem(FabricaDeItens::criarItem("Armadura de trapos e sucata"));
+    std::cout << SimplificacoesAparencia::cor(Cor::BRANCO) << "+1x Armadura de trapos e sucata" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
     itensObtidos.push_back("Armadura de trapos e sucata");
 }
 

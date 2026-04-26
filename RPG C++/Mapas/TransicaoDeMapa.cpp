@@ -2,11 +2,12 @@
 #include <windows.h>
 
 #include "TransicaoDeMapa.h"
-#include "../Sistema/Menu.h"
+#include "../Sistema/FuncionalidadeMenu.h"
+#include "../Sistema/SimplificacoesAparencia.h"
 
 void TransicoesDeMapa::exibirTransicaoParaFloresta()
 {
-    Menu::limparTelaDoTerminal();
+    SimplificacoesAparencia::limparTela();
 
     std::vector<std::string> arteFloresta = {
         "⢧⢫⡜⣣⠝⣮⢱⢫⡜⡱⣍⢮⡱⢭⣙⢦⣀⠉⠞⣬⠣⡝⣬⠣⡝⣬⠹⡜⣆⠏⡖⢭⢚⣌⠳⣌⠳⣌⠳⣌⠳⣘⠦⡍⠄⣫⡗⡜⡜⣢⠝⡢⢝⢢⠓⡜⢢⢓⡜⢢⢓⡜⢢⠓⡜⢢⠓⡜⢢⢃⡆⠘⢦⡑⢎⡔⢣⠜⡰⠱⡌⢦⠱⢌⠦⡙⢇⡰⠡⢎⠰⢌⠒⡌⠒⠬⢀⣴⢂⡱⠌⣆⠱⣲⡿⢋⠴⣉⢛⡛⠻⢷⣌⡆⢑⡂⠖⣈⠒⣄⢃⠲⡐⢌⠒⡄⢃⡒⡐⢆⠒⡐⢂⠆⡰",
@@ -63,10 +64,10 @@ void TransicoesDeMapa::exibirTransicaoParaFloresta()
     };
 
     std::cout << "\n\n";
-    Menu::imprimirLinhasCentralizadasNaTela(arteFloresta, 140, "\033[32m");
+    SimplificacoesAparencia::imprimirCentralizadoMultilinha(arteFloresta, 140, SimplificacoesAparencia::cor(Cor::VERDE));
 
     std::string textoDeViagem = "Viajando para a Floresta...";
-    int larguraDoTerminal = Menu::obterLarguraDoTerminalEmColunas();
+    int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
     int espacosParaCentralizarTexto = (larguraDoTerminal - (int)textoDeViagem.length()) / 2;
 
     std::cout << "\n\n" << std::string(espacosParaCentralizarTexto > 0 ? espacosParaCentralizarTexto : 0, ' ') << textoDeViagem << "\n";
@@ -76,7 +77,7 @@ void TransicoesDeMapa::exibirTransicaoParaFloresta()
 
 void TransicoesDeMapa::exibirTransicaoParaVila()
 {
-    Menu::limparTelaDoTerminal();
+    SimplificacoesAparencia::limparTela();
 
     std::vector<std::string> arteVila = {
         "                                                            |>>>",
@@ -104,10 +105,10 @@ void TransicoesDeMapa::exibirTransicaoParaVila()
     };
 
     std::cout << "\n\n";
-    Menu::imprimirLinhasCentralizadasNaTela(arteVila, 75, "\033[33m");
+    SimplificacoesAparencia::imprimirCentralizadoMultilinha(arteVila, 75, SimplificacoesAparencia::cor(Cor::AMARELO));
 
     std::string textoTransicao = "Voltando para a Vila...";
-    int larguraDoTerminal = Menu::obterLarguraDoTerminalEmColunas();
+    int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
     int espacosParaCentralizar = (larguraDoTerminal - (int)textoTransicao.length()) / 2;
     std::cout << "\n\n" << std::string(espacosParaCentralizar > 0 ? espacosParaCentralizar : 0, ' ') << textoTransicao << "\n";
 

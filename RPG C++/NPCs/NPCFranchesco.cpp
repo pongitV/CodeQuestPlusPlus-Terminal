@@ -5,16 +5,22 @@
 #include <algorithm>
 
 #include "NPCFranchesco.h"
-#include "../Sistema/Menu.h"
+#include "../Sistema/FuncionalidadeMenu.h"
 #include "../Inventario/Item.h"
-#include "../Inventario/Escudo.h"
-#include "../Inventario/ItemConsumivel.h"
-#include "../Inventario/ItemMissao.h"
+#include "../Inventario/FabricaDeItens.h"
 #include "../Interfaces/TelaInventario.h"
+#include "../Sistema/SimplificacoesAparencia.h"
+
+namespace {
+    void processarCompraPocoes(Personagem* jogadorAtual, const std::string& margemMsg);
+    void processarCompraTalismas(Personagem* jogadorAtual, const std::string& margemMsg, int larguraDoTerminal);
+    void processarCompraIguarias(Personagem* jogadorAtual, const std::string& margemMsg, int larguraDoTerminal);
+    void processarVendaDeItens(Personagem* jogadorAtual, int larguraDoTerminal);
+}
 
 void NPCFranchesco::interagir(Personagem* jogadorAtual)
 {
-    int larguraDoTerminal = Menu::obterLarguraDoTerminalEmColunas();
+    int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
     std::string opcaoFranchesco;
     
     std::vector<std::string> arteFranchesco = {
@@ -63,7 +69,7 @@ void NPCFranchesco::interagir(Personagem* jogadorAtual)
     };
 
     do {
-        Menu::limparTelaDoTerminal();
+        SimplificacoesAparencia::limparTela();
         Menu::exibirLogoDoJogo("LOJA AMBULANTE");
         
         int espacosMsg = (larguraDoTerminal - 55) / 2;
@@ -97,7 +103,7 @@ void NPCFranchesco::interagir(Personagem* jogadorAtual)
                 std::cout << std::string(larguraInfo, ' ');
             }
             if (i < arteFranchesco.size()) {
-                std::cout << "\033[0m" << arteFranchesco[i] << "\033[0m"; // Amarelo para destacar o comerciante
+                std::cout << SimplificacoesAparencia::cor(Cor::AMARELO) << arteFranchesco[i] << SimplificacoesAparencia::cor(Cor::RESET); // Amarelo para destacar o comerciante
             }
             std::cout << "\n";
         }
@@ -106,132 +112,142 @@ void NPCFranchesco::interagir(Personagem* jogadorAtual)
         std::cin >> opcaoFranchesco;
 
         if (opcaoFranchesco == "1") {
-            std::string opcaoCompra;
-            do {
-                Menu::limparTelaDoTerminal();
-                Menu::exibirLogoDoJogo("LOJA - POCOES");
-                std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
-
-                std::cout << margemMsg << "[1] Pocao de Cura (30%VM)                          - 10G\n";
-                std::cout << margemMsg << "[0] VOLTAR\n\n";
-                std::cout << "\n" << std::string(larguraDoTerminal, '=') << "\n";
-                std::cout << "\n" << margemMsg << "Escolha: ";
-
-                std::cin >> opcaoCompra;
-
-                if (opcaoCompra == "1") {
-                    int preco = 10;
-                    if (jogadorAtual->obterInventario()->obterOuro() >= preco) {
-                        jogadorAtual->obterInventario()->adicionarOuro(-preco);
-                        auto pocao = std::make_unique<ItemConsumivel>("Pocao de Cura (30%)");
-                        pocao->adicionarPropriedade(Propriedade::ConsumivelCura);
-                        jogadorAtual->obterInventario()->adicionarItem(std::move(pocao));
-                        std::cout << "\n" << margemMsg << "[SISTEMA]: Pocao de Cura comprada!\n";
-                    } else {
-                        std::cout << "\n" << margemMsg << "[SISTEMA]: Ouro insuficiente!\n";
-                    }
-                    Menu::aguardarPressionamentoDeEnter();
-                }
-            } while (opcaoCompra != "0");
+            processarCompraPocoes(jogadorAtual, margemMsg);
         }
         else if (opcaoFranchesco == "2") {
-            std::string opcaoCompra;
-            do {
-                Menu::limparTelaDoTerminal();
-                Menu::exibirLogoDoJogo("LOJA - TALISMAS");
-                std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
-
-                std::cout << margemMsg << "[1] Talisma do Urso (+5 Forca | -5 Int)             - 200G\n";
-                std::cout << margemMsg << "[2] Talisma do Corvo (+5 Int | -5 Forca)            - 200G\n";
-                std::cout << margemMsg << "[3] Talisma do Leopardo (+5 Dest | -5 Sab)          - 200G\n";
-                std::cout << margemMsg << "[4] Talisma da Coruja (+5 Sab | -5 Dest)            - 200G\n";
-                std::cout << margemMsg << "[0] VOLTAR\n\n";
-                std::cout << "\n" << std::string(larguraDoTerminal, '=') << "\n";
-                std::cout << "\n" << margemMsg << "Escolha: ";
-
-                std::cin >> opcaoCompra;
-
-                if (opcaoCompra >= "1" && opcaoCompra <= "4") {
-                    int preco = 200;
-                    if (jogadorAtual->obterInventario()->obterOuro() >= preco) {
-                        jogadorAtual->obterInventario()->adicionarOuro(-preco);
-                        std::unique_ptr<ItemConsumivel> novoTalisma = nullptr;
-                        if (opcaoCompra == "1") {
-                            novoTalisma = std::make_unique<ItemConsumivel>("Talisma do Urso");
-                            novoTalisma->adicionarPropriedade(Propriedade::TalismaForca);
-                        } else if (opcaoCompra == "2") {
-                            novoTalisma = std::make_unique<ItemConsumivel>("Talisma do Corvo");
-                            novoTalisma->adicionarPropriedade(Propriedade::TalismaInteligencia);
-                        } else if (opcaoCompra == "3") {
-                            novoTalisma = std::make_unique<ItemConsumivel>("Talisma do Leopardo");
-                            novoTalisma->adicionarPropriedade(Propriedade::TalismaDestreza);
-                        } else if (opcaoCompra == "4") {
-                            novoTalisma = std::make_unique<ItemConsumivel>("Talisma da Coruja");
-                            novoTalisma->adicionarPropriedade(Propriedade::TalismaSabedoria);
-                        }
-                        if (novoTalisma) {
-                            std::cout << "\n" << margemMsg << "[SISTEMA]: " << novoTalisma->obterNomeItem() << " comprado!\n";
-                            jogadorAtual->obterInventario()->adicionarItem(std::move(novoTalisma));
-                        }
-                    } else {
-                        std::cout << "\n" << margemMsg << "[SISTEMA]: Ouro insuficiente!\n";
-                    }
-                    Menu::aguardarPressionamentoDeEnter();
-                }
-            } while (opcaoCompra != "0");
+            processarCompraTalismas(jogadorAtual, margemMsg, larguraDoTerminal);
         }
         else if (opcaoFranchesco == "3") {
-            std::string opcaoCompra;
-            do {
-                Menu::limparTelaDoTerminal();
-                Menu::exibirLogoDoJogo("LOJA - IGUARIAS");
-                std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
-
-                std::cout << margemMsg << "[1] Dispositivo de teclas de linguagem desconhecida - 1000G\n";
-                std::cout << margemMsg << "[0] VOLTAR\n\n";
-                std::cout << "\n" << std::string(larguraDoTerminal, '=') << "\n";
-                std::cout << "\n" << margemMsg << "Escolha: ";
-
-                std::cin >> opcaoCompra;
-
-                if (opcaoCompra == "1") {
-                    int preco = 1000;
-                    if (jogadorAtual->obterInventario()->obterOuro() >= preco) {
-                        jogadorAtual->obterInventario()->adicionarOuro(-preco);
-                        jogadorAtual->obterInventario()->adicionarItem(std::make_unique<ItemMissao>("Dispositivo de teclas de linguagem desconhecida"));
-                        std::cout << "\n" << margemMsg << "[SISTEMA]: Dispositivo misterioso comprado!\n";
-                    } else {
-                        std::cout << "\n" << margemMsg << "[SISTEMA]: Ouro insuficiente!\n";
-                    }
-                    Menu::aguardarPressionamentoDeEnter();
-                }
-            } while (opcaoCompra != "0");
+            processarCompraIguarias(jogadorAtual, margemMsg, larguraDoTerminal);
         }
         else if (opcaoFranchesco == "4") {
-            std::string codigoVenda;
-            do {
-                TelaInventario::exibir(jogadorAtual, true);
-                std::string promptVenda = "Digite o codigo do item para vender ou [0] VOLTAR: ";
-                int espacosVenda = (larguraDoTerminal - (int)promptVenda.length()) / 2;
-                std::cout << "\n" << std::string(espacosVenda > 0 ? espacosVenda : 0, ' ') << promptVenda;
-                std::cin >> codigoVenda;
-
-                if (codigoVenda != "0") {
-                    Item* itemParaVenda = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigoVenda, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
-                    if (itemParaVenda) {
-                        if (itemParaVenda == jogadorAtual->obterArma() || itemParaVenda == jogadorAtual->obterEscudo() || itemParaVenda == jogadorAtual->obterArmadura()) {
-                            std::cout << "\n[SISTEMA]: Nao e possivel vender itens que estao equipados!\n"; Menu::aguardarPressionamentoDeEnter(); continue;
-                        }
-                        std::string nomeItemVenda = itemParaVenda->obterNomeItem();
-                        int precoVenda = itemParaVenda->obterPrecoVenda();
-                        jogadorAtual->obterInventario()->adicionarOuro(precoVenda);
-                        jogadorAtual->obterInventario()->removerItem(nomeItemVenda);
-                        std::cout << "\n[SISTEMA]: Voce vendeu " << nomeItemVenda << " por " << precoVenda << "G!\n"; Menu::aguardarPressionamentoDeEnter();
-                    } else { std::cout << "\n[SISTEMA]: Item invalido!\n"; Menu::aguardarPressionamentoDeEnter(); }
-                }
-            } while (codigoVenda != "0");
+            processarVendaDeItens(jogadorAtual, larguraDoTerminal);
         }
     } while (opcaoFranchesco != "0");
+}
+
+namespace {
+    void processarCompraPocoes(Personagem* jogadorAtual, const std::string& margemMsg) {
+        std::string opcaoCompra;
+        do {
+            SimplificacoesAparencia::limparTela();
+            Menu::exibirLogoDoJogo("LOJA - POCOES");
+            std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
+
+            std::cout << margemMsg << "[1] Pocao de Cura (30%VM)                          - 10G\n";
+            std::cout << margemMsg << "[0] VOLTAR\n\n";
+            std::cout << "\n" << std::string(SimplificacoesAparencia::obterLarguraTerminal(), '=') << "\n";
+            std::cout << "\n" << margemMsg << "Escolha: ";
+
+            std::cin >> opcaoCompra;
+
+            if (opcaoCompra == "1") {
+                int preco = 10;
+                if (jogadorAtual->obterInventario()->obterOuro() >= preco) {
+                    jogadorAtual->obterInventario()->adicionarOuro(-preco);
+                    jogadorAtual->obterInventario()->adicionarItem(FabricaDeItens::criarItem("Pocao de Cura (30%)"));
+                    std::cout << "\n" << margemMsg << "[SISTEMA]: Pocao de Cura comprada!\n";
+                } else {
+                    std::cout << "\n" << margemMsg << "[SISTEMA]: Ouro insuficiente!\n";
+                }
+                SimplificacoesAparencia::aguardarEnter();
+            }
+        } while (opcaoCompra != "0");
+    }
+
+    void processarCompraTalismas(Personagem* jogadorAtual, const std::string& margemMsg, int larguraDoTerminal) {
+        std::string opcaoCompra;
+        do {
+            SimplificacoesAparencia::limparTela();
+            Menu::exibirLogoDoJogo("LOJA - TALISMAS");
+            std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
+
+            std::cout << margemMsg << "[1] Talisma do Urso (+5 Forca | -5 Int)             - 200G\n";
+            std::cout << margemMsg << "[2] Talisma do Corvo (+5 Int | -5 Forca)            - 200G\n";
+            std::cout << margemMsg << "[3] Talisma do Leopardo (+5 Dest | -5 Sab)          - 200G\n";
+            std::cout << margemMsg << "[4] Talisma da Coruja (+5 Sab | -5 Dest)            - 200G\n";
+            std::cout << margemMsg << "[0] VOLTAR\n\n";
+            std::cout << "\n" << std::string(larguraDoTerminal, '=') << "\n";
+            std::cout << "\n" << margemMsg << "Escolha: ";
+
+            std::cin >> opcaoCompra;
+
+            if (opcaoCompra >= "1" && opcaoCompra <= "4") {
+                int preco = 200;
+                if (jogadorAtual->obterInventario()->obterOuro() >= preco) {
+                    jogadorAtual->obterInventario()->adicionarOuro(-preco);
+                    
+                    std::string nomeTalisma = "";
+                    if (opcaoCompra == "1") nomeTalisma = "Talisma do Urso";
+                    else if (opcaoCompra == "2") nomeTalisma = "Talisma do Corvo";
+                    else if (opcaoCompra == "3") nomeTalisma = "Talisma do Leopardo";
+                    else if (opcaoCompra == "4") nomeTalisma = "Talisma da Coruja";
+                    
+                    auto novoItem = FabricaDeItens::criarItem(nomeTalisma);
+                    if (novoItem) {
+                        std::cout << "\n" << margemMsg << "[SISTEMA]: " << novoItem->obterNomeItem() << " comprado!\n";
+                        jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
+                    }
+                } else {
+                    std::cout << "\n" << margemMsg << "[SISTEMA]: Ouro insuficiente!\n";
+                }
+                SimplificacoesAparencia::aguardarEnter();
+            }
+        } while (opcaoCompra != "0");
+    }
+
+    void processarCompraIguarias(Personagem* jogadorAtual, const std::string& margemMsg, int larguraDoTerminal) {
+        std::string opcaoCompra;
+        do {
+            SimplificacoesAparencia::limparTela();
+            Menu::exibirLogoDoJogo("LOJA - IGUARIAS");
+            std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
+
+            std::cout << margemMsg << "[1] Dispositivo de teclas de linguagem desconhecida - 1000G\n";
+            std::cout << margemMsg << "[0] VOLTAR\n\n";
+            std::cout << "\n" << std::string(larguraDoTerminal, '=') << "\n";
+            std::cout << "\n" << margemMsg << "Escolha: ";
+
+            std::cin >> opcaoCompra;
+
+            if (opcaoCompra == "1") {
+                int preco = 1000;
+                if (jogadorAtual->obterInventario()->obterOuro() >= preco) {
+                    jogadorAtual->obterInventario()->adicionarOuro(-preco);
+                    jogadorAtual->obterInventario()->adicionarItem(FabricaDeItens::criarItem("Dispositivo de teclas de linguagem desconhecida"));
+                    std::cout << "\n" << margemMsg << "[SISTEMA]: Dispositivo misterioso comprado!\n";
+                } else {
+                    std::cout << "\n" << margemMsg << "[SISTEMA]: Ouro insuficiente!\n";
+                }
+                SimplificacoesAparencia::aguardarEnter();
+            }
+        } while (opcaoCompra != "0");
+    }
+
+    void processarVendaDeItens(Personagem* jogadorAtual, int larguraDoTerminal) {
+        std::string codigoVenda;
+        do {
+            TelaInventario::exibir(jogadorAtual, true);
+            std::string promptVenda = "Digite o codigo do item para vender ou [0] VOLTAR: ";
+            int espacosVenda = (larguraDoTerminal - (int)promptVenda.length()) / 2;
+            std::cout << "\n" << std::string(espacosVenda > 0 ? espacosVenda : 0, ' ') << promptVenda;
+            std::cin >> codigoVenda;
+
+            if (codigoVenda != "0") {
+                Item* itemParaVenda = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigoVenda, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
+                if (itemParaVenda) {
+                    if (itemParaVenda == jogadorAtual->obterArma() || itemParaVenda == jogadorAtual->obterEscudo() || itemParaVenda == jogadorAtual->obterArmadura()) {
+                        std::cout << "\n[SISTEMA]: Nao e possivel vender itens que estao equipados!\n"; SimplificacoesAparencia::aguardarEnter(); continue;
+                    }
+                    std::string nomeItemVenda = itemParaVenda->obterNomeItem();
+                    int precoVenda = itemParaVenda->obterPrecoVenda();
+                    jogadorAtual->obterInventario()->adicionarOuro(precoVenda);
+                    jogadorAtual->obterInventario()->removerItem(itemParaVenda);
+                    std::cout << "\n[SISTEMA]: Voce vendeu " << nomeItemVenda << " por " << precoVenda << "G!\n"; SimplificacoesAparencia::aguardarEnter();
+                } else { std::cout << "\n[SISTEMA]: Item invalido!\n"; SimplificacoesAparencia::aguardarEnter(); }
+            }
+        } while (codigoVenda != "0");
+    }
 }
 
 std::vector<std::string> NPCFranchesco::obterMapaLoja()

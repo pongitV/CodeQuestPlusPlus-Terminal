@@ -1,8 +1,8 @@
 #include "RacaAbominacaoFloresta.h"
 #include <iostream>
 #include "../Sistema/Personagem.h"
-#include "../Inventario/Item.h"
-#include "../Inventario/Material.h"
+#include "../Inventario/FabricaDeItens.h"
+#include "../Sistema/SimplificacoesAparencia.h"
 
 std::string RacaAbominacaoFloresta::obterNomeRaca() const { return "Abominacao da Floresta"; }
 
@@ -45,7 +45,7 @@ int RacaAbominacaoFloresta::processarDanoOfensivo(int danoBase, Personagem* atac
             if (cura > 0)
             {
                 atacante->modificarVida(cura);
-                std::cout << "\033[32m[PASSIVA]: Raizes Parasitas! A Abominacao absorveu " << cura << " de HP!\033[0m\n";
+                std::cout << SimplificacoesAparencia::cor(Cor::VERDE) << "[PASSIVA]: Raizes Parasitas! A Abominacao absorveu " << cura << " de HP!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
             }
         }
         if (atacante->obterVida() >= (vidaMax * 0.60))
@@ -154,15 +154,15 @@ void RacaAbominacaoFloresta::realizarDrops(Personagem* inimigo, Personagem* joga
     xpTotal += xpDrop;
     ouroTotal += ouroDrop;
     
-    std::cout << "\033[43m+" << ouroDrop << "G\033[0m \033[44m+" << xpDrop << " XP\033[0m\n";
+    std::cout << SimplificacoesAparencia::cor(Cor::FUNDO_AMARELO) << "+" << ouroDrop << "G" << SimplificacoesAparencia::cor(Cor::RESET) << " " << SimplificacoesAparencia::cor(Cor::FUNDO_AZUL) << "+" << xpDrop << " XP" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
 
-    jogadorAtual->obterInventario()->adicionarItem(std::make_unique<Material>("Madeira enfeiticada"));
+    jogadorAtual->obterInventario()->adicionarItem(FabricaDeItens::criarItem("Madeira enfeiticada"));
     itensObtidos.push_back("Madeira enfeiticada");
-    std::cout << "\033[37m+1x Madeira enfeiticada\033[0m\n";
+    std::cout << SimplificacoesAparencia::cor(Cor::BRANCO) << "+1x Madeira enfeiticada" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
 
-    jogadorAtual->obterInventario()->adicionarItem(std::make_unique<Material>("Coracao da floresta"));
+    jogadorAtual->obterInventario()->adicionarItem(FabricaDeItens::criarItem("Coracao da floresta"));
     itensObtidos.push_back("Coracao da floresta");
-    std::cout << "\033[37m+1x Coracao da floresta\033[0m\n";
+    std::cout << SimplificacoesAparencia::cor(Cor::BRANCO) << "+1x Coracao da floresta" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
 }
 
 std::vector<std::string> RacaAbominacaoFloresta::obterMapaCoracaoDaArvore()

@@ -14,6 +14,13 @@ public:
     Atributos obterAtributosClasse() const override;
     std::vector<std::unique_ptr<Item>> obterEquipamentoClasse() const override;
 
+    std::string obterNomePassivaClasse() const override;
+    std::string obterDescricaoPassivaClasse() const override;
+    std::string obterRecargaHabilidadeClasse() const override;
+
+    int processarCuraPassivaBardo(int curaBase) const override;
+    double processarMultiplicadorBuffPassivaBardo(double multBase) const override;
+
     // Criação e Definição da habilidade do Bardo: "Flashing Lights"
     void usarHabilidadeClasse(Personagem* usuario, std::vector<Personagem*>& inimigos) override;
     std::string obterNomeHabilidadeClasse() const override;

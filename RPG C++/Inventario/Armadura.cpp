@@ -1,20 +1,26 @@
 #include "Armadura.h"
 
-Armadura::Armadura(std::string nome, int reducaoFixa) 
-    : nome(nome), reducaoFixa(reducaoFixa) 
+Armadura::Armadura(std::string nome, int reducaoFixa, int preco) 
+    : Item(preco), nome(nome), reducaoFixa(reducaoFixa) 
 {
 }
 
 std::string Armadura::obterNomeItem() const { return nome; }
-Raridade Armadura::obterRaridade() const { return Raridade::COMUM; }
 TipoEquipamento Armadura::obterTipo() const { return TipoEquipamento::ARMADURA; }
 
 int Armadura::obterReducaoFixa() const { return reducaoFixa; }
 
 std::string Armadura::obterInfoStatus() const {
-    int penalidadeDestreza = reducaoFixa / 3;
-    if (penalidadeDestreza > 0) {
-        return " (Def: " + std::to_string(reducaoFixa) + " | -" + std::to_string(penalidadeDestreza) + " Dest)";
+    std::string info = " (Def: " + std::to_string(reducaoFixa);
+    if (int penalidadeDestreza = reducaoFixa / 3; penalidadeDestreza > 0) {
+        info += " | -" + std::to_string(penalidadeDestreza) + " Dest";
     }
-    return " (Def: " + std::to_string(reducaoFixa) + ")";
+    return info + ")";
+}
+
+std::unique_ptr<Item> Armadura::gerarCopiaMelhorada() const {
+    auto novaArmadura = std::make_unique<Armadura>(nome + "+", static_cast<int>(reducaoFixa * 1.5), precoVenda * 2);
+    for (Propriedade prop : propriedades) novaArmadura->adicionarPropriedade(prop);
+    novaArmadura->adicionarPropriedade(Propriedade::Melhorado);
+    return novaArmadura;
 }

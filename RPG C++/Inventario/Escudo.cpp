@@ -1,21 +1,14 @@
 #include "Escudo.h"
 #include <string_view>
 #include <map>
+#include <memory>
 
-static const std::map<std::string_view, int> precosEscudos = {
-    {"Manto encantado", 9},
-    {"Escudo medio de metal", 9},
-    {"Capa magica", 9},
-    {"Escudo leve de madeira", 9},
-};
-
-Escudo::Escudo(std::string nome, int reducaoFixa, int durabilidade)
-    : nome(nome), reducaoFixa(reducaoFixa), durabilidade(durabilidade)
+Escudo::Escudo(std::string nome, int reducaoFixa, int durabilidade, int preco)
+    : Item(preco), nome(nome), reducaoFixa(reducaoFixa), durabilidade(durabilidade)
 {
 }
 
 std::string Escudo::obterNomeItem() const { return nome; }
-Raridade Escudo::obterRaridade() const { return Raridade::COMUM; }
 TipoEquipamento Escudo::obterTipo() const { return TipoEquipamento::ESCUDO; }
 
 int Escudo::obterDurabilidadeAtualEscudo() const { return durabilidade; }
@@ -23,11 +16,13 @@ int Escudo::obterReducaoDanoFixaEscudo() const { return reducaoFixa; }
 void Escudo::reduzirDurabilidade(int qtd) { durabilidade -= qtd; }
 void Escudo::aumentarDurabilidade(int qtd) { durabilidade += qtd; }
 
-int Escudo::obterPrecoVenda() const {
-    auto it = precosEscudos.find(nome);
-    return (it != precosEscudos.end()) ? it->second : 3;
-}
-
 std::string Escudo::obterInfoStatus() const {
     return " (Def: " + std::to_string(reducaoFixa) + " | Dur: " + std::to_string(durabilidade) + ")";
+}
+
+std::unique_ptr<Item> Escudo::gerarCopiaMelhorada() const {
+    auto novoEscudo = std::make_unique<Escudo>(nome + "+", static_cast<int>(reducaoFixa * 1.5), static_cast<int>(durabilidade * 1.5), precoVenda * 2);
+    for (Propriedade prop : propriedades) novoEscudo->adicionarPropriedade(prop);
+    novoEscudo->adicionarPropriedade(Propriedade::Melhorado);
+    return novoEscudo;
 }

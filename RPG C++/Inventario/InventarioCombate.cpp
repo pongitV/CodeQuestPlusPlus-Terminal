@@ -1,25 +1,92 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <memory>
+#include <unordered_map>
+#include <functional>
 
 #include "InventarioCombate.h"
 #include "../Sistema/Personagem.h"
 #include "../Sistema/Tipos.h"
 #include "Item.h"
 #include "../Interfaces/TelaInventario.h"
-#include "../Sistema/Menu.h"
+#include "../Sistema/FuncionalidadeMenu.h"
+#include "../Sistema/SimplificacoesAparencia.h"
+
+namespace {
+    using EstrategiaUso = std::function<void(Personagem*, Item*, bool*)>;
+
+    // Dicionario de Estrategias: Mapeia cada propriedade para sua funcao especifica
+    std::unordered_map<Propriedade, EstrategiaUso> estrategiasConsumiveis = {
+        {Propriedade::ConsumivelCura, [](Personagem* p, Item* i, bool* turno) {
+            if (p->obterVida() >= p->obterVidaMaxima()) {
+                std::cout << "\n[SISTEMA]: Sua vida ja esta cheia!\n";
+                return;
+            }
+            int cura = static_cast<int>(p->obterVidaMaxima() * 0.30);
+            p->modificarVida(cura);
+            std::cout << "\n[SISTEMA]: " << i->obterNomeItem() << " usada! +" << cura << " HP.\n";
+            p->obterInventario()->removerItem(i);
+            if (turno) *turno = true;
+        }},
+        {Propriedade::ConsumivelBuff, [](Personagem* p, Item* i, bool* turno) {
+            if (!turno) { std::cout << "\n[SISTEMA]: Pocoes de buff so podem ser usadas em combate!\n"; return; }
+            p->adicionarEfeito(std::make_unique<EfeitoBuffAtributos>(2));
+            p->definirMultiplicador(1.5);
+            std::cout << "\n[SISTEMA]: " << i->obterNomeItem() << " consumida! Atributos ampliados em 1.5x por 2 turnos!\n";
+            p->obterInventario()->removerItem(i);
+            *turno = true;
+        }},
+        {Propriedade::ConsumivelDebuffLentidao, [](Personagem* p, Item* i, bool* turno) {
+            if (!turno) { std::cout << "\n[SISTEMA]: Frascos de debuff so podem ser usados em combate!\n"; return; }
+            p->definirItemSelecionadoParaUso(i);
+        }},
+        {Propriedade::ConsumivelDebuffFraqueza, [](Personagem* p, Item* i, bool* turno) {
+            if (!turno) { std::cout << "\n[SISTEMA]: Frascos de debuff so podem ser usados em combate!\n"; return; }
+            p->definirItemSelecionadoParaUso(i);
+        }},
+        {Propriedade::TalismaForca, [](Personagem* p, Item* i, bool* turno) {
+            p->alterarAtributoEstatico(TipoAtributo::Forca, 5);
+            p->alterarAtributoEstatico(TipoAtributo::Inteligencia, -5);
+            std::cout << "\n[SISTEMA]: " << i->obterNomeItem() << " consumido!\n";
+            p->obterInventario()->removerItem(i);
+            if (turno) *turno = true;
+        }},
+        {Propriedade::TalismaInteligencia, [](Personagem* p, Item* i, bool* turno) {
+            p->alterarAtributoEstatico(TipoAtributo::Inteligencia, 5);
+            p->alterarAtributoEstatico(TipoAtributo::Forca, -5);
+            std::cout << "\n[SISTEMA]: " << i->obterNomeItem() << " consumido!\n";
+            p->obterInventario()->removerItem(i);
+            if (turno) *turno = true;
+        }},
+        {Propriedade::TalismaDestreza, [](Personagem* p, Item* i, bool* turno) {
+            p->alterarAtributoEstatico(TipoAtributo::Destreza, 5);
+            p->alterarAtributoEstatico(TipoAtributo::Sabedoria, -5);
+            std::cout << "\n[SISTEMA]: " << i->obterNomeItem() << " consumido!\n";
+            p->obterInventario()->removerItem(i);
+            if (turno) *turno = true;
+        }},
+        {Propriedade::TalismaSabedoria, [](Personagem* p, Item* i, bool* turno) {
+            p->alterarAtributoEstatico(TipoAtributo::Sabedoria, 5);
+            p->alterarAtributoEstatico(TipoAtributo::Destreza, -5);
+            std::cout << "\n[SISTEMA]: " << i->obterNomeItem() << " consumido!\n";
+            p->obterInventario()->removerItem(i);
+            if (turno) *turno = true;
+        }}
+    };
+}
 
 void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turnoFoiConsumido)
 {
     if (jogadorAtual == nullptr) return;
-    int larguraDoTerminal = Menu::obterLarguraDoTerminalEmColunas();
+    int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
     std::string codigoDoItemDigitado;
     do 
     {
         TelaInventario::exibir(jogadorAtual);
         std::string mensagemDoPrompt = "Digite o codigo do item ou [0] VOLTAR: ";
-        int espacosParaCentralizarMensagem = (larguraDoTerminal - (int)mensagemDoPrompt.length()) / 2;
-        std::cout << "\n" << std::string(espacosParaCentralizarMensagem > 0 ? espacosParaCentralizarMensagem : 0, ' ') << mensagemDoPrompt;
+        int espacos = std::max(0, (larguraDoTerminal - static_cast<int>(mensagemDoPrompt.length())) / 2);
+        std::cout << "\n" << std::string(espacos, ' ') << mensagemDoPrompt;
         std::cin >> codigoDoItemDigitado;
 
         if (codigoDoItemDigitado != "0")
@@ -30,132 +97,65 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
 
             if (itemEncontrado)
             {
-                bool ehEquipamento = (itemEncontrado->obterTipo() == TipoEquipamento::ARMA || 
-                                      itemEncontrado->obterTipo() == TipoEquipamento::ESCUDO || 
-                                      itemEncontrado->obterTipo() == TipoEquipamento::ARMADURA);
-                bool isPocao = itemEncontrado->temPropriedade(Propriedade::ConsumivelCura);
-                bool isBuff = itemEncontrado->temPropriedade(Propriedade::ConsumivelBuff);
-                bool isDebuff = itemEncontrado->temPropriedade(Propriedade::ConsumivelDebuffLentidao) || itemEncontrado->temPropriedade(Propriedade::ConsumivelDebuffFraqueza);
-                bool isTalisma = itemEncontrado->temPropriedade(Propriedade::TalismaForca) || itemEncontrado->temPropriedade(Propriedade::TalismaInteligencia) || 
-                                 itemEncontrado->temPropriedade(Propriedade::TalismaDestreza) || itemEncontrado->temPropriedade(Propriedade::TalismaSabedoria);
-
-                if (isPocao || isBuff || isDebuff || isTalisma || itemEncontrado == jogadorAtual->obterArma() || itemEncontrado == jogadorAtual->obterEscudo() || itemEncontrado == jogadorAtual->obterArmadura() || ehEquipamento)
-                {
-                    if (turnoFoiConsumido && *turnoFoiConsumido) 
-                    {
-                        std::cout << "\n[SISTEMA]: Voce ja usou um item neste turno!\n";
-                        Menu::aguardarPressionamentoDeEnter();
-                        continue;
-                    }
-
-                    if (isDebuff) 
-                    {
-                        if (turnoFoiConsumido) 
-                        {
-                            jogadorAtual->definirItemSelecionadoParaUso(itemEncontrado);
-                            break; // Sai do inventario para abrir o alvo
-                        } 
-                        else 
-                        {
-                            std::cout << "\n[SISTEMA]: Frascos de debuff so podem ser usados em combate!\n";
-                            Menu::aguardarPressionamentoDeEnter();
-                            continue;
-                        }
-                    }
-                    else if (isBuff) 
-                    {
-                        if (!turnoFoiConsumido) 
-                        {
-                            std::cout << "\n[SISTEMA]: Pocoes de buff so podem ser usadas em combate!\n";
-                            Menu::aguardarPressionamentoDeEnter();
-                            continue;
-                        }
-
-                        std::string nomeDoItemEncontrado = itemEncontrado->obterNomeItem();
-                        jogadorAtual->adicionarEfeito(std::make_unique<EfeitoBuffAtributos>(2));
-                        jogadorAtual->definirMultiplicador(1.5);
-                        jogadorAtual->obterInventario()->removerItem(nomeDoItemEncontrado);
-                        std::cout << "\n[SISTEMA]: " << nomeDoItemEncontrado << " consumida! Atributos ampliados em 1.5x por 2 turnos!\n";
-                    }
-                    else if (isTalisma)
-                    {
-                        std::string nomeTalisma = itemEncontrado->obterNomeItem();
-
-                        if (itemEncontrado->temPropriedade(Propriedade::TalismaForca))
-                        {
-                            jogadorAtual->alterarAtributoEstatico(TipoAtributo::Forca, 5);
-                            jogadorAtual->alterarAtributoEstatico(TipoAtributo::Inteligencia, -5);
-                        }
-                        else if (itemEncontrado->temPropriedade(Propriedade::TalismaInteligencia))
-                        {
-                            jogadorAtual->alterarAtributoEstatico(TipoAtributo::Inteligencia, 5);
-                            jogadorAtual->alterarAtributoEstatico(TipoAtributo::Forca, -5);
-                        }
-                        else if (itemEncontrado->temPropriedade(Propriedade::TalismaDestreza))
-                        {
-                            jogadorAtual->alterarAtributoEstatico(TipoAtributo::Destreza, 5);
-                            jogadorAtual->alterarAtributoEstatico(TipoAtributo::Sabedoria, -5);
-                        }
-                        else if (itemEncontrado->temPropriedade(Propriedade::TalismaSabedoria))
-                        {
-                            jogadorAtual->alterarAtributoEstatico(TipoAtributo::Sabedoria, 5);
-                            jogadorAtual->alterarAtributoEstatico(TipoAtributo::Destreza, -5);
-                        }
-
-                        std::cout << "\n[SISTEMA]: " << nomeTalisma << " consumido!\n";
-                        jogadorAtual->obterInventario()->removerItem(nomeTalisma);
-                    }
-                    else if (isPocao) 
-                    {
-                        if (jogadorAtual->obterVida() >= jogadorAtual->obterVidaMaxima()) 
-                        {
-                            std::cout << "\n[SISTEMA]: Sua vida ja esta cheia!\n";
-                            Menu::aguardarPressionamentoDeEnter();
-                            continue;
-                        }
-
-                        std::string nomeDoItemEncontrado = itemEncontrado->obterNomeItem(); 
-                        int quantidadeDeCura = static_cast<int>(jogadorAtual->obterVidaMaxima() * 0.30);
-                        
-                        jogadorAtual->modificarVida(quantidadeDeCura); 
-                        jogadorAtual->obterInventario()->removerItem(nomeDoItemEncontrado);
-                        
-                        std::cout << "\n[SISTEMA]: " << nomeDoItemEncontrado << " usada! +" << quantidadeDeCura << " HP.\n";
-                    } 
-                    else if (itemEncontrado == jogadorAtual->obterArma()) 
-                    {
-                        jogadorAtual->desequiparArma();
-                        std::cout << "\n[SISTEMA]: " << itemEncontrado->obterNomeItem() << " desequipado(a)!\n";
-                    } 
-                    else if (itemEncontrado == jogadorAtual->obterEscudo()) 
-                    {
-                        jogadorAtual->desequiparEscudo();
-                        std::cout << "\n[SISTEMA]: " << itemEncontrado->obterNomeItem() << " desequipado(a)!\n";
-                    } 
-                    else if (itemEncontrado == jogadorAtual->obterArmadura()) 
-                    {
-                        jogadorAtual->desequiparArmadura();
-                        std::cout << "\n[SISTEMA]: " << itemEncontrado->obterNomeItem() << " desequipado(a)!\n";
-                    } 
-                    else 
-                    {
-                        jogadorAtual->equiparItem(itemEncontrado);
-                        std::cout << "\n[SISTEMA]: " << itemEncontrado->obterNomeItem() << " equipado(a)!\n";
-                    }
-                    
-                    if (turnoFoiConsumido) 
-                    {
-                        *turnoFoiConsumido = true;
-                        std::cout << "[SISTEMA]: Turno gasto usando um consumivel...\n";
-                    }
-                    Menu::aguardarPressionamentoDeEnter();
-                }
-                else 
-                {
-                    std::cout << "\n[SISTEMA]: Este item nao pode ser usado " << (turnoFoiConsumido ? "em combate!" : "fora de combate!") << "\n";
-                    Menu::aguardarPressionamentoDeEnter();
+                processarUsoDeItem(jogadorAtual, itemEncontrado, turnoFoiConsumido);
+                if (turnoFoiConsumido && *turnoFoiConsumido) {
+                    break;
                 }
             }
         }
-    } while (codigoDoItemDigitado != "0");
+    } while (codigoDoItemDigitado != "0" && !(turnoFoiConsumido && *turnoFoiConsumido));
+}
+
+void InventarioCombate::processarUsoDeItem(Personagem* jogadorAtual, Item* itemEncontrado, bool* turnoFoiConsumido)
+{
+    if (turnoFoiConsumido && *turnoFoiConsumido) 
+    {
+        std::cout << "\n[SISTEMA]: Voce ja usou um item neste turno!\n";
+        SimplificacoesAparencia::aguardarEnter();
+        return;
+    }
+
+    TipoEquipamento tipoDoItem = itemEncontrado->obterTipo();
+    if (tipoDoItem == TipoEquipamento::ARMA || tipoDoItem == TipoEquipamento::ESCUDO || tipoDoItem == TipoEquipamento::ARMADURA)
+    {
+        if (itemEncontrado == jogadorAtual->obterArma()) {
+            jogadorAtual->desequiparArma();
+            std::cout << "\n[SISTEMA]: " << itemEncontrado->obterNomeItem() << " desequipado(a)!\n";
+        } else if (itemEncontrado == jogadorAtual->obterEscudo()) {
+            jogadorAtual->desequiparEscudo();
+            std::cout << "\n[SISTEMA]: " << itemEncontrado->obterNomeItem() << " desequipado(a)!\n";
+        } else if (itemEncontrado == jogadorAtual->obterArmadura()) {
+            jogadorAtual->desequiparArmadura();
+            std::cout << "\n[SISTEMA]: " << itemEncontrado->obterNomeItem() << " desequipado(a)!\n";
+        } else {
+            jogadorAtual->equiparItem(itemEncontrado);
+            std::cout << "\n[SISTEMA]: " << itemEncontrado->obterNomeItem() << " equipado(a)!\n";
+        }
+
+        if (turnoFoiConsumido) {
+            *turnoFoiConsumido = true;
+            std::cout << "[SISTEMA]: Turno gasto alterando um equipamento...\n";
+        }
+        SimplificacoesAparencia::aguardarEnter();
+        return;
+    }
+    
+    // Executa a Estrategia O(1) do dicionario para Consumiveis
+    for (Propriedade prop : itemEncontrado->obterPropriedades())
+    {
+        auto it = estrategiasConsumiveis.find(prop);
+        if (it != estrategiasConsumiveis.end())
+        {
+            it->second(jogadorAtual, itemEncontrado, turnoFoiConsumido);
+            
+            // Se o item for Debuff (que seta o ponteiro para pedir alvo), ignorar enter
+            if (!jogadorAtual->obterItemSelecionadoParaUso()) {
+                SimplificacoesAparencia::aguardarEnter();
+            }
+            return;
+        }
+    }
+
+    std::cout << "\n[SISTEMA]: Este item nao pode ser usado " << (turnoFoiConsumido ? "em combate!" : "fora de combate!") << "\n";
+    SimplificacoesAparencia::aguardarEnter();
 }

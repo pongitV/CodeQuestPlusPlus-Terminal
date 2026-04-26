@@ -2,9 +2,9 @@
 #include <iostream>
 #include <cstdlib>
 #include "../Sistema/Personagem.h"
-#include "../Inventario/Item.h"
-#include "../Inventario/Arma.h"
-#include "../Inventario/Material.h"
+#include "../Inventario/FabricaDeItens.h"
+#include "../Sistema/SimplificacoesAparencia.h"
+#include "ControleDeDrops.h"
 
 std::string RacaGoblin::obterNomeRaca() const { return "Goblin"; }
 Atributos RacaGoblin::obterAtributosRaca() const { return { -40, 10, 15, 5, 5, 0, 0 }; }
@@ -13,7 +13,7 @@ std::string RacaGoblin::obterDescricaoHabilidadeRaca() const { return "Monstros 
 
 std::vector<std::unique_ptr<Item>> RacaGoblin::obterEquipamentoRaca() const {
     std::vector<std::unique_ptr<Item>> equipamentos;
-    equipamentos.push_back(std::make_unique<Arma>("Adaga artesanal de pedra", 8, 0));
+    equipamentos.push_back(FabricaDeItens::criarItem("Adaga artesanal de pedra"));
     return equipamentos;
 }
 
@@ -59,27 +59,22 @@ void RacaGoblin::realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, st
 {
     int xpDrop = 40;
     int ouroDrop = 20;
-    jogadorAtual->ganharXp(xpDrop);
-    jogadorAtual->ganharOuro(ouroDrop);
-    xpTotal += xpDrop;
-    ouroTotal += ouroDrop;
-    
-    std::cout << "\033[43m+" << ouroDrop << "G\033[0m \033[44m+" << xpDrop << " XP\033[0m\n";
+    ControleDeDrops::relatarEProcessarXpOuro(jogadorAtual, xpDrop, ouroDrop, ouroTotal, xpTotal);
 
     if (inimigo->obterArma() && inimigo->obterArma()->obterNomeItem() == "Adaga artesanal de pedra") 
     {
         if ((std::rand() % 100) < 65) 
         {
-            jogadorAtual->obterInventario()->adicionarItem(std::make_unique<Arma>("Adaga artesanal de pedra", 5, 0));
-            std::cout << "\033[37m+1x Adaga artesanal de pedra\033[0m\n";
+            jogadorAtual->obterInventario()->adicionarItem(FabricaDeItens::criarItem("Adaga artesanal de pedra"));
+            ControleDeDrops::relatarDropItem("Adaga artesanal de pedra", 1);
             itensObtidos.push_back("Adaga artesanal de pedra");
         }
     }
     
     int qtdDentes = (std::rand() % 5) + 4;
     for (int i = 0; i < qtdDentes; ++i) {
-        jogadorAtual->obterInventario()->adicionarItem(std::make_unique<Material>("Dente de goblin"));
+        jogadorAtual->obterInventario()->adicionarItem(FabricaDeItens::criarItem("Dente de goblin"));
         itensObtidos.push_back("Dente de goblin");
     }
-    std::cout << "\033[37m+" << qtdDentes << "x Dente de goblin\033[0m\n";
+    ControleDeDrops::relatarDropItem("Dente de goblin", qtdDentes);
 }
