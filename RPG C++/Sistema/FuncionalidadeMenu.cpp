@@ -7,6 +7,7 @@
 #include <map> 
 #include <chrono>
 #include <thread>
+#include <fstream>
 
 #ifdef _WIN32
     #include <windows.h>
@@ -96,11 +97,44 @@ std::unique_ptr<Personagem> Menu::menuPrincipal()
         if (escolha == "1") {
             return iniciarCriacaoDePersonagem();
         } else if (escolha == "2" && temSave) {
-            auto jogador = GerenciadorDeSave::carregarJogo();
-            if (jogador) {
-                std::cout << "\n" << mE << "[SISTEMA]: Jogo carregado com sucesso!\n";
-                SimplificacoesAparencia::aguardarEnter();
-                return jogador;
+            auto saves = GerenciadorDeSave::listarSaves();
+            if (saves.empty()) continue;
+
+            SimplificacoesAparencia::limparTela();
+            exibirLogoDoJogo("CARREGAR JOGO");
+            std::cout << "\n" << mE << "Selecione o save que deseja carregar:\n\n";
+            
+            for (size_t i = 0; i < saves.size(); ++i) {
+                std::ifstream arquivoSave(saves[i]);
+                if (arquivoSave.is_open()) {
+                    std::string nome, racaStr, classeStr;
+                    std::getline(arquivoSave, nome);
+                    std::getline(arquivoSave, racaStr);
+                    std::getline(arquivoSave, classeStr);
+                    int nivel;
+                    arquivoSave >> nivel;
+                    std::cout << mE << "[" << i + 1 << "] " << nome << " | Nv " << nivel << " | " << classeStr << " | " << racaStr << "\n";
+                } else {
+                    std::string nomeExibicao = saves[i].substr(5, saves[i].size() - 9);
+                    std::cout << mE << "[" << i + 1 << "] " << nomeExibicao << "\n";
+                }
+            }
+            std::cout << "\n" << mE << "[0] Voltar\n\n";
+            std::cout << mE << "Escolha: ";
+            
+            int escolhaSave;
+            if (!(std::cin >> escolhaSave)) { std::cin.clear(); std::cin.ignore(1000, '\n'); continue; }
+            
+            if (escolhaSave > 0 && escolhaSave <= (int)saves.size()) {
+                auto jogador = GerenciadorDeSave::carregarJogo(saves[escolhaSave - 1]);
+                if (jogador) {
+                    std::cout << "\n" << mE << "[SISTEMA]: Jogo carregado com sucesso!\n";
+                    SimplificacoesAparencia::aguardarEnter();
+                    return jogador;
+                } else {
+                    std::cout << "\n" << mE << "[ERRO]: Falha ao carregar o save!\n";
+                    SimplificacoesAparencia::aguardarEnter();
+                }
             }
         } else if (escolha == "0") {
             return nullptr;

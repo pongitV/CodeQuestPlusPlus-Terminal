@@ -14,15 +14,30 @@
 #include "../Inimigos/Bestiario.h"
 #include <fstream>
 #include <iostream>
+#include <filesystem>
 
 bool GerenciadorDeSave::saveExiste() {
-    std::ifstream arquivo("save.txt");
-    return arquivo.good();
+    return !listarSaves().empty();
+}
+
+std::vector<std::string> GerenciadorDeSave::listarSaves() {
+    std::vector<std::string> saves;
+    for (const auto& entry : std::filesystem::directory_iterator(".")) {
+        if (entry.is_regular_file()) {
+            std::string filename = entry.path().filename().string();
+            // Verifica se começa com "save_" e termina com ".txt"
+            if (filename.find("save_") == 0 && filename.size() >= 4 && filename.substr(filename.size() - 4) == ".txt") {
+                saves.push_back(filename);
+            }
+        }
+    }
+    return saves;
 }
 
 void GerenciadorDeSave::salvarJogo(Personagem* jogador) {
     if (!jogador) return;
-    std::ofstream arquivo("save.txt");
+    std::string nomeArquivo = "save_" + jogador->obterNome() + ".txt";
+    std::ofstream arquivo(nomeArquivo);
     if (!arquivo.is_open()) return;
 
     arquivo << jogador->obterNome() << "\n";
@@ -49,8 +64,8 @@ void GerenciadorDeSave::salvarJogo(Personagem* jogador) {
     arquivo.close();
 }
 
-std::unique_ptr<Personagem> GerenciadorDeSave::carregarJogo() {
-    std::ifstream arquivo("save.txt");
+std::unique_ptr<Personagem> GerenciadorDeSave::carregarJogo(const std::string& nomeArquivo) {
+    std::ifstream arquivo(nomeArquivo);
     if (!arquivo.is_open()) return nullptr;
 
     std::string nome, racaStr, classeStr;
