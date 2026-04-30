@@ -145,7 +145,7 @@ namespace {
                 int preco = 10;
                 if (jogadorAtual->obterInventario()->obterOuro() >= preco) {
                     jogadorAtual->obterInventario()->adicionarOuro(-preco);
-                    jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem("Pocao de Cura (30%)"));
+                    jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem("Pocao de Cura (30%VM)"));
                     std::cout << "\n" << margemMsg << "[SISTEMA]: Pocao de Cura comprada!\n";
                 } else {
                     std::cout << "\n" << margemMsg << "[SISTEMA]: Ouro insuficiente!\n";
