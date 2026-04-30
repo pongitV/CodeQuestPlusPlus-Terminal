@@ -2,10 +2,10 @@
 #include <windows.h>
 
 #include "TransicaoDeMapa.h"
-#include "../Sistema/FuncionalidadeMenu.h"
-#include "../Sistema/SimplificacoesAparencia.h"
+#include "../Gerenciadores/GerenciadorMenu.h"
+#include "../Utilidades/SimplificacoesAparencia.h"
 
-void TransicoesDeMapa::exibirTransicaoParaFloresta()
+void TransicaoDeMapa::exibirTransicaoParaFloresta()
 {
     SimplificacoesAparencia::limparTela();
 
@@ -75,7 +75,7 @@ void TransicoesDeMapa::exibirTransicaoParaFloresta()
     Sleep(3000); 
 }
 
-void TransicoesDeMapa::exibirTransicaoParaVila()
+void TransicaoDeMapa::exibirTransicaoParaVila()
 {
     SimplificacoesAparencia::limparTela();
 

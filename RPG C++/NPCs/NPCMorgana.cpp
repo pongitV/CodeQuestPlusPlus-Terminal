@@ -5,20 +5,20 @@
 #include <algorithm>
 
 #include "NPCMorgana.h"
-#include "../Sistema/FuncionalidadeMenu.h"
+#include "../Gerenciadores/GerenciadorMenu.h"
 #include "../Inventario/Item.h"
-#include "../Inventario/FabricaDeItens.h"
-#include "../Interfaces/TelaInventario.h"
-#include "../Sistema/SimplificacoesAparencia.h"
-#include "../Inventario/Arma.h"
+#include "../Inventario/FabricaItens.h"
+#include "../Telas/TelaInventario.h"
+#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Inventario/EquipamentoArma.h"
 
 namespace {
-    void processarEncantamentos(Personagem* jogadorAtual, const std::string& margemMsg);
-    void processarPocoes(Personagem* jogadorAtual, bool isBuff, const std::string& margemMsg);
-    void processarMissaoLabirinto(Personagem* jogadorAtual, const std::string& margemMsg);
+    void processarEncantamentos(SistemaPersonagem* jogadorAtual, const std::string& margemMsg);
+    void processarPocoes(SistemaPersonagem* jogadorAtual, bool isBuff, const std::string& margemMsg);
+    void processarMissaoLabirinto(SistemaPersonagem* jogadorAtual, const std::string& margemMsg);
 }
 
-void NPCMorgana::interagir(Personagem* jogadorAtual)
+void NPCMorgana::interagir(SistemaPersonagem* jogadorAtual)
 {
     int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
     std::string opcaoMorgana;
@@ -69,7 +69,7 @@ void NPCMorgana::interagir(Personagem* jogadorAtual)
 
     do {
         SimplificacoesAparencia::limparTela();
-        Menu::exibirLogoDoJogo("CABANA DA BRUXA");
+        GerenciadorMenu::exibirLogoDoJogo("CABANA DA BRUXA");
         
         int espacosMsg = (larguraDoTerminal - 55) / 2;
         std::string margemMsg(espacosMsg > 0 ? espacosMsg : 0, ' ');
@@ -126,11 +126,11 @@ void NPCMorgana::interagir(Personagem* jogadorAtual)
 }
 
 namespace {
-    void processarEncantamentos(Personagem* jogadorAtual, const std::string& margemMsg) {
+    void processarEncantamentos(SistemaPersonagem* jogadorAtual, const std::string& margemMsg) {
         std::string opcaoEncantar;
         do {
             SimplificacoesAparencia::limparTela();
-            Menu::exibirLogoDoJogo("CABANA - ENCANTAMENTOS");
+            GerenciadorMenu::exibirLogoDoJogo("CABANA - ENCANTAMENTOS");
             std::cout << "\n" << margemMsg << "Escolha um encantamento:\n\n";
             std::cout << margemMsg << "[1] ENCANTAR Arma: Sangramento (40x Dente de Goblin)\n";
             std::cout << margemMsg << "[2] ENCANTAR Arma: Lentidao (5x Nucleo pegajoso)\n";
@@ -168,7 +168,7 @@ namespace {
                 Item* itemEscolhido = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigoArma, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
                 if (!itemEscolhido) { std::cout << "\n[SISTEMA]: Item invalido!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
                 
-                Arma* armaEscolhida = dynamic_cast<Arma*>(itemEscolhido);
+                EquipamentoArma* armaEscolhida = dynamic_cast<EquipamentoArma*>(itemEscolhido);
                 if (!armaEscolhida) { std::cout << "\n[Morgana]: Eu so posso encantar ARMAS com isso!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
                 
                 if (isMagia && armaEscolhida->obterNomeItem().find("Arco recurvo de madeira") == std::string::npos) { std::cout << "\n[Morgana]: Este encantamento so funciona no Arco recurvo de madeira!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
@@ -194,8 +194,8 @@ namespace {
                     size_t pos = nome.find("Arco recurvo de madeira");
                     if (pos != std::string::npos) nome.replace(pos, 23, "Arco recurvo de madeira enfeiticada");
                     int novoDanoMagico = armaEscolhida->obterDanoMagico() + (armaEscolhida->obterDanoFisico() / 2);
-                    auto novoArcoObj = std::make_unique<Arma>(nome, armaEscolhida->obterDanoFisico(), novoDanoMagico);
-                    Arma* novoArco = novoArcoObj.get();
+                    auto novoArcoObj = std::make_unique<EquipamentoArma>(nome, armaEscolhida->obterDanoFisico(), novoDanoMagico);
+                    EquipamentoArma* novoArco = novoArcoObj.get();
                     if (armaEscolhida->possuiEfeitoSangramento()) novoArco->aplicarEfeitoSangramento();
                     if (armaEscolhida->possuiEfeitoLentidao()) novoArco->aplicarEfeitoLentidao();
                     if (armaEscolhida->temPropriedade(Propriedade::Penetrante)) novoArco->adicionarPropriedade(Propriedade::Penetrante);
@@ -225,7 +225,7 @@ namespace {
                 }
                 
                 SimplificacoesAparencia::limparTela();
-                Menu::exibirLogoDoJogo("ENCANTAMENTO SUCESSO");
+                GerenciadorMenu::exibirLogoDoJogo("ENCANTAMENTO SUCESSO");
                 std::vector<std::string> arteCaldeirao = { 
                     "                                         ",
                     "⠀⠀⣤⣤⣤⣀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣠⣤⣤⡀⠀   ",
@@ -254,12 +254,12 @@ namespace {
         } while (opcaoEncantar != "0");
     }
 
-    void processarPocoes(Personagem* jogadorAtual, bool isBuff, const std::string& margemMsg) {
+    void processarPocoes(SistemaPersonagem* jogadorAtual, bool isBuff, const std::string& margemMsg) {
         std::string titulo = isBuff ? "CABANA - POCOES DE BUFF" : "CABANA - FRASCOS DE DEBUFF";
         std::string opcaoCompra;
         do {
             SimplificacoesAparencia::limparTela();
-            Menu::exibirLogoDoJogo(titulo);
+            GerenciadorMenu::exibirLogoDoJogo(titulo);
             std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
 
             if (isBuff) {
@@ -284,7 +284,7 @@ namespace {
                         if (opcaoCompra == "1") nomeItem = "Frasco de Gosma (Debuff)";
                         else if (opcaoCompra == "2") nomeItem = "Frasco de Fraqueza (Debuff)";
                     }
-                    auto novoItem = FabricaDeItens::criarItem(nomeItem);
+                    auto novoItem = FabricaItens::criarItem(nomeItem);
                     if (novoItem) {
                         std::string nomeDoNovoItem = novoItem->obterNomeItem();
                         jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
@@ -298,14 +298,14 @@ namespace {
         } while (opcaoCompra != "0");
     }
 
-    void processarMissaoLabirinto(Personagem* jogadorAtual, const std::string& margemMsg) {
+    void processarMissaoLabirinto(SistemaPersonagem* jogadorAtual, const std::string& margemMsg) {
         int qtdCoracoes = jogadorAtual->obterInventario()->contarItem("Coracao da floresta");
         if (qtdCoracoes >= 3) {
             for (int i = 0; i < 3; ++i) jogadorAtual->obterInventario()->removerItem("Coracao da floresta");
             jogadorAtual->desbloquearLabirinto();
             
             SimplificacoesAparencia::limparTela();
-            Menu::exibirLogoDoJogo("MISSAO CONCLUIDA");
+            GerenciadorMenu::exibirLogoDoJogo("MISSAO CONCLUIDA");
             std::cout << "\n" << margemMsg << "[Morgana]: Ah, perfeitos! Estes coracoes pulsam com uma magia ancestral.\n";
             std::cout << margemMsg << "[Morgana]: Como recompensa, revelarei um segredo... Atrás de mim, ha uma passagem secreta.\n";
             std::cout << margemMsg << "[Morgana]: Use a entrada [^L] para explorar o meu Labirinto Subterraneo.\n";
@@ -313,7 +313,7 @@ namespace {
         }
         else {
             SimplificacoesAparencia::limparTela();
-            Menu::exibirLogoDoJogo("MISSAO");
+            GerenciadorMenu::exibirLogoDoJogo("MISSAO");
             std::cout << "\n" << margemMsg << "[Morgana]: Voce ainda nao possui os 3 Coracoes da floresta que eu pedi.\n";
             std::cout << margemMsg << "[Morgana]: (Voce possui: " << qtdCoracoes << "/3)\n";
             std::cout << margemMsg << "[Morgana]: Eles sao dropados por Abominacoes no Coracao da Arvore.\n";

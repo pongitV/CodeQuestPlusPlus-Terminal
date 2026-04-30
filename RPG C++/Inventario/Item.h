@@ -34,7 +34,7 @@ enum class Propriedade
     TalismaSabedoria
 };
 
-class Personagem;
+class SistemaPersonagem;
 
 class Item 
 {
@@ -62,8 +62,8 @@ public:
     virtual void reduzirDurabilidade(int qtd) {}
     virtual void aumentarDurabilidade(int qtd) {}
     
-    virtual void antesDeCausarDano(Personagem* atacante, Personagem* alvo) {}
-    virtual void aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCausado) {}
+    virtual void antesDeCausarDano(SistemaPersonagem* atacante, SistemaPersonagem* alvo) {}
+    virtual void aoCausarDano(SistemaPersonagem* atacante, SistemaPersonagem* alvo, int danoCausado) {}
     virtual int garantirDanoMinimo(int danoFinal) { return danoFinal; }
 
     virtual int obterPrecoVenda() const { return precoVenda; }

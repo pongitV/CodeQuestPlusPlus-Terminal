@@ -1,6 +1,6 @@
 #pragma once
 
-class TransicoesDeMapa 
+class TransicaoDeMapa 
 {
 public:
     static void exibirTransicaoParaFloresta();

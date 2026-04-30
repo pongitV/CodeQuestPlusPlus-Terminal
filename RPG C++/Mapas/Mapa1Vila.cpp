@@ -8,22 +8,22 @@
 
 #include "Mapa1Vila.h"
 #include "Mapa2Floresta.h"
-#include "../Sistema/FuncionalidadeMenu.h"
-#include "../Sistema/GeradorInimigos.h"
-#include "../Sistema/GerenciadorCombate.h"
+#include "../Gerenciadores/GerenciadorMenu.h"
+#include "../Gerenciadores/GerenciadorInimigos.h"
+#include "../Gerenciadores/GerenciadorCombate.h"
 #include "../Inventario/Item.h"
 #include "../Inventario/InventarioCombate.h"
-#include "../Interfaces/TelaAtributos.h"
-#include "../Interfaces/TelaBestiario.h"
+#include "../Telas/TelaAtributos.h"
+#include "../Telas/TelaBestiario.h"
 #include "../NPCs/NPCBjorn.h"
 #include "../NPCs/NPCFranchesco.h"
-#include "../Inimigos/RacaOrkExilado.h"
+#include "../Inimigos/OrkExilado.h"
 #include "TransicaoDeMapa.h"
-#include "../Sistema/SimplificacoesAparencia.h"
+#include "../Utilidades/SimplificacoesAparencia.h"
 #include "ControleDeMapa.h"
-#include "../Sistema/ControleDeInput.h"
+#include "../Utilidades/ControleDeInput.h"
 
-Mapa::Mapa(Personagem* personagemJogador) :
+Mapa1Vila::Mapa1Vila(SistemaPersonagem* personagemJogador) :
 jogadorAtual(personagemJogador), posicaoXDoJogador(2), posicaoYDoJogador(2), jogadorEstaDentroDeUmSubMapa(false),
 posicaoXSalvaAntesDeEntrarNoSubMapa(0), posicaoYSalvaAntesDeEntrarNoSubMapa(0)
 {
@@ -54,7 +54,7 @@ posicaoXSalvaAntesDeEntrarNoSubMapa(0), posicaoYSalvaAntesDeEntrarNoSubMapa(0)
     };
 }
 
-void Mapa::iniciarLoopDeExploracaoDoMapa()
+void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
 {
     bool exploracaoEstaAtiva = true;
     std::string tituloDoMapaAtual = "VILA INICIAL";
@@ -72,7 +72,7 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
     SetConsoleCursorInfo(manipuladorDoTerminal, &informacoesDoCursor);
 
     SimplificacoesAparencia::limparTela();
-    Menu::exibirLogoDoJogo(tituloDoMapaAtual);
+    GerenciadorMenu::exibirLogoDoJogo(tituloDoMapaAtual);
 
     CONSOLE_SCREEN_BUFFER_INFO informacoesDoBufferDaTela;
     GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
@@ -81,7 +81,7 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
     // Lambda para restaurar a tela apos eventos sem piscar
     auto restaurarTela = [&]() {
         SimplificacoesAparencia::limparTela();
-        Menu::exibirLogoDoJogo(tituloDoMapaAtual);
+        GerenciadorMenu::exibirLogoDoJogo(tituloDoMapaAtual);
         GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
         linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
     };
@@ -97,11 +97,11 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
 
         if (celulaDestinoDoMapa == 'G')
         {
-            ControleDeMapa::processarCombate(jogadorAtual, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, exploracaoEstaAtiva, "ENCONTRO INESPERADO", "Voce encontrou uma horda de Goblins!", GeradorInimigos::criarInimigoGoblin((std::rand() % 3) + 1), proximaPosicaoX, proximaPosicaoY, proximaPosicaoX, 1, larguraDoTerminal, restaurarTela);
+            ControleDeMapa::processarCombate(jogadorAtual, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, exploracaoEstaAtiva, "ENCONTRO INESPERADO", "Voce encontrou uma horda de Goblins!", GerenciadorInimigos::criarInimigoGoblin((std::rand() % 3) + 1), proximaPosicaoX, proximaPosicaoY, proximaPosicaoX, 1, larguraDoTerminal, restaurarTela);
         }
         else if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'C' && !jogadorEstaDentroDeUmSubMapa)
         {
-            ControleDeMapa::entrarSubMapa(matrizDoMapaAtual, matrizDoMapaPrincipalSalva, posicaoXSalvaAntesDeEntrarNoSubMapa, posicaoYSalvaAntesDeEntrarNoSubMapa, posicaoXDoJogador, posicaoYDoJogador, jogadorEstaDentroDeUmSubMapa, tituloDoMapaAtual, matrizDoMapaDaCavernaSalva, cavernaJaFoiVisitada, RacaOrkExilado::obterMapaCaverna(bjornResgatado), 16, 2, "CAVERNA DO ORK", restaurarTela);
+            ControleDeMapa::entrarSubMapa(matrizDoMapaAtual, matrizDoMapaPrincipalSalva, posicaoXSalvaAntesDeEntrarNoSubMapa, posicaoYSalvaAntesDeEntrarNoSubMapa, posicaoXDoJogador, posicaoYDoJogador, jogadorEstaDentroDeUmSubMapa, tituloDoMapaAtual, matrizDoMapaDaCavernaSalva, cavernaJaFoiVisitada, OrkExilado::obterMapaCaverna(bjornResgatado), 16, 2, "CAVERNA DO ORK", restaurarTela);
         }
         else if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'S' && jogadorEstaDentroDeUmSubMapa)
         {
@@ -119,7 +119,7 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
         else if (celulaDestinoDoMapa == 'O' || (celulaDestinoDoMapa == 'm' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX-1] == 'O'))
         {
             int rootX = (celulaDestinoDoMapa == 'O') ? proximaPosicaoX : proximaPosicaoX - 1;
-            ControleDeMapa::processarCombate(jogadorAtual, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, exploracaoEstaAtiva, "ENCONTRO NA CAVERNA", "Voce encontrou um Ork [m]!", GeradorInimigos::criarInimigoOrkExilado(1), proximaPosicaoX, proximaPosicaoY, rootX, 2, larguraDoTerminal, restaurarTela);
+            ControleDeMapa::processarCombate(jogadorAtual, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, exploracaoEstaAtiva, "ENCONTRO NA CAVERNA", "Voce encontrou um Ork [m]!", GerenciadorInimigos::criarInimigoOrkExilado(1), proximaPosicaoX, proximaPosicaoY, rootX, 2, larguraDoTerminal, restaurarTela);
         }
         else if (celulaDestinoDoMapa == 'B' || (celulaDestinoDoMapa == 'n' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX-1] == 'B'))
         {
@@ -127,7 +127,7 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
                 NPCBjorn::interagir(jogadorAtual);
             } else if (tituloDoMapaAtual == "CAVERNA DO ORK") {
                 SimplificacoesAparencia::limparTela();
-                Menu::exibirLogoDoJogo("RESGATE NA CAVERNA");
+                GerenciadorMenu::exibirLogoDoJogo("RESGATE NA CAVERNA");
                 int espacosM = std::max(0, (larguraDoTerminal - 50) / 2);
                 std::string mE(espacosM, ' ');
                 std::cout << "\n" << mE << "[Bjorn]: Pelos deuses, muito obrigado por me salvar!\n";
@@ -146,7 +146,7 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
             if (!bjornResgatado)
             {
                 SimplificacoesAparencia::limparTela();
-                Menu::exibirLogoDoJogo(tituloDoMapaAtual);
+                GerenciadorMenu::exibirLogoDoJogo(tituloDoMapaAtual);
                 int espacosM = std::max(0, (larguraDoTerminal - 60) / 2);
                 std::cout << "\n" << std::string(espacosM, ' ') << "[SISTEMA]: A Forja esta trancada. O ferreiro sumiu...\n";
                 SimplificacoesAparencia::aguardarEnter();
@@ -166,7 +166,7 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
         }
         else if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'F' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+2] == 'l' && !jogadorEstaDentroDeUmSubMapa)
         {
-            TransicoesDeMapa::exibirTransicaoParaFloresta();
+            TransicaoDeMapa::exibirTransicaoParaFloresta();
 
             Mapa2Floresta mapaFloresta(jogadorAtual);
             mapaFloresta.iniciarLoopDeExploracaoDoMapa();
@@ -193,7 +193,7 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
     {
         int larguraDoMapaEmColunas = matrizDoMapaAtual.empty() ? 0 : matrizDoMapaAtual[0].length();
         int espacosParaCentralizarOMapa = (larguraDoTerminal - larguraDoMapaEmColunas) / 2;
-        std::string margemEsquerdaDoMapa(espacosParaCentralizarOMapa > 0 ? espacosParaCentralizarOMapa : 0, ' ');
+        std::string margemEsquerdaDoMapa1Vila(espacosParaCentralizarOMapa > 0 ? espacosParaCentralizarOMapa : 0, ' ');
 
         std::string textoDeControlesDoJogador = "W,A,S,D: Mover | I: Inventario | C: Ficha | B: Bestiario ";
         int espacosParaCentralizarOsControles = (larguraDoTerminal - (int)textoDeControlesDoJogador.length()) / 2;
@@ -206,8 +206,8 @@ void Mapa::iniciarLoopDeExploracaoDoMapa()
 
         for (int y = 0; y < matrizDoMapaAtual.size(); y++)
         {
-            std::string linhaSendoRenderizada = margemEsquerdaDoMapa;
-            linhaSendoRenderizada.reserve(margemEsquerdaDoMapa.size() + matrizDoMapaAtual[y].size() + 20);
+            std::string linhaSendoRenderizada = margemEsquerdaDoMapa1Vila;
+            linhaSendoRenderizada.reserve(margemEsquerdaDoMapa1Vila.size() + matrizDoMapaAtual[y].size() + 20);
             for (int x = 0; x < matrizDoMapaAtual[y].size(); x++)
             {
                 if (x == posicaoXDoJogador && y == posicaoYDoJogador)

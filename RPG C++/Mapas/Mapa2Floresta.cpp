@@ -7,25 +7,25 @@
 #include <utility>
 
 #include "Mapa2Floresta.h"
-#include "../Sistema/FuncionalidadeMenu.h"
+#include "../Gerenciadores/GerenciadorMenu.h"
 #include "../Inventario/Item.h"
-#include "../Inventario/Armadura.h"
+#include "../Inventario/EquipamentoArmadura.h"
 #include "../Inventario/ItemConsumivel.h"
-#include "../Inventario/Material.h"
-#include "../Sistema/GeradorInimigos.h"
+#include "../Inventario/ItemMaterial.h"
+#include "../Gerenciadores/GerenciadorInimigos.h"
 #include "../Inventario/InventarioCombate.h"
-#include "../Interfaces/TelaAtributos.h"
-#include "../Interfaces/TelaBestiario.h"
-#include "../Sistema/GerenciadorCombate.h"
-#include "../Inimigos/RacaFada.h"
-#include "../Inimigos/ClasseInimigoPadrao.h"
+#include "../Telas/TelaAtributos.h"
+#include "../Telas/TelaBestiario.h"
+#include "../Gerenciadores/GerenciadorCombate.h"
+#include "../Inimigos/Fada.h"
+#include "../Inimigos/ClasseBaseInimigo.h"
 #include "../NPCs/NPCMorgana.h"
-#include "../Inimigos/RacaAbominacaoFloresta.h"
+#include "../Inimigos/AbominacaoFloresta.h"
 #include "TransicaoDeMapa.h"
-#include "../Sistema/SimplificacoesAparencia.h"
+#include "../Utilidades/SimplificacoesAparencia.h"
 #include "ControleDeMapa.h"
 
-Mapa2Floresta::Mapa2Floresta(Personagem* personagemJogador) :
+Mapa2Floresta::Mapa2Floresta(SistemaPersonagem* personagemJogador) :
     jogadorAtual(personagemJogador), posicaoXDoJogador(8), posicaoYDoJogador(8),
     jogadorEstaDentroDeUmSubMapa(false),
     posicaoXSalvaAntesDeEntrarNoSubMapa(0), posicaoYSalvaAntesDeEntrarNoSubMapa(0)
@@ -91,7 +91,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
     SetConsoleCursorInfo(manipuladorDoTerminal, &informacoesDoCursor);
 
     SimplificacoesAparencia::limparTela();
-    Menu::exibirLogoDoJogo(tituloDoMapaAtual);
+    GerenciadorMenu::exibirLogoDoJogo(tituloDoMapaAtual);
 
     CONSOLE_SCREEN_BUFFER_INFO informacoesDoBufferDaTela;
     GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
@@ -100,7 +100,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
     // Lambda para restaurar a tela apos eventos
     auto restaurarTela = [&]() {
         SimplificacoesAparencia::limparTela();
-        Menu::exibirLogoDoJogo(tituloDoMapaAtual);
+        GerenciadorMenu::exibirLogoDoJogo(tituloDoMapaAtual);
         GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
         linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
     };
@@ -190,16 +190,16 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
 
         if (celulaDestinoDoMapa == 'S' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX-1] != '^')
         {
-            ControleDeMapa::processarCombate(jogadorAtual, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, exploracaoEstaAtiva, "ENCONTRO PEGAJOSO", "Voce encontrou Slimes selvagens!", GeradorInimigos::criarInimigoSlime((std::rand() % 3) + 1), proximaPosicaoX, proximaPosicaoY, proximaPosicaoX, 1, larguraDoTerminal, restaurarTela);
+            ControleDeMapa::processarCombate(jogadorAtual, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, exploracaoEstaAtiva, "ENCONTRO PEGAJOSO", "Voce encontrou Slimes selvagens!", GerenciadorInimigos::criarInimigoSlime((std::rand() % 3) + 1), proximaPosicaoX, proximaPosicaoY, proximaPosicaoX, 1, larguraDoTerminal, restaurarTela);
         }
         else if (celulaDestinoDoMapa == 'F')
         {
-            ControleDeMapa::processarCombate(jogadorAtual, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, exploracaoEstaAtiva, "ENCONTRO MAGICO", "Voce encontrou Fadas hostis!", GeradorInimigos::criarInimigoFada((std::rand() % 3) + 1), proximaPosicaoX, proximaPosicaoY, proximaPosicaoX, 1, larguraDoTerminal, restaurarTela);
+            ControleDeMapa::processarCombate(jogadorAtual, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, exploracaoEstaAtiva, "ENCONTRO MAGICO", "Voce encontrou Fadas hostis!", GerenciadorInimigos::criarInimigoFada((std::rand() % 3) + 1), proximaPosicaoX, proximaPosicaoY, proximaPosicaoX, 1, larguraDoTerminal, restaurarTela);
         }
         else if (celulaDestinoDoMapa == 'A' || (celulaDestinoDoMapa == 'm' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX-1] == 'A'))
         {
             int rootX = (celulaDestinoDoMapa == 'A') ? proximaPosicaoX : proximaPosicaoX - 1;
-            ControleDeMapa::processarCombate(jogadorAtual, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, exploracaoEstaAtiva, "ENCONTRO BOSS", "Voce encontrou a Abominacao da Floresta!", GeradorInimigos::criarInimigoAbominacaoFloresta(1), proximaPosicaoX, proximaPosicaoY, rootX, 2, larguraDoTerminal, restaurarTela);
+            ControleDeMapa::processarCombate(jogadorAtual, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, exploracaoEstaAtiva, "ENCONTRO BOSS", "Voce encontrou a Abominacao da Floresta!", GerenciadorInimigos::criarInimigoAbominacaoFloresta(1), proximaPosicaoX, proximaPosicaoY, rootX, 2, larguraDoTerminal, restaurarTela);
         }
         else if (celulaDestinoDoMapa == 'M')
         {
@@ -209,7 +209,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
         else if (celulaDestinoDoMapa == 'B' && tituloDoMapaAtual == "LABIRINTO SUBTERRANEO")
         {
             SimplificacoesAparencia::limparTela();
-            Menu::exibirLogoDoJogo("TESOURO ESCONDIDO");
+            GerenciadorMenu::exibirLogoDoJogo("TESOURO ESCONDIDO");
             int mE = (larguraDoTerminal - 40) / 2;
             std::string margem(mE > 0 ? mE : 0, ' ');
             std::cout << "\n" << margem << "[!] Voce encontrou um Baú ancestral!\n";
@@ -239,7 +239,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
                 jogadorAtual->obterInventario()->adicionarItem(std::move(buff));
                 std::cout << margem << "+ 1x " << nomeBuff << "\n";
 
-                jogadorAtual->obterInventario()->adicionarItem(std::make_unique<Material>("Pedra magica de upgrade"));
+                jogadorAtual->obterInventario()->adicionarItem(std::make_unique<ItemMaterial>("Pedra magica de upgrade"));
                 std::cout << margem << "+ 1x Pedra magica de upgrade\n";
 
                 matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX] = ' ';
@@ -257,20 +257,20 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
         }
         else if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'V')
         {
-            TransicoesDeMapa::exibirTransicaoParaVila();
+            TransicaoDeMapa::exibirTransicaoParaVila();
             exploracaoEstaAtiva = false;
             return;
         }
         else if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'T' && !jogadorEstaDentroDeUmSubMapa)
         {
-            ControleDeMapa::entrarSubMapa(matrizDoMapaAtual, matrizDoMapaPrincipalSalva, posicaoXSalvaAntesDeEntrarNoSubMapa, posicaoYSalvaAntesDeEntrarNoSubMapa, posicaoXDoJogador, posicaoYDoJogador, jogadorEstaDentroDeUmSubMapa, tituloDoMapaAtual, matrizDoMapaDoCoracaoDaArvoreSalva, coracaoDaArvoreJaFoiVisitado, RacaAbominacaoFloresta::obterMapaCoracaoDaArvore(), 10, 3, "CORACAO DA ARVORE", restaurarTela);
+            ControleDeMapa::entrarSubMapa(matrizDoMapaAtual, matrizDoMapaPrincipalSalva, posicaoXSalvaAntesDeEntrarNoSubMapa, posicaoYSalvaAntesDeEntrarNoSubMapa, posicaoXDoJogador, posicaoYDoJogador, jogadorEstaDentroDeUmSubMapa, tituloDoMapaAtual, matrizDoMapaDoCoracaoDaArvoreSalva, coracaoDaArvoreJaFoiVisitado, AbominacaoFloresta::obterMapaCoracaoDaArvore(), 10, 3, "CORACAO DA ARVORE", restaurarTela);
             return;
         }
         else if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'L' && jogadorEstaDentroDeUmSubMapa)
         {
             if (!jogadorAtual->obterLabirintoDesbloqueado()) {
                 SimplificacoesAparencia::limparTela();
-                Menu::exibirLogoDoJogo("PASSAGEM BLOQUEADA");
+                GerenciadorMenu::exibirLogoDoJogo("PASSAGEM BLOQUEADA");
                 int espacosM = (larguraDoTerminal - 60) / 2;
                 std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: A passagem esta selada por magia. Fale com Morgana.\n";
                 SimplificacoesAparencia::aguardarEnter();
@@ -343,7 +343,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
         else if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'E' && tituloDoMapaAtual == "LABIRINTO SUBTERRANEO")
         {
             SimplificacoesAparencia::limparTela();
-            Menu::exibirLogoDoJogo("FIM DO LABIRINTO");
+            GerenciadorMenu::exibirLogoDoJogo("FIM DO LABIRINTO");
             int espacosM = (larguraDoTerminal - 60) / 2;
             std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: Voce encontrou a saida! Destino em breve...\n";
             SimplificacoesAparencia::aguardarEnter();

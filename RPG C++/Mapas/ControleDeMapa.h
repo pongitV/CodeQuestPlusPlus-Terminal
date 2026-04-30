@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Sistema/Personagem.h"
+#include "../Sistemas/SistemaPersonagem.h"
 #include <functional>
 #include <string>
 #include <vector>
@@ -11,12 +11,12 @@ class ControleDeMapa
 public:
     // Processa o input de movimento e de menus. 
     // Retorna 'true' se um menu foi aberto e o turno de interacao do mapa deve ser pulado.
-    static bool processarInputEComandos(char tecla, Personagem* jogador, int& proximaPosicaoX, int& proximaPosicaoY, const std::function<void()>& restaurarTela);
+    static bool processarInputEComandos(char tecla, SistemaPersonagem* jogador, int& proximaPosicaoX, int& proximaPosicaoY, const std::function<void()>& restaurarTela);
 
     static void processarCombate(
-        Personagem* jogadorAtual, std::vector<std::string>& matrizDoMapaAtual, 
+        SistemaPersonagem* jogadorAtual, std::vector<std::string>& matrizDoMapaAtual, 
         int& posicaoXDoJogador, int& posicaoYDoJogador, bool& exploracaoEstaAtiva,
-        const std::string& titulo, const std::string& msg, std::vector<std::unique_ptr<Personagem>> inimigos, 
+        const std::string& titulo, const std::string& msg, std::vector<std::unique_ptr<SistemaPersonagem>> inimigos, 
         int px, int py, int rootX, int celulas, int larguraDoTerminal, const std::function<void()>& restaurarTela);
 
     static void entrarSubMapa(

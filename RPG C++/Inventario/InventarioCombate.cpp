@@ -6,19 +6,19 @@
 #include <functional>
 
 #include "InventarioCombate.h"
-#include "../Sistema/Personagem.h"
-#include "../Sistema/Tipos.h"
+#include "../Sistemas/SistemaPersonagem.h"
+#include "../Utilidades/Tipos.h"
 #include "Item.h"
-#include "../Interfaces/TelaInventario.h"
-#include "../Sistema/FuncionalidadeMenu.h"
-#include "../Sistema/SimplificacoesAparencia.h"
+#include "../Telas/TelaInventario.h"
+#include "../Gerenciadores/GerenciadorMenu.h"
+#include "../Utilidades/SimplificacoesAparencia.h"
 
 namespace {
-    using EstrategiaUso = std::function<void(Personagem*, Item*, bool*)>;
+    using EstrategiaUso = std::function<void(SistemaPersonagem*, Item*, bool*)>;
 
     // Dicionario de Estrategias: Mapeia cada propriedade para sua funcao especifica
     std::unordered_map<Propriedade, EstrategiaUso> estrategiasConsumiveis = {
-        {Propriedade::ConsumivelCura, [](Personagem* p, Item* i, bool* turno) {
+        {Propriedade::ConsumivelCura, [](SistemaPersonagem* p, Item* i, bool* turno) {
             if (p->obterVida() >= p->obterVidaMaxima()) {
                 std::cout << "\n[SISTEMA]: Sua vida ja esta cheia!\n";
                 return;
@@ -29,7 +29,7 @@ namespace {
             p->obterInventario()->removerItem(i);
             if (turno) *turno = true;
         }},
-        {Propriedade::ConsumivelBuff, [](Personagem* p, Item* i, bool* turno) {
+        {Propriedade::ConsumivelBuff, [](SistemaPersonagem* p, Item* i, bool* turno) {
             if (!turno) { std::cout << "\n[SISTEMA]: Pocoes de buff so podem ser usadas em combate!\n"; return; }
             p->adicionarEfeito(std::make_unique<EfeitoBuffAtributos>(2));
             p->definirMultiplicador(1.5);
@@ -37,36 +37,36 @@ namespace {
             p->obterInventario()->removerItem(i);
             *turno = true;
         }},
-        {Propriedade::ConsumivelDebuffLentidao, [](Personagem* p, Item* i, bool* turno) {
+        {Propriedade::ConsumivelDebuffLentidao, [](SistemaPersonagem* p, Item* i, bool* turno) {
             if (!turno) { std::cout << "\n[SISTEMA]: Frascos de debuff so podem ser usados em combate!\n"; return; }
             p->definirItemSelecionadoParaUso(i);
         }},
-        {Propriedade::ConsumivelDebuffFraqueza, [](Personagem* p, Item* i, bool* turno) {
+        {Propriedade::ConsumivelDebuffFraqueza, [](SistemaPersonagem* p, Item* i, bool* turno) {
             if (!turno) { std::cout << "\n[SISTEMA]: Frascos de debuff so podem ser usados em combate!\n"; return; }
             p->definirItemSelecionadoParaUso(i);
         }},
-        {Propriedade::TalismaForca, [](Personagem* p, Item* i, bool* turno) {
+        {Propriedade::TalismaForca, [](SistemaPersonagem* p, Item* i, bool* turno) {
             p->alterarAtributoEstatico(TipoAtributo::Forca, 5);
             p->alterarAtributoEstatico(TipoAtributo::Inteligencia, -5);
             std::cout << "\n[SISTEMA]: " << i->obterNomeItem() << " consumido!\n";
             p->obterInventario()->removerItem(i);
             if (turno) *turno = true;
         }},
-        {Propriedade::TalismaInteligencia, [](Personagem* p, Item* i, bool* turno) {
+        {Propriedade::TalismaInteligencia, [](SistemaPersonagem* p, Item* i, bool* turno) {
             p->alterarAtributoEstatico(TipoAtributo::Inteligencia, 5);
             p->alterarAtributoEstatico(TipoAtributo::Forca, -5);
             std::cout << "\n[SISTEMA]: " << i->obterNomeItem() << " consumido!\n";
             p->obterInventario()->removerItem(i);
             if (turno) *turno = true;
         }},
-        {Propriedade::TalismaDestreza, [](Personagem* p, Item* i, bool* turno) {
+        {Propriedade::TalismaDestreza, [](SistemaPersonagem* p, Item* i, bool* turno) {
             p->alterarAtributoEstatico(TipoAtributo::Destreza, 5);
             p->alterarAtributoEstatico(TipoAtributo::Sabedoria, -5);
             std::cout << "\n[SISTEMA]: " << i->obterNomeItem() << " consumido!\n";
             p->obterInventario()->removerItem(i);
             if (turno) *turno = true;
         }},
-        {Propriedade::TalismaSabedoria, [](Personagem* p, Item* i, bool* turno) {
+        {Propriedade::TalismaSabedoria, [](SistemaPersonagem* p, Item* i, bool* turno) {
             p->alterarAtributoEstatico(TipoAtributo::Sabedoria, 5);
             p->alterarAtributoEstatico(TipoAtributo::Destreza, -5);
             std::cout << "\n[SISTEMA]: " << i->obterNomeItem() << " consumido!\n";
@@ -76,7 +76,7 @@ namespace {
     };
 }
 
-void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turnoFoiConsumido)
+void InventarioCombate::gerenciarInventario(SistemaPersonagem* jogadorAtual, bool* turnoFoiConsumido)
 {
     if (jogadorAtual == nullptr) return;
     int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
@@ -106,7 +106,7 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
     } while (codigoDoItemDigitado != "0" && !(turnoFoiConsumido && *turnoFoiConsumido));
 }
 
-void InventarioCombate::processarUsoDeItem(Personagem* jogadorAtual, Item* itemEncontrado, bool* turnoFoiConsumido)
+void InventarioCombate::processarUsoDeItem(SistemaPersonagem* jogadorAtual, Item* itemEncontrado, bool* turnoFoiConsumido)
 {
     if (turnoFoiConsumido && *turnoFoiConsumido) 
     {

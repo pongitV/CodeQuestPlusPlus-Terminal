@@ -1,7 +1,7 @@
 #include <vector>
 #include <string>
 
-#include "../Sistema/Personagem.h"
+#include "../Sistemas/SistemaPersonagem.h"
 
 #pragma once
 
@@ -11,7 +11,7 @@ private:
     std::vector<std::string> matrizDoMapaAtual;
     int posicaoXDoJogador;
     int posicaoYDoJogador;
-    Personagem* jogadorAtual;
+    SistemaPersonagem* jogadorAtual;
     
     std::vector<std::string> matrizDoMapaPrincipalSalva;
     int posicaoXSalvaAntesDeEntrarNoSubMapa;
@@ -21,6 +21,6 @@ private:
     std::vector<std::string> matrizDoMapaDoCoracaoDaArvoreSalva;
 
 public:
-    Mapa2Floresta(Personagem* personagemJogador);
+    Mapa2Floresta(SistemaPersonagem* personagemJogador);
     void iniciarLoopDeExploracaoDoMapa();
 };

@@ -1,15 +1,15 @@
-#include "../Sistema/Personagem.h"
+#include "../Sistemas/SistemaPersonagem.h"
 #include "../Inventario/Inventario.h"
 #include "../Inventario/Item.h"
 #include <memory>
 #include <functional>
 #include <iostream>
 #include <algorithm>
-#include "../Sistema/Tipos.h"
+#include "../Utilidades/Tipos.h"
 
 #pragma once
 
-class Personagem;
+class SistemaPersonagem;
 class Item;
 
 class ClasseBase 
@@ -32,7 +32,7 @@ public:
     // HABILIDADE DA CLASSE
     virtual std::string obterNomeHabilidadeClasse() const = 0;
     virtual std::string obterDescricaoHabilidadeClasse() const = 0;
-    virtual void usarHabilidadeClasse(Personagem* usuario, std::vector<Personagem*>& inimigos) = 0;
+    virtual void usarHabilidadeClasse(SistemaPersonagem* usuario, std::vector<SistemaPersonagem*>& inimigos) = 0;
     virtual TipoAtaque obterTipoAtaque() const = 0;
     virtual bool habilidadeConsomeTurno() const = 0;
 
@@ -44,7 +44,7 @@ public:
     virtual int reverterPenalidadeLentidaoPassivaArqueiro(int destrezaAtual) const { return destrezaAtual * 2; }
 
     // PROCESSAMENTO DE DANO (POLIMORFISMO)
-    virtual void executarAtaqueComPassivaDaClasse(Personagem* atacante, Personagem* defensor, int danoBase, int danoPerfurante, std::vector<std::unique_ptr<Personagem>>& inimigos, std::function<void(Personagem*, Personagem*, int, int)> aplicarDano) {
+    virtual void executarAtaqueComPassivaDaClasse(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, int danoPerfurante, std::vector<std::unique_ptr<SistemaPersonagem>>& inimigos, std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)> aplicarDano) {
         bool isAtacanteJogador = true;
         for (const auto& ini : inimigos) {
             if (ini.get() == atacante) { isAtacanteJogador = false; break; }

@@ -1,13 +1,13 @@
 #pragma once
 
-class Personagem;
+class SistemaPersonagem;
 class Item;
 
 class InventarioCombate
 {
 public:
-    static void gerenciarInventario(Personagem* jogadorAtual, bool* turnoFoiConsumido = nullptr);
+    static void gerenciarInventario(SistemaPersonagem* jogadorAtual, bool* turnoFoiConsumido = nullptr);
 
 private:
-    static void processarUsoDeItem(Personagem* jogadorAtual, Item* itemEncontrado, bool* turnoFoiConsumido);
+    static void processarUsoDeItem(SistemaPersonagem* jogadorAtual, Item* itemEncontrado, bool* turnoFoiConsumido);
 };

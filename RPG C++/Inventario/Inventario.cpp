@@ -5,8 +5,8 @@
 #include "Inventario.h"
 #include "Item.h"
 #include "ItemConsumivel.h"
-#include "../Sistema/FuncionalidadeMenu.h"
-#include "../Sistema/SimplificacoesAparencia.h"
+#include "../Gerenciadores/GerenciadorMenu.h"
+#include "../Utilidades/SimplificacoesAparencia.h"
 
 Inventario::Inventario() : quantidadeDeOuro(0) {}
 

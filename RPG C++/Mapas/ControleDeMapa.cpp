@@ -1,13 +1,13 @@
 #include "ControleDeMapa.h"
 #include "../Inventario/InventarioCombate.h"
-#include "../Interfaces/TelaAtributos.h"
-#include "../Interfaces/TelaBestiario.h"
-#include "../Sistema/FuncionalidadeMenu.h"
-#include "../Sistema/SimplificacoesAparencia.h"
-#include "../Sistema/GerenciadorCombate.h"
+#include "../Telas/TelaAtributos.h"
+#include "../Telas/TelaBestiario.h"
+#include "../Gerenciadores/GerenciadorMenu.h"
+#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Gerenciadores/GerenciadorCombate.h"
 #include <iostream>
 
-bool ControleDeMapa::processarInputEComandos(char tecla, Personagem* jogador, int& proximaPosicaoX, int& proximaPosicaoY, const std::function<void()>& restaurarTela)
+bool ControleDeMapa::processarInputEComandos(char tecla, SistemaPersonagem* jogador, int& proximaPosicaoX, int& proximaPosicaoY, const std::function<void()>& restaurarTela)
 {
     // Movimentação (Não abre menus, portanto retorna falso)
     if (tecla == 'w' || tecla == 'W' || tecla == 72) { proximaPosicaoY--; return false; }
@@ -38,13 +38,13 @@ bool ControleDeMapa::processarInputEComandos(char tecla, Personagem* jogador, in
 }
 
 void ControleDeMapa::processarCombate(
-    Personagem* jogadorAtual, std::vector<std::string>& matrizDoMapaAtual, 
+    SistemaPersonagem* jogadorAtual, std::vector<std::string>& matrizDoMapaAtual, 
     int& posicaoXDoJogador, int& posicaoYDoJogador, bool& exploracaoEstaAtiva,
-    const std::string& titulo, const std::string& msg, std::vector<std::unique_ptr<Personagem>> inimigos, 
+    const std::string& titulo, const std::string& msg, std::vector<std::unique_ptr<SistemaPersonagem>> inimigos, 
     int px, int py, int rootX, int celulas, int larguraDoTerminal, const std::function<void()>& restaurarTela)
 {
     SimplificacoesAparencia::limparTela();
-    Menu::exibirLogoDoJogo(titulo);
+    GerenciadorMenu::exibirLogoDoJogo(titulo);
     int espacosM = std::max(0, (larguraDoTerminal - static_cast<int>(msg.length())) / 2);
     std::string mE(espacosM, ' ');
     std::cout << "\n" << mE << "[!] " << msg << "\n";
@@ -52,7 +52,7 @@ void ControleDeMapa::processarCombate(
 
     int opcao;
     if (std::cin >> opcao && opcao == 1) {
-        SistemaRPG combate(jogadorAtual, std::move(inimigos));
+        GerenciadorCombate combate(jogadorAtual, std::move(inimigos));
         combate.iniciarCombate();
 
         if (jogadorAtual->obterVida() > 0) {

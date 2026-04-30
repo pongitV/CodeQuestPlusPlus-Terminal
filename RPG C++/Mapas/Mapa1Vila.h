@@ -1,15 +1,15 @@
 #pragma once
 #include <vector>
 #include <string>
-#include "../Sistema/Personagem.h"
+#include "../Sistemas/SistemaPersonagem.h"
 
-class Mapa 
+class Mapa1Vila 
 {
 private:
     std::vector<std::string> matrizDoMapaAtual;
     int posicaoXDoJogador;
     int posicaoYDoJogador;
-    Personagem* jogadorAtual;
+    SistemaPersonagem* jogadorAtual;
 
     std::vector<std::string> matrizDoMapaPrincipalSalva;
     int posicaoXSalvaAntesDeEntrarNoSubMapa;
@@ -21,7 +21,7 @@ private:
     std::vector<std::string> matrizDoMapaDaLojaSalva;
 
 public:
-    Mapa(Personagem* personagemJogador);
+    Mapa1Vila(SistemaPersonagem* personagemJogador);
     
-    void iniciarLoopDeExploracaoDoMapa();
+    void iniciarLoopDeExploracaoDoMapa1Vila();
 };

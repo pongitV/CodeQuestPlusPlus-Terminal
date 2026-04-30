@@ -5,20 +5,20 @@
 #include <algorithm>
 
 #include "NPCFranchesco.h"
-#include "../Sistema/FuncionalidadeMenu.h"
+#include "../Gerenciadores/GerenciadorMenu.h"
 #include "../Inventario/Item.h"
-#include "../Inventario/FabricaDeItens.h"
-#include "../Interfaces/TelaInventario.h"
-#include "../Sistema/SimplificacoesAparencia.h"
+#include "../Inventario/FabricaItens.h"
+#include "../Telas/TelaInventario.h"
+#include "../Utilidades/SimplificacoesAparencia.h"
 
 namespace {
-    void processarCompraPocoes(Personagem* jogadorAtual, const std::string& margemMsg);
-    void processarCompraTalismas(Personagem* jogadorAtual, const std::string& margemMsg, int larguraDoTerminal);
-    void processarCompraIguarias(Personagem* jogadorAtual, const std::string& margemMsg, int larguraDoTerminal);
-    void processarVendaDeItens(Personagem* jogadorAtual, int larguraDoTerminal);
+    void processarCompraPocoes(SistemaPersonagem* jogadorAtual, const std::string& margemMsg);
+    void processarCompraTalismas(SistemaPersonagem* jogadorAtual, const std::string& margemMsg, int larguraDoTerminal);
+    void processarCompraIguarias(SistemaPersonagem* jogadorAtual, const std::string& margemMsg, int larguraDoTerminal);
+    void processarVendaDeItens(SistemaPersonagem* jogadorAtual, int larguraDoTerminal);
 }
 
-void NPCFranchesco::interagir(Personagem* jogadorAtual)
+void NPCFranchesco::interagir(SistemaPersonagem* jogadorAtual)
 {
     int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
     std::string opcaoFranchesco;
@@ -70,7 +70,7 @@ void NPCFranchesco::interagir(Personagem* jogadorAtual)
 
     do {
         SimplificacoesAparencia::limparTela();
-        Menu::exibirLogoDoJogo("LOJA AMBULANTE");
+        GerenciadorMenu::exibirLogoDoJogo("LOJA AMBULANTE");
         
         int espacosMsg = (larguraDoTerminal - 55) / 2;
         std::string margemMsg(espacosMsg > 0 ? espacosMsg : 0, ' ');
@@ -127,11 +127,11 @@ void NPCFranchesco::interagir(Personagem* jogadorAtual)
 }
 
 namespace {
-    void processarCompraPocoes(Personagem* jogadorAtual, const std::string& margemMsg) {
+    void processarCompraPocoes(SistemaPersonagem* jogadorAtual, const std::string& margemMsg) {
         std::string opcaoCompra;
         do {
             SimplificacoesAparencia::limparTela();
-            Menu::exibirLogoDoJogo("LOJA - POCOES");
+            GerenciadorMenu::exibirLogoDoJogo("LOJA - POCOES");
             std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
 
             std::cout << margemMsg << "[1] Pocao de Cura (30%VM)                          - 10G\n";
@@ -145,7 +145,7 @@ namespace {
                 int preco = 10;
                 if (jogadorAtual->obterInventario()->obterOuro() >= preco) {
                     jogadorAtual->obterInventario()->adicionarOuro(-preco);
-                    jogadorAtual->obterInventario()->adicionarItem(FabricaDeItens::criarItem("Pocao de Cura (30%)"));
+                    jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem("Pocao de Cura (30%)"));
                     std::cout << "\n" << margemMsg << "[SISTEMA]: Pocao de Cura comprada!\n";
                 } else {
                     std::cout << "\n" << margemMsg << "[SISTEMA]: Ouro insuficiente!\n";
@@ -155,11 +155,11 @@ namespace {
         } while (opcaoCompra != "0");
     }
 
-    void processarCompraTalismas(Personagem* jogadorAtual, const std::string& margemMsg, int larguraDoTerminal) {
+    void processarCompraTalismas(SistemaPersonagem* jogadorAtual, const std::string& margemMsg, int larguraDoTerminal) {
         std::string opcaoCompra;
         do {
             SimplificacoesAparencia::limparTela();
-            Menu::exibirLogoDoJogo("LOJA - TALISMAS");
+            GerenciadorMenu::exibirLogoDoJogo("LOJA - TALISMAS");
             std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
 
             std::cout << margemMsg << "[1] Talisma do Urso (+5 Forca | -5 Int)             - 200G\n";
@@ -183,7 +183,7 @@ namespace {
                     else if (opcaoCompra == "3") nomeTalisma = "Talisma do Leopardo";
                     else if (opcaoCompra == "4") nomeTalisma = "Talisma da Coruja";
                     
-                    auto novoItem = FabricaDeItens::criarItem(nomeTalisma);
+                    auto novoItem = FabricaItens::criarItem(nomeTalisma);
                     if (novoItem) {
                         std::cout << "\n" << margemMsg << "[SISTEMA]: " << novoItem->obterNomeItem() << " comprado!\n";
                         jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
@@ -196,11 +196,11 @@ namespace {
         } while (opcaoCompra != "0");
     }
 
-    void processarCompraIguarias(Personagem* jogadorAtual, const std::string& margemMsg, int larguraDoTerminal) {
+    void processarCompraIguarias(SistemaPersonagem* jogadorAtual, const std::string& margemMsg, int larguraDoTerminal) {
         std::string opcaoCompra;
         do {
             SimplificacoesAparencia::limparTela();
-            Menu::exibirLogoDoJogo("LOJA - IGUARIAS");
+            GerenciadorMenu::exibirLogoDoJogo("LOJA - IGUARIAS");
             std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
 
             std::cout << margemMsg << "[1] Dispositivo de teclas de linguagem desconhecida - 1000G\n";
@@ -214,7 +214,7 @@ namespace {
                 int preco = 1000;
                 if (jogadorAtual->obterInventario()->obterOuro() >= preco) {
                     jogadorAtual->obterInventario()->adicionarOuro(-preco);
-                    jogadorAtual->obterInventario()->adicionarItem(FabricaDeItens::criarItem("Dispositivo de teclas de linguagem desconhecida"));
+                    jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem("Dispositivo de teclas de linguagem desconhecida"));
                     std::cout << "\n" << margemMsg << "[SISTEMA]: Dispositivo misterioso comprado!\n";
                 } else {
                     std::cout << "\n" << margemMsg << "[SISTEMA]: Ouro insuficiente!\n";
@@ -224,7 +224,7 @@ namespace {
         } while (opcaoCompra != "0");
     }
 
-    void processarVendaDeItens(Personagem* jogadorAtual, int larguraDoTerminal) {
+    void processarVendaDeItens(SistemaPersonagem* jogadorAtual, int larguraDoTerminal) {
         std::string codigoVenda;
         do {
             TelaInventario::exibir(jogadorAtual, true);

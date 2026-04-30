@@ -7,14 +7,15 @@
     #include <shlobj.h>   // Necessario para IsUserAnAdmin
 #endif
 
-#include "Sistema/FuncionalidadeMenu.h"
-#include "Sistema/Personagem.h"
-#include "Sistema/SimplificacoesAparencia.h"
+#include "Sistemas/SistemaMenu.h"
+#include "Sistemas/SistemaPersonagem.h"
+#include "Utilidades/SimplificacoesAparencia.h"
 #include "Mapas/Mapa1Vila.h"
 #include "Mapas/Mapa2Floresta.h"
-#include "Sistema/GerenciadorCombate.h"
-#include "Sistema/GeradorInimigos.h"
-#include "Sistema/GerenciadorDeSave.h"
+#include "Gerenciadores/GerenciadorCombate.h"
+#include "Gerenciadores/GerenciadorInimigos.h"
+#include "Gerenciadores/GerenciadorMenu.h"
+#include "Sistemas/SistemaSave.h"
 
 // Funcao para garantir que o jogo rode como Administrador
 void garantirAdmin() 
@@ -50,14 +51,14 @@ int main()
 
     // 3. Inicia o fluxo do jogo
     while (true) {
-        auto jogador{Menu::menuPrincipal()};
+        auto jogador{GerenciadorMenu::menuPrincipal()};
         if (!jogador) break;
 
-        Mapa mapaDoJogo{jogador.get()};
-        mapaDoJogo.iniciarLoopDeExploracaoDoMapa();
+        Mapa1Vila mapaDoJogo{jogador.get()};
+        mapaDoJogo.iniciarLoopDeExploracaoDoMapa1Vila();
         
         if (jogador->obterVida() > 0) {
-            GerenciadorDeSave::salvarJogo(jogador.get());
+            SistemaSave::salvarJogo(jogador.get());
             if (!jogador->obterVoltarProMenu()) break;
         } else {
             break; // Sai do jogo caso tenha morrido em combate e nao tenha pedido para voltar ao menu

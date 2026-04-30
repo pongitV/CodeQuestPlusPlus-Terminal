@@ -7,11 +7,11 @@
 #include <memory>
 
 #include "NPCBjorn.h"
-#include "../Sistema/FuncionalidadeMenu.h"
+#include "../Gerenciadores/GerenciadorMenu.h"
 #include "../Inventario/Item.h"
-#include "../Inventario/FabricaDeItens.h"
-#include "../Interfaces/TelaInventario.h"
-#include "../Sistema/SimplificacoesAparencia.h"
+#include "../Inventario/FabricaItens.h"
+#include "../Telas/TelaInventario.h"
+#include "../Utilidades/SimplificacoesAparencia.h"
 
 namespace {
     std::map<int, std::pair<std::string, bool>> estoqueArmas = {
@@ -28,11 +28,11 @@ namespace {
         {4, {"Traje de Couro e tecido nobre", true}}
     };
     
-    void processarCompraDeEquipamento(Personagem* jogadorAtual, const std::string& margemMsg, bool comprandoArmas);
-    void processarMelhoriaNaBigorna(Personagem* jogadorAtual);
+    void processarCompraDeEquipamento(SistemaPersonagem* jogadorAtual, const std::string& margemMsg, bool comprandoArmas);
+    void processarMelhoriaNaBigorna(SistemaPersonagem* jogadorAtual);
 }
 
-void NPCBjorn::interagir(Personagem* jogadorAtual)
+void NPCBjorn::interagir(SistemaPersonagem* jogadorAtual)
 {
     int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
     std::string opcaoBjorn;
@@ -84,7 +84,7 @@ void NPCBjorn::interagir(Personagem* jogadorAtual)
 
     do {
         SimplificacoesAparencia::limparTela();
-        Menu::exibirLogoDoJogo("FORJA DO BJORN");
+        GerenciadorMenu::exibirLogoDoJogo("FORJA DO BJORN");
         
         int espacosMsg = (larguraDoTerminal - 55) / 2;
         std::string margemMsg(espacosMsg > 0 ? espacosMsg : 0, ' ');
@@ -133,19 +133,19 @@ void NPCBjorn::interagir(Personagem* jogadorAtual)
 }
 
 namespace {
-    void processarCompraDeEquipamento(Personagem* jogadorAtual, const std::string& margemMsg, bool comprandoArmas) {
+    void processarCompraDeEquipamento(SistemaPersonagem* jogadorAtual, const std::string& margemMsg, bool comprandoArmas) {
         auto& estoqueAtual = comprandoArmas ? estoqueArmas : estoqueArmaduras;
         std::string tituloLoja = comprandoArmas ? "FORJA - ARMAS" : "FORJA - ARMADURAS";
 
         std::string opcaoCompra;
         do {
             SimplificacoesAparencia::limparTela();
-            Menu::exibirLogoDoJogo(tituloLoja);
+            GerenciadorMenu::exibirLogoDoJogo(tituloLoja);
             std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
             for (auto const& [id, par] : estoqueAtual) {
                 std::string preco = "40G";
                 std::string status = par.second ? "Em Estoque" : "ESGOTADO";
-                std::unique_ptr<Item> tempItem = FabricaDeItens::criarItem(par.first);
+                std::unique_ptr<Item> tempItem = FabricaItens::criarItem(par.first);
                 std::string infoStatus = tempItem ? tempItem->obterInfoStatus() : "";
                 std::cout << margemMsg << "[" << id << "] " << par.first << infoStatus << " (" << preco << ") - " << status << "\n";
             }
@@ -161,7 +161,7 @@ namespace {
                         } else if (jogadorAtual->obterInventario()->obterOuro() >= 40) {
                             jogadorAtual->obterInventario()->adicionarOuro(-40);
                             estoqueAtual[idCompra].second = false;
-                            jogadorAtual->obterInventario()->adicionarItem(std::move(FabricaDeItens::criarItem(estoqueAtual[idCompra].first)));
+                            jogadorAtual->obterInventario()->adicionarItem(std::move(FabricaItens::criarItem(estoqueAtual[idCompra].first)));
                             std::cout << "\n" << margemMsg << "[Bjorn]: Otima escolha! Voce comprou " << estoqueAtual[idCompra].first << ".\n";
                         } else {
                             std::cout << "\n" << margemMsg << "[Bjorn]: Voce nao tem ouro suficiente para isso!\n";
@@ -173,7 +173,7 @@ namespace {
         } while (opcaoCompra != "0");
     }
 
-    void processarMelhoriaNaBigorna(Personagem* jogadorAtual) {
+    void processarMelhoriaNaBigorna(SistemaPersonagem* jogadorAtual) {
         std::string codigo1, codigo2;
         do {
             TelaInventario::exibir(jogadorAtual);
@@ -217,7 +217,7 @@ namespace {
                 jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
 
                 SimplificacoesAparencia::limparTela();
-                Menu::exibirLogoDoJogo("FORJA - SUCESSO");
+                GerenciadorMenu::exibirLogoDoJogo("FORJA - SUCESSO");
                 std::vector<std::string> arteBigorna = {
                     "⠀⠀⠀⠀⠀⠀⠀⢰⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⡄⠀⠀⠀⠀⠀",
                     "⠀⠹⣿⣿⣿⣿⡇⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⢠⣄⡀⠀⠀",
