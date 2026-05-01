@@ -5,9 +5,28 @@
 #include <functional>
 #include <iostream>
 #include <algorithm>
-#include "../Utilidades/Tipos.h"
 
 #pragma once
+
+enum class TipoClasse 
+{
+    Nenhum,
+    Arqueiro,
+    Bardo,
+    Guerreiro,
+    Mago,
+    InimigoPadrao
+};
+
+enum class HabilidadeID
+{
+    Nenhuma,
+    Determinacao,
+    EstrategiaArcana,
+    FlashingLights,
+    OnSight,
+    ThroughTheWire
+};
 
 class SistemaPersonagem;
 class Item;

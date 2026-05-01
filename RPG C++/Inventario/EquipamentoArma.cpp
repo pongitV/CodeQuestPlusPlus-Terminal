@@ -1,10 +1,12 @@
 #include "EquipamentoArma.h"
-#include "../Sistemas/SistemaPersonagem.h"
-#include "../Utilidades/Tipos.h"
+
 #include <iostream>
-#include <string_view>
 #include <map>
+#include <string_view>
+
+#include "../Sistemas/SistemaPersonagem.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/GeradorAleatorio.h"
 
 EquipamentoArma::EquipamentoArma(std::string nome, int danoFisico, int danoMagico, int preco)
     : Item(preco), nome(nome), danoFisico(danoFisico), danoMagico(danoMagico),
@@ -34,7 +36,7 @@ void EquipamentoArma::aplicarEfeitoSangramento() { efeitoSangramento = true; }
 void EquipamentoArma::aplicarEfeitoLentidao() { efeitoLentidao = true; }
 
 void EquipamentoArma::antesDeCausarDano(SistemaPersonagem* atacante, SistemaPersonagem* alvo) {
-    if (temPropriedade(Propriedade::Penetrante) && !alvo->possuiEfeito(EfeitoNomes::QUEBRA_RESISTENCIA)) {
+    if (temPropriedade(Propriedade::Penetrante) && !alvo->possuiEfeito(EfeitoID::QuebraResistencia)) {
         alvo->adicionarEfeito(std::make_unique<EfeitoQuebraResistencia>(3));
         std::cout << SimplificacoesAparencia::cor(Cor::CIANO) << ">> A arma de " << atacante->obterNome() << " perfurou a armadura, reduzindo a resistencia de " << alvo->obterNome() << " pela metade e a constituicao em um terco!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
     }
@@ -43,21 +45,21 @@ void EquipamentoArma::antesDeCausarDano(SistemaPersonagem* atacante, SistemaPers
 void EquipamentoArma::aoCausarDano(SistemaPersonagem* atacante, SistemaPersonagem* alvo, int danoCausado) {
     if (danoCausado <= 0) return;
 
-    if (temPropriedade(Propriedade::ViolaoMagico) && !alvo->possuiEfeito(EfeitoNomes::SUGA_SANGUE)) {
+    if (temPropriedade(Propriedade::ViolaoMagico) && !alvo->possuiEfeito(EfeitoID::SugaSangue)) {
         alvo->adicionarEfeito(std::make_unique<EfeitoSugaSangue>(2, atacante));
     }
 
-    if (temPropriedade(Propriedade::CipoPrisao) && (std::rand() % 100) < 30 && !alvo->possuiEfeito(EfeitoNomes::ATORDOAMENTO)) {
+    if (temPropriedade(Propriedade::CipoPrisao) && GeradorAleatorio::rolarChance(30) && !alvo->possuiEfeito(EfeitoID::Atordoamento)) {
         alvo->adicionarEfeito(std::make_unique<EfeitoAtordoamento>(1));
     }
 
-    if (possuiEfeitoSangramento() && !alvo->possuiEfeito(EfeitoNomes::SANGRAMENTO)) {
+    if (possuiEfeitoSangramento() && !alvo->possuiEfeito(EfeitoID::Sangramento)) {
         int danoSangramento = std::max(1, alvo->obterVidaMaxima() / 10);
         alvo->adicionarEfeito(std::make_unique<EfeitoSangramento>(3, danoSangramento));
         std::cout << SimplificacoesAparencia::cor(Cor::VERMELHO) << ">> " << alvo->obterNome() << " comecou a sangrar profundamente! (3 turnos)" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
     }
 
-    if (possuiEfeitoLentidao() && !alvo->possuiEfeito(EfeitoNomes::LENTIDAO)) {
+    if (possuiEfeitoLentidao() && !alvo->possuiEfeito(EfeitoID::Lentidao)) {
         alvo->adicionarEfeito(std::make_unique<EfeitoLentidao>(3));
         std::cout << SimplificacoesAparencia::cor(Cor::MAGENTA) << ">> " << alvo->obterNome() << " foi coberto por gosma e sua destreza caiu pela metade! (3 turnos)" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
     }

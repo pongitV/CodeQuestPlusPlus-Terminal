@@ -1,14 +1,13 @@
-#include <string>
-#include <iostream>
-#include <vector>
-#include <memory>
-#include <unordered_map>
-
-#include "../Inventario/Inventario.h"
-#include "Tipos.h"
-#include "../Gerenciadores/GerenciadorEfeitosStatus.h"
-
 #pragma once
+
+#include <iostream>
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+#include "../Gerenciadores/GerenciadorEfeitosStatus.h"
+#include "../Inventario/Inventario.h"
 
 struct Atributos 
 {
@@ -51,6 +50,46 @@ enum class TipoAtaque
 
 class RacaBase;   
 class ClasseBase; 
+enum class TipoClasse;
+enum class HabilidadeID;
+enum class TipoRaca;
+
+enum class DificuldadeJogo 
+{
+    Facil = 1,
+    Normal = 2,
+    Dificil = 3
+};
+
+struct ControleCombate {
+    bool estaDefendendo = false;
+    bool recargaDefesa = false;
+    bool recargaHabilidade = false;
+    bool pularTurnoInimigo = false;
+    bool habilidadeCancelada = false;
+    double multiplicadorAtual = 1.0;
+    int curaTotalRecebida = 0;
+    std::unordered_map<HabilidadeID, int> cooldownsAtivos;
+    
+    void resetar() {
+        estaDefendendo = false;
+        recargaDefesa = false;
+        recargaHabilidade = false;
+        pularTurnoInimigo = false;
+        habilidadeCancelada = false;
+        multiplicadorAtual = 1.0;
+        curaTotalRecebida = 0;
+        cooldownsAtivos.clear();
+    }
+};
+
+struct ControleSistema {
+    bool querVoltarProMenu = false;
+    bool labirintoDesbloqueado = false;
+    bool podeReviver = true;
+    bool parryAtivado = false;
+    DificuldadeJogo dificuldadeAtual = DificuldadeJogo::Normal;
+};
 
 class SistemaPersonagem 
 {
@@ -64,22 +103,8 @@ protected:
 
     std::vector<std::unique_ptr<EfeitoStatus>> efeitosAtivos;
 
-    bool estaInviolavel;      // Arqueiro: retirada com pontaria
-    bool recargaHabilidade;   // Arqueiro/Bardo: uso seguido
-    bool pularTurnoInimigo;
-    bool querVoltarProMenu;
-    bool labirintoDesbloqueado;
-
-    bool estaDefendendo;      // Controle de Defesa Ativa
-    bool recargaDefesa;       // Cooldown de 1 turno da Defesa
-    bool podeReviver;         // Controle para "Espirito indomavel"
-    bool parryAtivado;        // Controle do sistema de Parry
-    int dificuldadeAtual;     // 1 = Facil, 2 = Normal, 3 = Dificil
-
-    std::unordered_map<std::string, int> cooldownsAtivos;
-    bool habilidadeCancelada;
-
-    double multiplicadorAtual;  // Para buffs temporarios
+    ControleCombate combate;
+    ControleSistema sistema;
 
     Item* arma;
     Item* escudo;
@@ -129,6 +154,8 @@ public:
     bool podeSubirDeNivel() const { return xpAtual >= xpParaSubir; }
     bool subirDeNivel(TipoAtributo atributo);
     
+    int obterCuraTotalRecebida() const { return combate.curaTotalRecebida; }
+
     void alterarAtributoEstatico(TipoAtributo atributo, int valor);
     Atributos& obterAtributosFinais() { return statsFinais; }
 
@@ -152,54 +179,56 @@ public:
     int obterXpRecompensa() const { return xpRecompensa; }
 
     void definirMultiplicador(double m);
-    double obterMultiplicador() const { return multiplicadorAtual; }
+    double obterMultiplicador() const { return combate.multiplicadorAtual; }
 
-    bool podeUsarRessurreicao() const { return podeReviver; }
-    void consumirRessurreicao() { podeReviver = false; }
+    bool podeUsarRessurreicao() const { return sistema.podeReviver; }
+    void consumirRessurreicao() { sistema.podeReviver = false; }
 
-    int obterCooldown(const std::string& habilidade) const 
+    int obterCooldown(HabilidadeID habilidade) const 
     {
-        auto it{cooldownsAtivos.find(habilidade)};
-        return (it != cooldownsAtivos.end()) ? it->second : 0;
+        auto it{combate.cooldownsAtivos.find(habilidade)};
+        return (it != combate.cooldownsAtivos.end()) ? it->second : 0;
     }
-    void definirCooldown(const std::string& habilidade, int turnos) 
+    void definirCooldown(HabilidadeID habilidade, int turnos) 
     {
-        cooldownsAtivos[habilidade] = turnos;
+        combate.cooldownsAtivos[habilidade] = turnos;
     }
     
-    bool obterHabilidadeCancelada() const { return habilidadeCancelada; }
-    void definirHabilidadeCancelada(bool v) { habilidadeCancelada = v; }
+    bool obterHabilidadeCancelada() const { return combate.habilidadeCancelada; }
+    void definirHabilidadeCancelada(bool v) { combate.habilidadeCancelada = v; }
 
-    void definirRecarga(bool r) { recargaHabilidade = r; }
-    bool obterRecarga() const { return recargaHabilidade; }
-    void definirPularTurnoInimigo(bool p) { pularTurnoInimigo = p; }
-    bool obterPularTurnoInimigo() const { return pularTurnoInimigo; }
+    void definirRecarga(bool r) { combate.recargaHabilidade = r; }
+    bool obterRecarga() const { return combate.recargaHabilidade; }
+    void definirPularTurnoInimigo(bool p) { combate.pularTurnoInimigo = p; }
+    bool obterPularTurnoInimigo() const { return combate.pularTurnoInimigo; }
     
-    void definirVoltarProMenu(bool v) { querVoltarProMenu = v; }
-    bool obterVoltarProMenu() const { return querVoltarProMenu; }
+    void definirVoltarProMenu(bool v) { sistema.querVoltarProMenu = v; }
+    bool obterVoltarProMenu() const { return sistema.querVoltarProMenu; }
 
-    void desbloquearLabirinto() { labirintoDesbloqueado = true; }
-    bool obterLabirintoDesbloqueado() const { return labirintoDesbloqueado; }
+    void desbloquearLabirinto() { sistema.labirintoDesbloqueado = true; }
+    bool obterLabirintoDesbloqueado() const { return sistema.labirintoDesbloqueado; }
 
     void reduzirCooldowns();
-    bool possuiEfeito(const std::string& nome) const;
-    int obterTurnosEfeito(const std::string& nome) const;
-    const EfeitoStatus* encontrarEfeito(const std::string& nome) const;
+    void prepararParaNovaBatalha();
+
+    bool possuiEfeito(EfeitoID id) const;
+    int obterTurnosEfeito(EfeitoID id) const;
+    const EfeitoStatus* encontrarEfeito(EfeitoID id) const;
 
 
-    void definirDefendendo(bool d) { estaDefendendo = d; }
-    bool obterDefendendo() const { return estaDefendendo; }
-    void definirRecargaDefesa(bool r) { recargaDefesa = r; }
-    bool obterRecargaDefesa() const { return recargaDefesa; }
+    void definirDefendendo(bool d) { combate.estaDefendendo = d; }
+    bool obterDefendendo() const { return combate.estaDefendendo; }
+    void definirRecargaDefesa(bool r) { combate.recargaDefesa = r; }
+    bool obterRecargaDefesa() const { return combate.recargaDefesa; }
     void desequiparEscudo() { escudo = nullptr; }
     void desequiparArma() { arma = nullptr; }
     void desequiparArmadura() { armadura = nullptr; destrezaCacheDirty_ = true; reducaoPercentualCacheDirty_ = true; }
 
-    void definirParryAtivado(bool p) { parryAtivado = p; }
-    bool obterParryAtivado() const { return parryAtivado; }
+    void definirParryAtivado(bool p) { sistema.parryAtivado = p; }
+    bool obterParryAtivado() const { return sistema.parryAtivado; }
 
-    void definirDificuldade(int d) { dificuldadeAtual = d; }
-    int obterDificuldade() const { return dificuldadeAtual; }
+    void definirDificuldade(DificuldadeJogo d) { sistema.dificuldadeAtual = d; }
+    DificuldadeJogo obterDificuldade() const { return sistema.dificuldadeAtual; }
     void aplicarMultiplicadorDificuldade(double mult);
 
     TipoAtaque obterTipoAtaque() const;
@@ -209,8 +238,9 @@ public:
     void processarEfeitosInicioTurno();
     bool podeAgir() const;
 
-    // Retorna set com nomes de todos os efeitos ativos (single-pass)
-    std::vector<std::string> obterNomesEfeitosAtivos() const;
+    // Retorna IDs de todos os efeitos ativos (single-pass)
+    std::vector<EfeitoID> obterIDsEfeitosAtivos() const;
+    void limparEfeitos();
 
     int calcularDefesaBase(int danoBruto, int danoPerfurante) const;
     int receberDano(int danoBruto, int danoPerfurante, int danoReduzidoParry, SistemaPersonagem* atacante, bool aplicarPassivas);

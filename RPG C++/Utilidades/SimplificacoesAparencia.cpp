@@ -12,13 +12,19 @@
 #endif
 #include "ControleDeInput.h"
 
-std::string SimplificacoesAparencia::cor(int codigo) {
-    if (codigo == Cor::RESET) return "\033[0m";
-    return "\033[" + std::to_string(codigo) + "m";
+void SimplificacoesAparencia::inicializarConsole() {
+#ifdef _WIN32
+    SetConsoleOutputCP(65001); // Configura UTF-8 globalmente apenas uma vez
+#endif
 }
 
-std::string SimplificacoesAparencia::cor(int estilo, int codigo) {
-    return "\033[" + std::to_string(estilo) + ";" + std::to_string(codigo) + "m";
+std::string SimplificacoesAparencia::cor(Cor codigo) {
+    if (codigo == Cor::RESET) return "\033[0m";
+    return "\033[" + std::to_string(static_cast<int>(codigo)) + "m";
+}
+
+std::string SimplificacoesAparencia::cor(Cor estilo, Cor codigo) {
+    return "\033[" + std::to_string(static_cast<int>(estilo)) + ";" + std::to_string(static_cast<int>(codigo)) + "m";
 }
 
 std::string SimplificacoesAparencia::corRGBFundo(int idANSI) {
@@ -38,7 +44,6 @@ void SimplificacoesAparencia::maximizarJanelaTerminal() {
 
 void SimplificacoesAparencia::limparTela() {
 #ifdef _WIN32
-    SetConsoleOutputCP(65001); // Centralizado para todas as telas do jogo UTF-8
     system("cls");
 #else
     system("clear");

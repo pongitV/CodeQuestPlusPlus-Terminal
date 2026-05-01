@@ -6,7 +6,7 @@
 #include "../Racas/RacaBase.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 
-void TelaDerrota::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido)
+void TelaDerrota::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido, int curaTotalRecebida, int turnosCombate)
 {
     SimplificacoesAparencia::limparTela();
     int largura = SimplificacoesAparencia::obterLarguraTerminal();
@@ -34,7 +34,14 @@ void TelaDerrota::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroOb
         "HP RESTANTE:    " + std::to_string(jogadorAtual->obterVida()) + "/" + std::to_string(jogadorAtual->obterVidaMaxima()),
         "OURO TOTAL:     " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G",
         "NIVEL:          " + std::to_string(jogadorAtual->obterNivel()) + " (XP: " + std::to_string(jogadorAtual->obterXpAtual()) + "/" + std::to_string(jogadorAtual->obterXpParaSubir()) + ")",
-        "", "--- ESTATISTICAS DA BATALHA ---", "OURO OBTIDO:   +" + std::to_string(quantidadeDeOuroObtido) + "G", "XP OBTIDO:     +" + std::to_string(quantidadeDeXpObtido) + " XP", "DANO CAUSADO:   " + std::to_string(totalDeDanoCausado), "DANO RECEBIDO:  " + std::to_string(totalDeDanoRecebido)
+        "", 
+        "--- ESTATISTICAS DA BATALHA ---", 
+        "OURO OBTIDO:   +" + std::to_string(quantidadeDeOuroObtido) + "G", 
+        "XP OBTIDO:     +" + std::to_string(quantidadeDeXpObtido) + " XP", 
+        "DANO TOTAL CAUSADO:   " + std::to_string(totalDeDanoCausado), 
+        "DANO TOTAL RECEBIDO:  " + std::to_string(totalDeDanoRecebido),
+        "CURA TOTAL RECEBIDA:  " + std::to_string(curaTotalRecebida),
+        "NUMERO DE TURNOS:         " + std::to_string(turnosCombate)
     };
     SimplificacoesAparencia::imprimirCentralizadoMultilinha(linhas, 0, SimplificacoesAparencia::cor(Cor::VERMELHO));
     std::cout << "\n\n" << std::string(largura, '=') << "\n";

@@ -5,30 +5,33 @@
 #include "../Gerenciadores/GerenciadorMenu.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 #include "../Gerenciadores/GerenciadorCombate.h"
+#include "../Utilidades/ControleDeInput.h"
 #include <iostream>
 
 bool ControleDeMapa::processarInputEComandos(char tecla, SistemaPersonagem* jogador, int& proximaPosicaoX, int& proximaPosicaoY, const std::function<void()>& restaurarTela)
 {
+    ComandoMapa comando = ControleDeInput::traduzirTeclaParaComando(tecla);
+
     // Movimentação (Não abre menus, portanto retorna falso)
-    if (tecla == 'w' || tecla == 'W' || tecla == 72) { proximaPosicaoY--; return false; }
-    if (tecla == 's' || tecla == 'S' || tecla == 80) { proximaPosicaoY++; return false; }
-    if (tecla == 'a' || tecla == 'A' || tecla == 75) { proximaPosicaoX--; return false; }
-    if (tecla == 'd' || tecla == 'D' || tecla == 77) { proximaPosicaoX++; return false; }
+    if (comando == ComandoMapa::Cima) { proximaPosicaoY--; return false; }
+    if (comando == ComandoMapa::Baixo) { proximaPosicaoY++; return false; }
+    if (comando == ComandoMapa::Esquerda) { proximaPosicaoX--; return false; }
+    if (comando == ComandoMapa::Direita) { proximaPosicaoX++; return false; }
 
     // Menus (Retornam true informando o mapa que a tela precisa pular a interação de movimento)
-    if (tecla == 'i' || tecla == 'I')
+    if (comando == ComandoMapa::Inventario)
     {
         InventarioCombate::gerenciarInventario(jogador);
         restaurarTela();
         return true;
     }
-    if (tecla == 'c' || tecla == 'C')
+    if (comando == ComandoMapa::Ficha)
     {
         TelaAtributos::gerenciarFichaDoJogador(jogador);
         restaurarTela();
         return true;
     }
-    if (tecla == 'b' || tecla == 'B')
+    if (comando == ComandoMapa::Bestiario)
     {
         TelaBestiario::exibirLista(jogador);
         restaurarTela();

@@ -1,6 +1,6 @@
-#include <iostream>
-
 #include "Ork.h"
+
+#include <iostream>
 
 std::string Ork::obterNomeRaca() const 
 {

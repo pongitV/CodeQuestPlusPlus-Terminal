@@ -1,9 +1,9 @@
-#include <vector>
+#pragma once
+
 #include <string>
+#include <vector>
 
 #include "../Sistemas/SistemaPersonagem.h"
-
-#pragma once
 
 class Mapa2Floresta 
 {

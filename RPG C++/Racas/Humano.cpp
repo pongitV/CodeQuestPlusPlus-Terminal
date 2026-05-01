@@ -1,6 +1,6 @@
-#include <iostream>
-
 #include "Humano.h"
+
+#include <iostream>
 
 std::string Humano::obterNomeRaca() const 
 {

@@ -10,6 +10,7 @@
 #include "../Inimigos/Fada.h"
 #include "../Inimigos/OrkExilado.h"
 #include "../Inimigos/AbominacaoFloresta.h"
+#include "../Utilidades/GeradorAleatorio.h"
 
 template<typename RacaType, typename ClasseType>
 std::vector<std::unique_ptr<SistemaPersonagem>> GerenciadorInimigos::criarInimigosGenericos(int quantidade)
@@ -20,11 +21,24 @@ std::vector<std::unique_ptr<SistemaPersonagem>> GerenciadorInimigos::criarInimig
     {
         auto raca{std::make_unique<RacaType>()};
         auto nomeRaca{raca->obterNomeRaca()};
-        horda.push_back(std::make_unique<SistemaPersonagem>(
+        auto inimigo = std::make_unique<SistemaPersonagem>(
             nomeRaca,
             std::move(raca),
             std::make_unique<ClasseType>()
-        ));
+        );
+
+        // Aplica uma pequena variacao (+/- 10%) nos atributos para que cada monstro da horda seja unico
+        int variacaoVida = GeradorAleatorio::obterInteiro(-10, 10);
+        inimigo->obterAtributosFinais().vida += (inimigo->obterAtributosFinais().vida * variacaoVida) / 100;
+        inimigo->definirVida(inimigo->obterAtributosFinais().vida); // Sincroniza a vida atual com a nova vida maxima
+        
+        int variacaoForca = GeradorAleatorio::obterInteiro(-10, 10);
+        inimigo->obterAtributosFinais().forca += (inimigo->obterAtributosFinais().forca * variacaoForca) / 100;
+        
+        int variacaoDestreza = GeradorAleatorio::obterInteiro(-10, 10);
+        inimigo->obterAtributosFinais().destreza += (inimigo->obterAtributosFinais().destreza * variacaoDestreza) / 100;
+
+        horda.push_back(std::move(inimigo));
     }
     return horda;
 }

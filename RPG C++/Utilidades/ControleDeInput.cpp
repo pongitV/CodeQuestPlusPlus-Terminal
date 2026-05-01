@@ -33,3 +33,15 @@ void ControleDeInput::limparBuffer()
     while (_kbhit()) _getch();
 #endif
 }
+
+ComandoMapa ControleDeInput::traduzirTeclaParaComando(char tecla)
+{
+    if (tecla == 'w' || tecla == 'W' || tecla == 72) return ComandoMapa::Cima;
+    if (tecla == 's' || tecla == 'S' || tecla == 80) return ComandoMapa::Baixo;
+    if (tecla == 'a' || tecla == 'A' || tecla == 75) return ComandoMapa::Esquerda;
+    if (tecla == 'd' || tecla == 'D' || tecla == 77) return ComandoMapa::Direita;
+    if (tecla == 'i' || tecla == 'I') return ComandoMapa::Inventario;
+    if (tecla == 'c' || tecla == 'C') return ComandoMapa::Ficha;
+    if (tecla == 'b' || tecla == 'B') return ComandoMapa::Bestiario;
+    return ComandoMapa::Nenhum;
+}

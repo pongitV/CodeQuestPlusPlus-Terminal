@@ -1,13 +1,25 @@
-#include <vector>
-#include <string>
-#include <memory>
-#include <utility>
-#include "../Sistemas/SistemaPersonagem.h"
-
 #pragma once
+
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "../Sistemas/SistemaPersonagem.h"
 
 class GerenciadorCombate 
 {
+public:
+    enum class AcaoCombate 
+    { 
+        Atacar = 1, 
+        Defender = 2, 
+        Habilidade = 3, 
+        Inventario = 4, 
+        Jogador = 5, 
+        Bestiario = 6 
+    };
+
 private:
     // Referencias aos participantes do combate ativo
     SistemaPersonagem* jogadorAtual;

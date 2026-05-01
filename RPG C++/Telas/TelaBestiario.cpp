@@ -6,10 +6,6 @@
 #include <functional>
 #include <stdexcept>
 
-#ifdef _WIN32
-    #include <windows.h>
-#endif
-
 #include "TelaBestiario.h"
 #include "../Gerenciadores/GerenciadorMenu.h"
 #include "../Sistemas/SistemaBestiario.h"
@@ -42,10 +38,6 @@ static void exibirCabecalho(int largura, const std::string& tituloSecundario = "
 
 void TelaBestiario::exibirLista(SistemaPersonagem* jogadorAtual) {
     if (jogadorAtual == nullptr) return;
-
-#ifdef _WIN32
-    SetConsoleOutputCP(65001);
-#endif
 
     int largura = SimplificacoesAparencia::obterLarguraTerminal();
     SistemaBestiario& bestiario = SistemaBestiario::instancia();
@@ -132,10 +124,6 @@ void TelaBestiario::exibirLista(SistemaPersonagem* jogadorAtual) {
 
 void TelaBestiario::exibirFicha(SistemaPersonagem* jogadorAtual, const std::string& nomeSelecionado, int /*indiceDescoberto*/, const std::vector<std::string>& /*descobertos*/) {
     if (jogadorAtual == nullptr) return;
-
-#ifdef _WIN32
-    SetConsoleOutputCP(65001);
-#endif
 
     int largura = SimplificacoesAparencia::obterLarguraTerminal();
     SistemaBestiario& bestiario = SistemaBestiario::instancia();

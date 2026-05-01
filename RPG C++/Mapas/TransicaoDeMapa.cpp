@@ -5,6 +5,46 @@
 #include "../Gerenciadores/GerenciadorMenu.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 
+void TransicaoDeMapa::exibirTransicaoParaVila()
+{
+    SimplificacoesAparencia::limparTela();
+
+    std::vector<std::string> arteVila = {
+        "                                                            |>>>",
+        "                   _                       _                |",
+        "    ____________ .' '.     _____/----/-\\.' './========\\  / \\",
+        "   //// ////// /V_.-._\\  |.-.-.|===| _ |-----| u    u |  /___\\",
+        "  // /// // ///==\\ u |.  || | ||===||||| |T| |   ||   | .| u |_ _ _ _ _ _",
+        " ///////-\\\\////====\\==|:::::::::::::::::::::::::::::::::::|u u| U U U U U",
+        " |----/\\u |--|++++|..|'''''''''''::::::::::::::''''''''''|+++|+-+-+-+-+-+",
+        " |u u|u | |u ||||||..|              '::::::::'            |===|>=== _ _ ==",
+        " |===|  |u|==|++++|==|              .::::::::.            | T |....| V |..",
+        " |u u|u | |u ||HH||\\|             .::::::::::.                            ",
+        " |===|_.|u|_.|+HH+|__|            .::::::::::::.              _            ",
+        "                __(_)___         .::::::::::::::.         ___(_)_         _",
+        "---------------/  / \\ /|       .:::::;;;:::;;:::.       |\\ / \\\\-------",
+        "______________/_______/ |      .::::::;;:::::;;:::.      | \\______\\________",
+        "|       |     [===  =] /|     .:::::;;;::::::;;;:::.     |\\ [==  = ]   |",
+        "|_______|_____[ = == ]/ |    .:::::;;;:::::::;;;::::.    | \\[ ===  ]___|____",
+        "     |       |[  === ] /|   .:::::;;;::::::::;;;:::::.   |\\ [=  ===] |",
+        "_____|_______|[== = =]/ |  .:::::;;;::::::::::;;;:::::.  | \\[ ==  =]_|______",
+        " |       |    [ == = ] /| .::::::;;:::::::::::;;;::::::. |\\ [== == ]      |",
+        "_|_______|____[=  == ]/ |.::::::;;:::::::::::::;;;::::::.| \\[  === ]______|_",
+        "   |       |  [ === =] /.::::::;;::::::::::::::;;;:::::::.\\ [===  =]   |",
+        "___|_______|__[ == ==]/.::::::;;;:::::::::::::::;;;:::::::.\\[=  == ]___|_____"
+    };
+
+    std::cout << "\n\n";
+    SimplificacoesAparencia::imprimirCentralizadoMultilinha(arteVila, 75, SimplificacoesAparencia::cor(Cor::AMARELO));
+
+    std::string textoTransicao = "Voltando para a Vila...";
+    int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
+    int espacosParaCentralizar = (larguraDoTerminal - (int)textoTransicao.length()) / 2;
+    std::cout << "\n\n" << std::string(espacosParaCentralizar > 0 ? espacosParaCentralizar : 0, ' ') << textoTransicao << "\n";
+
+    Sleep(3000); 
+}
+
 void TransicaoDeMapa::exibirTransicaoParaFloresta()
 {
     SimplificacoesAparencia::limparTela();
@@ -71,46 +111,6 @@ void TransicaoDeMapa::exibirTransicaoParaFloresta()
     int espacosParaCentralizarTexto = (larguraDoTerminal - (int)textoDeViagem.length()) / 2;
 
     std::cout << "\n\n" << std::string(espacosParaCentralizarTexto > 0 ? espacosParaCentralizarTexto : 0, ' ') << textoDeViagem << "\n";
-
-    Sleep(3000); 
-}
-
-void TransicaoDeMapa::exibirTransicaoParaVila()
-{
-    SimplificacoesAparencia::limparTela();
-
-    std::vector<std::string> arteVila = {
-        "                                                            |>>>",
-        "                   _                       _                |",
-        "    ____________ .' '.     _____/----/-\\.' './========\\  / \\",
-        "   //// ////// /V_.-._\\  |.-.-.|===| _ |-----| u    u |  /___\\",
-        "  // /// // ///==\\ u |.  || | ||===||||| |T| |   ||   | .| u |_ _ _ _ _ _",
-        " ///////-\\\\////====\\==|:::::::::::::::::::::::::::::::::::|u u| U U U U U",
-        " |----/\\u |--|++++|..|'''''''''''::::::::::::::''''''''''|+++|+-+-+-+-+-+",
-        " |u u|u | |u ||||||..|              '::::::::'            |===|>=== _ _ ==",
-        " |===|  |u|==|++++|==|              .::::::::.            | T |....| V |..",
-        " |u u|u | |u ||HH||\\|             .::::::::::.                            ",
-        " |===|_.|u|_.|+HH+|__|            .::::::::::::.              _            ",
-        "                __(_)___         .::::::::::::::.         ___(_)_         _",
-        "---------------/  / \\ /|       .:::::;;;:::;;:::.       |\\ / \\\\-------",
-        "______________/_______/ |      .::::::;;:::::;;:::.      | \\______\\________",
-        "|       |     [===  =] /|     .:::::;;;::::::;;;:::.     |\\ [==  = ]   |",
-        "|_______|_____[ = == ]/ |    .:::::;;;:::::::;;;::::.    | \\[ ===  ]___|____",
-        "     |       |[  === ] /|   .:::::;;;::::::::;;;:::::.   |\\ [=  ===] |",
-        "_____|_______|[== = =]/ |  .:::::;;;::::::::::;;;:::::.  | \\[ ==  =]_|______",
-        " |       |    [ == = ] /| .::::::;;:::::::::::;;;::::::. |\\ [== == ]      |",
-        "_|_______|____[=  == ]/ |.::::::;;:::::::::::::;;;::::::.| \\[  === ]______|_",
-        "   |       |  [ === =] /.::::::;;::::::::::::::;;;:::::::.\\ [===  =]   |",
-        "___|_______|__[ == ==]/.::::::;;;:::::::::::::::;;;:::::::.\\[=  == ]___|_____"
-    };
-
-    std::cout << "\n\n";
-    SimplificacoesAparencia::imprimirCentralizadoMultilinha(arteVila, 75, SimplificacoesAparencia::cor(Cor::AMARELO));
-
-    std::string textoTransicao = "Voltando para a Vila...";
-    int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
-    int espacosParaCentralizar = (larguraDoTerminal - (int)textoTransicao.length()) / 2;
-    std::cout << "\n\n" << std::string(espacosParaCentralizar > 0 ? espacosParaCentralizar : 0, ' ') << textoTransicao << "\n";
 
     Sleep(3000); 
 }

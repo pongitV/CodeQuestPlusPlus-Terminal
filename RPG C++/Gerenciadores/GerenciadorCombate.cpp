@@ -1,30 +1,29 @@
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include <limits>
-
 #include "GerenciadorCombate.h"
-#include "GerenciadorMenu.h"
-#include "Utilidades/SimplificacoesAparencia.h"
-#include "../Sistemas/SistemaParry.h"
 
-#include "../Racas/RacaBase.h"
+#include <algorithm>
+#include <iostream>
+#include <limits>
+#include <vector>
+
 #include "../Classes/ClasseBase.h"
-#include "../Inventario/Item.h"
-
-#include "../Telas/TelaVitoria.h"
-#include "../Telas/TelaDerrota.h"
-#include "../Telas/TelaCombate.h"
 #include "../Inventario/InventarioCombate.h"
-#include "../Telas/TelaAtributos.h"
-#include "../Telas/TelaBestiario.h"
+#include "../Inventario/Item.h"
+#include "../Racas/RacaBase.h"
 #include "../Sistemas/SistemaBestiario.h"
+#include "../Sistemas/SistemaParry.h"
+#include "../Telas/TelaBestiario.h"
+#include "../Telas/TelaAtributos.h"
+#include "../Telas/TelaCombate.h"
+#include "../Telas/TelaDerrota.h"
+#include "../Telas/TelaVitoria.h"
+#include "../Utilidades/SimplificacoesAparencia.h"
+#include "GerenciadorMenu.h"
 
 GerenciadorCombate::GerenciadorCombate(SistemaPersonagem* jogadorParaOCombate, std::vector<std::unique_ptr<SistemaPersonagem>>&& inimigosParaOCombate) 
     : jogadorAtual(jogadorParaOCombate), listaDeInimigos(std::move(inimigosParaOCombate)), contadorDoTurnoAtual(1), quantidadeDeOuroObtido(0), quantidadeDeXpObtido(0), totalDeDanoCausado(0), totalDeDanoRecebido(0)
 {
 
-    int nivelDeDificuldade = jogadorAtual->obterDificuldade();
+    int nivelDeDificuldade = static_cast<int>(jogadorAtual->obterDificuldade());
     double multiplicadorDeDificuldadeDosInimigos = 1.0;
 
     if (nivelDeDificuldade == 3) {
@@ -70,6 +69,8 @@ void GerenciadorCombate::exibirTelaDeCombate() const
 
 void GerenciadorCombate::iniciarCombate() 
 {
+    jogadorAtual->prepararParaNovaBatalha();
+
     int maxDestrezaInimigos = 0;
     for (auto& inimigoPtr : listaDeInimigos)
     {
@@ -146,18 +147,22 @@ void GerenciadorCombate::processarMenuDeAcoesDoJogador(bool& turnoFoiConsumido, 
     if (!(std::cin >> acaoEscolhida)) 
     {
         std::cin.clear();
-        std::cin.ignore(1000, '\n');
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         return;
     }
 
-    switch (acaoEscolhida) 
+    switch (static_cast<AcaoCombate>(acaoEscolhida)) 
     {
-        case 1: processarAcaoAtacar(turnoFoiConsumido); break;
-        case 2: processarAcaoDefender(turnoFoiConsumido); break;
-        case 3: processarAcaoHabilidade(turnoFoiConsumido); break;
-        case 4: processarAcaoInventario(turnoFoiConsumido, usouInventarioNoTurno); break;
-        case 5: TelaAtributos::gerenciarFichaDoJogador(jogadorAtual); break;
-        case 6: TelaBestiario::exibirLista(jogadorAtual); break;
+        case AcaoCombate::Atacar: processarAcaoAtacar(turnoFoiConsumido); break;
+        case AcaoCombate::Defender: processarAcaoDefender(turnoFoiConsumido); break;
+        case AcaoCombate::Habilidade: processarAcaoHabilidade(turnoFoiConsumido); break;
+        case AcaoCombate::Inventario: processarAcaoInventario(turnoFoiConsumido, usouInventarioNoTurno); break;
+        case AcaoCombate::Jogador: TelaAtributos::gerenciarFichaDoJogador(jogadorAtual); break;
+        case AcaoCombate::Bestiario: TelaBestiario::exibirLista(jogadorAtual); break;
+        default: 
+            std::cout << "\n[ERRO] Acao invalida!\n"; 
+            SimplificacoesAparencia::aguardarEnter(); 
+            break;
     }
 }
 
@@ -175,7 +180,7 @@ void GerenciadorCombate::processarAcaoAtacar(bool& turnoFoiConsumido)
         if (!(std::cin >> indiceDoAlvoEscolhido) || indiceDoAlvoEscolhido < 0 || indiceDoAlvoEscolhido >= static_cast<int>(listaDeInimigos.size())) 
         {
             std::cin.clear(); 
-            std::cin.ignore(1000, '\n');
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             std::cout << "\n[ERRO] Alvo invalido!\n";
             SimplificacoesAparencia::aguardarEnter();
             return;
@@ -243,22 +248,15 @@ void GerenciadorCombate::processarAcaoInventario(bool& turnoFoiConsumido, bool& 
         if (!(std::cin >> indiceDoAlvoEscolhido) || indiceDoAlvoEscolhido < 0 || indiceDoAlvoEscolhido >= static_cast<int>(listaDeInimigos.size())) 
         {
             std::cin.clear(); 
-            std::cin.ignore(1000, '\n');
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             std::cout << "\n[SISTEMA] Uso do frasco cancelado. O item voltou para a mochila.\n";
             jogadorAtual->definirItemSelecionadoParaUso(nullptr);
         } 
         else 
         {
             SistemaPersonagem* alvo = listaDeInimigos[indiceDoAlvoEscolhido].get();
-            std::string nomeFrasco = frasco->obterNomeItem();
             
-            if (frasco->temPropriedade(Propriedade::ConsumivelDebuffLentidao)) {
-                alvo->adicionarEfeito(std::make_unique<EfeitoLentidao>(3));
-                std::cout << "\n" << SimplificacoesAparencia::cor(Cor::MAGENTA) << ">> Voce jogou o frasco! " << alvo->obterNome() << " esta com lentidao por 3 turnos!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-            } else if (frasco->temPropriedade(Propriedade::ConsumivelDebuffFraqueza)) {
-                alvo->adicionarEfeito(std::make_unique<EfeitoFraqueza>(3));
-                std::cout << "\n" << SimplificacoesAparencia::cor(Cor::VERMELHO) << ">> Voce jogou o frasco! " << alvo->obterNome() << " teve sua forca reduzida em 25% por 3 turnos!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-            }
+            frasco->usar(jogadorAtual, alvo);
             
             jogadorAtual->obterInventario()->removerItem(frasco);
             jogadorAtual->definirItemSelecionadoParaUso(nullptr);
@@ -302,7 +300,7 @@ void GerenciadorCombate::executarTurnoDeTodosOsInimigos()
 
             if (inimigoAtual->podeAgir()) 
             {
-                bool turnoConsumidoPorHabilidade = inimigoAtual->obterRaca()->tentarUsarHabilidadeAtiva(inimigoAtual, jogadorAtual, jogadorAtual->obterDificuldade());
+                bool turnoConsumidoPorHabilidade = inimigoAtual->obterRaca()->tentarUsarHabilidadeAtiva(inimigoAtual, jogadorAtual, static_cast<int>(jogadorAtual->obterDificuldade()));
                 
                 if (!turnoConsumidoPorHabilidade) 
                 {
@@ -332,7 +330,7 @@ void GerenciadorCombate::realizarAtaqueFisico(SistemaPersonagem* personagemAtaca
 {
     auto [danoBaseCalculado, danoPerfurante] = calcularDanoBase(personagemAtacante);
 
-    if (personagemAtacante == jogadorAtual || jogadorAtual->obterDificuldade() >= 2) 
+    if (personagemAtacante == jogadorAtual || static_cast<int>(jogadorAtual->obterDificuldade()) >= 2) 
     {
         danoBaseCalculado = personagemAtacante->obterRaca()->processarDanoOfensivo(danoBaseCalculado, personagemAtacante);
     }
@@ -347,7 +345,7 @@ void GerenciadorCombate::realizarAtaqueFisico(SistemaPersonagem* personagemAtaca
 std::pair<int, int> GerenciadorCombate::calcularDanoBase(SistemaPersonagem* atacante) 
 {
     double multiplicadorDeAtributos = atacante->obterMultiplicador();
-    if (atacante->possuiEfeito(EfeitoNomes::INVOIVEL)) multiplicadorDeAtributos *= 2.0;
+    if (atacante->possuiEfeito(EfeitoID::Inviolavel)) multiplicadorDeAtributos *= 2.0;
 
     int danoFisicoDaArma = 1;
     int danoMagicoDaArma = 0;
@@ -385,7 +383,7 @@ std::pair<int, int> GerenciadorCombate::calcularDanoBase(SistemaPersonagem* atac
 
 void GerenciadorCombate::aplicarDanoAoAlvo(SistemaPersonagem* personagemAtacante, SistemaPersonagem* personagemAlvo, int quantidadeDeDanoBruto, int danoPerfurante, int turnoAtualDoCombate) 
 {
-    if (personagemAlvo->possuiEfeito(EfeitoNomes::INVOIVEL))
+    if (personagemAlvo->possuiEfeito(EfeitoID::Inviolavel))
     {
         std::cout << "[COMBATE]: O alvo esta Inviolavel e desviou do ataque perfeitamente!\n";
         return;
@@ -406,7 +404,7 @@ void GerenciadorCombate::aplicarDanoAoAlvo(SistemaPersonagem* personagemAtacante
         parryFoiBemSucedido = SistemaParry::tentarParry(personagemAtacante, danoBaseMitigado, quantidadeDeDanoReduzidoPeloParry);
     }
 
-    bool aplicarPassivas = (personagemAlvo == jogadorAtual || jogadorAtual->obterDificuldade() >= 2);
+    bool aplicarPassivas = (personagemAlvo == jogadorAtual || static_cast<int>(jogadorAtual->obterDificuldade()) >= 2);
     int danoFinalAposReducoes = personagemAlvo->receberDano(quantidadeDeDanoBruto, danoPerfurante, quantidadeDeDanoReduzidoPeloParry, personagemAtacante, aplicarPassivas);
 
     exibirResultadoDoAtaque(personagemAlvo, danoFinalAposReducoes, tentouParry, parryFoiBemSucedido);
@@ -454,12 +452,14 @@ bool GerenciadorCombate::verificarCondicaoDeVitoriaOuDerrota()
 {
     if (listaDeInimigos.empty()) 
     { 
-        TelaVitoria::exibir(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, itensObtidos);
+        jogadorAtual->limparEfeitos(); // Remove buffs e debuffs antes de voltar ao mapa
+        TelaVitoria::exibir(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, jogadorAtual->obterCuraTotalRecebida(), contadorDoTurnoAtual, itensObtidos);
         return true; 
     }
     if (jogadorAtual->obterVida() <= 0) 
     { 
-        TelaDerrota::exibir(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido); 
+        jogadorAtual->limparEfeitos(); // Remove buffs e debuffs na morte
+        TelaDerrota::exibir(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, jogadorAtual->obterCuraTotalRecebida(), contadorDoTurnoAtual); 
         return true; 
     }
     return false;

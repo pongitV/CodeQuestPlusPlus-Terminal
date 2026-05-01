@@ -6,7 +6,7 @@
 #include "../Racas/RacaBase.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 
-void TelaVitoria::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido, const std::vector<std::string>& itensObtidos)
+void TelaVitoria::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido, int curaTotalRecebida, int turnosCombate, const std::vector<std::string>& itensObtidos)
 {
     SimplificacoesAparencia::limparTela();
     int largura = SimplificacoesAparencia::obterLarguraTerminal();
@@ -39,8 +39,10 @@ void TelaVitoria::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroOb
         "--- ESTATISTICAS DA BATALHA ---",
         "OURO OBTIDO:   +" + std::to_string(quantidadeDeOuroObtido) + "G",
         "XP OBTIDO:     +" + std::to_string(quantidadeDeXpObtido) + " XP",
-        "DANO CAUSADO:   " + std::to_string(totalDeDanoCausado),
-        "DANO RECEBIDO:  " + std::to_string(totalDeDanoRecebido),
+        "DANO TOTAL CAUSADO:   " + std::to_string(totalDeDanoCausado),
+        "DANO TOTAL RECEBIDO:  " + std::to_string(totalDeDanoRecebido),
+        "CURA TOTAL RECEBIDA:  " + std::to_string(curaTotalRecebida),
+        "NUMERO DE TURNOS:         " + std::to_string(turnosCombate),
         ""
     };
 
@@ -53,5 +55,13 @@ void TelaVitoria::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroOb
 
     SimplificacoesAparencia::imprimirCentralizadoMultilinha(linhas, 0, SimplificacoesAparencia::cor(Cor::VERDE));
     std::cout << "\n" << std::string(largura, '=') << "\n";
+
+    if (jogadorAtual->podeSubirDeNivel())
+    {
+        std::cout << "\n" << SimplificacoesAparencia::cor(Cor::MAGENTA) 
+                  << "  *** VOCE PODE SUBIR DE NIVEL! ***\n"
+                  << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+    }
+
     SimplificacoesAparencia::aguardarEnter();
 }

@@ -1,6 +1,8 @@
+#include "Elfo.h"
+
 #include <iostream>
 
-#include "Elfo.h"
+#include "../Utilidades/GeradorAleatorio.h"
 
 std::string Elfo::obterNomeRaca() const 
 {
@@ -64,7 +66,7 @@ std::string Elfo::obterNomeHabilidadeRaca() const { return "Agil e preciso"; }
 std::string Elfo::obterDescricaoHabilidadeRaca() const { return "Possui 33% chance de causar 1.5x de dano em cada ataque"; }
 int Elfo::processarDanoOfensivo(int danoBase, SistemaPersonagem* atacante) 
 {
-    if ((rand() % 100) < 33) 
+    if (GeradorAleatorio::rolarChance(33)) 
     {
         std::cout << "[PASSIVA]: Agil e preciso! Golpe critico.\n";
         return static_cast<int>(danoBase * 1.5);

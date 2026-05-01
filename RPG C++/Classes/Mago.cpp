@@ -1,7 +1,8 @@
+#include "Mago.h"
+
 #include <iostream>
 #include <memory>
 
-#include "Mago.h"
 #include "../Inventario/FabricaItens.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 
@@ -95,15 +96,17 @@ std::string Mago::obterDescricaoHabilidadeClasse() const
 { return "Pula seu turno para se defender e dobra o dano no proximo turno. Recarga: 3 turnos."; }
 void Mago::usarHabilidadeClasse(SistemaPersonagem* u, std::vector<SistemaPersonagem*>& /*inimigos*/) 
 {
-    if (u->obterCooldown("EstrategiaArcana") > 0) {
-        std::cout << "[SISTEMA]: Canalizacao arcana em recarga!\n";
+    int turnosRestantes = u->obterCooldown(HabilidadeID::EstrategiaArcana);
+    if (turnosRestantes > 0) {
+        std::cout << "\n[SISTEMA]: A habilidade " << obterNomeHabilidadeClasse() << " esta em recarga (" << turnosRestantes << " turnos)!\n";
+        SimplificacoesAparencia::aguardarEnter();
         u->definirHabilidadeCancelada(true);
         return;
     }
     
     u->definirMultiplicador(2.0);
     u->adicionarEfeito(std::make_unique<EfeitoBuffAtributos>(2)); 
-    u->definirCooldown("EstrategiaArcana", 4);
+    u->definirCooldown(HabilidadeID::EstrategiaArcana, 4);
     
     Item* escudo = u->obterEscudo();
     if (escudo) {

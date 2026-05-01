@@ -1,28 +1,30 @@
 #pragma once
+
 #include <string>
 #include <vector>
 
-namespace Cor {
-    constexpr int RESET = 0;
-    constexpr int NEGRITO = 1;
-    constexpr int VERMELHO = 31;
-    constexpr int VERDE = 32;
-    constexpr int AMARELO = 33;
-    constexpr int AZUL = 34;
-    constexpr int MAGENTA = 35;
-    constexpr int CIANO = 36;
-    constexpr int BRANCO = 37;
-    constexpr int CINZA = 90;
-    constexpr int FUNDO_VERMELHO = 41;
-    constexpr int FUNDO_VERDE = 42;
-    constexpr int FUNDO_AMARELO = 43;
-    constexpr int FUNDO_AZUL = 44;
-}
+enum class Cor {
+    RESET = 0,
+    NEGRITO = 1,
+    VERMELHO = 31,
+    VERDE = 32,
+    AMARELO = 33,
+    AZUL = 34,
+    MAGENTA = 35,
+    CIANO = 36,
+    BRANCO = 37,
+    CINZA = 90,
+    FUNDO_VERMELHO = 41,
+    FUNDO_VERDE = 42,
+    FUNDO_AMARELO = 43,
+    FUNDO_AZUL = 44
+};
 
 class SimplificacoesAparencia {
 public:
-    static std::string cor(int codigo);
-    static std::string cor(int estilo, int codigo);
+    static void inicializarConsole();
+    static std::string cor(Cor codigo);
+    static std::string cor(Cor estilo, Cor codigo);
     static std::string corRGBFundo(int idANSI);
     static std::string corRGBTexto(int idANSI);
 

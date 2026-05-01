@@ -1,6 +1,8 @@
 #pragma once
-#include <vector>
+
 #include <string>
+#include <vector>
+
 #include "../Sistemas/SistemaPersonagem.h"
 
 class Mapa1Vila 

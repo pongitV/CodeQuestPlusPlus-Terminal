@@ -1,12 +1,11 @@
 #include "Slime.h"
 #include <iostream>
-#include <cstdlib>
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Inventario/FabricaItens.h"
-#include "../Utilidades/Tipos.h"
 #include <memory>
 #include "../Utilidades/SimplificacoesAparencia.h"
 #include "../Gerenciadores/GerenciadorDrops.h"
+#include "../Utilidades/GeradorAleatorio.h"
 
 std::string Slime::obterNomeRaca() const { return "Slime"; }
 Atributos Slime::obterAtributosRaca() const { return { 50, 15, 5, 10, 15, 0, 0 }; }
@@ -85,8 +84,8 @@ void Slime::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogador
 }
 
 void Slime::aoCausarDano(SistemaPersonagem* atacante, SistemaPersonagem* alvo, int danoCausado) {
-    if (std::rand() % 100 < 15) {
-        if (!alvo->possuiEfeito(EfeitoNomes::LENTIDAO)) {
+    if (GeradorAleatorio::rolarChance(15)) {
+        if (!alvo->possuiEfeito(EfeitoID::Lentidao)) {
             alvo->adicionarEfeito(std::make_unique<EfeitoLentidao>(3));
             std::cout << SimplificacoesAparencia::cor(Cor::MAGENTA) << ">> [PASSIVA SLIME]: Uma gosma esverdeada grudou e deixou " << alvo->obterNome() << " mais lento!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
         }

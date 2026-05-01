@@ -1,10 +1,6 @@
 #include <iostream>
 #include <vector>
 
-#ifdef _WIN32
-    #include <windows.h>
-#endif
-
 #include "TelaInventario.h"
 #include "../Gerenciadores/GerenciadorMenu.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
@@ -14,10 +10,6 @@ void TelaInventario::exibir(SistemaPersonagem* jogadorAtual, bool mostrarPrecos)
     if (jogadorAtual == nullptr) return;
     SimplificacoesAparencia::limparTela();
     
-#ifdef _WIN32
-    SetConsoleOutputCP(65001); 
-#endif
-
     int largura = SimplificacoesAparencia::obterLarguraTerminal();
     std::vector<std::string> logoInventario = 
     {

@@ -7,7 +7,6 @@
 
 #include "InventarioCombate.h"
 #include "../Sistemas/SistemaPersonagem.h"
-#include "../Utilidades/Tipos.h"
 #include "Item.h"
 #include "../Telas/TelaInventario.h"
 #include "../Gerenciadores/GerenciadorMenu.h"

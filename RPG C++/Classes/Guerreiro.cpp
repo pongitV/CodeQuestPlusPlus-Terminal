@@ -1,9 +1,9 @@
+#include "Guerreiro.h"
+
 #include <iostream>
 #include <memory>
 
-#include "Guerreiro.h"
 #include "../Inventario/FabricaItens.h"
-#include "../Utilidades/Tipos.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 
 std::string Guerreiro::obterNomeClasse() const 
@@ -97,13 +97,16 @@ std::string Guerreiro::obterDescricaoHabilidadeClasse() const
 { return "Gasta seu turno para aumentar Forca e Destreza em 1.5x por 2 turnos."; }
 void Guerreiro::usarHabilidadeClasse(SistemaPersonagem* u, std::vector<SistemaPersonagem*>& /*inimigos*/) 
 {
-    if (u->obterCooldown("Determinacao") > 0) {
-        std::cout << "[SISTEMA]: Grito de guerra em recarga!\n";
+    int turnosRestantes = u->obterCooldown(HabilidadeID::Determinacao);
+    if (turnosRestantes > 0) {
+        std::cout << "\n[SISTEMA]: A habilidade " << obterNomeHabilidadeClasse() << " esta em recarga (" << turnosRestantes << " turnos)!\n";
+        SimplificacoesAparencia::aguardarEnter();
         u->definirHabilidadeCancelada(true);
         return;
     }
-    if (u->possuiEfeito(EfeitoNomes::GRITO_DE_GUERRA)) {
-        std::cout << "[SISTEMA]: O grito de guerra ja esta ativo!\n";
+    if (u->possuiEfeito(EfeitoID::GritoDeGuerra)) {
+        std::cout << "\n[SISTEMA]: A habilidade " << obterNomeHabilidadeClasse() << " ja esta ativa!\n";
+        SimplificacoesAparencia::aguardarEnter();
         u->definirHabilidadeCancelada(true);
         return;
     }
@@ -112,7 +115,7 @@ void Guerreiro::usarHabilidadeClasse(SistemaPersonagem* u, std::vector<SistemaPe
     int bonusDestreza = u->obterDestreza() / 2;
     
     u->adicionarEfeito(std::make_unique<EfeitoGritoGuerra>(2, bonusForca, bonusDestreza));
-    u->definirCooldown("Determinacao", 4); // 3 turnos de recarga
+    u->definirCooldown(HabilidadeID::Determinacao, 4);
     
     std::cout << "[HABILIDADE]: Grito de guerra! Forca +" << bonusForca << " e Destreza +" << bonusDestreza << "!\n";
 }

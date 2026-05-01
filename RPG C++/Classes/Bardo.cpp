@@ -1,9 +1,11 @@
+#include "Bardo.h"
+
 #include <iostream>
 #include <memory>
 
-#include "Bardo.h"
 #include "../Inventario/FabricaItens.h"
 #include "../Utilidades/Constantes.h"
+#include "../Utilidades/SimplificacoesAparencia.h"
 
 std::string Bardo::obterNomeClasse() const 
 {
@@ -96,9 +98,9 @@ std::string Bardo::obterDescricaoHabilidadeClasse() const
 { return "Possui 3 habilidades: Flashing lights, On sight e Through the wire."; }
 void Bardo::usarHabilidadeClasse(SistemaPersonagem* u, std::vector<SistemaPersonagem*>& /*inimigos*/)
 {
-    int cdFlashing = u->obterCooldown("FlashingLights");
-    int cdOnSight = u->obterCooldown("OnSight");
-    int cdThroughWire = u->obterCooldown("ThroughTheWire");
+    int cdFlashing = u->obterCooldown(HabilidadeID::FlashingLights);
+    int cdOnSight = u->obterCooldown(HabilidadeID::OnSight);
+    int cdThroughWire = u->obterCooldown(HabilidadeID::ThroughTheWire);
 
     std::cout << "\n--- SINFONIA DO BARDO ---\n";
     std::cout << "[1] Flashing lights (Cura e pula o turno | Recarga: " << cdFlashing << ")\n";
@@ -115,30 +117,46 @@ void Bardo::usarHabilidadeClasse(SistemaPersonagem* u, std::vector<SistemaPerson
         return;
     }
     if (escolha == 1) {
-        if (cdFlashing > 0) { std::cout << "[SISTEMA]: Em recarga!\n"; u->definirHabilidadeCancelada(true); return; }
+        if (cdFlashing > 0) { 
+            std::cout << "\n[SISTEMA]: A habilidade Flashing lights esta em recarga (" << cdFlashing << " turnos)!\n"; 
+            SimplificacoesAparencia::aguardarEnter();
+            u->definirHabilidadeCancelada(true); 
+            return; 
+        }
         u->definirPularTurnoInimigo(true);
         int cura = (u->obterSabedoria() * 2) + (u->obterVidaMaxima() * 0.15);
         u->modificarVida(cura);
-        u->definirCooldown("FlashingLights", 3);
+        u->definirCooldown(HabilidadeID::FlashingLights, 3);
         std::cout << "[HABILIDADE]: !Flashing lights! Voce recuperou " << cura << " HP e encantou os inimigos!\n";
         return;
     }
     if (escolha == 2) {
-        if (cdOnSight > 0) { std::cout << "[SISTEMA]: Em recarga!\n"; u->definirHabilidadeCancelada(true); return; }
+        if (cdOnSight > 0) { 
+            std::cout << "\n[SISTEMA]: A habilidade On sight esta em recarga (" << cdOnSight << " turnos)!\n"; 
+            SimplificacoesAparencia::aguardarEnter();
+            u->definirHabilidadeCancelada(true); 
+            return; 
+        }
         u->definirMultiplicador(1.5);
         std::cout << u->obterNome() << " tocou 'On sight' e ganhara 1.5x de dano!\n";
-        u->definirCooldown("OnSight", 3);
+        u->definirCooldown(HabilidadeID::OnSight, 3);
         std::cout << "[HABILIDADE]: !On sight! Seu proximo ataque causara 1.5x de dano!\n";
         return;
     }
     if (escolha == 3) {
-        if (cdThroughWire > 0) { std::cout << "[SISTEMA]: Em recarga!\n"; u->definirHabilidadeCancelada(true); return; }
+        if (cdThroughWire > 0) { 
+            std::cout << "\n[SISTEMA]: A habilidade Through the wire esta em recarga (" << cdThroughWire << " turnos)!\n"; 
+            SimplificacoesAparencia::aguardarEnter();
+            u->definirHabilidadeCancelada(true); 
+            return; 
+        }
         u->adicionarEfeito(std::make_unique<EfeitoMetadeDano>(1));
-        u->definirCooldown("ThroughTheWire", 3);
+        u->definirCooldown(HabilidadeID::ThroughTheWire, 3);
         std::cout << "[HABILIDADE]: !Through the wire! Voce esta protegido contra metade do dano recebido!\n";
         return;
     }
-    std::cout << "[SISTEMA]: Opcao invalida!\n";
+    std::cout << "\n[SISTEMA]: Opcao invalida!\n";
+    SimplificacoesAparencia::aguardarEnter();
     u->definirHabilidadeCancelada(true);
 }
 

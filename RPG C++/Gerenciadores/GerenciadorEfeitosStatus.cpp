@@ -1,8 +1,10 @@
 #include "GerenciadorEfeitosStatus.h"
-#include "../Sistemas/SistemaPersonagem.h"
+
 #include <iostream>
-#include "Utilidades/SimplificacoesAparencia.h"
+
 #include "../Classes/ClasseBase.h"
+#include "../Sistemas/SistemaPersonagem.h"
+#include "../Utilidades/SimplificacoesAparencia.h"
 
 void EfeitoSugaSangue::aplicarInicioTurno(SistemaPersonagem* alvo) {
     if (!atacante || atacante->obterVida() <= 0) return;

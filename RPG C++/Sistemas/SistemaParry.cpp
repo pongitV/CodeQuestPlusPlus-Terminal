@@ -1,12 +1,14 @@
 #include "SistemaParry.h"
-#include "SistemaPersonagem.h"
-#include "ControleDeInput.h"
+
+#include <algorithm>
+#include <chrono>
 #include <iostream>
 #include <string>
-#include <random>
-#include <chrono>
 #include <thread>
-#include <algorithm>
+
+#include "../Utilidades/ControleDeInput.h"
+#include "SistemaPersonagem.h"
+#include "../Utilidades/GeradorAleatorio.h"
 
 bool SistemaParry::tentarParry(SistemaPersonagem* atacante, int danoMitigado, int& quantidadeDeDanoReduzido) 
 {
@@ -32,13 +34,9 @@ bool SistemaParry::executarMinigame(int quantidadeDeNumerosParaDigitar, int temp
     std::string sequenciaGeradaPeloSistema = "";
     quantidadeDeDanoReduzido = 0;
     
-    static std::random_device rd;
-    static std::mt19937 gerador(rd());
-    std::uniform_int_distribution<int> distribuicao(1, 9);
-    
     for (int indiceAtual = 0; indiceAtual < quantidadeDeNumerosParaDigitar; ++indiceAtual) 
     {
-        int numeroAleatorio = distribuicao(gerador);
+        int numeroAleatorio = GeradorAleatorio::obterInteiro(1, 9);
         sequenciaGeradaPeloSistema += std::to_string(numeroAleatorio);
         quantidadeDeDanoReduzido += numeroAleatorio;
     }

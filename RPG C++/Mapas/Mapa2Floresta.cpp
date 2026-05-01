@@ -2,7 +2,6 @@
 #include <vector>
 #include <conio.h>
 #include <windows.h>
-#include <cstdlib>
 #include <memory>
 #include <utility>
 
@@ -24,6 +23,7 @@
 #include "TransicaoDeMapa.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 #include "ControleDeMapa.h"
+#include "../Utilidades/GeradorAleatorio.h"
 
 Mapa2Floresta::Mapa2Floresta(SistemaPersonagem* personagemJogador) :
     jogadorAtual(personagemJogador), posicaoXDoJogador(8), posicaoYDoJogador(8),
@@ -190,11 +190,11 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
 
         if (celulaDestinoDoMapa == 'S' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX-1] != '^')
         {
-            ControleDeMapa::processarCombate(jogadorAtual, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, exploracaoEstaAtiva, "ENCONTRO PEGAJOSO", "Voce encontrou Slimes selvagens!", GerenciadorInimigos::criarInimigoSlime((std::rand() % 3) + 1), proximaPosicaoX, proximaPosicaoY, proximaPosicaoX, 1, larguraDoTerminal, restaurarTela);
+            ControleDeMapa::processarCombate(jogadorAtual, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, exploracaoEstaAtiva, "ENCONTRO PEGAJOSO", "Voce encontrou Slimes selvagens!", GerenciadorInimigos::criarInimigoSlime(GeradorAleatorio::obterInteiro(1, 3)), proximaPosicaoX, proximaPosicaoY, proximaPosicaoX, 1, larguraDoTerminal, restaurarTela);
         }
         else if (celulaDestinoDoMapa == 'F')
         {
-            ControleDeMapa::processarCombate(jogadorAtual, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, exploracaoEstaAtiva, "ENCONTRO MAGICO", "Voce encontrou Fadas hostis!", GerenciadorInimigos::criarInimigoFada((std::rand() % 3) + 1), proximaPosicaoX, proximaPosicaoY, proximaPosicaoX, 1, larguraDoTerminal, restaurarTela);
+            ControleDeMapa::processarCombate(jogadorAtual, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, exploracaoEstaAtiva, "ENCONTRO MAGICO", "Voce encontrou Fadas hostis!", GerenciadorInimigos::criarInimigoFada(GeradorAleatorio::obterInteiro(1, 3)), proximaPosicaoX, proximaPosicaoY, proximaPosicaoX, 1, larguraDoTerminal, restaurarTela);
         }
         else if (celulaDestinoDoMapa == 'A' || (celulaDestinoDoMapa == 'm' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX-1] == 'A'))
         {
@@ -220,7 +220,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
             {
                 std::cout << "\n" << margem << "[SISTEMA]: O baú se abre rangendo... Voce obteve itens valiosos!\n";
 
-                int qtdPocoes = (std::rand() % 3) + 2;
+            int qtdPocoes = GeradorAleatorio::obterInteiro(2, 4);
                 for (int i = 0; i < qtdPocoes; ++i) {
                     auto pocao = std::make_unique<ItemConsumivel>("Pocao de Cura (30%VM)");
                     pocao->adicionarPropriedade(Propriedade::ConsumivelCura);
@@ -228,11 +228,11 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
                 }
                 std::cout << margem << "+ " << qtdPocoes << "x Pocoes de Cura (30%VM)\n";
 
-                int qtdOuro = (std::rand() % 151) + 150;
+            int qtdOuro = GeradorAleatorio::obterInteiro(150, 300);
                 jogadorAtual->obterInventario()->adicionarOuro(qtdOuro);
                 std::cout << margem << "+ " << qtdOuro << "G\n";
 
-                bool isFuria = (std::rand() % 2 == 0);
+            bool isFuria = GeradorAleatorio::rolarChance(50);
                 std::string nomeBuff = isFuria ? "Pocao de Furia (Buff)" : "Elixir Arcano (Buff)";
                 auto buff = std::make_unique<ItemConsumivel>(nomeBuff);
                 buff->adicionarPropriedade(Propriedade::ConsumivelBuff);

@@ -1,8 +1,10 @@
+#include "Arqueiro.h"
+
 #include <iostream>
 #include <memory>
 
-#include "Arqueiro.h"
 #include "../Inventario/FabricaItens.h"
+#include "../Utilidades/SimplificacoesAparencia.h"
 
 std::string Arqueiro::obterNomeClasse() const 
 {
@@ -95,7 +97,8 @@ std::string Arqueiro::obterDescricaoHabilidadeClasse() const
 void Arqueiro::usarHabilidadeClasse(SistemaPersonagem* u, std::vector<SistemaPersonagem*>& /*inimigos*/) {
     if (u->obterRecarga()) 
     {
-        std::cout << "[SISTEMA]: Habilidade em recarga\n";
+        std::cout << "\n[SISTEMA]: A habilidade " << obterNomeHabilidadeClasse() << " esta em recarga (1 turnos)!\n";
+        SimplificacoesAparencia::aguardarEnter();
         u->definirHabilidadeCancelada(true);
         return;
     }

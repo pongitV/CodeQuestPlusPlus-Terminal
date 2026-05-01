@@ -1,46 +1,41 @@
+#include "GerenciadorMenu.h"
+
+#include <algorithm>
+#include <chrono>
+#include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <limits>
+#include <map>
 #include <string>
-#include <vector>
-#include <iomanip>
-#include <algorithm>
-#include <map> 
-#include <chrono>
 #include <thread>
-#include <fstream>
+#include <vector>
 
 #ifdef _WIN32
-    #include <windows.h>
     #include <conio.h>
+    #include <windows.h>
 #else
     #include <sys/ioctl.h>
     #include <unistd.h>
 #endif
 
-#include "GerenciadorMenu.h"
-#include "Utilidades/SimplificacoesAparencia.h"
-#include "../Inventario/Item.h"
-#include "../Inventario/ItemConsumivel.h"
-#include "../Gerenciadores/GerenciadorInimigos.h"
-#include "../Sistemas/SistemaSave.h"
-
-#include "../Telas/TelaInventario.h"
-#include "../Telas/TelaAtributos.h"
-#include "../Utilidades/Tipos.h"
-
-// Inclusao das Racas
-#include "../Racas/RacaBase.h"
-#include "../Racas/Dwarf.h"
-#include "../Racas/Elfo.h" 
-#include "../Racas/Humano.h"
-#include "../Racas/Ork.h"
-
-// Inclusao das Classes
-#include "../Classes/ClasseBase.h"
 #include "../Classes/Arqueiro.h"
 #include "../Classes/Bardo.h"
+#include "../Classes/ClasseBase.h"
 #include "../Classes/Guerreiro.h"
 #include "../Classes/Mago.h"
+#include "../Gerenciadores/GerenciadorInimigos.h"
+#include "../Inventario/Item.h"
+#include "../Inventario/ItemConsumivel.h"
+#include "../Racas/Dwarf.h"
+#include "../Racas/Elfo.h"
+#include "../Racas/Humano.h"
+#include "../Racas/Ork.h"
+#include "../Racas/RacaBase.h"
+#include "../Sistemas/SistemaSave.h"
+#include "../Telas/TelaAtributos.h"
+#include "../Telas/TelaInventario.h"
+#include "../Utilidades/SimplificacoesAparencia.h"
 
 bool GerenciadorMenu::exibirConfirmacaoDeEscolhaComArteLadoALado(const std::string& tipoDeEscolha, const std::string& nomeDaEscolha, const std::vector<std::string>& informacoesParaExibir, const std::vector<std::string>& arteAsciiParaExibir) 
 {
@@ -149,22 +144,22 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::iniciarCriacaoDeSistemaPerso
     std::unique_ptr<ClasseBase> classeEscolhida;
     bool sistemaDeParryAtivado = false;
     int nivelDeDificuldadeEscolhido = 2;
-    int etapaDeCriacaoAtual = 1; 
+    EtapaCriacao etapaDeCriacaoAtual = EtapaCriacao::Nome; 
 
-    while (etapaDeCriacaoAtual <= 5) 
+    while (etapaDeCriacaoAtual != EtapaCriacao::Concluido) 
     {
         switch (etapaDeCriacaoAtual) 
         {
-            case 1: etapaEscolherNome(nomeDoPersonagem, etapaDeCriacaoAtual); break;
-            case 2: etapaEscolherRaca(nomeDoPersonagem, racaEscolhida, etapaDeCriacaoAtual); break;
-            case 3: etapaEscolherClasse(nomeDoPersonagem, racaEscolhida.get(), classeEscolhida, etapaDeCriacaoAtual); break;
-            case 4: etapaConfigurarParry(nomeDoPersonagem, racaEscolhida.get(), classeEscolhida.get(), sistemaDeParryAtivado, etapaDeCriacaoAtual); break;
-            case 5: etapaEscolherDificuldade(nomeDoPersonagem, racaEscolhida.get(), classeEscolhida.get(), nivelDeDificuldadeEscolhido, etapaDeCriacaoAtual); break;
+            case EtapaCriacao::Nome: etapaEscolherNome(nomeDoPersonagem, etapaDeCriacaoAtual); break;
+            case EtapaCriacao::Raca: etapaEscolherRaca(nomeDoPersonagem, racaEscolhida, etapaDeCriacaoAtual); break;
+            case EtapaCriacao::Classe: etapaEscolherClasse(nomeDoPersonagem, racaEscolhida.get(), classeEscolhida, etapaDeCriacaoAtual); break;
+            case EtapaCriacao::Parry: etapaConfigurarParry(nomeDoPersonagem, racaEscolhida.get(), classeEscolhida.get(), sistemaDeParryAtivado, etapaDeCriacaoAtual); break;
+            case EtapaCriacao::Dificuldade: etapaEscolherDificuldade(nomeDoPersonagem, racaEscolhida.get(), classeEscolhida.get(), nivelDeDificuldadeEscolhido, etapaDeCriacaoAtual); break;
         }
     }
     auto personagemCriado = std::make_unique<SistemaPersonagem>(nomeDoPersonagem, std::move(racaEscolhida), std::move(classeEscolhida));
     personagemCriado->definirParryAtivado(sistemaDeParryAtivado);
-    personagemCriado->definirDificuldade(nivelDeDificuldadeEscolhido);
+    personagemCriado->definirDificuldade(static_cast<DificuldadeJogo>(nivelDeDificuldadeEscolhido));
     std::cout << "\n";
     SimplificacoesAparencia::imprimirDigitando(" [SISTEMA]: Personagem criado com sucesso! Iniciando jornada...\n", 35);
     SimplificacoesAparencia::aguardarEnter();
@@ -199,12 +194,12 @@ void GerenciadorMenu::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPe
         for (size_t indiceInimigo = 0; indiceInimigo < listaDeInimigos.size(); indiceInimigo++)
         {
             std::vector<std::pair<std::string, std::string>> debuffs;
-            auto nomesEfeitos = listaDeInimigos[indiceInimigo]->obterNomesEfeitosAtivos();
-            for (auto& nome : nomesEfeitos) {
-                if (nome == EfeitoNomes::SANGRAMENTO) debuffs.push_back({"[Sangramento]", SimplificacoesAparencia::cor(Cor::VERMELHO) + "[Sangramento]" + SimplificacoesAparencia::cor(Cor::RESET)});
-                else if (nome == EfeitoNomes::LENTIDAO) debuffs.push_back({"[Lentidao]", SimplificacoesAparencia::cor(Cor::MAGENTA) + "[Lentidao]" + SimplificacoesAparencia::cor(Cor::RESET)});
-                else if (nome == EfeitoNomes::FRAQUEZA) debuffs.push_back({"[Fraqueza]", SimplificacoesAparencia::cor(Cor::AMARELO) + "[Fraqueza]" + SimplificacoesAparencia::cor(Cor::RESET)});
-                else if (nome == EfeitoNomes::QUEBRA_RESISTENCIA) debuffs.push_back({"[Quebra Def.]", SimplificacoesAparencia::cor(Cor::CIANO) + "[Quebra Def.]" + SimplificacoesAparencia::cor(Cor::RESET)});
+            auto efeitosAtivos = listaDeInimigos[indiceInimigo]->obterIDsEfeitosAtivos();
+            for (auto& id : efeitosAtivos) {
+                if (id == EfeitoID::Sangramento) debuffs.push_back({"[Sangramento]", SimplificacoesAparencia::cor(Cor::VERMELHO) + "[Sangramento]" + SimplificacoesAparencia::cor(Cor::RESET)});
+                else if (id == EfeitoID::Lentidao) debuffs.push_back({"[Lentidao]", SimplificacoesAparencia::cor(Cor::MAGENTA) + "[Lentidao]" + SimplificacoesAparencia::cor(Cor::RESET)});
+                else if (id == EfeitoID::Fraqueza) debuffs.push_back({"[Fraqueza]", SimplificacoesAparencia::cor(Cor::AMARELO) + "[Fraqueza]" + SimplificacoesAparencia::cor(Cor::RESET)});
+                else if (id == EfeitoID::QuebraResistencia) debuffs.push_back({"[Quebra Def.]", SimplificacoesAparencia::cor(Cor::CIANO) + "[Quebra Def.]" + SimplificacoesAparencia::cor(Cor::RESET)});
             }
 
             std::string visualStr = "";
@@ -239,7 +234,7 @@ void GerenciadorMenu::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPe
     std::cout << std::string(larguraTerminal, '-') << "\n\n";
 }
 
-void GerenciadorMenu::etapaEscolherNome(std::string& nomeDoPersonagem, int& etapaAtual)
+void GerenciadorMenu::etapaEscolherNome(std::string& nomeDoPersonagem, EtapaCriacao& etapaAtual)
 {
     SimplificacoesAparencia::limparTela();
     exibirLogoDoJogo("INTRODUCAO AO RPG");
@@ -252,10 +247,10 @@ void GerenciadorMenu::etapaEscolherNome(std::string& nomeDoPersonagem, int& etap
 
     if (entrada == "0") exit(0);
     nomeDoPersonagem = entrada;
-    if (!nomeDoPersonagem.empty()) etapaAtual = 2;
+    if (!nomeDoPersonagem.empty()) etapaAtual = EtapaCriacao::Raca;
 }
 
-void GerenciadorMenu::etapaEscolherRaca(const std::string& nome, std::unique_ptr<RacaBase>& racaEscolhida, int& etapaAtual)
+void GerenciadorMenu::etapaEscolherRaca(const std::string& nome, std::unique_ptr<RacaBase>& racaEscolhida, EtapaCriacao& etapaAtual)
 {
     SimplificacoesAparencia::limparTela();
     exibirLogoDoJogo("SELECAO DE RACA");
@@ -266,7 +261,7 @@ void GerenciadorMenu::etapaEscolherRaca(const std::string& nome, std::unique_ptr
     
     int escolha;
     if (!(std::cin >> escolha)) { std::cin.clear(); std::cin.ignore(1000, '\n'); return; }
-    if (escolha == 0) { etapaAtual = 1; return; }
+    if (escolha == 0) { etapaAtual = EtapaCriacao::Nome; return; }
 
     std::unique_ptr<RacaBase> tempRaca;
     switch(escolha) {
@@ -298,12 +293,12 @@ void GerenciadorMenu::etapaEscolherRaca(const std::string& nome, std::unique_ptr
         if (exibirConfirmacaoDeEscolhaComArteLadoALado("RACA", tempRaca->obterNomeRaca(), info, tempRaca->obterAparenciaRaca())) 
         {
             racaEscolhida = std::move(tempRaca); 
-            etapaAtual = 3;
+            etapaAtual = EtapaCriacao::Classe;
         }
     }
 }
 
-void GerenciadorMenu::etapaEscolherClasse(const std::string& nome, RacaBase* raca, std::unique_ptr<ClasseBase>& classeEscolhida, int& etapaAtual)
+void GerenciadorMenu::etapaEscolherClasse(const std::string& nome, RacaBase* raca, std::unique_ptr<ClasseBase>& classeEscolhida, EtapaCriacao& etapaAtual)
 {
     SimplificacoesAparencia::limparTela();
     exibirLogoDoJogo("SELECAO DE CLASSE");
@@ -315,7 +310,7 @@ void GerenciadorMenu::etapaEscolherClasse(const std::string& nome, RacaBase* rac
     
     int escolha;
     if (!(std::cin >> escolha)) { std::cin.clear(); std::cin.ignore(1000, '\n'); return; }
-    if (escolha == 0) { etapaAtual = 2; return; }
+    if (escolha == 0) { etapaAtual = EtapaCriacao::Raca; return; }
 
     std::unique_ptr<ClasseBase> temp;
     switch(escolha) 
@@ -371,12 +366,12 @@ void GerenciadorMenu::etapaEscolherClasse(const std::string& nome, RacaBase* rac
         if (exibirConfirmacaoDeEscolhaComArteLadoALado("CLASSE", temp->obterNomeClasse(), info, temp->obterAparenciaClasseMenu())) 
         {
             classeEscolhida = std::move(temp); 
-            etapaAtual = 4;
+            etapaAtual = EtapaCriacao::Parry;
         }
     }
 }
 
-void GerenciadorMenu::etapaConfigurarParry(const std::string& nome, RacaBase* raca, ClasseBase* classe, bool& parry, int& etapaAtual)
+void GerenciadorMenu::etapaConfigurarParry(const std::string& nome, RacaBase* raca, ClasseBase* classe, bool& parry, EtapaCriacao& etapaAtual)
 {
     SimplificacoesAparencia::limparTela();
     exibirLogoDoJogo("CONFIGURACOES DO JOGO");
@@ -389,16 +384,16 @@ void GerenciadorMenu::etapaConfigurarParry(const std::string& nome, RacaBase* ra
     
     int escolha;
     if (!(std::cin >> escolha)) { std::cin.clear(); std::cin.ignore(1000, '\n'); return; }
-    if (escolha == 0) { etapaAtual = 3; return; }
+    if (escolha == 0) { etapaAtual = EtapaCriacao::Classe; return; }
 
     if (escolha == 1 || escolha == 2) 
     {
         parry = (escolha == 1);
-        etapaAtual = 5;
+        etapaAtual = EtapaCriacao::Dificuldade;
     }
 }
 
-void GerenciadorMenu::etapaEscolherDificuldade(const std::string& nome, RacaBase* raca, ClasseBase* classe, int& dificuldade, int& etapaAtual)
+void GerenciadorMenu::etapaEscolherDificuldade(const std::string& nome, RacaBase* raca, ClasseBase* classe, int& dificuldade, EtapaCriacao& etapaAtual)
 {
     SimplificacoesAparencia::limparTela();
     exibirLogoDoJogo("DIFICULDADE DO MUNDO");
@@ -413,20 +408,17 @@ void GerenciadorMenu::etapaEscolherDificuldade(const std::string& nome, RacaBase
     
     int escolha;
     if (!(std::cin >> escolha)) { std::cin.clear(); std::cin.ignore(1000, '\n'); return; }
-    if (escolha == 0) { etapaAtual = 4; return; }
+    if (escolha == 0) { etapaAtual = EtapaCriacao::Parry; return; }
 
     if (escolha >= 1 && escolha <= 3) 
     {
         dificuldade = escolha;
-        etapaAtual = 6;
+        etapaAtual = EtapaCriacao::Concluido;
     }
 }
 
 void GerenciadorMenu::exibirLogoDoJogo(const std::string& tituloDaTela) 
 {
-#ifdef _WIN32
-    SetConsoleOutputCP(65001); 
-#endif
     int larguraConsole = SimplificacoesAparencia::obterLarguraTerminal();
     
     std::vector<std::string> logoTexto = 

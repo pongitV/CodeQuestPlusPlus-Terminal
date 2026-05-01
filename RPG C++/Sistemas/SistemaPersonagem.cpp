@@ -1,13 +1,14 @@
-#include <iostream>
+#include "SistemaPersonagem.h"
+
 #include <algorithm>
 #include <cctype>
+#include <iostream>
 #include <memory>
 
-#include "SistemaPersonagem.h"
-#include "../Racas/RacaBase.h"
 #include "../Classes/ClasseBase.h"
+#include "../Racas/RacaBase.h"
+#include "../Utilidades/Constantes.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
-#include "Constantes.h"
 
 SistemaPersonagem::SistemaPersonagem(std::string nome, std::unique_ptr<RacaBase> r, std::unique_ptr<ClasseBase> c) 
 {
@@ -28,18 +29,6 @@ SistemaPersonagem::SistemaPersonagem(std::string nome, std::unique_ptr<RacaBase>
     this->xpParaSubir = Constantes::XP_BASE_PARA_SUBIR;
     this->xpRecompensa = 0;
 
-    this->multiplicadorAtual = 1.0;
-    this->estaDefendendo = false;
-    this->recargaDefesa = false;
-    this->estaInviolavel = false;
-    this->recargaHabilidade = false;
-    this->pularTurnoInimigo = false;
-    this->parryAtivado = false;
-    this->dificuldadeAtual = 2; // Padrao: Normal
-    this->habilidadeCancelada = false;
-    this->querVoltarProMenu = false;
-
-
     auto kit = this->classe->obterEquipamentoClasse();
     for (auto& itemUnique : kit) 
     {
@@ -57,8 +46,6 @@ SistemaPersonagem::SistemaPersonagem(std::string nome, std::unique_ptr<RacaBase>
     }
 
     calcularAtributos();
-
-    this->podeReviver = true; // Habilidade de raça "Espirito indomavel" ativa por padrão
 }
 
 SistemaPersonagem::~SistemaPersonagem() 
@@ -113,13 +100,19 @@ void SistemaPersonagem::alterarAtributoEstatico(TipoAtributo atributo, int valor
 
 void SistemaPersonagem::reduzirCooldowns()
 {
-    if (recargaDefesa) recargaDefesa = false;
-    if (recargaHabilidade) recargaHabilidade = false;
-    if (cooldownsAtivos.empty()) return;
-    for (auto& par : cooldownsAtivos)
+    if (combate.recargaDefesa) combate.recargaDefesa = false;
+    if (combate.recargaHabilidade) combate.recargaHabilidade = false;
+    if (combate.cooldownsAtivos.empty()) return;
+    for (auto& par : combate.cooldownsAtivos)
     {
         if (par.second > 0) par.second--;
     }
+}
+
+void SistemaPersonagem::prepararParaNovaBatalha()
+{
+    combate.resetar();
+    limparEfeitos();
 }
 
 void SistemaPersonagem::calcularAtributos()
@@ -145,9 +138,9 @@ int SistemaPersonagem::obterDestreza() const
 void SistemaPersonagem::definirMultiplicador(double m) 
 { 
     if (classe) {
-        multiplicadorAtual = classe->processarMultiplicadorBuffPassivaBardo(m);
+        combate.multiplicadorAtual = classe->processarMultiplicadorBuffPassivaBardo(m);
     } else {
-        multiplicadorAtual = m;
+        combate.multiplicadorAtual = m;
     }
 }
 
@@ -171,24 +164,30 @@ void SistemaPersonagem::modificarVida(int valor)
 {
     if (valor > 0 && classe) valor = classe->processarCuraPassivaBardo(valor);
 
+    int vidaAntes = this->vidaAtual;
     this->vidaAtual += valor;
     if (this->vidaAtual < 0) this->vidaAtual = 0;
     if (this->vidaAtual > statsFinais.vida) this->vidaAtual = statsFinais.vida;
+
+    if (this->vidaAtual > vidaAntes) 
+    {
+        combate.curaTotalRecebida += (this->vidaAtual - vidaAntes);
+    }
 }
 
-const EfeitoStatus* SistemaPersonagem::encontrarEfeito(const std::string& nome) const {
+const EfeitoStatus* SistemaPersonagem::encontrarEfeito(EfeitoID id) const {
     for (const auto& ef : efeitosAtivos) {
-        if (ef->obterNome() == nome) return ef.get();
+        if (ef->obterID() == id) return ef.get();
     }
     return nullptr;
 }
 
-bool SistemaPersonagem::possuiEfeito(const std::string& nome) const {
-    return encontrarEfeito(nome) != nullptr;
+bool SistemaPersonagem::possuiEfeito(EfeitoID id) const {
+    return encontrarEfeito(id) != nullptr;
 }
 
-int SistemaPersonagem::obterTurnosEfeito(const std::string& nome) const {
-    const EfeitoStatus* ef = encontrarEfeito(nome);
+int SistemaPersonagem::obterTurnosEfeito(EfeitoID id) const {
+    const EfeitoStatus* ef = encontrarEfeito(id);
     return ef ? ef->obterTurnosRestantes() : 0;
 }
 
@@ -280,7 +279,7 @@ int SistemaPersonagem::receberDano(int danoBruto, int danoPerfurante, int danoRe
     danoFinal -= danoReduzidoParry;
     if (danoFinal < 0) danoFinal = 0;
 
-    if (estaDefendendo && escudo != nullptr) {
+    if (combate.estaDefendendo && escudo != nullptr) {
         int bloqueio = escudo->obterReducaoDanoFixaEscudo();
         std::cout << ">> [DEFESA]: O escudo bloqueou " << bloqueio << " de dano!\n";
         danoFinal -= bloqueio;
@@ -321,6 +320,13 @@ void SistemaPersonagem::processarEfeitosInicioTurno() {
     }
 }
 
+void SistemaPersonagem::limparEfeitos() {
+    for (auto& ef : efeitosAtivos) {
+        ef->aoSair(this); // Garante que os atributos (como Forca e Destreza) sejam restaurados
+    }
+    efeitosAtivos.clear();
+}
+
 bool SistemaPersonagem::podeAgir() const {
     for (auto& ef : efeitosAtivos) {
         if (ef->impedeAcao()) {
@@ -331,13 +337,13 @@ bool SistemaPersonagem::podeAgir() const {
     return true;
 }
 
-std::vector<std::string> SistemaPersonagem::obterNomesEfeitosAtivos() const {
-    std::vector<std::string> nomes;
-    nomes.reserve(efeitosAtivos.size());
+std::vector<EfeitoID> SistemaPersonagem::obterIDsEfeitosAtivos() const {
+    std::vector<EfeitoID> ids;
+    ids.reserve(efeitosAtivos.size());
     for (auto& ef : efeitosAtivos) {
-        nomes.push_back(ef->obterNome());
+        ids.push_back(ef->obterID());
     }
-    return nomes;
+    return ids;
 }
 
 void SistemaPersonagem::executarDrops(SistemaPersonagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)

@@ -6,6 +6,9 @@
 #include "ItemMaterial.h"
 #include "ItemMissao.h"
 
+#include "../Sistemas/SistemaPersonagem.h"
+#include "../Utilidades/SimplificacoesAparencia.h"
+
 std::unique_ptr<Item> FabricaItens::criarItem(const std::string& nome) 
 {
     // Trata automaticamente a instanciacao de itens melhorados pela Forja (+)
@@ -49,11 +52,19 @@ std::unique_ptr<Item> FabricaItens::criarItem(const std::string& nome)
     if (nome == "Frasco de Gosma (Debuff)") {
         auto debuff = std::make_unique<ItemConsumivel>(nome);
         debuff->adicionarPropriedade(Propriedade::ConsumivelDebuffLentidao);
+        debuff->definirAcaoUsar([](SistemaPersonagem* usuario, SistemaPersonagem* alvo) {
+            alvo->adicionarEfeito(std::make_unique<EfeitoLentidao>(3));
+            std::cout << "\n" << SimplificacoesAparencia::cor(Cor::MAGENTA) << ">> Voce jogou o frasco! " << alvo->obterNome() << " esta com lentidao por 3 turnos!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+        });
         return debuff;
     }
     if (nome == "Frasco de Fraqueza (Debuff)") {
         auto debuff = std::make_unique<ItemConsumivel>(nome);
         debuff->adicionarPropriedade(Propriedade::ConsumivelDebuffFraqueza);
+        debuff->definirAcaoUsar([](SistemaPersonagem* usuario, SistemaPersonagem* alvo) {
+            alvo->adicionarEfeito(std::make_unique<EfeitoFraqueza>(3));
+            std::cout << "\n" << SimplificacoesAparencia::cor(Cor::VERMELHO) << ">> Voce jogou o frasco! " << alvo->obterNome() << " teve sua forca reduzida em 25% por 3 turnos!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+        });
         return debuff;
     }
     

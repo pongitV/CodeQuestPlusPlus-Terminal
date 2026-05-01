@@ -2,7 +2,6 @@
 #include <vector>
 #include <windows.h>
 #include <map>
-#include <cstdlib>
 #include <memory>
 #include <utility>
 
@@ -22,6 +21,7 @@
 #include "../Utilidades/SimplificacoesAparencia.h"
 #include "ControleDeMapa.h"
 #include "../Utilidades/ControleDeInput.h"
+#include "../Utilidades/GeradorAleatorio.h"
 
 Mapa1Vila::Mapa1Vila(SistemaPersonagem* personagemJogador) :
 jogadorAtual(personagemJogador), posicaoXDoJogador(2), posicaoYDoJogador(2), jogadorEstaDentroDeUmSubMapa(false),
@@ -97,7 +97,7 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
 
         if (celulaDestinoDoMapa == 'G')
         {
-            ControleDeMapa::processarCombate(jogadorAtual, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, exploracaoEstaAtiva, "ENCONTRO INESPERADO", "Voce encontrou uma horda de Goblins!", GerenciadorInimigos::criarInimigoGoblin((std::rand() % 3) + 1), proximaPosicaoX, proximaPosicaoY, proximaPosicaoX, 1, larguraDoTerminal, restaurarTela);
+            ControleDeMapa::processarCombate(jogadorAtual, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, exploracaoEstaAtiva, "ENCONTRO INESPERADO", "Voce encontrou uma horda de Goblins!", GerenciadorInimigos::criarInimigoGoblin(GeradorAleatorio::obterInteiro(1, 3)), proximaPosicaoX, proximaPosicaoY, proximaPosicaoX, 1, larguraDoTerminal, restaurarTela);
         }
         else if (celulaDestinoDoMapa == '^' && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1] == 'C' && !jogadorEstaDentroDeUmSubMapa)
         {

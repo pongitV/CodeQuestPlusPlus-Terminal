@@ -1,20 +1,22 @@
 #include "SistemaSave.h"
-#include "SistemaPersonagem.h"
+
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+
+#include "../Classes/Arqueiro.h"
+#include "../Classes/Bardo.h"
+#include "../Classes/Guerreiro.h"
+#include "../Classes/Mago.h"
 #include "../Inventario/FabricaItens.h"
 #include "../Inventario/Item.h"
 #include "../Racas/Dwarf.h"
 #include "../Racas/Elfo.h"
 #include "../Racas/Humano.h"
 #include "../Racas/Ork.h"
-#include "../Classes/Arqueiro.h"
-#include "../Classes/Bardo.h"
-#include "../Classes/Guerreiro.h"
-#include "../Classes/Mago.h"
-#include "Utilidades/SimplificacoesAparencia.h"
 #include "../Sistemas/SistemaBestiario.h"
-#include <fstream>
-#include <iostream>
-#include <filesystem>
+#include "../Utilidades/SimplificacoesAparencia.h"
+#include "SistemaPersonagem.h"
 
 bool SistemaSave::saveExiste() {
     return !listarSaves().empty();
@@ -45,7 +47,7 @@ void SistemaSave::salvarJogo(SistemaPersonagem* jogador) {
     arquivo << jogador->obterNomeClasse() << "\n";
     
     arquivo << jogador->obterNivel() << " " << jogador->obterXpAtual() << " " << jogador->obterXpParaSubir() << "\n";
-    arquivo << jogador->obterVida() << " " << jogador->obterInventario()->obterOuro() << " " << jogador->obterDificuldade() << " " << (jogador->obterLabirintoDesbloqueado() ? 1 : 0) << "\n";
+    arquivo << jogador->obterVida() << " " << jogador->obterInventario()->obterOuro() << " " << static_cast<int>(jogador->obterDificuldade()) << " " << (jogador->obterLabirintoDesbloqueado() ? 1 : 0) << "\n";
 
     auto& attr = jogador->obterAtributosFinais();
     arquivo << attr.vida << " " << attr.forca << " " << attr.destreza << " " << attr.resistencia << " " << attr.constituicao << " " << attr.inteligencia << " " << attr.sabedoria << "\n";
@@ -100,7 +102,7 @@ std::unique_ptr<SistemaPersonagem> SistemaSave::carregarJogo(const std::string& 
     for (Item* i : itensPadrao) jogador->obterInventario()->removerItem(i);
 
     jogador->definirNivel(nivel); jogador->definirXpAtual(xpAtual); jogador->definirXpParaSubir(xpParaSubir);
-    jogador->obterAtributosFinais() = attr; jogador->definirVida(vida); jogador->definirDificuldade(dificuldade);
+    jogador->obterAtributosFinais() = attr; jogador->definirVida(vida); jogador->definirDificuldade(static_cast<DificuldadeJogo>(dificuldade));
     if (labirinto == 1) jogador->desbloquearLabirinto();
     
     jogador->obterInventario()->adicionarOuro(-jogador->obterInventario()->obterOuro());

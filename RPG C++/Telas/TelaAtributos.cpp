@@ -3,20 +3,15 @@
 #include <string>
 #include <iomanip>
 
-#ifdef _WIN32
-    #include <windows.h>
-#endif
-
 #include "TelaAtributos.h"
 #include "../Gerenciadores/GerenciadorMenu.h"
 #include "../Racas/RacaBase.h"
 #include "../Classes/ClasseBase.h"
-#include "../Utilidades/Tipos.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 
 struct EfeitoInfo {
-    const char* efeitoNome;
-    int corId;
+    EfeitoID efeitoId;
+    Cor corId;
     const char* exibirNome;
     bool mostrarTurnos;
 };
@@ -25,10 +20,6 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
 {
     if (jogadorAtual == nullptr) return;
     SimplificacoesAparencia::limparTela();
-
-#ifdef _WIN32
-    SetConsoleOutputCP(65001);
-#endif
 
     int largura = SimplificacoesAparencia::obterLarguraTerminal();
 
@@ -49,13 +40,13 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
     std::cout << "\n" << std::string(largura, '=') << "\n\n";
 
     double multiplicadorDeAtributosAtual = jogadorAtual->obterMultiplicador();
-    int turnosBuff = jogadorAtual->obterTurnosEfeito(EfeitoNomes::BUFF_ATRIBUTOS);
+    int turnosBuff = jogadorAtual->obterTurnosEfeito(EfeitoID::BuffAtributos);
     bool temBuff = (turnosBuff > 0 && multiplicadorDeAtributosAtual > 1.0);
 
-    int forcaPerdida     = jogadorAtual->possuiEfeito(EfeitoNomes::FRAQUEZA)     ? (jogadorAtual->obterForca() / 3)      : 0;
-    int destrezaPerdida  = jogadorAtual->possuiEfeito(EfeitoNomes::LENTIDAO)     ? jogadorAtual->obterDestreza()       : 0;
-    int resPerdida       = jogadorAtual->possuiEfeito(EfeitoNomes::QUEBRA_RESISTENCIA) ? jogadorAtual->obterResistencia() : 0;
-    int constPerdida     = jogadorAtual->possuiEfeito(EfeitoNomes::QUEBRA_RESISTENCIA) ? (jogadorAtual->obterConstituicao() / 2) : 0;
+    int forcaPerdida     = jogadorAtual->possuiEfeito(EfeitoID::Fraqueza)     ? (jogadorAtual->obterForca() / 3)      : 0;
+    int destrezaPerdida  = jogadorAtual->possuiEfeito(EfeitoID::Lentidao)     ? jogadorAtual->obterDestreza()       : 0;
+    int resPerdida       = jogadorAtual->possuiEfeito(EfeitoID::QuebraResistencia) ? jogadorAtual->obterResistencia() : 0;
+    int constPerdida     = jogadorAtual->possuiEfeito(EfeitoID::QuebraResistencia) ? (jogadorAtual->obterConstituicao() / 2) : 0;
 
     int espacos = (largura - 50) / 2;
     std::string margem(std::max(0, espacos), ' ');
@@ -66,9 +57,9 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
     std::cout << margem << "NIVEL:          " << jogadorAtual->obterNivel() << " (XP: " << SimplificacoesAparencia::cor(Cor::MAGENTA) << jogadorAtual->obterXpAtual() << " / " << jogadorAtual->obterXpParaSubir() << SimplificacoesAparencia::cor(Cor::RESET) << ")\n";
     std::cout << margem << "DIFICULDADE:    " << SimplificacoesAparencia::cor(Cor::VERMELHO);
     switch (jogadorAtual->obterDificuldade()) {
-        case 1: std::cout << "Facil"; break;
-        case 2: std::cout << "Normal"; break;
-        default: std::cout << "Dificil"; break;
+        case DificuldadeJogo::Facil: std::cout << "Facil"; break;
+        case DificuldadeJogo::Normal: std::cout << "Normal"; break;
+        case DificuldadeJogo::Dificil: std::cout << "Dificil"; break;
     }
     std::cout << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
     std::cout << margem << "[PARRY]:        ";
@@ -120,20 +111,20 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
     printAtributo("Sabedoria",  jogadorAtual->obterSabedoria(), 0, (tipoClasse == TipoClasse::Bardo)  ? " [DANO]" : "");
 
     static const EfeitoInfo efeitosParaExibir[] = {
-        {EfeitoNomes::BUFF_ATRIBUTOS,     Cor::VERDE,   "Buff Atributos",   true},
-        {EfeitoNomes::LENTIDAO,           Cor::MAGENTA, "Lentidao",         true},
-        {EfeitoNomes::SANGRAMENTO,        Cor::VERMELHO,"Sangramento",      true},
-        {EfeitoNomes::FRAQUEZA,           Cor::VERMELHO,"Fraqueza",         true},
-        {EfeitoNomes::QUEBRA_RESISTENCIA, Cor::CIANO,   "Quebra de Resistencia", false},
+        {EfeitoID::BuffAtributos,     Cor::VERDE,   "Buff Atributos",   true},
+        {EfeitoID::Lentidao,           Cor::MAGENTA, "Lentidao",         true},
+        {EfeitoID::Sangramento,        Cor::VERMELHO,"Sangramento",      true},
+        {EfeitoID::Fraqueza,           Cor::VERMELHO,"Fraqueza",         true},
+        {EfeitoID::QuebraResistencia, Cor::CIANO,   "Quebra de Resistencia", false},
     };
 
     std::cout << "\n" << margem << "--- STATUS ATUAIS ---\n";
     bool temStatus = false;
     for (const auto& info : efeitosParaExibir) {
-        if (jogadorAtual->possuiEfeito(info.efeitoNome)) {
+        if (jogadorAtual->possuiEfeito(info.efeitoId)) {
             std::cout << margem << "Efeito: " << SimplificacoesAparencia::cor(info.corId) << info.exibirNome;
             if (info.mostrarTurnos) {
-                std::cout << " (" << jogadorAtual->obterTurnosEfeito(info.efeitoNome) << " turnos)";
+                std::cout << " (" << jogadorAtual->obterTurnosEfeito(info.efeitoId) << " turnos)";
             }
             std::cout << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
             temStatus = true;

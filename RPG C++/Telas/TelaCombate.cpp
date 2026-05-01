@@ -2,15 +2,10 @@
 #include <vector>
 #include <string>
 
-#ifdef _WIN32
-    #include <windows.h>
-#endif
-
 #include "TelaCombate.h"
 #include "../Gerenciadores/GerenciadorMenu.h"
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
-#include "../Utilidades/Tipos.h"
 #include "../Racas/RacaBase.h"
 #include "../Classes/ClasseBase.h"
 #include "../Inventario/Item.h"
@@ -35,24 +30,19 @@ namespace {
 
     std::string gerarStringDeStatus(SistemaPersonagem* jogadorAtual, const std::string& cVerde, const std::string& cLaranja, const std::string& cVermelho, const std::string& cCiano, const std::string& cAzul, const std::string& cMagenta, const std::string& cReset) {
         std::string status = "";
-        if (jogadorAtual->possuiEfeito(EfeitoNomes::BUFF_ATRIBUTOS)) status += cVerde + "[Buff Atributos]" + cReset + " ";
-        if (jogadorAtual->possuiEfeito(EfeitoNomes::METADE_DANO)) status += cCiano + "[Metade Dano]" + cReset + " ";
-        if (jogadorAtual->possuiEfeito(EfeitoNomes::INVOIVEL)) status += cAzul + "[Inviolavel]" + cReset + " ";
-        if (jogadorAtual->possuiEfeito(EfeitoNomes::SANGRAMENTO)) status += cVermelho + "[Sangrando]" + cReset + " ";
-        if (jogadorAtual->possuiEfeito(EfeitoNomes::LENTIDAO)) status += cMagenta + "[Lento]" + cReset + " ";
-        if (jogadorAtual->possuiEfeito(EfeitoNomes::FRAQUEZA)) status += cLaranja + "[Fraqueza]" + cReset + " ";
-        if (jogadorAtual->possuiEfeito(EfeitoNomes::QUEBRA_RESISTENCIA)) status += cCiano + "[Quebra Def.]" + cReset + " ";
+        if (jogadorAtual->possuiEfeito(EfeitoID::BuffAtributos)) status += cVerde + "[Buff Atributos]" + cReset + " ";
+        if (jogadorAtual->possuiEfeito(EfeitoID::MetadeDano)) status += cCiano + "[Metade Dano]" + cReset + " ";
+        if (jogadorAtual->possuiEfeito(EfeitoID::Inviolavel)) status += cAzul + "[Inviolavel]" + cReset + " ";
+        if (jogadorAtual->possuiEfeito(EfeitoID::Sangramento)) status += cVermelho + "[Sangrando]" + cReset + " ";
+        if (jogadorAtual->possuiEfeito(EfeitoID::Lentidao)) status += cMagenta + "[Lento]" + cReset + " ";
+        if (jogadorAtual->possuiEfeito(EfeitoID::Fraqueza)) status += cLaranja + "[Fraqueza]" + cReset + " ";
+        if (jogadorAtual->possuiEfeito(EfeitoID::QuebraResistencia)) status += cCiano + "[Quebra Def.]" + cReset + " ";
         return status.empty() ? "Nenhum" : status;
     }
 }
 
 void TelaCombate::exibirLogoParaTelaDeCombate(const std::string& tituloDaTela) 
 {
-#ifdef _WIN32
-    // Configura o console para aceitar blocos UTF-8
-    SetConsoleOutputCP(65001); 
-#endif
-
     int larguraConsole = SimplificacoesAparencia::obterLarguraTerminal();
     
     std::vector<std::string> logo = 

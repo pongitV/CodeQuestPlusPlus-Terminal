@@ -1,11 +1,25 @@
 #pragma once
 
-#include <vector>
-#include <string>
 #include <memory>
-#include "../Sistemas/SistemaPersonagem.h"
+#include <string>
+#include <vector>
+
 #include "../Inventario/Item.h"
-#include "../Utilidades/Tipos.h"
+#include "../Sistemas/SistemaPersonagem.h"
+
+enum class TipoRaca 
+{
+    Nenhum,
+    Dwarf,
+    Elfo,
+    Humano,
+    Ork,
+    OrkExilado,
+    Goblin,
+    Fada,
+    Slime,
+    AbominacaoFloresta
+};
 
 class RacaBase {
 public:
