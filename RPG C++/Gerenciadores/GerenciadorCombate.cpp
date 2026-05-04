@@ -72,63 +72,72 @@ void GerenciadorCombate::iniciarCombate()
     jogadorAtual->prepararParaNovaBatalha();
 
     int maxDestrezaInimigos = 0;
-    for (auto& inimigoPtr : listaDeInimigos)
-    {
-        SistemaBestiario::instancia().registrarPrimeiraVista(inimigoPtr->obterNome());
-        if (inimigoPtr->obterDestreza() > maxDestrezaInimigos) maxDestrezaInimigos = inimigoPtr->obterDestreza();
-    }
-    
     bool turnoExtraFirstTurn = false;
-    if (jogadorAtual->obterDestreza() > (maxDestrezaInimigos * 2)) 
-    {
-        turnoExtraFirstTurn = true;
-    }
-    
-    // Destreza decide quem ataca primeiro no combate
-    if (maxDestrezaInimigos > jogadorAtual->obterDestreza())
-    {
-        exibirTelaDeCombate();
 
-        std::cout << "\n" << SimplificacoesAparencia::cor(Cor::VERMELHO) << "[SISTEMA]: Os inimigos sao mais ageis e atacam primeiro!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-        SimplificacoesAparencia::aguardarEnter();
-        executarTurnoDeTodosOsInimigos();
-        if (verificarCondicaoDeVitoriaOuDerrota()) return;
-    }
-
-    while (jogadorAtual->obterVida() > 0 && !listaDeInimigos.empty())
-    {
-        jogadorAtual->reduzirCooldowns();
-        jogadorAtual->processarEfeitosInicioTurno();
-
-        bool turnoFoiConsumido = false;
-        bool usouInventarioNoTurno = false;
-
-        while (!turnoFoiConsumido)
-        {
-            exibirTelaDeCombate();
-            processarMenuDeAcoesDoJogador(turnoFoiConsumido, usouInventarioNoTurno);
-            
-            if (verificarCondicaoDeVitoriaOuDerrota()) return; 
+    auto determinarQuemComeca = [&]() -> bool {
+        for (auto& inimigoPtr : listaDeInimigos) {
+            SistemaBestiario::instancia().registrarPrimeiraVista(inimigoPtr->obterNome());
+            if (inimigoPtr->obterDestreza() > maxDestrezaInimigos) maxDestrezaInimigos = inimigoPtr->obterDestreza();
         }
         
-        if (turnoExtraFirstTurn && contadorDoTurnoAtual == 1) 
-        {
+        if (jogadorAtual->obterDestreza() > (maxDestrezaInimigos * 2)) {
+            turnoExtraFirstTurn = true;
+        }
+        
+        if (maxDestrezaInimigos > jogadorAtual->obterDestreza()) {
+            exibirTelaDeCombate();
+            std::cout << "\n" << SimplificacoesAparencia::cor(Cor::VERMELHO) << "[SISTEMA]: Os inimigos sao mais ageis e atacam primeiro!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+            SimplificacoesAparencia::aguardarEnter();
+            executarTurnoDeTodosOsInimigos();
+            return verificarCondicaoDeVitoriaOuDerrota();
+        }
+        return false;
+    };
+
+    auto verificarCondicaoDeFimDeTurno = [&](bool usouInventarioNoTurno, bool& pularIncremento) -> bool {
+        if (turnoExtraFirstTurn && contadorDoTurnoAtual == 1) {
             std::cout << "\n" << SimplificacoesAparencia::cor(Cor::CIANO) << "[SISTEMA]: Sua agilidade extrema (" << jogadorAtual->obterDestreza() << " VS " << maxDestrezaInimigos << ") permite que voce aja novamente!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
             SimplificacoesAparencia::aguardarEnter();
             turnoExtraFirstTurn = false;
-            continue; // Pula o turno inimigo e permite que o jogador jogue o turno novamente
+            pularIncremento = true;
+            return false;
         }
 
-        if (usouInventarioNoTurno)
-        {
+        if (usouInventarioNoTurno) {
             exibirTelaDeCombate();
 
             std::cout << "\n" << SimplificacoesAparencia::cor(Cor::AMARELO) << "[SISTEMA]: O inimigo te pegou desprevinido enquanto voce usava o inventario!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
         }
 
         executarTurnoDeTodosOsInimigos();
-        if (verificarCondicaoDeVitoriaOuDerrota()) return;
-        contadorDoTurnoAtual++;
+        pularIncremento = false;
+        return verificarCondicaoDeVitoriaOuDerrota();
+    };
+
+    auto executarLoopPrincipal = [&]() {
+        while (jogadorAtual->obterVida() > 0 && !listaDeInimigos.empty()) {
+            jogadorAtual->reduzirCooldowns();
+            jogadorAtual->processarEfeitosInicioTurno();
+
+            bool turnoFoiConsumido = false;
+            bool usouInventarioNoTurno = false;
+
+            while (!turnoFoiConsumido) {
+                exibirTelaDeCombate();
+                processarMenuDeAcoesDoJogador(turnoFoiConsumido, usouInventarioNoTurno);
+                if (verificarCondicaoDeVitoriaOuDerrota()) return; 
+            }
+            
+            bool pularIncremento = false;
+            if (verificarCondicaoDeFimDeTurno(usouInventarioNoTurno, pularIncremento)) return;
+            if (pularIncremento) continue;
+
+            contadorDoTurnoAtual++;
+        }
+    };
+
+    if (!determinarQuemComeca()) {
+        executarLoopPrincipal();
     }
 }
 
@@ -269,15 +278,20 @@ void GerenciadorCombate::processarAcaoInventario(bool& turnoFoiConsumido, bool& 
 
 void GerenciadorCombate::limparInimigosMortos()
 {
-    for (auto iteradorInimigos = listaDeInimigos.begin(); iteradorInimigos != listaDeInimigos.end(); ) 
+    for (auto& inimigoPtr : listaDeInimigos) 
     {
-        if ((*iteradorInimigos)->obterVida() <= 0) 
+        if (inimigoPtr->obterVida() <= 0) 
         {
-            processarMorteDeInimigo(iteradorInimigos->get());
-            iteradorInimigos = listaDeInimigos.erase(iteradorInimigos);
+            processarMorteDeInimigo(inimigoPtr.get());
             SimplificacoesAparencia::aguardarEnter();
-        } else { ++iteradorInimigos; }
+        }
     }
+
+    listaDeInimigos.erase(
+        std::remove_if(listaDeInimigos.begin(), listaDeInimigos.end(),
+            [](const std::unique_ptr<SistemaPersonagem>& inimigo) { return inimigo->obterVida() <= 0; }),
+        listaDeInimigos.end()
+    );
 }
 
 void GerenciadorCombate::executarTurnoDeTodosOsInimigos() 
@@ -339,7 +353,8 @@ void GerenciadorCombate::realizarAtaqueFisico(SistemaPersonagem* personagemAtaca
         this->aplicarDanoAoAlvo(atacante, alvo, danoBruto, perfurante, turnoAtualDoCombate);
     };
 
-    personagemAtacante->obterClasse()->executarAtaqueComPassivaDaClasse(personagemAtacante, personagemDefensor, danoBaseCalculado, danoPerfurante, listaDeInimigos, callbackAplicarDano);
+    bool isAtacanteJogador = (personagemAtacante == jogadorAtual);
+    personagemAtacante->obterClasse()->executarAtaqueComPassivaDaClasse(personagemAtacante, personagemDefensor, danoBaseCalculado, danoPerfurante, listaDeInimigos, callbackAplicarDano, isAtacanteJogador);
 }
 
 std::pair<int, int> GerenciadorCombate::calcularDanoBase(SistemaPersonagem* atacante) 
@@ -363,20 +378,20 @@ std::pair<int, int> GerenciadorCombate::calcularDanoBase(SistemaPersonagem* atac
         }
     }
 
-    double forcaEfetiva = atacante->obterForca();
-    double destrezaEfetiva = atacante->obterDestreza();
-    double intEfetiva = atacante->obterInteligencia();
-    double sabEfetiva = atacante->obterSabedoria();
+    int forcaEfetiva = atacante->obterForca();
+    int destrezaEfetiva = atacante->obterDestreza();
+    int intEfetiva = atacante->obterInteligencia();
+    int sabEfetiva = atacante->obterSabedoria();
 
     if (danoFisicoDaArma == 0 && danoMagicoDaArma > 0) {
-        forcaEfetiva *= 0.1; destrezaEfetiva *= 0.1;
+        forcaEfetiva /= 10; destrezaEfetiva /= 10;
     } else if (danoFisicoDaArma > 0 && danoMagicoDaArma == 0) {
-        intEfetiva *= 0.1; sabEfetiva *= 0.1;
+        intEfetiva /= 10; sabEfetiva /= 10;
     }
 
-    double danoFisCalculado = std::max(0.0, (danoFisicoDaArma + forcaEfetiva) * (1.0 + (destrezaEfetiva / 100.0)));
-    double danoMagCalculado = std::max(0.0, (danoMagicoDaArma + intEfetiva) * (1.0 + (sabEfetiva / 100.0)));
-    double total = std::max(1.0, danoFisCalculado + danoMagCalculado);
+    int danoFisCalculado = std::max(0, static_cast<int>((danoFisicoDaArma + forcaEfetiva) * (1.0 + (destrezaEfetiva / 100.0))));
+    int danoMagCalculado = std::max(0, static_cast<int>((danoMagicoDaArma + intEfetiva) * (1.0 + (sabEfetiva / 100.0))));
+    int total = std::max(1, danoFisCalculado + danoMagCalculado);
 
     return { static_cast<int>(total * multiplicadorDeAtributos), perfuranteAtual };
 }

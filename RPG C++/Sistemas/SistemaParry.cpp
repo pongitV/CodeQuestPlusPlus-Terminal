@@ -9,6 +9,7 @@
 #include "../Utilidades/ControleDeInput.h"
 #include "SistemaPersonagem.h"
 #include "../Utilidades/GeradorAleatorio.h"
+#include "../Utilidades/SimplificacoesAparencia.h"
 
 bool SistemaParry::tentarParry(SistemaPersonagem* atacante, int danoMitigado, int& quantidadeDeDanoReduzido) 
 {
@@ -41,10 +42,10 @@ bool SistemaParry::executarMinigame(int quantidadeDeNumerosParaDigitar, int temp
         quantidadeDeDanoReduzido += numeroAleatorio;
     }
 
-    std::cout << "\n[PARRY] O inimigo ataca! Digite a sequencia rapidamente para defender!\n";
-    std::cout << "[PARRY] Sequencia: " << sequenciaGeradaPeloSistema << "\n";
-    std::cout << "[PARRY] Tempo Limite: " << tempoLimiteEmSegundos << " segundos!\n";
-    std::cout << "[PARRY] Digite: ";
+    std::cout << "\n" << SimplificacoesAparencia::cor(Cor::AMARELO) << "[PARRY] O inimigo ataca! Digite a sequencia rapidamente para defender!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+    std::cout << SimplificacoesAparencia::cor(Cor::CIANO) << "[PARRY] Sequencia: " << sequenciaGeradaPeloSistema << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+    std::cout << SimplificacoesAparencia::cor(Cor::AMARELO) << "[PARRY] Tempo Limite: " << tempoLimiteEmSegundos << " segundos!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+    std::cout << SimplificacoesAparencia::cor(Cor::CIANO) << "[PARRY] Digite: " << SimplificacoesAparencia::cor(Cor::RESET);
 
     std::string entradaDigitadaPeloJogador = "";
     
@@ -53,7 +54,7 @@ bool SistemaParry::executarMinigame(int quantidadeDeNumerosParaDigitar, int temp
         auto tempoAtual = std::chrono::steady_clock::now();
         std::chrono::duration<double> tempoDecorrido = tempoAtual - tempoInicial;
         if (tempoDecorrido.count() > tempoLimiteEmSegundos) {
-            std::cout << "\n[PARRY] TEMPO ESGOTADO (" << tempoDecorrido.count() << "s)!\n";
+            std::cout << "\n" << SimplificacoesAparencia::cor(Cor::FUNDO_VERMELHO) << "[PARRY] TEMPO ESGOTADO (" << tempoDecorrido.count() << "s)!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
             return false;
         }
         if (ControleDeInput::teclaPressionada()) 

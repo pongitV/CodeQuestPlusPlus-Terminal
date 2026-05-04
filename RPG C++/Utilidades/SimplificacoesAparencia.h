@@ -17,7 +17,10 @@ enum class Cor {
     FUNDO_VERMELHO = 41,
     FUNDO_VERDE = 42,
     FUNDO_AMARELO = 43,
-    FUNDO_AZUL = 44
+    FUNDO_AZUL = 44,
+    FUNDO_MAGENTA = 45,
+    FUNDO_CIANO = 46,
+    FUNDO_BRANCO = 47
 };
 
 class SimplificacoesAparencia {
@@ -25,8 +28,6 @@ public:
     static void inicializarConsole();
     static std::string cor(Cor codigo);
     static std::string cor(Cor estilo, Cor codigo);
-    static std::string corRGBFundo(int idANSI);
-    static std::string corRGBTexto(int idANSI);
 
     static void maximizarJanelaTerminal();
     static void limparTela();

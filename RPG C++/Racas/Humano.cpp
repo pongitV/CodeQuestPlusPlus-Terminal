@@ -58,7 +58,7 @@ std::vector<std::string> Humano::obterAparenciaRaca() const
 
 Atributos Humano::obterAtributosRaca() const
 {
-    return { 0, 10, 10, 0, 10, 10, 10 };
+    return { 100, 10, 10, 0, 10, 10, 10 };
 }
 
 std::string Humano::obterNomeHabilidadeRaca() const { return "Espirito indomavel"; }

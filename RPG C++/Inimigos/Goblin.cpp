@@ -7,7 +7,7 @@
 #include "../Gerenciadores/GerenciadorDrops.h"
 
 std::string Goblin::obterNomeRaca() const { return "Goblin"; }
-Atributos Goblin::obterAtributosRaca() const { return { -40, 10, 15, 5, 5, 0, 0 }; }
+Atributos Goblin::obterAtributosRaca() const { return { 60, 10, 15, 5, 5, 0, 0 }; }
 std::string Goblin::obterNomeHabilidadeRaca() const { return "Nenhuma"; }
 std::string Goblin::obterDescricaoHabilidadeRaca() const { return "Monstros nao possuem passivas"; }
 

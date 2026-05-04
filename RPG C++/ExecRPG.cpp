@@ -6,22 +6,22 @@
     #include <shlobj.h>   // Necessario para IsUserAnAdmin
 #endif
 
-#include "Classes/Arqueiro.cpp"
-#include "Classes/Bardo.cpp"
+#include "Classes/Arqueiro.h"
+#include "Classes/Bardo.h"
 #include "Classes/ClasseBase.h"
-#include "Classes/Guerreiro.cpp"
-#include "Classes/Mago.cpp"
+#include "Classes/Guerreiro.h"
+#include "Classes/Mago.h"
 #include "Gerenciadores/GerenciadorMenu.h"
 #include "Mapas/Mapa1Vila.h"
-#include "Racas/Dwarf.cpp"
-#include "Racas/Elfo.cpp"
-#include "Racas/Humano.cpp"
-#include "Racas/Ork.cpp"
+#include "Racas/Dwarf.h"
+#include "Racas/Elfo.h"
+#include "Racas/Humano.h"
+#include "Racas/Ork.h"
 #include "Sistemas/SistemaSave.h"
 #include "Utilidades/SimplificacoesAparencia.h"
 
 // Funcao para garantir que o jogo rode como Administrador
-void garantirAdmin() 
+bool garantirAdmin() 
 {
 #ifdef _WIN32
     if (!IsUserAnAdmin()) 
@@ -37,10 +37,11 @@ void garantirAdmin()
 
         if (ShellExecuteExA(&sei)) 
         {
-            exit(0); // Fecha a instancia sem admin
+            return true; // Sucesso ao abrir nova instancia, fechar a atual
         }
     }
 #endif
+    return false; // Continua execucao normal (ja e admin ou falhou)
 }
 
 // --- PADRAO STATE PARA O FLUXO DO JOGO ---
@@ -49,7 +50,9 @@ class Jogo;
 class EstadoJogo {
 public:
     virtual ~EstadoJogo() = default;
+    virtual void onEnter(Jogo& jogo) {}
     virtual void executar(Jogo& jogo) = 0;
+    virtual void onExit(Jogo& jogo) {}
 };
 
 class Jogo {
@@ -57,9 +60,15 @@ private:
     std::unique_ptr<EstadoJogo> estadoAtual;
     std::unique_ptr<SistemaPersonagem> jogadorAtual;
 public:
-    Jogo(std::unique_ptr<EstadoJogo> estadoInicial) : estadoAtual(std::move(estadoInicial)) {}
+    Jogo(std::unique_ptr<EstadoJogo> estadoInicial) : estadoAtual(std::move(estadoInicial)) {
+        if (estadoAtual) estadoAtual->onEnter(*this);
+    }
     
-    void mudarEstado(std::unique_ptr<EstadoJogo> novoEstado) { estadoAtual = std::move(novoEstado); }
+    void mudarEstado(std::unique_ptr<EstadoJogo> novoEstado) { 
+        if (estadoAtual) estadoAtual->onExit(*this);
+        estadoAtual = std::move(novoEstado); 
+        if (estadoAtual) estadoAtual->onEnter(*this);
+    }
     void definirJogador(std::unique_ptr<SistemaPersonagem> jogador) { jogadorAtual = std::move(jogador); }
     SistemaPersonagem* obterJogador() const { return jogadorAtual.get(); }
     
@@ -75,6 +84,7 @@ class EstadoMenu; // Forward declaration
 class EstadoExploracao : public EstadoJogo {
 public:
     void executar(Jogo& jogo) override;
+    void onExit(Jogo& jogo) override;
 };
 
 class EstadoMenu : public EstadoJogo {
@@ -87,6 +97,16 @@ public:
     }
 };
 
+void EstadoExploracao::onExit(Jogo& jogo) {
+    SistemaPersonagem* jogador = jogo.obterJogador();
+    // Salva o jogo caso a transicao de mapa aconteca enquanto o jogador ainda esta vivo
+    if (jogador && jogador->obterVida() > 0) {
+        SistemaSave::salvarJogo(jogador);
+    }
+    // Desvincula e limpa a memoria do jogador para a proxima iteracao
+    jogo.definirJogador(nullptr);
+}
+
 void EstadoExploracao::executar(Jogo& jogo) {
     SistemaPersonagem* jogador = jogo.obterJogador();
     if (!jogador) { jogo.mudarEstado(nullptr); return; }
@@ -94,12 +114,11 @@ void EstadoExploracao::executar(Jogo& jogo) {
     Mapa1Vila mapaDoJogo{jogador};
     mapaDoJogo.iniciarLoopDeExploracaoDoMapa1Vila();
     
-    if (jogador->obterVida() > 0) {
-        SistemaSave::salvarJogo(jogador);
-        if (!jogador->obterVoltarProMenu()) { jogo.mudarEstado(nullptr); return; }
+    if (jogador->obterVida() > 0 && !jogador->obterVoltarProMenu()) { 
+        jogo.mudarEstado(nullptr); 
+        return; 
     }
-    // Volta para o menu principal
-    jogo.definirJogador(nullptr);
+
     jogo.mudarEstado(std::make_unique<EstadoMenu>());
 }
 // -----------------------------------------
@@ -107,7 +126,7 @@ void EstadoExploracao::executar(Jogo& jogo) {
 int main() 
 {
     // 1. Tenta elevar para Administrador antes de tudo
-    garantirAdmin();
+    if (garantirAdmin()) return 0;
 
     // 2. Configura a tela (agora com permissao total)
     SimplificacoesAparencia::inicializarConsole();

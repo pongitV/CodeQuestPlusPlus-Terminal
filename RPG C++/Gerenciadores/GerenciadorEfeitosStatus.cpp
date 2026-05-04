@@ -7,7 +7,7 @@
 #include "../Utilidades/SimplificacoesAparencia.h"
 
 void EfeitoSugaSangue::aplicarInicioTurno(SistemaPersonagem* alvo) {
-    if (!atacante || atacante->obterVida() <= 0) return;
+    if (!SistemaPersonagem::isValido(atacante) || atacante->obterVida() <= 0) return;
     int danoRaizes = alvo->obterVida() / 5;
     if (danoRaizes > 0) 
     {

@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 #include "Item.h"
 
@@ -10,6 +11,7 @@ class Inventario
 {
 private:
     std::vector<std::unique_ptr<Item>> listaDeItens;
+    std::unordered_map<std::string, int> contagemItens_;
     int quantidadeDeOuro;
 
 public:

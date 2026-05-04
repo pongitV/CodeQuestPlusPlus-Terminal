@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "../Gerenciadores/GerenciadorEfeitosStatus.h"
@@ -19,7 +20,7 @@ struct Atributos
     int inteligencia;
     int sabedoria;
 
-    void calcularAtributos(const Atributos& outro) 
+    void somarAtributos(const Atributos& outro) 
     {
         this->vida += outro.vida;
         this->forca += outro.forca;
@@ -61,38 +62,45 @@ enum class DificuldadeJogo
     Dificil = 3
 };
 
-struct ControleCombate {
-    bool estaDefendendo = false;
-    bool recargaDefesa = false;
-    bool recargaHabilidade = false;
-    bool pularTurnoInimigo = false;
-    bool habilidadeCancelada = false;
-    double multiplicadorAtual = 1.0;
-    int curaTotalRecebida = 0;
-    std::unordered_map<HabilidadeID, int> cooldownsAtivos;
-    
-    void resetar() {
-        estaDefendendo = false;
-        recargaDefesa = false;
-        recargaHabilidade = false;
-        pularTurnoInimigo = false;
-        habilidadeCancelada = false;
-        multiplicadorAtual = 1.0;
-        curaTotalRecebida = 0;
-        cooldownsAtivos.clear();
-    }
-};
-
-struct ControleSistema {
-    bool querVoltarProMenu = false;
-    bool labirintoDesbloqueado = false;
-    bool podeReviver = true;
-    bool parryAtivado = false;
-    DificuldadeJogo dificuldadeAtual = DificuldadeJogo::Normal;
-};
-
 class SistemaPersonagem 
 {
+private:
+    struct ControleCombate {
+        bool estaDefendendo = false;
+        bool recargaDefesa = false;
+        bool recargaHabilidade = false;
+        bool pularTurnoInimigo = false;
+        bool habilidadeCancelada = false;
+        double multiplicadorAtual = 1.0;
+        int curaTotalRecebida = 0;
+        std::unordered_map<HabilidadeID, int> cooldownsAtivos;
+        
+        void resetar() {
+            estaDefendendo = false;
+            recargaDefesa = false;
+            recargaHabilidade = false;
+            pularTurnoInimigo = false;
+            habilidadeCancelada = false;
+            multiplicadorAtual = 1.0;
+            curaTotalRecebida = 0;
+            cooldownsAtivos.clear();
+        }
+    };
+
+    struct ControleSistema {
+        bool querVoltarProMenu = false;
+        bool labirintoDesbloqueado = false;
+        bool podeReviver = true;
+        bool parryAtivado = false;
+        DificuldadeJogo dificuldadeAtual = DificuldadeJogo::Normal;
+        double dificuldadeMultiplicador = 1.0;
+    };
+
+    static std::unordered_set<SistemaPersonagem*> personagensAtivos;
+
+    ControleCombate combate;
+    ControleSistema sistema;
+
 protected:
     std::string nomePersonagem;
     int vidaAtual;
@@ -103,9 +111,6 @@ protected:
 
     std::vector<std::unique_ptr<EfeitoStatus>> efeitosAtivos;
 
-    ControleCombate combate;
-    ControleSistema sistema;
-
     Item* arma;
     Item* escudo;
     Item* armadura;
@@ -113,10 +118,15 @@ protected:
     int ouroRecompensa;
 
     // Cache de getters calculados
-    mutable int destrezaCache_ = 0;
-    mutable bool destrezaCacheDirty_ = true;
-    mutable int reducaoPercentualCache_ = 0;
-    mutable bool reducaoPercentualCacheDirty_ = true;
+    // ATENCAO: Esta estrutura usando 'mutable' nao e thread-safe.
+    // Caso o jogo passe a utilizar multi-threading (ex: IA rodando em background), e necessario proteger com std::mutex ou std::atomic.
+    struct CacheAtributos {
+        int destreza = 0;
+        int reducaoPercentual = 0;
+        bool sujo = true;
+    };
+    mutable CacheAtributos cache_;
+    void atualizarCacheSeNecessario() const;
     
     int nivel;
     int xpAtual;
@@ -127,6 +137,8 @@ public:
     SistemaPersonagem(std::string nome, std::unique_ptr<RacaBase> r, std::unique_ptr<ClasseBase> c);
     virtual ~SistemaPersonagem();
 
+    static bool isValido(SistemaPersonagem* p);
+
     void calcularAtributos();
     void mostrarStatus() const;
     void modificarVida(int valor);
@@ -135,13 +147,13 @@ public:
     // Getters e Setters em camelCase
     std::string obterNome() const { return nomePersonagem; }
     int obterVida() const { return vidaAtual; }
-    int obterVidaMaxima() const { return statsFinais.vida; }
-    int obterForca() const { return statsFinais.forca; }
+    int obterVidaMaxima() const { return static_cast<int>(statsFinais.vida * sistema.dificuldadeMultiplicador); }
+    int obterForca() const { return static_cast<int>(statsFinais.forca * sistema.dificuldadeMultiplicador); }
     int obterDestreza() const;
-    int obterResistencia() const { return statsFinais.resistencia; }
-    int obterConstituicao() const { return statsFinais.constituicao; }
-    int obterInteligencia() const { return statsFinais.inteligencia; }
-    int obterSabedoria() const { return statsFinais.sabedoria; }
+    int obterResistencia() const { return static_cast<int>(statsFinais.resistencia * sistema.dificuldadeMultiplicador); }
+    int obterConstituicao() const { return static_cast<int>(statsFinais.constituicao * sistema.dificuldadeMultiplicador); }
+    int obterInteligencia() const { return static_cast<int>(statsFinais.inteligencia * sistema.dificuldadeMultiplicador); }
+    int obterSabedoria() const { return static_cast<int>(statsFinais.sabedoria * sistema.dificuldadeMultiplicador); }
     
     int obterNivel() const { return nivel; }
     int obterXpAtual() const { return xpAtual; }
@@ -220,9 +232,9 @@ public:
     bool obterDefendendo() const { return combate.estaDefendendo; }
     void definirRecargaDefesa(bool r) { combate.recargaDefesa = r; }
     bool obterRecargaDefesa() const { return combate.recargaDefesa; }
-    void desequiparEscudo() { escudo = nullptr; }
-    void desequiparArma() { arma = nullptr; }
-    void desequiparArmadura() { armadura = nullptr; destrezaCacheDirty_ = true; reducaoPercentualCacheDirty_ = true; }
+    void desequiparEscudo() { escudo = nullptr; cache_.sujo = true; }
+    void desequiparArma() { arma = nullptr; cache_.sujo = true; }
+    void desequiparArmadura() { armadura = nullptr; cache_.sujo = true; }
 
     void definirParryAtivado(bool p) { sistema.parryAtivado = p; }
     bool obterParryAtivado() const { return sistema.parryAtivado; }
@@ -238,8 +250,8 @@ public:
     void processarEfeitosInicioTurno();
     bool podeAgir() const;
 
-    // Retorna IDs de todos os efeitos ativos (single-pass)
-    std::vector<EfeitoID> obterIDsEfeitosAtivos() const;
+    // Preenche o vetor com os IDs de todos os efeitos ativos (evita alocações indesejadas)
+    void obterIDsEfeitosAtivos(std::vector<EfeitoID>& outIDs) const;
     void limparEfeitos();
 
     int calcularDefesaBase(int danoBruto, int danoPerfurante) const;

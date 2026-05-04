@@ -191,10 +191,11 @@ void GerenciadorMenu::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPe
     }
         std::cout << "\n";
         
+        std::vector<EfeitoID> efeitosAtivos;
         for (size_t indiceInimigo = 0; indiceInimigo < listaDeInimigos.size(); indiceInimigo++)
         {
             std::vector<std::pair<std::string, std::string>> debuffs;
-            auto efeitosAtivos = listaDeInimigos[indiceInimigo]->obterIDsEfeitosAtivos();
+            listaDeInimigos[indiceInimigo]->obterIDsEfeitosAtivos(efeitosAtivos);
             for (auto& id : efeitosAtivos) {
                 if (id == EfeitoID::Sangramento) debuffs.push_back({"[Sangramento]", SimplificacoesAparencia::cor(Cor::VERMELHO) + "[Sangramento]" + SimplificacoesAparencia::cor(Cor::RESET)});
                 else if (id == EfeitoID::Lentidao) debuffs.push_back({"[Lentidao]", SimplificacoesAparencia::cor(Cor::MAGENTA) + "[Lentidao]" + SimplificacoesAparencia::cor(Cor::RESET)});
@@ -459,8 +460,8 @@ void GerenciadorMenu::exibirLogoDoJogo(const std::string& tituloDaTela)
         // Imprime a parte principal (Branco/Padrão)
         std::cout << logoTexto[i];
 
-        // Imprime o ++ (Laranja)
-        std::cout << SimplificacoesAparencia::corRGBTexto(208) << logoPlus[i] << SimplificacoesAparencia::cor(Cor::RESET);
+        // Imprime o ++ (Amarelo)
+        std::cout << SimplificacoesAparencia::cor(Cor::AMARELO) << logoPlus[i] << SimplificacoesAparencia::cor(Cor::RESET);
 
         std::cout << "\n";
     }

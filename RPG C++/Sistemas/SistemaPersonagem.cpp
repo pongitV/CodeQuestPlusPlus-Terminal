@@ -4,11 +4,18 @@
 #include <cctype>
 #include <iostream>
 #include <memory>
+#include <cassert>
 
 #include "../Classes/ClasseBase.h"
 #include "../Racas/RacaBase.h"
 #include "../Utilidades/Constantes.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
+
+std::unordered_set<SistemaPersonagem*> SistemaPersonagem::personagensAtivos;
+
+bool SistemaPersonagem::isValido(SistemaPersonagem* p) {
+    return personagensAtivos.find(p) != personagensAtivos.end();
+}
 
 SistemaPersonagem::SistemaPersonagem(std::string nome, std::unique_ptr<RacaBase> r, std::unique_ptr<ClasseBase> c) 
 {
@@ -16,7 +23,7 @@ SistemaPersonagem::SistemaPersonagem(std::string nome, std::unique_ptr<RacaBase>
     this->raca = std::move(r);
     this->classe = std::move(c);
     this->mochila = std::make_unique<Inventario>();
-    this->statsFinais = { 100, 0, 0, 0, 0, 0, 0 }; // Atributos base
+    this->statsFinais = { 0, 0, 0, 0, 0, 0, 0 }; // Atributos base
 
     this->arma = nullptr;
     this->escudo = nullptr;
@@ -46,10 +53,12 @@ SistemaPersonagem::SistemaPersonagem(std::string nome, std::unique_ptr<RacaBase>
     }
 
     calcularAtributos();
+    personagensAtivos.insert(this);
 }
 
 SistemaPersonagem::~SistemaPersonagem() 
 {
+    personagensAtivos.erase(this);
 }  
 
 bool SistemaPersonagem::subirDeNivel(TipoAtributo atributo)
@@ -65,9 +74,9 @@ bool SistemaPersonagem::subirDeNivel(TipoAtributo atributo)
             upou = true;
             break;
         case TipoAtributo::Forca: statsFinais.forca += Constantes::GANHO_ATRIBUTO_POR_NIVEL; upou = true; break;
-        case TipoAtributo::Destreza: statsFinais.destreza += Constantes::GANHO_ATRIBUTO_POR_NIVEL; destrezaCacheDirty_ = true; upou = true; break;
-        case TipoAtributo::Resistencia: statsFinais.resistencia += Constantes::GANHO_ATRIBUTO_POR_NIVEL; reducaoPercentualCacheDirty_ = true; upou = true; break;
-        case TipoAtributo::Constituicao: statsFinais.constituicao += Constantes::GANHO_ATRIBUTO_POR_NIVEL; reducaoPercentualCacheDirty_ = true; upou = true; break;
+        case TipoAtributo::Destreza: statsFinais.destreza += Constantes::GANHO_ATRIBUTO_POR_NIVEL; cache_.sujo = true; upou = true; break;
+        case TipoAtributo::Resistencia: statsFinais.resistencia += Constantes::GANHO_ATRIBUTO_POR_NIVEL; cache_.sujo = true; upou = true; break;
+        case TipoAtributo::Constituicao: statsFinais.constituicao += Constantes::GANHO_ATRIBUTO_POR_NIVEL; cache_.sujo = true; upou = true; break;
         case TipoAtributo::Inteligencia: statsFinais.inteligencia += Constantes::GANHO_ATRIBUTO_POR_NIVEL; upou = true; break;
         case TipoAtributo::Sabedoria: statsFinais.sabedoria += Constantes::GANHO_ATRIBUTO_POR_NIVEL; upou = true; break;
     }
@@ -75,7 +84,7 @@ bool SistemaPersonagem::subirDeNivel(TipoAtributo atributo)
     if (upou)
     {
         xpAtual -= xpParaSubir;
-        xpParaSubir = static_cast<int>(xpParaSubir * Constantes::MULTIPLICADOR_XP_POR_NIVEL);
+        xpParaSubir = static_cast<int>(std::min(xpParaSubir * Constantes::MULTIPLICADOR_XP_POR_NIVEL, Constantes::MAX_XP));
         nivel++;
         return true;
     }
@@ -86,7 +95,7 @@ void SistemaPersonagem::alterarAtributoEstatico(TipoAtributo atributo, int valor
 {
     switch (atributo) {
         case TipoAtributo::Forca: statsFinais.forca += valor; break;
-        case TipoAtributo::Destreza: statsFinais.destreza += valor; destrezaCacheDirty_ = true; break;
+        case TipoAtributo::Destreza: statsFinais.destreza += valor; cache_.sujo = true; break;
         case TipoAtributo::Inteligencia: statsFinais.inteligencia += valor; break;
         case TipoAtributo::Sabedoria: statsFinais.sabedoria += valor; break;
         default: break;
@@ -117,22 +126,38 @@ void SistemaPersonagem::prepararParaNovaBatalha()
 
 void SistemaPersonagem::calcularAtributos()
 {
-    this->statsFinais.calcularAtributos(raca->obterAtributosRaca());
-    this->statsFinais.calcularAtributos(classe->obterAtributosClasse());
-    this->vidaAtual = statsFinais.vida;
-    destrezaCacheDirty_ = true;
-    reducaoPercentualCacheDirty_ = true;
+    this->statsFinais.somarAtributos(raca->obterAtributosRaca());
+    this->statsFinais.somarAtributos(classe->obterAtributosClasse());
+    this->vidaAtual = obterVidaMaxima();
+    cache_.sujo = true;
+}
+
+void SistemaPersonagem::atualizarCacheSeNecessario() const {
+    if (!cache_.sujo) return;
+    
+    int penalidade = armadura ? (armadura->obterReducaoFixa() / 3) : 0;
+    if (classe) penalidade = classe->processarPenalidadeArmaduraPassivaArqueiro(penalidade);
+    
+    int destrezaBase = static_cast<int>(statsFinais.destreza * sistema.dificuldadeMultiplicador);
+    int destrezaFinal = destrezaBase - penalidade;
+    cache_.destreza = destrezaFinal > 0 ? destrezaFinal : 0;
+
+    int bonusArmadura = armadura ? armadura->obterReducaoFixa() : 0;
+    int resistenciaBase = static_cast<int>(statsFinais.resistencia * sistema.dificuldadeMultiplicador);
+    int reducao = resistenciaBase + bonusArmadura;
+    
+    int constBase = static_cast<int>(statsFinais.constituicao * sistema.dificuldadeMultiplicador);
+    double percentualReducao = constBase / 100.0;
+    if (percentualReducao > 0.50) percentualReducao = 0.50;
+    cache_.reducaoPercentual = static_cast<int>(reducao * (1.0 - percentualReducao));
+
+    cache_.sujo = false;
 }
 
 int SistemaPersonagem::obterDestreza() const
 {
-    if (!destrezaCacheDirty_) return destrezaCache_;
-    int penalidade = armadura ? (armadura->obterReducaoFixa() / 3) : 0;
-    if (classe) penalidade = classe->processarPenalidadeArmaduraPassivaArqueiro(penalidade);
-    int destrezaFinal = statsFinais.destreza - penalidade;
-    destrezaCache_ = destrezaFinal > 0 ? destrezaFinal : 0;
-    destrezaCacheDirty_ = false;
-    return destrezaCache_;
+    atualizarCacheSeNecessario();
+    return cache_.destreza;
 }
 
 void SistemaPersonagem::definirMultiplicador(double m) 
@@ -147,27 +172,20 @@ void SistemaPersonagem::definirMultiplicador(double m)
 void SistemaPersonagem::aplicarMultiplicadorDificuldade(double mult)
 {
     if (mult <= 1.0) return;
-    this->statsFinais.vida = static_cast<int>(this->statsFinais.vida * mult);
-    this->statsFinais.forca = static_cast<int>(this->statsFinais.forca * mult);
-    this->statsFinais.destreza = static_cast<int>(this->statsFinais.destreza * mult);
-    destrezaCacheDirty_ = true;
-    this->statsFinais.resistencia = static_cast<int>(this->statsFinais.resistencia * mult);
-    reducaoPercentualCacheDirty_ = true;
-    this->statsFinais.constituicao = static_cast<int>(this->statsFinais.constituicao * mult);
-    reducaoPercentualCacheDirty_ = true;
-    this->statsFinais.inteligencia = static_cast<int>(this->statsFinais.inteligencia * mult);
-    this->statsFinais.sabedoria = static_cast<int>(this->statsFinais.sabedoria * mult);
-    this->vidaAtual = this->statsFinais.vida;
+    sistema.dificuldadeMultiplicador = mult;
+    cache_.sujo = true;
+    this->vidaAtual = obterVidaMaxima();
 }
 
 void SistemaPersonagem::modificarVida(int valor) 
 {
+    assert(this->classe != nullptr && "Erro de Integridade: A classe do personagem nao deve ser nula ao modificar a vida!");
     if (valor > 0 && classe) valor = classe->processarCuraPassivaBardo(valor);
 
     int vidaAntes = this->vidaAtual;
     this->vidaAtual += valor;
     if (this->vidaAtual < 0) this->vidaAtual = 0;
-    if (this->vidaAtual > statsFinais.vida) this->vidaAtual = statsFinais.vida;
+    if (this->vidaAtual > obterVidaMaxima()) this->vidaAtual = obterVidaMaxima();
 
     if (this->vidaAtual > vidaAntes) 
     {
@@ -193,7 +211,7 @@ int SistemaPersonagem::obterTurnosEfeito(EfeitoID id) const {
 
 void SistemaPersonagem::mostrarStatus() const 
 {
-    std::cout << "[" << nomePersonagem << "] HP: " << vidaAtual << "/" << statsFinais.vida << std::endl;
+    std::cout << "[" << nomePersonagem << "] HP: " << vidaAtual << "/" << obterVidaMaxima() << std::endl;
 }
 
 std::string SistemaPersonagem::obterNomeClasse() const 
@@ -221,9 +239,8 @@ void SistemaPersonagem::equiparItem(Item* item)
     else if (item->obterTipo() == TipoEquipamento::ARMADURA)
     {
         this->armadura = item;
-        destrezaCacheDirty_ = true;
-        reducaoPercentualCacheDirty_ = true;
     }
+    cache_.sujo = true;
 }
 
 RacaBase* SistemaPersonagem::obterRaca() const 
@@ -252,17 +269,9 @@ int SistemaPersonagem::calcularDefesaBase(int danoBruto, int danoPerfurante) con
     int danoSemPerfuracao = danoBruto - danoPerfurante;
     if (danoSemPerfuracao < 0) danoSemPerfuracao = 0;
 
-    // Cache reducao fixa (resistencia + armadura)
-    if (reducaoPercentualCacheDirty_) {
-        int bonusArmadura = armadura ? armadura->obterReducaoFixa() : 0;
-        reducaoPercentualCache_ = statsFinais.resistencia + bonusArmadura;
-        double percentualReducao = statsFinais.constituicao / 100.0;
-        if (percentualReducao > 0.50) percentualReducao = 0.50;
-        reducaoPercentualCache_ = static_cast<int>(reducaoPercentualCache_ * (1.0 - percentualReducao));
-        reducaoPercentualCacheDirty_ = false;
-    }
+    atualizarCacheSeNecessario();
 
-    int danoFinal = static_cast<int>(danoSemPerfuracao - reducaoPercentualCache_);
+    int danoFinal = static_cast<int>(danoSemPerfuracao - cache_.reducaoPercentual);
     if (danoFinal < 1 && danoSemPerfuracao > 0) danoFinal = 1;
     else if (danoSemPerfuracao == 0) danoFinal = 0;
 
@@ -281,13 +290,13 @@ int SistemaPersonagem::receberDano(int danoBruto, int danoPerfurante, int danoRe
 
     if (combate.estaDefendendo && escudo != nullptr) {
         int bloqueio = escudo->obterReducaoDanoFixaEscudo();
-        std::cout << ">> [DEFESA]: O escudo bloqueou " << bloqueio << " de dano!\n";
+        std::cout << SimplificacoesAparencia::cor(Cor::CIANO) << ">> [DEFESA]: O escudo bloqueou " << bloqueio << " de dano!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
         danoFinal -= bloqueio;
         if (danoFinal < 0) danoFinal = 0;
 
         escudo->reduzirDurabilidade(1);
         if (escudo->obterDurabilidadeAtualEscudo() <= 0) {
-            std::cout << "[!] ALERTA: O escudo " << escudo->obterNomeItem() << " foi DESTRUIDO em pedacos!\n";
+            std::cout << SimplificacoesAparencia::cor(Cor::FUNDO_VERMELHO) << "[!] ALERTA: O escudo " << escudo->obterNomeItem() << " foi DESTRUIDO em pedacos!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
             mochila->removerItem(escudo->obterNomeItem());
             desequiparEscudo();
         }
@@ -337,13 +346,12 @@ bool SistemaPersonagem::podeAgir() const {
     return true;
 }
 
-std::vector<EfeitoID> SistemaPersonagem::obterIDsEfeitosAtivos() const {
-    std::vector<EfeitoID> ids;
-    ids.reserve(efeitosAtivos.size());
+void SistemaPersonagem::obterIDsEfeitosAtivos(std::vector<EfeitoID>& outIDs) const {
+    outIDs.clear();
+    outIDs.reserve(efeitosAtivos.size());
     for (auto& ef : efeitosAtivos) {
-        ids.push_back(ef->obterID());
+        outIDs.push_back(ef->obterID());
     }
-    return ids;
 }
 
 void SistemaPersonagem::executarDrops(SistemaPersonagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)

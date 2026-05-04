@@ -5,7 +5,7 @@
 #include "../Utilidades/SimplificacoesAparencia.h"
 
 std::string OrkExilado::obterNomeRaca() const { return "Ork Exilado"; }
-Atributos OrkExilado::obterAtributosRaca() const { return { 200, 25, 10, 15, 20, 0, 0 }; }
+Atributos OrkExilado::obterAtributosRaca() const { return { 300, 25, 10, 15, 20, 0, 0 }; }
 
 std::vector<std::string> OrkExilado::obterAparenciaRaca() const
 {

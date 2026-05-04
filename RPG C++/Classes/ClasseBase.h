@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Inventario/Inventario.h"
 #include "../Inventario/Item.h"
@@ -5,8 +7,6 @@
 #include <functional>
 #include <iostream>
 #include <algorithm>
-
-#pragma once
 
 enum class TipoClasse 
 {
@@ -63,23 +63,44 @@ public:
     virtual int reverterPenalidadeLentidaoPassivaArqueiro(int destrezaAtual) const { return destrezaAtual * 2; }
 
     // PROCESSAMENTO DE DANO (POLIMORFISMO)
-    virtual void executarAtaqueComPassivaDaClasse(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, int danoPerfurante, std::vector<std::unique_ptr<SistemaPersonagem>>& inimigos, std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)> aplicarDano) {
-        bool isAtacanteJogador = true;
-        for (const auto& ini : inimigos) {
-            if (ini.get() == atacante) { isAtacanteJogador = false; break; }
-        }
+    virtual void executarAtaqueComPassivaDaClasse(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, int danoPerfurante, std::vector<std::unique_ptr<SistemaPersonagem>>& inimigos, std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)> aplicarDano, bool isAtacanteJogador) {
 
-        if (atacante->obterTipoAtaque() == TipoAtaque::AREA && isAtacanteJogador && !inimigos.empty()) {
-            int danoDividido = std::max(1, danoBase / static_cast<int>(inimigos.size()));
-            int perfuranteDividido = danoPerfurante / static_cast<int>(inimigos.size());
-            std::cout << atacante->obterNome() << " desfere um ataque em area!\n";
-            for (auto& ini : inimigos) {
-                aplicarDano(atacante, ini.get(), danoDividido, perfuranteDividido);
-            }
-        } else if (defensor != nullptr) {
-            std::cout << atacante->obterNome() << " ataca " << defensor->obterNome() << "!\n";
-            aplicarDano(atacante, defensor, danoBase, danoPerfurante);
+        danoBase = processarDanoPreAtaque(atacante, defensor, danoBase, isAtacanteJogador, inimigos.size());
+
+        bool isArea = atacante->obterTipoAtaque() == TipoAtaque::AREA && isAtacanteJogador && !inimigos.empty();
+
+        if (isArea) {
+            executarAtaqueArea(atacante, defensor, danoBase, danoPerfurante, inimigos, aplicarDano, isAtacanteJogador);
+        } else {
+            executarAtaqueUnico(atacante, defensor, danoBase, danoPerfurante, inimigos, aplicarDano, isAtacanteJogador);
         }
     }
 
+protected:
+    virtual void executarAtaqueArea(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, int danoPerfurante, std::vector<std::unique_ptr<SistemaPersonagem>>& inimigos, std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)> aplicarDano, bool isAtacanteJogador) {
+        std::cout << atacante->obterNome() << " desfere um ataque em area!\n";
+        int danoDividido = std::max(1, danoBase / static_cast<int>(inimigos.size()));
+        int perfuranteDividido = danoPerfurante / static_cast<int>(inimigos.size());
+
+        bool ativouPassiva = false;
+        for (auto& ini : inimigos) {
+            aplicarDano(atacante, ini.get(), danoDividido, perfuranteDividido);
+            processarDanoPosAtaque(atacante, ini.get(), defensor, danoBase, danoPerfurante, aplicarDano, isAtacanteJogador, true, ativouPassiva);
+        }
+    }
+
+    virtual void executarAtaqueUnico(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, int danoPerfurante, std::vector<std::unique_ptr<SistemaPersonagem>>& inimigos, std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)> aplicarDano, bool isAtacanteJogador) {
+        if (defensor != nullptr) {
+            std::cout << atacante->obterNome() << " ataca " << defensor->obterNome() << "!\n";
+            aplicarDano(atacante, defensor, danoBase, danoPerfurante);
+        }
+
+        bool ativouPassiva = false;
+        for (auto& ini : inimigos) {
+            processarDanoPosAtaque(atacante, ini.get(), defensor, danoBase, danoPerfurante, aplicarDano, isAtacanteJogador, false, ativouPassiva);
+        }
+    }
+
+    virtual int processarDanoPreAtaque(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, bool isAtacanteJogador, size_t qtdInimigos) { return danoBase; }
+    virtual void processarDanoPosAtaque(SistemaPersonagem* atacante, SistemaPersonagem* alvoAtual, SistemaPersonagem* defensorPrincipal, int danoBase, int danoPerfurante, std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)> aplicarDano, bool isAtacanteJogador, bool isArea, bool& ativouPassiva) {}
 };

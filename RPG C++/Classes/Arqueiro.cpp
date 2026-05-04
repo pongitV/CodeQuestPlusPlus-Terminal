@@ -97,14 +97,14 @@ std::string Arqueiro::obterDescricaoHabilidadeClasse() const
 void Arqueiro::usarHabilidadeClasse(SistemaPersonagem* u, std::vector<SistemaPersonagem*>& /*inimigos*/) {
     if (u->obterRecarga()) 
     {
-        std::cout << "\n[SISTEMA]: A habilidade " << obterNomeHabilidadeClasse() << " esta em recarga (1 turnos)!\n";
+        std::cout << "\n" << SimplificacoesAparencia::cor(Cor::VERMELHO) << "[SISTEMA]: A habilidade " << obterNomeHabilidadeClasse() << " esta em recarga (1 turnos)!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
         SimplificacoesAparencia::aguardarEnter();
         u->definirHabilidadeCancelada(true);
         return;
     }
     u->adicionarEfeito(std::make_unique<EfeitoInviolavel>(1));
     u->definirRecarga(true);
-    std::cout << "[HABILIDADE]: Retirada com pontaria! Voce se afasta neste turno.\n";
+    std::cout << SimplificacoesAparencia::cor(Cor::VERDE) << "[HABILIDADE]: Retirada com pontaria! Voce se afasta neste turno." << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
 }
 
 TipoAtaque Arqueiro::obterTipoAtaque() const { return TipoAtaque::UNICO; }

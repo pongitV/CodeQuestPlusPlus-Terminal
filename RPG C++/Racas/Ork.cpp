@@ -59,7 +59,7 @@ std::vector<std::string> Ork::obterAparenciaRaca() const
 
 Atributos Ork::obterAtributosRaca() const
 {
-    return { 0, 20, 10, 0, 10, 5, 5 };
+    return { 120, 20, 10, 0, 10, 5, 5 };
 }
 
 std::string Ork::obterNomeHabilidadeRaca() const { return "Furia cega"; }

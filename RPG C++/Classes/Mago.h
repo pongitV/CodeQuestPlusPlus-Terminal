@@ -29,7 +29,8 @@ public:
     TipoAtaque obterTipoAtaque() const override;
     bool habilidadeConsomeTurno() const override;
 
-    // Sobrescreve para processar a passiva Foco Arcano
-    void executarAtaqueComPassivaDaClasse(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, int danoPerfurante, std::vector<std::unique_ptr<SistemaPersonagem>>& inimigos, std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)> aplicarDano) override;
+protected:
+    int processarDanoPreAtaque(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, bool isAtacanteJogador, size_t qtdInimigos) override;
+    void processarDanoPosAtaque(SistemaPersonagem* atacante, SistemaPersonagem* alvoAtual, SistemaPersonagem* defensorPrincipal, int danoBase, int danoPerfurante, std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)> aplicarDano, bool isAtacanteJogador, bool isArea, bool& ativouPassiva) override;
 
 };

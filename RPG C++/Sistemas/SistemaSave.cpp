@@ -3,6 +3,8 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <unordered_map>
+#include <functional>
 
 #include "../Classes/Arqueiro.h"
 #include "../Classes/Bardo.h"
@@ -81,17 +83,25 @@ std::unique_ptr<SistemaPersonagem> SistemaSave::carregarJogo(const std::string& 
     Atributos attr;
     arquivo >> attr.vida >> attr.forca >> attr.destreza >> attr.resistencia >> attr.constituicao >> attr.inteligencia >> attr.sabedoria;
 
+    static const std::unordered_map<std::string, std::function<std::unique_ptr<RacaBase>()>> registroRacas = {
+        {"Dwarf", []() { return std::make_unique<Dwarf>(); }},
+        {"Elfo", []() { return std::make_unique<Elfo>(); }},
+        {"Humano", []() { return std::make_unique<Humano>(); }},
+        {"Ork", []() { return std::make_unique<Ork>(); }}
+    };
+
+    static const std::unordered_map<std::string, std::function<std::unique_ptr<ClasseBase>()>> registroClasses = {
+        {"Arqueiro", []() { return std::make_unique<Arqueiro>(); }},
+        {"Bardo", []() { return std::make_unique<Bardo>(); }},
+        {"Guerreiro", []() { return std::make_unique<Guerreiro>(); }},
+        {"Mago", []() { return std::make_unique<Mago>(); }}
+    };
+
     std::unique_ptr<RacaBase> raca;
-    if (racaStr == "Dwarf") raca = std::make_unique<Dwarf>();
-    else if (racaStr == "Elfo") raca = std::make_unique<Elfo>();
-    else if (racaStr == "Humano") raca = std::make_unique<Humano>();
-    else if (racaStr == "Ork") raca = std::make_unique<Ork>();
+    if (auto it = registroRacas.find(racaStr); it != registroRacas.end()) raca = it->second();
 
     std::unique_ptr<ClasseBase> classe;
-    if (classeStr == "Arqueiro") classe = std::make_unique<Arqueiro>();
-    else if (classeStr == "Bardo") classe = std::make_unique<Bardo>();
-    else if (classeStr == "Guerreiro") classe = std::make_unique<Guerreiro>();
-    else if (classeStr == "Mago") classe = std::make_unique<Mago>();
+    if (auto it = registroClasses.find(classeStr); it != registroClasses.end()) classe = it->second();
 
     if (!raca || !classe) return nullptr;
 
@@ -99,7 +109,9 @@ std::unique_ptr<SistemaPersonagem> SistemaSave::carregarJogo(const std::string& 
 
     jogador->desequiparArma(); jogador->desequiparEscudo(); jogador->desequiparArmadura();
     auto itensPadrao = jogador->obterInventario()->obterTodosOsItens();
-    for (Item* i : itensPadrao) jogador->obterInventario()->removerItem(i);
+    std::vector<std::string> nomesItensPadrao;
+    for (Item* i : itensPadrao) nomesItensPadrao.push_back(i->obterNomeItem());
+    for (const std::string& nomeItem : nomesItensPadrao) jogador->obterInventario()->removerItem(nomeItem);
 
     jogador->definirNivel(nivel); jogador->definirXpAtual(xpAtual); jogador->definirXpParaSubir(xpParaSubir);
     jogador->obterAtributosFinais() = attr; jogador->definirVida(vida); jogador->definirDificuldade(static_cast<DificuldadeJogo>(dificuldade));
@@ -113,7 +125,8 @@ std::unique_ptr<SistemaPersonagem> SistemaSave::carregarJogo(const std::string& 
 
     for (size_t i = 0; i < qtdItens; ++i) {
         int equipSlot; arquivo >> equipSlot;
-        std::string nomeItem; std::getline(arquivo >> std::ws, nomeItem);
+        arquivo.ignore(); // Consome o espaco entre o numero do slot e o nome do item
+        std::string nomeItem; std::getline(arquivo, nomeItem);
         auto novoItem = FabricaItens::criarItem(nomeItem);
         if (novoItem) {
             Item* ptr = novoItem.get();

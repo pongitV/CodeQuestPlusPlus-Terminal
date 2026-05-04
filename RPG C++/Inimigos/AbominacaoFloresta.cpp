@@ -4,17 +4,18 @@
 #include "../Inventario/FabricaItens.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 
-std::string AbominacaoFloresta::obterNomeRaca() const { return "Abominacao da Floresta"; }
-
-Atributos AbominacaoFloresta::obterAtributosRaca() const
-{
-    return { 250, 40, 5, 20, 25, 0, 20 };
+std::string AbominacaoFloresta::obterNomeRaca() const 
+{ return "Abominacao da Floresta"; 
 }
-
-std::string AbominacaoFloresta::obterNomeHabilidadeRaca() const { return "Raizes Parasitas"; }
-
-std::string AbominacaoFloresta::obterDescricaoHabilidadeRaca() const { return "Abaixo de 40% de HP, recupera HP igual a 100% do dano causado ate 60% de HP"; }
-
+Atributos AbominacaoFloresta::obterAtributosRaca() const{ return 
+    { 350, 40, 5, 20, 25, 0, 20 };
+}
+std::string AbominacaoFloresta::obterNomeHabilidadeRaca() const 
+{ return "Raizes Parasitas"; 
+}
+std::string AbominacaoFloresta::obterDescricaoHabilidadeRaca() const 
+{ return "Abaixo de 40% de HP, recupera HP igual a 100% do dano causado ate 60% de HP"; 
+}
 int AbominacaoFloresta::processarDanoOfensivo(int danoBase, SistemaPersonagem* atacante) 
 {
     int vidaMax = atacante->obterVidaMaxima();

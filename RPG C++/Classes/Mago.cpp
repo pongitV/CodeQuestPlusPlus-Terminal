@@ -117,33 +117,26 @@ void Mago::usarHabilidadeClasse(SistemaPersonagem* u, std::vector<SistemaPersona
     }
 }
 
-void Mago::executarAtaqueComPassivaDaClasse(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, int danoPerfurante, std::vector<std::unique_ptr<SistemaPersonagem>>& inimigos, std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)> aplicarDano) 
-{
-    if (defensor == nullptr) return;
-
-    bool isAtacanteJogador = true;
-    for (const auto& ini : inimigos) {
-        if (ini.get() == atacante) { isAtacanteJogador = false; break; }
-    }
-
-    if (isAtacanteJogador && inimigos.size() > 1) {
-        std::cout << atacante->obterNome() << " ataca " << defensor->obterNome() << "!\n";
-        aplicarDano(atacante, defensor, danoBase, danoPerfurante);
-        
-        int danoArea = static_cast<int>(danoBase * 0.25);
-        int perfuranteArea = static_cast<int>(danoPerfurante * 0.25);
-        std::cout << SimplificacoesAparencia::cor(Cor::MAGENTA) << "[Foco Arcano]: A magia ressoa, causando " << danoArea << " de dano aos inimigos proximos!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-        
-        for (auto& ini : inimigos) {
-            if (ini.get() != defensor && ini->obterVida() > 0) {
-                aplicarDano(atacante, ini.get(), danoArea, perfuranteArea);
-            }
-        }
-    } else {
+int Mago::processarDanoPreAtaque(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, bool isAtacanteJogador, size_t qtdInimigos) {
+    if (defensor == nullptr) return danoBase;
+    if (!isAtacanteJogador || qtdInimigos <= 1) {
         int danoAumentado = static_cast<int>(danoBase * 1.25);
         std::cout << SimplificacoesAparencia::cor(Cor::MAGENTA) << "[Foco Arcano]: Dano concentrado aumentado em 25%!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-        std::cout << atacante->obterNome() << " ataca " << defensor->obterNome() << "!\n";
-        aplicarDano(atacante, defensor, danoAumentado, danoPerfurante);
+        return danoAumentado;
+    }
+    return danoBase;
+}
+
+void Mago::processarDanoPosAtaque(SistemaPersonagem* atacante, SistemaPersonagem* alvoAtual, SistemaPersonagem* defensorPrincipal, int danoBase, int danoPerfurante, std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)> aplicarDano, bool isAtacanteJogador, bool isArea, bool& ativouPassiva) {
+    if (isAtacanteJogador && !isArea && alvoAtual != defensorPrincipal && alvoAtual->obterVida() > 0) {
+        if (!ativouPassiva) {
+            int danoAreaMsg = static_cast<int>(danoBase * 0.25);
+            std::cout << SimplificacoesAparencia::cor(Cor::MAGENTA) << "[Foco Arcano]: A magia ressoa, causando " << danoAreaMsg << " de dano aos inimigos proximos!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+            ativouPassiva = true;
+        }
+        int danoArea = static_cast<int>(danoBase * 0.25);
+        int perfuranteArea = static_cast<int>(danoPerfurante * 0.25);
+        aplicarDano(atacante, alvoAtual, danoArea, perfuranteArea);
     }
 }
 

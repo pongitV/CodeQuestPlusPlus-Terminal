@@ -27,14 +27,6 @@ std::string SimplificacoesAparencia::cor(Cor estilo, Cor codigo) {
     return "\033[" + std::to_string(static_cast<int>(estilo)) + ";" + std::to_string(static_cast<int>(codigo)) + "m";
 }
 
-std::string SimplificacoesAparencia::corRGBFundo(int idANSI) {
-    return "\033[48;5;" + std::to_string(idANSI) + "m";
-}
-
-std::string SimplificacoesAparencia::corRGBTexto(int idANSI) {
-    return "\033[38;5;" + std::to_string(idANSI) + "m";
-}
-
 void SimplificacoesAparencia::maximizarJanelaTerminal() {
 #ifdef _WIN32
     HWND hwnd = GetConsoleWindow();
@@ -74,11 +66,24 @@ int SimplificacoesAparencia::obterLarguraTerminal() {
 
 std::string SimplificacoesAparencia::removerCoresANSI(const std::string& texto) {
     std::string resultado;
-    bool inEscape = false;
-    for (char c : texto) {
-        if (c == '\033' || c == '\x1b') inEscape = true;
-        else if (inEscape && c == 'm') inEscape = false;
-        else if (!inEscape) resultado += c;
+    resultado.reserve(texto.length());
+    bool in_sequence = false;
+
+    for (size_t i = 0; i < texto.length(); ++i) {
+        if (in_sequence) {
+            // As sequências de controle CSI terminam com um caractere no intervalo 0x40-0x7E ('@' a '~').
+            if (texto[i] >= 0x40 && texto[i] <= 0x7E) {
+                in_sequence = false;
+            }
+        } else {
+            // Verifica o início de uma sequência CSI: ESC [
+            if (texto[i] == '\x1b' && i + 1 < texto.length() && texto[i+1] == '[') {
+                in_sequence = true;
+                i++; // Pula também o caractere '['
+            } else {
+                resultado += texto[i];
+            }
+        }
     }
     return resultado;
 }

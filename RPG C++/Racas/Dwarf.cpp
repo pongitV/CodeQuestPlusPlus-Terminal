@@ -60,7 +60,7 @@ std::vector<std::string> Dwarf::obterAparenciaRaca() const
 
 Atributos Dwarf::obterAtributosRaca() const
 {
-    return { 0, 15, 5, 0, 10, 5, 15 };
+    return { 110, 15, 5, 0, 10, 5, 15 };
 }
 
 std::string Dwarf::obterNomeHabilidadeRaca() const { return "Forjado com determinacao"; }

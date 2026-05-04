@@ -1,10 +1,16 @@
 #include "GeradorAleatorio.h"
 #include <random>
+#include <chrono>
 
 namespace {
     std::mt19937& obterGerador() {
-        static std::random_device rd;
-        static std::mt19937 gen(rd());
+        static std::mt19937 gen([]() -> unsigned int {
+            std::random_device rd;
+            if (rd.entropy() == 0.0) {
+                return static_cast<unsigned int>(std::chrono::steady_clock::now().time_since_epoch().count());
+            }
+            return rd();
+        }());
         return gen;
     }
 }

@@ -59,7 +59,7 @@ std::vector<std::string> Elfo::obterAparenciaRaca() const
 
 Atributos Elfo::obterAtributosRaca() const
 {
-    return { 0, 5, 15, 0, 10, 15, 5 };
+    return { 90, 5, 15, 0, 10, 15, 5 };
 }
 
 std::string Elfo::obterNomeHabilidadeRaca() const { return "Agil e preciso"; }

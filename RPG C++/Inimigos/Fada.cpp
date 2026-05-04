@@ -6,7 +6,7 @@
 #include "../Utilidades/SimplificacoesAparencia.h"
 
 std::string Fada::obterNomeRaca() const { return "Fada"; }
-Atributos Fada::obterAtributosRaca() const { return { -50, 0, 30, 2, 5, 10, 10 }; }
+Atributos Fada::obterAtributosRaca() const { return { 40, 0, 30, 2, 5, 10, 10 }; }
 std::string Fada::obterNomeHabilidadeRaca() const { return "Nenhuma"; }
 std::string Fada::obterDescricaoHabilidadeRaca() const { return "Monstros nao possuem passivas"; }
 

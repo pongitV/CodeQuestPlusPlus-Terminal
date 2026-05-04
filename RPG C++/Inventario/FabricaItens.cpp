@@ -9,9 +9,11 @@
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 
+#include <functional>
+#include <unordered_map>
+
 std::unique_ptr<Item> FabricaItens::criarItem(const std::string& nome) 
 {
-    // Trata automaticamente a instanciacao de itens melhorados pela Forja (+)
     if (!nome.empty() && nome.back() == '+') {
         std::string nomeBase = nome.substr(0, nome.length() - 1);
         auto itemBase = criarItem(nomeBase);
@@ -19,69 +21,84 @@ std::unique_ptr<Item> FabricaItens::criarItem(const std::string& nome)
         return nullptr;
     }
 
-    // --- Armas ---
-    if (nome == "Adaga artesanal de pedra") return std::make_unique<EquipamentoArma>(nome, 5, 0, 5);
-    if (nome == "Arco recurvo de madeira") return std::make_unique<EquipamentoArma>(nome, 10, 0, 3);
-    if (nome == "Cajado") return std::make_unique<EquipamentoArma>(nome, 0, 30, 3);
-    if (nome == "Violao encantado") return std::make_unique<EquipamentoArma>(nome, 0, 10, 3);
-    if (nome == "Espada longa de ferro") return std::make_unique<EquipamentoArma>(nome, 10, 0, 3);
-    if (nome == "Machado de guerra danificado") return std::make_unique<EquipamentoArma>(nome, 15, 0, 3);
-    if (nome == "Gosma acida (Arma)") return std::make_unique<EquipamentoArma>("Gosma acida", 2, 7, 3); // Arma exclusiva do Slime
-    
-    // --- Escudos ---
-    if (nome == "Escudo medio de metal") return std::make_unique<EquipamentoEscudo>(nome, 15, 5, 9);
-    if (nome == "Barreira magica") return std::make_unique<EquipamentoEscudo>(nome, 50, 2, 3);
-    if (nome == "Capa magica") return std::make_unique<EquipamentoEscudo>(nome, 6, 10, 9);
-    if (nome == "Bracedeiras de prata") return std::make_unique<EquipamentoEscudo>(nome, 5, 3, 3);
-    
-    // --- Armaduras ---
-    if (nome == "Armadura de malha e metal") return std::make_unique<EquipamentoArmadura>(nome, 7, 3);
-    if (nome == "Armadura leve de couro com malha") return std::make_unique<EquipamentoArmadura>(nome, 5, 3);
-    if (nome == "Tunica") return std::make_unique<EquipamentoArmadura>(nome, 2, 3);
-    if (nome == "Traje de Couro e tecido nobre") return std::make_unique<EquipamentoArmadura>(nome, 4, 3);
-    if (nome == "Armadura de trapos e sucata") return std::make_unique<EquipamentoArmadura>(nome, 3, 3);
-    
-    // --- Consumiveis ---
     if (nome.find("Pocao de Cura") != std::string::npos) return std::make_unique<ItemConsumivel>(nome, 6);
-    
-    if (nome == "Pocao de Furia (Buff)" || nome == "Elixir Arcano (Buff)") {
-        auto buff = std::make_unique<ItemConsumivel>(nome, 3);
-        buff->adicionarPropriedade(Propriedade::ConsumivelBuff);
-        return buff;
+
+    static const std::unordered_map<std::string, std::function<std::unique_ptr<Item>()>> registroItens = {
+        // --- Armas ---
+        {"Adaga artesanal de pedra", []() { return std::make_unique<EquipamentoArma>("Adaga artesanal de pedra", 5, 0, 5); }},
+        {"Arco recurvo de madeira", []() { return std::make_unique<EquipamentoArma>("Arco recurvo de madeira", 10, 0, 3); }},
+        {"Cajado", []() { return std::make_unique<EquipamentoArma>("Cajado", 0, 30, 3); }},
+        {"Violao encantado", []() { return std::make_unique<EquipamentoArma>("Violao encantado", 0, 10, 3); }},
+        {"Espada longa de ferro", []() { return std::make_unique<EquipamentoArma>("Espada longa de ferro", 10, 0, 3); }},
+        {"Machado de guerra danificado", []() { return std::make_unique<EquipamentoArma>("Machado de guerra danificado", 15, 0, 3); }},
+        {"Gosma acida (Arma)", []() { return std::make_unique<EquipamentoArma>("Gosma acida", 2, 7, 3); }},
+        
+        // --- Escudos ---
+        {"Escudo medio de metal", []() { return std::make_unique<EquipamentoEscudo>("Escudo medio de metal", 15, 5, 9); }},
+        {"Barreira magica", []() { return std::make_unique<EquipamentoEscudo>("Barreira magica", 50, 2, 3); }},
+        {"Capa magica", []() { return std::make_unique<EquipamentoEscudo>("Capa magica", 6, 10, 9); }},
+        {"Bracedeiras de prata", []() { return std::make_unique<EquipamentoEscudo>("Bracedeiras de prata", 5, 3, 3); }},
+        
+        // --- Armaduras ---
+        {"Armadura de malha e metal", []() { return std::make_unique<EquipamentoArmadura>("Armadura de malha e metal", 7, 3); }},
+        {"Armadura leve de couro com malha", []() { return std::make_unique<EquipamentoArmadura>("Armadura leve de couro com malha", 5, 3); }},
+        {"Tunica", []() { return std::make_unique<EquipamentoArmadura>("Tunica", 2, 3); }},
+        {"Traje de Couro e tecido nobre", []() { return std::make_unique<EquipamentoArmadura>("Traje de Couro e tecido nobre", 4, 3); }},
+        {"Armadura de trapos e sucata", []() { return std::make_unique<EquipamentoArmadura>("Armadura de trapos e sucata", 3, 3); }},
+        
+        // --- Consumiveis ---
+        {"Pocao de Furia (Buff)", []() {
+            auto buff = std::make_unique<ItemConsumivel>("Pocao de Furia (Buff)", 3);
+            buff->adicionarPropriedade(Propriedade::ConsumivelBuff);
+            return buff;
+        }},
+        {"Elixir Arcano (Buff)", []() {
+            auto buff = std::make_unique<ItemConsumivel>("Elixir Arcano (Buff)", 3);
+            buff->adicionarPropriedade(Propriedade::ConsumivelBuff);
+            return buff;
+        }},
+        {"Frasco de Gosma (Debuff)", []() {
+            auto debuff = std::make_unique<ItemConsumivel>("Frasco de Gosma (Debuff)");
+            debuff->adicionarPropriedade(Propriedade::ConsumivelDebuffLentidao);
+            debuff->definirAcaoUsar([](SistemaPersonagem* usuario, SistemaPersonagem* alvo) {
+                alvo->adicionarEfeito(std::make_unique<EfeitoLentidao>(3));
+                std::cout << "\n" << SimplificacoesAparencia::cor(Cor::MAGENTA) << ">> Voce jogou o frasco! " << alvo->obterNome() << " esta com lentidao por 3 turnos!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+            });
+            return debuff;
+        }},
+        {"Frasco de Fraqueza (Debuff)", []() {
+            auto debuff = std::make_unique<ItemConsumivel>("Frasco de Fraqueza (Debuff)");
+            debuff->adicionarPropriedade(Propriedade::ConsumivelDebuffFraqueza);
+            debuff->definirAcaoUsar([](SistemaPersonagem* usuario, SistemaPersonagem* alvo) {
+                alvo->adicionarEfeito(std::make_unique<EfeitoFraqueza>(3));
+                std::cout << "\n" << SimplificacoesAparencia::cor(Cor::VERMELHO) << ">> Voce jogou o frasco! " << alvo->obterNome() << " teve sua forca reduzida em 25% por 3 turnos!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+            });
+            return debuff;
+        }},
+        
+        // --- Talismas ---
+        {"Talisma do Urso", []() { auto t = std::make_unique<ItemConsumivel>("Talisma do Urso", 120); t->adicionarPropriedade(Propriedade::TalismaForca); return t; }},
+        {"Talisma do Corvo", []() { auto t = std::make_unique<ItemConsumivel>("Talisma do Corvo", 120); t->adicionarPropriedade(Propriedade::TalismaInteligencia); return t; }},
+        {"Talisma do Leopardo", []() { auto t = std::make_unique<ItemConsumivel>("Talisma do Leopardo", 120); t->adicionarPropriedade(Propriedade::TalismaDestreza); return t; }},
+        {"Talisma da Coruja", []() { auto t = std::make_unique<ItemConsumivel>("Talisma da Coruja", 120); t->adicionarPropriedade(Propriedade::TalismaSabedoria); return t; }},
+        
+        // --- Materiais ---
+        {"Gosma acida", []() { return std::make_unique<ItemMaterial>("Gosma acida", 5); }},
+        {"Dente de goblin", []() { return std::make_unique<ItemMaterial>("Dente de goblin", 1); }},
+        {"Nucleo pegajoso", []() { return std::make_unique<ItemMaterial>("Nucleo pegajoso", 30); }},
+        {"Po magico", []() { return std::make_unique<ItemMaterial>("Po magico", 15); }},
+        {"Madeira enfeiticada", []() { return std::make_unique<ItemMaterial>("Madeira enfeiticada", 3); }},
+        {"Coracao da floresta", []() { return std::make_unique<ItemMaterial>("Coracao da floresta", 3); }},
+        {"Pedra magica de upgrade", []() { return std::make_unique<ItemMaterial>("Pedra magica de upgrade", 3); }},
+        
+        // --- Missoes ---
+        {"Dispositivo de teclas de linguagem desconhecida", []() { return std::make_unique<ItemMissao>("Dispositivo de teclas de linguagem desconhecida", 500); }}
+    };
+
+    auto it = registroItens.find(nome);
+    if (it != registroItens.end()) {
+        return it->second();
     }
-    if (nome == "Frasco de Gosma (Debuff)") {
-        auto debuff = std::make_unique<ItemConsumivel>(nome);
-        debuff->adicionarPropriedade(Propriedade::ConsumivelDebuffLentidao);
-        debuff->definirAcaoUsar([](SistemaPersonagem* usuario, SistemaPersonagem* alvo) {
-            alvo->adicionarEfeito(std::make_unique<EfeitoLentidao>(3));
-            std::cout << "\n" << SimplificacoesAparencia::cor(Cor::MAGENTA) << ">> Voce jogou o frasco! " << alvo->obterNome() << " esta com lentidao por 3 turnos!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-        });
-        return debuff;
-    }
-    if (nome == "Frasco de Fraqueza (Debuff)") {
-        auto debuff = std::make_unique<ItemConsumivel>(nome);
-        debuff->adicionarPropriedade(Propriedade::ConsumivelDebuffFraqueza);
-        debuff->definirAcaoUsar([](SistemaPersonagem* usuario, SistemaPersonagem* alvo) {
-            alvo->adicionarEfeito(std::make_unique<EfeitoFraqueza>(3));
-            std::cout << "\n" << SimplificacoesAparencia::cor(Cor::VERMELHO) << ">> Voce jogou o frasco! " << alvo->obterNome() << " teve sua forca reduzida em 25% por 3 turnos!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-        });
-        return debuff;
-    }
-    
-    // --- Talismas ---
-    if (nome == "Talisma do Urso") { auto t = std::make_unique<ItemConsumivel>(nome, 120); t->adicionarPropriedade(Propriedade::TalismaForca); return t; }
-    if (nome == "Talisma do Corvo") { auto t = std::make_unique<ItemConsumivel>(nome, 120); t->adicionarPropriedade(Propriedade::TalismaInteligencia); return t; }
-    if (nome == "Talisma do Leopardo") { auto t = std::make_unique<ItemConsumivel>(nome, 120); t->adicionarPropriedade(Propriedade::TalismaDestreza); return t; }
-    if (nome == "Talisma da Coruja") { auto t = std::make_unique<ItemConsumivel>(nome, 120); t->adicionarPropriedade(Propriedade::TalismaSabedoria); return t; }
-    
-    // --- Materiais ---
-    if (nome == "Gosma acida") return std::make_unique<ItemMaterial>(nome, 5);
-    if (nome == "Dente de goblin") return std::make_unique<ItemMaterial>(nome, 1);
-    if (nome == "Nucleo pegajoso") return std::make_unique<ItemMaterial>(nome, 30);
-    if (nome == "Po magico") return std::make_unique<ItemMaterial>(nome, 15);
-    if (nome == "Madeira enfeiticada" || nome == "Coracao da floresta" || nome == "Pedra magica de upgrade") return std::make_unique<ItemMaterial>(nome, 3);
-    
-    // --- Missoes ---
-    if (nome == "Dispositivo de teclas de linguagem desconhecida") return std::make_unique<ItemMissao>(nome, 500);
+
     return nullptr;
 }

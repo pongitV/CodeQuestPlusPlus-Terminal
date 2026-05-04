@@ -120,8 +120,7 @@ void Guerreiro::usarHabilidadeClasse(SistemaPersonagem* u, std::vector<SistemaPe
     std::cout << "[HABILIDADE]: Grito de guerra! Forca +" << bonusForca << " e Destreza +" << bonusDestreza << "!\n";
 }
 
-void Guerreiro::executarAtaqueComPassivaDaClasse(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, int danoPerfurante, std::vector<std::unique_ptr<SistemaPersonagem>>& inimigos, std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)> aplicarDano) 
-{
+int Guerreiro::processarDanoPreAtaque(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, bool isAtacanteJogador, size_t qtdInimigos) {
     int danoFinal = danoBase;
     
     if (defensor != nullptr) {
@@ -138,7 +137,7 @@ void Guerreiro::executarAtaqueComPassivaDaClasse(SistemaPersonagem* atacante, Si
         }
     }
     
-    ClasseBase::executarAtaqueComPassivaDaClasse(atacante, defensor, danoFinal, danoPerfurante, inimigos, aplicarDano);
+    return danoFinal;
 }
 
 TipoAtaque Guerreiro::obterTipoAtaque() const { return TipoAtaque::UNICO; }

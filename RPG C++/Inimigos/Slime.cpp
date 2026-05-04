@@ -8,7 +8,7 @@
 #include "../Utilidades/GeradorAleatorio.h"
 
 std::string Slime::obterNomeRaca() const { return "Slime"; }
-Atributos Slime::obterAtributosRaca() const { return { 50, 15, 5, 10, 15, 0, 0 }; }
+Atributos Slime::obterAtributosRaca() const { return { 150, 15, 5, 10, 15, 0, 0 }; }
 std::string Slime::obterNomeHabilidadeRaca() const { return "Toque Gosmento"; }
 std::string Slime::obterDescricaoHabilidadeRaca() const { return "Ataques tem 20% de chance de causar Lentidao"; }
 

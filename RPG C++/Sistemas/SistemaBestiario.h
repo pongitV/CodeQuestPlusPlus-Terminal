@@ -5,6 +5,7 @@
 #include <map>
 #include <set>
 #include <fstream>
+#include <mutex>
 
 struct SistemaBestiarioEnemyInfo {
     std::string nome;
@@ -50,4 +51,6 @@ private:
     std::set<std::string> derrotados;
     std::map<std::string, std::set<std::string>> habilidadesVistas;
     std::map<std::string, std::set<std::string>> dropsColetados;
+    
+    mutable std::mutex mtx;
 };

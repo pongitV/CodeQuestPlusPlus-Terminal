@@ -50,7 +50,7 @@ void ControleDeMapa::processarCombate(
     GerenciadorMenu::exibirLogoDoJogo(titulo);
     int espacosM = std::max(0, (larguraDoTerminal - static_cast<int>(msg.length())) / 2);
     std::string mE(espacosM, ' ');
-    std::cout << "\n" << mE << "[!] " << msg << "\n";
+    std::cout << "\n" << mE << SimplificacoesAparencia::cor(Cor::AMARELO) << "[!] " << msg << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
     std::cout << mE << "[0] Nao, recuar | [1] Sim, batalha!\n" << mE << "Escolha: ";
 
     int opcao;

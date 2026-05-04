@@ -132,10 +132,12 @@ void SistemaBestiario::inicializarInimigos() {
 }
 
 void SistemaBestiario::registrarPrimeiraVista(const std::string& nomeInimigo) {
+    std::lock_guard<std::mutex> lock(mtx);
     if (inimigosBase.count(nomeInimigo)) vistos.insert(nomeInimigo);
 }
 
 void SistemaBestiario::registrarDerrota(const std::string& nomeInimigo) {
+    std::lock_guard<std::mutex> lock(mtx);
     if (inimigosBase.count(nomeInimigo)) {
         vistos.insert(nomeInimigo);
         derrotados.insert(nomeInimigo);
@@ -143,40 +145,48 @@ void SistemaBestiario::registrarDerrota(const std::string& nomeInimigo) {
 }
 
 void SistemaBestiario::registrarHabilidadeVista(const std::string& nomeInimigo, const std::string& habilidade) {
+    std::lock_guard<std::mutex> lock(mtx);
     if (inimigosBase.count(nomeInimigo)) habilidadesVistas[nomeInimigo].insert(habilidade);
 }
 
 void SistemaBestiario::registrarDrop(const std::string& nomeInimigo, const std::string& drop) {
+    std::lock_guard<std::mutex> lock(mtx);
     if (inimigosBase.count(nomeInimigo)) dropsColetados[nomeInimigo].insert(drop);
 }
 
 bool SistemaBestiario::estaDescoberto(const std::string& nomeInimigo) const {
+    std::lock_guard<std::mutex> lock(mtx);
     return vistos.count(nomeInimigo) > 0;
 }
 
 bool SistemaBestiario::jaDerrotado(const std::string& nomeInimigo) const {
+    std::lock_guard<std::mutex> lock(mtx);
     return derrotados.count(nomeInimigo) > 0;
 }
 
 bool SistemaBestiario::jaViuHabilidade(const std::string& nomeInimigo, const std::string& habilidade) const {
+    std::lock_guard<std::mutex> lock(mtx);
     auto it = habilidadesVistas.find(nomeInimigo);
     if (it != habilidadesVistas.end()) return it->second.count(habilidade) > 0;
     return false;
 }
 
 bool SistemaBestiario::jaColetouDrop(const std::string& nomeInimigo, const std::string& drop) const {
+    std::lock_guard<std::mutex> lock(mtx);
     auto it = dropsColetados.find(nomeInimigo);
     if (it != dropsColetados.end()) return it->second.count(drop) > 0;
     return false;
 }
 
 const SistemaBestiarioEnemyInfo* SistemaBestiario::obterInfo(const std::string& nomeInimigo) const {
+    std::lock_guard<std::mutex> lock(mtx);
     auto it = inimigosBase.find(nomeInimigo);
     if (it != inimigosBase.end()) return &it->second;
     return nullptr;
 }
 
 std::vector<std::string> SistemaBestiario::obterInimigosOrdenadosPorDificuldade() const {
+    std::lock_guard<std::mutex> lock(mtx);
     std::vector<std::string> nomes;
     for (const auto& par : inimigosBase) nomes.push_back(par.first);
     
@@ -188,6 +198,7 @@ std::vector<std::string> SistemaBestiario::obterInimigosOrdenadosPorDificuldade(
 }
 
 void SistemaBestiario::salvar(std::ofstream& out) const {
+    std::lock_guard<std::mutex> lock(mtx);
     out << vistos.size() << "\n";
     for (const auto& v : vistos) out << v << "\n";
 
@@ -208,6 +219,7 @@ void SistemaBestiario::salvar(std::ofstream& out) const {
 }
 
 void SistemaBestiario::carregar(std::ifstream& in) {
+    std::lock_guard<std::mutex> lock(mtx);
     vistos.clear();
     derrotados.clear();
     habilidadesVistas.clear();

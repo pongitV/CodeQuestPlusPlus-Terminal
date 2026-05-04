@@ -1,6 +1,7 @@
 #include <iostream>
 #include <map>
 #include <algorithm>
+#include <unordered_map>
 
 #include "Inventario.h"
 #include "Item.h"
@@ -101,16 +102,24 @@ Item* Inventario::buscarItemPorCodigo(const std::string& codigoDigitado, Item* a
     }
 
     auto buscarPorTipoAgrupado = [&](auto condicao) -> Item* {
-        std::map<std::string, Item*> itensAgrupados;
-        for (const auto& itemUnique : listaDeItens) {
-            Item* itemAtual = itemUnique.get();
+        std::unordered_map<std::string, size_t> cacheDeIndice;
+        std::vector<std::string> nomesVisual;
+
+        for (size_t i = 0; i < listaDeItens.size(); ++i) {
+            Item* itemAtual = listaDeItens[i].get();
             if (condicao(itemAtual)) {
-                itensAgrupados.insert({itemAtual->obterNomeItem(), itemAtual});
+                if (cacheDeIndice.find(itemAtual->obterNomeItem()) == cacheDeIndice.end()) {
+                    cacheDeIndice[itemAtual->obterNomeItem()] = i;
+                    nomesVisual.push_back(itemAtual->obterNomeItem());
+                }
             }
         }
-        int contadorAtual = 1;
-        for (auto const& par : itensAgrupados) {
-            if (contadorAtual++ == indiceDoItem) return par.second;
+        
+        std::sort(nomesVisual.begin(), nomesVisual.end());
+
+        if (indiceDoItem > 0 && indiceDoItem <= static_cast<int>(nomesVisual.size())) {
+            size_t idxOriginal = cacheDeIndice[nomesVisual[indiceDoItem - 1]];
+            return listaDeItens[idxOriginal].get();
         }
         return nullptr;
     };
@@ -166,6 +175,7 @@ Item* Inventario::selecionarEscudo()
 void Inventario::adicionarItem(std::unique_ptr<Item> novoItem) 
 { 
     if (novoItem) {
+        contagemItens_[novoItem->obterNomeItem()]++;
         listaDeItens.push_back(std::move(novoItem));
     }
 }
@@ -179,6 +189,8 @@ void Inventario::removerItem(const std::string& nomeDoItem)
     
     if (it != listaDeItens.end()) 
     {
+        contagemItens_[nomeDoItem]--;
+        if (contagemItens_[nomeDoItem] <= 0) contagemItens_.erase(nomeDoItem);
         listaDeItens.erase(it);
     }
 }
@@ -191,16 +203,17 @@ void Inventario::removerItem(Item* itemExato)
     });
     
     if (it != listaDeItens.end()) {
+        std::string nome = itemExato->obterNomeItem();
+        contagemItens_[nome]--;
+        if (contagemItens_[nome] <= 0) contagemItens_.erase(nome);
         listaDeItens.erase(it);
     }
 }
 
 int Inventario::contarItem(const std::string& nomeDoItem) const 
 {
-    return std::count_if(listaDeItens.begin(), listaDeItens.end(), [&](const std::unique_ptr<Item>& item) 
-    {
-        return item->obterNomeItem() == nomeDoItem;
-    });
+    auto it = contagemItens_.find(nomeDoItem);
+    return it != contagemItens_.end() ? it->second : 0;
 }
 
 bool Inventario::possuiPocaoDeCura() const 

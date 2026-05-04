@@ -26,6 +26,6 @@ public:
     TipoAtaque obterTipoAtaque() const override;
     bool habilidadeConsomeTurno() const override;
 
-    // Sobrescreve para processar a passiva Golpe Decisivo
-    void executarAtaqueComPassivaDaClasse(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, int danoPerfurante, std::vector<std::unique_ptr<SistemaPersonagem>>& inimigos, std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)> aplicarDano) override;
+protected:
+    int processarDanoPreAtaque(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, bool isAtacanteJogador, size_t qtdInimigos) override;
 };  

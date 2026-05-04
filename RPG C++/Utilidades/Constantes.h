@@ -5,6 +5,7 @@ namespace Constantes
     // Evolucao e Experiencia
     constexpr int XP_BASE_PARA_SUBIR = 100;
     constexpr double MULTIPLICADOR_XP_POR_NIVEL = 1.5;
+    constexpr double MAX_XP = 1000000000.0; // Evita integer overflow em niveis altos
     
     // Atributos de Nivel
     constexpr int GANHO_VIDA_POR_NIVEL = 20;
