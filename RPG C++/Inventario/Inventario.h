@@ -24,19 +24,19 @@ public:
     Inventario();
     ~Inventario() = default;
 
-    void exibirInventario(Item* armaEquipada, Item* escudoEquipado, Item* armaduraEquipada, bool mostrarPrecos = false) const;
-    
-    Item* buscarItemPorCodigo(const std::string& codigoDigitado, Item* armaEquipada, Item* escudoEquipado, Item* armaduraEquipada);
-    Item* selecionarEscudo();
-    
+    // Funcoes Basicas e Estado
+    bool estaVazio() const;
+    int obterOuro() const;
+    int contarItem(const std::string& nomeDoItem) const;
+    bool possuiPocaoDeCura() const;
+
+    // Manipulacao do Inventario
+    void adicionarOuro(int quantidadeAdicional);
     void adicionarItem(std::unique_ptr<Item> novoItem);
     void removerItem(const std::string& nomeDoItem);
     void removerItem(Item* itemExato);
-    int contarItem(const std::string& nomeDoItem) const;
 
-    bool possuiPocaoDeCura() const;
-    
-    void adicionarOuro(int quantidadeAdicional);
-    int obterOuro() const;
-    bool estaVazio() const;
+    // Buscas e Interacoes
+    Item* buscarItemPorCodigo(const std::string& codigoDigitado, Item* armaEquipada, Item* escudoEquipado, Item* armaduraEquipada);
+    Item* selecionarEscudo();
 };

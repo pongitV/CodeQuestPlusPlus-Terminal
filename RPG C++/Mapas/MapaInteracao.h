@@ -2,8 +2,7 @@
 
 #include <functional>
 
-class Mapa2Floresta; // Forward declaration
-
+class Mapa2Floresta;
 struct ContextoInteracaoFloresta {
     Mapa2Floresta* self;
     int proximaPosicaoX;
@@ -12,7 +11,6 @@ struct ContextoInteracaoFloresta {
     const std::function<void()>& restaurarTela;
     char celula;
 };
-
 class InteracaoFloresta {
 public:
     virtual ~InteracaoFloresta() = default;
@@ -20,8 +18,7 @@ public:
 };
 
 
-class Mapa1Vila; // Forward declaration
-
+class Mapa1Vila;
 struct ContextoInteracaoVila {
     Mapa1Vila* self;
     int proximaPosicaoX;
@@ -30,7 +27,6 @@ struct ContextoInteracaoVila {
     const std::function<void()>& restaurarTela;
     char celula;
 };
-
 class InteracaoVila {
 public:
     virtual ~InteracaoVila() = default;

@@ -45,6 +45,41 @@ void TransicaoDeMapa::exibirTransicaoParaVila()
     Sleep(3000); 
 }
 
+void TransicaoDeMapa::exibirTransicaoParaReino()
+{
+    SimplificacoesAparencia::limparTela();
+
+    std::vector<std::string> arteReino = {
+        "|>>>                        |>>>",
+        "                    |                           |",
+        "                _  _|_  _                   _  _|_  _",
+        "               | |_| |_| |                 | |_| |_| |",
+        "               \\  .      /                 \\ .    .  /",
+        "                \\    ,  /                   \\    .  /",
+        "                 | .   |_   _   _   _   _   _| ,   |",
+        "                 |    .| |_| |_| |_| |_| |_| |  .  |",
+        "                 | ,   | .    .     .      . |    .|",
+        "                 |   . |  .     . .   .  ,   |.    |",
+        "     ___----_____| .   |.   ,  _______   .   |   , |---~_____",
+        "_---~            |     |  .   /+++++++\\    . | .   |         ~---_",
+        "                 |.    | .    |+++++++| .    |   . |              ~-_",
+        "              __ |   . |   ,  |+++++++|.  . _|__   |                 ~-_",
+        "     ____--`~    '--~~__ .    |++++ __|----~    ~`---,              ___^~-__",
+        "-~--~                   ~---__|,--~'                  ~~----_____-~'   `~----~"
+    };
+
+    std::cout << "\n\n";
+    SimplificacoesAparencia::imprimirCentralizadoMultilinha(arteReino, 75, SimplificacoesAparencia::cor(Cor::CIANO));
+
+    std::string textoDeViagem = "Viajando para o Reino...";
+    int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
+    int espacosParaCentralizarTexto = (larguraDoTerminal - (int)textoDeViagem.length()) / 2;
+
+    std::cout << "\n\n" << std::string(espacosParaCentralizarTexto > 0 ? espacosParaCentralizarTexto : 0, ' ') << textoDeViagem << "\n";
+
+    Sleep(3000); 
+}
+
 void TransicaoDeMapa::exibirTransicaoParaFloresta()
 {
     SimplificacoesAparencia::limparTela();
