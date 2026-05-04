@@ -9,7 +9,7 @@ class ClasseBaseInimigo : public ClasseBase
 {
 public:
     std::string obterNomeClasse() const override;
-    TipoClasse obterTipoClasse() const override { return TipoClasse::InimigoPadrao; }
+    TipoClasse obterTipoClasse() const override { return TipoClasse::Nenhum; }
     Atributos obterAtributosClasse() const override;
     std::vector<std::string> obterAparenciaClasseMenu() const override;
     std::vector<std::unique_ptr<Item>> obterEquipamentoClasse() const override;

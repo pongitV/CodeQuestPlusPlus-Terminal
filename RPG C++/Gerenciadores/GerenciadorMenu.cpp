@@ -67,7 +67,11 @@ bool GerenciadorMenu::exibirConfirmacaoDeEscolhaComArteLadoALado(const std::stri
     std::cout << "\n" << std::string(recuo, ' ') << "0. VOLTAR | 1. CONFIRMAR\n";
     std::cout << std::string(recuo, ' ') << "Escolha: ";
     int confirma; 
-    if (!(std::cin >> confirma)) { std::cin.clear(); std::cin.ignore(1000, '\n'); return false; }
+    while (!(std::cin >> confirma) || (confirma != 0 && confirma != 1)) { 
+        std::cin.clear(); 
+        std::cin.ignore(1000, '\n'); 
+        std::cout << std::string(recuo, ' ') << "Opcao invalida. Escolha (0 ou 1): "; 
+    }
     return confirma == 1;
 }
 
@@ -118,7 +122,11 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::menuPrincipal()
             std::cout << mE << "Escolha: ";
             
             int escolhaSave;
-            if (!(std::cin >> escolhaSave)) { std::cin.clear(); std::cin.ignore(1000, '\n'); continue; }
+            while (!(std::cin >> escolhaSave) || escolhaSave < 0 || escolhaSave > static_cast<int>(saves.size())) { 
+                std::cin.clear(); 
+                std::cin.ignore(1000, '\n'); 
+                std::cout << mE << "Opcao invalida. Escolha: "; 
+            }
             
             if (escolhaSave > 0 && escolhaSave <= (int)saves.size()) {
                 auto jogador = SistemaSave::carregarJogo(saves[escolhaSave - 1]);

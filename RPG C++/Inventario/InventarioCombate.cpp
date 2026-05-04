@@ -87,6 +87,7 @@ void InventarioCombate::gerenciarInventario(SistemaPersonagem* jogadorAtual, boo
         int espacos = std::max(0, (larguraDoTerminal - static_cast<int>(mensagemDoPrompt.length())) / 2);
         std::cout << "\n" << std::string(espacos, ' ') << mensagemDoPrompt;
         std::cin >> codigoDoItemDigitado;
+        std::cin.ignore(1000, '\n');
 
         if (codigoDoItemDigitado != "0")
         {

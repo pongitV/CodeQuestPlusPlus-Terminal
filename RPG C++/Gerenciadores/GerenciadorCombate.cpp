@@ -33,6 +33,7 @@ GerenciadorCombate::GerenciadorCombate(SistemaPersonagem* jogadorParaOCombate, s
     for (auto& inimigoAtualPtr : this->listaDeInimigos) 
     {
         inimigoAtualPtr->aplicarMultiplicadorDificuldade(multiplicadorDeDificuldadeDosInimigos);
+        inimigoAtualPtr->prepararParaNovaBatalha();
     }
 }
 
@@ -153,11 +154,11 @@ void GerenciadorCombate::processarMenuDeAcoesDoJogador(bool& turnoFoiConsumido, 
     std::cout << std::string(espacosAcoes, ' ') << textoAcoes;
     
     int acaoEscolhida;
-    if (!(std::cin >> acaoEscolhida)) 
+    while (!(std::cin >> acaoEscolhida)) 
     {
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        return;
+        std::cout << std::string(espacosAcoes, ' ') << "Entrada invalida! Escolha novamente: ";
     }
 
     switch (static_cast<AcaoCombate>(acaoEscolhida)) 
@@ -186,13 +187,11 @@ void GerenciadorCombate::processarAcaoAtacar(bool& turnoFoiConsumido)
     {
         int indiceDoAlvoEscolhido;
         std::cout << "Escolha o alvo (0 a " << listaDeInimigos.size() - 1 << "): ";
-        if (!(std::cin >> indiceDoAlvoEscolhido) || indiceDoAlvoEscolhido < 0 || indiceDoAlvoEscolhido >= static_cast<int>(listaDeInimigos.size())) 
+        while (!(std::cin >> indiceDoAlvoEscolhido) || indiceDoAlvoEscolhido < 0 || indiceDoAlvoEscolhido >= static_cast<int>(listaDeInimigos.size())) 
         {
             std::cin.clear(); 
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cout << "\n[ERRO] Alvo invalido!\n";
-            SimplificacoesAparencia::aguardarEnter();
-            return;
+            std::cout << "Alvo invalido! Escolha o alvo (0 a " << listaDeInimigos.size() - 1 << "): ";
         }
 
         realizarAtaqueFisico(jogadorAtual, listaDeInimigos[indiceDoAlvoEscolhido].get(), contadorDoTurnoAtual);
@@ -252,12 +251,17 @@ void GerenciadorCombate::processarAcaoInventario(bool& turnoFoiConsumido, bool& 
         for (size_t i = 0; i < listaDeInimigos.size(); ++i) {
             std::cout << "[" << i << "] " << listaDeInimigos[i]->obterNome() << " (HP: " << listaDeInimigos[i]->obterVida() << ")\n";
         }
-        std::cout << "Escolha (ou tecla invalida para CANCELAR): ";
+        std::cout << "Escolha (ou -1 para CANCELAR): ";
         
-        if (!(std::cin >> indiceDoAlvoEscolhido) || indiceDoAlvoEscolhido < 0 || indiceDoAlvoEscolhido >= static_cast<int>(listaDeInimigos.size())) 
+        while (!(std::cin >> indiceDoAlvoEscolhido) || indiceDoAlvoEscolhido < -1 || indiceDoAlvoEscolhido >= static_cast<int>(listaDeInimigos.size())) 
         {
             std::cin.clear(); 
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "Alvo invalido! Escolha (ou -1 para CANCELAR): ";
+        } 
+
+        if (indiceDoAlvoEscolhido == -1) 
+        {
             std::cout << "\n[SISTEMA] Uso do frasco cancelado. O item voltou para a mochila.\n";
             jogadorAtual->definirItemSelecionadoParaUso(nullptr);
         } 
@@ -469,12 +473,14 @@ bool GerenciadorCombate::verificarCondicaoDeVitoriaOuDerrota()
     { 
         jogadorAtual->limparEfeitos(); // Remove buffs e debuffs antes de voltar ao mapa
         TelaVitoria::exibir(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, jogadorAtual->obterCuraTotalRecebida(), contadorDoTurnoAtual, itensObtidos);
+        jogadorAtual->finalizarBatalha();
         return true; 
     }
     if (jogadorAtual->obterVida() <= 0) 
     { 
         jogadorAtual->limparEfeitos(); // Remove buffs e debuffs na morte
         TelaDerrota::exibir(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, jogadorAtual->obterCuraTotalRecebida(), contadorDoTurnoAtual); 
+        jogadorAtual->finalizarBatalha();
         return true; 
     }
     return false;

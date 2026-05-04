@@ -73,6 +73,7 @@ private:
         bool habilidadeCancelada = false;
         double multiplicadorAtual = 1.0;
         int curaTotalRecebida = 0;
+        int vidaMaximaFixa = 0;
         std::unordered_map<HabilidadeID, int> cooldownsAtivos;
         
         void resetar() {
@@ -83,6 +84,7 @@ private:
             habilidadeCancelada = false;
             multiplicadorAtual = 1.0;
             curaTotalRecebida = 0;
+            vidaMaximaFixa = 0;
             cooldownsAtivos.clear();
         }
     };
@@ -147,7 +149,9 @@ public:
     // Getters e Setters em camelCase
     std::string obterNome() const { return nomePersonagem; }
     int obterVida() const { return vidaAtual; }
-    int obterVidaMaxima() const { return static_cast<int>(statsFinais.vida * sistema.dificuldadeMultiplicador); }
+    int obterVidaMaxima() const { 
+        return combate.vidaMaximaFixa > 0 ? combate.vidaMaximaFixa : static_cast<int>(statsFinais.vida * sistema.dificuldadeMultiplicador); 
+    }
     int obterForca() const { return static_cast<int>(statsFinais.forca * sistema.dificuldadeMultiplicador); }
     int obterDestreza() const;
     int obterResistencia() const { return static_cast<int>(statsFinais.resistencia * sistema.dificuldadeMultiplicador); }
@@ -222,6 +226,7 @@ public:
 
     void reduzirCooldowns();
     void prepararParaNovaBatalha();
+    void finalizarBatalha() { combate.vidaMaximaFixa = 0; }
 
     bool possuiEfeito(EfeitoID id) const;
     int obterTurnosEfeito(EfeitoID id) const;

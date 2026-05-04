@@ -121,6 +121,7 @@ void SistemaPersonagem::reduzirCooldowns()
 void SistemaPersonagem::prepararParaNovaBatalha()
 {
     combate.resetar();
+    combate.vidaMaximaFixa = static_cast<int>(statsFinais.vida * sistema.dificuldadeMultiplicador);
     limparEfeitos();
 }
 

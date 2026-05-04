@@ -14,8 +14,7 @@ enum class TipoClasse
     Arqueiro,
     Bardo,
     Guerreiro,
-    Mago,
-    InimigoPadrao
+    Mago
 };
 
 enum class HabilidadeID

@@ -54,7 +54,12 @@ void ControleDeMapa::processarCombate(
     std::cout << mE << "[0] Nao, recuar | [1] Sim, batalha!\n" << mE << "Escolha: ";
 
     int opcao;
-    if (std::cin >> opcao && opcao == 1) {
+    while (!(std::cin >> opcao) || (opcao != 0 && opcao != 1)) {
+        std::cin.clear(); std::cin.ignore(1000, '\n');
+        std::cout << mE << "Entrada invalida. Escolha (0 ou 1): ";
+    }
+
+    if (opcao == 1) {
         GerenciadorCombate combate(jogadorAtual, std::move(inimigos));
         combate.iniciarCombate();
 
@@ -63,7 +68,7 @@ void ControleDeMapa::processarCombate(
             posicaoXDoJogador = px;
             posicaoYDoJogador = py;
         }
-    } else { std::cin.clear(); std::cin.ignore(1000, '\n'); }
+    }
 
     if (exploracaoEstaAtiva) restaurarTela();
 }

@@ -163,11 +163,10 @@ Item* Inventario::selecionarEscudo()
 
     int opcaoEscolhida;
 
-    if (!(std::cin >> opcaoEscolhida) || opcaoEscolhida < 0 || opcaoEscolhida > static_cast<int>(listaDeEscudos.size())) 
+    while (!(std::cin >> opcaoEscolhida) || opcaoEscolhida < 0 || opcaoEscolhida > static_cast<int>(listaDeEscudos.size())) 
     {
         std::cin.clear(); std::cin.ignore(1000, '\n');
-        std::cout << "Opcao invalida!\n";
-        return nullptr;
+        std::cout << "Opcao invalida! Escolha novamente: ";
     }
     return (opcaoEscolhida == 0) ? nullptr : listaDeEscudos[opcaoEscolhida - 1];
 }

@@ -5,17 +5,6 @@
 #include <memory>
 #include <functional>
 
-enum class ItemID 
-{
-    Nenhum,
-    AdagaPedra,
-    ArcoMadeira,
-    Cajado,
-    EspadaLongaFerro,
-    PocaoCura,
-    FrascoGosma
-};
-
 enum class TipoEquipamento 
 {
     NENHUM,     
@@ -57,7 +46,6 @@ protected:
 public:
     Item(int preco = 3) : precoVenda(preco) {}
     virtual ~Item() = default;
-    virtual ItemID obterID() const { return ItemID::Nenhum; }
     virtual std::string obterNomeItem() const = 0;
     virtual TipoEquipamento obterTipo() const { return TipoEquipamento::NENHUM; }
     virtual int obterDanoFisico() const { return 0; }
@@ -84,6 +72,7 @@ public:
     virtual std::string obterInfoStatus() const { return ""; } // Vazio por padrão para itens sem status extra
     
     virtual void usar(SistemaPersonagem* usuario, SistemaPersonagem* alvo) {
+        if (usuario == nullptr || alvo == nullptr) return;
         if (acaoUsar) acaoUsar(usuario, alvo);
     }
     virtual void definirAcaoUsar(std::function<void(SistemaPersonagem*, SistemaPersonagem*)> acao) { acaoUsar = acao; }

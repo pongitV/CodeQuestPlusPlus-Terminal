@@ -26,14 +26,18 @@ bool SistemaSave::saveExiste() {
 
 std::vector<std::string> SistemaSave::listarSaves() {
     std::vector<std::string> saves;
-    for (const auto& entry : std::filesystem::directory_iterator(".")) {
-        if (entry.is_regular_file()) {
-            std::string filename = entry.path().filename().string();
-            // Verifica se começa com "save_" e termina com ".txt"
-            if (filename.find("save_") == 0 && filename.size() >= 4 && filename.substr(filename.size() - 4) == ".txt") {
-                saves.push_back(filename);
+    try {
+        for (const auto& entry : std::filesystem::directory_iterator(".")) {
+            if (entry.is_regular_file()) {
+                std::string filename = entry.path().filename().string();
+                // Verifica se começa com "save_" e termina com ".txt"
+                if (filename.find("save_") == 0 && filename.size() >= 4 && filename.substr(filename.size() - 4) == ".txt") {
+                    saves.push_back(filename);
+                }
             }
         }
+    } catch (const std::exception& e) {
+        std::cerr << "[SISTEMA]: Erro ao ler diretorio de saves: " << e.what() << "\n";
     }
     return saves;
 }
