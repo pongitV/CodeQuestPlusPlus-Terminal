@@ -7,6 +7,8 @@
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 #include "../Utilidades/GeradorAleatorio.h"
+#include <functional>
+#include <unordered_map>
 
 EquipamentoArma::EquipamentoArma(std::string nome, int danoFisico, int danoMagico, int reqForca, int reqDestreza, int reqInteligencia, int reqSabedoria, int preco)
     : Item(preco), nome(nome), danoFisico(danoFisico), danoMagico(danoMagico), reqForca(reqForca), reqDestreza(reqDestreza), reqInteligencia(reqInteligencia), reqSabedoria(reqSabedoria), efeitoSangramento(false), efeitoLentidao(false)
@@ -132,4 +134,21 @@ std::unique_ptr<Item> EquipamentoArma::gerarCopiaMelhorada() const {
     if (efeitoLentidao) novaArma->aplicarEfeitoLentidao();
     
     return novaArma;
+}
+
+std::unique_ptr<Item> fabricarEquipamentoArma(const std::string& nome) {
+    static const std::unordered_map<std::string, std::function<std::unique_ptr<Item>()>> construtores = {
+        {"Adaga artesanal de pedra", []() { return std::make_unique<EquipamentoArma>("Adaga artesanal de pedra", 5, 0, 0, 0, 0, 0, 3); }},
+        {"Arco recurvo de madeira", []() { return std::make_unique<EquipamentoArma>("Arco recurvo de madeira", 10, 0, 0, 0, 0, 0, 3); }},
+        {"Cajado de cristal magico", []() { return std::make_unique<EquipamentoArma>("Cajado de cristal magico", 0, 30, 0, 0, 0, 0, 3); }},
+        {"Varinha corroida", []() { return std::make_unique<EquipamentoArma>("Varinha corroida", 0, 25, 0, 0, 0, 0, 3); }},
+        {"Violao encantado", []() { return std::make_unique<EquipamentoArma>("Violao encantado", 0, 10, 0, 0, 0, 0, 3); }},
+        {"Espada longa de ferro", []() { return std::make_unique<EquipamentoArma>("Espada longa de ferro", 10, 0, 0, 0, 0, 0, 3); }},
+        {"Machado de guerra danificado", []() { return std::make_unique<EquipamentoArma>("Machado de guerra danificado", 15, 0, 10, 0, 0, 0, 3); }},
+        {"Gosma acida (Arma)", []() { return std::make_unique<EquipamentoArma>("Gosma acida", 2, 7, 0, 0, 0, 0, 3); }},
+        {"Tronco de arvore amarrotado", []() { return std::make_unique<EquipamentoArma>("Tronco de arvore amarrotado", 40, 0, 25, 0, 0, 0, 30); }}
+    };
+    auto it = construtores.find(nome);
+    if (it != construtores.end()) return it->second();
+    return nullptr;
 }

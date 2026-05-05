@@ -72,14 +72,13 @@ std::vector<std::unique_ptr<Item>> Arqueiro::obterEquipamentoClasse() const
     std::vector<std::unique_ptr<Item>> equipamentos;
     
     int quantidadePocoes = 3;
-    int porcentagemCura = 30;
     for (int i = 0; i < quantidadePocoes; ++i) {
-        equipamentos.push_back(FabricaItens::criarItem("Pocao de Cura (" + std::to_string(porcentagemCura) + "%VM)"));
+        equipamentos.push_back(FabricaItens::criarItem(ItemID::PocaoCura30));
     }
     
-    equipamentos.push_back(FabricaItens::criarItem("Arco recurvo de madeira"));
-    equipamentos.push_back(FabricaItens::criarItem("Bracedeiras de prata"));
-    equipamentos.push_back(FabricaItens::criarItem("Armadura leve de couro com malha"));
+    equipamentos.push_back(FabricaItens::criarItem(ItemID::ArcoMadeira));
+    equipamentos.push_back(FabricaItens::criarItem(ItemID::BracedeirasPrata));
+    equipamentos.push_back(FabricaItens::criarItem(ItemID::ArmaduraCouro));
     return equipamentos;
 }
 
@@ -94,16 +93,16 @@ std::string Arqueiro::obterNomeHabilidadeClasse() const
 { return "Retirada com pontaria"; }
 std::string Arqueiro::obterDescricaoHabilidadeClasse() const 
 { return "Se afasta durante um turno, no proximo turno causa 2x dano"; }
-void Arqueiro::usarHabilidadeClasse(SistemaPersonagem* u, std::vector<SistemaPersonagem*>& /*inimigos*/) {
-    if (u->obterRecarga()) 
+void Arqueiro::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::vector<SistemaPersonagem*>& /*listaDeInimigos*/) {
+    if (personagemUsuario->obterRecarga()) 
     {
         std::cout << "\n" << SimplificacoesAparencia::cor(Cor::VERMELHO) << "[SISTEMA]: A habilidade " << obterNomeHabilidadeClasse() << " esta em recarga (1 turnos)!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
         SimplificacoesAparencia::aguardarEnter();
-        u->definirHabilidadeCancelada(true);
+        personagemUsuario->definirHabilidadeCancelada(true);
         return;
     }
-    u->adicionarEfeito(std::make_unique<EfeitoInviolavel>(1));
-    u->definirRecarga(true);
+    personagemUsuario->adicionarEfeito(std::make_unique<EfeitoInviolavel>(1));
+    personagemUsuario->definirRecarga(true);
     std::cout << SimplificacoesAparencia::cor(Cor::VERDE) << "[HABILIDADE]: Retirada com pontaria! Voce se afasta neste turno." << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
 }
 

@@ -1,11 +1,15 @@
 #pragma once
 #include <memory>
 #include <string>
-
-class Item;
+#include "Item.h"
 
 class FabricaItens {
 public:
-    // Centraliza a criacao e atributos hardcoded de todos os itens do jogo
+    // Cria um item de forma type-safe baseada num Enum.
+    static std::unique_ptr<Item> criarItem(ItemID id);
+
+    // Mantido para retrocompatibilidade com sistema de Saves e Encantamentos (+).
     static std::unique_ptr<Item> criarItem(const std::string& nome);
+    
+    static std::string obterNomeDeID(ItemID id);
 };

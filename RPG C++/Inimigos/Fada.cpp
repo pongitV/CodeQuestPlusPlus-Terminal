@@ -4,11 +4,18 @@
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Inventario/FabricaItens.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
+#include <memory>
 
 std::string Fada::obterNomeRaca() const { return "Fada"; }
 Atributos Fada::obterAtributosRaca() const { return { 40, 0, 30, 2, 5, 10, 10 }; }
 std::string Fada::obterNomeHabilidadeRaca() const { return "Nenhuma"; }
 std::string Fada::obterDescricaoHabilidadeRaca() const { return "Monstros nao possuem passivas"; }
+
+std::vector<std::unique_ptr<Item>> Fada::obterEquipamentoRaca() const {
+    std::vector<std::unique_ptr<Item>> equipamentos;
+    equipamentos.push_back(FabricaItens::criarItem(ItemID::VarinhaCorroida));
+    return equipamentos;
+}
 
 std::vector<std::string> Fada::obterAparenciaRaca() const
 {
@@ -62,14 +69,14 @@ void Fada::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogadorA
 
     if ((std::rand() % 100) < 65) 
     {
-        jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem("Varinha corroida"));
+        jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::VarinhaCorroida));
         itensObtidos.push_back("Varinha corroida");
         std::cout << SimplificacoesAparencia::cor(Cor::BRANCO) << "+1x Varinha corroida" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
     }
 
     int qtdPo = (std::rand() % 6) + 1;
     for (int i = 0; i < qtdPo; ++i) {
-        jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem("Po magico"));
+        jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::PoMagico));
         itensObtidos.push_back("Po magico");
     }
     std::cout << SimplificacoesAparencia::cor(Cor::BRANCO) << "+" << qtdPo << "x Po magico" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";

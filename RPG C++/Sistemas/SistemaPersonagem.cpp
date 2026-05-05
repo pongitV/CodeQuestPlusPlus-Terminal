@@ -17,11 +17,11 @@ bool SistemaPersonagem::isValido(SistemaPersonagem* p) {
     return personagensAtivos.find(p) != personagensAtivos.end();
 }
 
-SistemaPersonagem::SistemaPersonagem(std::string nome, std::unique_ptr<RacaBase> r, std::unique_ptr<ClasseBase> c) 
+SistemaPersonagem::SistemaPersonagem(std::string nome, std::unique_ptr<RacaBase> racaEscolhida, std::unique_ptr<ClasseBase> classeEscolhida) 
 {
     this->nomePersonagem = nome;
-    this->raca = std::move(r);
-    this->classe = std::move(c);
+    this->raca = std::move(racaEscolhida);
+    this->classe = std::move(classeEscolhida);
     this->mochila = std::make_unique<Inventario>();
     this->statsFinais = { 0, 0, 0, 0, 0, 0, 0 }; // Atributos base
 
@@ -161,12 +161,12 @@ int SistemaPersonagem::obterDestreza() const
     return cache_.destreza;
 }
 
-void SistemaPersonagem::definirMultiplicador(double m) 
+void SistemaPersonagem::definirMultiplicador(double novoMultiplicador) 
 { 
     if (classe) {
-        combate.multiplicadorAtual = classe->processarMultiplicadorBuffPassivaBardo(m);
+        combate.multiplicadorAtual = classe->processarMultiplicadorBuffPassivaBardo(novoMultiplicador);
     } else {
-        combate.multiplicadorAtual = m;
+        combate.multiplicadorAtual = novoMultiplicador;
     }
 }
 

@@ -145,7 +145,7 @@ namespace {
                 int preco = 10;
                 if (jogadorAtual->obterInventario()->obterOuro() >= preco) {
                     jogadorAtual->obterInventario()->adicionarOuro(-preco);
-                    jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem("Pocao de Cura (30%VM)"));
+                    jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::PocaoCura30));
                     std::cout << "\n" << margemMsg << "[SISTEMA]: Pocao de Cura comprada!\n";
                 } else {
                     std::cout << "\n" << margemMsg << "[SISTEMA]: Ouro insuficiente!\n";
@@ -177,13 +177,13 @@ namespace {
                 if (jogadorAtual->obterInventario()->obterOuro() >= preco) {
                     jogadorAtual->obterInventario()->adicionarOuro(-preco);
                     
-                    std::string nomeTalisma = "";
-                    if (opcaoCompra == "1") nomeTalisma = "Talisma do Urso";
-                    else if (opcaoCompra == "2") nomeTalisma = "Talisma do Corvo";
-                    else if (opcaoCompra == "3") nomeTalisma = "Talisma do Leopardo";
-                    else if (opcaoCompra == "4") nomeTalisma = "Talisma da Coruja";
+                    ItemID idTalisma = ItemID::Nenhum;
+                    if (opcaoCompra == "1") idTalisma = ItemID::TalismaUrso;
+                    else if (opcaoCompra == "2") idTalisma = ItemID::TalismaCorvo;
+                    else if (opcaoCompra == "3") idTalisma = ItemID::TalismaLeopardo;
+                    else if (opcaoCompra == "4") idTalisma = ItemID::TalismaCoruja;
                     
-                    auto novoItem = FabricaItens::criarItem(nomeTalisma);
+                    auto novoItem = FabricaItens::criarItem(idTalisma);
                     if (novoItem) {
                         std::cout << "\n" << margemMsg << "[SISTEMA]: " << novoItem->obterNomeItem() << " comprado!\n";
                         jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
@@ -214,7 +214,7 @@ namespace {
                 int preco = 1000;
                 if (jogadorAtual->obterInventario()->obterOuro() >= preco) {
                     jogadorAtual->obterInventario()->adicionarOuro(-preco);
-                    jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem("Dispositivo de teclas de linguagem desconhecida"));
+                    jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::DispositivoLinguagem));
                     std::cout << "\n" << margemMsg << "[SISTEMA]: Dispositivo misterioso comprado!\n";
                 } else {
                     std::cout << "\n" << margemMsg << "[SISTEMA]: Ouro insuficiente!\n";

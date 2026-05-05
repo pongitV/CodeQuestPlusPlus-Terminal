@@ -8,6 +8,7 @@
 #include "../Inimigos/AbominacaoFloresta.h"
 #include "../Inimigos/Troll.h"
 #include "../Inimigos/ClasseBaseInimigo.h"
+#include "../Inventario/FabricaItens.h"
 
 SistemaBestiario& SistemaBestiario::instancia() {
     static SistemaBestiario inst;
@@ -39,7 +40,7 @@ void SistemaBestiario::inicializarInimigos() {
         },
         {classePadrao.obterNomeHabilidadeClasse() + " | " + classePadrao.obterDescricaoHabilidadeClasse()},
         racaGoblin.obterNomeHabilidadeRaca() + " | " + racaGoblin.obterDescricaoHabilidadeRaca(),
-        {"Dente de goblin", "Adaga artesanal de pedra", "Ouro"},
+        {FabricaItens::obterNomeDeID(ItemID::DenteGoblin), FabricaItens::obterNomeDeID(ItemID::AdagaPedra), "Ouro"},
         1
     };
 
@@ -61,7 +62,7 @@ void SistemaBestiario::inicializarInimigos() {
         },
         {classePadrao.obterNomeHabilidadeClasse() + " | " + classePadrao.obterDescricaoHabilidadeClasse()},
         racaSlime.obterNomeHabilidadeRaca() + " | " + racaSlime.obterDescricaoHabilidadeRaca(),
-        {"Gosma acida", "Nucleo pegajoso", "Ouro"},
+        {FabricaItens::obterNomeDeID(ItemID::GosmaAcida), FabricaItens::obterNomeDeID(ItemID::NucleoPegajoso), "Ouro"},
         2
     };
 
@@ -83,7 +84,7 @@ void SistemaBestiario::inicializarInimigos() {
         },
         {classePadrao.obterNomeHabilidadeClasse() + " | " + classePadrao.obterDescricaoHabilidadeClasse()},
         racaFada.obterNomeHabilidadeRaca() + " | " + racaFada.obterDescricaoHabilidadeRaca(),
-        {"Po magico", "Varinha corroida", "Ouro"},
+        {FabricaItens::obterNomeDeID(ItemID::PoMagico), FabricaItens::obterNomeDeID(ItemID::VarinhaCorroida), "Ouro"},
         3
     };
 
@@ -105,7 +106,7 @@ void SistemaBestiario::inicializarInimigos() {
         },
         {classePadrao.obterNomeHabilidadeClasse() + " | " + classePadrao.obterDescricaoHabilidadeClasse()},
         racaOrk.obterNomeHabilidadeRaca() + " | " + racaOrk.obterDescricaoHabilidadeRaca(),
-        {"Machado de guerra danificado", "Armadura de trapos e sucata", "Ouro"},
+        {FabricaItens::obterNomeDeID(ItemID::MachadoGuerra), FabricaItens::obterNomeDeID(ItemID::ArmaduraTrapos), "Ouro"},
         4
     };
 
@@ -127,7 +128,7 @@ void SistemaBestiario::inicializarInimigos() {
         },
         {classePadrao.obterNomeHabilidadeClasse() + " | " + classePadrao.obterDescricaoHabilidadeClasse()},
         racaAbominacao.obterNomeHabilidadeRaca() + " | " + racaAbominacao.obterDescricaoHabilidadeRaca(),
-        {"Coracao da floresta", "Madeira enfeiticada", "Ouro"},
+        {FabricaItens::obterNomeDeID(ItemID::CoracaoFloresta), FabricaItens::obterNomeDeID(ItemID::MadeiraEnfeiticada), "Ouro"},
         5
     };
 
@@ -149,7 +150,7 @@ void SistemaBestiario::inicializarInimigos() {
         },
         {classePadrao.obterNomeHabilidadeClasse() + " | " + classePadrao.obterDescricaoHabilidadeClasse()},
         racaTroll.obterNomeHabilidadeRaca() + " | " + racaTroll.obterDescricaoHabilidadeRaca(),
-        {"Tronco de arvore amarrotado", "Orgao regenerador", "Ouro"},
+        {FabricaItens::obterNomeDeID(ItemID::TroncoAmarrotado), FabricaItens::obterNomeDeID(ItemID::OrgaoRegenerador), "Ouro"},
         6
     };
 }
@@ -223,21 +224,21 @@ std::vector<std::string> SistemaBestiario::obterInimigosOrdenadosPorDificuldade(
 void SistemaBestiario::salvar(std::ofstream& out) const {
     std::lock_guard<std::mutex> lock(mtx);
     out << vistos.size() << "\n";
-    for (const auto& v : vistos) out << v << "\n";
+    for (const auto& inimigoVisto : vistos) out << inimigoVisto << "\n";
 
     out << derrotados.size() << "\n";
-    for (const auto& d : derrotados) out << d << "\n";
+    for (const auto& inimigoDerrotado : derrotados) out << inimigoDerrotado << "\n";
 
     out << habilidadesVistas.size() << "\n";
-    for (const auto& [ini, habs] : habilidadesVistas) {
-        out << ini << "\n" << habs.size() << "\n";
-        for (const auto& h : habs) out << h << "\n";
+    for (const auto& [nomeInimigo, conjuntoHabilidades] : habilidadesVistas) {
+        out << nomeInimigo << "\n" << conjuntoHabilidades.size() << "\n";
+        for (const auto& habilidade : conjuntoHabilidades) out << habilidade << "\n";
     }
 
     out << dropsColetados.size() << "\n";
-    for (const auto& [ini, drops] : dropsColetados) {
-        out << ini << "\n" << drops.size() << "\n";
-        for (const auto& d : drops) out << d << "\n";
+    for (const auto& [nomeInimigo, conjuntoDrops] : dropsColetados) {
+        out << nomeInimigo << "\n" << conjuntoDrops.size() << "\n";
+        for (const auto& drop : conjuntoDrops) out << drop << "\n";
     }
 }
 
@@ -249,47 +250,47 @@ void SistemaBestiario::carregar(std::ifstream& in) {
     dropsColetados.clear();
 
     size_t size;
-    std::string str;
+    std::string linhaLida;
 
     if (!(in >> size)) return; // Protecao para saves antigos que nao tinham bestiario
-    std::getline(in, str); // Limpa o \n
+    std::getline(in, linhaLida); // Limpa o \n
     for (size_t i = 0; i < size; ++i) {
-        std::getline(in, str);
-        vistos.insert(str);
+        std::getline(in, linhaLida);
+        vistos.insert(linhaLida);
     }
 
     in >> size;
-    std::getline(in, str);
+    std::getline(in, linhaLida);
     for (size_t i = 0; i < size; ++i) {
-        std::getline(in, str);
-        derrotados.insert(str);
+        std::getline(in, linhaLida);
+        derrotados.insert(linhaLida);
     }
 
     in >> size;
-    std::getline(in, str);
+    std::getline(in, linhaLida);
     for (size_t i = 0; i < size; ++i) {
-        std::string ini;
-        std::getline(in, ini);
+        std::string nomeInimigoLido;
+        std::getline(in, nomeInimigoLido);
         size_t habSize;
         in >> habSize;
-        std::getline(in, str);
+        std::getline(in, linhaLida);
         for (size_t j = 0; j < habSize; ++j) {
-            std::getline(in, str);
-            habilidadesVistas[ini].insert(str);
+            std::getline(in, linhaLida);
+            habilidadesVistas[nomeInimigoLido].insert(linhaLida);
         }
     }
 
     in >> size;
-    std::getline(in, str);
+    std::getline(in, linhaLida);
     for (size_t i = 0; i < size; ++i) {
-        std::string ini;
-        std::getline(in, ini);
+        std::string nomeInimigoLido;
+        std::getline(in, nomeInimigoLido);
         size_t dropSize;
         in >> dropSize;
-        std::getline(in, str);
+        std::getline(in, linhaLida);
         for (size_t j = 0; j < dropSize; ++j) {
-            std::getline(in, str);
-            dropsColetados[ini].insert(str);
+            std::getline(in, linhaLida);
+            dropsColetados[nomeInimigoLido].insert(linhaLida);
         }
     }
 }

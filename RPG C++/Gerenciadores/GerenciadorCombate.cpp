@@ -73,9 +73,9 @@ std::string GerenciadorCombate::obterTituloDoCombate() const
 
 std::vector<SistemaPersonagem*> GerenciadorCombate::obterInimigosRaw() const
 {
-    std::vector<SistemaPersonagem*> raw(listaDeInimigos.size());
-    std::transform(listaDeInimigos.begin(), listaDeInimigos.end(), raw.begin(), [](const std::unique_ptr<SistemaPersonagem>& ptr) { return ptr.get(); });
-    return raw;
+    std::vector<SistemaPersonagem*> ponteirosInimigos(listaDeInimigos.size());
+    std::transform(listaDeInimigos.begin(), listaDeInimigos.end(), ponteirosInimigos.begin(), [](const std::unique_ptr<SistemaPersonagem>& ptr) { return ptr.get(); });
+    return ponteirosInimigos;
 }
 
 void GerenciadorCombate::exibirTelaDeCombate() const
@@ -293,9 +293,9 @@ void GerenciadorCombate::processarAcaoInventario(SistemaPersonagem* personagemAg
     }
     if (personagemAgindo->obterItemSelecionadoParaUso() != nullptr) 
     {
-        Item* frasco = personagemAgindo->obterItemSelecionadoParaUso();
+        Item* itemSelecionado = personagemAgindo->obterItemSelecionadoParaUso();
         
-        std::cout << "\n--- ESCOLHA UM ALVO PARA O FRASCO ---\n";
+        std::cout << "\n--- ESCOLHA UM ALVO ---\n";
         for (size_t i = 0; i < listaDeInimigos.size(); ++i) {
             std::cout << "[" << i << "] " << listaDeInimigos[i]->obterNome() << " (HP: " << listaDeInimigos[i]->obterVida() << ")\n";
         }
@@ -312,9 +312,9 @@ void GerenciadorCombate::processarAcaoInventario(SistemaPersonagem* personagemAg
         {
             SistemaPersonagem* alvo = listaDeInimigos[indiceDoAlvoEscolhido].get();
             
-            frasco->usar(personagemAgindo, alvo);
+            itemSelecionado->usar(personagemAgindo, alvo);
             
-            personagemAgindo->obterInventario()->removerItem(frasco);
+            personagemAgindo->obterInventario()->removerItem(itemSelecionado);
             personagemAgindo->definirItemSelecionadoParaUso(nullptr);
             turnoFoiConsumido = true;
             usouInventarioNoTurno = true;
@@ -402,7 +402,7 @@ void GerenciadorCombate::realizarAtaqueFisico(SistemaPersonagem* personagemAtaca
 
     bool isAtacanteJogadorOuAliado = (personagemAtacante == jogadorAtual);
     if (!isAtacanteJogadorOuAliado) {
-        for (const auto& al : listaDeAliados) { if (al.get() == personagemAtacante) isAtacanteJogadorOuAliado = true; }
+        for (const auto& aliadoAtual : listaDeAliados) { if (aliadoAtual.get() == personagemAtacante) isAtacanteJogadorOuAliado = true; }
     }
 
     if (isAtacanteJogadorOuAliado || static_cast<int>(jogadorAtual->obterDificuldade()) >= 2) 
@@ -440,18 +440,18 @@ std::pair<int, int> GerenciadorCombate::calcularDanoBase(SistemaPersonagem* atac
 
     int forcaEfetiva = atacante->obterForca();
     int destrezaEfetiva = atacante->obterDestreza();
-    int intEfetiva = atacante->obterInteligencia();
-    int sabEfetiva = atacante->obterSabedoria();
+    int inteligenciaEfetiva = atacante->obterInteligencia();
+    int sabedoriaEfetiva = atacante->obterSabedoria();
 
     if (danoFisicoDaArma == 0 && danoMagicoDaArma > 0) {
         forcaEfetiva /= 10; destrezaEfetiva /= 10;
     } else if (danoFisicoDaArma > 0 && danoMagicoDaArma == 0) {
-        intEfetiva /= 10; sabEfetiva /= 10;
+        inteligenciaEfetiva /= 10; sabedoriaEfetiva /= 10;
     }
 
-    int danoFisCalculado = std::max(0, static_cast<int>((danoFisicoDaArma + forcaEfetiva) * (1.0 + (destrezaEfetiva / 100.0))));
-    int danoMagCalculado = std::max(0, static_cast<int>((danoMagicoDaArma + intEfetiva) * (1.0 + (sabEfetiva / 100.0))));
-    int total = std::max(1, danoFisCalculado + danoMagCalculado);
+    int danoFisicoCalculado = std::max(0, static_cast<int>((danoFisicoDaArma + forcaEfetiva) * (1.0 + (destrezaEfetiva / 100.0))));
+    int danoMagicoCalculado = std::max(0, static_cast<int>((danoMagicoDaArma + inteligenciaEfetiva) * (1.0 + (sabedoriaEfetiva / 100.0))));
+    int total = std::max(1, danoFisicoCalculado + danoMagicoCalculado);
 
     return { static_cast<int>(total * multiplicadorDeAtributos), perfuranteAtual };
 }
@@ -480,7 +480,7 @@ void GerenciadorCombate::aplicarDanoAoAlvo(SistemaPersonagem* personagemAtacante
     }
 
     bool isAlvoAliado = false;
-    for (const auto& al : listaDeAliados) { if (al.get() == personagemAlvo) isAlvoAliado = true; }
+    for (const auto& aliadoAtual : listaDeAliados) { if (aliadoAtual.get() == personagemAlvo) isAlvoAliado = true; }
     bool aplicarPassivas = (personagemAlvo == jogadorAtual || isAlvoAliado || static_cast<int>(jogadorAtual->obterDificuldade()) >= 2);
     int danoFinalAposReducoes = personagemAlvo->receberDano(quantidadeDeDanoBruto, danoPerfurante, quantidadeDeDanoReduzidoPeloParry, personagemAtacante, aplicarPassivas);
 
@@ -502,7 +502,7 @@ void GerenciadorCombate::exibirResultadoDoAtaque(SistemaPersonagem* alvo, int da
 {
     bool isJogadorOuAliado = (alvo == jogadorAtual);
     if (!isJogadorOuAliado) {
-        for (const auto& al : listaDeAliados) { if (al.get() == alvo) isJogadorOuAliado = true; }
+        for (const auto& aliadoAtual : listaDeAliados) { if (aliadoAtual.get() == alvo) isJogadorOuAliado = true; }
     }
 
     if (isJogadorOuAliado) 

@@ -15,18 +15,18 @@
 #include "../Utilidades/SimplificacoesAparencia.h"
 
 namespace {
-    std::map<int, std::string> estoqueArmas = {
-        {1, "Espada longa de ferro"},
-        {2, "Arco recurvo de madeira"},
-        {3, "Cajado de cristal magico"},
-        {4, "Violao encantado"}
+    std::map<int, ItemID> estoqueArmas = {
+        {1, ItemID::EspadaFerro},
+        {2, ItemID::ArcoMadeira},
+        {3, ItemID::CajadoCristal},
+        {4, ItemID::ViolaoEncantado}
     };
     
-    std::map<int, std::string> estoqueArmaduras = {
-        {1, "Armadura de malha e metal"},
-        {2, "Armadura leve de couro com malha"},
-        {3, "Tunica"},
-        {4, "Traje de Couro e tecido nobre"}
+    std::map<int, ItemID> estoqueArmaduras = {
+        {1, ItemID::ArmaduraMalha},
+        {2, ItemID::ArmaduraCouro},
+        {3, ItemID::Tunica},
+        {4, ItemID::TrajeNobre}
     };
     
     void processarCompraDeEquipamento(SistemaPersonagem* jogadorAtual, const std::string& margemMsg, bool comprandoArmas);
@@ -147,11 +147,11 @@ namespace {
             SimplificacoesAparencia::limparTela();
             TelaMenu::exibirLogoDoJogo(tituloLoja);
             std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
-            for (auto const& [id, nomeItem] : estoqueAtual) {
+            for (auto const& [id, idItem] : estoqueAtual) {
                 std::string preco = "40G";
-                std::unique_ptr<Item> tempItem = FabricaItens::criarItem(nomeItem);
+                std::unique_ptr<Item> tempItem = FabricaItens::criarItem(idItem);
                 std::string infoStatus = tempItem ? tempItem->obterInfoStatus() : "";
-                std::cout << margemMsg << "[" << id << "] " << nomeItem << infoStatus << " (" << preco << ")\n";
+                std::cout << margemMsg << "[" << id << "] " << (tempItem ? tempItem->obterNomeItem() : "???") << infoStatus << " (" << preco << ")\n";
             }
             std::cout << "\n" << margemMsg << "[0] VOLTAR\n\n" << margemMsg << "Escolha: ";
             std::cin >> opcaoCompra;
@@ -162,8 +162,10 @@ namespace {
                     if (estoqueAtual.count(idCompra)) {
                         if (jogadorAtual->obterInventario()->obterOuro() >= 40) {
                             jogadorAtual->obterInventario()->adicionarOuro(-40);
-                            jogadorAtual->obterInventario()->adicionarItem(std::move(FabricaItens::criarItem(estoqueAtual[idCompra])));
-                            std::cout << "\n" << margemMsg << "[Bjorn]: Otima escolha! Voce comprou " << estoqueAtual[idCompra] << ".\n";
+                            std::unique_ptr<Item> novoItem = FabricaItens::criarItem(estoqueAtual[idCompra]);
+                            std::string nomeNovo = novoItem->obterNomeItem();
+                            jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
+                            std::cout << "\n" << margemMsg << "[Bjorn]: Otima escolha! Voce comprou " << nomeNovo << ".\n";
                         } else {
                             std::cout << "\n" << margemMsg << "[Bjorn]: Voce nao tem ouro suficiente para isso!\n";
                         }
@@ -175,46 +177,46 @@ namespace {
     }
 
     void processarMelhoriaNaBigorna(SistemaPersonagem* jogadorAtual) {
-        std::string codigo1, codigo2;
+        std::string codigoDoItemBase, codigoDoItemCopia;
         do {
             TelaInventario::exibir(jogadorAtual);
             std::cout << "\n[Bjorn]: Escolha a ARMA, ESCUDO ou ARMADURA para melhorar (requer copia) ou [0] VOLTAR: ";
-            std::cin >> codigo1;
-            if (codigo1 == "0") break;
+            std::cin >> codigoDoItemBase;
+            if (codigoDoItemBase == "0") break;
             
-            Item* item1 = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigo1, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
-            if (!item1) { std::cout << "\n[SISTEMA]: Item invalido!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
-            if (item1 == jogadorAtual->obterArma() || item1 == jogadorAtual->obterEscudo() || item1 == jogadorAtual->obterArmadura()) { std::cout << "\n[Bjorn]: Voce precisa DESEQUIPAR o item antes de usa-lo na bigorna!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
-            if (item1->temPropriedade(Propriedade::Melhorado)) { std::cout << "\n[Bjorn]: Este item ja atingiu o limite de melhoria basica!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
-            TipoEquipamento tipo = item1->obterTipo();
+            Item* itemBase = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigoDoItemBase, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
+            if (!itemBase) { std::cout << "\n[SISTEMA]: Item invalido!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
+            if (itemBase == jogadorAtual->obterArma() || itemBase == jogadorAtual->obterEscudo() || itemBase == jogadorAtual->obterArmadura()) { std::cout << "\n[Bjorn]: Voce precisa DESEQUIPAR o item antes de usa-lo na bigorna!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
+            if (itemBase->temPropriedade(Propriedade::Melhorado)) { std::cout << "\n[Bjorn]: Este item ja atingiu o limite de melhoria basica!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
+            TipoEquipamento tipo = itemBase->obterTipo();
             if (tipo != TipoEquipamento::ARMA && tipo != TipoEquipamento::ESCUDO && tipo != TipoEquipamento::ARMADURA) { std::cout << "\n[Bjorn]: Eu so posso melhorar Armas, Escudos e Armaduras!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
 
             std::cout << "[Bjorn]: Agora, escolha o SEGUNDO item identico (copia) ou [0] CANCELAR: ";
-            std::cin >> codigo2;
-            if (codigo2 == "0") continue;
+            std::cin >> codigoDoItemCopia;
+            if (codigoDoItemCopia == "0") continue;
 
-            Item* item2 = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigo2, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
-            if (!item2) { std::cout << "\n[SISTEMA]: Item invalido!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
-            if (item1->obterNomeItem() != item2->obterNomeItem()) { std::cout << "\n[Bjorn]: Os itens precisam ser EXATAMENTE iguais para serem fundidos!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
+            Item* itemCopia = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigoDoItemCopia, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
+            if (!itemCopia) { std::cout << "\n[SISTEMA]: Item invalido!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
+            if (itemBase->obterNomeItem() != itemCopia->obterNomeItem()) { std::cout << "\n[Bjorn]: Os itens precisam ser EXATAMENTE iguais para serem fundidos!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
 
-            if (jogadorAtual->obterInventario()->contarItem(item1->obterNomeItem()) < 2) {
+            if (jogadorAtual->obterInventario()->contarItem(itemBase->obterNomeItem()) < 2) {
                 std::cout << "\n[Bjorn]: Voce nao possui UMA COPIA deste item!\n"; SimplificacoesAparencia::aguardarEnter(); continue; 
             }
 
-            if ((jogadorAtual->obterArma() && jogadorAtual->obterArma()->obterNomeItem() == item1->obterNomeItem()) ||
-                (jogadorAtual->obterEscudo() && jogadorAtual->obterEscudo()->obterNomeItem() == item1->obterNomeItem()) ||
-                (jogadorAtual->obterArmadura() && jogadorAtual->obterArmadura()->obterNomeItem() == item1->obterNomeItem())) {
+            if ((jogadorAtual->obterArma() && jogadorAtual->obterArma()->obterNomeItem() == itemBase->obterNomeItem()) ||
+                (jogadorAtual->obterEscudo() && jogadorAtual->obterEscudo()->obterNomeItem() == itemBase->obterNomeItem()) ||
+                (jogadorAtual->obterArmadura() && jogadorAtual->obterArmadura()->obterNomeItem() == itemBase->obterNomeItem())) {
                 std::cout << "\n[Bjorn]: Voce possui uma copia deste item equipada! DESEQUIPE antes de fundir.\n";
                 SimplificacoesAparencia::aguardarEnter(); continue;
             }
 
-            std::unique_ptr<Item> novoItem = item1->gerarCopiaMelhorada();
+            std::unique_ptr<Item> novoItem = itemBase->gerarCopiaMelhorada();
 
              if (novoItem) {
-                std::string nomeAntigo = item1->obterNomeItem();
+                std::string nomeAntigo = itemBase->obterNomeItem();
                 std::string novoNome = novoItem->obterNomeItem();
-                jogadorAtual->obterInventario()->removerItem(item1);
-                jogadorAtual->obterInventario()->removerItem(item2);
+                jogadorAtual->obterInventario()->removerItem(itemBase);
+                jogadorAtual->obterInventario()->removerItem(itemCopia);
                 jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
 
                 SimplificacoesAparencia::limparTela();
@@ -238,42 +240,43 @@ namespace {
                 std::cout << "\n[Bjorn]: Ha! Trabalho feito! Seu equipamento esta mais forte do que nunca!\n";
                 SimplificacoesAparencia::aguardarEnter();
             }
-        } while (codigo1 != "0");
+        } while (codigoDoItemBase != "0");
     }
 
     void processarUpgradePorMaterial(SistemaPersonagem* jogadorAtual) {
-        std::string codigo;
+        std::string codigoDaArmadura;
+        std::string nomePedraUpgrade = FabricaItens::obterNomeDeID(ItemID::PedraUpgrade);
         do {
-            int qtdPedra = jogadorAtual->obterInventario()->contarItem("Pedra magica de upgrade");
-            if (qtdPedra < 1) {
+            int qtdPedraUpgrade = jogadorAtual->obterInventario()->contarItem(nomePedraUpgrade);
+            if (qtdPedraUpgrade < 1) {
                 SimplificacoesAparencia::limparTela();
                 TelaMenu::exibirLogoDoJogo("FORJA - MELHORIA POR MATERIAL");
-                std::cout << "\n[Bjorn]: Voce nao tem nenhuma Pedra magica de upgrade!\n";
+                std::cout << "\n[Bjorn]: Voce nao tem nenhuma " << nomePedraUpgrade << "!\n";
                 SimplificacoesAparencia::aguardarEnter();
                 return;
             }
 
             TelaInventario::exibir(jogadorAtual);
             std::cout << "\n[Bjorn]: Escolha a ARMADURA para melhorar (+3 Defesa/Resistencia) ou [0] VOLTAR: ";
-            std::cin >> codigo;
-            if (codigo == "0") break;
+            std::cin >> codigoDaArmadura;
+            if (codigoDaArmadura == "0") break;
 
-            Item* item = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigo, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
-            if (!item) { std::cout << "\n[SISTEMA]: Item invalido!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
+            Item* itemParaUpgrade = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigoDaArmadura, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
+            if (!itemParaUpgrade) { std::cout << "\n[SISTEMA]: Item invalido!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
 
-            if (item == jogadorAtual->obterArmadura() || item == jogadorAtual->obterArma() || item == jogadorAtual->obterEscudo()) {
+            if (itemParaUpgrade == jogadorAtual->obterArmadura() || itemParaUpgrade == jogadorAtual->obterArma() || itemParaUpgrade == jogadorAtual->obterEscudo()) {
                 std::cout << "\n[Bjorn]: Voce precisa DESEQUIPAR o item antes de usa-lo na bigorna!\n"; 
                 SimplificacoesAparencia::aguardarEnter(); 
                 continue; 
             }
 
-            if (item->obterTipo() != TipoEquipamento::ARMADURA) {
+            if (itemParaUpgrade->obterTipo() != TipoEquipamento::ARMADURA) {
                 std::cout << "\n[Bjorn]: Esta pedra magica so pode ser usada em ARMADURAS!\n";
                 SimplificacoesAparencia::aguardarEnter(); 
                 continue;
             }
 
-            EquipamentoArmadura* armadura = dynamic_cast<EquipamentoArmadura*>(item);
+            EquipamentoArmadura* armadura = dynamic_cast<EquipamentoArmadura*>(itemParaUpgrade);
             if (!armadura) continue;
 
             if (armadura->temPropriedade(Propriedade::MelhoradoMaterial)) {
@@ -296,7 +299,7 @@ namespace {
             for (Propriedade prop : armadura->obterPropriedades()) novaArmadura->adicionarPropriedade(prop);
             novaArmadura->adicionarPropriedade(Propriedade::MelhoradoMaterial);
 
-            jogadorAtual->obterInventario()->removerItem("Pedra magica de upgrade");
+            jogadorAtual->obterInventario()->removerItem(nomePedraUpgrade);
             jogadorAtual->obterInventario()->removerItem(armadura);
             jogadorAtual->obterInventario()->adicionarItem(std::move(novaArmadura));
 
@@ -307,7 +310,7 @@ namespace {
             std::cout << "\n" << SimplificacoesAparencia::cor(Cor::AMARELO) << equacao << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
             std::cout << "\n[Bjorn]: Impressionante! Essa pedra e mesmo magica. A armadura agora possui mais +3 de resistencia (defesa)!\n";
             SimplificacoesAparencia::aguardarEnter();
-        } while (codigo != "0");
+        } while (codigoDaArmadura != "0");
     }
 }
 

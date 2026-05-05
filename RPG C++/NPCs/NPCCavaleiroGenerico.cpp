@@ -8,6 +8,7 @@
 #include "../Racas/Humano.h"
 #include "../Inventario/EquipamentoArmadura.h"
 #include "../Inventario/EquipamentoArma.h"
+#include "../Inventario/FabricaItens.h"
 #include "../Inventario/ItemMaterial.h"
 #include "../Gerenciadores/GerenciadorCombate.h"
 #include "../Gerenciadores/GerenciadorInimigos.h"
@@ -34,7 +35,7 @@ namespace {
                     equipamentos.push_back(std::move(item));
                 }
             }
-            equipamentos.push_back(std::make_unique<EquipamentoArma>("Espada do Cavaleiro", 12, 0, 0, 0, 0, 0, 0));
+            equipamentos.push_back(std::make_unique<EquipamentoArma>(FabricaItens::obterNomeDeID(ItemID::EspadaCavaleiro), 12, 0, 0, 0, 0, 0, 0));
             return equipamentos;
         }
     };
@@ -110,10 +111,12 @@ namespace {
 
 std::unique_ptr<SistemaPersonagem> NPCCavaleiroGenerico::criarCavaleiro(const std::string& nome) {
     auto cavaleiro = std::make_unique<SistemaPersonagem>(nome, std::make_unique<Humano>(), std::make_unique<ClasseCavaleiro>());
-    auto armadura = std::make_unique<EquipamentoArmadura>("Armadura de Cavaleiro", 12, 0, 0, 0);
+    std::string nomeArmadura = FabricaItens::obterNomeDeID(ItemID::ArmaduraCavaleiro);
+    std::string nomeEspada = FabricaItens::obterNomeDeID(ItemID::EspadaCavaleiro);
+    auto armadura = std::make_unique<EquipamentoArmadura>(nomeArmadura, 12, 0, 0, 0);
     cavaleiro->obterInventario()->adicionarItem(std::move(armadura));
-    cavaleiro->equiparItem(buscarPorNome(cavaleiro->obterInventario(), "Armadura de Cavaleiro"));
-    cavaleiro->equiparItem(buscarPorNome(cavaleiro->obterInventario(), "Espada do Cavaleiro"));
+    cavaleiro->equiparItem(buscarPorNome(cavaleiro->obterInventario(), nomeArmadura));
+    cavaleiro->equiparItem(buscarPorNome(cavaleiro->obterInventario(), nomeEspada));
     cavaleiro->calcularAtributos();
     cavaleiro->modificarVida(cavaleiro->obterVidaMaxima());
     return cavaleiro;
@@ -121,29 +124,29 @@ std::unique_ptr<SistemaPersonagem> NPCCavaleiroGenerico::criarCavaleiro(const st
 
 void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trollDerrotado, bool& conviteRecebido, int larguraDoTerminal, std::vector<std::string>& matrizDoMapaAtual, bool exploracaoEstaAtiva, const std::function<void()>& restaurarTela, char celulaDestino, int proximaPosicaoX, int proximaPosicaoY) {
     if (!trollDerrotado && (celulaDestino == 'T' || celulaDestino == 'C')) {
-        int alvoTx = -1, alvoTy = -1;
+        int posicaoTrollX = -1, posicaoTrollY = -1;
         
         if (celulaDestino == 'T') {
-            alvoTx = proximaPosicaoX;
-            alvoTy = proximaPosicaoY;
+            posicaoTrollX = proximaPosicaoX;
+            posicaoTrollY = proximaPosicaoY;
         } else if (celulaDestino == 'C') {
-            for (int dy = -2; dy <= 2; ++dy) {
-                for (int dx = -5; dx <= 5; ++dx) {
-                    int ny = proximaPosicaoY + dy;
-                    int nx = proximaPosicaoX + dx;
-                    if (ny >= 0 && ny < static_cast<int>(matrizDoMapaAtual.size()) && nx >= 0 && nx < static_cast<int>(matrizDoMapaAtual[ny].size())) {
-                        if (matrizDoMapaAtual[ny][nx] == 'T') {
-                            alvoTx = nx;
-                            alvoTy = ny;
+            for (int deslocamentoY = -2; deslocamentoY <= 2; ++deslocamentoY) {
+                for (int deslocamentoX = -5; deslocamentoX <= 5; ++deslocamentoX) {
+                    int coordenadaYAvaliada = proximaPosicaoY + deslocamentoY;
+                    int coordenadaXAvaliada = proximaPosicaoX + deslocamentoX;
+                    if (coordenadaYAvaliada >= 0 && coordenadaYAvaliada < static_cast<int>(matrizDoMapaAtual.size()) && coordenadaXAvaliada >= 0 && coordenadaXAvaliada < static_cast<int>(matrizDoMapaAtual[coordenadaYAvaliada].size())) {
+                        if (matrizDoMapaAtual[coordenadaYAvaliada][coordenadaXAvaliada] == 'T') {
+                            posicaoTrollX = coordenadaXAvaliada;
+                            posicaoTrollY = coordenadaYAvaliada;
                             break;
                         }
                     }
                 }
-                if (alvoTx != -1) break;
+                if (posicaoTrollX != -1) break;
             }
         }
 
-        if (alvoTx == -1) {
+        if (posicaoTrollX == -1) {
             std::vector<std::string> texto = {
                 "{[Cavaleiro Real]: Ja temos Trolls tentando",
                 "invadir nosso reino, voce precisa de permissao",
@@ -182,7 +185,7 @@ void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trol
             combate.iniciarCombate();
             
             if (jogadorAtual->obterVida() > 0) {
-                matrizDoMapaAtual[alvoTy][alvoTx] = '.';
+                matrizDoMapaAtual[posicaoTrollY][posicaoTrollX] = '.';
                 
                 int trollsRestantes = 0;
                 for (const auto& linha : matrizDoMapaAtual) {
@@ -207,7 +210,7 @@ void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trol
                 "[SISTEMA]: Voce recebeu o [Convite Real]!"
             };
             exibirDialogoCavaleiro("RECOMPENSA", texto, larguraDoTerminal);
-            jogadorAtual->obterInventario()->adicionarItem(std::make_unique<ItemMaterial>("Convite Real"));
+            jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::ConviteReal));
             conviteRecebido = true;
             SimplificacoesAparencia::aguardarEnter();
             restaurarTela();

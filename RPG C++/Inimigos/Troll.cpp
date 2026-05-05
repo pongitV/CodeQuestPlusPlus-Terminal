@@ -15,7 +15,7 @@ std::string Troll::obterDescricaoHabilidadeRaca() const { return "Pele aspera e 
 
 std::vector<std::unique_ptr<Item>> Troll::obterEquipamentoRaca() const {
     std::vector<std::unique_ptr<Item>> equipamentos;
-    equipamentos.push_back(FabricaItens::criarItem("Tronco de arvore amarrotado"));
+    equipamentos.push_back(FabricaItens::criarItem(ItemID::TroncoAmarrotado));
     return equipamentos;
 }
 
@@ -123,11 +123,11 @@ void Troll::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogador
     
     std::cout << SimplificacoesAparencia::cor(Cor::FUNDO_AMARELO) << "+" << ouroDrop << "G" << SimplificacoesAparencia::cor(Cor::RESET) << " " << SimplificacoesAparencia::cor(Cor::FUNDO_AZUL) << "+" << xpDrop << " XP" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
 
-    jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem("Tronco de arvore amarrotado"));
+    jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::TroncoAmarrotado));
     itensObtidos.push_back("Tronco de arvore amarrotado");
     std::cout << SimplificacoesAparencia::cor(Cor::BRANCO) << "+1x Tronco de arvore amarrotado" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
     
-    jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem("Orgao regenerador"));
+    jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::OrgaoRegenerador));
     itensObtidos.push_back("Orgao regenerador");
     std::cout << SimplificacoesAparencia::cor(Cor::BRANCO) << "+1x Orgao regenerador" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
 }

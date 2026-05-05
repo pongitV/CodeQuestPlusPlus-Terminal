@@ -8,7 +8,7 @@ std::string AbominacaoFloresta::obterNomeRaca() const
 { return "Abominacao da Floresta"; 
 }
 Atributos AbominacaoFloresta::obterAtributosRaca() const{ return 
-    { 350, 40, 5, 20, 25, 0, 20 };
+    { 300, 30, 5, 20, 25, 0, 20 };
 }
 std::string AbominacaoFloresta::obterNomeHabilidadeRaca() const 
 { return "Raizes Parasitas"; 
@@ -156,11 +156,11 @@ void AbominacaoFloresta::realizarDrops(SistemaPersonagem* inimigo, SistemaPerson
     
     std::cout << SimplificacoesAparencia::cor(Cor::FUNDO_AMARELO) << "+" << ouroDrop << "G" << SimplificacoesAparencia::cor(Cor::RESET) << " " << SimplificacoesAparencia::cor(Cor::FUNDO_AZUL) << "+" << xpDrop << " XP" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
 
-    jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem("Madeira enfeiticada"));
+    jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::MadeiraEnfeiticada));
     itensObtidos.push_back("Madeira enfeiticada");
     std::cout << SimplificacoesAparencia::cor(Cor::BRANCO) << "+1x Madeira enfeiticada" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
 
-    jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem("Coracao da floresta"));
+    jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::CoracaoFloresta));
     itensObtidos.push_back("Coracao da floresta");
     std::cout << SimplificacoesAparencia::cor(Cor::BRANCO) << "+1x Coracao da floresta" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
 }

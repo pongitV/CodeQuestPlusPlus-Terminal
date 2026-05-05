@@ -16,13 +16,13 @@ public:
     static void processarCombate(
         SistemaPersonagem* jogadorAtual, std::vector<std::string>& matrizDoMapaAtual, 
         int& posicaoXDoJogador, int& posicaoYDoJogador, bool& exploracaoEstaAtiva,
-        const std::string& titulo, const std::string& msg, std::vector<std::unique_ptr<SistemaPersonagem>> inimigos, 
-        int px, int py, int rootX, int celulas, int larguraDoTerminal, const std::function<void()>& restaurarTela);
+        const std::string& tituloDoCombate, const std::string& mensagemDeAviso, std::vector<std::unique_ptr<SistemaPersonagem>> inimigosParaBatalha, 
+        int posicaoXAposCombate, int posicaoYAposCombate, int posicaoXInicialDoInimigo, int quantidadeDeCelulasOcupadas, int larguraDoTerminal, const std::function<void()>& restaurarTela);
 
     static void entrarSubMapa(
         std::vector<std::string>& matrizDoMapaAtual, std::vector<std::string>& matrizDoMapaPrincipalSalva,
         int& posicaoXSalvaAntesDeEntrarNoSubMapa, int& posicaoYSalvaAntesDeEntrarNoSubMapa,
         int& posicaoXDoJogador, int& posicaoYDoJogador, bool& jogadorEstaDentroDeUmSubMapa,
-        std::string& tituloDoMapaAtual, std::vector<std::string>& mapaSalvo, bool& jaVisitado,
-        const std::vector<std::string>& mapaGerado, int spawnX, int spawnY, const std::string& titulo, const std::function<void()>& restaurarTela);
+        std::string& tituloDoMapaAtual, std::vector<std::string>& matrizDoSubMapaSalva, bool& subMapaJaFoiVisitado,
+        const std::vector<std::string>& matrizDoSubMapaGerada, int posicaoXInicialNoSubMapa, int posicaoYInicialNoSubMapa, const std::string& tituloDoSubMapa, const std::function<void()>& restaurarTela);
 };

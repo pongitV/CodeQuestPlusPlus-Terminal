@@ -24,7 +24,7 @@ protected:
     std::string nome;
     int turnosRestantes;
 public:
-    EfeitoStatus(EfeitoID id, const std::string& n, int t) : id(id), nome(n), turnosRestantes(t) {}
+    EfeitoStatus(EfeitoID id, const std::string& nomeEfeito, int turnosDuracao) : id(id), nome(nomeEfeito), turnosRestantes(turnosDuracao) {}
     virtual ~EfeitoStatus() = default;
     
     EfeitoID obterID() const { return id; }
@@ -43,7 +43,7 @@ public:
 
 class EfeitoAtordoamento : public EfeitoStatus {
 public:
-    EfeitoAtordoamento(int t) : EfeitoStatus(EfeitoID::Atordoamento, "Atordoamento", t) {}
+    EfeitoAtordoamento(int turnosDuracao) : EfeitoStatus(EfeitoID::Atordoamento, "Atordoamento", turnosDuracao) {}
     bool impedeAcao() const override { return true; }
 };
 
@@ -51,13 +51,13 @@ class EfeitoSugaSangue : public EfeitoStatus {
 private:
     SistemaPersonagem* atacante;
 public:
-    EfeitoSugaSangue(int t, SistemaPersonagem* atk) : EfeitoStatus(EfeitoID::SugaSangue, "SugaSangue", t), atacante(atk) {}
+    EfeitoSugaSangue(int turnosDuracao, SistemaPersonagem* personagemAtacante) : EfeitoStatus(EfeitoID::SugaSangue, "SugaSangue", turnosDuracao), atacante(personagemAtacante) {}
     void aplicarInicioTurno(SistemaPersonagem* alvo) override;
 };
 
 class EfeitoLentidao : public EfeitoStatus {
 public:
-    EfeitoLentidao(int t) : EfeitoStatus(EfeitoID::Lentidao, "Lentidao", t) {}
+    EfeitoLentidao(int turnosDuracao) : EfeitoStatus(EfeitoID::Lentidao, "Lentidao", turnosDuracao) {}
     void aoEntrar(SistemaPersonagem* alvo) override;
     void aoSair(SistemaPersonagem* alvo) override;
 };
@@ -66,7 +66,7 @@ class EfeitoFraqueza : public EfeitoStatus {
 private:
     int forcaPerdida;
 public:
-    EfeitoFraqueza(int t) : EfeitoStatus(EfeitoID::Fraqueza, "Fraqueza", t), forcaPerdida(0) {}
+    EfeitoFraqueza(int turnosDuracao) : EfeitoStatus(EfeitoID::Fraqueza, "Fraqueza", turnosDuracao), forcaPerdida(0) {}
     void aoEntrar(SistemaPersonagem* alvo) override;
     void aoSair(SistemaPersonagem* alvo) override;
 };
@@ -86,25 +86,25 @@ class EfeitoSangramento : public EfeitoStatus {
 private:
     int danoPorTurno;
 public:
-    EfeitoSangramento(int t, int dano) : EfeitoStatus(EfeitoID::Sangramento, "Sangramento", t), danoPorTurno(dano) {}
+    EfeitoSangramento(int turnosDuracao, int dano) : EfeitoStatus(EfeitoID::Sangramento, "Sangramento", turnosDuracao), danoPorTurno(dano) {}
     void aplicarInicioTurno(SistemaPersonagem* alvo) override;
 };
 
 class EfeitoMetadeDano : public EfeitoStatus {
 public:
-    EfeitoMetadeDano(int t) : EfeitoStatus(EfeitoID::MetadeDano, "MetadeDano", t) {}
+    EfeitoMetadeDano(int turnosDuracao) : EfeitoStatus(EfeitoID::MetadeDano, "MetadeDano", turnosDuracao) {}
     int processarDanoRecebido(int dano) override;
 };
 
 class EfeitoBuffAtributos : public EfeitoStatus {
 public:
-    EfeitoBuffAtributos(int t) : EfeitoStatus(EfeitoID::BuffAtributos, "BuffAtributos", t) {}
+    EfeitoBuffAtributos(int turnosDuracao) : EfeitoStatus(EfeitoID::BuffAtributos, "BuffAtributos", turnosDuracao) {}
     void aoSair(SistemaPersonagem* alvo) override;
 };
 
 class EfeitoInviolavel : public EfeitoStatus {
 public:
-    EfeitoInviolavel(int t) : EfeitoStatus(EfeitoID::Inviolavel, "Inviolavel", t) {}
+    EfeitoInviolavel(int turnosDuracao) : EfeitoStatus(EfeitoID::Inviolavel, "Inviolavel", turnosDuracao) {}
 };
 
 class EfeitoGritoGuerra : public EfeitoStatus {
@@ -112,7 +112,7 @@ private:
     int bonusForca;
     int bonusDestreza;
 public:
-    EfeitoGritoGuerra(int t, int f, int d) : EfeitoStatus(EfeitoID::GritoDeGuerra, "GritoDeGuerra", t), bonusForca(f), bonusDestreza(d) {}
+    EfeitoGritoGuerra(int turnosDuracao, int forcaBonus, int destrezaBonus) : EfeitoStatus(EfeitoID::GritoDeGuerra, "GritoDeGuerra", turnosDuracao), bonusForca(forcaBonus), bonusDestreza(destrezaBonus) {}
     void aoEntrar(SistemaPersonagem* alvo) override;
     void aoSair(SistemaPersonagem* alvo) override;
 };

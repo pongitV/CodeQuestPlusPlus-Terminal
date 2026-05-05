@@ -72,14 +72,13 @@ std::vector<std::unique_ptr<Item>> Mago::obterEquipamentoClasse() const
     std::vector<std::unique_ptr<Item>> equipamentos;
     
     int quantidadePocoes = 3;
-    int porcentagemCura = 30;
     for (int i = 0; i < quantidadePocoes; ++i) {
-        equipamentos.push_back(FabricaItens::criarItem("Pocao de Cura (" + std::to_string(porcentagemCura) + "%VM)"));
+        equipamentos.push_back(FabricaItens::criarItem(ItemID::PocaoCura30));
     }
     
-    equipamentos.push_back(FabricaItens::criarItem("Cajado de cristal magico"));
-    equipamentos.push_back(FabricaItens::criarItem("Barreira magica"));
-    equipamentos.push_back(FabricaItens::criarItem("Tunica"));
+    equipamentos.push_back(FabricaItens::criarItem(ItemID::CajadoCristal));
+    equipamentos.push_back(FabricaItens::criarItem(ItemID::BarreiraMagica));
+    equipamentos.push_back(FabricaItens::criarItem(ItemID::Tunica));
     return equipamentos;
 }
 
@@ -94,23 +93,23 @@ std::string Mago::obterNomeHabilidadeClasse() const
 { return "Canalizacao arcana"; }
 std::string Mago::obterDescricaoHabilidadeClasse() const 
 { return "Pula seu turno para se defender e dobra o dano no proximo turno. Recarga: 3 turnos."; }
-void Mago::usarHabilidadeClasse(SistemaPersonagem* u, std::vector<SistemaPersonagem*>& /*inimigos*/) 
+void Mago::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::vector<SistemaPersonagem*>& /*listaDeInimigos*/) 
 {
-    int turnosRestantes = u->obterCooldown(HabilidadeID::EstrategiaArcana);
+    int turnosRestantes = personagemUsuario->obterCooldown(HabilidadeID::EstrategiaArcana);
     if (turnosRestantes > 0) {
         std::cout << "\n[SISTEMA]: A habilidade " << obterNomeHabilidadeClasse() << " esta em recarga (" << turnosRestantes << " turnos)!\n";
         SimplificacoesAparencia::aguardarEnter();
-        u->definirHabilidadeCancelada(true);
+        personagemUsuario->definirHabilidadeCancelada(true);
         return;
     }
     
-    u->definirMultiplicador(2.0);
-    u->adicionarEfeito(std::make_unique<EfeitoBuffAtributos>(2)); 
-    u->definirCooldown(HabilidadeID::EstrategiaArcana, 4);
+    personagemUsuario->definirMultiplicador(2.0);
+    personagemUsuario->adicionarEfeito(std::make_unique<EfeitoBuffAtributos>(2)); 
+    personagemUsuario->definirCooldown(HabilidadeID::EstrategiaArcana, 4);
     
-    Item* escudo = u->obterEscudo();
+    Item* escudo = personagemUsuario->obterEscudo();
     if (escudo) {
-        u->definirDefendendo(true);
+        personagemUsuario->definirDefendendo(true);
         std::cout << "[HABILIDADE]: Canalizacao arcana! Voce se defende com " << escudo->obterNomeItem() << " e prepara um ataque devastador (2x Dano)!\n";
     } else {
         std::cout << "[HABILIDADE]: Canalizacao arcana! Voce foca sua energia para um ataque devastador (2x Dano) no proximo turno!\n";

@@ -23,7 +23,7 @@ public:
     int reverterPenalidadeLentidaoPassivaArqueiro(int destrezaAtual) const override;
 
     // Criação e Definição da habilidade do Arqueiro: "Retirada com Pontaria"
-    void usarHabilidadeClasse(SistemaPersonagem* usuario, std::vector<SistemaPersonagem*>& inimigos) override;
+    void usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::vector<SistemaPersonagem*>& listaDeInimigos) override;
     std::string obterNomeHabilidadeClasse() const override;
     std::string obterDescricaoHabilidadeClasse() const override;
 

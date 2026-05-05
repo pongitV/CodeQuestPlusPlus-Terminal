@@ -84,19 +84,19 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
     std::cout << margem << "--- ATRIBUTOS TOTAIS ---\n";
     std::cout << margem << " > Vida           : " << jogadorAtual->obterVida() << "/" << jogadorAtual->obterVidaMaxima() << "\n";
 
-    auto printAtributo = [margem, temBuff, multiplicadorDeAtributosAtual](std::string nome, int valorBase, int valorPerdido, std::string_view sufixo)
+    auto printAtributo = [margem, temBuff, multiplicadorDeAtributosAtual](std::string nomeDoAtributo, int valorBaseDoAtributo, int valorPerdidoPorDebuff, std::string_view sufixoOpcional)
     {
-        int bonusBuff = temBuff ? static_cast<int>(valorBase * multiplicadorDeAtributosAtual) - valorBase : 0;
+        int bonusBuff = temBuff ? static_cast<int>(valorBaseDoAtributo * multiplicadorDeAtributosAtual) - valorBaseDoAtributo : 0;
 
-        std::cout << margem << " > " << std::left << std::setw(15) << nome << sufixo << ": " << valorBase;
+        std::cout << margem << " > " << std::left << std::setw(15) << nomeDoAtributo << sufixoOpcional << ": " << valorBaseDoAtributo;
 
         if (temBuff && bonusBuff > 0) {
             std::cout << " " << SimplificacoesAparencia::cor(Cor::VERDE) << "(+" << bonusBuff << " Buff)" << SimplificacoesAparencia::cor(Cor::RESET);
         }
-        if (valorPerdido > 0) {
-            std::cout << " " << SimplificacoesAparencia::cor(Cor::VERMELHO) << "(-" << valorPerdido << " Debuff)" << SimplificacoesAparencia::cor(Cor::RESET);
+        if (valorPerdidoPorDebuff > 0) {
+            std::cout << " " << SimplificacoesAparencia::cor(Cor::VERMELHO) << "(-" << valorPerdidoPorDebuff << " Debuff)" << SimplificacoesAparencia::cor(Cor::RESET);
         }
-        if (!temBuff && valorPerdido == 0) {
+        if (!temBuff && valorPerdidoPorDebuff == 0) {
             std::cout << " (0)";
         }
         std::cout << "\n";

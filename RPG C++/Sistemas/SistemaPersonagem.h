@@ -165,10 +165,10 @@ public:
     int obterNivel() const { return nivel; }
     int obterXpAtual() const { return xpAtual; }
     int obterXpParaSubir() const { return xpParaSubir; }
-    void definirNivel(int n) { nivel = n; }
-    void definirXpAtual(int x) { xpAtual = x; }
-    void definirXpParaSubir(int x) { xpParaSubir = x; }
-    void definirVida(int v) { vidaAtual = v; }
+    void definirNivel(int novoNivel) { nivel = novoNivel; }
+    void definirXpAtual(int novoXp) { xpAtual = novoXp; }
+    void definirXpParaSubir(int novoXpParaSubir) { xpParaSubir = novoXpParaSubir; }
+    void definirVida(int novaVida) { vidaAtual = novaVida; }
     void ganharXp(int valor) { xpAtual += valor; }
     bool podeSubirDeNivel() const { return xpAtual >= xpParaSubir; }
     bool subirDeNivel(TipoAtributo atributo);
@@ -197,7 +197,7 @@ public:
     void definirXpRecompensa(int valor) { xpRecompensa = valor; }
     int obterXpRecompensa() const { return xpRecompensa; }
 
-    void definirMultiplicador(double m);
+    void definirMultiplicador(double novoMultiplicador);
     double obterMultiplicador() const { return combate.multiplicadorAtual; }
 
     bool podeUsarRessurreicao() const { return sistema.podeReviver; }
@@ -214,14 +214,14 @@ public:
     }
     
     bool obterHabilidadeCancelada() const { return combate.habilidadeCancelada; }
-    void definirHabilidadeCancelada(bool v) { combate.habilidadeCancelada = v; }
+    void definirHabilidadeCancelada(bool foiCancelada) { combate.habilidadeCancelada = foiCancelada; }
 
-    void definirRecarga(bool r) { combate.recargaHabilidade = r; }
+    void definirRecarga(bool emRecarga) { combate.recargaHabilidade = emRecarga; }
     bool obterRecarga() const { return combate.recargaHabilidade; }
-    void definirPularTurnoInimigo(bool p) { combate.pularTurnoInimigo = p; }
+    void definirPularTurnoInimigo(bool pularTurno) { combate.pularTurnoInimigo = pularTurno; }
     bool obterPularTurnoInimigo() const { return combate.pularTurnoInimigo; }
     
-    void definirVoltarProMenu(bool v) { sistema.querVoltarProMenu = v; }
+    void definirVoltarProMenu(bool voltar) { sistema.querVoltarProMenu = voltar; }
     bool obterVoltarProMenu() const { return sistema.querVoltarProMenu; }
 
     void desbloquearLabirinto() { sistema.labirintoDesbloqueado = true; }

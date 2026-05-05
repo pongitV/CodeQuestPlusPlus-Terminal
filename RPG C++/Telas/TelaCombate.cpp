@@ -28,15 +28,15 @@ namespace {
         return barra + corAzul + std::to_string(jogadorAtual->obterXpAtual()) + corReset + "/" + std::to_string(jogadorAtual->obterXpParaSubir());
     }
 
-    std::string gerarStringDeStatus(SistemaPersonagem* jogadorAtual, const std::string& cVerde, const std::string& cLaranja, const std::string& cVermelho, const std::string& cCiano, const std::string& cAzul, const std::string& cMagenta, const std::string& cReset) {
+    std::string gerarStringDeStatus(SistemaPersonagem* jogadorAtual, const std::string& corVerde, const std::string& corLaranja, const std::string& corVermelho, const std::string& corCiano, const std::string& corAzul, const std::string& corMagenta, const std::string& corReset) {
         std::string status = "";
-        if (jogadorAtual->possuiEfeito(EfeitoID::BuffAtributos)) status += cVerde + "[Buff Atributos]" + cReset + " ";
-        if (jogadorAtual->possuiEfeito(EfeitoID::MetadeDano)) status += cCiano + "[Metade Dano]" + cReset + " ";
-        if (jogadorAtual->possuiEfeito(EfeitoID::Inviolavel)) status += cAzul + "[Inviolavel]" + cReset + " ";
-        if (jogadorAtual->possuiEfeito(EfeitoID::Sangramento)) status += cVermelho + "[Sangrando]" + cReset + " ";
-        if (jogadorAtual->possuiEfeito(EfeitoID::Lentidao)) status += cMagenta + "[Lento]" + cReset + " ";
-        if (jogadorAtual->possuiEfeito(EfeitoID::Fraqueza)) status += cLaranja + "[Fraqueza]" + cReset + " ";
-        if (jogadorAtual->possuiEfeito(EfeitoID::QuebraResistencia)) status += cCiano + "[Quebra Def.]" + cReset + " ";
+        if (jogadorAtual->possuiEfeito(EfeitoID::BuffAtributos)) status += corVerde + "[Buff Atributos]" + corReset + " ";
+        if (jogadorAtual->possuiEfeito(EfeitoID::MetadeDano)) status += corCiano + "[Metade Dano]" + corReset + " ";
+        if (jogadorAtual->possuiEfeito(EfeitoID::Inviolavel)) status += corAzul + "[Inviolavel]" + corReset + " ";
+        if (jogadorAtual->possuiEfeito(EfeitoID::Sangramento)) status += corVermelho + "[Sangrando]" + corReset + " ";
+        if (jogadorAtual->possuiEfeito(EfeitoID::Lentidao)) status += corMagenta + "[Lento]" + corReset + " ";
+        if (jogadorAtual->possuiEfeito(EfeitoID::Fraqueza)) status += corLaranja + "[Fraqueza]" + corReset + " ";
+        if (jogadorAtual->possuiEfeito(EfeitoID::QuebraResistencia)) status += corCiano + "[Quebra Def.]" + corReset + " ";
         return status.empty() ? "Nenhum" : status;
     }
 }

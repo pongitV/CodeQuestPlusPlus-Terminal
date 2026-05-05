@@ -19,7 +19,7 @@ public:
     std::string obterRecargaHabilidadeClasse() const override;
 
     // Criação e Definição da habilidade do Guerreiro: "Determinação no Combate"
-    void usarHabilidadeClasse(SistemaPersonagem* usuario, std::vector<SistemaPersonagem*>& inimigos) override;
+    void usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::vector<SistemaPersonagem*>& listaDeInimigos) override;
     std::string obterNomeHabilidadeClasse() const override;
     std::string obterDescricaoHabilidadeClasse() const override;
     

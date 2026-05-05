@@ -20,30 +20,30 @@ bool TelaMenu::exibirConfirmacaoDeEscolhaComArteLadoALado(const std::string& tip
     int larguraInfo = 40;
     for (const std::string& s : informacoesParaExibir) if ((int)s.length() > larguraInfo) larguraInfo = (int)s.length();
     
-    int gap = 6;
-    int recuo = (larguraTerminal - (larguraInfo + gap + larguraArte)) / 2;
-    if (recuo < 0) recuo = 0;
+    int espacamentoEntreColunas = 6;
+    int recuoEsquerdo = (larguraTerminal - (larguraInfo + espacamentoEntreColunas + larguraArte)) / 2;
+    if (recuoEsquerdo < 0) recuoEsquerdo = 0;
 
-    size_t maxL = std::max(arteAsciiParaExibir.size(), informacoesParaExibir.size());
-    for (size_t i = 0; i < maxL; ++i) 
+    size_t maximoDeLinhas = std::max(arteAsciiParaExibir.size(), informacoesParaExibir.size());
+    for (size_t i = 0; i < maximoDeLinhas; ++i) 
     {
-        std::cout << std::string(recuo, ' ');
+        std::cout << std::string(recuoEsquerdo, ' ');
         if (i < informacoesParaExibir.size()) std::cout << std::left << std::setw(larguraInfo) << informacoesParaExibir[i];
         else std::cout << std::string(larguraInfo, ' ');
-        std::cout << std::string(gap, ' ');
+        std::cout << std::string(espacamentoEntreColunas, ' ');
         if (i < arteAsciiParaExibir.size()) std::cout << arteAsciiParaExibir[i];
         std::cout << "\n";
     }
 
-    std::cout << "\n" << std::string(recuo, ' ') << "0. VOLTAR | 1. CONFIRMAR\n";
-    std::cout << std::string(recuo, ' ') << "Escolha: ";
-    int confirma; 
-    while (!(std::cin >> confirma) || (confirma != 0 && confirma != 1)) { 
+    std::cout << "\n" << std::string(recuoEsquerdo, ' ') << "0. VOLTAR | 1. CONFIRMAR\n";
+    std::cout << std::string(recuoEsquerdo, ' ') << "Escolha: ";
+    int opcaoDeConfirmacao; 
+    while (!(std::cin >> opcaoDeConfirmacao) || (opcaoDeConfirmacao != 0 && opcaoDeConfirmacao != 1)) { 
         std::cin.clear(); 
         std::cin.ignore(1000, '\n'); 
-        std::cout << std::string(recuo, ' ') << "Opcao invalida. Escolha (0 ou 1): "; 
+        std::cout << std::string(recuoEsquerdo, ' ') << "Opcao invalida. Escolha (0 ou 1): "; 
     }
-    return confirma == 1;
+    return opcaoDeConfirmacao == 1;
 }
 
 void TelaMenu::exibirLogoDoJogo(const std::string& tituloDaTela) 

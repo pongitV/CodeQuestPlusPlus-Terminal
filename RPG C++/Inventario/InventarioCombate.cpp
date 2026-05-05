@@ -16,75 +16,75 @@
 #include "../Utilidades/SimplificacoesAparencia.h"
 
 namespace {
-    using EstrategiaUso = std::function<void(SistemaPersonagem*, Item*, bool*)>;
+    using EstrategiaUso = std::function<void(SistemaPersonagem* personagemUsuario, Item* itemConsumido, bool* turnoFoiConsumido)>;
 
     // Dicionario de Estrategias: Mapeia cada propriedade para sua funcao especifica
     std::unordered_map<Propriedade, EstrategiaUso> estrategiasConsumiveis = {
-        {Propriedade::ConsumivelCura, [](SistemaPersonagem* p, Item* i, bool* turno) {
-            if (p->obterVida() >= p->obterVidaMaxima()) {
+        {Propriedade::ConsumivelCura, [](SistemaPersonagem* personagemUsuario, Item* itemConsumido, bool* turnoFoiConsumido) {
+            if (personagemUsuario->obterVida() >= personagemUsuario->obterVidaMaxima()) {
                 std::cout << "\n[SISTEMA]: Sua vida ja esta cheia!\n";
                 return;
             }
-            int cura = static_cast<int>(p->obterVidaMaxima() * 0.30);
-            p->modificarVida(cura);
-            std::cout << "\n[SISTEMA]: " << i->obterNomeItem() << " usada! +" << cura << " HP.\n";
-            p->obterInventario()->removerItem(i);
-            if (turno) *turno = true;
+            int cura = static_cast<int>(personagemUsuario->obterVidaMaxima() * 0.30);
+            personagemUsuario->modificarVida(cura);
+            std::cout << "\n[SISTEMA]: " << itemConsumido->obterNomeItem() << " usada! +" << cura << " HP.\n";
+            personagemUsuario->obterInventario()->removerItem(itemConsumido);
+            if (turnoFoiConsumido) *turnoFoiConsumido = true;
         }},
-        {Propriedade::ConsumivelBuff, [](SistemaPersonagem* p, Item* i, bool* turno) {
-            if (!turno) { std::cout << "\n[SISTEMA]: Pocoes de buff so podem ser usadas em combate!\n"; return; }
-            p->adicionarEfeito(std::make_unique<EfeitoBuffAtributos>(2));
-            p->definirMultiplicador(1.5);
-            std::cout << "\n[SISTEMA]: " << i->obterNomeItem() << " consumida! Atributos ampliados em 1.5x por 2 turnos!\n";
-            p->obterInventario()->removerItem(i);
-            *turno = true;
+        {Propriedade::ConsumivelBuff, [](SistemaPersonagem* personagemUsuario, Item* itemConsumido, bool* turnoFoiConsumido) {
+            if (!turnoFoiConsumido) { std::cout << "\n[SISTEMA]: Pocoes de buff so podem ser usadas em combate!\n"; return; }
+            personagemUsuario->adicionarEfeito(std::make_unique<EfeitoBuffAtributos>(2));
+            personagemUsuario->definirMultiplicador(1.5);
+            std::cout << "\n[SISTEMA]: " << itemConsumido->obterNomeItem() << " consumida! Atributos ampliados em 1.5x por 2 turnos!\n";
+            personagemUsuario->obterInventario()->removerItem(itemConsumido);
+            *turnoFoiConsumido = true;
         }},
-        {Propriedade::ConsumivelDebuffLentidao, [](SistemaPersonagem* p, Item* i, bool* turno) {
-            if (!turno) { std::cout << "\n[SISTEMA]: Frascos de debuff so podem ser usados em combate!\n"; return; }
-            p->definirItemSelecionadoParaUso(i);
+        {Propriedade::ConsumivelDebuffLentidao, [](SistemaPersonagem* personagemUsuario, Item* itemConsumido, bool* turnoFoiConsumido) {
+            if (!turnoFoiConsumido) { std::cout << "\n[SISTEMA]: Frascos de debuff so podem ser usados em combate!\n"; return; }
+            personagemUsuario->definirItemSelecionadoParaUso(itemConsumido);
         }},
-        {Propriedade::ConsumivelDebuffFraqueza, [](SistemaPersonagem* p, Item* i, bool* turno) {
-            if (!turno) { std::cout << "\n[SISTEMA]: Frascos de debuff so podem ser usados em combate!\n"; return; }
-            p->definirItemSelecionadoParaUso(i);
+        {Propriedade::ConsumivelDebuffFraqueza, [](SistemaPersonagem* personagemUsuario, Item* itemConsumido, bool* turnoFoiConsumido) {
+            if (!turnoFoiConsumido) { std::cout << "\n[SISTEMA]: Frascos de debuff so podem ser usados em combate!\n"; return; }
+            personagemUsuario->definirItemSelecionadoParaUso(itemConsumido);
         }},
-        {Propriedade::TalismaForca, [](SistemaPersonagem* p, Item* i, bool* turno) {
-            p->alterarAtributoEstatico(TipoAtributo::Forca, 5);
-            p->alterarAtributoEstatico(TipoAtributo::Inteligencia, -5);
-            std::cout << "\n[SISTEMA]: " << i->obterNomeItem() << " consumido!\n";
-            p->obterInventario()->removerItem(i);
-            if (turno) *turno = true;
+        {Propriedade::TalismaForca, [](SistemaPersonagem* personagemUsuario, Item* itemConsumido, bool* turnoFoiConsumido) {
+            personagemUsuario->alterarAtributoEstatico(TipoAtributo::Forca, 5);
+            personagemUsuario->alterarAtributoEstatico(TipoAtributo::Inteligencia, -5);
+            std::cout << "\n[SISTEMA]: " << itemConsumido->obterNomeItem() << " consumido!\n";
+            personagemUsuario->obterInventario()->removerItem(itemConsumido);
+            if (turnoFoiConsumido) *turnoFoiConsumido = true;
         }},
-        {Propriedade::TalismaInteligencia, [](SistemaPersonagem* p, Item* i, bool* turno) {
-            p->alterarAtributoEstatico(TipoAtributo::Inteligencia, 5);
-            p->alterarAtributoEstatico(TipoAtributo::Forca, -5);
-            std::cout << "\n[SISTEMA]: " << i->obterNomeItem() << " consumido!\n";
-            p->obterInventario()->removerItem(i);
-            if (turno) *turno = true;
+        {Propriedade::TalismaInteligencia, [](SistemaPersonagem* personagemUsuario, Item* itemConsumido, bool* turnoFoiConsumido) {
+            personagemUsuario->alterarAtributoEstatico(TipoAtributo::Inteligencia, 5);
+            personagemUsuario->alterarAtributoEstatico(TipoAtributo::Forca, -5);
+            std::cout << "\n[SISTEMA]: " << itemConsumido->obterNomeItem() << " consumido!\n";
+            personagemUsuario->obterInventario()->removerItem(itemConsumido);
+            if (turnoFoiConsumido) *turnoFoiConsumido = true;
         }},
-        {Propriedade::TalismaDestreza, [](SistemaPersonagem* p, Item* i, bool* turno) {
-            p->alterarAtributoEstatico(TipoAtributo::Destreza, 5);
-            p->alterarAtributoEstatico(TipoAtributo::Sabedoria, -5);
-            std::cout << "\n[SISTEMA]: " << i->obterNomeItem() << " consumido!\n";
-            p->obterInventario()->removerItem(i);
-            if (turno) *turno = true;
+        {Propriedade::TalismaDestreza, [](SistemaPersonagem* personagemUsuario, Item* itemConsumido, bool* turnoFoiConsumido) {
+            personagemUsuario->alterarAtributoEstatico(TipoAtributo::Destreza, 5);
+            personagemUsuario->alterarAtributoEstatico(TipoAtributo::Sabedoria, -5);
+            std::cout << "\n[SISTEMA]: " << itemConsumido->obterNomeItem() << " consumido!\n";
+            personagemUsuario->obterInventario()->removerItem(itemConsumido);
+            if (turnoFoiConsumido) *turnoFoiConsumido = true;
         }},
-        {Propriedade::TalismaSabedoria, [](SistemaPersonagem* p, Item* i, bool* turno) {
-            p->alterarAtributoEstatico(TipoAtributo::Sabedoria, 5);
-            p->alterarAtributoEstatico(TipoAtributo::Destreza, -5);
-            std::cout << "\n[SISTEMA]: " << i->obterNomeItem() << " consumido!\n";
-            p->obterInventario()->removerItem(i);
-            if (turno) *turno = true;
+        {Propriedade::TalismaSabedoria, [](SistemaPersonagem* personagemUsuario, Item* itemConsumido, bool* turnoFoiConsumido) {
+            personagemUsuario->alterarAtributoEstatico(TipoAtributo::Sabedoria, 5);
+            personagemUsuario->alterarAtributoEstatico(TipoAtributo::Destreza, -5);
+            std::cout << "\n[SISTEMA]: " << itemConsumido->obterNomeItem() << " consumido!\n";
+            personagemUsuario->obterInventario()->removerItem(itemConsumido);
+            if (turnoFoiConsumido) *turnoFoiConsumido = true;
         }},
-        {Propriedade::ConsumivelPoderTroll, [](SistemaPersonagem* p, Item* i, bool* turno) {
-            if (p->possuiRegeneracaoTroll()) {
+        {Propriedade::ConsumivelPoderTroll, [](SistemaPersonagem* personagemUsuario, Item* itemConsumido, bool* turnoFoiConsumido) {
+            if (personagemUsuario->possuiRegeneracaoTroll()) {
                 std::cout << "\n[SISTEMA]: O poder regenerador do Troll ja corre em suas veias!\n";
             } else {
-                p->desbloquearRegeneracaoTroll();
-                p->modificarVida(p->obterVidaMaxima());
-                std::cout << "\n[SISTEMA]: " << i->obterNomeItem() << " consumido! Voce agora curara 100% do seu HP apos cada combate!\n";
-                p->obterInventario()->removerItem(i);
+                personagemUsuario->desbloquearRegeneracaoTroll();
+                personagemUsuario->modificarVida(personagemUsuario->obterVidaMaxima());
+                std::cout << "\n[SISTEMA]: " << itemConsumido->obterNomeItem() << " consumido! Voce agora curara 100% do seu HP apos cada combate!\n";
+                personagemUsuario->obterInventario()->removerItem(itemConsumido);
             }
-            if (turno) *turno = true;
+            if (turnoFoiConsumido) *turnoFoiConsumido = true;
         }}
     };
 }

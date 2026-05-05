@@ -50,7 +50,7 @@ public:
     // HABILIDADE DA CLASSE
     virtual std::string obterNomeHabilidadeClasse() const = 0;
     virtual std::string obterDescricaoHabilidadeClasse() const = 0;
-    virtual void usarHabilidadeClasse(SistemaPersonagem* usuario, std::vector<SistemaPersonagem*>& inimigos) = 0;
+    virtual void usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::vector<SistemaPersonagem*>& listaDeInimigos) = 0;
     virtual TipoAtaque obterTipoAtaque() const = 0;
     virtual bool habilidadeConsomeTurno() const = 0;
 
@@ -82,9 +82,9 @@ protected:
         int perfuranteDividido = danoPerfurante / static_cast<int>(inimigos.size());
 
         bool ativouPassiva = false;
-        for (auto& ini : inimigos) {
-            aplicarDano(atacante, ini.get(), danoDividido, perfuranteDividido);
-            processarDanoPosAtaque(atacante, ini.get(), defensor, danoBase, danoPerfurante, aplicarDano, isAtacanteJogador, true, ativouPassiva);
+        for (auto& inimigoAtual : inimigos) {
+            aplicarDano(atacante, inimigoAtual.get(), danoDividido, perfuranteDividido);
+            processarDanoPosAtaque(atacante, inimigoAtual.get(), defensor, danoBase, danoPerfurante, aplicarDano, isAtacanteJogador, true, ativouPassiva);
         }
     }
 
@@ -95,8 +95,8 @@ protected:
         }
 
         bool ativouPassiva = false;
-        for (auto& ini : inimigos) {
-            processarDanoPosAtaque(atacante, ini.get(), defensor, danoBase, danoPerfurante, aplicarDano, isAtacanteJogador, false, ativouPassiva);
+        for (auto& inimigoAtual : inimigos) {
+            processarDanoPosAtaque(atacante, inimigoAtual.get(), defensor, danoBase, danoPerfurante, aplicarDano, isAtacanteJogador, false, ativouPassiva);
         }
     }
 

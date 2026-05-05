@@ -5,7 +5,7 @@ Atributos ClasseBaseInimigo::obterAtributosClasse() const { return { 0, 0, 0, 0,
 std::vector<std::string> ClasseBaseInimigo::obterAparenciaClasseMenu() const { return {}; }
 std::vector<std::unique_ptr<Item>> ClasseBaseInimigo::obterEquipamentoClasse() const { return {}; }
 
-void ClasseBaseInimigo::usarHabilidadeClasse(SistemaPersonagem* /*usuario*/, std::vector<SistemaPersonagem*>& /*inimigos*/) {}
+void ClasseBaseInimigo::usarHabilidadeClasse(SistemaPersonagem* /*personagemUsuario*/, std::vector<SistemaPersonagem*>& /*listaDeInimigos*/) {}
 
 std::string ClasseBaseInimigo::obterNomeHabilidadeClasse() const { return "Nenhuma"; }
 std::string ClasseBaseInimigo::obterDescricaoHabilidadeClasse() const { return "Inimigos basicos nao possuem habilidades ativas."; }

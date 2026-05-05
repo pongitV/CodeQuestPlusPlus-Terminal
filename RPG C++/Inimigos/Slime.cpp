@@ -14,7 +14,7 @@ std::string Slime::obterDescricaoHabilidadeRaca() const { return "Ataques tem 20
 
 std::vector<std::unique_ptr<Item>> Slime::obterEquipamentoRaca() const {
     std::vector<std::unique_ptr<Item>> equipamentos;
-    equipamentos.push_back(FabricaItens::criarItem("Gosma acida (Arma)"));
+    equipamentos.push_back(FabricaItens::criarItem(ItemID::GosmaAcidaArma));
     return equipamentos;
 }
 
@@ -70,14 +70,14 @@ void Slime::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogador
     GerenciadorDrops::relatarEProcessarXpOuro(jogadorAtual, xpDrop, ouroDrop, ouroTotal, xpTotal);
 
     for (int i = 0; i < 3; ++i) {
-        jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem("Gosma acida"));
+        jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::GosmaAcida));
         itensObtidos.push_back("Gosma acida");
     }
     GerenciadorDrops::relatarDropItem("Gosma acida", 3);
     
     if ((std::rand() % 100) < 30) 
     {
-        jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem("Nucleo pegajoso"));
+        jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::NucleoPegajoso));
         GerenciadorDrops::relatarDropItem("Nucleo pegajoso", 1);
         itensObtidos.push_back("Nucleo pegajoso");
     }

@@ -22,7 +22,7 @@ public:
     double processarMultiplicadorBuffPassivaBardo(double multBase) const override;
 
     // Criação e Definição da habilidade do Bardo: "Flashing Lights"
-    void usarHabilidadeClasse(SistemaPersonagem* usuario, std::vector<SistemaPersonagem*>& inimigos) override;
+    void usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::vector<SistemaPersonagem*>& listaDeInimigos) override;
     std::string obterNomeHabilidadeClasse() const override;
     std::string obterDescricaoHabilidadeClasse() const override;
     

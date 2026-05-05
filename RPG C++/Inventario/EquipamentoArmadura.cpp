@@ -1,6 +1,8 @@
 #include "EquipamentoArmadura.h"
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
+#include <functional>
+#include <unordered_map>
 
 EquipamentoArmadura::EquipamentoArmadura(std::string nome, int reducaoFixa, int reqResistencia, int reqConstituicao, int preco) 
     : Item(preco), nome(nome), reducaoFixa(reducaoFixa), reqResistencia(reqResistencia), reqConstituicao(reqConstituicao)
@@ -63,4 +65,17 @@ std::unique_ptr<Item> EquipamentoArmadura::gerarCopiaMelhorada() const {
     for (Propriedade prop : propriedades) novaArmadura->adicionarPropriedade(prop);
     novaArmadura->adicionarPropriedade(Propriedade::Melhorado);
     return novaArmadura;
+}
+
+std::unique_ptr<Item> fabricarEquipamentoArmadura(const std::string& nome) {
+    static const std::unordered_map<std::string, std::function<std::unique_ptr<Item>()>> construtores = {
+        {"Armadura de malha e metal", []() { return std::make_unique<EquipamentoArmadura>("Armadura de malha e metal", 7, 0, 0, 3); }},
+        {"Armadura leve de couro com malha", []() { return std::make_unique<EquipamentoArmadura>("Armadura leve de couro com malha", 5, 0, 0, 3); }},
+        {"Tunica", []() { return std::make_unique<EquipamentoArmadura>("Tunica", 2, 0, 0, 3); }},
+        {"Traje de Couro e tecido nobre", []() { return std::make_unique<EquipamentoArmadura>("Traje de Couro e tecido nobre", 4, 0, 0, 3); }},
+        {"Armadura de trapos e sucata", []() { return std::make_unique<EquipamentoArmadura>("Armadura de trapos e sucata", 3, 0, 0, 3); }}
+    };
+    auto it = construtores.find(nome);
+    if (it != construtores.end()) return it->second();
+    return nullptr;
 }

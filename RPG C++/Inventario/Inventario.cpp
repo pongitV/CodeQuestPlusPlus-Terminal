@@ -94,36 +94,36 @@ Item* Inventario::buscarItemPorCodigo(const std::string& codigoDigitado, Item* a
 
     auto buscarPorTipoAgrupado = [&](auto condicao) -> Item* {
         std::unordered_map<std::string, size_t> cacheDeIndice;
-        std::vector<std::string> nomesVisual;
+        std::vector<std::string> nomesDosItensExibidos;
 
         for (size_t i = 0; i < listaDeItens.size(); ++i) {
             Item* itemAtual = listaDeItens[i].get();
             if (condicao(itemAtual)) {
                 if (cacheDeIndice.find(itemAtual->obterNomeItem()) == cacheDeIndice.end()) {
                     cacheDeIndice[itemAtual->obterNomeItem()] = i;
-                    nomesVisual.push_back(itemAtual->obterNomeItem());
+                    nomesDosItensExibidos.push_back(itemAtual->obterNomeItem());
                 }
             }
         }
         
-        std::sort(nomesVisual.begin(), nomesVisual.end());
+        std::sort(nomesDosItensExibidos.begin(), nomesDosItensExibidos.end());
 
-        if (indiceDoItem > 0 && indiceDoItem <= static_cast<int>(nomesVisual.size())) {
-            size_t idxOriginal = cacheDeIndice[nomesVisual[indiceDoItem - 1]];
-            return listaDeItens[idxOriginal].get();
+        if (indiceDoItem > 0 && indiceDoItem <= static_cast<int>(nomesDosItensExibidos.size())) {
+            size_t indiceOriginalNoInventario = cacheDeIndice[nomesDosItensExibidos[indiceDoItem - 1]];
+            return listaDeItens[indiceOriginalNoInventario].get();
         }
         return nullptr;
     };
 
     switch (letraDaCategoria) {
         case 'A':
-            return buscarPorTipoAgrupado([&](Item* i) { 
-                auto t = i->obterTipo(); 
-                return (t == TipoEquipamento::ARMA || t == TipoEquipamento::ESCUDO || t == TipoEquipamento::ARMADURA) && i != armaEquipada && i != escudoEquipado && i != armaduraEquipada; 
+            return buscarPorTipoAgrupado([&](Item* itemAvaliado) { 
+                auto tipoDoItem = itemAvaliado->obterTipo(); 
+                return (tipoDoItem == TipoEquipamento::ARMA || tipoDoItem == TipoEquipamento::ESCUDO || tipoDoItem == TipoEquipamento::ARMADURA) && itemAvaliado != armaEquipada && itemAvaliado != escudoEquipado && itemAvaliado != armaduraEquipada; 
             });
-        case 'C': return buscarPorTipoAgrupado([](Item* i) { return i->obterTipo() == TipoEquipamento::CONSUMIVEL; });
-        case 'S': return buscarPorTipoAgrupado([](Item* i) { return i->obterTipo() == TipoEquipamento::MATERIAL; });
-        case 'M': return buscarPorTipoAgrupado([](Item* i) { return i->obterTipo() == TipoEquipamento::MISSAO; });
+        case 'C': return buscarPorTipoAgrupado([](Item* itemAvaliado) { return itemAvaliado->obterTipo() == TipoEquipamento::CONSUMIVEL; });
+        case 'S': return buscarPorTipoAgrupado([](Item* itemAvaliado) { return itemAvaliado->obterTipo() == TipoEquipamento::MATERIAL; });
+        case 'M': return buscarPorTipoAgrupado([](Item* itemAvaliado) { return itemAvaliado->obterTipo() == TipoEquipamento::MISSAO; });
         default:  return nullptr;
     }
 }

@@ -23,10 +23,10 @@ bool ControleDeMapa::processarInputEComandos(char tecla, SistemaPersonagem* joga
             std::cout << "  [4] Noclip (Atravessar paredes): " << (jogador->isNoclip() ? SimplificacoesAparencia::cor(Cor::VERDE) + "LIGADO" : SimplificacoesAparencia::cor(Cor::VERMELHO) + "DESLIGADO") << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
             std::cout << "  [0] Fechar Debug Menu\n\n  Escolha: ";
             
-            std::string esc;
-            std::cin >> esc;
+            std::string escolhaDebug;
+            std::cin >> escolhaDebug;
             
-            if (esc == "1") {
+            if (escolhaDebug == "1") {
                 jogador->obterAtributosFinais().vida += 999999;
                 jogador->obterAtributosFinais().forca += 99999;
                 jogador->obterAtributosFinais().destreza += 99999;
@@ -37,39 +37,40 @@ bool ControleDeMapa::processarInputEComandos(char tecla, SistemaPersonagem* joga
                 jogador->definirVida(jogador->obterVidaMaxima());
                 std::cout << "\n[SISTEMA] God Mode ativado! Voce agora e um deus intocavel.\n";
                 SimplificacoesAparencia::aguardarEnter();
-            } else if (esc == "2") {
-                std::vector<std::string> todosItens = {
-                    "Adaga artesanal de pedra", "Arco recurvo de madeira", "Cajado de cristal magico", "Varinha corroida", "Violao encantado",
-                    "Espada longa de ferro", "Machado de guerra danificado", "Gosma acida (Arma)", "Tronco de arvore amarrotado",
-                    "Escudo medio de metal", "Barreira magica", "Capa magica", "Bracedeiras de prata",
-                    "Armadura de malha e metal", "Armadura leve de couro com malha", "Tunica", "Traje de Couro e tecido nobre", "Armadura de trapos e sucata",
-                    "Pocao de Cura (30%VM)", "Pocao de Furia (Buff)", "Elixir Arcano (Buff)", "Frasco de Gosma (Debuff)", "Frasco de Fraqueza (Debuff)", "Orgao regenerador",
-                    "Talisma do Urso", "Talisma do Corvo", "Talisma do Leopardo", "Talisma da Coruja",
-                    "Gosma acida", "Dente de goblin", "Nucleo pegajoso", "Po magico", "Madeira enfeiticada", "Coracao da floresta", "Pedra magica de upgrade", "Gema de amolar", "Convite Real",
-                    "Dispositivo de teclas de linguagem desconhecida"
+            } else if (escolhaDebug == "2") {
+                std::vector<ItemID> todosItens = {
+                    ItemID::AdagaPedra, ItemID::ArcoMadeira, ItemID::CajadoCristal, ItemID::VarinhaCorroida, ItemID::ViolaoEncantado,
+                    ItemID::EspadaFerro, ItemID::MachadoGuerra, ItemID::GosmaAcidaArma, ItemID::TroncoAmarrotado,
+                    ItemID::EscudoMetal, ItemID::BarreiraMagica, ItemID::CapaMagica, ItemID::BracedeirasPrata,
+                    ItemID::ArmaduraMalha, ItemID::ArmaduraCouro, ItemID::Tunica, ItemID::TrajeNobre, ItemID::ArmaduraTrapos,
+                    ItemID::PocaoCura30, ItemID::PocaoFuria, ItemID::ElixirArcano, ItemID::FrascoGosma, ItemID::FrascoFraqueza, ItemID::OrgaoRegenerador,
+                    ItemID::TalismaUrso, ItemID::TalismaCorvo, ItemID::TalismaLeopardo, ItemID::TalismaCoruja,
+                    ItemID::GosmaAcida, ItemID::DenteGoblin, ItemID::NucleoPegajoso, ItemID::PoMagico, ItemID::MadeiraEnfeiticada, ItemID::CoracaoFloresta, ItemID::PedraUpgrade, ItemID::ConviteReal,
+                    ItemID::DispositivoLinguagem
                 };
                 SimplificacoesAparencia::limparTela();
                 TelaMenu::exibirLogoDoJogo("OBTER ITEM");
                 for(size_t i=0; i<todosItens.size(); ++i) {
-                    std::cout << "[" << i+1 << "] " << todosItens[i] << "\n";
+                    std::cout << "[" << i+1 << "] " << FabricaItens::obterNomeDeID(todosItens[i]) << "\n";
                 }
                 std::cout << "[0] Voltar\n\nEscolha o ID do item: ";
-                int itemID;
-                if(std::cin >> itemID && itemID > 0 && itemID <= (int)todosItens.size()) {
-                    jogador->obterInventario()->adicionarItem(FabricaItens::criarItem(todosItens[itemID-1]));
-                    std::cout << "\n[SISTEMA] Item '" << todosItens[itemID-1] << "' adicionado ao inventario!\n";
+                int escolhaID;
+                if(std::cin >> escolhaID && escolhaID > 0 && escolhaID <= (int)todosItens.size()) {
+                    ItemID idEscolhido = todosItens[escolhaID-1];
+                    jogador->obterInventario()->adicionarItem(FabricaItens::criarItem(idEscolhido));
+                    std::cout << "\n[SISTEMA] Item '" << FabricaItens::obterNomeDeID(idEscolhido) << "' adicionado ao inventario!\n";
                     SimplificacoesAparencia::aguardarEnter();
                 } else { std::cin.clear(); std::cin.ignore(1000, '\n'); }
-            } else if (esc == "3") {
+            } else if (escolhaDebug == "3") {
                 jogador->ganharOuro(10000);
                 jogador->ganharXp(10000);
                 std::cout << "\n[SISTEMA] +10000 Ouro e +10000 XP adicionados!\n";
                 SimplificacoesAparencia::aguardarEnter();
-            } else if (esc == "4") {
+            } else if (escolhaDebug == "4") {
                 jogador->alternarNoclip();
                 std::cout << "\n[SISTEMA] Noclip " << (jogador->isNoclip() ? "ativado" : "desativado") << "!\n";
                 SimplificacoesAparencia::aguardarEnter();
-            } else if (esc == "0") { break; }
+            } else if (escolhaDebug == "0") { break; }
         }
         restaurarTela();
         return true;
@@ -109,30 +110,30 @@ bool ControleDeMapa::processarInputEComandos(char tecla, SistemaPersonagem* joga
 void ControleDeMapa::processarCombate(
     SistemaPersonagem* jogadorAtual, std::vector<std::string>& matrizDoMapaAtual, 
     int& posicaoXDoJogador, int& posicaoYDoJogador, bool& exploracaoEstaAtiva,
-    const std::string& titulo, const std::string& msg, std::vector<std::unique_ptr<SistemaPersonagem>> inimigos, 
-    int px, int py, int rootX, int celulas, int larguraDoTerminal, const std::function<void()>& restaurarTela)
+    const std::string& tituloDoCombate, const std::string& mensagemDeAviso, std::vector<std::unique_ptr<SistemaPersonagem>> inimigosParaBatalha, 
+    int posicaoXAposCombate, int posicaoYAposCombate, int posicaoXInicialDoInimigo, int quantidadeDeCelulasOcupadas, int larguraDoTerminal, const std::function<void()>& restaurarTela)
 {
     SimplificacoesAparencia::limparTela();
-    TelaMenu::exibirLogoDoJogo(titulo);
-    int espacosM = std::max(0, (larguraDoTerminal - static_cast<int>(msg.length())) / 2);
-    std::string mE(espacosM, ' ');
-    std::cout << "\n" << mE << SimplificacoesAparencia::cor(Cor::AMARELO) << "[!] " << msg << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-    std::cout << mE << "[0] Nao, recuar | [1] Sim, batalha!\n" << mE << "Escolha: ";
+    TelaMenu::exibirLogoDoJogo(tituloDoCombate);
+    int espacosParaCentralizarMensagem = std::max(0, (larguraDoTerminal - static_cast<int>(mensagemDeAviso.length())) / 2);
+    std::string margemEsquerdaMensagem(espacosParaCentralizarMensagem, ' ');
+    std::cout << "\n" << margemEsquerdaMensagem << SimplificacoesAparencia::cor(Cor::AMARELO) << "[!] " << mensagemDeAviso << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+    std::cout << margemEsquerdaMensagem << "[0] Nao, recuar | [1] Sim, batalha!\n" << margemEsquerdaMensagem << "Escolha: ";
 
-    int opcao;
-    while (!(std::cin >> opcao) || (opcao != 0 && opcao != 1)) {
+    int opcaoEscolhidaPeloJogador;
+    while (!(std::cin >> opcaoEscolhidaPeloJogador) || (opcaoEscolhidaPeloJogador != 0 && opcaoEscolhidaPeloJogador != 1)) {
         std::cin.clear(); std::cin.ignore(1000, '\n');
-        std::cout << mE << "Entrada invalida. Escolha (0 ou 1): ";
+        std::cout << margemEsquerdaMensagem << "Entrada invalida. Escolha (0 ou 1): ";
     }
 
-    if (opcao == 1) {
-        GerenciadorCombate combate(jogadorAtual, std::move(inimigos));
+    if (opcaoEscolhidaPeloJogador == 1) {
+        GerenciadorCombate combate(jogadorAtual, std::move(inimigosParaBatalha));
         combate.iniciarCombate();
 
         if (jogadorAtual->obterVida() > 0) {
-            for (int i = 0; i < celulas; ++i) matrizDoMapaAtual[py][rootX + i] = '.';
-            posicaoXDoJogador = px;
-            posicaoYDoJogador = py;
+            for (int i = 0; i < quantidadeDeCelulasOcupadas; ++i) matrizDoMapaAtual[posicaoYAposCombate][posicaoXInicialDoInimigo + i] = '.';
+            posicaoXDoJogador = posicaoXAposCombate;
+            posicaoYDoJogador = posicaoYAposCombate;
         }
     }
 
@@ -143,19 +144,19 @@ void ControleDeMapa::entrarSubMapa(
     std::vector<std::string>& matrizDoMapaAtual, std::vector<std::string>& matrizDoMapaPrincipalSalva,
     int& posicaoXSalvaAntesDeEntrarNoSubMapa, int& posicaoYSalvaAntesDeEntrarNoSubMapa,
     int& posicaoXDoJogador, int& posicaoYDoJogador, bool& jogadorEstaDentroDeUmSubMapa,
-    std::string& tituloDoMapaAtual, std::vector<std::string>& mapaSalvo, bool& jaVisitado,
-    const std::vector<std::string>& mapaGerado, int spawnX, int spawnY, const std::string& titulo, const std::function<void()>& restaurarTela)
+    std::string& tituloDoMapaAtual, std::vector<std::string>& matrizDoSubMapaSalva, bool& subMapaJaFoiVisitado,
+    const std::vector<std::string>& matrizDoSubMapaGerada, int posicaoXInicialNoSubMapa, int posicaoYInicialNoSubMapa, const std::string& tituloDoSubMapa, const std::function<void()>& restaurarTela)
 {
     matrizDoMapaPrincipalSalva = matrizDoMapaAtual;
     posicaoXSalvaAntesDeEntrarNoSubMapa = posicaoXDoJogador;
     posicaoYSalvaAntesDeEntrarNoSubMapa = posicaoYDoJogador;
 
-    if (!jaVisitado) { matrizDoMapaAtual = mapaGerado; jaVisitado = true; } 
-    else { matrizDoMapaAtual = mapaSalvo; }
+    if (!subMapaJaFoiVisitado) { matrizDoMapaAtual = matrizDoSubMapaGerada; subMapaJaFoiVisitado = true; } 
+    else { matrizDoMapaAtual = matrizDoSubMapaSalva; }
 
-    posicaoXDoJogador = spawnX;
-    posicaoYDoJogador = spawnY;
+    posicaoXDoJogador = posicaoXInicialNoSubMapa;
+    posicaoYDoJogador = posicaoYInicialNoSubMapa;
     jogadorEstaDentroDeUmSubMapa = true;
-    tituloDoMapaAtual = titulo;
+    tituloDoMapaAtual = tituloDoSubMapa;
     restaurarTela();
 }

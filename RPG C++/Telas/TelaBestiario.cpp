@@ -58,10 +58,10 @@ void TelaBestiario::exibirLista(SistemaPersonagem* jogadorAtual) {
         return;
     }
 
-    constexpr int maxDisplay = 10;
+    constexpr int quantidadeMaximaPorPagina = 10;
     int totalDescobertos = static_cast<int>(descobertos.size());
-    int totalPages = std::max(1, (totalDescobertos + maxDisplay - 1) / maxDisplay);
-    int currentPage = 0;
+    int totalDePaginas = std::max(1, (totalDescobertos + quantidadeMaximaPorPagina - 1) / quantidadeMaximaPorPagina);
+    int paginaAtual = 0;
 
     while (true) {
         exibirCabecalho(largura);
@@ -69,13 +69,13 @@ void TelaBestiario::exibirLista(SistemaPersonagem* jogadorAtual) {
         SimplificacoesAparencia::imprimirCentralizado("Encontrados: " + std::to_string(totalDescobertos) + "/" + std::to_string(inimigos.size()));
         std::cout << "\n";
 
-        int inicio = currentPage * maxDisplay;
-        int fim = std::min(inicio + maxDisplay, totalDescobertos);
+        int indiceInicial = paginaAtual * quantidadeMaximaPorPagina;
+        int indiceFinal = std::min(indiceInicial + quantidadeMaximaPorPagina, totalDescobertos);
 
         SimplificacoesAparencia::imprimirCentralizado("--- INIMIGOS ---");
         std::cout << "\n";
 
-        for (int i = inicio; i < fim; ++i) {
+        for (int i = indiceInicial; i < indiceFinal; ++i) {
             const std::string& nomeSelecionado = descobertos[i];
             const SistemaBestiarioEnemyInfo* info = bestiario.obterInfo(nomeSelecionado);
             if (!info) continue;
@@ -85,32 +85,32 @@ void TelaBestiario::exibirLista(SistemaPersonagem* jogadorAtual) {
         }
 
         std::cout << "\n";
-        if (totalPages > 1) {
-            SimplificacoesAparencia::imprimirCentralizado("[P] Pagina " + std::to_string(currentPage + 1) + "/" + std::to_string(totalPages), SimplificacoesAparencia::cor(Cor::CIANO));
+        if (totalDePaginas > 1) {
+            SimplificacoesAparencia::imprimirCentralizado("[P] Pagina " + std::to_string(paginaAtual + 1) + "/" + std::to_string(totalDePaginas), SimplificacoesAparencia::cor(Cor::CIANO));
             std::cout << "\n";
         }
 
-        std::cout << "Escolha um numero (1-" << fim << "), [P] pagina, [0] Voltar: ";
-        std::string escolhaStr;
-        std::cin >> escolhaStr;
+        std::cout << "Escolha um numero (1-" << indiceFinal << "), [P] pagina, [0] Voltar: ";
+        std::string entradaDigitadaPeloJogador;
+        std::cin >> entradaDigitadaPeloJogador;
 
         while (std::cin.fail()) {
             std::cin.clear();
             std::cin.ignore(1000, '\n');
-            std::cout << "Entrada invalida. Escolha um numero (1-" << fim << "), [P] pagina, [0] Voltar: ";
-            std::cin >> escolhaStr;
+            std::cout << "Entrada invalida. Escolha um numero (1-" << indiceFinal << "), [P] pagina, [0] Voltar: ";
+            std::cin >> entradaDigitadaPeloJogador;
         }
 
-        if (escolhaStr == "p" || escolhaStr == "P") {
-            currentPage = (currentPage + 1) % totalPages;
+        if (entradaDigitadaPeloJogador == "p" || entradaDigitadaPeloJogador == "P") {
+            paginaAtual = (paginaAtual + 1) % totalDePaginas;
             continue;
-        } else if (escolhaStr == "0") {
+        } else if (entradaDigitadaPeloJogador == "0") {
             return;
         }
 
         try {
-            int escolha = std::stoi(escolhaStr);
-            if (escolha >= 1 && escolha <= fim) {
+            int escolha = std::stoi(entradaDigitadaPeloJogador);
+            if (escolha >= 1 && escolha <= indiceFinal) {
                 exibirFicha(jogadorAtual, descobertos[escolha - 1], escolha - 1, descobertos);
             }
         } catch (const std::invalid_argument&) {
@@ -133,13 +133,13 @@ void TelaBestiario::exibirFicha(SistemaPersonagem* jogadorAtual, const std::stri
     bool visto = bestiario.estaDescoberto(nomeSelecionado);
     bool derrotado = bestiario.jaDerrotado(nomeSelecionado);
 
-    auto imprimirSecaoBase = [largura](const std::string& titulo, bool exibirConteudo, const std::function<void()>& conteudoFnc, const std::string& textoOculto) {
-        std::cout << "=== " << titulo << " ===\n\n";
-        if (exibirConteudo) {
-            conteudoFnc();
+    auto imprimirSecaoBase = [largura](const std::string& tituloDaSecao, bool deveExibirConteudo, const std::function<void()>& funcaoParaExibirConteudo, const std::string& textoCasoOculto) {
+        std::cout << "=== " << tituloDaSecao << " ===\n\n";
+        if (deveExibirConteudo) {
+            funcaoParaExibirConteudo();
         } else {
             SimplificacoesAparencia::imprimirCentralizado("???", SimplificacoesAparencia::cor(Cor::CINZA));
-            SimplificacoesAparencia::imprimirCentralizado(textoOculto, SimplificacoesAparencia::cor(Cor::CINZA));
+            SimplificacoesAparencia::imprimirCentralizado(textoCasoOculto, SimplificacoesAparencia::cor(Cor::CINZA));
         }
         std::cout << "\n" << std::string(largura, '-') << "\n\n";
     };

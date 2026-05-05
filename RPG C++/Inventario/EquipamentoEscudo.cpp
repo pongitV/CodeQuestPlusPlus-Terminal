@@ -4,6 +4,8 @@
 #include <memory>
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
+#include <functional>
+#include <unordered_map>
 
 EquipamentoEscudo::EquipamentoEscudo(std::string nome, int reducaoFixa, int durabilidade, int reqResistencia, int reqSecundario, TipoAtributo tipoSecundario, int preco)
     : Item(preco), nome(nome), reducaoFixa(reducaoFixa), durabilidade(durabilidade), reqResistencia(reqResistencia), reqSecundario(reqSecundario), tipoSecundario(tipoSecundario)
@@ -84,4 +86,16 @@ std::unique_ptr<Item> EquipamentoEscudo::gerarCopiaMelhorada() const {
     for (Propriedade prop : propriedades) novoEscudo->adicionarPropriedade(prop);
     novoEscudo->adicionarPropriedade(Propriedade::Melhorado);
     return novoEscudo;
+}
+
+std::unique_ptr<Item> fabricarEquipamentoEscudo(const std::string& nome) {
+    static const std::unordered_map<std::string, std::function<std::unique_ptr<Item>()>> construtores = {
+        {"Escudo medio de metal", []() { return std::make_unique<EquipamentoEscudo>("Escudo medio de metal", 15, 5, 0, 0, TipoAtributo::Forca, 9); }},
+        {"Barreira magica", []() { return std::make_unique<EquipamentoEscudo>("Barreira magica", 50, 2, 0, 0, TipoAtributo::Inteligencia, 3); }},
+        {"Capa magica", []() { return std::make_unique<EquipamentoEscudo>("Capa magica", 6, 10, 0, 0, TipoAtributo::Sabedoria, 9); }},
+        {"Bracedeiras de prata", []() { return std::make_unique<EquipamentoEscudo>("Bracedeiras de prata", 5, 3, 0, 0, TipoAtributo::Destreza, 3); }}
+    };
+    auto it = construtores.find(nome);
+    if (it != construtores.end()) return it->second();
+    return nullptr;
 }

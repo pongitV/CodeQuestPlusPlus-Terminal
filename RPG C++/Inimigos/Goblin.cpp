@@ -13,7 +13,7 @@ std::string Goblin::obterDescricaoHabilidadeRaca() const { return "Monstros nao 
 
 std::vector<std::unique_ptr<Item>> Goblin::obterEquipamentoRaca() const {
     std::vector<std::unique_ptr<Item>> equipamentos;
-    equipamentos.push_back(FabricaItens::criarItem("Adaga artesanal de pedra"));
+    equipamentos.push_back(FabricaItens::criarItem(ItemID::AdagaPedra));
     return equipamentos;
 }
 
@@ -65,7 +65,7 @@ void Goblin::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogado
     {
         if ((std::rand() % 100) < 65) 
         {
-            jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem("Adaga artesanal de pedra"));
+            jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::AdagaPedra));
             GerenciadorDrops::relatarDropItem("Adaga artesanal de pedra", 1);
             itensObtidos.push_back("Adaga artesanal de pedra");
         }
@@ -73,7 +73,7 @@ void Goblin::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogado
     
     int qtdDentes = (std::rand() % 5) + 4;
     for (int i = 0; i < qtdDentes; ++i) {
-        jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem("Dente de goblin"));
+        jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::DenteGoblin));
         itensObtidos.push_back("Dente de goblin");
     }
     GerenciadorDrops::relatarDropItem("Dente de goblin", qtdDentes);

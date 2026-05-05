@@ -38,6 +38,28 @@ enum class Propriedade
     ConsumivelPoderTroll
 };
 
+enum class ItemID {
+    Nenhum = 0,
+    // Armas
+    AdagaPedra, ArcoMadeira, CajadoCristal, VarinhaCorroida, ViolaoEncantado, EspadaFerro, MachadoGuerra, GosmaAcidaArma, TroncoAmarrotado, EspadaCavaleiro,
+    
+    // Escudos
+    EscudoMetal, BarreiraMagica, CapaMagica, BracedeirasPrata,
+    
+    // Armaduras
+    ArmaduraMalha, ArmaduraCouro, Tunica, TrajeNobre, ArmaduraTrapos, ArmaduraCavaleiro,
+    
+    // Consumiveis
+    PocaoCura30, PocaoFuria, ElixirArcano, FrascoGosma, FrascoFraqueza, OrgaoRegenerador,
+    TalismaUrso, TalismaCorvo, TalismaLeopardo, TalismaCoruja,
+    
+    // Materiais
+    GosmaAcida, DenteGoblin, NucleoPegajoso, PoMagico, MadeiraEnfeiticada, CoracaoFloresta, PedraUpgrade, ConviteReal,
+    
+    // Missoes
+    DispositivoLinguagem
+};
+
 class SistemaPersonagem;
 
 class Item 

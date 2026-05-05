@@ -73,14 +73,13 @@ std::vector<std::unique_ptr<Item>> Guerreiro::obterEquipamentoClasse() const
     std::vector<std::unique_ptr<Item>> equipamentos;
     
     int quantidadePocoes = 3;
-    int porcentagemCura = 30;
     for (int i = 0; i < quantidadePocoes; ++i) {
-        equipamentos.push_back(FabricaItens::criarItem("Pocao de Cura (" + std::to_string(porcentagemCura) + "%VM)"));
+        equipamentos.push_back(FabricaItens::criarItem(ItemID::PocaoCura30));
     }
 
-    equipamentos.push_back(FabricaItens::criarItem("Espada longa de ferro"));
-    equipamentos.push_back(FabricaItens::criarItem("Escudo medio de metal"));
-    equipamentos.push_back(FabricaItens::criarItem("Armadura de malha e metal"));
+    equipamentos.push_back(FabricaItens::criarItem(ItemID::EspadaFerro));
+    equipamentos.push_back(FabricaItens::criarItem(ItemID::EscudoMetal));
+    equipamentos.push_back(FabricaItens::criarItem(ItemID::ArmaduraMalha));
     return equipamentos;
 }
 
@@ -95,27 +94,27 @@ std::string Guerreiro::obterNomeHabilidadeClasse() const
 { return "Grito de guerra"; }
 std::string Guerreiro::obterDescricaoHabilidadeClasse() const 
 { return "Gasta seu turno para aumentar Forca e Destreza em 1.5x por 2 turnos."; }
-void Guerreiro::usarHabilidadeClasse(SistemaPersonagem* u, std::vector<SistemaPersonagem*>& /*inimigos*/) 
+void Guerreiro::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::vector<SistemaPersonagem*>& /*listaDeInimigos*/) 
 {
-    int turnosRestantes = u->obterCooldown(HabilidadeID::Determinacao);
+    int turnosRestantes = personagemUsuario->obterCooldown(HabilidadeID::Determinacao);
     if (turnosRestantes > 0) {
         std::cout << "\n[SISTEMA]: A habilidade " << obterNomeHabilidadeClasse() << " esta em recarga (" << turnosRestantes << " turnos)!\n";
         SimplificacoesAparencia::aguardarEnter();
-        u->definirHabilidadeCancelada(true);
+        personagemUsuario->definirHabilidadeCancelada(true);
         return;
     }
-    if (u->possuiEfeito(EfeitoID::GritoDeGuerra)) {
+    if (personagemUsuario->possuiEfeito(EfeitoID::GritoDeGuerra)) {
         std::cout << "\n[SISTEMA]: A habilidade " << obterNomeHabilidadeClasse() << " ja esta ativa!\n";
         SimplificacoesAparencia::aguardarEnter();
-        u->definirHabilidadeCancelada(true);
+        personagemUsuario->definirHabilidadeCancelada(true);
         return;
     }
 
-    int bonusForca = u->obterForca() / 2;
-    int bonusDestreza = u->obterDestreza() / 2;
+    int bonusForca = personagemUsuario->obterForca() / 2;
+    int bonusDestreza = personagemUsuario->obterDestreza() / 2;
     
-    u->adicionarEfeito(std::make_unique<EfeitoGritoGuerra>(2, bonusForca, bonusDestreza));
-    u->definirCooldown(HabilidadeID::Determinacao, 4);
+    personagemUsuario->adicionarEfeito(std::make_unique<EfeitoGritoGuerra>(2, bonusForca, bonusDestreza));
+    personagemUsuario->definirCooldown(HabilidadeID::Determinacao, 4);
     
     std::cout << "[HABILIDADE]: Grito de guerra! Forca +" << bonusForca << " e Destreza +" << bonusDestreza << "!\n";
 }

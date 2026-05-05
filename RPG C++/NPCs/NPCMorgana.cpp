@@ -150,17 +150,18 @@ namespace {
             std::cin >> opcaoEncantar;
 
             if (opcaoEncantar == "1" || opcaoEncantar == "2" || opcaoEncantar == "3") {
-                struct EncantoInfo { std::string nome; int qtd; };
+                struct EncantoInfo { ItemID idItem; int qtd; };
                 EncantoInfo encantos[] = {
-                    {"Dente de goblin", 40}, {"Nucleo pegajoso", 5}, {"Po magico", 25},
-                    {"Madeira enfeiticada", 1}, {"Coracao da floresta", 1}, {"Madeira enfeiticada", 1}
+                    {ItemID::DenteGoblin, 40}, {ItemID::NucleoPegajoso, 5}, {ItemID::PoMagico, 25},
+                    {ItemID::MadeiraEnfeiticada, 1}, {ItemID::CoracaoFloresta, 1}, {ItemID::MadeiraEnfeiticada, 1}
                 };
                 
                 int index = (isUniversal ? 0 : 3) + (opcaoEncantar[0] - '1');
                 bool isSangramento = (index == 0), isLentidao = (index == 1), isResistencia = (index == 2);
                 bool isMagia = (index == 3), isCipos = (index == 4), isRaizes = (index == 5);
 
-                auto [itemNecessario, qtdNecessaria] = encantos[index];
+                auto [itemIdNecessario, qtdNecessaria] = encantos[index];
+                std::string itemNecessario = FabricaItens::obterNomeDeID(itemIdNecessario);
                 
                 int qtdAtual = jogadorAtual->obterInventario()->contarItem(itemNecessario);
                 if (qtdAtual < qtdNecessaria) {
@@ -181,9 +182,13 @@ namespace {
                 EquipamentoArma* armaEscolhida = dynamic_cast<EquipamentoArma*>(itemEscolhido);
                 if (!armaEscolhida) { std::cout << "\n[Morgana]: Eu so posso encantar ARMAS com isso!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
                 
-                if (isMagia && armaEscolhida->obterNomeItem().find("Arco recurvo de madeira") == std::string::npos) { std::cout << "\n[Morgana]: Este encantamento so funciona no Arco recurvo de madeira!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
-                if (isCipos && armaEscolhida->obterNomeItem().find("Cajado de cristal magico") == std::string::npos) { std::cout << "\n[Morgana]: Este encantamento so funciona no Cajado de cristal magico!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
-                if (isRaizes && armaEscolhida->obterNomeItem().find("Violao encantado") == std::string::npos) { std::cout << "\n[Morgana]: Este encantamento so funciona no Violao!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
+                std::string nomeArco = FabricaItens::obterNomeDeID(ItemID::ArcoMadeira);
+                std::string nomeCajado = FabricaItens::obterNomeDeID(ItemID::CajadoCristal);
+                std::string nomeViolao = FabricaItens::obterNomeDeID(ItemID::ViolaoEncantado);
+
+                if (isMagia && armaEscolhida->obterNomeItem().find(nomeArco) == std::string::npos) { std::cout << "\n[Morgana]: Este encantamento so funciona no Arco recurvo de madeira!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
+                if (isCipos && armaEscolhida->obterNomeItem().find(nomeCajado) == std::string::npos) { std::cout << "\n[Morgana]: Este encantamento so funciona no Cajado de cristal magico!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
+                if (isRaizes && armaEscolhida->obterNomeItem().find(nomeViolao) == std::string::npos) { std::cout << "\n[Morgana]: Este encantamento so funciona no Violao!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
                 
                 if (isSangramento && armaEscolhida->possuiEfeitoSangramento()) { std::cout << "\n[Morgana]: Esta arma ja esta encantada com Sangramento!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
                 if (isLentidao && armaEscolhida->possuiEfeitoLentidao()) { std::cout << "\n[Morgana]: Esta arma ja esta encantada com Lentidao!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
@@ -201,7 +206,7 @@ namespace {
                 else if (isResistencia) { armaEscolhida->alterarNome(armaEscolhida->obterNomeItem() + " (Quebra-Defesas)"); armaEscolhida->adicionarPropriedade(Propriedade::Penetrante); }
                 else if (isMagia) {
                     std::string nome = armaEscolhida->obterNomeItem();
-                    size_t pos = nome.find("Arco recurvo de madeira");
+                    size_t pos = nome.find(nomeArco);
                     if (pos != std::string::npos) nome.replace(pos, 23, "Arco recurvo de madeira enfeiticada");
                     int novoDanoMagico = armaEscolhida->obterDanoMagico() + (armaEscolhida->obterDanoFisico() / 2);
                     auto novoArcoObj = std::make_unique<EquipamentoArma>(nome, armaEscolhida->obterDanoFisico(), novoDanoMagico, armaEscolhida->obterReqForca(), armaEscolhida->obterReqDestreza(), armaEscolhida->obterReqInteligencia(), armaEscolhida->obterReqSabedoria(), 0);
@@ -220,14 +225,14 @@ namespace {
                 }
                 else if (isCipos) {
                     std::string nome = armaEscolhida->obterNomeItem();
-                    size_t pos = nome.find("Cajado de cristal magico");
+                    size_t pos = nome.find(nomeCajado);
                     if (pos != std::string::npos) nome.replace(pos, 24, "Cajado de cipos");
                     armaEscolhida->alterarNome(nome);
                     armaEscolhida->adicionarPropriedade(Propriedade::CipoPrisao);
                 }
                 else if (isRaizes) {
                     std::string nome = armaEscolhida->obterNomeItem();
-                    size_t pos = nome.find("Violao encantado");
+                    size_t pos = nome.find(nomeViolao);
                     if (pos != std::string::npos) nome.replace(pos, 16, "Violao enfeiticado");
                     else nome += " enfeiticado";
                     armaEscolhida->alterarNome(nome);
@@ -286,15 +291,15 @@ namespace {
                 int preco = (isBuff ? 25 : 30);
                 if (jogadorAtual->obterInventario()->obterOuro() >= preco) {
                     jogadorAtual->obterInventario()->adicionarOuro(-preco);
-                    std::string nomeItem = "";
+                    ItemID idPot = ItemID::Nenhum;
                     if (isBuff) {
-                        if (opcaoCompra == "1") nomeItem = "Pocao de Furia (Buff)";
-                        else if (opcaoCompra == "2") nomeItem = "Elixir Arcano (Buff)";
+                        if (opcaoCompra == "1") idPot = ItemID::PocaoFuria;
+                        else if (opcaoCompra == "2") idPot = ItemID::ElixirArcano;
                     } else {
-                        if (opcaoCompra == "1") nomeItem = "Frasco de Gosma (Debuff)";
-                        else if (opcaoCompra == "2") nomeItem = "Frasco de Fraqueza (Debuff)";
+                        if (opcaoCompra == "1") idPot = ItemID::FrascoGosma;
+                        else if (opcaoCompra == "2") idPot = ItemID::FrascoFraqueza;
                     }
-                    auto novoItem = FabricaItens::criarItem(nomeItem);
+                    auto novoItem = FabricaItens::criarItem(idPot);
                     if (novoItem) {
                         std::string nomeDoNovoItem = novoItem->obterNomeItem();
                         jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
@@ -309,9 +314,10 @@ namespace {
     }
 
     void processarMissaoLabirinto(SistemaPersonagem* jogadorAtual, const std::string& margemMsg) {
-        int qtdCoracoes = jogadorAtual->obterInventario()->contarItem("Coracao da floresta");
+        std::string nomeCoracao = FabricaItens::obterNomeDeID(ItemID::CoracaoFloresta);
+        int qtdCoracoes = jogadorAtual->obterInventario()->contarItem(nomeCoracao);
         if (qtdCoracoes >= 3) {
-            for (int i = 0; i < 3; ++i) jogadorAtual->obterInventario()->removerItem("Coracao da floresta");
+            for (int i = 0; i < 3; ++i) jogadorAtual->obterInventario()->removerItem(nomeCoracao);
             jogadorAtual->desbloquearLabirinto();
             
             SimplificacoesAparencia::limparTela();
