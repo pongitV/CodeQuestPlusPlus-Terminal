@@ -34,11 +34,12 @@ bool ControleDeMapa::processarInputEComandos(char tecla, SistemaPersonagem* joga
                 jogador->obterAtributosFinais().constituicao += 99999;
                 jogador->obterAtributosFinais().inteligencia += 99999;
                 jogador->obterAtributosFinais().sabedoria += 99999;
+                jogador->forcarRecalculoCache();
                 jogador->definirVida(jogador->obterVidaMaxima());
                 std::cout << "\n[SISTEMA] God Mode ativado! Voce agora e um deus intocavel.\n";
                 SimplificacoesAparencia::aguardarEnter();
             } else if (escolhaDebug == "2") {
-                std::vector<ItemID> todosItens = {
+                static const std::vector<ItemID> todosItens = {
                     ItemID::AdagaPedra, ItemID::ArcoMadeira, ItemID::CajadoCristal, ItemID::VarinhaCorroida, ItemID::ViolaoEncantado,
                     ItemID::EspadaFerro, ItemID::MachadoGuerra, ItemID::GosmaAcidaArma, ItemID::TroncoAmarrotado,
                     ItemID::EscudoMetal, ItemID::BarreiraMagica, ItemID::CapaMagica, ItemID::BracedeirasPrata,
@@ -105,6 +106,11 @@ bool ControleDeMapa::processarInputEComandos(char tecla, SistemaPersonagem* joga
         return true;
     }
     return false;
+}
+
+void ControleDeMapa::aplicarLimitesDeMapa(int& posicaoX, int& posicaoY, const std::vector<std::string>& matrizDoMapa) {
+    if (posicaoY < 0) posicaoY = 0; else if (posicaoY >= static_cast<int>(matrizDoMapa.size())) posicaoY = static_cast<int>(matrizDoMapa.size()) - 1;
+    if (posicaoX < 0) posicaoX = 0; else if (posicaoX >= static_cast<int>(matrizDoMapa[0].size())) posicaoX = static_cast<int>(matrizDoMapa[0].size()) - 1;
 }
 
 void ControleDeMapa::processarCombate(

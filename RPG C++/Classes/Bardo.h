@@ -10,7 +10,7 @@ public:
     // Metodos específicos para a classe Bardo
     std::string obterNomeClasse() const override; 
     TipoClasse obterTipoClasse() const override { return TipoClasse::Bardo; } 
-    std::vector<std::string> obterAparenciaClasseMenu() const override;
+    const std::vector<std::string>& obterAparenciaClasseMenu() const override;
     Atributos obterAtributosClasse() const override;
     std::vector<std::unique_ptr<Item>> obterEquipamentoClasse() const override;
 

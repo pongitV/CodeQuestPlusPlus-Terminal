@@ -38,10 +38,6 @@ bool EquipamentoArma::podeSerEquipadoPor(SistemaPersonagem* personagem) const {
            personagem->obterSabedoria() >= reqSabedoria;
 }
 
-std::string EquipamentoArma::obterMensagemRequisito() const {
-    return "\n[SISTEMA]: Atributos insuficientes para equipar " + nome + "!\n";
-}
-
 void EquipamentoArma::exibirInspecao() const {
     std::cout << "\n" << SimplificacoesAparencia::cor(Cor::CIANO) << " === " << nome << " ===" << SimplificacoesAparencia::cor(Cor::RESET) << "\n\n";
     std::cout << " > Tipo: Arma\n";

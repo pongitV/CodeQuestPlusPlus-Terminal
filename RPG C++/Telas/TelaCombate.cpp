@@ -118,7 +118,7 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
 {
     if (listaDeInimigos.empty()) return;
     int larguraTerminal = SimplificacoesAparencia::obterLarguraTerminal();
-    std::vector<std::string> arteDoInimigo = listaDeInimigos[0]->obterRaca()->obterAparenciaRaca();
+    const std::vector<std::string>& arteDoInimigo = listaDeInimigos[0]->obterRaca()->obterAparenciaRaca();
     int quantidadeTotalDeInimigosNaHorda = static_cast<int>(listaDeInimigos.size());
     int larguraSeparadaParaCadaColuna = larguraTerminal / quantidadeTotalDeInimigosNaHorda; 
 

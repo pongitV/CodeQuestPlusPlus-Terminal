@@ -74,9 +74,9 @@ bool SistemaPersonagem::subirDeNivel(TipoAtributo atributo)
             upou = true;
             break;
         case TipoAtributo::Forca: statsFinais.forca += Constantes::GANHO_ATRIBUTO_POR_NIVEL; upou = true; break;
-        case TipoAtributo::Destreza: statsFinais.destreza += Constantes::GANHO_ATRIBUTO_POR_NIVEL; cache_.sujo = true; upou = true; break;
-        case TipoAtributo::Resistencia: statsFinais.resistencia += Constantes::GANHO_ATRIBUTO_POR_NIVEL; cache_.sujo = true; upou = true; break;
-        case TipoAtributo::Constituicao: statsFinais.constituicao += Constantes::GANHO_ATRIBUTO_POR_NIVEL; cache_.sujo = true; upou = true; break;
+        case TipoAtributo::Destreza: statsFinais.destreza += Constantes::GANHO_ATRIBUTO_POR_NIVEL; upou = true; break;
+        case TipoAtributo::Resistencia: statsFinais.resistencia += Constantes::GANHO_ATRIBUTO_POR_NIVEL; upou = true; break;
+        case TipoAtributo::Constituicao: statsFinais.constituicao += Constantes::GANHO_ATRIBUTO_POR_NIVEL; upou = true; break;
         case TipoAtributo::Inteligencia: statsFinais.inteligencia += Constantes::GANHO_ATRIBUTO_POR_NIVEL; upou = true; break;
         case TipoAtributo::Sabedoria: statsFinais.sabedoria += Constantes::GANHO_ATRIBUTO_POR_NIVEL; upou = true; break;
     }
@@ -86,6 +86,7 @@ bool SistemaPersonagem::subirDeNivel(TipoAtributo atributo)
         xpAtual -= xpParaSubir;
         xpParaSubir = static_cast<int>(std::min(xpParaSubir * Constantes::MULTIPLICADOR_XP_POR_NIVEL, Constantes::MAX_XP));
         nivel++;
+        cache_.sujo = true;
         return true;
     }
     return false;
@@ -95,11 +96,12 @@ void SistemaPersonagem::alterarAtributoEstatico(TipoAtributo atributo, int valor
 {
     switch (atributo) {
         case TipoAtributo::Forca: statsFinais.forca += valor; break;
-        case TipoAtributo::Destreza: statsFinais.destreza += valor; cache_.sujo = true; break;
+        case TipoAtributo::Destreza: statsFinais.destreza += valor; break;
         case TipoAtributo::Inteligencia: statsFinais.inteligencia += valor; break;
         case TipoAtributo::Sabedoria: statsFinais.sabedoria += valor; break;
         default: break;
     }
+    cache_.sujo = true;
 
     if (statsFinais.forca < 0) statsFinais.forca = 0;
     if (statsFinais.destreza < 0) statsFinais.destreza = 0;
@@ -121,7 +123,7 @@ void SistemaPersonagem::reduzirCooldowns()
 void SistemaPersonagem::prepararParaNovaBatalha()
 {
     combate.resetar();
-    combate.vidaMaximaFixa = static_cast<int>(statsFinais.vida * sistema.dificuldadeMultiplicador);
+    combate.vidaMaximaFixa = obterVidaMaxima();
     limparEfeitos();
 }
 
@@ -136,29 +138,29 @@ void SistemaPersonagem::calcularAtributos()
 void SistemaPersonagem::atualizarCacheSeNecessario() const {
     if (!cache_.sujo) return;
     
+    double mult = sistema.dificuldadeMultiplicador;
+    cache_.vidaMaxima = static_cast<int>(statsFinais.vida * mult);
+    cache_.forca = static_cast<int>(statsFinais.forca * mult);
+    cache_.resistencia = static_cast<int>(statsFinais.resistencia * mult);
+    cache_.constituicao = static_cast<int>(statsFinais.constituicao * mult);
+    cache_.inteligencia = static_cast<int>(statsFinais.inteligencia * mult);
+    cache_.sabedoria = static_cast<int>(statsFinais.sabedoria * mult);
+
     int penalidade = armadura ? (armadura->obterReducaoFixa() / 3) : 0;
     if (classe) penalidade = classe->processarPenalidadeArmaduraPassivaArqueiro(penalidade);
     
-    int destrezaBase = static_cast<int>(statsFinais.destreza * sistema.dificuldadeMultiplicador);
+    int destrezaBase = static_cast<int>(statsFinais.destreza * mult);
     int destrezaFinal = destrezaBase - penalidade;
     cache_.destreza = destrezaFinal > 0 ? destrezaFinal : 0;
 
     int bonusArmadura = armadura ? armadura->obterReducaoFixa() : 0;
-    int resistenciaBase = static_cast<int>(statsFinais.resistencia * sistema.dificuldadeMultiplicador);
-    int reducao = resistenciaBase + bonusArmadura;
+    int reducao = cache_.resistencia + bonusArmadura;
     
-    int constBase = static_cast<int>(statsFinais.constituicao * sistema.dificuldadeMultiplicador);
-    double percentualReducao = constBase / 100.0;
+    double percentualReducao = cache_.constituicao / 100.0;
     if (percentualReducao > 0.50) percentualReducao = 0.50;
     cache_.reducaoPercentual = static_cast<int>(reducao * (1.0 - percentualReducao));
 
     cache_.sujo = false;
-}
-
-int SistemaPersonagem::obterDestreza() const
-{
-    atualizarCacheSeNecessario();
-    return cache_.destreza;
 }
 
 void SistemaPersonagem::definirMultiplicador(double novoMultiplicador) 
@@ -298,7 +300,7 @@ int SistemaPersonagem::receberDano(int danoBruto, int danoPerfurante, int danoRe
         escudo->reduzirDurabilidade(1);
         if (escudo->obterDurabilidadeAtualEscudo() <= 0) {
             std::cout << SimplificacoesAparencia::cor(Cor::FUNDO_VERMELHO) << "[!] ALERTA: O escudo " << escudo->obterNomeItem() << " foi DESTRUIDO em pedacos!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-            mochila->removerItem(escudo->obterNomeItem());
+            mochila->removerItem(escudo);
             desequiparEscudo();
         }
     }
@@ -315,19 +317,27 @@ int SistemaPersonagem::receberDano(int danoBruto, int danoPerfurante, int danoRe
 void SistemaPersonagem::adicionarEfeito(std::unique_ptr<EfeitoStatus> efeito) {
     efeito->aoEntrar(this);
     efeitosAtivos.push_back(std::move(efeito));
+    cache_.sujo = true;
 }
 
 void SistemaPersonagem::processarEfeitosInicioTurno() {
-    for (auto it = efeitosAtivos.begin(); it != efeitosAtivos.end(); ) {
-        (*it)->aplicarInicioTurno(this);
-        (*it)->decrementarTurno();
-        if ((*it)->expirou()) {
-            (*it)->aoSair(this);
-            it = efeitosAtivos.erase(it);
-        } else {
-            ++it;
-        }
+    for (auto& ef : efeitosAtivos) {
+        ef->aplicarInicioTurno(this);
+        ef->decrementarTurno();
     }
+
+    efeitosAtivos.erase(
+        std::remove_if(efeitosAtivos.begin(), efeitosAtivos.end(),
+            [this](const std::unique_ptr<EfeitoStatus>& ef) {
+                if (ef->expirou()) {
+                    ef->aoSair(this);
+                cache_.sujo = true;
+                    return true;
+                }
+                return false;
+            }),
+        efeitosAtivos.end()
+    );
 }
 
 void SistemaPersonagem::limparEfeitos() {
@@ -335,6 +345,7 @@ void SistemaPersonagem::limparEfeitos() {
         ef->aoSair(this); // Garante que os atributos (como Forca e Destreza) sejam restaurados
     }
     efeitosAtivos.clear();
+    cache_.sujo = true;
 }
 
 bool SistemaPersonagem::podeAgir() const {

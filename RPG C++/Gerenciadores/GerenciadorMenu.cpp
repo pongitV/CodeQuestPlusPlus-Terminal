@@ -38,6 +38,27 @@
 #include "../Telas/TelaMenu.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 
+namespace {
+    std::vector<std::string> comporQuadroDeAtributos(const Atributos& stats, const std::string& tituloSecao, const std::string& tituloHabilidade, const std::string& nomeHab, const std::string& descHab) {
+        auto formatarAtributo = [](const std::string& nomeAtr, int valorAtr) { 
+            return " - " + nomeAtr + ": " + (valorAtr >= 0 ? "+" : "") + std::to_string(valorAtr); 
+        };
+        return {
+            tituloSecao,
+            formatarAtributo("Vida", stats.vida),
+            formatarAtributo("Forca", stats.forca),
+            formatarAtributo("Destreza", stats.destreza),
+            formatarAtributo("Resistencia", stats.resistencia),
+            formatarAtributo("Constituicao", stats.constituicao),
+            formatarAtributo("Inteligencia", stats.inteligencia),
+            formatarAtributo("Sabedoria", stats.sabedoria),
+            "",
+            tituloHabilidade,
+            " " + nomeHab,
+            " - " + descHab
+        };
+    }
+}
 
 std::unique_ptr<SistemaPersonagem> GerenciadorMenu::menuPrincipal() 
 {
@@ -177,22 +198,7 @@ void GerenciadorMenu::etapaEscolherRaca(const std::string& nome, std::unique_ptr
 
     if (racaTemporaria) 
     {
-        Atributos stats = racaTemporaria->obterAtributosRaca();
-        auto formatarAtributo = [](const std::string& nomeAtributo, int valorAtributo) { return " - " + nomeAtributo + ": " + (valorAtributo >= 0 ? "+" : "") + std::to_string(valorAtributo); };
-        std::vector<std::string> info = {
-            "[ ATRIBUTOS BASE DE RAÇA ]",
-            formatarAtributo("Vida", stats.vida),
-            formatarAtributo("Forca", stats.forca),
-            formatarAtributo("Destreza", stats.destreza),
-            formatarAtributo("Resistencia", stats.resistencia),
-            formatarAtributo("Constituicao", stats.constituicao),
-            formatarAtributo("Inteligencia", stats.inteligencia),
-            formatarAtributo("Sabedoria", stats.sabedoria),
-            "",
-            "[ HABILIDADE PASSIVA ]",
-            " " + racaTemporaria->obterNomeHabilidadeRaca(),
-            " - " + racaTemporaria->obterDescricaoHabilidadeRaca()
-        };
+        std::vector<std::string> info = comporQuadroDeAtributos(racaTemporaria->obterAtributosRaca(), "[ ATRIBUTOS BASE DE RAÇA ]", "[ HABILIDADE PASSIVA ]", racaTemporaria->obterNomeHabilidadeRaca(), racaTemporaria->obterDescricaoHabilidadeRaca());
         
         if (TelaMenu::exibirConfirmacaoDeEscolhaComArteLadoALado("RACA", racaTemporaria->obterNomeRaca(), info, racaTemporaria->obterAparenciaRaca())) 
         {
@@ -227,31 +233,17 @@ void GerenciadorMenu::etapaEscolherClasse(const std::string& nome, RacaBase* rac
 
     if (classeTemporaria) 
     {
-        Atributos stats = classeTemporaria->obterAtributosClasse();
-        auto formatarAtributo = [](const std::string& nomeAtributo, int valorAtributo) { return " - " + nomeAtributo + ": " + (valorAtributo >= 0 ? "+" : "") + std::to_string(valorAtributo); };
+        std::vector<std::string> info = comporQuadroDeAtributos(classeTemporaria->obterAtributosClasse(), "[ ATRIBUTOS BONUS DA CLASSE ]", "[ HABILIDADE PASSIVA DA CLASSE ]", classeTemporaria->obterNomePassivaClasse(), classeTemporaria->obterDescricaoPassivaClasse());
         
-        std::vector<std::string> info = 
-        {
-            "[ ATRIBUTOS BONUS DA CLASSE ]",
-            formatarAtributo("Vida", stats.vida),
-            formatarAtributo("Forca", stats.forca),
-            formatarAtributo("Destreza", stats.destreza),
-            formatarAtributo("Resistencia", stats.resistencia),
-            formatarAtributo("Constituicao", stats.constituicao),
-            formatarAtributo("Inteligencia", stats.inteligencia),
-            formatarAtributo("Sabedoria", stats.sabedoria),
-            "",
-            "[ HABILIDADE PASSIVA DA CLASSE ]",
-            " " + classeTemporaria->obterNomePassivaClasse(),
-            " - " + classeTemporaria->obterDescricaoPassivaClasse(),
-            "",
+        info.push_back("");
+        info.insert(info.end(), {
             "[ HABILIDADE ATIVA DA CLASSE ]",
             " " + classeTemporaria->obterNomeHabilidadeClasse(),
             " - " + classeTemporaria->obterDescricaoHabilidadeClasse(),
             " - " + classeTemporaria->obterRecargaHabilidadeClasse(),
             "",
-            "[ EQUIPAMENTO INICIAL DA CLASSE ]"
-        };
+            "[ EQUIPAMENTO INICIAL DA CLASSE ]" 
+        });
         
         auto kit = classeTemporaria->obterEquipamentoClasse();
         std::map<std::string, std::pair<int, TipoEquipamento>> contagem;

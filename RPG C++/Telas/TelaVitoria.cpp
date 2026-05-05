@@ -3,6 +3,7 @@
 
 #include "TelaVitoria.h"
 #include "../Racas/RacaBase.h"
+#include "TelaMenu.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 
 void TelaVitoria::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido, int curaTotalRecebida, int turnosCombate, const std::vector<std::string>& itensObtidos)
@@ -26,24 +27,8 @@ void TelaVitoria::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroOb
     SimplificacoesAparencia::imprimirCentralizadoMultilinha(logoVitoria, 85, SimplificacoesAparencia::cor(Cor::VERDE));
     std::cout << "\n" << std::string(largura, '=') << "\n\n";
 
-    std::vector<std::string> linhas = 
-    {
-        "NOME:           " + jogadorAtual->obterNome(),
-        "RACA:           " + jogadorAtual->obterRaca()->obterNomeRaca(),
-        "CLASSE:         " + jogadorAtual->obterNomeClasse(),
-        "HP RESTANTE:    " + std::to_string(jogadorAtual->obterVida()) + "/" + std::to_string(jogadorAtual->obterVidaMaxima()),
-        "OURO TOTAL:     " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G",
-        "NIVEL:          " + std::to_string(jogadorAtual->obterNivel()) + " (XP: " + std::to_string(jogadorAtual->obterXpAtual()) + "/" + std::to_string(jogadorAtual->obterXpParaSubir()) + ")",
-        "",
-        "--- ESTATISTICAS DA BATALHA ---",
-        "OURO OBTIDO:   +" + std::to_string(quantidadeDeOuroObtido) + "G",
-        "XP OBTIDO:     +" + std::to_string(quantidadeDeXpObtido) + " XP",
-        "DANO TOTAL CAUSADO:   " + std::to_string(totalDeDanoCausado),
-        "DANO TOTAL RECEBIDO:  " + std::to_string(totalDeDanoRecebido),
-        "CURA TOTAL RECEBIDA:  " + std::to_string(curaTotalRecebida),
-        "NUMERO DE TURNOS:         " + std::to_string(turnosCombate),
-        ""
-    };
+    std::vector<std::string> linhas = TelaMenu::comporEstatisticasBatalha(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, curaTotalRecebida, turnosCombate);
+    linhas.push_back("");
 
     if (!itensObtidos.empty()) {
         linhas.push_back("ITENS OBTIDOS:");

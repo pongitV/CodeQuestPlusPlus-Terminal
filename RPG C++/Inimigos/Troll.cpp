@@ -3,6 +3,7 @@
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Inventario/FabricaItens.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Gerenciadores/GerenciadorDrops.h"
 
 std::string Troll::obterNomeRaca() const { return "Troll"; }
 
@@ -19,7 +20,7 @@ std::vector<std::unique_ptr<Item>> Troll::obterEquipamentoRaca() const {
     return equipamentos;
 }
 
-std::vector<std::string> Troll::obterAparenciaRaca() const
+const std::vector<std::string>& Troll::obterAparenciaRaca() const
 {
     static const std::vector<std::string> aparencia =
     {
@@ -115,19 +116,13 @@ void Troll::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogador
 {
     int xpDrop = 400;
     int ouroDrop = 350;
-    
-    jogadorAtual->ganharXp(xpDrop);
-    jogadorAtual->ganharOuro(ouroDrop);
-    xpTotal += xpDrop;
-    ouroTotal += ouroDrop;
-    
-    std::cout << SimplificacoesAparencia::cor(Cor::FUNDO_AMARELO) << "+" << ouroDrop << "G" << SimplificacoesAparencia::cor(Cor::RESET) << " " << SimplificacoesAparencia::cor(Cor::FUNDO_AZUL) << "+" << xpDrop << " XP" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+    GerenciadorDrops::relatarEProcessarXpOuro(jogadorAtual, xpDrop, ouroDrop, ouroTotal, xpTotal);
 
     jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::TroncoAmarrotado));
     itensObtidos.push_back("Tronco de arvore amarrotado");
-    std::cout << SimplificacoesAparencia::cor(Cor::BRANCO) << "+1x Tronco de arvore amarrotado" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+    GerenciadorDrops::relatarDropItem("Tronco de arvore amarrotado", 1);
     
     jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::OrgaoRegenerador));
     itensObtidos.push_back("Orgao regenerador");
-    std::cout << SimplificacoesAparencia::cor(Cor::BRANCO) << "+1x Orgao regenerador" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+    GerenciadorDrops::relatarDropItem("Orgao regenerador", 1);
 }

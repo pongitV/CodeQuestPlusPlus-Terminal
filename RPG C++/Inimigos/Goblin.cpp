@@ -1,10 +1,10 @@
 #include "Goblin.h"
 #include <iostream>
-#include <cstdlib>
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Inventario/FabricaItens.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 #include "../Gerenciadores/GerenciadorDrops.h"
+#include "../Utilidades/GeradorAleatorio.h"
 
 std::string Goblin::obterNomeRaca() const { return "Goblin"; }
 Atributos Goblin::obterAtributosRaca() const { return { 60, 10, 15, 5, 5, 0, 0 }; }
@@ -17,7 +17,7 @@ std::vector<std::unique_ptr<Item>> Goblin::obterEquipamentoRaca() const {
     return equipamentos;
 }
 
-std::vector<std::string> Goblin::obterAparenciaRaca() const
+const std::vector<std::string>& Goblin::obterAparenciaRaca() const
 {
     static const std::vector<std::string> aparencia =
     {                    
@@ -63,7 +63,7 @@ void Goblin::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogado
 
     if (inimigo->obterArma() && inimigo->obterArma()->obterNomeItem() == "Adaga artesanal de pedra") 
     {
-        if ((std::rand() % 100) < 65) 
+        if (GeradorAleatorio::rolarChance(65)) 
         {
             jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::AdagaPedra));
             GerenciadorDrops::relatarDropItem("Adaga artesanal de pedra", 1);
@@ -71,7 +71,7 @@ void Goblin::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogado
         }
     }
     
-    int qtdDentes = (std::rand() % 5) + 4;
+    int qtdDentes = GeradorAleatorio::obterInteiro(4, 8);
     for (int i = 0; i < qtdDentes; ++i) {
         jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::DenteGoblin));
         itensObtidos.push_back("Dente de goblin");

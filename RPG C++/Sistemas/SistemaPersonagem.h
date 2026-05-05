@@ -126,7 +126,13 @@ protected:
     // ATENCAO: Esta estrutura usando 'mutable' nao e thread-safe.
     // Caso o jogo passe a utilizar multi-threading (ex: IA rodando em background), e necessario proteger com std::mutex ou std::atomic.
     struct CacheAtributos {
+        int vidaMaxima = 0;
+        int forca = 0;
         int destreza = 0;
+        int resistencia = 0;
+        int constituicao = 0;
+        int inteligencia = 0;
+        int sabedoria = 0;
         int reducaoPercentual = 0;
         bool sujo = true;
     };
@@ -152,15 +158,16 @@ public:
     // Getters e Setters em camelCase
     std::string obterNome() const { return nomePersonagem; }
     int obterVida() const { return vidaAtual; }
-    int obterVidaMaxima() const { 
-        return combate.vidaMaximaFixa > 0 ? combate.vidaMaximaFixa : static_cast<int>(statsFinais.vida * sistema.dificuldadeMultiplicador); 
+    int obterVidaMaxima() const {
+        if (combate.vidaMaximaFixa > 0) return combate.vidaMaximaFixa;
+        atualizarCacheSeNecessario(); return cache_.vidaMaxima;
     }
-    int obterForca() const { return static_cast<int>(statsFinais.forca * sistema.dificuldadeMultiplicador); }
-    int obterDestreza() const;
-    int obterResistencia() const { return static_cast<int>(statsFinais.resistencia * sistema.dificuldadeMultiplicador); }
-    int obterConstituicao() const { return static_cast<int>(statsFinais.constituicao * sistema.dificuldadeMultiplicador); }
-    int obterInteligencia() const { return static_cast<int>(statsFinais.inteligencia * sistema.dificuldadeMultiplicador); }
-    int obterSabedoria() const { return static_cast<int>(statsFinais.sabedoria * sistema.dificuldadeMultiplicador); }
+    int obterForca() const { atualizarCacheSeNecessario(); return cache_.forca; }
+    int obterDestreza() const { atualizarCacheSeNecessario(); return cache_.destreza; }
+    int obterResistencia() const { atualizarCacheSeNecessario(); return cache_.resistencia; }
+    int obterConstituicao() const { atualizarCacheSeNecessario(); return cache_.constituicao; }
+    int obterInteligencia() const { atualizarCacheSeNecessario(); return cache_.inteligencia; }
+    int obterSabedoria() const { atualizarCacheSeNecessario(); return cache_.sabedoria; }
     
     int obterNivel() const { return nivel; }
     int obterXpAtual() const { return xpAtual; }
@@ -172,6 +179,7 @@ public:
     void ganharXp(int valor) { xpAtual += valor; }
     bool podeSubirDeNivel() const { return xpAtual >= xpParaSubir; }
     bool subirDeNivel(TipoAtributo atributo);
+    void forcarRecalculoCache() { cache_.sujo = true; }
     
     int obterCuraTotalRecebida() const { return combate.curaTotalRecebida; }
 

@@ -13,6 +13,8 @@ public:
     // Retorna 'true' se um menu foi aberto e o turno de interacao do mapa deve ser pulado.
     static bool processarInputEComandos(char tecla, SistemaPersonagem* jogador, int& proximaPosicaoX, int& proximaPosicaoY, const std::function<void()>& restaurarTela);
 
+    static void aplicarLimitesDeMapa(int& posicaoX, int& posicaoY, const std::vector<std::string>& matrizDoMapa);
+
     static void processarCombate(
         SistemaPersonagem* jogadorAtual, std::vector<std::string>& matrizDoMapaAtual, 
         int& posicaoXDoJogador, int& posicaoYDoJogador, bool& exploracaoEstaAtiva,

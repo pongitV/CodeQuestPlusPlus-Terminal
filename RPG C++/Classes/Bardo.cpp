@@ -14,7 +14,7 @@ std::string Bardo::obterNomeClasse() const
      return "Bardo"; 
 }
 
-std::vector<std::string> Bardo::obterAparenciaClasseMenu() const 
+const std::vector<std::string>& Bardo::obterAparenciaClasseMenu() const 
 {
     static const std::vector<std::string> aparencia = 
     {
@@ -73,12 +73,7 @@ Atributos Bardo::obterAtributosClasse() const
 
 std::vector<std::unique_ptr<Item>> Bardo::obterEquipamentoClasse() const 
 {
-    std::vector<std::unique_ptr<Item>> equipamentos;
-    
-    int quantidadePocoes = 3;
-    for (int i = 0; i < quantidadePocoes; ++i) {
-        equipamentos.push_back(FabricaItens::criarItem(ItemID::PocaoCura30));
-    }
+    auto equipamentos = criarEquipamentoBasico();
     
     equipamentos.push_back(FabricaItens::criarItem(ItemID::ViolaoEncantado));
     equipamentos.push_back(FabricaItens::criarItem(ItemID::CapaMagica));

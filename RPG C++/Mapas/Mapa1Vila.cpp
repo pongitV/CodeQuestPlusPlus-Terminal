@@ -338,9 +338,7 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
         if (jogadorAtual->obterVoltarProMenu()) break;
         if (abriuMenu) continue;
 
-        // Limites do mapa para impedir crash quando noclip estiver ativo
-        if (proximaPosicaoY < 0) proximaPosicaoY = 0; else if (proximaPosicaoY >= static_cast<int>(matrizDoMapaAtual.size())) proximaPosicaoY = static_cast<int>(matrizDoMapaAtual.size()) - 1;
-        if (proximaPosicaoX < 0) proximaPosicaoX = 0; else if (proximaPosicaoX >= static_cast<int>(matrizDoMapaAtual[0].size())) proximaPosicaoX = static_cast<int>(matrizDoMapaAtual[0].size()) - 1;
+        ControleDeMapa::aplicarLimitesDeMapa(proximaPosicaoX, proximaPosicaoY, matrizDoMapaAtual);
 
         processarInteracao(proximaPosicaoX, proximaPosicaoY, larguraDoTerminal);
     }

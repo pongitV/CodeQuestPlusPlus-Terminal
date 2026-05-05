@@ -4,10 +4,22 @@
 #include "TransicaoDeMapa.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 
+namespace {
+    void executarAnimacaoTransicao(const std::vector<std::string>& arte, int larguraArte, Cor corArte, const std::string& textoTransicao) {
+        SimplificacoesAparencia::limparTela();
+        std::cout << "\n\n";
+        SimplificacoesAparencia::imprimirCentralizadoMultilinha(arte, larguraArte, SimplificacoesAparencia::cor(corArte));
+
+        int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
+        int espacosParaCentralizar = (larguraDoTerminal - (int)textoTransicao.length()) / 2;
+        std::cout << "\n\n" << std::string(espacosParaCentralizar > 0 ? espacosParaCentralizar : 0, ' ') << textoTransicao << "\n";
+
+        Sleep(3000); 
+    }
+}
+
 void TransicaoDeMapa::exibirTransicaoParaVila()
 {
-    SimplificacoesAparencia::limparTela();
-
     std::vector<std::string> arteVila = {
         "                                                            |>>>",
         "                   _                       _                |",
@@ -33,21 +45,11 @@ void TransicaoDeMapa::exibirTransicaoParaVila()
         "___|_______|__[ == ==]/.::::::;;;:::::::::::::::;;;:::::::.\\[=  == ]___|_____"
     };
 
-    std::cout << "\n\n";
-    SimplificacoesAparencia::imprimirCentralizadoMultilinha(arteVila, 75, SimplificacoesAparencia::cor(Cor::AMARELO));
-
-    std::string textoTransicao = "Voltando para a Vila...";
-    int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
-    int espacosParaCentralizar = (larguraDoTerminal - (int)textoTransicao.length()) / 2;
-    std::cout << "\n\n" << std::string(espacosParaCentralizar > 0 ? espacosParaCentralizar : 0, ' ') << textoTransicao << "\n";
-
-    Sleep(3000); 
+    executarAnimacaoTransicao(arteVila, 75, Cor::AMARELO, "Voltando para a Vila...");
 }
 
 void TransicaoDeMapa::exibirTransicaoParaReino()
 {
-    SimplificacoesAparencia::limparTela();
-
     std::vector<std::string> arteReino = {
         "                  |>>>                        |>>>",
         "                    |                           |",
@@ -67,22 +69,11 @@ void TransicaoDeMapa::exibirTransicaoParaReino()
         "-~--~                   ~---__|,--~'                  ~~----_____-~'   `~----~"
     };
 
-    std::cout << "\n\n";
-    SimplificacoesAparencia::imprimirCentralizadoMultilinha(arteReino, 75, SimplificacoesAparencia::cor(Cor::CIANO));
-
-    std::string textoDeViagem = "Viajando para o Reino...";
-    int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
-    int espacosParaCentralizarTexto = (larguraDoTerminal - (int)textoDeViagem.length()) / 2;
-
-    std::cout << "\n\n" << std::string(espacosParaCentralizarTexto > 0 ? espacosParaCentralizarTexto : 0, ' ') << textoDeViagem << "\n";
-
-    Sleep(3000); 
+    executarAnimacaoTransicao(arteReino, 75, Cor::CIANO, "Viajando para o Reino...");
 }
 
 void TransicaoDeMapa::exibirTransicaoParaFloresta()
 {
-    SimplificacoesAparencia::limparTela();
-
     std::vector<std::string> arteFloresta = {
         "⢧⢫⡜⣣⠝⣮⢱⢫⡜⡱⣍⢮⡱⢭⣙⢦⣀⠉⠞⣬⠣⡝⣬⠣⡝⣬⠹⡜⣆⠏⡖⢭⢚⣌⠳⣌⠳⣌⠳⣌⠳⣘⠦⡍⠄⣫⡗⡜⡜⣢⠝⡢⢝⢢⠓⡜⢢⢓⡜⢢⢓⡜⢢⠓⡜⢢⠓⡜⢢⢃⡆⠘⢦⡑⢎⡔⢣⠜⡰⠱⡌⢦⠱⢌⠦⡙⢇⡰⠡⢎⠰⢌⠒⡌⠒⠬⢀⣴⢂⡱⠌⣆⠱⣲⡿⢋⠴⣉⢛⡛⠻⢷⣌⡆⢑⡂⠖⣈⠒⣄⢃⠲⡐⢌⠒⡄⢃⡒⡐⢆⠒⡐⢂⠆⡰",
         "⣣⢓⢮⡱⣋⠶⣩⠖⣭⠳⡜⢦⡙⣦⡙⢮⡹⢷⣄⡀⠫⠜⣆⡛⡼⡐⣏⠽⣢⢛⢬⠓⣎⠦⣋⠴⣋⠴⣋⠴⣋⠦⡓⣍⠓⣺⡱⣊⠵⢢⡍⠵⣊⢥⡋⡜⢣⠎⡜⣡⠎⣜⡡⢋⡜⣡⢋⡜⡡⢎⢲⡏⢲⡘⢦⡘⢥⢊⡕⢣⠜⡢⢍⢆⠣⢍⠎⢷⡱⠌⢣⠌⢪⡐⠎⢀⠏⡔⡊⠴⡑⣬⣾⠟⡰⣉⠒⡤⢃⡌⠓⡌⡍⢻⣷⣈⠆⡅⢎⠰⣈⢆⡉⢆⡩⢐⠣⡐⡡⢊⠜⡠⠃⠔⡠",
@@ -137,14 +128,5 @@ void TransicaoDeMapa::exibirTransicaoParaFloresta()
         "⡙⣌⠋⡍⢎⠱⢌⡑⣊⠱⠌⡌⢢⠉⢆⠱⡈⢆⠡⣉⠒⡄⢣⠘⠤⡘⢄⢊⡑⠢⢁⠆⡱⠐⠌⢒⡈⢄⠊⢄⠊⡄⠩⡀⠆⣁⠂⠹⡀⣩⣖⠀⠡⢁⠠⠈⠄⠨⠐⠡⠙⣷⡄⠂⡐⢀⠂⠄⡁⠂⠄⡁⠂⡁⠌⠀⠄⡀⠠⠈⠙⣮⠁⠀⠠⠁⠄⡀⠈⠙⢷⡀⠠⢀⠀⢹⡆⠀⢁⠠⠐⠀⠐⠀⠀⠂⣼⡟⠁⠀⠈⠑⠢⠤⣀⡁⠀⠁⠀⠀⠸⣯⠀⠀⠠⠀⠀⠲⡀⢦⠀⠂⠀⠄⠀"
     };
 
-    std::cout << "\n\n";
-    SimplificacoesAparencia::imprimirCentralizadoMultilinha(arteFloresta, 140, SimplificacoesAparencia::cor(Cor::VERDE));
-
-    std::string textoDeViagem = "Viajando para a Floresta...";
-    int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
-    int espacosParaCentralizarTexto = (larguraDoTerminal - (int)textoDeViagem.length()) / 2;
-
-    std::cout << "\n\n" << std::string(espacosParaCentralizarTexto > 0 ? espacosParaCentralizarTexto : 0, ' ') << textoDeViagem << "\n";
-
-    Sleep(3000); 
+    executarAnimacaoTransicao(arteFloresta, 140, Cor::VERDE, "Viajando para a Floresta...");
 }

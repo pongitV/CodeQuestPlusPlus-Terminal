@@ -1,10 +1,11 @@
 #pragma once
 
 #include <string>
-#include <set>
+#include <vector>
 #include <memory>
 #include <functional>
 #include <iostream>
+#include <algorithm>
 
 enum class TipoEquipamento 
 {
@@ -65,7 +66,7 @@ class SistemaPersonagem;
 class Item 
 {
 protected:
-    std::set<Propriedade> propriedades;
+    std::vector<Propriedade> propriedades;
     int precoVenda;
     std::function<void(SistemaPersonagem*, SistemaPersonagem*)> acaoUsar;
 public:
@@ -81,7 +82,7 @@ public:
     virtual int obterDurabilidadeAtualEscudo() const { return 0; }
     
     virtual bool podeSerEquipadoPor(SistemaPersonagem* personagem) const { return true; }
-    virtual std::string obterMensagemRequisito() const { return ""; }
+    virtual std::string obterMensagemRequisito() const { return "\n[SISTEMA]: Atributos insuficientes para equipar " + obterNomeItem() + "!\n"; }
     
     virtual void exibirInspecao() const {
         std::cout << "\n === " << obterNomeItem() << " ===\n\n";
@@ -117,9 +118,16 @@ public:
     }
     virtual void definirAcaoUsar(std::function<void(SistemaPersonagem*, SistemaPersonagem*)> acao) { acaoUsar = acao; }
 
-    virtual bool temPropriedade(Propriedade prop) const { return propriedades.find(prop) != propriedades.end(); }
-    virtual void adicionarPropriedade(Propriedade prop) { propriedades.insert(prop); }
-    virtual void removerPropriedade(Propriedade prop) { propriedades.erase(prop); }
-    virtual std::set<Propriedade> obterPropriedades() const { return propriedades; }
+    virtual bool temPropriedade(Propriedade prop) const { 
+        return std::find(propriedades.begin(), propriedades.end(), prop) != propriedades.end(); 
+    }
+    virtual void adicionarPropriedade(Propriedade prop) { 
+        if (!temPropriedade(prop)) propriedades.push_back(prop); 
+    }
+    virtual void removerPropriedade(Propriedade prop) { 
+        auto it = std::find(propriedades.begin(), propriedades.end(), prop);
+        if (it != propriedades.end()) propriedades.erase(it); 
+    }
+    virtual const std::vector<Propriedade>& obterPropriedades() const { return propriedades; }
     virtual std::unique_ptr<Item> gerarCopiaMelhorada() const { return nullptr; }
 };

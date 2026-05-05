@@ -38,6 +38,7 @@ private:
     void processarMorteDeInimigo(SistemaPersonagem* inimigo);
     void exibirResultadoDoAtaque(SistemaPersonagem* alvo, int danoFinal, bool tentouParry, bool parrySucesso);
 
+    bool isPersonagemJogadorOuAliado(SistemaPersonagem* personagem) const;
     void processarMenuDeAcoesDoJogador(SistemaPersonagem* personagemAgindo, bool& turnoFoiConsumido, bool& usouInventarioNoTurno);
     void processarAcaoAtacar(SistemaPersonagem* personagemAgindo, bool& turnoFoiConsumido);
     void processarAcaoDefender(SistemaPersonagem* personagemAgindo, bool& turnoFoiConsumido);

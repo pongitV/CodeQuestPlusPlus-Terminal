@@ -2,7 +2,12 @@
 
 std::string ClasseBaseInimigo::obterNomeClasse() const { return "Monstro"; }
 Atributos ClasseBaseInimigo::obterAtributosClasse() const { return { 0, 0, 0, 0, 0, 0, 0 }; }
-std::vector<std::string> ClasseBaseInimigo::obterAparenciaClasseMenu() const { return {}; }
+
+const std::vector<std::string>& ClasseBaseInimigo::obterAparenciaClasseMenu() const { 
+    static const std::vector<std::string> aparenciaVazia = {};
+    return aparenciaVazia;
+}
+
 std::vector<std::unique_ptr<Item>> ClasseBaseInimigo::obterEquipamentoClasse() const { return {}; }
 
 void ClasseBaseInimigo::usarHabilidadeClasse(SistemaPersonagem* /*personagemUsuario*/, std::vector<SistemaPersonagem*>& /*listaDeInimigos*/) {}

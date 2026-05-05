@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <vector>
-#include <conio.h>
 #include <windows.h>
 #include <memory>
 #include <utility>
@@ -25,6 +24,7 @@
 #include "TransicaoDeMapa.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 #include "ControleDeMapa.h"
+#include "../Utilidades/ControleDeInput.h"
 #include "../Utilidades/GeradorAleatorio.h"
 #include "Mapa3Reino.h"
 
@@ -632,7 +632,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
 
         renderizarMapa(larguraDoTerminal, linhaInicialParaDesenharOMapa);
 
-        char teclaPressionadaPeloJogador = _getch();
+        char teclaPressionadaPeloJogador = ControleDeInput::lerTecla();
 
         int proximaPosicaoX = posicaoXDoJogador;
         int proximaPosicaoY = posicaoYDoJogador;

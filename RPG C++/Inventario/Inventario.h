@@ -17,6 +17,7 @@ private:
 public:
     std::vector<Item*> obterTodosOsItens() const { 
         std::vector<Item*> itensCrus;
+        itensCrus.reserve(listaDeItens.size());
         for(const auto& item : listaDeItens) itensCrus.push_back(item.get());
         return itensCrus;
     }

@@ -3,6 +3,7 @@
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Inventario/Inventario.h"
 #include "../Inventario/Item.h"
+#include "../Inventario/FabricaItens.h"
 #include <memory>
 #include <functional>
 #include <iostream>
@@ -39,7 +40,7 @@ public:
     // INFORMACOES DA CLASSE
     virtual std::string obterNomeClasse() const = 0;
     virtual TipoClasse obterTipoClasse() const = 0;
-    virtual std::vector<std::string> obterAparenciaClasseMenu() const = 0;
+    virtual const std::vector<std::string>& obterAparenciaClasseMenu() const = 0;
     virtual Atributos obterAtributosClasse() const = 0;
     virtual std::vector<std::unique_ptr<Item>> obterEquipamentoClasse() const = 0;
  
@@ -54,6 +55,14 @@ public:
     virtual TipoAtaque obterTipoAtaque() const = 0;
     virtual bool habilidadeConsomeTurno() const = 0;
 
+protected:
+    std::vector<std::unique_ptr<Item>> criarEquipamentoBasico() const {
+        std::vector<std::unique_ptr<Item>> equipamentos;
+        for (int i = 0; i < 3; ++i) equipamentos.push_back(FabricaItens::criarItem(ItemID::PocaoCura30));
+        return equipamentos;
+    }
+
+public:
     // PASSIVAS DE CLASSE
     virtual int processarCuraPassivaBardo(int curaBase) const { return curaBase; }
     virtual double processarMultiplicadorBuffPassivaBardo(double multBase) const { return multBase; }
@@ -62,7 +71,7 @@ public:
     virtual int reverterPenalidadeLentidaoPassivaArqueiro(int destrezaAtual) const { return destrezaAtual * 2; }
 
     // PROCESSAMENTO DE DANO (POLIMORFISMO)
-    virtual void executarAtaqueComPassivaDaClasse(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, int danoPerfurante, std::vector<std::unique_ptr<SistemaPersonagem>>& inimigos, std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)> aplicarDano, bool isAtacanteJogador) {
+    virtual void executarAtaqueComPassivaDaClasse(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, int danoPerfurante, std::vector<std::unique_ptr<SistemaPersonagem>>& inimigos, const std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)>& aplicarDano, bool isAtacanteJogador) {
 
         danoBase = processarDanoPreAtaque(atacante, defensor, danoBase, isAtacanteJogador, inimigos.size());
 
@@ -76,7 +85,7 @@ public:
     }
 
 protected:
-    virtual void executarAtaqueArea(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, int danoPerfurante, std::vector<std::unique_ptr<SistemaPersonagem>>& inimigos, std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)> aplicarDano, bool isAtacanteJogador) {
+    virtual void executarAtaqueArea(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, int danoPerfurante, std::vector<std::unique_ptr<SistemaPersonagem>>& inimigos, const std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)>& aplicarDano, bool isAtacanteJogador) {
         std::cout << atacante->obterNome() << " desfere um ataque em area!\n";
         int danoDividido = std::max(1, danoBase / static_cast<int>(inimigos.size()));
         int perfuranteDividido = danoPerfurante / static_cast<int>(inimigos.size());
@@ -88,7 +97,7 @@ protected:
         }
     }
 
-    virtual void executarAtaqueUnico(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, int danoPerfurante, std::vector<std::unique_ptr<SistemaPersonagem>>& inimigos, std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)> aplicarDano, bool isAtacanteJogador) {
+    virtual void executarAtaqueUnico(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, int danoPerfurante, std::vector<std::unique_ptr<SistemaPersonagem>>& inimigos, const std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)>& aplicarDano, bool isAtacanteJogador) {
         if (defensor != nullptr) {
             std::cout << atacante->obterNome() << " ataca " << defensor->obterNome() << "!\n";
             aplicarDano(atacante, defensor, danoBase, danoPerfurante);
@@ -101,5 +110,5 @@ protected:
     }
 
     virtual int processarDanoPreAtaque(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, bool isAtacanteJogador, size_t qtdInimigos) { return danoBase; }
-    virtual void processarDanoPosAtaque(SistemaPersonagem* atacante, SistemaPersonagem* alvoAtual, SistemaPersonagem* defensorPrincipal, int danoBase, int danoPerfurante, std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)> aplicarDano, bool isAtacanteJogador, bool isArea, bool& ativouPassiva) {}
+    virtual void processarDanoPosAtaque(SistemaPersonagem* atacante, SistemaPersonagem* alvoAtual, SistemaPersonagem* defensorPrincipal, int danoBase, int danoPerfurante, const std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)>& aplicarDano, bool isAtacanteJogador, bool isArea, bool& ativouPassiva) {}
 };

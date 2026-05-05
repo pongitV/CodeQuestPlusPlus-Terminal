@@ -22,6 +22,18 @@ SistemaBestiario::SistemaBestiario() {
 void SistemaBestiario::inicializarInimigos() {
     ClasseBaseInimigo classePadrao;
 
+    auto formatarAtributos = [](const Atributos& attr) -> std::vector<std::string> {
+        return {
+            " > Vida           : " + std::to_string(attr.vida),
+            " > Forca          : " + std::to_string(attr.forca),
+            " > Destreza       : " + std::to_string(attr.destreza),
+            " > Resistencia    : " + std::to_string(attr.resistencia),
+            " > Constituicao   : " + std::to_string(attr.constituicao),
+            " > Inteligencia   : " + std::to_string(attr.inteligencia),
+            " > Sabedoria      : " + std::to_string(attr.sabedoria)
+        };
+    };
+
     Goblin racaGoblin;
     Atributos attrGoblin = racaGoblin.obterAtributosRaca();
     inimigosBase[racaGoblin.obterNomeRaca()] = {
@@ -29,15 +41,7 @@ void SistemaBestiario::inicializarInimigos() {
         racaGoblin.obterAparenciaRaca(),
         "Pequenas criaturas verdes e astutas que costumam viver em bandos perto de vilarejos.",
         "Goblins adoram itens brilhantes e guardam dentes como trofeus.",
-        {
-            " > Vida           : " + std::to_string(attrGoblin.vida),
-            " > Forca          : " + std::to_string(attrGoblin.forca),
-            " > Destreza       : " + std::to_string(attrGoblin.destreza),
-            " > Resistencia    : " + std::to_string(attrGoblin.resistencia),
-            " > Constituicao   : " + std::to_string(attrGoblin.constituicao),
-            " > Inteligencia   : " + std::to_string(attrGoblin.inteligencia),
-            " > Sabedoria      : " + std::to_string(attrGoblin.sabedoria)
-        },
+        formatarAtributos(attrGoblin),
         {classePadrao.obterNomeHabilidadeClasse() + " | " + classePadrao.obterDescricaoHabilidadeClasse()},
         racaGoblin.obterNomeHabilidadeRaca() + " | " + racaGoblin.obterDescricaoHabilidadeRaca(),
         {FabricaItens::obterNomeDeID(ItemID::DenteGoblin), FabricaItens::obterNomeDeID(ItemID::AdagaPedra), "Ouro"},
@@ -51,15 +55,7 @@ void SistemaBestiario::inicializarInimigos() {
         racaSlime.obterAparenciaRaca(),
         "Massas gelatinosas que absorvem tudo o que tocam.",
         "Slimes podem digerir materiais em dias, mas detestam sal.",
-        {
-            " > Vida           : " + std::to_string(attrSlime.vida),
-            " > Forca          : " + std::to_string(attrSlime.forca),
-            " > Destreza       : " + std::to_string(attrSlime.destreza),
-            " > Resistencia    : " + std::to_string(attrSlime.resistencia),
-            " > Constituicao   : " + std::to_string(attrSlime.constituicao),
-            " > Inteligencia   : " + std::to_string(attrSlime.inteligencia),
-            " > Sabedoria      : " + std::to_string(attrSlime.sabedoria)
-        },
+        formatarAtributos(attrSlime),
         {classePadrao.obterNomeHabilidadeClasse() + " | " + classePadrao.obterDescricaoHabilidadeClasse()},
         racaSlime.obterNomeHabilidadeRaca() + " | " + racaSlime.obterDescricaoHabilidadeRaca(),
         {FabricaItens::obterNomeDeID(ItemID::GosmaAcida), FabricaItens::obterNomeDeID(ItemID::NucleoPegajoso), "Ouro"},
@@ -73,15 +69,7 @@ void SistemaBestiario::inicializarInimigos() {
         racaFada.obterAparenciaRaca(),
         "Fadas corrompidas pela energia negra da floresta.",
         "Elas costumavam guiar viajantes, agora os perdem.",
-        {
-            " > Vida           : " + std::to_string(attrFada.vida),
-            " > Forca          : " + std::to_string(attrFada.forca),
-            " > Destreza       : " + std::to_string(attrFada.destreza),
-            " > Resistencia    : " + std::to_string(attrFada.resistencia),
-            " > Constituicao   : " + std::to_string(attrFada.constituicao),
-            " > Inteligencia   : " + std::to_string(attrFada.inteligencia),
-            " > Sabedoria      : " + std::to_string(attrFada.sabedoria)
-        },
+        formatarAtributos(attrFada),
         {classePadrao.obterNomeHabilidadeClasse() + " | " + classePadrao.obterDescricaoHabilidadeClasse()},
         racaFada.obterNomeHabilidadeRaca() + " | " + racaFada.obterDescricaoHabilidadeRaca(),
         {FabricaItens::obterNomeDeID(ItemID::PoMagico), FabricaItens::obterNomeDeID(ItemID::VarinhaCorroida), "Ouro"},
@@ -95,15 +83,7 @@ void SistemaBestiario::inicializarInimigos() {
         racaOrk.obterAparenciaRaca(),
         "Um Ork expulso de seu cla, agora vive em cavernas escuras planejando vinganca.",
         "Orks exilados pintam suas armaduras com o sangue de suas vitimas.",
-        {
-            " > Vida           : " + std::to_string(attrOrk.vida),
-            " > Forca          : " + std::to_string(attrOrk.forca),
-            " > Destreza       : " + std::to_string(attrOrk.destreza),
-            " > Resistencia    : " + std::to_string(attrOrk.resistencia),
-            " > Constituicao   : " + std::to_string(attrOrk.constituicao),
-            " > Inteligencia   : " + std::to_string(attrOrk.inteligencia),
-            " > Sabedoria      : " + std::to_string(attrOrk.sabedoria)
-        },
+        formatarAtributos(attrOrk),
         {classePadrao.obterNomeHabilidadeClasse() + " | " + classePadrao.obterDescricaoHabilidadeClasse()},
         racaOrk.obterNomeHabilidadeRaca() + " | " + racaOrk.obterDescricaoHabilidadeRaca(),
         {FabricaItens::obterNomeDeID(ItemID::MachadoGuerra), FabricaItens::obterNomeDeID(ItemID::ArmaduraTrapos), "Ouro"},
@@ -117,15 +97,7 @@ void SistemaBestiario::inicializarInimigos() {
         racaAbominacao.obterAparenciaRaca(),
         "A essencia corrompida da propria floresta, manifestada em uma criatura horripilante.",
         "Sua presenca apodrece a vida ao seu redor.",
-        {
-            " > Vida           : " + std::to_string(attrAbom.vida),
-            " > Forca          : " + std::to_string(attrAbom.forca),
-            " > Destreza       : " + std::to_string(attrAbom.destreza),
-            " > Resistencia    : " + std::to_string(attrAbom.resistencia),
-            " > Constituicao   : " + std::to_string(attrAbom.constituicao),
-            " > Inteligencia   : " + std::to_string(attrAbom.inteligencia),
-            " > Sabedoria      : " + std::to_string(attrAbom.sabedoria)
-        },
+        formatarAtributos(attrAbom),
         {classePadrao.obterNomeHabilidadeClasse() + " | " + classePadrao.obterDescricaoHabilidadeClasse()},
         racaAbominacao.obterNomeHabilidadeRaca() + " | " + racaAbominacao.obterDescricaoHabilidadeRaca(),
         {FabricaItens::obterNomeDeID(ItemID::CoracaoFloresta), FabricaItens::obterNomeDeID(ItemID::MadeiraEnfeiticada), "Ouro"},
@@ -139,15 +111,7 @@ void SistemaBestiario::inicializarInimigos() {
         racaTroll.obterAparenciaRaca(),
         "Uma criatura gigantesca, incrivelmente forte e resistente, capaz de empunhar arvores inteiras como clavas.",
         "A lenda diz que as feridas de um Troll se fecham em segundos.",
-        {
-            " > Vida           : " + std::to_string(attrTroll.vida),
-            " > Forca          : " + std::to_string(attrTroll.forca),
-            " > Destreza       : " + std::to_string(attrTroll.destreza),
-            " > Resistencia    : " + std::to_string(attrTroll.resistencia),
-            " > Constituicao   : " + std::to_string(attrTroll.constituicao),
-            " > Inteligencia   : " + std::to_string(attrTroll.inteligencia),
-            " > Sabedoria      : " + std::to_string(attrTroll.sabedoria)
-        },
+        formatarAtributos(attrTroll),
         {classePadrao.obterNomeHabilidadeClasse() + " | " + classePadrao.obterDescricaoHabilidadeClasse()},
         racaTroll.obterNomeHabilidadeRaca() + " | " + racaTroll.obterDescricaoHabilidadeRaca(),
         {FabricaItens::obterNomeDeID(ItemID::TroncoAmarrotado), FabricaItens::obterNomeDeID(ItemID::OrgaoRegenerador), "Ouro"},
@@ -212,6 +176,7 @@ const SistemaBestiarioEnemyInfo* SistemaBestiario::obterInfo(const std::string& 
 std::vector<std::string> SistemaBestiario::obterInimigosOrdenadosPorDificuldade() const {
     std::lock_guard<std::mutex> lock(mtx);
     std::vector<std::string> nomes;
+    nomes.reserve(inimigosBase.size());
     for (const auto& par : inimigosBase) nomes.push_back(par.first);
     
     std::sort(nomes.begin(), nomes.end(), [this](const std::string& a, const std::string& b) {

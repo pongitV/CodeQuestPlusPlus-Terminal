@@ -218,7 +218,7 @@ namespace {
 
                     bool estavaEquipado = (jogadorAtual->obterArma() == armaEscolhida);
                     if (estavaEquipado) jogadorAtual->desequiparArma();
-                    jogadorAtual->obterInventario()->removerItem(nomeAntigoArma);
+                    jogadorAtual->obterInventario()->removerItem(armaEscolhida);
                     jogadorAtual->obterInventario()->adicionarItem(std::move(novoArcoObj));
                     if (estavaEquipado) jogadorAtual->equiparItem(novoArco);
                     armaEscolhida = novoArco;

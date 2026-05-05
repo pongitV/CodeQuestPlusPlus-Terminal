@@ -18,7 +18,7 @@ std::vector<std::unique_ptr<Item>> Slime::obterEquipamentoRaca() const {
     return equipamentos;
 }
 
-std::vector<std::string> Slime::obterAparenciaRaca() const
+const std::vector<std::string>& Slime::obterAparenciaRaca() const
 {
     static const std::vector<std::string> aparencia =
     {
@@ -75,7 +75,7 @@ void Slime::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogador
     }
     GerenciadorDrops::relatarDropItem("Gosma acida", 3);
     
-    if ((std::rand() % 100) < 30) 
+    if (GeradorAleatorio::rolarChance(30)) 
     {
         jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::NucleoPegajoso));
         GerenciadorDrops::relatarDropItem("Nucleo pegajoso", 1);

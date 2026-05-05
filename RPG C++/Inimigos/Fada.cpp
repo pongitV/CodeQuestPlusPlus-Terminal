@@ -1,9 +1,9 @@
 #include "Fada.h"
 #include <iostream>
-#include <cstdlib>
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Inventario/FabricaItens.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/GeradorAleatorio.h"
 #include <memory>
 
 std::string Fada::obterNomeRaca() const { return "Fada"; }
@@ -17,7 +17,7 @@ std::vector<std::unique_ptr<Item>> Fada::obterEquipamentoRaca() const {
     return equipamentos;
 }
 
-std::vector<std::string> Fada::obterAparenciaRaca() const
+const std::vector<std::string>& Fada::obterAparenciaRaca() const
 {
     static const std::vector<std::string> aparencia =
     {                    
@@ -60,24 +60,19 @@ void Fada::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogadorA
 {
     int xpDrop = 45;
     int ouroDrop = 20;
-    jogadorAtual->ganharXp(xpDrop);
-    jogadorAtual->ganharOuro(ouroDrop);
-    xpTotal += xpDrop;
-    ouroTotal += ouroDrop;
-    
-    std::cout << SimplificacoesAparencia::cor(Cor::FUNDO_AMARELO) << "+" << ouroDrop << "G" << SimplificacoesAparencia::cor(Cor::RESET) << " " << SimplificacoesAparencia::cor(Cor::FUNDO_AZUL) << "+" << xpDrop << " XP" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+    GerenciadorDrops::relatarEProcessarXpOuro(jogadorAtual, xpDrop, ouroDrop, ouroTotal, xpTotal);
 
-    if ((std::rand() % 100) < 65) 
+    if (GeradorAleatorio::rolarChance(65)) 
     {
         jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::VarinhaCorroida));
         itensObtidos.push_back("Varinha corroida");
-        std::cout << SimplificacoesAparencia::cor(Cor::BRANCO) << "+1x Varinha corroida" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+        GerenciadorDrops::relatarDropItem("Varinha corroida", 1);
     }
 
-    int qtdPo = (std::rand() % 6) + 1;
+    int qtdPo = GeradorAleatorio::obterInteiro(1, 6);
     for (int i = 0; i < qtdPo; ++i) {
         jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::PoMagico));
         itensObtidos.push_back("Po magico");
     }
-    std::cout << SimplificacoesAparencia::cor(Cor::BRANCO) << "+" << qtdPo << "x Po magico" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+    GerenciadorDrops::relatarDropItem("Po magico", qtdPo);
 }

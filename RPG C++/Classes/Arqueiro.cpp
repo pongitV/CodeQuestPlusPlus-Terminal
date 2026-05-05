@@ -11,7 +11,7 @@ std::string Arqueiro::obterNomeClasse() const
      return "Arqueiro"; 
 }
 
-std::vector<std::string> Arqueiro::obterAparenciaClasseMenu() const 
+const std::vector<std::string>& Arqueiro::obterAparenciaClasseMenu() const 
 {
     static const std::vector<std::string> aparencia = 
     {

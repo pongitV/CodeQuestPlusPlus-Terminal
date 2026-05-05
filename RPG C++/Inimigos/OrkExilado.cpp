@@ -3,12 +3,13 @@
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Inventario/FabricaItens.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Gerenciadores/GerenciadorDrops.h"
 #include <memory>
 
 std::string OrkExilado::obterNomeRaca() const { return "Ork Exilado"; }
 Atributos OrkExilado::obterAtributosRaca() const { return { 200, 20, 10, 15, 20, 0, 0 }; }
 
-std::vector<std::string> OrkExilado::obterAparenciaRaca() const
+const std::vector<std::string>& OrkExilado::obterAparenciaRaca() const
 {
     static const std::vector<std::string> aparencia =
     {
@@ -82,21 +83,16 @@ void OrkExilado::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jo
 {
     int xpDrop = 120;
     int ouroDrop = 100;
-    jogadorAtual->ganharXp(xpDrop);
-    jogadorAtual->ganharOuro(ouroDrop);
-    xpTotal += xpDrop;
-    ouroTotal += ouroDrop;
-    
-    std::cout << SimplificacoesAparencia::cor(Cor::FUNDO_AMARELO) << "+" << ouroDrop << "G" << SimplificacoesAparencia::cor(Cor::RESET) << " " << SimplificacoesAparencia::cor(Cor::FUNDO_AZUL) << "+" << xpDrop << " XP" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+    GerenciadorDrops::relatarEProcessarXpOuro(jogadorAtual, xpDrop, ouroDrop, ouroTotal, xpTotal);
 
     for (int i = 0; i < 2; ++i) {
         jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::MachadoGuerra));
         itensObtidos.push_back("Machado de guerra danificado");
     }
-    std::cout << SimplificacoesAparencia::cor(Cor::BRANCO) << "+2x Machado de guerra danificado" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+    GerenciadorDrops::relatarDropItem("Machado de guerra danificado", 2);
     
     jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::ArmaduraTrapos));
-    std::cout << SimplificacoesAparencia::cor(Cor::BRANCO) << "+1x Armadura de trapos e sucata" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+    GerenciadorDrops::relatarDropItem("Armadura de trapos e sucata", 1);
     itensObtidos.push_back("Armadura de trapos e sucata");
 }
 

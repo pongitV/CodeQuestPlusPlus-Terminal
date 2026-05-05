@@ -3,6 +3,7 @@
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Inventario/FabricaItens.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Gerenciadores/GerenciadorDrops.h"
 
 std::string AbominacaoFloresta::obterNomeRaca() const 
 { return "Abominacao da Floresta"; 
@@ -57,7 +58,7 @@ int AbominacaoFloresta::processarDanoOfensivo(int danoBase, SistemaPersonagem* a
     return danoBase;
 }
 
-std::vector<std::string> AbominacaoFloresta::obterAparenciaRaca() const
+const std::vector<std::string>& AbominacaoFloresta::obterAparenciaRaca() const
 {
     static const std::vector<std::string> aparencia =
     {
@@ -149,20 +150,15 @@ void AbominacaoFloresta::realizarDrops(SistemaPersonagem* inimigo, SistemaPerson
 {
     int xpDrop = 250;
     int ouroDrop = 200;
-    jogadorAtual->ganharXp(xpDrop);
-    jogadorAtual->ganharOuro(ouroDrop);
-    xpTotal += xpDrop;
-    ouroTotal += ouroDrop;
-    
-    std::cout << SimplificacoesAparencia::cor(Cor::FUNDO_AMARELO) << "+" << ouroDrop << "G" << SimplificacoesAparencia::cor(Cor::RESET) << " " << SimplificacoesAparencia::cor(Cor::FUNDO_AZUL) << "+" << xpDrop << " XP" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+    GerenciadorDrops::relatarEProcessarXpOuro(jogadorAtual, xpDrop, ouroDrop, ouroTotal, xpTotal);
 
     jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::MadeiraEnfeiticada));
     itensObtidos.push_back("Madeira enfeiticada");
-    std::cout << SimplificacoesAparencia::cor(Cor::BRANCO) << "+1x Madeira enfeiticada" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+    GerenciadorDrops::relatarDropItem("Madeira enfeiticada", 1);
 
     jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::CoracaoFloresta));
     itensObtidos.push_back("Coracao da floresta");
-    std::cout << SimplificacoesAparencia::cor(Cor::BRANCO) << "+1x Coracao da floresta" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+    GerenciadorDrops::relatarDropItem("Coracao da floresta", 1);
 }
 
 std::vector<std::string> AbominacaoFloresta::obterMapaCoracaoDaArvore()

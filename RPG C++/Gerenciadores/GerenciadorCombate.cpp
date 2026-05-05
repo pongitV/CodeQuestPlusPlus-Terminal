@@ -18,6 +18,7 @@
 #include "../Telas/TelaDerrota.h"
 #include "../Telas/TelaVitoria.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/GeradorAleatorio.h"
 #include "../Telas/TelaMenu.h"
 
 namespace {
@@ -69,6 +70,14 @@ std::string GerenciadorCombate::obterTituloDoCombate() const
     }
     titulo += ")";
     return titulo;
+}
+
+bool GerenciadorCombate::isPersonagemJogadorOuAliado(SistemaPersonagem* personagem) const {
+    if (personagem == jogadorAtual) return true;
+    for (const auto& aliadoAtual : listaDeAliados) {
+        if (aliadoAtual.get() == personagem) return true;
+    }
+    return false;
 }
 
 std::vector<SistemaPersonagem*> GerenciadorCombate::obterInimigosRaw() const
@@ -367,7 +376,7 @@ void GerenciadorCombate::executarTurnoDeTodosOsInimigos()
                     if (aliado->obterVida() > 0) aliadosVivos.push_back(aliado.get());
                 }
                 if (!aliadosVivos.empty()) {
-                    alvo = aliadosVivos[rand() % aliadosVivos.size()];
+                    alvo = aliadosVivos[GeradorAleatorio::obterInteiro(0, static_cast<int>(aliadosVivos.size()) - 1)];
                 }
 
                 bool turnoConsumidoPorHabilidade = inimigoAtual->obterRaca()->tentarUsarHabilidadeAtiva(inimigoAtual, alvo, static_cast<int>(jogadorAtual->obterDificuldade()));
@@ -400,10 +409,7 @@ void GerenciadorCombate::realizarAtaqueFisico(SistemaPersonagem* personagemAtaca
 {
     auto [danoBaseCalculado, danoPerfurante] = calcularDanoBase(personagemAtacante);
 
-    bool isAtacanteJogadorOuAliado = (personagemAtacante == jogadorAtual);
-    if (!isAtacanteJogadorOuAliado) {
-        for (const auto& aliadoAtual : listaDeAliados) { if (aliadoAtual.get() == personagemAtacante) isAtacanteJogadorOuAliado = true; }
-    }
+    bool isAtacanteJogadorOuAliado = isPersonagemJogadorOuAliado(personagemAtacante);
 
     if (isAtacanteJogadorOuAliado || static_cast<int>(jogadorAtual->obterDificuldade()) >= 2) 
     {
@@ -479,9 +485,7 @@ void GerenciadorCombate::aplicarDanoAoAlvo(SistemaPersonagem* personagemAtacante
         parryFoiBemSucedido = SistemaParry::tentarParry(personagemAtacante, danoBaseMitigado, quantidadeDeDanoReduzidoPeloParry);
     }
 
-    bool isAlvoAliado = false;
-    for (const auto& aliadoAtual : listaDeAliados) { if (aliadoAtual.get() == personagemAlvo) isAlvoAliado = true; }
-    bool aplicarPassivas = (personagemAlvo == jogadorAtual || isAlvoAliado || static_cast<int>(jogadorAtual->obterDificuldade()) >= 2);
+    bool aplicarPassivas = (isPersonagemJogadorOuAliado(personagemAlvo) || static_cast<int>(jogadorAtual->obterDificuldade()) >= 2);
     int danoFinalAposReducoes = personagemAlvo->receberDano(quantidadeDeDanoBruto, danoPerfurante, quantidadeDeDanoReduzidoPeloParry, personagemAtacante, aplicarPassivas);
 
     exibirResultadoDoAtaque(personagemAlvo, danoFinalAposReducoes, tentouParry, parryFoiBemSucedido);
@@ -500,10 +504,7 @@ void GerenciadorCombate::aplicarDanoAoAlvo(SistemaPersonagem* personagemAtacante
 
 void GerenciadorCombate::exibirResultadoDoAtaque(SistemaPersonagem* alvo, int danoFinal, bool tentouParry, bool parrySucesso)
 {
-    bool isJogadorOuAliado = (alvo == jogadorAtual);
-    if (!isJogadorOuAliado) {
-        for (const auto& aliadoAtual : listaDeAliados) { if (aliadoAtual.get() == alvo) isJogadorOuAliado = true; }
-    }
+    bool isJogadorOuAliado = isPersonagemJogadorOuAliado(alvo);
 
     if (isJogadorOuAliado) 
     {

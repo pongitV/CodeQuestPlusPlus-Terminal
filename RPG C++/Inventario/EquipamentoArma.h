@@ -39,7 +39,6 @@ public:
     std::string obterInfoStatus() const override;
 
     bool podeSerEquipadoPor(SistemaPersonagem* personagem) const override;
-    std::string obterMensagemRequisito() const override;
     void exibirInspecao() const override;
 
     void aplicarEfeitoSangramento() override;

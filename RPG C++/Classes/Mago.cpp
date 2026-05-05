@@ -11,7 +11,7 @@ std::string Mago::obterNomeClasse() const
      return "Mago"; 
 }
 
-std::vector<std::string> Mago::obterAparenciaClasseMenu() const 
+const std::vector<std::string>& Mago::obterAparenciaClasseMenu() const 
 {
     static const std::vector<std::string> aparencia = 
     {
@@ -126,7 +126,7 @@ int Mago::processarDanoPreAtaque(SistemaPersonagem* atacante, SistemaPersonagem*
     return danoBase;
 }
 
-void Mago::processarDanoPosAtaque(SistemaPersonagem* atacante, SistemaPersonagem* alvoAtual, SistemaPersonagem* defensorPrincipal, int danoBase, int danoPerfurante, std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)> aplicarDano, bool isAtacanteJogador, bool isArea, bool& ativouPassiva) {
+void Mago::processarDanoPosAtaque(SistemaPersonagem* atacante, SistemaPersonagem* alvoAtual, SistemaPersonagem* defensorPrincipal, int danoBase, int danoPerfurante, const std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)>& aplicarDano, bool isAtacanteJogador, bool isArea, bool& ativouPassiva) {
     if (isAtacanteJogador && !isArea && alvoAtual != defensorPrincipal && alvoAtual->obterVida() > 0) {
         if (!ativouPassiva) {
             int danoAreaMsg = static_cast<int>(danoBase * 0.25);
