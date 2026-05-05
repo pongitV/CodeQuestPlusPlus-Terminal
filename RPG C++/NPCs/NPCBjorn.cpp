@@ -7,29 +7,31 @@
 #include <memory>
 
 #include "NPCBjorn.h"
-#include "../Gerenciadores/GerenciadorMenu.h"
+#include "../Telas/TelaMenu.h"
 #include "../Inventario/Item.h"
 #include "../Inventario/FabricaItens.h"
+#include "../Inventario/EquipamentoArmadura.h"
 #include "../Telas/TelaInventario.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 
 namespace {
-    std::map<int, std::pair<std::string, bool>> estoqueArmas = {
-        {1, {"Espada longa de ferro", true}},
-        {2, {"Arco recurvo de madeira", true}},
-        {3, {"Cajado", true}},
-        {4, {"Violao encantado", true}}
+    std::map<int, std::string> estoqueArmas = {
+        {1, "Espada longa de ferro"},
+        {2, "Arco recurvo de madeira"},
+        {3, "Cajado de cristal magico"},
+        {4, "Violao encantado"}
     };
     
-    std::map<int, std::pair<std::string, bool>> estoqueArmaduras = {
-        {1, {"Armadura de malha e metal", true}},
-        {2, {"Armadura leve de couro com malha", true}},
-        {3, {"Tunica", true}},
-        {4, {"Traje de Couro e tecido nobre", true}}
+    std::map<int, std::string> estoqueArmaduras = {
+        {1, "Armadura de malha e metal"},
+        {2, "Armadura leve de couro com malha"},
+        {3, "Tunica"},
+        {4, "Traje de Couro e tecido nobre"}
     };
     
     void processarCompraDeEquipamento(SistemaPersonagem* jogadorAtual, const std::string& margemMsg, bool comprandoArmas);
     void processarMelhoriaNaBigorna(SistemaPersonagem* jogadorAtual);
+    void processarUpgradePorMaterial(SistemaPersonagem* jogadorAtual);
 }
 
 void NPCBjorn::interagir(SistemaPersonagem* jogadorAtual)
@@ -84,7 +86,7 @@ void NPCBjorn::interagir(SistemaPersonagem* jogadorAtual)
 
     do {
         SimplificacoesAparencia::limparTela();
-        GerenciadorMenu::exibirLogoDoJogo("FORJA DO BJORN");
+        TelaMenu::exibirLogoDoJogo("FORJA DO BJORN");
         
         int espacosMsg = (larguraDoTerminal - 55) / 2;
         std::string margemMsg(espacosMsg > 0 ? espacosMsg : 0, ' ');
@@ -97,7 +99,8 @@ void NPCBjorn::interagir(SistemaPersonagem* jogadorAtual)
             "",
             "[1] COMPRAR Armas das Classes",
             "[2] COMPRAR Armaduras das Classes",
-            "[3] MELHORAR Equipamento na Bigorna",
+            "[3] MELHORAR POR FUSAO",
+            "[4] MELHORAR POR MATERIAL",
             "[0] VOLTAR",
             ""
         };
@@ -128,6 +131,8 @@ void NPCBjorn::interagir(SistemaPersonagem* jogadorAtual)
             processarCompraDeEquipamento(jogadorAtual, margemMsg, opcaoBjorn == "1");
         } else if (opcaoBjorn == "3") {
             processarMelhoriaNaBigorna(jogadorAtual);
+        } else if (opcaoBjorn == "4") {
+            processarUpgradePorMaterial(jogadorAtual);
         }
     } while (opcaoBjorn != "0");
 }
@@ -140,14 +145,13 @@ namespace {
         std::string opcaoCompra;
         do {
             SimplificacoesAparencia::limparTela();
-            GerenciadorMenu::exibirLogoDoJogo(tituloLoja);
+            TelaMenu::exibirLogoDoJogo(tituloLoja);
             std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
-            for (auto const& [id, par] : estoqueAtual) {
+            for (auto const& [id, nomeItem] : estoqueAtual) {
                 std::string preco = "40G";
-                std::string status = par.second ? "Em Estoque" : "ESGOTADO";
-                std::unique_ptr<Item> tempItem = FabricaItens::criarItem(par.first);
+                std::unique_ptr<Item> tempItem = FabricaItens::criarItem(nomeItem);
                 std::string infoStatus = tempItem ? tempItem->obterInfoStatus() : "";
-                std::cout << margemMsg << "[" << id << "] " << par.first << infoStatus << " (" << preco << ") - " << status << "\n";
+                std::cout << margemMsg << "[" << id << "] " << nomeItem << infoStatus << " (" << preco << ")\n";
             }
             std::cout << "\n" << margemMsg << "[0] VOLTAR\n\n" << margemMsg << "Escolha: ";
             std::cin >> opcaoCompra;
@@ -156,13 +160,10 @@ namespace {
                 try {
                     int idCompra = std::stoi(opcaoCompra);
                     if (estoqueAtual.count(idCompra)) {
-                        if (!estoqueAtual[idCompra].second) {
-                            std::cout << "\n" << margemMsg << "[Bjorn]: Ja vendi este item, nao tenho mais em estoque!\n";
-                        } else if (jogadorAtual->obterInventario()->obterOuro() >= 40) {
+                        if (jogadorAtual->obterInventario()->obterOuro() >= 40) {
                             jogadorAtual->obterInventario()->adicionarOuro(-40);
-                            estoqueAtual[idCompra].second = false;
-                            jogadorAtual->obterInventario()->adicionarItem(std::move(FabricaItens::criarItem(estoqueAtual[idCompra].first)));
-                            std::cout << "\n" << margemMsg << "[Bjorn]: Otima escolha! Voce comprou " << estoqueAtual[idCompra].first << ".\n";
+                            jogadorAtual->obterInventario()->adicionarItem(std::move(FabricaItens::criarItem(estoqueAtual[idCompra])));
+                            std::cout << "\n" << margemMsg << "[Bjorn]: Otima escolha! Voce comprou " << estoqueAtual[idCompra] << ".\n";
                         } else {
                             std::cout << "\n" << margemMsg << "[Bjorn]: Voce nao tem ouro suficiente para isso!\n";
                         }
@@ -177,7 +178,7 @@ namespace {
         std::string codigo1, codigo2;
         do {
             TelaInventario::exibir(jogadorAtual);
-            std::cout << "\n[Bjorn]: Escolha o PRIMEIRO item para melhorar ou [0] VOLTAR: ";
+            std::cout << "\n[Bjorn]: Escolha a ARMA, ESCUDO ou ARMADURA para melhorar (requer copia) ou [0] VOLTAR: ";
             std::cin >> codigo1;
             if (codigo1 == "0") break;
             
@@ -197,7 +198,7 @@ namespace {
             if (item1->obterNomeItem() != item2->obterNomeItem()) { std::cout << "\n[Bjorn]: Os itens precisam ser EXATAMENTE iguais para serem fundidos!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
 
             if (jogadorAtual->obterInventario()->contarItem(item1->obterNomeItem()) < 2) {
-                std::cout << "\n[Bjorn]: Voce nao possui DUAS COPIAS deste item!\n"; SimplificacoesAparencia::aguardarEnter(); continue; 
+                std::cout << "\n[Bjorn]: Voce nao possui UMA COPIA deste item!\n"; SimplificacoesAparencia::aguardarEnter(); continue; 
             }
 
             if ((jogadorAtual->obterArma() && jogadorAtual->obterArma()->obterNomeItem() == item1->obterNomeItem()) ||
@@ -217,7 +218,7 @@ namespace {
                 jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
 
                 SimplificacoesAparencia::limparTela();
-                GerenciadorMenu::exibirLogoDoJogo("FORJA - SUCESSO");
+                TelaMenu::exibirLogoDoJogo("FORJA - SUCESSO");
                 std::vector<std::string> arteBigorna = {
                     "⠀⠀⠀⠀⠀⠀⠀⢰⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⡄⠀⠀⠀⠀⠀",
                     "⠀⠹⣿⣿⣿⣿⡇⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⢠⣄⡀⠀⠀",
@@ -238,6 +239,75 @@ namespace {
                 SimplificacoesAparencia::aguardarEnter();
             }
         } while (codigo1 != "0");
+    }
+
+    void processarUpgradePorMaterial(SistemaPersonagem* jogadorAtual) {
+        std::string codigo;
+        do {
+            int qtdPedra = jogadorAtual->obterInventario()->contarItem("Pedra magica de upgrade");
+            if (qtdPedra < 1) {
+                SimplificacoesAparencia::limparTela();
+                TelaMenu::exibirLogoDoJogo("FORJA - MELHORIA POR MATERIAL");
+                std::cout << "\n[Bjorn]: Voce nao tem nenhuma Pedra magica de upgrade!\n";
+                SimplificacoesAparencia::aguardarEnter();
+                return;
+            }
+
+            TelaInventario::exibir(jogadorAtual);
+            std::cout << "\n[Bjorn]: Escolha a ARMADURA para melhorar (+3 Defesa/Resistencia) ou [0] VOLTAR: ";
+            std::cin >> codigo;
+            if (codigo == "0") break;
+
+            Item* item = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigo, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
+            if (!item) { std::cout << "\n[SISTEMA]: Item invalido!\n"; SimplificacoesAparencia::aguardarEnter(); continue; }
+
+            if (item == jogadorAtual->obterArmadura() || item == jogadorAtual->obterArma() || item == jogadorAtual->obterEscudo()) {
+                std::cout << "\n[Bjorn]: Voce precisa DESEQUIPAR o item antes de usa-lo na bigorna!\n"; 
+                SimplificacoesAparencia::aguardarEnter(); 
+                continue; 
+            }
+
+            if (item->obterTipo() != TipoEquipamento::ARMADURA) {
+                std::cout << "\n[Bjorn]: Esta pedra magica so pode ser usada em ARMADURAS!\n";
+                SimplificacoesAparencia::aguardarEnter(); 
+                continue;
+            }
+
+            EquipamentoArmadura* armadura = dynamic_cast<EquipamentoArmadura*>(item);
+            if (!armadura) continue;
+
+            if (armadura->temPropriedade(Propriedade::MelhoradoMaterial)) {
+                std::cout << "\n[Bjorn]: Esta armadura ja foi imbuida com a pedra magica!\n";
+                SimplificacoesAparencia::aguardarEnter();
+                continue;
+            }
+
+            std::string nomeAntigo = armadura->obterNomeItem();
+            std::string novoNome = nomeAntigo + " (Imbuida)";
+
+            auto novaArmadura = std::make_unique<EquipamentoArmadura>(
+                novoNome, 
+                armadura->obterReducaoFixa() + 3, 
+                armadura->obterReqResistencia(), 
+                armadura->obterReqConstituicao(), 
+                armadura->obterPrecoVenda() + 200
+            );
+
+            for (Propriedade prop : armadura->obterPropriedades()) novaArmadura->adicionarPropriedade(prop);
+            novaArmadura->adicionarPropriedade(Propriedade::MelhoradoMaterial);
+
+            jogadorAtual->obterInventario()->removerItem("Pedra magica de upgrade");
+            jogadorAtual->obterInventario()->removerItem(armadura);
+            jogadorAtual->obterInventario()->adicionarItem(std::move(novaArmadura));
+
+            SimplificacoesAparencia::limparTela();
+                TelaMenu::exibirLogoDoJogo("FORJA - SUCESSO");
+                TelaMenu::exibirLogoDoJogo("FORJA - SUCESSO");
+            std::string equacao = "[" + nomeAntigo + "] + [Pedra magica] = [" + novoNome + "]";
+            std::cout << "\n" << SimplificacoesAparencia::cor(Cor::AMARELO) << equacao << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+            std::cout << "\n[Bjorn]: Impressionante! Essa pedra e mesmo magica. A armadura agora possui mais +3 de resistencia (defesa)!\n";
+            SimplificacoesAparencia::aguardarEnter();
+        } while (codigo != "0");
     }
 }
 

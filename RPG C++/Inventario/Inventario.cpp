@@ -127,37 +127,3 @@ Item* Inventario::buscarItemPorCodigo(const std::string& codigoDigitado, Item* a
         default:  return nullptr;
     }
 }
-
-Item* Inventario::selecionarEscudo() 
-{
-    std::vector<Item*> listaDeEscudos;
-    for (const auto& itemUnique : listaDeItens) 
-    {
-        if (itemUnique->obterTipo() == TipoEquipamento::ESCUDO) {
-            listaDeEscudos.push_back(itemUnique.get());
-        }
-    }
-
-    if (listaDeEscudos.empty()) 
-    {
-        std::cout << "\n[!] Voce nao possui escudos no inventario para usar!\n";
-        return nullptr;
-    }
-
-    std::cout << "=== SELECIONE SEU ESCUDO ===\n";
-    for (size_t indice = 0; indice < listaDeEscudos.size(); indice++) 
-    {
-        std::cout << " [" << indice + 1 << "] " << listaDeEscudos[indice]->obterNomeItem()
-                  << listaDeEscudos[indice]->obterInfoStatus() << "\n";
-    }
-    std::cout << " [0] Cancelar\n\nEscolha: ";
-
-    int opcaoEscolhida;
-
-    while (!(std::cin >> opcaoEscolhida) || opcaoEscolhida < 0 || opcaoEscolhida > static_cast<int>(listaDeEscudos.size())) 
-    {
-        std::cin.clear(); std::cin.ignore(1000, '\n');
-        std::cout << "Opcao invalida! Escolha novamente: ";
-    }
-    return (opcaoEscolhida == 0) ? nullptr : listaDeEscudos[opcaoEscolhida - 1];
-}

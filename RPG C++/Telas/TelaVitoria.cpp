@@ -2,7 +2,6 @@
 #include <map>
 
 #include "TelaVitoria.h"
-#include "../Gerenciadores/GerenciadorMenu.h"
 #include "../Racas/RacaBase.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 

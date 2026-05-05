@@ -3,7 +3,7 @@
 #include <map>
 
 #include "TelaInventario.h"
-#include "../Gerenciadores/GerenciadorMenu.h"
+#include "TelaMenu.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 
 void TelaInventario::exibir(SistemaPersonagem* jogadorAtual, bool mostrarPrecos) 
@@ -57,9 +57,9 @@ void TelaInventario::exibir(SistemaPersonagem* jogadorAtual, bool mostrarPrecos)
     linhasParaImprimir.push_back("");  
 
     linhasParaImprimir.push_back("[ EQUIPAMENTO ]");
-    if (armaEquipada) linhasParaImprimir.push_back(" [1E] ARMA:     " + armaEquipada->obterNomeItem() + armaEquipada->obterInfoStatus());
-    if (escudoEquipado) linhasParaImprimir.push_back(" [2E] ESCUDO:   " + escudoEquipado->obterNomeItem() + escudoEquipado->obterInfoStatus());
-    if (armaduraEquipada) linhasParaImprimir.push_back(" [3E] ARMADURA: " + armaduraEquipada->obterNomeItem() + armaduraEquipada->obterInfoStatus());
+    if (armaEquipada) linhasParaImprimir.push_back(" [1E] ARMA:     " + armaEquipada->obterNomeItem());
+    if (escudoEquipado) linhasParaImprimir.push_back(" [2E] ESCUDO:   " + escudoEquipado->obterNomeItem());
+    if (armaduraEquipada) linhasParaImprimir.push_back(" [3E] ARMADURA: " + armaduraEquipada->obterNomeItem());
     linhasParaImprimir.push_back(""); 
 
     auto formatarAgrupamento = [&](const std::string& titulo, const std::map<std::string, std::vector<Item*>>& grupo, char letra, const std::string& sufixoVenda) {
@@ -72,7 +72,7 @@ void TelaInventario::exibir(SistemaPersonagem* jogadorAtual, bool mostrarPrecos)
                 Item* item = lista.front();
                 std::string prefixo = (lista.size() > 1) ? std::to_string(lista.size()) + "x " : "";
                 std::string infoVenda = mostrarPrecos ? " (Venda: " + std::to_string(item->obterPrecoVenda()) + sufixoVenda + ")" : "";
-                linhasParaImprimir.push_back(" [" + std::to_string(indice++) + letra + "] " + prefixo + nome + item->obterInfoStatus() + infoVenda);
+                linhasParaImprimir.push_back(" [" + std::to_string(indice++) + letra + "] " + prefixo + nome + infoVenda);
             }
         }
         linhasParaImprimir.push_back("");
@@ -96,4 +96,27 @@ void TelaInventario::exibir(SistemaPersonagem* jogadorAtual, bool mostrarPrecos)
     }
     
     std::cout << "\n" << std::string(larguraDoTerminal, '=') << "\n";
+}
+
+void TelaInventario::exibirMenuInteracaoItem(Item* itemEncontrado)
+{
+    int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
+    std::string mensagemBase = "Digite o codigo do item para interagir ou [0] VOLTAR: ";
+    int espacos = std::max(0, (larguraDoTerminal - static_cast<int>(mensagemBase.length())) / 2);
+
+    SimplificacoesAparencia::limparTela();
+    TelaMenu::exibirLogoDoJogo("OPCOES DE ITEM");
+    std::string nomeItem = itemEncontrado->obterNomeItem();
+    std::cout << "\n" << std::string(espacos, ' ') << "Item Selecionado: " << SimplificacoesAparencia::cor(Cor::CIANO) << nomeItem << SimplificacoesAparencia::cor(Cor::RESET) << "\n\n";
+    std::cout << std::string(espacos, ' ') << "[1] Usar / Equipar / Desequipar\n";
+    std::cout << std::string(espacos, ' ') << "[2] Inspecionar Detalhes\n";
+    std::cout << std::string(espacos, ' ') << "[0] Cancelar\n\n";
+    std::cout << std::string(espacos, ' ') << "Escolha: ";
+}
+
+void TelaInventario::exibirPrompt(const std::string& mensagem)
+{
+    int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
+    int espacos = std::max(0, (larguraDoTerminal - static_cast<int>(mensagem.length())) / 2);
+    std::cout << "\n" << std::string(espacos, ' ') << mensagem;
 }

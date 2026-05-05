@@ -14,6 +14,7 @@ enum class Cor {
     CIANO = 36,
     BRANCO = 37,
     CINZA = 90,
+    LARANJA = 208,
     FUNDO_VERMELHO = 41,
     FUNDO_VERDE = 42,
     FUNDO_AMARELO = 43,

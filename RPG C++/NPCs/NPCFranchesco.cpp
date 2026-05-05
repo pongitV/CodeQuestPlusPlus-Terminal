@@ -5,7 +5,7 @@
 #include <algorithm>
 
 #include "NPCFranchesco.h"
-#include "../Gerenciadores/GerenciadorMenu.h"
+#include "../Telas/TelaMenu.h"
 #include "../Inventario/Item.h"
 #include "../Inventario/FabricaItens.h"
 #include "../Telas/TelaInventario.h"
@@ -70,7 +70,7 @@ void NPCFranchesco::interagir(SistemaPersonagem* jogadorAtual)
 
     do {
         SimplificacoesAparencia::limparTela();
-        GerenciadorMenu::exibirLogoDoJogo("LOJA AMBULANTE");
+        TelaMenu::exibirLogoDoJogo("LOJA AMBULANTE");
         
         int espacosMsg = (larguraDoTerminal - 55) / 2;
         std::string margemMsg(espacosMsg > 0 ? espacosMsg : 0, ' ');
@@ -131,7 +131,7 @@ namespace {
         std::string opcaoCompra;
         do {
             SimplificacoesAparencia::limparTela();
-            GerenciadorMenu::exibirLogoDoJogo("LOJA - POCOES");
+            TelaMenu::exibirLogoDoJogo("LOJA - POCOES");
             std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
 
             std::cout << margemMsg << "[1] Pocao de Cura (30%VM)                          - 10G\n";
@@ -159,7 +159,7 @@ namespace {
         std::string opcaoCompra;
         do {
             SimplificacoesAparencia::limparTela();
-            GerenciadorMenu::exibirLogoDoJogo("LOJA - TALISMAS");
+            TelaMenu::exibirLogoDoJogo("LOJA - TALISMAS");
             std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
 
             std::cout << margemMsg << "[1] Talisma do Urso (+5 Forca | -5 Int)             - 200G\n";
@@ -200,7 +200,7 @@ namespace {
         std::string opcaoCompra;
         do {
             SimplificacoesAparencia::limparTela();
-            GerenciadorMenu::exibirLogoDoJogo("LOJA - IGUARIAS");
+            TelaMenu::exibirLogoDoJogo("LOJA - IGUARIAS");
             std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
 
             std::cout << margemMsg << "[1] Dispositivo de teclas de linguagem desconhecida - 1000G\n";
@@ -228,9 +228,7 @@ namespace {
         std::string codigoVenda;
         do {
             TelaInventario::exibir(jogadorAtual, true);
-            std::string promptVenda = "Digite o codigo do item para vender ou [0] VOLTAR: ";
-            int espacosVenda = (larguraDoTerminal - (int)promptVenda.length()) / 2;
-            std::cout << "\n" << std::string(espacosVenda > 0 ? espacosVenda : 0, ' ') << promptVenda;
+            TelaInventario::exibirPrompt("Digite o codigo do item para vender ou [0] VOLTAR: ");
             std::cin >> codigoVenda;
 
             if (codigoVenda != "0") {

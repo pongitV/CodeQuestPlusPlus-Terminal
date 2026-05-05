@@ -2,7 +2,6 @@
 #include <windows.h>
 
 #include "TransicaoDeMapa.h"
-#include "../Gerenciadores/GerenciadorMenu.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 
 void TransicaoDeMapa::exibirTransicaoParaVila()
@@ -50,7 +49,7 @@ void TransicaoDeMapa::exibirTransicaoParaReino()
     SimplificacoesAparencia::limparTela();
 
     std::vector<std::string> arteReino = {
-        "|>>>                        |>>>",
+        "                  |>>>                        |>>>",
         "                    |                           |",
         "                _  _|_  _                   _  _|_  _",
         "               | |_| |_| |                 | |_| |_| |",

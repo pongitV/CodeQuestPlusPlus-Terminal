@@ -20,10 +20,12 @@ void SimplificacoesAparencia::inicializarConsole() {
 
 std::string SimplificacoesAparencia::cor(Cor codigo) {
     if (codigo == Cor::RESET) return "\033[0m";
+    if (codigo == Cor::LARANJA) return "\033[38;5;208m";
     return "\033[" + std::to_string(static_cast<int>(codigo)) + "m";
 }
 
 std::string SimplificacoesAparencia::cor(Cor estilo, Cor codigo) {
+    if (codigo == Cor::LARANJA) return "\033[" + std::to_string(static_cast<int>(estilo)) + ";38;5;208m";
     return "\033[" + std::to_string(static_cast<int>(estilo)) + ";" + std::to_string(static_cast<int>(codigo)) + "m";
 }
 

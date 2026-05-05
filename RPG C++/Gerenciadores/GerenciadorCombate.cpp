@@ -8,6 +8,7 @@
 #include "../Classes/ClasseBase.h"
 #include "../Inventario/InventarioCombate.h"
 #include "../Inventario/Item.h"
+#include "../Inventario/EquipamentoEscudo.h"
 #include "../Racas/RacaBase.h"
 #include "../Sistemas/SistemaBestiario.h"
 #include "../Sistemas/SistemaParry.h"
@@ -17,7 +18,7 @@
 #include "../Telas/TelaDerrota.h"
 #include "../Telas/TelaVitoria.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
-#include "GerenciadorMenu.h"
+#include "../Telas/TelaMenu.h"
 
 namespace {
     int lerInteiroComLimites(const std::string& promptMensagem, int minimo, int maximo, int espacosIniciais = 0) {
@@ -50,6 +51,11 @@ GerenciadorCombate::GerenciadorCombate(SistemaPersonagem* jogadorParaOCombate, s
     }
 }
 
+void GerenciadorCombate::adicionarAliados(std::vector<std::unique_ptr<SistemaPersonagem>> aliados)
+{
+    listaDeAliados = std::move(aliados);
+}
+
 GerenciadorCombate::~GerenciadorCombate()
 {
 }
@@ -76,13 +82,22 @@ void GerenciadorCombate::exibirTelaDeCombate() const
 {
     SimplificacoesAparencia::limparTela();
     TelaCombate::exibirLogoParaTelaDeCombate(obterTituloDoCombate());
-    GerenciadorMenu::exibirHordaDeInimigosLadoALado(obterInimigosRaw());
+    TelaCombate::exibirHordaDeInimigosLadoALado(obterInimigosRaw());
     TelaCombate::exibirBarraDeStatusDoJogador(jogadorAtual);
+    for (const auto& aliado : listaDeAliados) {
+        if (aliado->obterVida() > 0) {
+            TelaCombate::exibirBarraDeStatusDoJogador(aliado.get());
+        }
+    }
 }
 
 void GerenciadorCombate::iniciarCombate() 
 {
     jogadorAtual->prepararParaNovaBatalha();
+
+    for (auto& aliado : listaDeAliados) {
+        aliado->prepararParaNovaBatalha();
+    }
 
     int maxDestrezaInimigos = 0;
     for (const auto& inimigoPtr : listaDeInimigos) {
@@ -101,30 +116,54 @@ void GerenciadorCombate::iniciarCombate()
     }
 
     while (jogadorAtual->obterVida() > 0 && !listaDeInimigos.empty()) {
-        jogadorAtual->reduzirCooldowns();
-        jogadorAtual->processarEfeitosInicioTurno();
+        // Turno do Jogador
+        if (jogadorAtual->obterVida() > 0) {
+            jogadorAtual->reduzirCooldowns();
+            jogadorAtual->processarEfeitosInicioTurno();
 
-        bool turnoFoiConsumido = false;
-        bool usouInventarioNoTurno = false;
+            bool turnoFoiConsumido = false;
+            bool usouInventarioNoTurno = false;
 
-        while (!turnoFoiConsumido) {
-            exibirTelaDeCombate();
-            processarMenuDeAcoesDoJogador(turnoFoiConsumido, usouInventarioNoTurno);
-            if (verificarCondicaoDeVitoriaOuDerrota()) return; 
+            while (!turnoFoiConsumido && jogadorAtual->obterVida() > 0 && !listaDeInimigos.empty()) {
+                exibirTelaDeCombate();
+                processarMenuDeAcoesDoJogador(jogadorAtual, turnoFoiConsumido, usouInventarioNoTurno);
+                if (verificarCondicaoDeVitoriaOuDerrota()) return; 
+            }
+
+            if (turnoExtraFirstTurn && contadorDoTurnoAtual == 1) {
+                std::cout << "\n" << SimplificacoesAparencia::cor(Cor::CIANO) << "[SISTEMA]: Sua agilidade extrema (" << jogadorAtual->obterDestreza() << " VS " << maxDestrezaInimigos << ") permite que voce aja novamente!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+                SimplificacoesAparencia::aguardarEnter();
+                turnoExtraFirstTurn = false;
+                continue;
+            }
+
+            if (usouInventarioNoTurno) {
+                exibirTelaDeCombate();
+                std::cout << "\n" << SimplificacoesAparencia::cor(Cor::AMARELO) << "[SISTEMA]: O inimigo te pegou desprevinido enquanto voce usava o inventario!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+            }
         }
         
-        if (turnoExtraFirstTurn && contadorDoTurnoAtual == 1) {
-            std::cout << "\n" << SimplificacoesAparencia::cor(Cor::CIANO) << "[SISTEMA]: Sua agilidade extrema (" << jogadorAtual->obterDestreza() << " VS " << maxDestrezaInimigos << ") permite que voce aja novamente!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-            SimplificacoesAparencia::aguardarEnter();
-            turnoExtraFirstTurn = false;
-            continue; // Pula o turno dos inimigos e o incremento do contador
-        }
+        // Turnos dos Aliados
+        for (auto& aliado : listaDeAliados) {
+            if (aliado->obterVida() <= 0 || listaDeInimigos.empty()) continue;
+            
+            aliado->reduzirCooldowns();
+            aliado->processarEfeitosInicioTurno();
+            if (aliado->obterVida() <= 0) continue;
 
-        if (usouInventarioNoTurno) {
-            exibirTelaDeCombate();
-            std::cout << "\n" << SimplificacoesAparencia::cor(Cor::AMARELO) << "[SISTEMA]: O inimigo te pegou desprevinido enquanto voce usava o inventario!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-        }
+            bool turnoAliadoConsumido = false;
+            bool usouInventarioAliado = false;
 
+            while (!turnoAliadoConsumido && aliado->obterVida() > 0 && !listaDeInimigos.empty()) {
+                exibirTelaDeCombate();
+                std::string textoAliado = "--- TURNO DO ALIADO: " + aliado->obterNome() + " ---";
+                int espacos = std::max(0, (SimplificacoesAparencia::obterLarguraTerminal() - (int)textoAliado.length()) / 2);
+                std::cout << "\n" << std::string(espacos, ' ') << SimplificacoesAparencia::cor(Cor::CIANO) << textoAliado << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+                processarMenuDeAcoesDoJogador(aliado.get(), turnoAliadoConsumido, usouInventarioAliado);
+                if (verificarCondicaoDeVitoriaOuDerrota()) return;
+            }
+        }
+        
         executarTurnoDeTodosOsInimigos();
         if (verificarCondicaoDeVitoriaOuDerrota()) return;
 
@@ -132,10 +171,10 @@ void GerenciadorCombate::iniciarCombate()
     }
 }
 
-void GerenciadorCombate::processarMenuDeAcoesDoJogador(bool& turnoFoiConsumido, bool& usouInventarioNoTurno)
+void GerenciadorCombate::processarMenuDeAcoesDoJogador(SistemaPersonagem* personagemAgindo, bool& turnoFoiConsumido, bool& usouInventarioNoTurno)
 {
     int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
-    std::string textoDoTurno = "TURNO " + std::to_string(contadorDoTurnoAtual) + " | SUA VEZ";
+    std::string textoDoTurno = "TURNO " + std::to_string(contadorDoTurnoAtual) + " | VEZ DE " + personagemAgindo->obterNome();
     int espacosTurno = std::max(0, (larguraDoTerminal - static_cast<int>(textoDoTurno.length())) / 2);
     std::cout << "\n" << std::string(espacosTurno, ' ') << textoDoTurno << "\n";
 
@@ -146,12 +185,12 @@ void GerenciadorCombate::processarMenuDeAcoesDoJogador(bool& turnoFoiConsumido, 
 
     switch (static_cast<AcaoCombate>(acaoEscolhida)) 
     {
-        case AcaoCombate::Atacar: processarAcaoAtacar(turnoFoiConsumido); break;
-        case AcaoCombate::Defender: processarAcaoDefender(turnoFoiConsumido); break;
-        case AcaoCombate::Habilidade: processarAcaoHabilidade(turnoFoiConsumido); break;
-        case AcaoCombate::Inventario: processarAcaoInventario(turnoFoiConsumido, usouInventarioNoTurno); break;
-        case AcaoCombate::Jogador: TelaAtributos::gerenciarFichaDoJogador(jogadorAtual); break;
-        case AcaoCombate::Bestiario: TelaBestiario::exibirLista(jogadorAtual); break;
+        case AcaoCombate::Atacar: processarAcaoAtacar(personagemAgindo, turnoFoiConsumido); break;
+        case AcaoCombate::Defender: processarAcaoDefender(personagemAgindo, turnoFoiConsumido); break;
+        case AcaoCombate::Habilidade: processarAcaoHabilidade(personagemAgindo, turnoFoiConsumido); break;
+        case AcaoCombate::Inventario: processarAcaoInventario(personagemAgindo, turnoFoiConsumido, usouInventarioNoTurno); break;
+        case AcaoCombate::Jogador: TelaAtributos::gerenciarFichaDoJogador(personagemAgindo); break;
+        case AcaoCombate::Bestiario: TelaBestiario::exibirLista(personagemAgindo); break;
         default: 
             std::cout << "\n[ERRO] Acao invalida!\n"; 
             SimplificacoesAparencia::aguardarEnter(); 
@@ -159,11 +198,11 @@ void GerenciadorCombate::processarMenuDeAcoesDoJogador(bool& turnoFoiConsumido, 
     }
 }
 
-void GerenciadorCombate::processarAcaoAtacar(bool& turnoFoiConsumido)
+void GerenciadorCombate::processarAcaoAtacar(SistemaPersonagem* personagemAgindo, bool& turnoFoiConsumido)
 {
-    if (jogadorAtual->obterTipoAtaque() == TipoAtaque::AREA) 
+    if (personagemAgindo->obterTipoAtaque() == TipoAtaque::AREA) 
     {
-        realizarAtaqueFisico(jogadorAtual, nullptr, contadorDoTurnoAtual);
+        realizarAtaqueFisico(personagemAgindo, nullptr, contadorDoTurnoAtual);
         turnoFoiConsumido = true;
     }
     else 
@@ -171,57 +210,90 @@ void GerenciadorCombate::processarAcaoAtacar(bool& turnoFoiConsumido)
         int maxIndice = static_cast<int>(listaDeInimigos.size()) - 1;
         int indiceDoAlvoEscolhido = lerInteiroComLimites("Escolha o alvo (0 a " + std::to_string(maxIndice) + "): ", 0, maxIndice);
 
-        realizarAtaqueFisico(jogadorAtual, listaDeInimigos[indiceDoAlvoEscolhido].get(), contadorDoTurnoAtual);
+        realizarAtaqueFisico(personagemAgindo, listaDeInimigos[indiceDoAlvoEscolhido].get(), contadorDoTurnoAtual);
         turnoFoiConsumido = true;
     }
 
     limparInimigosMortos();
 }
 
-void GerenciadorCombate::processarAcaoDefender(bool& turnoFoiConsumido)
+Item* GerenciadorCombate::selecionarEscudo(SistemaPersonagem* personagemAgindo) 
 {
-    if (jogadorAtual->obterRecargaDefesa()) 
+    std::vector<Item*> listaDeEscudos;
+    for (auto* item : personagemAgindo->obterInventario()->obterTodosOsItens()) 
     {
-        std::cout << "\n[ERRO]: Voce se desequilibrou e precisa de 1 turno para poder defender novamente!\n";
+        if (item->obterTipo() == TipoEquipamento::ESCUDO) {
+            listaDeEscudos.push_back(item);
+        }
+    }
+
+    if (listaDeEscudos.empty()) 
+    {
+        std::cout << "\n[!] " << personagemAgindo->obterNome() << " nao possui escudos no inventario para usar!\n";
+        return nullptr;
+    }
+
+    std::cout << "=== SELECIONE UM ESCUDO PARA " << personagemAgindo->obterNome() << " ===\n";
+    for (size_t indice = 0; indice < listaDeEscudos.size(); indice++) 
+    {
+        std::cout << " [" << indice + 1 << "] " << listaDeEscudos[indice]->obterNomeItem() << listaDeEscudos[indice]->obterInfoStatus() << "\n";
+    }
+    std::cout << " [0] Cancelar\n\n";
+    
+    int opcaoEscolhida = lerInteiroComLimites("Escolha: ", 0, static_cast<int>(listaDeEscudos.size()));
+    return (opcaoEscolhida == 0) ? nullptr : listaDeEscudos[opcaoEscolhida - 1];
+}
+
+void GerenciadorCombate::processarAcaoDefender(SistemaPersonagem* personagemAgindo, bool& turnoFoiConsumido)
+{
+    if (personagemAgindo->obterRecargaDefesa()) 
+    {
+        std::cout << "\n[ERRO]: " << personagemAgindo->obterNome() << " se desequilibrou e precisa de 1 turno para poder defender novamente!\n";
         SimplificacoesAparencia::aguardarEnter();
         return; 
     }
     
-    Item* escudoEscolhido = jogadorAtual->obterInventario()->selecionarEscudo();
+    Item* escudoEscolhido = selecionarEscudo(personagemAgindo);
     if (escudoEscolhido != nullptr) 
     {
-        jogadorAtual->equiparItem(escudoEscolhido);
-        jogadorAtual->definirDefendendo(true);
-        std::cout << "\n[SISTEMA]: " << jogadorAtual->obterNome() << " assumiu uma postura defensiva com " << escudoEscolhido->obterNomeItem() << "!\n";
+        if (!escudoEscolhido->podeSerEquipadoPor(personagemAgindo)) {
+            std::cout << escudoEscolhido->obterMensagemRequisito();
+            SimplificacoesAparencia::aguardarEnter();
+            return;
+        }
+
+        personagemAgindo->equiparItem(escudoEscolhido);
+        personagemAgindo->definirDefendendo(true);
+        std::cout << "\n[SISTEMA]: " << personagemAgindo->obterNome() << " assumiu uma postura defensiva com " << escudoEscolhido->obterNomeItem() << "!\n";
         SimplificacoesAparencia::aguardarEnter();
         turnoFoiConsumido = true;
     }
 }
 
-void GerenciadorCombate::processarAcaoHabilidade(bool& turnoFoiConsumido)
+void GerenciadorCombate::processarAcaoHabilidade(SistemaPersonagem* personagemAgindo, bool& turnoFoiConsumido)
 {
     std::vector<SistemaPersonagem*> alvosRaw = obterInimigosRaw();
 
-    jogadorAtual->definirHabilidadeCancelada(false);
-    jogadorAtual->obterClasse()->usarHabilidadeClasse(jogadorAtual, alvosRaw);
+    personagemAgindo->definirHabilidadeCancelada(false);
+    personagemAgindo->obterClasse()->usarHabilidadeClasse(personagemAgindo, alvosRaw);
     
-    if (jogadorAtual->obterHabilidadeCancelada()) return;
+    if (personagemAgindo->obterHabilidadeCancelada()) return;
 
-    if (jogadorAtual->habilidadeDaClasseConsomeTurno()) turnoFoiConsumido = true;
+    if (personagemAgindo->habilidadeDaClasseConsomeTurno()) turnoFoiConsumido = true;
     else SimplificacoesAparencia::aguardarEnter();
 }
 
-void GerenciadorCombate::processarAcaoInventario(bool& turnoFoiConsumido, bool& usouInventarioNoTurno)
+void GerenciadorCombate::processarAcaoInventario(SistemaPersonagem* personagemAgindo, bool& turnoFoiConsumido, bool& usouInventarioNoTurno)
 {
     bool inventarioConsumiu = false;
-    InventarioCombate::gerenciarInventario(jogadorAtual, &inventarioConsumiu);
+    InventarioCombate::gerenciarInventario(personagemAgindo, &inventarioConsumiu);
     if (inventarioConsumiu) {
         turnoFoiConsumido = true;
         usouInventarioNoTurno = true;
     }
-    if (jogadorAtual->obterItemSelecionadoParaUso() != nullptr) 
+    if (personagemAgindo->obterItemSelecionadoParaUso() != nullptr) 
     {
-        Item* frasco = jogadorAtual->obterItemSelecionadoParaUso();
+        Item* frasco = personagemAgindo->obterItemSelecionadoParaUso();
         
         std::cout << "\n--- ESCOLHA UM ALVO PARA O FRASCO ---\n";
         for (size_t i = 0; i < listaDeInimigos.size(); ++i) {
@@ -234,16 +306,16 @@ void GerenciadorCombate::processarAcaoInventario(bool& turnoFoiConsumido, bool& 
         if (indiceDoAlvoEscolhido == -1) 
         {
             std::cout << "\n[SISTEMA] Uso do frasco cancelado. O item voltou para a mochila.\n";
-            jogadorAtual->definirItemSelecionadoParaUso(nullptr);
+            personagemAgindo->definirItemSelecionadoParaUso(nullptr);
         } 
         else 
         {
             SistemaPersonagem* alvo = listaDeInimigos[indiceDoAlvoEscolhido].get();
             
-            frasco->usar(jogadorAtual, alvo);
+            frasco->usar(personagemAgindo, alvo);
             
-            jogadorAtual->obterInventario()->removerItem(frasco);
-            jogadorAtual->definirItemSelecionadoParaUso(nullptr);
+            personagemAgindo->obterInventario()->removerItem(frasco);
+            personagemAgindo->definirItemSelecionadoParaUso(nullptr);
             turnoFoiConsumido = true;
             usouInventarioNoTurno = true;
         }
@@ -289,11 +361,20 @@ void GerenciadorCombate::executarTurnoDeTodosOsInimigos()
 
             if (inimigoAtual->podeAgir()) 
             {
-                bool turnoConsumidoPorHabilidade = inimigoAtual->obterRaca()->tentarUsarHabilidadeAtiva(inimigoAtual, jogadorAtual, static_cast<int>(jogadorAtual->obterDificuldade()));
+                SistemaPersonagem* alvo = jogadorAtual;
+                std::vector<SistemaPersonagem*> aliadosVivos;
+                for (auto& aliado : listaDeAliados) {
+                    if (aliado->obterVida() > 0) aliadosVivos.push_back(aliado.get());
+                }
+                if (!aliadosVivos.empty()) {
+                    alvo = aliadosVivos[rand() % aliadosVivos.size()];
+                }
+
+                bool turnoConsumidoPorHabilidade = inimigoAtual->obterRaca()->tentarUsarHabilidadeAtiva(inimigoAtual, alvo, static_cast<int>(jogadorAtual->obterDificuldade()));
                 
                 if (!turnoConsumidoPorHabilidade) 
                 {
-                    realizarAtaqueFisico(inimigoAtual, jogadorAtual, contadorDoTurnoAtual);
+                    realizarAtaqueFisico(inimigoAtual, alvo, contadorDoTurnoAtual);
                 }
             }
         }
@@ -319,7 +400,12 @@ void GerenciadorCombate::realizarAtaqueFisico(SistemaPersonagem* personagemAtaca
 {
     auto [danoBaseCalculado, danoPerfurante] = calcularDanoBase(personagemAtacante);
 
-    if (personagemAtacante == jogadorAtual || static_cast<int>(jogadorAtual->obterDificuldade()) >= 2) 
+    bool isAtacanteJogadorOuAliado = (personagemAtacante == jogadorAtual);
+    if (!isAtacanteJogadorOuAliado) {
+        for (const auto& al : listaDeAliados) { if (al.get() == personagemAtacante) isAtacanteJogadorOuAliado = true; }
+    }
+
+    if (isAtacanteJogadorOuAliado || static_cast<int>(jogadorAtual->obterDificuldade()) >= 2) 
     {
         danoBaseCalculado = personagemAtacante->obterRaca()->processarDanoOfensivo(danoBaseCalculado, personagemAtacante);
     }
@@ -328,8 +414,7 @@ void GerenciadorCombate::realizarAtaqueFisico(SistemaPersonagem* personagemAtaca
         this->aplicarDanoAoAlvo(atacante, alvo, danoBruto, perfurante, turnoAtualDoCombate);
     };
 
-    bool isAtacanteJogador = (personagemAtacante == jogadorAtual);
-    personagemAtacante->obterClasse()->executarAtaqueComPassivaDaClasse(personagemAtacante, personagemDefensor, danoBaseCalculado, danoPerfurante, listaDeInimigos, callbackAplicarDano, isAtacanteJogador);
+    personagemAtacante->obterClasse()->executarAtaqueComPassivaDaClasse(personagemAtacante, personagemDefensor, danoBaseCalculado, danoPerfurante, listaDeInimigos, callbackAplicarDano, isAtacanteJogadorOuAliado);
 }
 
 std::pair<int, int> GerenciadorCombate::calcularDanoBase(SistemaPersonagem* atacante) 
@@ -388,13 +473,15 @@ void GerenciadorCombate::aplicarDanoAoAlvo(SistemaPersonagem* personagemAtacante
     bool parryFoiBemSucedido = false;
 
     // Logica do Parry
-    if (personagemAlvo == jogadorAtual && jogadorAtual->obterParryAtivado()) 
+    if (personagemAlvo->obterParryAtivado()) 
     {
         tentouParry = true;
         parryFoiBemSucedido = SistemaParry::tentarParry(personagemAtacante, danoBaseMitigado, quantidadeDeDanoReduzidoPeloParry);
     }
 
-    bool aplicarPassivas = (personagemAlvo == jogadorAtual || static_cast<int>(jogadorAtual->obterDificuldade()) >= 2);
+    bool isAlvoAliado = false;
+    for (const auto& al : listaDeAliados) { if (al.get() == personagemAlvo) isAlvoAliado = true; }
+    bool aplicarPassivas = (personagemAlvo == jogadorAtual || isAlvoAliado || static_cast<int>(jogadorAtual->obterDificuldade()) >= 2);
     int danoFinalAposReducoes = personagemAlvo->receberDano(quantidadeDeDanoBruto, danoPerfurante, quantidadeDeDanoReduzidoPeloParry, personagemAtacante, aplicarPassivas);
 
     exibirResultadoDoAtaque(personagemAlvo, danoFinalAposReducoes, tentouParry, parryFoiBemSucedido);
@@ -413,12 +500,17 @@ void GerenciadorCombate::aplicarDanoAoAlvo(SistemaPersonagem* personagemAtacante
 
 void GerenciadorCombate::exibirResultadoDoAtaque(SistemaPersonagem* alvo, int danoFinal, bool tentouParry, bool parrySucesso)
 {
-    if (alvo == jogadorAtual) 
+    bool isJogadorOuAliado = (alvo == jogadorAtual);
+    if (!isJogadorOuAliado) {
+        for (const auto& al : listaDeAliados) { if (al.get() == alvo) isJogadorOuAliado = true; }
+    }
+
+    if (isJogadorOuAliado) 
     {
         if (tentouParry) 
         {
             std::string mensagemParry = parrySucesso ? (danoFinal <= 1 ? "parry efetivo! Ataque anulado!" : "parry efetivo! Mas o ataque e muito forte!") : "parry falhou!";
-            std::cout << SimplificacoesAparencia::cor(Cor::FUNDO_VERMELHO) << ">> [PARRY]: " << mensagemParry << " Inimigo causou " << danoFinal << " de dano" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+            std::cout << SimplificacoesAparencia::cor(Cor::FUNDO_VERMELHO) << ">> [PARRY]: " << mensagemParry << " Inimigo causou " << danoFinal << " de dano em " << alvo->obterNome() << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
         }
         else if (danoFinal > 0) 
         {
@@ -426,14 +518,14 @@ void GerenciadorCombate::exibirResultadoDoAtaque(SistemaPersonagem* alvo, int da
         }
         else if (danoFinal == 0 && alvo->obterDefendendo()) 
         {
-            std::cout << ">> O dano foi totalmente absorvido pela sua defesa!\n";
+            std::cout << ">> O dano foi totalmente absorvido pela defesa de " << alvo->obterNome() << "!\n";
         }
         
-        if (danoFinal > 0) totalDeDanoRecebido += danoFinal;
+        if (danoFinal > 0 && alvo == jogadorAtual) totalDeDanoRecebido += danoFinal;
     }
     else if (danoFinal > 0) 
     {
-        totalDeDanoCausado += danoFinal;
+        if (alvo != jogadorAtual) totalDeDanoCausado += danoFinal;
         std::cout << ">> " << alvo->obterNome() << " recebeu " << danoFinal << " de dano\n";
     }
 }

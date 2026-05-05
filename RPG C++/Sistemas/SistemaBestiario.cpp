@@ -6,6 +6,7 @@
 #include "../Inimigos/Fada.h"
 #include "../Inimigos/OrkExilado.h"
 #include "../Inimigos/AbominacaoFloresta.h"
+#include "../Inimigos/Troll.h"
 #include "../Inimigos/ClasseBaseInimigo.h"
 
 SistemaBestiario& SistemaBestiario::instancia() {
@@ -82,7 +83,7 @@ void SistemaBestiario::inicializarInimigos() {
         },
         {classePadrao.obterNomeHabilidadeClasse() + " | " + classePadrao.obterDescricaoHabilidadeClasse()},
         racaFada.obterNomeHabilidadeRaca() + " | " + racaFada.obterDescricaoHabilidadeRaca(),
-        {"Po magico", "Ouro"},
+        {"Po magico", "Varinha corroida", "Ouro"},
         3
     };
 
@@ -128,6 +129,28 @@ void SistemaBestiario::inicializarInimigos() {
         racaAbominacao.obterNomeHabilidadeRaca() + " | " + racaAbominacao.obterDescricaoHabilidadeRaca(),
         {"Coracao da floresta", "Madeira enfeiticada", "Ouro"},
         5
+    };
+
+    Troll racaTroll;
+    Atributos attrTroll = racaTroll.obterAtributosRaca();
+    inimigosBase[racaTroll.obterNomeRaca()] = {
+        racaTroll.obterNomeRaca(), "Montanhas", "Caverna Profunda",
+        racaTroll.obterAparenciaRaca(),
+        "Uma criatura gigantesca, incrivelmente forte e resistente, capaz de empunhar arvores inteiras como clavas.",
+        "A lenda diz que as feridas de um Troll se fecham em segundos.",
+        {
+            " > Vida           : " + std::to_string(attrTroll.vida),
+            " > Forca          : " + std::to_string(attrTroll.forca),
+            " > Destreza       : " + std::to_string(attrTroll.destreza),
+            " > Resistencia    : " + std::to_string(attrTroll.resistencia),
+            " > Constituicao   : " + std::to_string(attrTroll.constituicao),
+            " > Inteligencia   : " + std::to_string(attrTroll.inteligencia),
+            " > Sabedoria      : " + std::to_string(attrTroll.sabedoria)
+        },
+        {classePadrao.obterNomeHabilidadeClasse() + " | " + classePadrao.obterDescricaoHabilidadeClasse()},
+        racaTroll.obterNomeHabilidadeRaca() + " | " + racaTroll.obterDescricaoHabilidadeRaca(),
+        {"Tronco de arvore amarrotado", "Orgao regenerador", "Ouro"},
+        6
     };
 }
 

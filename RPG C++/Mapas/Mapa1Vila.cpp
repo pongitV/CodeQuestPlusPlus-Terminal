@@ -7,7 +7,7 @@
 #include <utility>
 
 #include "Mapa2Floresta.h"
-#include "../Gerenciadores/GerenciadorMenu.h"
+#include "../Telas/TelaMenu.h"
 #include "../Gerenciadores/GerenciadorInimigos.h"
 #include "../Gerenciadores/GerenciadorCombate.h"
 #include "../Inventario/Item.h"
@@ -105,7 +105,7 @@ namespace {
                 NPCBjorn::interagir(ctx.self->jogadorAtual);
             } else if (ctx.self->tituloDoMapaAtual == "CAVERNA DO ORK") {
                 SimplificacoesAparencia::limparTela();
-                GerenciadorMenu::exibirLogoDoJogo("RESGATE NA CAVERNA");
+                TelaMenu::exibirLogoDoJogo("RESGATE NA CAVERNA");
                 int espacosM = std::max(0, (ctx.larguraDoTerminal - 50) / 2);
                 std::string mE(espacosM, ' ');
                 std::cout << "\n" << mE << "[Bjorn]: Pelos deuses, muito obrigado por me salvar!\n";
@@ -161,7 +161,7 @@ namespace {
             else if (nextCell == 'F' && nextNextCell == 'o' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 if (!ctx.self->bjornResgatado) {
                     SimplificacoesAparencia::limparTela();
-                    GerenciadorMenu::exibirLogoDoJogo(ctx.self->tituloDoMapaAtual);
+                    TelaMenu::exibirLogoDoJogo(ctx.self->tituloDoMapaAtual);
                     int espacosM = std::max(0, (ctx.larguraDoTerminal - 60) / 2);
                     std::cout << "\n" << std::string(espacosM, ' ') << "[SISTEMA]: A Forja esta trancada. O ferreiro sumiu...\n";
                     SimplificacoesAparencia::aguardarEnter();
@@ -216,7 +216,7 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
     SetConsoleCursorInfo(manipuladorDoTerminal, &informacoesDoCursor);
 
     SimplificacoesAparencia::limparTela();
-    GerenciadorMenu::exibirLogoDoJogo(tituloDoMapaAtual);
+    TelaMenu::exibirLogoDoJogo(tituloDoMapaAtual);
 
     CONSOLE_SCREEN_BUFFER_INFO informacoesDoBufferDaTela;
     GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
@@ -225,7 +225,7 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
     // Lambda para restaurar a tela apos eventos sem piscar
     auto restaurarTela = [&]() {
         SimplificacoesAparencia::limparTela();
-        GerenciadorMenu::exibirLogoDoJogo(tituloDoMapaAtual);
+        TelaMenu::exibirLogoDoJogo(tituloDoMapaAtual);
         GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
         linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
     };
@@ -242,7 +242,7 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
             it->second->processar(ctx);
         } else {
             bool ehParede = (celulaDestinoDoMapa == '#');
-            if (!ehParede) {
+            if (!ehParede || jogadorAtual->isNoclip()) {
                 posicaoXDoJogador = proximaPosicaoX;
                 posicaoYDoJogador = proximaPosicaoY;
             }
@@ -337,6 +337,10 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
         
         if (jogadorAtual->obterVoltarProMenu()) break;
         if (abriuMenu) continue;
+
+        // Limites do mapa para impedir crash quando noclip estiver ativo
+        if (proximaPosicaoY < 0) proximaPosicaoY = 0; else if (proximaPosicaoY >= static_cast<int>(matrizDoMapaAtual.size())) proximaPosicaoY = static_cast<int>(matrizDoMapaAtual.size()) - 1;
+        if (proximaPosicaoX < 0) proximaPosicaoX = 0; else if (proximaPosicaoX >= static_cast<int>(matrizDoMapaAtual[0].size())) proximaPosicaoX = static_cast<int>(matrizDoMapaAtual[0].size()) - 1;
 
         processarInteracao(proximaPosicaoX, proximaPosicaoY, larguraDoTerminal);
     }

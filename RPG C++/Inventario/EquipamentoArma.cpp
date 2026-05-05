@@ -8,9 +8,8 @@
 #include "../Utilidades/SimplificacoesAparencia.h"
 #include "../Utilidades/GeradorAleatorio.h"
 
-EquipamentoArma::EquipamentoArma(std::string nome, int danoFisico, int danoMagico, int preco)
-    : Item(preco), nome(nome), danoFisico(danoFisico), danoMagico(danoMagico),
-      efeitoSangramento(false), efeitoLentidao(false)
+EquipamentoArma::EquipamentoArma(std::string nome, int danoFisico, int danoMagico, int reqForca, int reqDestreza, int reqInteligencia, int reqSabedoria, int preco)
+    : Item(preco), nome(nome), danoFisico(danoFisico), danoMagico(danoMagico), reqForca(reqForca), reqDestreza(reqDestreza), reqInteligencia(reqInteligencia), reqSabedoria(reqSabedoria), efeitoSangramento(false), efeitoLentidao(false)
 {
 }
 
@@ -21,15 +20,66 @@ TipoEquipamento EquipamentoArma::obterTipo() const { return TipoEquipamento::ARM
 int EquipamentoArma::obterDanoFisico() const { return danoFisico; }
 int EquipamentoArma::obterDanoMagico() const { return danoMagico; }
 
+int EquipamentoArma::obterReqForca() const { return reqForca; }
+int EquipamentoArma::obterReqDestreza() const { return reqDestreza; }
+int EquipamentoArma::obterReqInteligencia() const { return reqInteligencia; }
+int EquipamentoArma::obterReqSabedoria() const { return reqSabedoria; }
+
 bool EquipamentoArma::possuiEfeitoSangramento() const { return efeitoSangramento; }
 bool EquipamentoArma::possuiEfeitoLentidao() const { return efeitoLentidao; }
+
+bool EquipamentoArma::podeSerEquipadoPor(SistemaPersonagem* personagem) const {
+    if (!personagem) return false;
+    return personagem->obterForca() >= reqForca &&
+           personagem->obterDestreza() >= reqDestreza &&
+           personagem->obterInteligencia() >= reqInteligencia &&
+           personagem->obterSabedoria() >= reqSabedoria;
+}
+
+std::string EquipamentoArma::obterMensagemRequisito() const {
+    return "\n[SISTEMA]: Atributos insuficientes para equipar " + nome + "!\n";
+}
+
+void EquipamentoArma::exibirInspecao() const {
+    std::cout << "\n" << SimplificacoesAparencia::cor(Cor::CIANO) << " === " << nome << " ===" << SimplificacoesAparencia::cor(Cor::RESET) << "\n\n";
+    std::cout << " > Tipo: Arma\n";
+    std::cout << " > Dano Fisico: " << danoFisico << "\n";
+    std::cout << " > Dano Magico: " << danoMagico << "\n";
+    std::cout << " > Requisitos:\n";
+    bool hasReq = false;
+    if (reqForca > 0) { std::cout << "   - Forca: " << reqForca << "\n"; hasReq = true; }
+    if (reqDestreza > 0) { std::cout << "   - Destreza: " << reqDestreza << "\n"; hasReq = true; }
+    if (reqInteligencia > 0) { std::cout << "   - Inteligencia: " << reqInteligencia << "\n"; hasReq = true; }
+    if (reqSabedoria > 0) { std::cout << "   - Sabedoria: " << reqSabedoria << "\n"; hasReq = true; }
+    if (!hasReq) std::cout << "   - Nenhum requisito.\n";
+    
+    std::cout << " > Efeitos e Propriedades:\n";
+    bool hasEfeito = false;
+    if (efeitoSangramento) { std::cout << "   - Sangramento (Dano continuo no alvo)\n"; hasEfeito = true; }
+    if (efeitoLentidao) { std::cout << "   - Lentidao (Reduz destreza do alvo)\n"; hasEfeito = true; }
+    if (temPropriedade(Propriedade::Penetrante)) { std::cout << "   - Penetrante (Reduz resistencia do alvo)\n"; hasEfeito = true; }
+    if (temPropriedade(Propriedade::Magica)) { std::cout << "   - Magica (Parte do dano ignora defesa)\n"; hasEfeito = true; }
+    if (temPropriedade(Propriedade::ViolaoMagico)) { std::cout << "   - Raizes Drenantes (Causa dano e cura o usuario)\n"; hasEfeito = true; }
+    if (temPropriedade(Propriedade::CipoPrisao)) { std::cout << "   - Prisao de Cipos (Chance de atordoar alvo)\n"; hasEfeito = true; }
+    if (!hasEfeito) std::cout << "   - Nenhuma propriedade extra.\n";
+    std::cout << " > Preco de Venda: " << precoVenda << "G\n";
+}
 
 std::string EquipamentoArma::obterInfoStatus() const {
     std::string ef = "";
     if (possuiEfeitoSangramento()) ef += " | +Sangramento";
     if (possuiEfeitoLentidao()) ef += " | +Lentidao";
     if (temPropriedade(Propriedade::Penetrante)) ef += " | +Penetracao";
-    return " (Dano: " + std::to_string(danoFisico) + "F/" + std::to_string(danoMagico) + "M" + ef + ")";
+    
+    std::string reqs = "";
+    bool hasReq = false;
+    if (reqForca > 0) { reqs += std::to_string(reqForca) + " For "; hasReq = true; }
+    if (reqDestreza > 0) { reqs += std::to_string(reqDestreza) + " Des "; hasReq = true; }
+    if (reqInteligencia > 0) { reqs += std::to_string(reqInteligencia) + " Int "; hasReq = true; }
+    if (reqSabedoria > 0) { reqs += std::to_string(reqSabedoria) + " Sab "; hasReq = true; }
+    if (hasReq) reqs = " | Req: " + reqs;
+
+    return " (Dano: " + std::to_string(danoFisico) + "F/" + std::to_string(danoMagico) + "M" + ef + reqs + ")";
 }
 
 void EquipamentoArma::aplicarEfeitoSangramento() { efeitoSangramento = true; }
@@ -37,8 +87,8 @@ void EquipamentoArma::aplicarEfeitoLentidao() { efeitoLentidao = true; }
 
 void EquipamentoArma::antesDeCausarDano(SistemaPersonagem* atacante, SistemaPersonagem* alvo) {
     if (temPropriedade(Propriedade::Penetrante) && !alvo->possuiEfeito(EfeitoID::QuebraResistencia)) {
-        alvo->adicionarEfeito(std::make_unique<EfeitoQuebraResistencia>(3));
-        std::cout << SimplificacoesAparencia::cor(Cor::CIANO) << ">> A arma de " << atacante->obterNome() << " perfurou a armadura, reduzindo a resistencia de " << alvo->obterNome() << " pela metade e a constituicao em um terco!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+        alvo->adicionarEfeito(std::make_unique<EfeitoQuebraResistencia>());
+        std::cout << SimplificacoesAparencia::cor(Cor::CIANO) << ">> A arma de " << atacante->obterNome() << " ativou o po magico! O ataque enfraqueceu " << alvo->obterNome() << " ate o fim do combate!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
     }
 }
 
@@ -73,7 +123,7 @@ int EquipamentoArma::garantirDanoMinimo(int danoFinal) {
 }
 
 std::unique_ptr<Item> EquipamentoArma::gerarCopiaMelhorada() const {
-    auto novaArma = std::make_unique<EquipamentoArma>(nome + "+", static_cast<int>(danoFisico * 1.5), static_cast<int>(danoMagico * 1.5), precoVenda * 2);
+    auto novaArma = std::make_unique<EquipamentoArma>(nome + "+", static_cast<int>(danoFisico * 1.5), static_cast<int>(danoMagico * 1.5), reqForca, reqDestreza, reqInteligencia, reqSabedoria, precoVenda * 2);
     
     for (Propriedade prop : propriedades) novaArma->adicionarPropriedade(prop);
     novaArma->adicionarPropriedade(Propriedade::Melhorado);

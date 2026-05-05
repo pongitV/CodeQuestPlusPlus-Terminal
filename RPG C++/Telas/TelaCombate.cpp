@@ -1,9 +1,9 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <iomanip>
 
 #include "TelaCombate.h"
-#include "../Gerenciadores/GerenciadorMenu.h"
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 #include "../Racas/RacaBase.h"
@@ -112,4 +112,72 @@ void TelaCombate::exibirBarraDeStatusDoJogador(SistemaPersonagem* jogadorAtual)
     for (const std::string& linhaDeTextoAtual : linhasParaImprimir) 
         std::cout << margemEsquerda << linhaDeTextoAtual << "\n";
     std::cout << std::string(larguraDoTerminal, '=') << "\n";
+}
+
+void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPersonagem*>& listaDeInimigos) 
+{
+    if (listaDeInimigos.empty()) return;
+    int larguraTerminal = SimplificacoesAparencia::obterLarguraTerminal();
+    std::vector<std::string> arteDoInimigo = listaDeInimigos[0]->obterRaca()->obterAparenciaRaca();
+    int quantidadeTotalDeInimigosNaHorda = static_cast<int>(listaDeInimigos.size());
+    int larguraSeparadaParaCadaColuna = larguraTerminal / quantidadeTotalDeInimigosNaHorda; 
+
+    std::cout << std::string(larguraTerminal, '-') << "\n";
+    for (size_t indiceInimigo = 0; indiceInimigo < listaDeInimigos.size(); indiceInimigo++) 
+    {
+        std::string tagIdentificadoraDoInimigo = listaDeInimigos[indiceInimigo]->obterNome() + " [" + std::to_string(indiceInimigo) + "]";
+        int espacosParaCentralizarOId = (larguraSeparadaParaCadaColuna - (int)tagIdentificadoraDoInimigo.length()) / 2;
+        std::cout << std::string(espacosParaCentralizarOId > 0 ? espacosParaCentralizarOId : 0, ' ') << std::left << std::setw(larguraSeparadaParaCadaColuna - espacosParaCentralizarOId) << tagIdentificadoraDoInimigo;
+    }
+    std::cout << "\n";
+    for (size_t indiceInimigo = 0; indiceInimigo < listaDeInimigos.size(); indiceInimigo++) 
+    {
+        std::string valorDePontosDeVidaDoInimigo = "HP: " + std::to_string(listaDeInimigos[indiceInimigo]->obterVida()) + "/" + std::to_string(listaDeInimigos[indiceInimigo]->obterVidaMaxima());
+        int espacosParaCentralizarOHp = (larguraSeparadaParaCadaColuna - (int)valorDePontosDeVidaDoInimigo.length()) / 2;
+        std::cout << std::string(espacosParaCentralizarOHp > 0 ? espacosParaCentralizarOHp : 0, ' ') << std::left << std::setw(larguraSeparadaParaCadaColuna - espacosParaCentralizarOHp) << valorDePontosDeVidaDoInimigo;
+    }
+        std::cout << "\n";
+        
+        std::vector<EfeitoID> efeitosAtivos;
+        for (size_t indiceInimigo = 0; indiceInimigo < listaDeInimigos.size(); indiceInimigo++)
+        {
+            std::vector<std::pair<std::string, std::string>> debuffs;
+            listaDeInimigos[indiceInimigo]->obterIDsEfeitosAtivos(efeitosAtivos);
+            for (auto& id : efeitosAtivos) {
+                if (id == EfeitoID::Sangramento) debuffs.push_back({"[Sangramento]", SimplificacoesAparencia::cor(Cor::VERMELHO) + "[Sangramento]" + SimplificacoesAparencia::cor(Cor::RESET)});
+                else if (id == EfeitoID::Lentidao) debuffs.push_back({"[Lentidao]", SimplificacoesAparencia::cor(Cor::MAGENTA) + "[Lentidao]" + SimplificacoesAparencia::cor(Cor::RESET)});
+                else if (id == EfeitoID::Fraqueza) debuffs.push_back({"[Fraqueza]", SimplificacoesAparencia::cor(Cor::AMARELO) + "[Fraqueza]" + SimplificacoesAparencia::cor(Cor::RESET)});
+                else if (id == EfeitoID::QuebraResistencia) debuffs.push_back({"[Quebra Def.]", SimplificacoesAparencia::cor(Cor::CIANO) + "[Quebra Def.]" + SimplificacoesAparencia::cor(Cor::RESET)});
+            }
+
+            std::string visualStr = "";
+            std::string printStr = "";
+            for (size_t i = 0; i < debuffs.size(); ++i) {
+                visualStr += debuffs[i].first;
+                printStr += debuffs[i].second;
+                if (i < debuffs.size() - 1) {
+                    visualStr += " ";
+                    printStr += " ";
+                }
+            }
+
+            int espacosEsquerda = (larguraSeparadaParaCadaColuna - (int)visualStr.length()) / 2;
+            if (espacosEsquerda < 0) espacosEsquerda = 0;
+            int espacosDireita = larguraSeparadaParaCadaColuna - espacosEsquerda - (int)visualStr.length();
+            if (espacosDireita < 0) espacosDireita = 0;
+            
+            std::cout << std::string(espacosEsquerda, ' ') << printStr << std::string(espacosDireita, ' ');
+        }
+        std::cout << "\n\n";
+        
+    for (size_t indiceDaLinhaDaArte = 0; indiceDaLinhaDaArte < arteDoInimigo.size(); indiceDaLinhaDaArte++) 
+    {
+        for (size_t indiceDoInimigoParaDesenhar = 0; indiceDoInimigoParaDesenhar < listaDeInimigos.size(); indiceDoInimigoParaDesenhar++) 
+        {
+            int espacosParaCentralizarAArte = (larguraSeparadaParaCadaColuna - (int)arteDoInimigo[indiceDaLinhaDaArte].length()) / 2;
+            std::cout << std::string(espacosParaCentralizarAArte > 0 ? espacosParaCentralizarAArte : 0, ' ') << std::left << std::setw(larguraSeparadaParaCadaColuna - espacosParaCentralizarAArte) << arteDoInimigo[indiceDaLinhaDaArte];
+        }
+        std::cout << "\n";
+    }
+    std::cout << std::string(larguraTerminal, '-') << "\n\n";
 }

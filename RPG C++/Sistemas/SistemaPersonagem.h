@@ -12,13 +12,13 @@
 
 struct Atributos 
 {
-    int vida;
-    int forca;
-    int destreza;
-    int resistencia;
-    int constituicao;
-    int inteligencia;
-    int sabedoria;
+    int vida;         // Pontos de vida (HP) maximos do personagem
+    int forca;        // Influencia o dano de ataques fisicos frontais e armas pesadas
+    int destreza;     // Define a ordem do turno, dano de armas ageis e acerto critico/esquiva
+    int resistencia;  // Reduz dano fisico recebido e atua como requisito para escudos pesados
+    int constituicao; // Vitalidade geral, reduz efetividade de debuffs e atua como requisito para armaduras
+    int inteligencia; // Multiplicador base do dano magico e requisito para usar cajados/varinhas
+    int sabedoria;    // Aumenta atributos magicos secundarios, forca das curas e defesa magica
 
     void somarAtributos(const Atributos& outro) 
     {
@@ -94,6 +94,9 @@ private:
         bool labirintoDesbloqueado = false;
         bool podeReviver = true;
         bool parryAtivado = false;
+        bool possuiRegeneracaoTroll = false;
+        bool godModeAtivo = false;
+        bool noclipAtivo = false;
         DificuldadeJogo dificuldadeAtual = DificuldadeJogo::Normal;
         double dificuldadeMultiplicador = 1.0;
     };
@@ -224,9 +227,18 @@ public:
     void desbloquearLabirinto() { sistema.labirintoDesbloqueado = true; }
     bool obterLabirintoDesbloqueado() const { return sistema.labirintoDesbloqueado; }
 
+    void desbloquearRegeneracaoTroll() { sistema.possuiRegeneracaoTroll = true; }
+    bool possuiRegeneracaoTroll() const { return sistema.possuiRegeneracaoTroll; }
+
+    void alternarGodMode() { sistema.godModeAtivo = !sistema.godModeAtivo; }
+    bool isGodMode() const { return sistema.godModeAtivo; }
+
+    void alternarNoclip() { sistema.noclipAtivo = !sistema.noclipAtivo; }
+    bool isNoclip() const { return sistema.noclipAtivo; }
+
     void reduzirCooldowns();
     void prepararParaNovaBatalha();
-    void finalizarBatalha() { combate.vidaMaximaFixa = 0; }
+    void finalizarBatalha();
 
     bool possuiEfeito(EfeitoID id) const;
     int obterTurnosEfeito(EfeitoID id) const;

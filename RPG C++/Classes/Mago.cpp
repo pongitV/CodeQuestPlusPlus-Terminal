@@ -77,7 +77,7 @@ std::vector<std::unique_ptr<Item>> Mago::obterEquipamentoClasse() const
         equipamentos.push_back(FabricaItens::criarItem("Pocao de Cura (" + std::to_string(porcentagemCura) + "%VM)"));
     }
     
-    equipamentos.push_back(FabricaItens::criarItem("Cajado"));
+    equipamentos.push_back(FabricaItens::criarItem("Cajado de cristal magico"));
     equipamentos.push_back(FabricaItens::criarItem("Barreira magica"));
     equipamentos.push_back(FabricaItens::criarItem("Tunica"));
     return equipamentos;

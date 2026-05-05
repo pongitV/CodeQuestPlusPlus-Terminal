@@ -4,6 +4,7 @@
 #include <set>
 #include <memory>
 #include <functional>
+#include <iostream>
 
 enum class TipoEquipamento 
 {
@@ -25,6 +26,7 @@ enum class Propriedade
     ViolaoMagico,
     CipoPrisao,
     Melhorado,
+    MelhoradoMaterial,
     ConsumivelCura,
     ConsumivelBuff,
     ConsumivelDebuffLentidao,
@@ -32,7 +34,8 @@ enum class Propriedade
     TalismaForca,
     TalismaInteligencia,
     TalismaDestreza,
-    TalismaSabedoria
+    TalismaSabedoria,
+    ConsumivelPoderTroll
 };
 
 class SistemaPersonagem;
@@ -55,6 +58,21 @@ public:
     virtual int obterReducaoDanoFixaEscudo() const { return 0; }
     virtual int obterDurabilidadeAtualEscudo() const { return 0; }
     
+    virtual bool podeSerEquipadoPor(SistemaPersonagem* personagem) const { return true; }
+    virtual std::string obterMensagemRequisito() const { return ""; }
+    
+    virtual void exibirInspecao() const {
+        std::cout << "\n === " << obterNomeItem() << " ===\n\n";
+        TipoEquipamento tipo = obterTipo();
+        std::cout << " > Tipo: " << (tipo == TipoEquipamento::CONSUMIVEL ? "Consumivel" : 
+                                  tipo == TipoEquipamento::MATERIAL ? "Material" :
+                                  tipo == TipoEquipamento::MISSAO ? "Item de Missao" : "Desconhecido") << "\n";
+        std::cout << " > Preco de Venda: " << precoVenda << "G\n";
+        std::cout << " > Descricao: " << (tipo == TipoEquipamento::MATERIAL ? "Material usado em forjas ou encantamentos." :
+                                        tipo == TipoEquipamento::CONSUMIVEL ? "Pode ser consumido para aplicar efeitos." : 
+                                        "Pode ser importante para o seu progresso.") << "\n";
+    }
+
     virtual void alterarNome(const std::string& n) {}
     virtual bool possuiEfeitoSangramento() const { return false; }
     virtual bool possuiEfeitoLentidao() const { return false; }

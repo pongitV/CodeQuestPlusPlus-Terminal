@@ -8,8 +8,11 @@
 #include "InventarioCombate.h"
 #include "../Sistemas/SistemaPersonagem.h"
 #include "Item.h"
+#include "EquipamentoArma.h"
+#include "EquipamentoEscudo.h"
+#include "EquipamentoArmadura.h"
 #include "../Telas/TelaInventario.h"
-#include "../Gerenciadores/GerenciadorMenu.h"
+#include "../Telas/TelaMenu.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 
 namespace {
@@ -71,6 +74,17 @@ namespace {
             std::cout << "\n[SISTEMA]: " << i->obterNomeItem() << " consumido!\n";
             p->obterInventario()->removerItem(i);
             if (turno) *turno = true;
+        }},
+        {Propriedade::ConsumivelPoderTroll, [](SistemaPersonagem* p, Item* i, bool* turno) {
+            if (p->possuiRegeneracaoTroll()) {
+                std::cout << "\n[SISTEMA]: O poder regenerador do Troll ja corre em suas veias!\n";
+            } else {
+                p->desbloquearRegeneracaoTroll();
+                p->modificarVida(p->obterVidaMaxima());
+                std::cout << "\n[SISTEMA]: " << i->obterNomeItem() << " consumido! Voce agora curara 100% do seu HP apos cada combate!\n";
+                p->obterInventario()->removerItem(i);
+            }
+            if (turno) *turno = true;
         }}
     };
 }
@@ -78,14 +92,11 @@ namespace {
 void InventarioCombate::gerenciarInventario(SistemaPersonagem* jogadorAtual, bool* turnoFoiConsumido)
 {
     if (jogadorAtual == nullptr) return;
-    int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
     std::string codigoDoItemDigitado;
     do 
     {
         TelaInventario::exibir(jogadorAtual);
-        std::string mensagemDoPrompt = "Digite o codigo do item ou [0] VOLTAR: ";
-        int espacos = std::max(0, (larguraDoTerminal - static_cast<int>(mensagemDoPrompt.length())) / 2);
-        std::cout << "\n" << std::string(espacos, ' ') << mensagemDoPrompt;
+        TelaInventario::exibirPrompt("Digite o codigo do item para interagir ou [0] VOLTAR: ");
         std::cin >> codigoDoItemDigitado;
         std::cin.ignore(1000, '\n');
 
@@ -97,10 +108,30 @@ void InventarioCombate::gerenciarInventario(SistemaPersonagem* jogadorAtual, boo
 
             if (itemEncontrado)
             {
-                processarUsoDeItem(jogadorAtual, itemEncontrado, turnoFoiConsumido);
-                if (turnoFoiConsumido && *turnoFoiConsumido) {
-                    break;
-                }
+                    bool acaoConcluida = false;
+                    while (!acaoConcluida) {
+                        TelaInventario::exibirMenuInteracaoItem(itemEncontrado);
+                        std::string subOpcao;
+                        std::cin >> subOpcao;
+                        std::cin.ignore(1000, '\n');
+
+                        if (subOpcao == "1") {
+                            processarUsoDeItem(jogadorAtual, itemEncontrado, turnoFoiConsumido);
+                            acaoConcluida = true;
+                        } else if (subOpcao == "2") {
+                            SimplificacoesAparencia::limparTela();
+                            TelaMenu::exibirLogoDoJogo("INSPECAO DE ITEM");
+                            itemEncontrado->exibirInspecao();
+                            std::cout << "\n";
+                            SimplificacoesAparencia::aguardarEnter();
+                        } else if (subOpcao == "0") {
+                            acaoConcluida = true;
+                        }
+                    }
+
+                    if (turnoFoiConsumido && *turnoFoiConsumido) {
+                        break;
+                    }
             }
         }
     } while (codigoDoItemDigitado != "0" && !(turnoFoiConsumido && *turnoFoiConsumido));
@@ -128,6 +159,11 @@ void InventarioCombate::processarUsoDeItem(SistemaPersonagem* jogadorAtual, Item
             jogadorAtual->desequiparArmadura();
             std::cout << "\n[SISTEMA]: " << itemEncontrado->obterNomeItem() << " desequipado(a)!\n";
         } else {
+            if (!itemEncontrado->podeSerEquipadoPor(jogadorAtual)) {
+                std::cout << itemEncontrado->obterMensagemRequisito();
+                if (turnoFoiConsumido && !jogadorAtual->obterItemSelecionadoParaUso()) SimplificacoesAparencia::aguardarEnter();
+                return;
+            }
             jogadorAtual->equiparItem(itemEncontrado);
             std::cout << "\n[SISTEMA]: " << itemEncontrado->obterNomeItem() << " equipado(a)!\n";
         }

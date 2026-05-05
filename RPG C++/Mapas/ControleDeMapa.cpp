@@ -2,14 +2,80 @@
 #include "../Inventario/InventarioCombate.h"
 #include "../Telas/TelaAtributos.h"
 #include "../Telas/TelaBestiario.h"
-#include "../Gerenciadores/GerenciadorMenu.h"
+#include "../Telas/TelaMenu.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 #include "../Gerenciadores/GerenciadorCombate.h"
 #include "../Utilidades/ControleDeInput.h"
 #include <iostream>
+#include "../Inventario/FabricaItens.h"
 
 bool ControleDeMapa::processarInputEComandos(char tecla, SistemaPersonagem* jogador, int& proximaPosicaoX, int& proximaPosicaoY, const std::function<void()>& restaurarTela)
 {
+    // --- MENU DE DEBUG (ISOLADO PARA FACIL REMOCAO FUTURA) ---
+    if (tecla == '\\' || tecla == '`' || tecla == '=')
+    {
+        while(true) {
+            SimplificacoesAparencia::limparTela();
+            TelaMenu::exibirLogoDoJogo("MENU DE DEBUG (CHEAT)");
+            std::cout << "\n  [1] God Mode (Max Atributos - Instakill/Imortal)\n";
+            std::cout << "  [2] Obter Qualquer Item\n";
+            std::cout << "  [3] Adicionar Ouro e XP (+10000)\n";
+            std::cout << "  [4] Noclip (Atravessar paredes): " << (jogador->isNoclip() ? SimplificacoesAparencia::cor(Cor::VERDE) + "LIGADO" : SimplificacoesAparencia::cor(Cor::VERMELHO) + "DESLIGADO") << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+            std::cout << "  [0] Fechar Debug Menu\n\n  Escolha: ";
+            
+            std::string esc;
+            std::cin >> esc;
+            
+            if (esc == "1") {
+                jogador->obterAtributosFinais().vida += 999999;
+                jogador->obterAtributosFinais().forca += 99999;
+                jogador->obterAtributosFinais().destreza += 99999;
+                jogador->obterAtributosFinais().resistencia += 99999;
+                jogador->obterAtributosFinais().constituicao += 99999;
+                jogador->obterAtributosFinais().inteligencia += 99999;
+                jogador->obterAtributosFinais().sabedoria += 99999;
+                jogador->definirVida(jogador->obterVidaMaxima());
+                std::cout << "\n[SISTEMA] God Mode ativado! Voce agora e um deus intocavel.\n";
+                SimplificacoesAparencia::aguardarEnter();
+            } else if (esc == "2") {
+                std::vector<std::string> todosItens = {
+                    "Adaga artesanal de pedra", "Arco recurvo de madeira", "Cajado de cristal magico", "Varinha corroida", "Violao encantado",
+                    "Espada longa de ferro", "Machado de guerra danificado", "Gosma acida (Arma)", "Tronco de arvore amarrotado",
+                    "Escudo medio de metal", "Barreira magica", "Capa magica", "Bracedeiras de prata",
+                    "Armadura de malha e metal", "Armadura leve de couro com malha", "Tunica", "Traje de Couro e tecido nobre", "Armadura de trapos e sucata",
+                    "Pocao de Cura (30%VM)", "Pocao de Furia (Buff)", "Elixir Arcano (Buff)", "Frasco de Gosma (Debuff)", "Frasco de Fraqueza (Debuff)", "Orgao regenerador",
+                    "Talisma do Urso", "Talisma do Corvo", "Talisma do Leopardo", "Talisma da Coruja",
+                    "Gosma acida", "Dente de goblin", "Nucleo pegajoso", "Po magico", "Madeira enfeiticada", "Coracao da floresta", "Pedra magica de upgrade", "Gema de amolar", "Convite Real",
+                    "Dispositivo de teclas de linguagem desconhecida"
+                };
+                SimplificacoesAparencia::limparTela();
+                TelaMenu::exibirLogoDoJogo("OBTER ITEM");
+                for(size_t i=0; i<todosItens.size(); ++i) {
+                    std::cout << "[" << i+1 << "] " << todosItens[i] << "\n";
+                }
+                std::cout << "[0] Voltar\n\nEscolha o ID do item: ";
+                int itemID;
+                if(std::cin >> itemID && itemID > 0 && itemID <= (int)todosItens.size()) {
+                    jogador->obterInventario()->adicionarItem(FabricaItens::criarItem(todosItens[itemID-1]));
+                    std::cout << "\n[SISTEMA] Item '" << todosItens[itemID-1] << "' adicionado ao inventario!\n";
+                    SimplificacoesAparencia::aguardarEnter();
+                } else { std::cin.clear(); std::cin.ignore(1000, '\n'); }
+            } else if (esc == "3") {
+                jogador->ganharOuro(10000);
+                jogador->ganharXp(10000);
+                std::cout << "\n[SISTEMA] +10000 Ouro e +10000 XP adicionados!\n";
+                SimplificacoesAparencia::aguardarEnter();
+            } else if (esc == "4") {
+                jogador->alternarNoclip();
+                std::cout << "\n[SISTEMA] Noclip " << (jogador->isNoclip() ? "ativado" : "desativado") << "!\n";
+                SimplificacoesAparencia::aguardarEnter();
+            } else if (esc == "0") { break; }
+        }
+        restaurarTela();
+        return true;
+    }
+    // --- FIM DO MENU DE DEBUG ---
+
     ComandoMapa comando = ControleDeInput::traduzirTeclaParaComando(tecla);
 
     // Movimentação (Não abre menus, portanto retorna falso)
@@ -47,7 +113,7 @@ void ControleDeMapa::processarCombate(
     int px, int py, int rootX, int celulas, int larguraDoTerminal, const std::function<void()>& restaurarTela)
 {
     SimplificacoesAparencia::limparTela();
-    GerenciadorMenu::exibirLogoDoJogo(titulo);
+    TelaMenu::exibirLogoDoJogo(titulo);
     int espacosM = std::max(0, (larguraDoTerminal - static_cast<int>(msg.length())) / 2);
     std::string mE(espacosM, ' ');
     std::cout << "\n" << mE << SimplificacoesAparencia::cor(Cor::AMARELO) << "[!] " << msg << SimplificacoesAparencia::cor(Cor::RESET) << "\n";

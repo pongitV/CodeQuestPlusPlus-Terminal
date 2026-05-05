@@ -4,22 +4,32 @@
 #include <memory>
 
 #include "Item.h"
+#include "../Sistemas/SistemaPersonagem.h"
 
 class EquipamentoArmadura : public Item 
 {
 private:
     std::string nome;
     int reducaoFixa;
+    int reqResistencia;
+    int reqConstituicao;
 
 public:
-    EquipamentoArmadura(std::string nome, int reducaoFixa, int preco = 3);
+    EquipamentoArmadura(std::string nome, int reducaoFixa, int reqResistencia, int reqConstituicao, int preco = 3);
     
+    int obterReqResistencia() const;
+    int obterReqConstituicao() const;
+
     std::string obterNomeItem() const override;
     TipoEquipamento obterTipo() const override;
 
     int obterReducaoFixa() const override;
 
     std::string obterInfoStatus() const override;
+
+    bool podeSerEquipadoPor(SistemaPersonagem* personagem) const override;
+    std::string obterMensagemRequisito() const override;
+    void exibirInspecao() const override;
 
     std::unique_ptr<Item> gerarCopiaMelhorada() const override;
 };

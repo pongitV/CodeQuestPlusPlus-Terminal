@@ -11,12 +11,21 @@ private:
     std::string nome;
     int danoFisico;
     int danoMagico;
+    int reqForca;
+    int reqDestreza;
+    int reqInteligencia;
+    int reqSabedoria;
     bool efeitoSangramento;
     bool efeitoLentidao;
 
 public:
-    EquipamentoArma(std::string nome, int danoFisico, int danoMagico, int preco = 3);
+    EquipamentoArma(std::string nome, int danoFisico, int danoMagico, int reqForca, int reqDestreza, int reqInteligencia, int reqSabedoria, int preco = 3);
     
+    int obterReqForca() const;
+    int obterReqDestreza() const;
+    int obterReqInteligencia() const;
+    int obterReqSabedoria() const;
+
     std::string obterNomeItem() const override;
     void alterarNome(const std::string& n) override;
     TipoEquipamento obterTipo() const override;
@@ -28,6 +37,10 @@ public:
     bool possuiEfeitoLentidao() const override;
 
     std::string obterInfoStatus() const override;
+
+    bool podeSerEquipadoPor(SistemaPersonagem* personagem) const override;
+    std::string obterMensagemRequisito() const override;
+    void exibirInspecao() const override;
 
     void aplicarEfeitoSangramento() override;
     void aplicarEfeitoLentidao() override;

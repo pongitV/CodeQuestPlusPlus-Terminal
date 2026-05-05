@@ -60,6 +60,13 @@ void Fada::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogadorA
     
     std::cout << SimplificacoesAparencia::cor(Cor::FUNDO_AMARELO) << "+" << ouroDrop << "G" << SimplificacoesAparencia::cor(Cor::RESET) << " " << SimplificacoesAparencia::cor(Cor::FUNDO_AZUL) << "+" << xpDrop << " XP" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
 
+    if ((std::rand() % 100) < 65) 
+    {
+        jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem("Varinha corroida"));
+        itensObtidos.push_back("Varinha corroida");
+        std::cout << SimplificacoesAparencia::cor(Cor::BRANCO) << "+1x Varinha corroida" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+    }
+
     int qtdPo = (std::rand() % 6) + 1;
     for (int i = 0; i < qtdPo; ++i) {
         jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem("Po magico"));

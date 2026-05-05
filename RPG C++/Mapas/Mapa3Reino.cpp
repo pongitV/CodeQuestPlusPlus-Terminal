@@ -3,12 +3,18 @@
 #include <iostream>
 #include <vector>
 #include <windows.h>
+#include <iomanip>
+#include <algorithm>
 
 #include "../Gerenciadores/GerenciadorMenu.h"
+#include "../Telas/TelaMenu.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 #include "ControleDeMapa.h"
 #include "../Utilidades/ControleDeInput.h"
+#include "../Gerenciadores/GerenciadorInimigos.h"
 #include "TransicaoDeMapa.h"
+#include "../NPCs/NPCCavaleiroGenerico.h"
+
 
 Mapa3Reino::Mapa3Reino(SistemaPersonagem* personagemJogador) :
     posicaoXDoJogador(48), 
@@ -19,17 +25,17 @@ Mapa3Reino::Mapa3Reino(SistemaPersonagem* personagemJogador) :
 {
     matrizDoMapaAtual = {
         "                                                                                                   ",
-        "         #################################################################################         ",
+        "        ###################################################################################        ",
         "        #|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||#        ",
-        "        #|||||||||||||||||||||||||||||||   [CASTELO]   |||||||||||||||||||||||||||||||||||#        ",
-        "        #|||||||||||||||||||||||||||||||      ^C       |||||||||||||||||||||||||||||||||||#        ",
-        "        #|||||||||||||||||||||||||||||||               |||||||||||||||||||||||||||||||||||#        ",
+        "        #|||||||||||||||||||||||||||||||...[^Castelo]..|||||||||||||||||||||||||||||||||||#        ",
         "        #|||||||||||||||||||||||||||||||...............|||||||||||||||||||||||||||||||||||#        ",
         "        #|||||||||||||||||||||||||||||||...............|||||||||||||||||||||||||||||||||||#        ",
         "        #|||||||||||||||||||||||||||||||...............|||||||||||||||||||||||||||||||||||#        ",
-        "        #############       ############...............############       #################        ",
+        "        #|||||||||||||||||||||||||||||||...............|||||||||||||||||||||||||||||||||||#        ",
+        "        #|||||||||||||||||||||||||||||||...............|||||||||||||||||||||||||||||||||||#        ",
+        "        #############       ############...C.......C...############       #################        ",
         "                    #       #          #...............#          #       #                        ",
-        "                    #       #          #...............#          #       #                        ",
+        "                    #       #          #.......T.......#          #       #                        ",
         "                    #########          #...............#          #########                        ",
         "                                       #...............#                                           ",
         "                                       #...............#                                           ",
@@ -43,8 +49,7 @@ Mapa3Reino::Mapa3Reino(SistemaPersonagem* personagemJogador) :
         "                    #       #          #...............#          #       #                        ",
         "        #############       ############...............############       #################        ",
         "        #|||||||||||||||||||||||||||||||...............|||||||||||||||||||||||||||||||||||#        ",
-        "        #|||||||||||||||||||||||||||||||...............|||||||||||||||||||||||||||||||||||#        ",
-        "        #|||||||||||||||||||||||||||||||...............|||||||||||||||||||||||||||||||||||#        ",
+        "        #|||||||||||||||||||||||||||||||..C....T....C..|||||||||||||||||||||||||||||||||||#        ",
         "        #|||||||||||||||||||||||||||||||...............|||||||||||||||||||||||||||||||||||#        ",
         "        ################################...............####################################        ",
         "        #==============================#...............#==================================#        ",
@@ -62,6 +67,9 @@ Mapa3Reino::~Mapa3Reino() = default;
 
 void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
 {
+    bool trollDerrotado = false;
+    bool conviteRecebido = false;
+
     HANDLE manipuladorDoTerminal = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_CURSOR_INFO informacoesDoCursor;
     informacoesDoCursor.dwSize = 100;
@@ -69,7 +77,7 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
     SetConsoleCursorInfo(manipuladorDoTerminal, &informacoesDoCursor);
 
     SimplificacoesAparencia::limparTela();
-    GerenciadorMenu::exibirLogoDoJogo(tituloDoMapaAtual);
+    TelaMenu::exibirLogoDoJogo(tituloDoMapaAtual);
 
     CONSOLE_SCREEN_BUFFER_INFO informacoesDoBufferDaTela;
     GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
@@ -77,7 +85,7 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
 
     auto restaurarTela = [&]() {
         SimplificacoesAparencia::limparTela();
-        GerenciadorMenu::exibirLogoDoJogo(tituloDoMapaAtual);
+        TelaMenu::exibirLogoDoJogo(tituloDoMapaAtual);
         GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
         linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
     };
@@ -107,16 +115,13 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
                     linhaSendoRenderizada += SimplificacoesAparencia::cor(Cor::NEGRITO, Cor::VERDE) + "@" + SimplificacoesAparencia::cor(Cor::RESET);
                 }
                 else if (matrizDoMapaAtual[y][x] == 'T') {
-                    linhaSendoRenderizada += SimplificacoesAparencia::cor(Cor::NEGRITO, Cor::CINZA) + "T" + SimplificacoesAparencia::cor(Cor::RESET);
+                    linhaSendoRenderizada += SimplificacoesAparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + "T" + SimplificacoesAparencia::cor(Cor::RESET);
                 }
                 else if (matrizDoMapaAtual[y][x] == 'G') {
                     linhaSendoRenderizada += SimplificacoesAparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "G" + SimplificacoesAparencia::cor(Cor::RESET);
                 }
                 else if (matrizDoMapaAtual[y][x] == '=' || matrizDoMapaAtual[y][x] == '|') {
                     linhaSendoRenderizada += SimplificacoesAparencia::cor(Cor::CINZA) + matrizDoMapaAtual[y][x] + SimplificacoesAparencia::cor(Cor::RESET);
-                }
-            else if (matrizDoMapaAtual[y][x] == '^' || matrizDoMapaAtual[y][x] == 'C' || matrizDoMapaAtual[y][x] == 'F') {
-                    linhaSendoRenderizada += SimplificacoesAparencia::cor(Cor::NEGRITO, Cor::CIANO) + matrizDoMapaAtual[y][x] + SimplificacoesAparencia::cor(Cor::RESET);
                 }
                 else {
                     linhaSendoRenderizada += matrizDoMapaAtual[y][x];
@@ -144,18 +149,31 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
         if (jogadorAtual->obterVoltarProMenu()) break;
         if (abriuMenu) continue;
 
+        // Limites do mapa para impedir crash quando noclip estiver ativo
+        if (proximaPosicaoY < 0) proximaPosicaoY = 0; else if (proximaPosicaoY >= static_cast<int>(matrizDoMapaAtual.size())) proximaPosicaoY = static_cast<int>(matrizDoMapaAtual.size()) - 1;
+        if (proximaPosicaoX < 0) proximaPosicaoX = 0; else if (proximaPosicaoX >= static_cast<int>(matrizDoMapaAtual[0].size())) proximaPosicaoX = static_cast<int>(matrizDoMapaAtual[0].size()) - 1;
+
         char celulaDestino = matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX];
         
         if (celulaDestino == '^') {
             char nextCell = matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1];
             if (nextCell == 'C') {
-                SimplificacoesAparencia::limparTela();
-                GerenciadorMenu::exibirLogoDoJogo("FIM DA DEMO");
-                int espacosM = (larguraDoTerminal - 60) / 2;
-                std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: Voce chegou aos portoes do Castelo Real!\n";
-                std::cout << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: A historia continua em breve...\n";
-                SimplificacoesAparencia::aguardarEnter();
-                exploracaoEstaAtiva = false;
+                if (!conviteRecebido) {
+                    SimplificacoesAparencia::limparTela();
+                    TelaMenu::exibirLogoDoJogo("ACESSO NEGADO");
+                    int espacosM = (larguraDoTerminal - 60) / 2;
+                    std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: Os portoes estao trancados. Voce precisa de uma permissao real.\n";
+                    SimplificacoesAparencia::aguardarEnter();
+                    restaurarTela();
+                } else {
+                    SimplificacoesAparencia::limparTela();
+                    TelaMenu::exibirLogoDoJogo("FIM DA DEMO");
+                    int espacosM = (larguraDoTerminal - 60) / 2;
+                    std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: Voce apresentou o Convite Real e os portoes se abriram!\n";
+                    std::cout << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: A historia continua em breve...\n";
+                    SimplificacoesAparencia::aguardarEnter();
+                    exploracaoEstaAtiva = false;
+                }
             }
         else if (nextCell == 'F') {
             TransicaoDeMapa::exibirTransicaoParaFloresta();
@@ -163,13 +181,15 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
         }
         } else if (celulaDestino == 'G') {
             SimplificacoesAparencia::limparTela();
-            GerenciadorMenu::exibirLogoDoJogo("GUARDA REAL");
+            TelaMenu::exibirLogoDoJogo("GUARDA REAL");
             int espacosM = (larguraDoTerminal - 60) / 2;
             std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[Guarda]: Alto la! Somente o Rei pode conceder passagem.\n";
             std::cout << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[Guarda]: (O castelo ainda esta em construcao pelos deuses/devs)\n";
             SimplificacoesAparencia::aguardarEnter();
             restaurarTela();
-    } else if (celulaDestino != '#' && celulaDestino != '=' && celulaDestino != '|' && celulaDestino != 'T' && celulaDestino != '[' && celulaDestino != ']' && celulaDestino != 'C' && celulaDestino != 'F' && celulaDestino != 'A' && celulaDestino != 'S' && celulaDestino != 'E' && celulaDestino != 'L' && celulaDestino != 'O' && celulaDestino != ' ') {
+    } else if (celulaDestino == 'T' || celulaDestino == 'C') {
+            NPCCavaleiroGenerico::interagir(jogadorAtual, trollDerrotado, conviteRecebido, larguraDoTerminal, matrizDoMapaAtual, exploracaoEstaAtiva, restaurarTela, celulaDestino, proximaPosicaoX, proximaPosicaoY);
+    } else if (celulaDestino != '#' && celulaDestino != '=' && celulaDestino != '|' && celulaDestino != '[' && celulaDestino != ']' && celulaDestino != 'A' && celulaDestino != 'S' && celulaDestino != 'E' && celulaDestino != 'L' && celulaDestino != 'O' && celulaDestino != ' ' || jogadorAtual->isNoclip()) {
             posicaoXDoJogador = proximaPosicaoX;
             posicaoYDoJogador = proximaPosicaoY;
         }

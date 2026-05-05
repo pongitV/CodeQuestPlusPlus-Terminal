@@ -7,26 +7,25 @@
 #include <stdexcept>
 
 #include "TelaBestiario.h"
-#include "../Gerenciadores/GerenciadorMenu.h"
 #include "../Sistemas/SistemaBestiario.h"
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 
 static const std::vector<std::string> logoBestiario = {
-    " ███████████                    █████     ███                       ███          ",
-    "░░███░░░░░███                  ░░███     ░░░                       ░░░           ",
-    " ░███    ░███  ██████   █████  ███████   ████   ██████   ████████  ████   ██████ ",
-    " ░██████████  ███░░███ ███░░  ░░░███░   ░░███  ░░░░░███ ░░███░░███░░███  ███░░███",
-    " ░███░░░░░███░███████ ░░█████   ░███     ░███   ███████  ░███ ░░░  ░███ ░███ ░███",
-    " ░███    ░███░███░░░   ░░░░███  ░███ ███ ░███  ███░░███  ░███      ░███ ░███ ░███",
-    " ███████████ ░░██████  ██████   ░░█████  █████░░████████ █████     █████░░██████ ",
-    "░░░░░░░░░░░   ░░░░░░  ░░░░░░     ░░░░░  ░░░░░  ░░░░░░░░ ░░░░░     ░░░░░  ░░░░░░  "
+    " ███████████  ██████████  █████████  ███████████ █████   █████████   ███████████   █████    ███████   ",
+    "░░███░░░░░███░░███░░░░░█ ███░░░░░███░█░░░███░░░█░░███   ███░░░░░███ ░░███░░░░░███ ░░███   ███░░░░░███ ",
+    " ░███    ░███ ░███  █ ░ ░███    ░░░ ░   ░███  ░  ░███  ░███    ░███  ░███    ░███  ░███  ███     ░░███",
+    " ░██████████  ░██████   ░░█████████     ░███     ░███  ░███████████  ░██████████   ░███ ░███      ░███",
+    " ░███░░░░░███ ░███░░█    ░░░░░░░░███    ░███     ░███  ░███░░░░░███  ░███░░░░░███  ░███ ░███      ░███",
+    " ░███    ░███ ░███ ░   █ ███    ░███    ░███     ░███  ░███    ░███  ░███    ░███  ░███ ░░███     ███ ",
+    " ███████████  ██████████░░█████████     █████    █████ █████   █████ █████   █████ █████ ░░░███████░  ",
+    "░░░░░░░░░░░  ░░░░░░░░░░  ░░░░░░░░░     ░░░░░    ░░░░░ ░░░░░   ░░░░░ ░░░░░   ░░░░░ ░░░░░    ░░░░░░░   "
 };
 
 static void exibirCabecalho(int largura, const std::string& tituloSecundario = "") {
     SimplificacoesAparencia::limparTela();
     std::cout << "\n" << std::string(largura, '=') << "\n\n";
-    SimplificacoesAparencia::imprimirCentralizadoMultilinha(logoBestiario, 85, SimplificacoesAparencia::cor(Cor::VERDE));
+    SimplificacoesAparencia::imprimirCentralizadoMultilinha(logoBestiario, 101, SimplificacoesAparencia::cor(Cor::VERDE));
     std::cout << "\n" << std::string(largura, '=') << "\n";
     if (!tituloSecundario.empty()) {
         SimplificacoesAparencia::imprimirCentralizado(tituloSecundario);

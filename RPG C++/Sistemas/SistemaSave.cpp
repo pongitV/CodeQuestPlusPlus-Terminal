@@ -69,6 +69,7 @@ void SistemaSave::salvarJogo(SistemaPersonagem* jogador) {
     }
 
     SistemaBestiario::instancia().salvar(arquivo);
+    arquivo << (jogador->possuiRegeneracaoTroll() ? 1 : 0) << "\n";
     arquivo.close();
 }
 
@@ -142,6 +143,10 @@ std::unique_ptr<SistemaPersonagem> SistemaSave::carregarJogo(const std::string& 
     }
 
     SistemaBestiario::instancia().carregar(arquivo);
+    int regTroll = 0;
+    if (arquivo >> regTroll && regTroll == 1) {
+        jogador->desbloquearRegeneracaoTroll();
+    }
     arquivo.close();
     return jogador;
 }

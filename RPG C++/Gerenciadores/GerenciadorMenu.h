@@ -17,15 +17,10 @@ public:
         Concluido
     };
 
-    static void exibirLogoDoJogo(const std::string& tituloDaTela = "");
-    
     static std::unique_ptr<SistemaPersonagem> menuPrincipal();
     static std::unique_ptr<SistemaPersonagem> iniciarCriacaoDeSistemaPersonagem();
 
-    static void exibirHordaDeInimigosLadoALado(const std::vector<SistemaPersonagem*>& listaDeInimigos);
-
 private:
-    static bool exibirConfirmacaoDeEscolhaComArteLadoALado(const std::string& tipoDeEscolha, const std::string& nomeDaEscolha, const std::vector<std::string>& informacoesParaExibir, const std::vector<std::string>& arteAsciiParaExibir);
 
     static void etapaEscolherNome(std::string& nomeDoPersonagem, EtapaCriacao& etapaAtual);
     static void etapaEscolherRaca(const std::string& nome, std::unique_ptr<RacaBase>& racaEscolhida, EtapaCriacao& etapaAtual);

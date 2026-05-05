@@ -38,5 +38,4 @@ public:
 
     // Buscas e Interacoes
     Item* buscarItemPorCodigo(const std::string& codigoDigitado, Item* armaEquipada, Item* escudoEquipado, Item* armaduraEquipada);
-    Item* selecionarEscudo();
 };

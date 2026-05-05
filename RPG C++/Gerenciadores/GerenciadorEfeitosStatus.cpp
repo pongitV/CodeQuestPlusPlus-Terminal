@@ -39,8 +39,8 @@ void EfeitoFraqueza::aoSair(SistemaPersonagem* alvo) {
 }
 
 void EfeitoQuebraResistencia::aoEntrar(SistemaPersonagem* alvo) {
-    resistenciaPerdida = alvo->obterAtributosFinais().resistencia / 2;
-    constituicaoPerdida = alvo->obterAtributosFinais().constituicao / 3;
+    resistenciaPerdida = static_cast<int>(alvo->obterAtributosFinais().resistencia * 0.20);
+    constituicaoPerdida = static_cast<int>(alvo->obterAtributosFinais().constituicao * 0.10);
     alvo->obterAtributosFinais().resistencia -= resistenciaPerdida;
     alvo->obterAtributosFinais().constituicao -= constituicaoPerdida;
 }
@@ -48,6 +48,10 @@ void EfeitoQuebraResistencia::aoEntrar(SistemaPersonagem* alvo) {
 void EfeitoQuebraResistencia::aoSair(SistemaPersonagem* alvo) {
     alvo->obterAtributosFinais().resistencia += resistenciaPerdida;
     alvo->obterAtributosFinais().constituicao += constituicaoPerdida;
+}
+
+void EfeitoQuebraResistencia::aplicarInicioTurno(SistemaPersonagem* alvo) {
+    std::cout << SimplificacoesAparencia::cor(Cor::CIANO) << "[EFEITO]: " << alvo->obterNome() << " continua enfraquecido pelo po magico! (-" << resistenciaPerdida << " Res, -" << constituicaoPerdida << " Con)" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
 }
 
 void EfeitoSangramento::aplicarInicioTurno(SistemaPersonagem* alvo) {

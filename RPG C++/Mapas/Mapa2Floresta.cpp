@@ -8,7 +8,7 @@
 #include <utility>
 #include <functional>
 
-#include "../Gerenciadores/GerenciadorMenu.h"
+#include "../Telas/TelaMenu.h"
 #include "../Inventario/Item.h"
 #include "../Inventario/EquipamentoArmadura.h"
 #include "../Inventario/ItemConsumivel.h"
@@ -38,6 +38,7 @@ Mapa2Floresta::Mapa2Floresta(SistemaPersonagem* personagemJogador) :
     cabanaJaFoiVisitada(false), 
     coracaoDaArvoreJaFoiVisitado(false), 
     labirintoJaFoiVisitado(false),
+    salaDoChefeJaFoiVisitada(false),
     exploracaoEstaAtiva(true), 
     tituloDoMapaAtual("FLORESTA")
 {
@@ -106,6 +107,67 @@ Mapa2Floresta::Mapa2Floresta(SistemaPersonagem* personagemJogador) :
 Mapa2Floresta::~Mapa2Floresta() = default;
 
 namespace {
+    std::vector<std::string> obterMapaSalaDoChefe() {
+        return {
+            "                                                    .....                                                    ",
+            "                                                 ...........                                                 ",
+            "                                               ...............                                               ",
+            "                                               ...............                                               ",
+            "                                              .................                                              ",
+            "                                              .................                                              ",
+            "                                               ...............                                               ",
+            "                    .......                     .............                      ......                    ",
+            "                  ...........                     .........                     ...........                  ",
+            "                ...............                      ...                      ...............                ",
+            "                ...............                      ...                      ...............                ",
+            "               .................             ...................             .................               ",
+            "               .................        .............................         .................              ",
+            "                ...............      ..........      ...      ..........      .................              ",
+            "                 ...............   ........          ...          ........   ..................              ",
+            "                    .......  ..........              ...              ........... .......                    ",
+            "                               ......                ...                .......                              ",
+            "                             ........                ...                ........                             ",
+            "                            ...........              ...              ...........                            ",
+            "                           .............            ...            .............                           ",
+            "                          ...............          ...          ...............                          ",
+            "                         .................        ...        .................                         ",
+            "                         .....             .......      ...      .......             .....                   ",
+            "                        .....               ....     ...     ....               .....                        ",
+            "       ........         ....                 ...................                 ....         ........       ",
+            "     ............       ....                   ...............                   ....       ............     ",
+            "    ...............     ....                   ...............                   ....     ...............    ",
+            "   .......................................................................................................   ",
+            "   ..................................................MAHO.................................................   ",
+            "   ................     ....                   ...............                   ....     ................   ",
+            "    ..............      ....                   ...............                   ....      ..............    ",
+            "      ..........        .....                 .................                 .....        ..........      ",
+            "                         ....               .....    ...    .....               ....                         ",
+            "                         .....            .....      ...      .....            .....                         ",
+            "                          .....         .....        ...        .....         .....                          ",
+            "                           .....      .....          ...          .....      .....                           ",
+            "                            ......  .....            ...            .....  ......                            ",
+            "                              .........              ...              .........                              ",
+            "                               .......               ...               .......                               ",
+            "                               .........             ...             .........                               ",
+            "                     ......  ...............         ...         ...............  ......                     ",
+            "                  ................................   ...  ................................                   ",
+            "                 ..............          ...........................          ..............                 ",
+            "                ................              .................              ................                ",
+            "                ................                     ...                     ................                ",
+            "                ................                     ...                     ................                ",
+            "                 ..............                      ...                      ..............                 ",
+            "                  ............                    .........                    ............                  ",
+            "                     ......                     .............                     ......                     ",
+            "                                               ...............                                               ",
+            "                                               ...............                                               ",
+            "                                               ...............                                               ",
+            "                                               ...............                                               ",
+            "                                                .............                                                ",
+            "                                                 ...........                                                 ",
+            "                                                    [^S]                                                     "
+        };
+    }
+
     class InteracaoSlime : public InteracaoFloresta {
     public:
         void processar(ContextoInteracaoFloresta& ctx) override {
@@ -146,7 +208,7 @@ namespace {
         void processar(ContextoInteracaoFloresta& ctx) override {
             if (ctx.self->tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") {
                 SimplificacoesAparencia::limparTela();
-                GerenciadorMenu::exibirLogoDoJogo("TESOURO ESCONDIDO");
+            TelaMenu::exibirLogoDoJogo("TESOURO ESCONDIDO");
                 int mE = (ctx.larguraDoTerminal - 40) / 2;
                 std::string margem(mE > 0 ? mE : 0, ' ');
                 std::cout << "\n" << margem << "[!] Voce encontrou um Baú ancestral!\n";
@@ -220,7 +282,7 @@ namespace {
             else if (nextCell == 'L' && ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 if (!ctx.self->jogadorAtual->obterLabirintoDesbloqueado()) {
                     SimplificacoesAparencia::limparTela();
-                    GerenciadorMenu::exibirLogoDoJogo("PASSAGEM BLOQUEADA");
+                    TelaMenu::exibirLogoDoJogo("PASSAGEM BLOQUEADA");
                     int espacosM = (ctx.larguraDoTerminal - 60) / 2;
                     std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: A passagem esta selada por magia. Fale com Morgana.\n";
                     SimplificacoesAparencia::aguardarEnter();
@@ -272,12 +334,18 @@ namespace {
                 if (ctx.self->tituloDoMapaAtual == "CORACAO DA ARVORE") ctx.self->matrizDoMapaDoCoracaoDaArvoreSalva = ctx.self->matrizDoMapaAtual;
                 else if (ctx.self->tituloDoMapaAtual == "CABANA DA BRUXA") ctx.self->matrizDoMapaDaCabanaSalva = ctx.self->matrizDoMapaAtual;
                 else if (ctx.self->tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") ctx.self->matrizDoMapaDoLabirintoSalva = ctx.self->matrizDoMapaAtual;
+                else if (ctx.self->tituloDoMapaAtual == "SALA DO CHEFE") ctx.self->matrizDoMapaSalaDoChefeSalva = ctx.self->matrizDoMapaAtual;
 
                 if (ctx.self->tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") {
                     ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaDaCabanaSalva;
                     ctx.self->posicaoXDoJogador = 20;
                     ctx.self->posicaoYDoJogador = 2;
                     ctx.self->tituloDoMapaAtual = "CABANA DA BRUXA";
+                } else if (ctx.self->tituloDoMapaAtual == "SALA DO CHEFE") {
+                    ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaDoLabirintoSalva;
+                    ctx.self->posicaoXDoJogador = 96; 
+                    ctx.self->posicaoYDoJogador = 13;
+                    ctx.self->tituloDoMapaAtual = "LABIRINTO SUBTERRANEO";
                 } else {
                     ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaPrincipalSalva;
                     ctx.self->posicaoXDoJogador = ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa;
@@ -289,13 +357,128 @@ namespace {
             }
             else if (nextCell == 'E' && ctx.self->tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") {
                 SimplificacoesAparencia::limparTela();
-                GerenciadorMenu::exibirLogoDoJogo("FIM DO LABIRINTO");
+                TelaMenu::exibirLogoDoJogo("FIM DO LABIRINTO");
                 int espacosM = (ctx.larguraDoTerminal - 60) / 2;
-                std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: Voce encontrou a saida! Destino em breve...\n";
-                SimplificacoesAparencia::aguardarEnter();
+                std::string margem(espacosM > 0 ? espacosM : 0, ' ');
+                
+                std::cout << "\n" << margem << "[SISTEMA]: Voce encontrou a saida do labirinto!\n";
+                std::cout << margem << "[SISTEMA]: A sua frente, uma escadaria desce para uma caverna escura.\n";
+                std::cout << margem << "[SISTEMA]: No fundo, parece haver um mar de liquido preto raso...\n\n";
+                std::cout << margem << "[1] Descer a escadaria\n";
+                std::cout << margem << "[2] Voltar para a Cabana da Bruxa\n\n";
+                std::cout << margem << "Escolha: ";
 
-                ctx.self->posicaoXDoJogador = 3;
-                ctx.self->posicaoYDoJogador = 13;
+                int escolha;
+                while (!(std::cin >> escolha) || (escolha != 1 && escolha != 2)) {
+                    std::cin.clear(); std::cin.ignore(1000, '\n');
+                    std::cout << margem << "Opcao invalida. Escolha (1 ou 2): ";
+                }
+
+                if (escolha == 1) {
+                    SimplificacoesAparencia::limparTela();
+                    std::vector<std::string> arteSimbolo = {
+                        "                                                    ###%%                                                    ",
+                        "                                                 *******####                                                 ",
+                        "                                               ***********##%#                                               ",
+                        "                                               **+++++*****##%                                               ",
+                        "                                              **+++++++*****#%#                                              ",
+                        "                                              **+++++++*****#%#                                              ",
+                        "                                               ***+++++****###                                               ",
+                        "                    ######%                     **********##%                      ######                    ",
+                        "                  ******###%#                     *****###%                     #*******###                  ",
+                        "                **********###%#                      +++                      ***+*******##%#                ",
+                        "                **++++*****####                      +++                      *+++++++****##%                ",
+                        "               **++++++****###%#             #*+++++++++++++++*#             **++++++++****###               ",
+                        "               **+++++++****##%#        #++++++++++++++++++++++++++*#         *++++++++****###               ",
+                        "                **+++++****####      *++++++++++     +++     ++++++++++*      **++++++****###                ",
+                        "                 **********#%++#   ++++++++          +++          ++++++++   #++*********###                 ",
+                        "                    *****##  ++++++++++              +++              +++++++++++ *****##                    ",
+                        "                               ++++++                +++                +++++++                              ",
+                        "                             *+++++++                +++                *++++++*                             ",
+                        "                            +++++ ++++*              +++              *++++ +++++                            ",
+                        "                           +++++    ++++*            +++            *++++    +++++                           ",
+                        "                          +++++       ++++#          +++          *++++       +++++                          ",
+                        "                         +++++          ++++#        +++        #++++          +++++                         ",
+                        "                         ++++             ++++#      +++      #++++             ++++                         ",
+                        "                        ++++*               ++++     +++     ++++               *++++                        ",
+                        "       ######%#         ++++                 +++++#######%#+++++                 ++++         ########       ",
+                        "     *******###%#       ++++                   ++********###++                   *+++       ********####     ",
+                        "    ****++****#####     +++*                   *****+*****####                   *+++     #***********##%    ",
+                        "   *+++++++****##%#++++++++++++++++++++++++++++*+++++++****##%++++++++++++++++++++++++++++**++++++*****###   ",
+                        "   *+++++++****####+++++++++++++++++++++++++++++++++++++***##%++++++++++++++++++++++++++++**++++++++***##%   ",
+                        "   **++++++****##%#     +++*                   **+++++++***##%                   *+++     **+++++++****###   ",
+                        "    *++++******###      ++++                   #*++++++****#%#                   ++++      ***++++*****#%    ",
+                        "      ********##        ++++*                 ++++********#*+++                 *++++        ********##      ",
+                        "                         ++++               +++++    +**    +++++               ++++                         ",
+                        "                         +++++            *++++      +++      ++++*            +++++                         ",
+                        "                          +++++         *++++        +++        ++++*         +++++                          ",
+                        "                           +++++      *++++          +++          ++++#      +++++                           ",
+                        "                            +++++#  #++++            +++            ++++#  #+++++                            ",
+                        "                              +++++++++              +++              +++++++++                              ",
+                        "                               ++++++#               +++               #++++++                               ",
+                        "                               ++++++++#             +++             #++++++++                               ",
+                        "                     ###%%#  +++++ +++++++*#         +++         #*+++++++ ++++*  %#%%%%                     ",
+                        "                  #*****###%%+++      +++++++++*##%  +++  %%#*+++++++++      +++****#####%#                  ",
+                        "                 **********##%#          +++++++++++++++++++++++++++          **********##%#                 ",
+                        "                ****+++*****##%#              +++++++++++++++++              ****+++*****##%#                ",
+                        "                **+++++++***##%#                     +++                     **+++++++****###                ",
+                        "                *++++++++***##%#                     +++                     **+++++++****###                ",
+                        "                 *++++++****##%                      +++                      **++++++****#%                 ",
+                        "                  *********##%                    ######%##                    **********##                  ",
+                        "                     ****##                     #*******###%#                     *****#                     ",
+                        "                                               ***********##%#                                               ",
+                        "                                               ***++++*****##%                                               ",
+                        "                                               *+++++++*****#%                                               ",
+                        "                                               *++++++++***###                                               ",
+                        "                                                *++++++****##                                                ",
+                        "                                                 *********#%                                                 ",
+                        "                                                     ###                                                     "
+                    };
+                    
+                    std::cout << "\n\n";
+                    SimplificacoesAparencia::imprimirCentralizadoMultilinha(arteSimbolo, 109, SimplificacoesAparencia::cor(Cor::BRANCO));
+                    
+                    std::cout << "\n" << margem << "[SISTEMA]: O ar aqui embaixo e gelado, cortante\n";
+                    std::cout << margem << "[SISTEMA]: o liquido preto no chao e raso e liso como vidro\n";
+                    std::cout << margem << "[SISTEMA]: Tudo e escuridao, exceto pelo brilho pulsante da\n";
+                    std::cout << margem << "[SISTEMA]: enorme runa magica desenhada no fundo da caverna\n\n";
+                    
+                    std::cout << margem << SimplificacoesAparencia::cor(Cor::VERMELHO) << "[1] Seguir em frente" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+                    std::cout << margem << SimplificacoesAparencia::cor(Cor::BRANCO) << "[2] Voltar para a seguranca da Cabana" << SimplificacoesAparencia::cor(Cor::RESET) << "\n\n";
+                    std::cout << margem << "Escolha: ";
+                    
+                    int escolhaBoss;
+                    while (!(std::cin >> escolhaBoss) || (escolhaBoss != 1 && escolhaBoss != 2)) {
+                        std::cin.clear(); std::cin.ignore(1000, '\n');
+                        std::cout << margem << "Opcao invalida. Escolha (1 ou 2): ";
+                    }
+                    
+                    if (escolhaBoss == 1) {
+                        ctx.self->matrizDoMapaDoLabirintoSalva = ctx.self->matrizDoMapaAtual;
+                        if (!ctx.self->salaDoChefeJaFoiVisitada) {
+                            ctx.self->matrizDoMapaAtual = obterMapaSalaDoChefe();
+                            ctx.self->salaDoChefeJaFoiVisitada = true;
+                        } else {
+                            ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaSalaDoChefeSalva;
+                        }
+                        ctx.self->posicaoXDoJogador = 54;
+                        ctx.self->posicaoYDoJogador = 54;
+                        ctx.self->tituloDoMapaAtual = "SALA DO CHEFE";
+                        ctx.restaurarTela();
+                    } else {
+                        ctx.self->matrizDoMapaDoLabirintoSalva = ctx.self->matrizDoMapaAtual;
+                        ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaDaCabanaSalva;
+                        ctx.self->posicaoXDoJogador = 20;
+                        ctx.self->posicaoYDoJogador = 2;
+                        ctx.self->tituloDoMapaAtual = "CABANA DA BRUXA";
+                    }
+                } else {
+                    ctx.self->matrizDoMapaDoLabirintoSalva = ctx.self->matrizDoMapaAtual;
+                    ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaDaCabanaSalva;
+                    ctx.self->posicaoXDoJogador = 20;
+                    ctx.self->posicaoYDoJogador = 2;
+                    ctx.self->tituloDoMapaAtual = "CABANA DA BRUXA";
+                }
                 if (ctx.self->exploracaoEstaAtiva) ctx.restaurarTela();
             } else {
                 ctx.self->posicaoXDoJogador = ctx.proximaPosicaoX;
@@ -326,7 +509,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
     SetConsoleCursorInfo(manipuladorDoTerminal, &informacoesDoCursor);
 
     SimplificacoesAparencia::limparTela();
-    GerenciadorMenu::exibirLogoDoJogo(tituloDoMapaAtual);
+    TelaMenu::exibirLogoDoJogo(tituloDoMapaAtual);
 
     CONSOLE_SCREEN_BUFFER_INFO informacoesDoBufferDaTela;
     GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
@@ -335,7 +518,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
     // Lambda para restaurar a tela apos eventos
     auto restaurarTela = [&]() {
         SimplificacoesAparencia::limparTela();
-        GerenciadorMenu::exibirLogoDoJogo(tituloDoMapaAtual);
+        TelaMenu::exibirLogoDoJogo(tituloDoMapaAtual);
         GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
         linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
     };
@@ -346,13 +529,6 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
         int espacosParaCentralizarOMapa = (larguraDoTerminal - larguraDoMapaEmColunas) / 2;
         std::string margemEsquerdaDoMapa(espacosParaCentralizarOMapa > 0 ? espacosParaCentralizarOMapa : 0, ' ');
         std::string margemDireitaDoMapa = "";
-
-        if (tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") {
-            std::string corFundoRoxa = SimplificacoesAparencia::cor(Cor::FUNDO_MAGENTA);
-            margemEsquerdaDoMapa = corFundoRoxa + std::string(espacosParaCentralizarOMapa > 0 ? espacosParaCentralizarOMapa : 0, ' ') + SimplificacoesAparencia::cor(Cor::RESET);
-            int espacosDireita = larguraDoTerminal - espacosParaCentralizarOMapa - larguraDoMapaEmColunas;
-            margemDireitaDoMapa = corFundoRoxa + std::string(espacosDireita > 0 ? espacosDireita : 0, ' ') + SimplificacoesAparencia::cor(Cor::RESET);
-        }
 
         std::string textoDeControlesDoJogador = "W,A,S,D: Mover | I: Inventario | C: Ficha | B: Bestiario";
         int espacosParaCentralizarOsControles = (larguraDoTerminal - (int)textoDeControlesDoJogador.length()) / 2;
@@ -400,6 +576,14 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
                 {
                     linhaSendoRenderizada += SimplificacoesAparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "B" + SimplificacoesAparencia::cor(Cor::RESET);
                 }
+                else if (tituloDoMapaAtual == "SALA DO CHEFE" && (matrizDoMapaAtual[y][x] == 'M' || matrizDoMapaAtual[y][x] == 'A' || matrizDoMapaAtual[y][x] == 'H' || matrizDoMapaAtual[y][x] == 'O'))
+                {
+                    linhaSendoRenderizada += SimplificacoesAparencia::cor(Cor::NEGRITO, Cor::MAGENTA) + matrizDoMapaAtual[y][x] + SimplificacoesAparencia::cor(Cor::RESET);
+                }
+                else if (matrizDoMapaAtual[y][x] == '.' && tituloDoMapaAtual == "SALA DO CHEFE")
+                {
+                    linhaSendoRenderizada += SimplificacoesAparencia::cor(Cor::CINZA) + "." + SimplificacoesAparencia::cor(Cor::RESET);
+                }
                 else
                 {
                     linhaSendoRenderizada += matrizDoMapaAtual[y][x];
@@ -414,6 +598,13 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
     {
         char celulaDestinoDoMapa = matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX];
         
+        if (tituloDoMapaAtual == "SALA DO CHEFE" && (celulaDestinoDoMapa == 'M' || celulaDestinoDoMapa == 'A' || celulaDestinoDoMapa == 'H' || celulaDestinoDoMapa == 'O')) {
+            std::cout << "\n[SISTEMA]: A batalha contra MAHO estara disponivel em breve!\n";
+            SimplificacoesAparencia::aguardarEnter();
+            if (exploracaoEstaAtiva) restaurarTela();
+            return;
+        }
+        
         auto it = interacoes.find(celulaDestinoDoMapa);
         if (it != interacoes.end()) {
             ContextoInteracaoFloresta ctx = {this, proximaPosicaoX, proximaPosicaoY, larguraDoTerminal, restaurarTela, celulaDestinoDoMapa};
@@ -422,10 +613,12 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
             bool ehParede = false;
             if (tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") {
                 ehParede = (celulaDestinoDoMapa != ' ' && celulaDestinoDoMapa != '^' && celulaDestinoDoMapa != 'S' && celulaDestinoDoMapa != 'E' && celulaDestinoDoMapa != 'B');
+            } else if (tituloDoMapaAtual == "SALA DO CHEFE") {
+                ehParede = (celulaDestinoDoMapa == ' ');
             } else {
                 ehParede = (celulaDestinoDoMapa == '#');
             }
-            if (!ehParede) {
+            if (!ehParede || jogadorAtual->isNoclip()) {
                 posicaoXDoJogador = proximaPosicaoX;
                 posicaoYDoJogador = proximaPosicaoY;
             }
@@ -448,6 +641,10 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
         
         if (jogadorAtual->obterVoltarProMenu()) break;
         if (abriuMenu) continue;
+
+        // Limites do mapa para impedir crash quando noclip estiver ativo
+        if (proximaPosicaoY < 0) proximaPosicaoY = 0; else if (proximaPosicaoY >= static_cast<int>(matrizDoMapaAtual.size())) proximaPosicaoY = static_cast<int>(matrizDoMapaAtual.size()) - 1;
+        if (proximaPosicaoX < 0) proximaPosicaoX = 0; else if (proximaPosicaoX >= static_cast<int>(matrizDoMapaAtual[0].size())) proximaPosicaoX = static_cast<int>(matrizDoMapaAtual[0].size()) - 1;
 
         processarInteracao(proximaPosicaoX, proximaPosicaoY, larguraDoTerminal);
     }

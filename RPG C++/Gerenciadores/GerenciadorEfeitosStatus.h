@@ -76,9 +76,10 @@ private:
     int resistenciaPerdida;
     int constituicaoPerdida;
 public:
-    EfeitoQuebraResistencia(int t) : EfeitoStatus(EfeitoID::QuebraResistencia, "QuebraResistencia", t), resistenciaPerdida(0), constituicaoPerdida(0) {}
+    EfeitoQuebraResistencia() : EfeitoStatus(EfeitoID::QuebraResistencia, "QuebraResistencia", 9999), resistenciaPerdida(0), constituicaoPerdida(0) {}
     void aoEntrar(SistemaPersonagem* alvo) override;
     void aoSair(SistemaPersonagem* alvo) override;
+    void aplicarInicioTurno(SistemaPersonagem* alvo) override;
 };
 
 class EfeitoSangramento : public EfeitoStatus {

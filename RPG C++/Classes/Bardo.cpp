@@ -68,7 +68,7 @@ std::vector<std::string> Bardo::obterAparenciaClasseMenu() const
 
 Atributos Bardo::obterAtributosClasse() const
 {
-    return { 0, 10, 10, 3, 10, 10, 10 };
+    return { 0, 10, 10, 3, 10, 10, 10};
 }
 
 std::vector<std::unique_ptr<Item>> Bardo::obterEquipamentoClasse() const 

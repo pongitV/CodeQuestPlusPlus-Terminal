@@ -362,3 +362,12 @@ void SistemaPersonagem::executarDrops(SistemaPersonagem* jogadorAtual, std::vect
         this->raca->realizarDrops(this, jogadorAtual, itensObtidos, ouroTotal, xpTotal);
     }
 }
+
+void SistemaPersonagem::finalizarBatalha() { 
+    combate.vidaMaximaFixa = 0; 
+    if (sistema.possuiRegeneracaoTroll && vidaAtual > 0 && vidaAtual < obterVidaMaxima()) {
+        modificarVida(obterVidaMaxima());
+        std::cout << SimplificacoesAparencia::cor(Cor::VERDE) << "\n[SISTEMA]: Seu Orgao regenerador curou completamente suas feridas apos a batalha!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+        SimplificacoesAparencia::aguardarEnter();
+    }
+}

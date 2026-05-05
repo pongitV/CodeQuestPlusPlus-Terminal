@@ -11,4 +11,5 @@ public:
 
     std::string obterNomeItem() const override;
     TipoEquipamento obterTipo() const override;
+    void exibirInspecao() const override;
 };

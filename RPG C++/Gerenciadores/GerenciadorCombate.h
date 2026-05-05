@@ -24,6 +24,7 @@ private:
     // Referencias aos participantes do combate ativo
     SistemaPersonagem* jogadorAtual;
     std::vector<std::unique_ptr<SistemaPersonagem>> listaDeInimigos;
+    std::vector<std::unique_ptr<SistemaPersonagem>> listaDeAliados;
 
     // Estatisticas gerais e controle da sessao de combate
     int quantidadeDeOuroObtido;
@@ -37,12 +38,13 @@ private:
     void processarMorteDeInimigo(SistemaPersonagem* inimigo);
     void exibirResultadoDoAtaque(SistemaPersonagem* alvo, int danoFinal, bool tentouParry, bool parrySucesso);
 
-    void processarMenuDeAcoesDoJogador(bool& turnoFoiConsumido, bool& usouInventarioNoTurno);
-    void processarAcaoAtacar(bool& turnoFoiConsumido);
-    void processarAcaoDefender(bool& turnoFoiConsumido);
-    void processarAcaoHabilidade(bool& turnoFoiConsumido);
-    void processarAcaoInventario(bool& turnoFoiConsumido, bool& usouInventarioNoTurno);
+    void processarMenuDeAcoesDoJogador(SistemaPersonagem* personagemAgindo, bool& turnoFoiConsumido, bool& usouInventarioNoTurno);
+    void processarAcaoAtacar(SistemaPersonagem* personagemAgindo, bool& turnoFoiConsumido);
+    void processarAcaoDefender(SistemaPersonagem* personagemAgindo, bool& turnoFoiConsumido);
+    void processarAcaoHabilidade(SistemaPersonagem* personagemAgindo, bool& turnoFoiConsumido);
+    void processarAcaoInventario(SistemaPersonagem* personagemAgindo, bool& turnoFoiConsumido, bool& usouInventarioNoTurno);
     void limparInimigosMortos();
+    Item* selecionarEscudo(SistemaPersonagem* personagemAgindo);
 
     std::pair<int, int> calcularDanoBase(SistemaPersonagem* atacante);
 
@@ -54,6 +56,7 @@ public:
     GerenciadorCombate(SistemaPersonagem* jogadorParaOCombate, std::vector<std::unique_ptr<SistemaPersonagem>>&& inimigosParaOCombate);
     virtual ~GerenciadorCombate();
 
+    void adicionarAliados(std::vector<std::unique_ptr<SistemaPersonagem>> aliados);
     void iniciarCombate();
     void executarTurnoDeTodosOsInimigos();
     bool verificarCondicaoDeVitoriaOuDerrota();

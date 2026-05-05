@@ -24,9 +24,11 @@ public:
     std::vector<std::string> matrizDoMapaDoCoracaoDaArvoreSalva;
     std::vector<std::string> matrizDoMapaDaCabanaSalva;
     std::vector<std::string> matrizDoMapaDoLabirintoSalva;
+    std::vector<std::string> matrizDoMapaSalaDoChefeSalva;
     bool cabanaJaFoiVisitada;
     bool coracaoDaArvoreJaFoiVisitado;
     bool labirintoJaFoiVisitado;
+    bool salaDoChefeJaFoiVisitada;
     bool exploracaoEstaAtiva;
     std::string tituloDoMapaAtual;
 

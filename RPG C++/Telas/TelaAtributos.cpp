@@ -4,7 +4,6 @@
 #include <iomanip>
 
 #include "TelaAtributos.h"
-#include "../Gerenciadores/GerenciadorMenu.h"
 #include "../Racas/RacaBase.h"
 #include "../Classes/ClasseBase.h"
 #include "../Utilidades/SimplificacoesAparencia.h"

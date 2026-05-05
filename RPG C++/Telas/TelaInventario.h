@@ -6,4 +6,7 @@ class TelaInventario
 {
 public:
     static void exibir(SistemaPersonagem* jogadorAtual, bool mostrarPrecos = false);
+
+    static void exibirMenuInteracaoItem(Item* itemEncontrado);
+    static void exibirPrompt(const std::string& mensagem);
 };

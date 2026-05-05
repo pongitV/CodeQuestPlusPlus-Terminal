@@ -10,6 +10,7 @@
 #include "../Inimigos/Fada.h"
 #include "../Inimigos/OrkExilado.h"
 #include "../Inimigos/AbominacaoFloresta.h"
+#include "../Inimigos/Troll.h"
 #include "../Utilidades/GeradorAleatorio.h"
 
 template<typename RacaType, typename ClasseType>
@@ -66,4 +67,9 @@ std::vector<std::unique_ptr<SistemaPersonagem>> GerenciadorInimigos::criarInimig
 std::vector<std::unique_ptr<SistemaPersonagem>> GerenciadorInimigos::criarInimigoAbominacaoFloresta(int quantidade)
 {
     return criarInimigosGenericos<AbominacaoFloresta, ClasseBaseInimigo>(quantidade);
+}
+
+std::vector<std::unique_ptr<SistemaPersonagem>> GerenciadorInimigos::criarInimigoTroll(int quantidade)
+{
+    return criarInimigosGenericos<Troll, ClasseBaseInimigo>(quantidade);
 }

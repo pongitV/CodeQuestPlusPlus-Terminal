@@ -65,7 +65,7 @@ std::vector<std::string> Guerreiro::obterAparenciaClasseMenu() const
 
 Atributos Guerreiro::obterAtributosClasse() const
 {
-    return { 0, 2000000, 10, 5, 10, 5, 5 };
+    return { 0, 20, 10, 5, 10, 5, 5 };
 }
 
 std::vector<std::unique_ptr<Item>> Guerreiro::obterEquipamentoClasse() const 

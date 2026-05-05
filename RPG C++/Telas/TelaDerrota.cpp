@@ -2,7 +2,6 @@
 #include <vector>
 
 #include "TelaDerrota.h"
-#include "../Gerenciadores/GerenciadorMenu.h"
 #include "../Racas/RacaBase.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 

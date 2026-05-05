@@ -25,26 +25,31 @@ std::unique_ptr<Item> FabricaItens::criarItem(const std::string& nome)
 
     static const std::unordered_map<std::string, std::function<std::unique_ptr<Item>()>> registroItens = {
         // --- Armas ---
-        {"Adaga artesanal de pedra", []() { return std::make_unique<EquipamentoArma>("Adaga artesanal de pedra", 5, 0, 5); }},
-        {"Arco recurvo de madeira", []() { return std::make_unique<EquipamentoArma>("Arco recurvo de madeira", 10, 0, 3); }},
-        {"Cajado", []() { return std::make_unique<EquipamentoArma>("Cajado", 0, 30, 3); }},
-        {"Violao encantado", []() { return std::make_unique<EquipamentoArma>("Violao encantado", 0, 10, 3); }},
-        {"Espada longa de ferro", []() { return std::make_unique<EquipamentoArma>("Espada longa de ferro", 10, 0, 3); }},
-        {"Machado de guerra danificado", []() { return std::make_unique<EquipamentoArma>("Machado de guerra danificado", 15, 0, 3); }},
-        {"Gosma acida (Arma)", []() { return std::make_unique<EquipamentoArma>("Gosma acida", 2, 7, 3); }},
+        // Ordem dos inteiros: (Dano Fisico, Dano Magico, Req. Forca, Req. Destreza, Req. Inteligencia, Req. Sabedoria, Preco Venda)
+        {"Adaga artesanal de pedra", []() { return std::make_unique<EquipamentoArma>("Adaga artesanal de pedra", 5, 0, 0, 0, 0, 0, 3); }},
+        {"Arco recurvo de madeira", []() { return std::make_unique<EquipamentoArma>("Arco recurvo de madeira", 10, 0, 0, 0, 0, 0, 3); }},
+        {"Cajado de cristal magico", []() { return std::make_unique<EquipamentoArma>("Cajado de cristal magico", 0, 30, 0, 0, 0, 0, 3); }},
+        {"Varinha corroida", []() { return std::make_unique<EquipamentoArma>("Varinha corroida", 0, 25, 0, 0, 0, 0, 3); }},
+        {"Violao encantado", []() { return std::make_unique<EquipamentoArma>("Violao encantado", 0, 10, 0, 0, 0, 0, 3); }},
+        {"Espada longa de ferro", []() { return std::make_unique<EquipamentoArma>("Espada longa de ferro", 10, 0, 0, 0, 0, 0, 3); }},
+        {"Machado de guerra danificado", []() { return std::make_unique<EquipamentoArma>("Machado de guerra danificado", 15, 0, 10, 0, 0, 0, 3); }},
+        {"Gosma acida (Arma)", []() { return std::make_unique<EquipamentoArma>("Gosma acida", 2, 7, 0, 0, 0, 0, 3); }},
+        {"Tronco de arvore amarrotado", []() { return std::make_unique<EquipamentoArma>("Tronco de arvore amarrotado", 40, 0, 25, 0, 0, 0, 30); }},
         
         // --- Escudos ---
-        {"Escudo medio de metal", []() { return std::make_unique<EquipamentoEscudo>("Escudo medio de metal", 15, 5, 9); }},
-        {"Barreira magica", []() { return std::make_unique<EquipamentoEscudo>("Barreira magica", 50, 2, 3); }},
-        {"Capa magica", []() { return std::make_unique<EquipamentoEscudo>("Capa magica", 6, 10, 9); }},
-        {"Bracedeiras de prata", []() { return std::make_unique<EquipamentoEscudo>("Bracedeiras de prata", 5, 3, 3); }},
+        // Ordem dos inteiros: (Defesa Fixa, Durabilidade, Req. Resistencia, Valor Req. Secundario, Tipo Atributo Secundario, Preco Venda)
+        {"Escudo medio de metal", []() { return std::make_unique<EquipamentoEscudo>("Escudo medio de metal", 15, 5, 0, 0, TipoAtributo::Forca, 9); }},
+        {"Barreira magica", []() { return std::make_unique<EquipamentoEscudo>("Barreira magica", 50, 2, 0, 0, TipoAtributo::Inteligencia, 3); }},
+        {"Capa magica", []() { return std::make_unique<EquipamentoEscudo>("Capa magica", 6, 10, 0, 0, TipoAtributo::Sabedoria, 9); }},
+        {"Bracedeiras de prata", []() { return std::make_unique<EquipamentoEscudo>("Bracedeiras de prata", 5, 3, 0, 0, TipoAtributo::Destreza, 3); }},
         
         // --- Armaduras ---
-        {"Armadura de malha e metal", []() { return std::make_unique<EquipamentoArmadura>("Armadura de malha e metal", 7, 3); }},
-        {"Armadura leve de couro com malha", []() { return std::make_unique<EquipamentoArmadura>("Armadura leve de couro com malha", 5, 3); }},
-        {"Tunica", []() { return std::make_unique<EquipamentoArmadura>("Tunica", 2, 3); }},
-        {"Traje de Couro e tecido nobre", []() { return std::make_unique<EquipamentoArmadura>("Traje de Couro e tecido nobre", 4, 3); }},
-        {"Armadura de trapos e sucata", []() { return std::make_unique<EquipamentoArmadura>("Armadura de trapos e sucata", 3, 3); }},
+        // Ordem dos inteiros: (Defesa Fixa, Req. Resistencia, Req. Constituicao, Preco Venda)
+        {"Armadura de malha e metal", []() { return std::make_unique<EquipamentoArmadura>("Armadura de malha e metal", 7, 0, 0, 3); }},
+        {"Armadura leve de couro com malha", []() { return std::make_unique<EquipamentoArmadura>("Armadura leve de couro com malha", 5, 0, 0, 3); }},
+        {"Tunica", []() { return std::make_unique<EquipamentoArmadura>("Tunica", 2, 0, 0, 3); }},
+        {"Traje de Couro e tecido nobre", []() { return std::make_unique<EquipamentoArmadura>("Traje de Couro e tecido nobre", 4, 0, 0, 3); }},
+        {"Armadura de trapos e sucata", []() { return std::make_unique<EquipamentoArmadura>("Armadura de trapos e sucata", 3, 0, 0, 3); }},
         
         // --- Consumiveis ---
         {"Pocao de Furia (Buff)", []() {
@@ -76,6 +81,11 @@ std::unique_ptr<Item> FabricaItens::criarItem(const std::string& nome)
                 std::cout << "\n" << SimplificacoesAparencia::cor(Cor::VERMELHO) << ">> Voce jogou o frasco! " << alvo->obterNome() << " teve sua forca reduzida em 25% por 3 turnos!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
             });
             return debuff;
+        }},
+        {"Orgao regenerador", []() {
+            auto buff = std::make_unique<ItemConsumivel>("Orgao regenerador", 500);
+            buff->adicionarPropriedade(Propriedade::ConsumivelPoderTroll);
+            return buff;
         }},
         
         // --- Talismas ---
