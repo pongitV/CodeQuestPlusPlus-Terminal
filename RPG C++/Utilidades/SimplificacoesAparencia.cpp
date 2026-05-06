@@ -130,6 +130,16 @@ std::string SimplificacoesAparencia::removerCoresANSI(const std::string& texto) 
     return resultado;
 }
 
+std::string SimplificacoesAparencia::espacosParaCentralizar(int comprimentoTexto) {
+    int espacos = (obterLarguraTerminal() - comprimentoTexto) / 2;
+    if (espacos < 0) espacos = 0;
+    return std::string(espacos, ' ');
+}
+
+void SimplificacoesAparencia::imprimirLinhaDivisoria(char caractere) {
+    std::cout << std::string(obterLarguraTerminal(), caractere) << "\n";
+}
+
 void SimplificacoesAparencia::imprimirCentralizado(const std::string& texto, const std::string& corAnsi) {
     int larguraTerminal = obterLarguraTerminal();
     std::string textoPuro = removerCoresANSI(texto);
@@ -175,4 +185,46 @@ void SimplificacoesAparencia::exibirCabecalho(const std::string& titulo, Cor cor
     std::cout << cor(corDoCabecalho) << std::string(largura, '=') << cor(Cor::RESET) << "\n\n";
     imprimirCentralizado(tituloUpper, cor(corDoCabecalho));
     std::cout << "\n" << cor(corDoCabecalho) << std::string(largura, '=') << cor(Cor::RESET) << "\n";
+}
+
+int SimplificacoesAparencia::imprimirLadoALado(const std::vector<std::string>& colunaEsquerda, const std::vector<std::string>& colunaDireita, int minLarguraEsquerda, int espacamento, Cor corEsquerda, Cor corDireita) {
+    int larguraEsq = minLarguraEsquerda;
+    for (const auto& s : colunaEsquerda) {
+        if (static_cast<int>(removerCoresANSI(s).length()) > larguraEsq) {
+            larguraEsq = removerCoresANSI(s).length();
+        }
+    }
+    
+    int larguraDir = 0;
+    for (const auto& s : colunaDireita) {
+        if (static_cast<int>(removerCoresANSI(s).length()) > larguraDir) {
+            larguraDir = removerCoresANSI(s).length();
+        }
+    }
+
+    int recuo = (obterLarguraTerminal() - (larguraEsq + espacamento + larguraDir)) / 2;
+    if (recuo < 0) recuo = 0;
+
+    size_t maxLinhas = std::max(colunaEsquerda.size(), colunaDireita.size());
+    std::cout << "\n";
+    for (size_t i = 0; i < maxLinhas; ++i) {
+        std::cout << std::string(recuo, ' ');
+        
+        if (i < colunaEsquerda.size()) {
+            std::string textoEsq = colunaEsquerda[i];
+            int padding = larguraEsq - removerCoresANSI(textoEsq).length();
+            std::cout << cor(corEsquerda) << textoEsq << std::string(padding > 0 ? padding : 0, ' ') << cor(Cor::RESET);
+        } else {
+            std::cout << std::string(larguraEsq, ' ');
+        }
+        
+        std::cout << std::string(espacamento, ' ');
+        
+        if (i < colunaDireita.size()) {
+            std::cout << cor(corDireita) << colunaDireita[i] << cor(Cor::RESET);
+        }
+        std::cout << "\n";
+    }
+    
+    return recuo;
 }

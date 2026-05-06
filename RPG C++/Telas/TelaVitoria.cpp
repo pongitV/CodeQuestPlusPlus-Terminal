@@ -3,7 +3,7 @@
 
 #include "TelaVitoria.h"
 #include "../Racas/RacaBase.h"
-#include "TelaMenu.h"
+#include "TelaCombate.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 
 void TelaVitoria::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido, int curaTotalRecebida, int turnosCombate, const std::vector<std::string>& itensObtidos)
@@ -23,11 +23,15 @@ void TelaVitoria::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroOb
        "     ░░░      ░░░░░    ░░░░░       ░░░░░░░    ░░░░░   ░░░░░ ░░░░░ ░░░░░   ░░░░░ ░░░  "
     };
 
-    std::cout << "\n" << std::string(largura, '=') << "\n\n";
+    std::cout << "\n";
+    SimplificacoesAparencia::imprimirLinhaDivisoria();
+    std::cout << "\n";
     SimplificacoesAparencia::imprimirCentralizadoMultilinha(logoVitoria, 85, SimplificacoesAparencia::cor(Cor::VERDE));
-    std::cout << "\n" << std::string(largura, '=') << "\n\n";
+    std::cout << "\n";
+    SimplificacoesAparencia::imprimirLinhaDivisoria();
+    std::cout << "\n";
 
-    std::vector<std::string> linhas = TelaMenu::comporEstatisticasBatalha(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, curaTotalRecebida, turnosCombate);
+    std::vector<std::string> linhas = TelaCombate::comporEstatisticasBatalha(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, curaTotalRecebida, turnosCombate);
     linhas.push_back("");
 
     if (!itensObtidos.empty()) {
@@ -38,7 +42,8 @@ void TelaVitoria::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroOb
     } else linhas.push_back("ITENS OBTIDOS: Nenhum");
 
     SimplificacoesAparencia::imprimirCentralizadoMultilinha(linhas, 0, SimplificacoesAparencia::cor(Cor::VERDE));
-    std::cout << "\n" << std::string(largura, '=') << "\n";
+    std::cout << "\n";
+    SimplificacoesAparencia::imprimirLinhaDivisoria();
 
     if (jogadorAtual->podeSubirDeNivel())
     {

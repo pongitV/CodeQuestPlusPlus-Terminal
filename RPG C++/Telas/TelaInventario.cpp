@@ -25,9 +25,13 @@ void TelaInventario::exibir(SistemaPersonagem* jogadorAtual, bool mostrarPrecos)
       " ░░░░░ ░░░░░    ░░░░░      ░░░      ░░░░░░░░░░ ░░░░░    ░░░░░    ░░░░░    ░░░░░   ░░░░░ ░░░░░   ░░░░░ ░░░░░    ░░░░░░░     "
     };
 
-    std::cout << "\n" << std::string(largura, '=') << "\n\n";
+    std::cout << "\n";
+    SimplificacoesAparencia::imprimirLinhaDivisoria();
+    std::cout << "\n";
     SimplificacoesAparencia::imprimirCentralizadoMultilinha(logoInventario, 121, SimplificacoesAparencia::cor(Cor::AMARELO)); 
-    std::cout << "\n" << std::string(largura, '=') << "\n\n";
+    std::cout << "\n";
+    SimplificacoesAparencia::imprimirLinhaDivisoria();
+    std::cout << "\n";
 
     int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
 
@@ -88,35 +92,32 @@ void TelaInventario::exibir(SistemaPersonagem* jogadorAtual, bool mostrarPrecos)
         tamanhoDaLinhaMaisLonga = std::max(tamanhoDaLinhaMaisLonga, static_cast<int>(linhaAtual.length()));
     }
     
-    int espacosEmBranco = std::max(0, (larguraDoTerminal - tamanhoDaLinhaMaisLonga) / 2);
-    std::string margemEsquerda(espacosEmBranco, ' ');
+    std::string margemEsquerda = SimplificacoesAparencia::espacosParaCentralizar(tamanhoDaLinhaMaisLonga);
 
     for (const std::string& linhaAtual : linhasParaImprimir) {
         std::cout << margemEsquerda << linhaAtual << "\n";
     }
     
-    std::cout << "\n" << std::string(larguraDoTerminal, '=') << "\n";
+    std::cout << "\n";
+    SimplificacoesAparencia::imprimirLinhaDivisoria();
 }
 
 void TelaInventario::exibirMenuInteracaoItem(Item* itemEncontrado)
 {
-    int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
     std::string mensagemBase = "Digite o codigo do item para interagir ou [0] VOLTAR: ";
-    int espacos = std::max(0, (larguraDoTerminal - static_cast<int>(mensagemBase.length())) / 2);
+    std::string margemEsquerda = SimplificacoesAparencia::espacosParaCentralizar(mensagemBase.length());
 
     SimplificacoesAparencia::limparTela();
     TelaMenu::exibirLogoDoJogo("OPCOES DE ITEM");
     std::string nomeItem = itemEncontrado->obterNomeItem();
-    std::cout << "\n" << std::string(espacos, ' ') << "Item Selecionado: " << SimplificacoesAparencia::cor(Cor::CIANO) << nomeItem << SimplificacoesAparencia::cor(Cor::RESET) << "\n\n";
-    std::cout << std::string(espacos, ' ') << "[1] Usar / Equipar / Desequipar\n";
-    std::cout << std::string(espacos, ' ') << "[2] Inspecionar Detalhes\n";
-    std::cout << std::string(espacos, ' ') << "[0] Cancelar\n\n";
-    std::cout << std::string(espacos, ' ') << "Escolha: ";
+    std::cout << "\n" << margemEsquerda << "Item Selecionado: " << SimplificacoesAparencia::cor(Cor::CIANO) << nomeItem << SimplificacoesAparencia::cor(Cor::RESET) << "\n\n";
+    std::cout << margemEsquerda << "[1] Usar / Equipar / Desequipar\n";
+    std::cout << margemEsquerda << "[2] Inspecionar Detalhes\n";
+    std::cout << margemEsquerda << "[0] Cancelar\n\n";
+    std::cout << margemEsquerda << "Escolha: ";
 }
 
 void TelaInventario::exibirPrompt(const std::string& mensagem)
 {
-    int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
-    int espacos = std::max(0, (larguraDoTerminal - static_cast<int>(mensagem.length())) / 2);
-    std::cout << "\n" << std::string(espacos, ' ') << mensagem;
+    std::cout << "\n" << SimplificacoesAparencia::espacosParaCentralizar(mensagem.length()) << mensagem;
 }

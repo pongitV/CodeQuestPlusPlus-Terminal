@@ -39,41 +39,13 @@
 #include "../Utilidades/SimplificacoesAparencia.h"
 
 namespace {
-    std::vector<std::string> comporQuadroDeAtributos(const Atributos& stats, const std::string& tituloSecao, const std::string& tituloHabilidade, const std::string& nomeHab, const std::string& descHab) {
-        auto formatarAtributo = [](const std::string& nomeAtr, int valorAtr) { 
-            return " - " + nomeAtr + ": " + (valorAtr >= 0 ? "+" : "") + std::to_string(valorAtr); 
-        };
-        return {
-            tituloSecao,
-            formatarAtributo("Vida", stats.vida),
-            formatarAtributo("Forca", stats.forca),
-            formatarAtributo("Destreza", stats.destreza),
-            formatarAtributo("Resistencia", stats.resistencia),
-            formatarAtributo("Constituicao", stats.constituicao),
-            formatarAtributo("Inteligencia", stats.inteligencia),
-            formatarAtributo("Sabedoria", stats.sabedoria),
-            "",
-            tituloHabilidade,
-            " " + nomeHab,
-            " - " + descHab
-        };
-    }
 }
 
 std::unique_ptr<SistemaPersonagem> GerenciadorMenu::menuPrincipal() 
 {
     while (true) {
-        SimplificacoesAparencia::limparTela();
-        TelaMenu::exibirLogoDoJogo("MENU PRINCIPAL");
         bool temSave = SistemaSave::saveExiste();
-        
-        std::cout << "\n";
-        int espacos = std::max(0, (SimplificacoesAparencia::obterLarguraTerminal() - 20) / 2);
-        std::string margemEsquerda(espacos, ' ');
-        std::cout << margemEsquerda << "[1] Novo Jogo\n";
-        if (temSave) std::cout << margemEsquerda << "[2] Continuar Jogo\n";
-        std::cout << margemEsquerda << "[0] Sair\n\n";
-        std::cout << margemEsquerda << "Escolha: ";
+        TelaMenu::exibirOpcoesMenuPrincipal(temSave);
         
         std::string escolha;
         std::cin >> escolha;
@@ -83,11 +55,8 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::menuPrincipal()
         } else if (escolha == "2" && temSave) {
             auto saves = SistemaSave::listarSaves();
             if (saves.empty()) continue;
-
-            SimplificacoesAparencia::limparTela();
-            TelaMenu::exibirLogoDoJogo("CARREGAR JOGO");
-            std::cout << "\n" << margemEsquerda << "Selecione o save que deseja carregar:\n\n";
             
+            std::vector<std::string> informacoesSaves;
             for (size_t i = 0; i < saves.size(); ++i) {
                 std::ifstream arquivoSave(saves[i]);
                 if (arquivoSave.is_open()) {
@@ -97,30 +66,29 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::menuPrincipal()
                     std::getline(arquivoSave, classeStr);
                     int nivel;
                     arquivoSave >> nivel;
-                    std::cout << margemEsquerda << "[" << i + 1 << "] " << nome << " | Nv " << nivel << " | " << classeStr << " | " << racaStr << "\n";
+                    informacoesSaves.push_back("[" + std::to_string(i + 1) + "] " + nome + " | Nv " + std::to_string(nivel) + " | " + classeStr + " | " + racaStr);
                 } else {
                     std::string nomeExibicao = saves[i].substr(5, saves[i].size() - 9);
-                    std::cout << margemEsquerda << "[" << i + 1 << "] " << nomeExibicao << "\n";
+                    informacoesSaves.push_back("[" + std::to_string(i + 1) + "] " + nomeExibicao);
                 }
             }
-            std::cout << "\n" << margemEsquerda << "[0] Voltar\n\n";
-            std::cout << margemEsquerda << "Escolha: ";
+            TelaMenu::exibirMenuCarregarJogo(informacoesSaves);
             
             int escolhaSave;
             while (!(std::cin >> escolhaSave) || escolhaSave < 0 || escolhaSave > static_cast<int>(saves.size())) { 
                 std::cin.clear(); 
                 std::cin.ignore(1000, '\n'); 
-                std::cout << margemEsquerda << "Opcao invalida. Escolha: "; 
+                std::cout << SimplificacoesAparencia::espacosParaCentralizar(20) << "Opcao invalida. Escolha: "; 
             }
             
             if (escolhaSave > 0 && escolhaSave <= (int)saves.size()) {
                 auto jogador = SistemaSave::carregarJogo(saves[escolhaSave - 1]);
                 if (jogador) {
-                    std::cout << "\n" << margemEsquerda << "[SISTEMA]: Jogo carregado com sucesso!\n";
+                    std::cout << "\n" << SimplificacoesAparencia::espacosParaCentralizar(20) << "[SISTEMA]: Jogo carregado com sucesso!\n";
                     SimplificacoesAparencia::aguardarEnter();
                     return jogador;
                 } else {
-                    std::cout << "\n" << margemEsquerda << "[ERRO]: Falha ao carregar o save!\n";
+                    std::cout << "\n" << SimplificacoesAparencia::espacosParaCentralizar(20) << "[ERRO]: Falha ao carregar o save!\n";
                     SimplificacoesAparencia::aguardarEnter();
                 }
             }
@@ -161,11 +129,7 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::iniciarCriacaoDeSistemaPerso
 
 void GerenciadorMenu::etapaEscolherNome(std::string& nomeDoPersonagem, EtapaCriacao& etapaAtual)
 {
-    SimplificacoesAparencia::limparTela();
-    TelaMenu::exibirLogoDoJogo("INTRODUCAO AO RPG");
-    SimplificacoesAparencia::imprimirDigitando(" [NARRACAO]: O reino clama por um novo destino...\n", 35);
-    SimplificacoesAparencia::imprimirDigitando(" [NARRACAO]: E todas lendas possuem um nome.\n\n", 35);
-    std::cout << " > Escolha o nome do seu personagem (ou '0' para sair): ";
+    TelaMenu::exibirPromptNome();
     
     std::string entrada;
     std::getline(std::cin >> std::ws, entrada);
@@ -177,12 +141,7 @@ void GerenciadorMenu::etapaEscolherNome(std::string& nomeDoPersonagem, EtapaCria
 
 void GerenciadorMenu::etapaEscolherRaca(const std::string& nome, std::unique_ptr<RacaBase>& racaEscolhida, EtapaCriacao& etapaAtual)
 {
-    SimplificacoesAparencia::limparTela();
-    TelaMenu::exibirLogoDoJogo("SELECAO DE RACA");
-    std::cout << "JOGADOR: " << nome << "\n";
-    std::cout << std::string(SimplificacoesAparencia::obterLarguraTerminal(), '-') << "\n";
-    SimplificacoesAparencia::imprimirDigitando(" [NARRACAO]: Qual sua origem?\n\n", 35);
-    std::cout << "  [1] Dwarf\n  [2] Elfo\n  [3] Humano\n  [4] Ork\n\n  [0] VOLTAR (selecao de nome)\n\n > Sua escolha: ";
+    TelaMenu::exibirPromptRaca(nome);
     
     int escolha;
     if (!(std::cin >> escolha)) { std::cin.clear(); std::cin.ignore(1000, '\n'); return; }
@@ -198,7 +157,7 @@ void GerenciadorMenu::etapaEscolherRaca(const std::string& nome, std::unique_ptr
 
     if (racaTemporaria) 
     {
-        std::vector<std::string> info = comporQuadroDeAtributos(racaTemporaria->obterAtributosRaca(), "[ ATRIBUTOS BASE DE RAÇA ]", "[ HABILIDADE PASSIVA ]", racaTemporaria->obterNomeHabilidadeRaca(), racaTemporaria->obterDescricaoHabilidadeRaca());
+        std::vector<std::string> info = TelaMenu::comporQuadroDeAtributos(racaTemporaria->obterAtributosRaca(), "[ ATRIBUTOS BASE DE RAÇA ]", "[ HABILIDADE PASSIVA ]", racaTemporaria->obterNomeHabilidadeRaca(), racaTemporaria->obterDescricaoHabilidadeRaca());
         
         if (TelaMenu::exibirConfirmacaoDeEscolhaComArteLadoALado("RACA", racaTemporaria->obterNomeRaca(), info, racaTemporaria->obterAparenciaRaca())) 
         {
@@ -210,13 +169,7 @@ void GerenciadorMenu::etapaEscolherRaca(const std::string& nome, std::unique_ptr
 
 void GerenciadorMenu::etapaEscolherClasse(const std::string& nome, RacaBase* raca, std::unique_ptr<ClasseBase>& classeEscolhida, EtapaCriacao& etapaAtual)
 {
-    SimplificacoesAparencia::limparTela();
-    TelaMenu::exibirLogoDoJogo("SELECAO DE CLASSE");
-    std::cout << "JOGADOR: " << nome << " | RACA: " << raca->obterNomeRaca() << "\n";
-    std::cout << std::string(SimplificacoesAparencia::obterLarguraTerminal(), '-') << "\n";
-    SimplificacoesAparencia::imprimirDigitando(" [NARRACAO]: Qual caminho voce seguira neste mundo?\n\n", 35);
-    
-    std::cout << "  [1] Arqueiro\n  [2] Bardo\n  [3] Guerreiro\n  [4] Mago\n\n  [0] VOLTAR (selecao de raca)\n\n > Sua escolha: ";
+    TelaMenu::exibirPromptClasse(nome, raca->obterNomeRaca());
     
     int escolha;
     if (!(std::cin >> escolha)) { std::cin.clear(); std::cin.ignore(1000, '\n'); return; }
@@ -233,7 +186,7 @@ void GerenciadorMenu::etapaEscolherClasse(const std::string& nome, RacaBase* rac
 
     if (classeTemporaria) 
     {
-        std::vector<std::string> info = comporQuadroDeAtributos(classeTemporaria->obterAtributosClasse(), "[ ATRIBUTOS BONUS DA CLASSE ]", "[ HABILIDADE PASSIVA DA CLASSE ]", classeTemporaria->obterNomePassivaClasse(), classeTemporaria->obterDescricaoPassivaClasse());
+        std::vector<std::string> info = TelaMenu::comporQuadroDeAtributos(classeTemporaria->obterAtributosClasse(), "[ ATRIBUTOS BONUS DA CLASSE ]", "[ HABILIDADE PASSIVA DA CLASSE ]", classeTemporaria->obterNomePassivaClasse(), classeTemporaria->obterDescricaoPassivaClasse());
         
         info.push_back("");
         info.insert(info.end(), {
@@ -271,14 +224,7 @@ void GerenciadorMenu::etapaEscolherClasse(const std::string& nome, RacaBase* rac
 
 void GerenciadorMenu::etapaConfigurarParry(const std::string& nome, RacaBase* raca, ClasseBase* classe, bool& parry, EtapaCriacao& etapaAtual)
 {
-    SimplificacoesAparencia::limparTela();
-    TelaMenu::exibirLogoDoJogo("CONFIGURACOES DO JOGO");
-    std::cout << "JOGADOR: " << nome << " | RACA: " << raca->obterNomeRaca() << " | CLASSE: " << classe->obterNomeClasse() << "\n";
-    std::cout << std::string(SimplificacoesAparencia::obterLarguraTerminal(), '-') << "\n";
-    SimplificacoesAparencia::imprimirDigitando(" [SISTEMA]: Deseja ativar o sistema de PARRY?\n\n", 35);
-    SimplificacoesAparencia::imprimirDigitando(" (Permite reduzir danos ao digitar uma sequencia de numeros num tempo limite)\n\n", 35);
-    
-    std::cout << "  [1] LIGAR Parry\n  [2] DESLIGAR Parry\n\n  [0] VOLTAR (selecao de classe)\n\n > Sua escolha: ";
+    TelaMenu::exibirPromptParry(nome, raca->obterNomeRaca(), classe->obterNomeClasse());
     
     int escolha;
     if (!(std::cin >> escolha)) { std::cin.clear(); std::cin.ignore(1000, '\n'); return; }
@@ -293,16 +239,7 @@ void GerenciadorMenu::etapaConfigurarParry(const std::string& nome, RacaBase* ra
 
 void GerenciadorMenu::etapaEscolherDificuldade(const std::string& nome, RacaBase* raca, ClasseBase* classe, int& dificuldade, EtapaCriacao& etapaAtual)
 {
-    SimplificacoesAparencia::limparTela();
-    TelaMenu::exibirLogoDoJogo("DIFICULDADE DO MUNDO");
-    std::cout << "JOGADOR: " << nome << " | RACA: " << raca->obterNomeRaca() << " | CLASSE: " << classe->obterNomeClasse() << "\n";
-    std::cout << std::string(SimplificacoesAparencia::obterLarguraTerminal(), '-') << "\n";
-    SimplificacoesAparencia::imprimirDigitando(" [SISTEMA]: Escolha o nivel de desafio da sua jornada:\n\n", 35);
-    
-    std::cout << "  [1] FACIL   (Inimigos com 1x Atributos, sem habilidades de raca e sem classe)\n";
-    std::cout << "  [2] NORMAL  (Inimigos com 1.5x Atributos, com habilidades de raca mas sem classes)\n";
-    std::cout << "  [3] DIFICIL (Inimigos com 2x Atributos, com habilidades de raca e com classes)\n";
-    std::cout << "\n  [0] VOLTAR (configuracao de parry)\n\n > Sua escolha: ";
+    TelaMenu::exibirPromptDificuldade(nome, raca->obterNomeRaca(), classe->obterNomeClasse());
     
     int escolha;
     if (!(std::cin >> escolha)) { std::cin.clear(); std::cin.ignore(1000, '\n'); return; }

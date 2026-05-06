@@ -90,22 +90,7 @@ namespace {
     void exibirDialogoCavaleiro(const std::string& titulo, const std::vector<std::string>& textoEsquerda, int larguraTerminalAtual) {
         SimplificacoesAparencia::limparTela();
         SimplificacoesAparencia::exibirCabecalho(titulo, Cor::CIANO);
-        int maxLinhas = std::max(textoEsquerda.size(), arteCavaleiro.size());
-        int larguraInfo = 55;
-        int recuo = std::max(0, (larguraTerminalAtual - (larguraInfo + 40)) / 2);
-        std::cout << "\n";
-        for (size_t i = 0; i < maxLinhas; ++i) {
-            std::cout << std::string(recuo, ' ');
-            if (i < textoEsquerda.size()) {
-                std::cout << std::left << std::setw(larguraInfo) << textoEsquerda[i];
-            } else {
-                std::cout << std::string(larguraInfo, ' ');
-            }
-            if (i < arteCavaleiro.size()) {
-                std::cout << SimplificacoesAparencia::cor(Cor::CIANO) << arteCavaleiro[i] << SimplificacoesAparencia::cor(Cor::RESET);
-            }
-            std::cout << "\n";
-        }
+        SimplificacoesAparencia::imprimirLadoALado(textoEsquerda, arteCavaleiro, 55, 0, Cor::RESET, Cor::CIANO);
     }
 }
 

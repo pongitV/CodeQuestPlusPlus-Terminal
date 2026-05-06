@@ -24,12 +24,16 @@ static const std::vector<std::string> logoBestiario = {
 
 static void exibirCabecalho(int largura, const std::string& tituloSecundario = "") {
     SimplificacoesAparencia::limparTela();
-    std::cout << "\n" << std::string(largura, '=') << "\n\n";
+    std::cout << "\n";
+    SimplificacoesAparencia::imprimirLinhaDivisoria();
+    std::cout << "\n";
     SimplificacoesAparencia::imprimirCentralizadoMultilinha(logoBestiario, 101, SimplificacoesAparencia::cor(Cor::VERDE));
-    std::cout << "\n" << std::string(largura, '=') << "\n";
+    std::cout << "\n";
+    SimplificacoesAparencia::imprimirLinhaDivisoria();
     if (!tituloSecundario.empty()) {
         SimplificacoesAparencia::imprimirCentralizado(tituloSecundario);
-        std::cout << std::string(largura, '=') << "\n\n";
+        SimplificacoesAparencia::imprimirLinhaDivisoria();
+        std::cout << "\n";
     } else {
         std::cout << "\n";
     }
@@ -141,7 +145,9 @@ void TelaBestiario::exibirFicha(SistemaPersonagem* jogadorAtual, const std::stri
             SimplificacoesAparencia::imprimirCentralizado("???", SimplificacoesAparencia::cor(Cor::CINZA));
             SimplificacoesAparencia::imprimirCentralizado(textoCasoOculto, SimplificacoesAparencia::cor(Cor::CINZA));
         }
-        std::cout << "\n" << std::string(largura, '-') << "\n\n";
+        std::cout << "\n";
+        SimplificacoesAparencia::imprimirLinhaDivisoria('-');
+        std::cout << "\n";
     };
 
     while (true) {
@@ -202,7 +208,9 @@ void TelaBestiario::exibirFicha(SistemaPersonagem* jogadorAtual, const std::stri
                 SimplificacoesAparencia::imprimirCentralizado("(Derrote o inimigo para descobrir as passivas)", SimplificacoesAparencia::cor(Cor::CINZA));
             }
         }
-        std::cout << "\n" << std::string(largura, '-') << "\n\n";
+        std::cout << "\n";
+        SimplificacoesAparencia::imprimirLinhaDivisoria('-');
+        std::cout << "\n";
 
         // Drops
         imprimirSecaoBase("DROPS", true, [&]() {

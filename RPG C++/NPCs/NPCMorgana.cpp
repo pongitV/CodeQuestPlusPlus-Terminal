@@ -92,25 +92,7 @@ void NPCMorgana::interagir(SistemaPersonagem* jogadorAtual)
         menuEsquerda.push_back("[0] VOLTAR");
         menuEsquerda.push_back("");
 
-        int maxLinhas = std::max(menuEsquerda.size(), arteMorgana.size());
-        int larguraInfo = 45;
-        int recuo = (larguraDoTerminal - (larguraInfo + 60)) / 2;
-        if (recuo < 0) recuo = 0;
-
-        std::cout << "\n";
-        for (size_t i = 0; i < maxLinhas; ++i) {
-            std::cout << std::string(recuo, ' ');
-            if (i < menuEsquerda.size()) {
-                std::cout << std::left << std::setw(larguraInfo) << menuEsquerda[i];
-            } else {
-                std::cout << std::string(larguraInfo, ' ');
-            }
-            if (i < arteMorgana.size()) {
-                std::cout << SimplificacoesAparencia::cor(Cor::MAGENTA) << arteMorgana[i] << SimplificacoesAparencia::cor(Cor::RESET); // Magenta
-            }
-            std::cout << "\n";
-        }
-        
+        int recuo = SimplificacoesAparencia::imprimirLadoALado(menuEsquerda, arteMorgana, 45, 0, Cor::RESET, Cor::MAGENTA);
         std::cout << "\n" << std::string(recuo, ' ') << "Escolha: ";
         std::cin >> opcaoMorgana;
 

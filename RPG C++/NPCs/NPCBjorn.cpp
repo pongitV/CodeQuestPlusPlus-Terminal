@@ -88,8 +88,7 @@ void NPCBjorn::interagir(SistemaPersonagem* jogadorAtual)
         SimplificacoesAparencia::limparTela();
         SimplificacoesAparencia::exibirCabecalho("FORJA DO BJORN", Cor::AMARELO);
         
-        int espacosMsg = (larguraDoTerminal - 55) / 2;
-        std::string margemMsg(espacosMsg > 0 ? espacosMsg : 0, ' ');
+        std::string margemMsg = SimplificacoesAparencia::espacosParaCentralizar(55);
 
         std::vector<std::string> menuEsquerda = {
             "[Bjorn]: Bem-vindo a minha forja, salvador!",
@@ -105,25 +104,7 @@ void NPCBjorn::interagir(SistemaPersonagem* jogadorAtual)
             ""
         };
 
-        int maxLinhas = std::max(menuEsquerda.size(), arteBjorn.size());
-        int larguraInfo = 45;
-        int recuo = (larguraDoTerminal - (larguraInfo + 60)) / 2;
-        if (recuo < 0) recuo = 0;
-
-        std::cout << "\n";
-        for (size_t i = 0; i < maxLinhas; ++i) {
-            std::cout << std::string(recuo, ' ');
-            if (i < menuEsquerda.size()) {
-                std::cout << std::left << std::setw(larguraInfo) << menuEsquerda[i];
-            } else {
-                std::cout << std::string(larguraInfo, ' ');
-            }
-            if (i < arteBjorn.size()) {
-                std::cout << SimplificacoesAparencia::cor(Cor::AMARELO) << arteBjorn[i] << SimplificacoesAparencia::cor(Cor::RESET);
-            }
-            std::cout << "\n";
-        }
-        
+        int recuo = SimplificacoesAparencia::imprimirLadoALado(menuEsquerda, arteBjorn, 45, 0, Cor::RESET, Cor::AMARELO);
         std::cout << "\n" << std::string(recuo, ' ') << "Escolha: ";
         std::cin >> opcaoBjorn;
 

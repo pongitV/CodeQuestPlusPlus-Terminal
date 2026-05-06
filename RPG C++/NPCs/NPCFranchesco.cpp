@@ -89,25 +89,7 @@ void NPCFranchesco::interagir(SistemaPersonagem* jogadorAtual)
             ""
         };
 
-        int maxLinhas = std::max(menuEsquerda.size(), arteFranchesco.size());
-        int larguraInfo = 45;
-        int recuo = (larguraDoTerminal - (larguraInfo + 45)) / 2;
-        if (recuo < 0) recuo = 0;
-
-        std::cout << "\n";
-        for (size_t i = 0; i < maxLinhas; ++i) {
-            std::cout << std::string(recuo, ' ');
-            if (i < menuEsquerda.size()) {
-                std::cout << std::left << std::setw(larguraInfo) << menuEsquerda[i];
-            } else {
-                std::cout << std::string(larguraInfo, ' ');
-            }
-            if (i < arteFranchesco.size()) {
-                std::cout << SimplificacoesAparencia::cor(Cor::AMARELO) << arteFranchesco[i] << SimplificacoesAparencia::cor(Cor::RESET); // Amarelo para destacar o comerciante
-            }
-            std::cout << "\n";
-        }
-        
+        int recuo = SimplificacoesAparencia::imprimirLadoALado(menuEsquerda, arteFranchesco, 45, 0, Cor::RESET, Cor::AMARELO);
         std::cout << "\n" << std::string(recuo, ' ') << "Escolha: ";
         std::cin >> opcaoFranchesco;
 

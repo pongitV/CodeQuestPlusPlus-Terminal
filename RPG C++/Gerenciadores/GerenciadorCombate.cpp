@@ -184,8 +184,9 @@ void GerenciadorCombate::processarMenuDeAcoesDoJogador(SistemaPersonagem* person
 {
     int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
     std::string textoDoTurno = "TURNO " + std::to_string(contadorDoTurnoAtual) + " | VEZ DE " + personagemAgindo->obterNome();
-    int espacosTurno = std::max(0, (larguraDoTerminal - static_cast<int>(textoDoTurno.length())) / 2);
-    std::cout << "\n" << std::string(espacosTurno, ' ') << textoDoTurno << "\n";
+    std::cout << "\n";
+    SimplificacoesAparencia::imprimirCentralizado(textoDoTurno);
+    std::cout << "\n";
 
     std::string textoAcoes = "1. Atacar | 2. Defender | 3. Habilidade | 4. Inventario | 5. Jogador | 6. Bestiario | Escolha: ";
     int espacosAcoes = std::max(0, (larguraDoTerminal - static_cast<int>(textoAcoes.length())) / 2);

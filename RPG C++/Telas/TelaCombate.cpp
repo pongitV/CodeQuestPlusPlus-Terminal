@@ -58,23 +58,23 @@ void TelaCombate::exibirLogoParaTelaDeCombate(const std::string& tituloDaTela)
     };
 
     std::cout << "\n";
-    std::cout << std::string(larguraConsole, '=') << "\n\n";
+    SimplificacoesAparencia::imprimirLinhaDivisoria();
+    std::cout << "\n";
 
     // Imprime a logo centralizada com cor Vermelha
     SimplificacoesAparencia::imprimirCentralizadoMultilinha(logo, 95, SimplificacoesAparencia::cor(Cor::VERMELHO));
 
     std::cout << "\n";
     
-    std::cout << std::string(larguraConsole, '=') << "\n";
-    int espacos = (larguraConsole - (int)tituloDaTela.length()) / 2;
-    std::cout << std::string(espacos > 0 ? espacos : 0, ' ') << tituloDaTela << "\n";
-    std::cout << std::string(larguraConsole, '=') << "\n\n";
+    SimplificacoesAparencia::imprimirLinhaDivisoria();
+    std::cout << SimplificacoesAparencia::espacosParaCentralizar(tituloDaTela.length()) << tituloDaTela << "\n";
+    SimplificacoesAparencia::imprimirLinhaDivisoria();
+    std::cout << "\n";
 }
 
 void TelaCombate::exibirBarraDeStatusDoJogador(SistemaPersonagem* jogadorAtual) 
 {
     if (jogadorAtual == nullptr) return;
-    int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
     std::string nomeDaArma = (jogadorAtual->obterArma()) ? jogadorAtual->obterArma()->obterNomeItem() + jogadorAtual->obterArma()->obterInfoStatus() : "Punhos";
     std::string nomeDoEscudo = (jogadorAtual->obterEscudo()) ? jogadorAtual->obterEscudo()->obterNomeItem() + jogadorAtual->obterEscudo()->obterInfoStatus() : "Nenhum";
     std::string nomeDaArmadura = (jogadorAtual->obterArmadura()) ? jogadorAtual->obterArmadura()->obterNomeItem() + jogadorAtual->obterArmadura()->obterInfoStatus() : "Trapos";
@@ -103,15 +103,12 @@ void TelaCombate::exibirBarraDeStatusDoJogador(SistemaPersonagem* jogadorAtual)
         "| " + std::string(11, ' ') + " |  STATUS: " + statusStr
     };
 
-    int maxLen = 0;
-    for (const std::string& linhaDeTextoAtual : linhasParaImprimir) 
-        if ((int)linhaDeTextoAtual.length() > maxLen) maxLen = (int)linhaDeTextoAtual.length();
-    std::string margemEsquerda(std::max(0, (larguraDoTerminal - maxLen) / 2), ' ');
+    std::string margemEsquerda = SimplificacoesAparencia::espacosParaCentralizar(95);
 
-    std::cout << std::string(larguraDoTerminal, '=') << "\n";
+    SimplificacoesAparencia::imprimirLinhaDivisoria();
     for (const std::string& linhaDeTextoAtual : linhasParaImprimir) 
         std::cout << margemEsquerda << linhaDeTextoAtual << "\n";
-    std::cout << std::string(larguraDoTerminal, '=') << "\n";
+    SimplificacoesAparencia::imprimirLinhaDivisoria();
 }
 
 void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPersonagem*>& listaDeInimigos) 
@@ -122,7 +119,7 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
     int quantidadeTotalDeInimigosNaHorda = static_cast<int>(listaDeInimigos.size());
     int larguraSeparadaParaCadaColuna = larguraTerminal / quantidadeTotalDeInimigosNaHorda; 
 
-    std::cout << std::string(larguraTerminal, '-') << "\n";
+    SimplificacoesAparencia::imprimirLinhaDivisoria('-');
     for (size_t indiceInimigo = 0; indiceInimigo < listaDeInimigos.size(); indiceInimigo++) 
     {
         std::string tagIdentificadoraDoInimigo = listaDeInimigos[indiceInimigo]->obterNome() + " [" + std::to_string(indiceInimigo) + "]";
@@ -179,5 +176,26 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
         }
         std::cout << "\n";
     }
-    std::cout << std::string(larguraTerminal, '-') << "\n\n";
+    SimplificacoesAparencia::imprimirLinhaDivisoria('-');
+    std::cout << "\n";
+}
+
+std::vector<std::string> TelaCombate::comporEstatisticasBatalha(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido, int curaTotalRecebida, int turnosCombate) 
+{
+    return {
+        "NOME:           " + jogadorAtual->obterNome(),
+        "RACA:           " + jogadorAtual->obterRaca()->obterNomeRaca(),
+        "CLASSE:         " + jogadorAtual->obterNomeClasse(),
+        "HP RESTANTE:    " + std::to_string(jogadorAtual->obterVida()) + "/" + std::to_string(jogadorAtual->obterVidaMaxima()),
+        "OURO TOTAL:     " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G",
+        "NIVEL:          " + std::to_string(jogadorAtual->obterNivel()) + " (XP: " + std::to_string(jogadorAtual->obterXpAtual()) + "/" + std::to_string(jogadorAtual->obterXpParaSubir()) + ")",
+        "",
+        "--- ESTATISTICAS DA BATALHA ---",
+        "OURO OBTIDO:   +" + std::to_string(quantidadeDeOuroObtido) + "G",
+        "XP OBTIDO:     +" + std::to_string(quantidadeDeXpObtido) + " XP",
+        "DANO TOTAL CAUSADO:   " + std::to_string(totalDeDanoCausado),
+        "DANO TOTAL RECEBIDO:  " + std::to_string(totalDeDanoRecebido),
+        "CURA TOTAL RECEBIDA:  " + std::to_string(curaTotalRecebida),
+        "NUMERO DE TURNOS:         " + std::to_string(turnosCombate)
+    };
 }

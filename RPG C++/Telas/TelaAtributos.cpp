@@ -15,6 +15,52 @@ struct EfeitoInfo {
     bool mostrarTurnos;
 };
 
+namespace {
+    void exibirDetalhesAtributos(SistemaPersonagem* jogadorAtual) {
+        SimplificacoesAparencia::limparTela();
+        SimplificacoesAparencia::exibirCabecalho("DETALHES DOS ATRIBUTOS", Cor::MAGENTA);
+        
+        std::vector<std::string> linhas;
+        linhas.push_back("");
+        linhas.push_back("--- EFEITOS DE CADA ATRIBUTO ---");
+        linhas.push_back(" Vida         : Pontos de vida (HP) maximos do personagem.");
+        linhas.push_back(" Forca        : Aumenta o dano base de ataques fisicos.");
+        linhas.push_back(" Destreza     : Aumenta o dano fisico final e define a ordem de turno.");
+        linhas.push_back(" Resistencia  : Reduz o dano fisico recebido de forma fixa.");
+        linhas.push_back(" Constituicao : Reduz o dano fisico recebido em porcentagem.");
+        linhas.push_back(" Inteligencia : Aumenta o dano base de ataques magicos.");
+        linhas.push_back(" Sabedoria    : Aumenta o dano magico final e a potencia de curas.");
+        linhas.push_back("");
+        
+        linhas.push_back("--- ATRIBUTOS DE DANO RECOMENDADOS PARA A CLASSE " + jogadorAtual->obterNomeClasse() + " ---");
+        
+        TipoClasse tipo = jogadorAtual->obterTipoClasse();
+        if (tipo == TipoClasse::Guerreiro) {
+            linhas.push_back(" 1. Forca    : Aumenta o dano base, essencial para armas pesadas.");
+            linhas.push_back(" 2. Destreza : Multiplica o dano final, util para qualquer build fisica.");
+        } else if (tipo == TipoClasse::Arqueiro) {
+            linhas.push_back(" 1. Destreza : Atributo principal, aumenta o dano e define a ordem de turno.");
+            linhas.push_back(" 2. Forca    : Aumenta o dano base, fortalecendo o dano fisico geral.");
+        } else if (tipo == TipoClasse::Mago) {
+            linhas.push_back(" 1. Inteligencia : Essencial, aumenta drasticamente o dano base de magias.");
+            linhas.push_back(" 2. Sabedoria    : Multiplica o dano magico final e fortalece habilidades.");
+        } else if (tipo == TipoClasse::Bardo) {
+            linhas.push_back(" 1. Sabedoria    : Fortalece intensamente os efeitos das curas e utilidade do Bardo.");
+            linhas.push_back(" 2. Inteligencia : Melhora o dano magico, permitindo que o Bardo lute efetivamente.");
+        } else {
+            linhas.push_back(" Nenhum atributo de dano especifico definido para esta classe.");
+        }
+
+        int tamanhoDaLinhaMaisLonga = 0;
+        for (const std::string& linha : linhas) {
+            if (static_cast<int>(linha.length()) > tamanhoDaLinhaMaisLonga) tamanhoDaLinhaMaisLonga = linha.length();
+        }
+        
+        SimplificacoesAparencia::imprimirCentralizadoMultilinha(linhas, tamanhoDaLinhaMaisLonga, SimplificacoesAparencia::cor(Cor::BRANCO));
+        SimplificacoesAparencia::aguardarEnter();
+    }
+}
+
 void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
 {
     if (jogadorAtual == nullptr) return;
@@ -34,9 +80,13 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
        " ░░░░░       ░░░░░   ░░░░░░░░░  ░░░░░   ░░░░░ ░░░░░   ░░░░░ "
     };
 
-    std::cout << "\n" << std::string(largura, '=') << "\n\n";
+    std::cout << "\n";
+    SimplificacoesAparencia::imprimirLinhaDivisoria();
+    std::cout << "\n";
     SimplificacoesAparencia::imprimirCentralizadoMultilinha(logoFicha, 59, SimplificacoesAparencia::cor(Cor::MAGENTA));
-    std::cout << "\n" << std::string(largura, '=') << "\n\n";
+    std::cout << "\n";
+    SimplificacoesAparencia::imprimirLinhaDivisoria();
+    std::cout << "\n";
 
     double multiplicadorDeAtributosAtual = jogadorAtual->obterMultiplicador();
     int turnosBuff = jogadorAtual->obterTurnosEfeito(EfeitoID::BuffAtributos);
@@ -47,8 +97,7 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
     int resPerdida       = jogadorAtual->possuiEfeito(EfeitoID::QuebraResistencia) ? jogadorAtual->obterResistencia() : 0;
     int constPerdida     = jogadorAtual->possuiEfeito(EfeitoID::QuebraResistencia) ? (jogadorAtual->obterConstituicao() / 2) : 0;
 
-    int espacos = (largura - 50) / 2;
-    std::string margem(std::max(0, espacos), ' ');
+    std::string margem = SimplificacoesAparencia::espacosParaCentralizar(50);
 
     std::cout << margem << "NOME:           " << jogadorAtual->obterNome() << "\n";
     std::cout << margem << "RACA:           " << jogadorAtual->obterRaca()->obterNomeRaca() << "\n";
@@ -102,12 +151,12 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
         std::cout << "\n";
     };
 
-    printAtributo("Forca",     jogadorAtual->obterForca(),     forcaPerdida,     (tipoClasse == TipoClasse::Guerreiro) ? " [DANO]" : "");
-    printAtributo("Destreza",  jogadorAtual->obterDestreza(),  destrezaPerdida,  (tipoClasse == TipoClasse::Arqueiro)  ? " [DANO]" : "");
+    printAtributo("Forca",     jogadorAtual->obterForca(),     forcaPerdida,     "");
+    printAtributo("Destreza",  jogadorAtual->obterDestreza(),  destrezaPerdida,  "");
     printAtributo("Resistencia", jogadorAtual->obterResistencia(), resPerdida, "");
     printAtributo("Constituicao", jogadorAtual->obterConstituicao(), constPerdida, "");
-    printAtributo("Inteligencia", jogadorAtual->obterInteligencia(), 0, (tipoClasse == TipoClasse::Mago) ? " [DANO]" : "");
-    printAtributo("Sabedoria",  jogadorAtual->obterSabedoria(), 0, (tipoClasse == TipoClasse::Bardo)  ? " [DANO]" : "");
+    printAtributo("Inteligencia", jogadorAtual->obterInteligencia(), 0, "");
+    printAtributo("Sabedoria",  jogadorAtual->obterSabedoria(), 0, "");
 
     static const EfeitoInfo efeitosParaExibir[] = {
         {EfeitoID::BuffAtributos,     Cor::VERDE,   "Buff Atributos",   true},
@@ -131,7 +180,8 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
     }
     if (!temStatus) std::cout << margem << "Nenhum status ativo.\n";
 
-    std::cout << "\n" << std::string(largura, '=') << "\n";
+    std::cout << "\n";
+    SimplificacoesAparencia::imprimirLinhaDivisoria();
 }
 
 void TelaAtributos::gerenciarFichaDoJogador(SistemaPersonagem* jogadorAtual)
@@ -144,9 +194,8 @@ void TelaAtributos::gerenciarFichaDoJogador(SistemaPersonagem* jogadorAtual)
         TelaAtributos::exibir(jogadorAtual);
         std::string mensagemDoPrompt = "[0] VOLTAR | [1] LIGAR/DESLIGAR PARRY";
         if (jogadorAtual->podeSubirDeNivel()) mensagemDoPrompt += " | [2] SUBIR DE NIVEL";
-        mensagemDoPrompt += " | [3] VOLTAR AO MENU PRINCIPAL: ";
-        int espacosParaCentralizarMensagem = (larguraDoTerminal - (int)mensagemDoPrompt.length()) / 2;
-        std::cout << "\n" << std::string(std::max(0, espacosParaCentralizarMensagem), ' ') << mensagemDoPrompt;
+        mensagemDoPrompt += " | [3] VOLTAR AO MENU PRINCIPAL | [4] DETALHES DE ATRIBUTOS: ";
+        std::cout << "\n" << SimplificacoesAparencia::espacosParaCentralizar(mensagemDoPrompt.length()) << mensagemDoPrompt;
         std::cin >> opcaoEscolhidaNoMenuJogador;
 
         if (opcaoEscolhidaNoMenuJogador == "1") {
@@ -179,6 +228,8 @@ void TelaAtributos::gerenciarFichaDoJogador(SistemaPersonagem* jogadorAtual)
                     return;
                 }
             }
+        } else if (opcaoEscolhidaNoMenuJogador == "4") {
+            exibirDetalhesAtributos(jogadorAtual);
         }
     } while (opcaoEscolhidaNoMenuJogador != "0");
 }

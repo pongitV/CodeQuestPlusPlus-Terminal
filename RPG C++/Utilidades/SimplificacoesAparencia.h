@@ -40,8 +40,11 @@ public:
     static int obterPosicaoCursorY();
     
     static std::string removerCoresANSI(const std::string& texto);
+    static std::string espacosParaCentralizar(int comprimentoTexto);
+    static void imprimirLinhaDivisoria(char caractere = '=');
     static void imprimirCentralizado(const std::string& texto, const std::string& corAnsi = "");
     static void imprimirCentralizadoMultilinha(const std::vector<std::string>& linhas, int larguraVisual = 0, const std::string& corAnsi = "");
     static void imprimirDigitando(const std::string& texto, int atrasoMs);
     static void exibirCabecalho(const std::string& titulo, Cor corDoCabecalho = Cor::BRANCO);
+    static int imprimirLadoALado(const std::vector<std::string>& colunaEsquerda, const std::vector<std::string>& colunaDireita, int minLarguraEsquerda = 0, int espacamento = 0, Cor corEsquerda = Cor::RESET, Cor corDireita = Cor::RESET);
 };
