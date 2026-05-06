@@ -293,13 +293,15 @@ int SistemaPersonagem::receberDano(int danoBruto, int danoPerfurante, int danoRe
 
     if (combate.estaDefendendo && escudo != nullptr) {
         int bloqueio = escudo->obterReducaoDanoFixaEscudo();
-        std::cout << SimplificacoesAparencia::cor(Cor::CIANO) << ">> [DEFESA]: O escudo bloqueou " << bloqueio << " de dano!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+        std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::CIANO) << ">> [DEFESA]: O escudo bloqueou " << bloqueio << " de dano!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+        SimplificacoesAparencia::registrarLogBatalha(">> [DEFESA]: O escudo bloqueou " + std::to_string(bloqueio) + " de dano!");
         danoFinal -= bloqueio;
         if (danoFinal < 0) danoFinal = 0;
 
         escudo->reduzirDurabilidade(1);
         if (escudo->obterDurabilidadeAtualEscudo() <= 0) {
-            std::cout << SimplificacoesAparencia::cor(Cor::FUNDO_VERMELHO) << "[!] ALERTA: O escudo " << escudo->obterNomeItem() << " foi DESTRUIDO em pedacos!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+            std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::FUNDO_VERMELHO) << "[!] ALERTA: O escudo " << escudo->obterNomeItem() << " foi DESTRUIDO em pedacos!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+            SimplificacoesAparencia::registrarLogBatalha("[!] ALERTA: O escudo " + escudo->obterNomeItem() + " foi DESTRUIDO em pedacos!");
             mochila->removerItem(escudo);
             desequiparEscudo();
         }
@@ -351,7 +353,7 @@ void SistemaPersonagem::limparEfeitos() {
 bool SistemaPersonagem::podeAgir() const {
     for (auto& ef : efeitosAtivos) {
         if (ef->impedeAcao()) {
-            std::cout << SimplificacoesAparencia::cor(Cor::VERDE) << "[EFEITO]: " << nomePersonagem << " esta sob efeito de " << ef->obterNome() << " e nao pode agir neste turno!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+            std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::VERDE) << "[EFEITO]: " << nomePersonagem << " esta sob efeito de " << ef->obterNome() << " e nao pode agir neste turno!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
             return false;
         }
     }
@@ -378,7 +380,7 @@ void SistemaPersonagem::finalizarBatalha() {
     combate.vidaMaximaFixa = 0; 
     if (sistema.possuiRegeneracaoTroll && vidaAtual > 0 && vidaAtual < obterVidaMaxima()) {
         modificarVida(obterVidaMaxima());
-        std::cout << SimplificacoesAparencia::cor(Cor::VERDE) << "\n[SISTEMA]: Seu Orgao regenerador curou completamente suas feridas apos a batalha!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+        std::cout << "\n" << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::VERDE) << "[SISTEMA]: Seu Orgao regenerador curou completamente suas feridas apos a batalha!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
         SimplificacoesAparencia::aguardarEnter();
     }
 }

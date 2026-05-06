@@ -69,12 +69,7 @@ void EquipamentoArma::exibirInspecao() const {
     std::cout << "\n";
     
     std::vector<std::string> resto(linhas.begin() + 1, linhas.end());
-    int maxLen = 0;
-    for (const auto& l : resto) {
-        int len = SimplificacoesAparencia::removerCoresANSI(l).length();
-        if (len > maxLen) maxLen = len;
-    }
-    SimplificacoesAparencia::imprimirCentralizadoMultilinha(resto, maxLen);
+    SimplificacoesAparencia::imprimirBlocoCentralizado(resto);
 }
 
 std::string EquipamentoArma::obterInfoStatus() const {
@@ -100,7 +95,7 @@ void EquipamentoArma::aplicarEfeitoLentidao() { efeitoLentidao = true; }
 void EquipamentoArma::antesDeCausarDano(SistemaPersonagem* atacante, SistemaPersonagem* alvo) {
     if (temPropriedade(Propriedade::Penetrante) && !alvo->possuiEfeito(EfeitoID::QuebraResistencia)) {
         alvo->adicionarEfeito(std::make_unique<EfeitoQuebraResistencia>());
-        std::cout << SimplificacoesAparencia::cor(Cor::CIANO) << ">> A arma de " << atacante->obterNome() << " ativou o po magico! O ataque enfraqueceu " << alvo->obterNome() << " ate o fim do combate!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+        std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::CIANO) << ">> A arma de " << atacante->obterNome() << " ativou o po magico! O ataque enfraqueceu " << alvo->obterNome() << " ate o fim do combate!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
     }
 }
 
@@ -118,12 +113,12 @@ void EquipamentoArma::aoCausarDano(SistemaPersonagem* atacante, SistemaPersonage
     if (possuiEfeitoSangramento() && !alvo->possuiEfeito(EfeitoID::Sangramento)) {
         int danoSangramento = std::max(1, alvo->obterVidaMaxima() / 10);
         alvo->adicionarEfeito(std::make_unique<EfeitoSangramento>(3, danoSangramento));
-        std::cout << SimplificacoesAparencia::cor(Cor::VERMELHO) << ">> " << alvo->obterNome() << " comecou a sangrar profundamente! (3 turnos)" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+        std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::VERMELHO) << ">> " << alvo->obterNome() << " comecou a sangrar profundamente! (3 turnos)" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
     }
 
     if (possuiEfeitoLentidao() && !alvo->possuiEfeito(EfeitoID::Lentidao)) {
         alvo->adicionarEfeito(std::make_unique<EfeitoLentidao>(3));
-        std::cout << SimplificacoesAparencia::cor(Cor::MAGENTA) << ">> " << alvo->obterNome() << " foi coberto por gosma e sua destreza caiu pela metade! (3 turnos)" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+        std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::MAGENTA) << ">> " << alvo->obterNome() << " foi coberto por gosma e sua destreza caiu pela metade! (3 turnos)" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
     }
 }
 

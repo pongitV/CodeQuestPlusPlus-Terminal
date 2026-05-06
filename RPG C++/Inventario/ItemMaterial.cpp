@@ -36,12 +36,7 @@ void ItemMaterial::exibirInspecao() const {
     std::cout << "\n";
     
     std::vector<std::string> resto(linhas.begin() + 1, linhas.end());
-    int maxLen = 0;
-    for (const auto& l : resto) {
-        int len = SimplificacoesAparencia::removerCoresANSI(l).length();
-        if (len > maxLen) maxLen = len;
-    }
-    SimplificacoesAparencia::imprimirCentralizadoMultilinha(resto, maxLen);
+    SimplificacoesAparencia::imprimirBlocoCentralizado(resto);
 }
 
 std::unique_ptr<Item> fabricarItemMaterial(const std::string& nome) {

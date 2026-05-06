@@ -87,7 +87,7 @@ void Slime::aoCausarDano(SistemaPersonagem* atacante, SistemaPersonagem* alvo, i
     if (GeradorAleatorio::rolarChance(15)) {
         if (!alvo->possuiEfeito(EfeitoID::Lentidao)) {
             alvo->adicionarEfeito(std::make_unique<EfeitoLentidao>(3));
-            std::cout << SimplificacoesAparencia::cor(Cor::MAGENTA) << ">> [PASSIVA SLIME]: Uma gosma esverdeada grudou e deixou " << alvo->obterNome() << " mais lento!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+            std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::MAGENTA) << ">> [PASSIVA SLIME]: Uma gosma esverdeada grudou e deixou " << alvo->obterNome() << " mais lento!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
         }
     }
 }

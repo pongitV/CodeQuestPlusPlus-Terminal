@@ -41,7 +41,7 @@ std::unique_ptr<Item> fabricarItemConsumivel(const std::string& nome) {
             debuff->definirAcaoUsar([](SistemaPersonagem* usuario, SistemaPersonagem* alvo) {
                 if (!SistemaPersonagem::isValido(alvo) || alvo->obterVida() <= 0) return;
                 alvo->adicionarEfeito(std::make_unique<EfeitoLentidao>(3));
-                std::cout << "\n" << SimplificacoesAparencia::cor(Cor::MAGENTA) << ">> Voce jogou o frasco! " << alvo->obterNome() << " esta com lentidao por 3 turnos!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+                std::cout << "\n" << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::MAGENTA) << ">> Voce jogou o frasco! " << alvo->obterNome() << " esta com lentidao por 3 turnos!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
             });
             return debuff;
         }},
@@ -51,7 +51,7 @@ std::unique_ptr<Item> fabricarItemConsumivel(const std::string& nome) {
             debuff->definirAcaoUsar([](SistemaPersonagem* usuario, SistemaPersonagem* alvo) {
                 if (!SistemaPersonagem::isValido(alvo) || alvo->obterVida() <= 0) return;
                 alvo->adicionarEfeito(std::make_unique<EfeitoFraqueza>(3));
-                std::cout << "\n" << SimplificacoesAparencia::cor(Cor::VERMELHO) << ">> Voce jogou o frasco! " << alvo->obterNome() << " teve sua forca reduzida em 25% por 3 turnos!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+                std::cout << "\n" << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::VERMELHO) << ">> Voce jogou o frasco! " << alvo->obterNome() << " teve sua forca reduzida em 25% por 3 turnos!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
             });
             return debuff;
         }},

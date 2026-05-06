@@ -13,9 +13,9 @@
 #include "../Inventario/EquipamentoArma.h"
 
 namespace {
-    void processarEncantamentos(SistemaPersonagem* jogadorAtual, bool isUniversal, const std::string& margemMsg);
-    void processarPocoes(SistemaPersonagem* jogadorAtual, bool isBuff, const std::string& margemMsg);
-    void processarMissaoLabirinto(SistemaPersonagem* jogadorAtual, const std::string& margemMsg);
+    void processarEncantamentos(SistemaPersonagem* jogadorAtual, bool isUniversal);
+    void processarPocoes(SistemaPersonagem* jogadorAtual, bool isBuff);
+    void processarMissaoLabirinto(SistemaPersonagem* jogadorAtual);
 }
 
 void NPCMorgana::interagir(SistemaPersonagem* jogadorAtual)
@@ -70,9 +70,6 @@ void NPCMorgana::interagir(SistemaPersonagem* jogadorAtual)
     do {
         SimplificacoesAparencia::limparTela();
         SimplificacoesAparencia::exibirCabecalho("CABANA DA BRUXA", Cor::VERDE);
-        
-        int espacosMsg = (larguraDoTerminal - 55) / 2;
-        std::string margemMsg(espacosMsg > 0 ? espacosMsg : 0, ' ');
 
         std::vector<std::string> menuEsquerda = 
         {
@@ -97,38 +94,44 @@ void NPCMorgana::interagir(SistemaPersonagem* jogadorAtual)
         std::cin >> opcaoMorgana;
 
         if (opcaoMorgana == "1") {
-            processarEncantamentos(jogadorAtual, true, margemMsg);
+            processarEncantamentos(jogadorAtual, true);
         }
         else if (opcaoMorgana == "2") {
-            processarEncantamentos(jogadorAtual, false, margemMsg);
+            processarEncantamentos(jogadorAtual, false);
         }
         else if (opcaoMorgana == "3" || opcaoMorgana == "4") {
-            processarPocoes(jogadorAtual, opcaoMorgana == "3", margemMsg);
+            processarPocoes(jogadorAtual, opcaoMorgana == "3");
         }
         else if (opcaoMorgana == "5" && !jogadorAtual->obterLabirintoDesbloqueado()) {
-            processarMissaoLabirinto(jogadorAtual, margemMsg);
+            processarMissaoLabirinto(jogadorAtual);
         }
     } while (opcaoMorgana != "0");
 }
 
 namespace {
-    void processarEncantamentos(SistemaPersonagem* jogadorAtual, bool isUniversal, const std::string& margemMsg) {
+    void processarEncantamentos(SistemaPersonagem* jogadorAtual, bool isUniversal) {
         std::string opcaoEncantar;
         do {
             SimplificacoesAparencia::limparTela();
             SimplificacoesAparencia::exibirCabecalho(isUniversal ? "CABANA - ENCANTOS UNIVERSAIS" : "CABANA - ENCANTOS ESPECIFICOS", Cor::VERDE);
-            std::cout << "\n" << margemMsg << "Escolha um encantamento:\n\n";
             
+            std::vector<std::string> linhas = { "Escolha um encantamento:", "" };
             if (isUniversal) {
-                std::cout << margemMsg << "[1] Sangramento (40x Dente de Goblin)\n";
-                std::cout << margemMsg << "[2] Lentidao (5x Nucleo pegajoso)\n";
-                std::cout << margemMsg << "[3] Quebra de Resistencia (25x Po magico)\n";
+                linhas.push_back("[1] Sangramento (40x Dente de Goblin)");
+                linhas.push_back("[2] Lentidao (5x Nucleo pegajoso)");
+                linhas.push_back("[3] Quebra de Resistencia (25x Po magico)");
             } else {
-                std::cout << margemMsg << "[1] Arco recurvo de madeira: Magia (1x Madeira enfeiticada)\n";
-                std::cout << margemMsg << "[2] Cajado de cristal magico: Cipos (1x Coracao da floresta)\n";
-                std::cout << margemMsg << "[3] Violao encantado: Raizes (1x Madeira enfeiticada)\n";
+                linhas.push_back("[1] Arco recurvo de madeira: Magia (1x Madeira enfeiticada)");
+                linhas.push_back("[2] Cajado de cristal magico: Cipos (1x Coracao da floresta)");
+                linhas.push_back("[3] Violao encantado: Raizes (1x Madeira enfeiticada)");
             }
-            std::cout << "\n" << margemMsg << "[0] VOLTAR\n\n" << margemMsg << "Escolha: ";
+            linhas.push_back("");
+            linhas.push_back("[0] VOLTAR");
+            
+            std::cout << "\n";
+            SimplificacoesAparencia::imprimirBlocoCentralizado(linhas);
+            std::cout << "\n";
+            SimplificacoesAparencia::exibirPrompt("Escolha: ");
             std::cin >> opcaoEncantar;
 
             if (opcaoEncantar == "1" || opcaoEncantar == "2" || opcaoEncantar == "3") {
@@ -154,7 +157,7 @@ namespace {
                 
                 std::string codigoArma;
                 TelaInventario::exibir(jogadorAtual);
-                std::cout << "\n[Morgana]: Escolha a ARMA para encantar ou [0] VOLTAR: ";
+            SimplificacoesAparencia::exibirPrompt("[Morgana]: Escolha a ARMA para encantar ou [0] VOLTAR: ");
                 std::cin >> codigoArma;
                 if (codigoArma == "0") continue;
                 
@@ -251,22 +254,29 @@ namespace {
         } while (opcaoEncantar != "0");
     }
 
-    void processarPocoes(SistemaPersonagem* jogadorAtual, bool isBuff, const std::string& margemMsg) {
+    void processarPocoes(SistemaPersonagem* jogadorAtual, bool isBuff) {
         std::string titulo = isBuff ? "CABANA - POCOES DE BUFF" : "CABANA - FRASCOS DE DEBUFF";
         std::string opcaoCompra;
         do {
             SimplificacoesAparencia::limparTela();
             SimplificacoesAparencia::exibirCabecalho(titulo, Cor::VERDE);
-            std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
+
+            std::vector<std::string> linhas = { "Seu Ouro: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G", "" };
 
             if (isBuff) {
-                std::cout << margemMsg << "[1] Pocao de Furia (Buff x1.5 Atributos | 2 Turnos) - 25G\n";
-                std::cout << margemMsg << "[2] Elixir Arcano (Buff x1.5 Atributos | 2 Turnos)  - 25G\n";
+                linhas.push_back("[1] Pocao de Furia (Buff x1.5 Atributos | 2 Turnos) - 25G");
+                linhas.push_back("[2] Elixir Arcano (Buff x1.5 Atributos | 2 Turnos)  - 25G");
             } else {
-                std::cout << margemMsg << "[1] Frasco de Gosma (Debuff Lentidao | 3 Turnos)    - 30G\n";
-                std::cout << margemMsg << "[2] Frasco de Fraqueza (Debuff Fraqueza | 3 Turnos) - 30G\n";
+                linhas.push_back("[1] Frasco de Gosma (Debuff Lentidao | 3 Turnos)    - 30G");
+                linhas.push_back("[2] Frasco de Fraqueza (Debuff Fraqueza | 3 Turnos) - 30G");
             }
-            std::cout << "\n" << margemMsg << "[0] VOLTAR\n\n" << margemMsg << "Escolha: ";
+            linhas.push_back("");
+            linhas.push_back("[0] VOLTAR");
+
+            std::cout << "\n";
+            SimplificacoesAparencia::imprimirBlocoCentralizado(linhas);
+            std::cout << "\n";
+            SimplificacoesAparencia::exibirPrompt("Escolha: ");
             std::cin >> opcaoCompra;
 
             if (opcaoCompra >= "1" && opcaoCompra <= "2") {
@@ -285,17 +295,17 @@ namespace {
                     if (novoItem) {
                         std::string nomeDoNovoItem = novoItem->obterNomeItem();
                         jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
-                        std::cout << "\n" << margemMsg << "[Morgana]: Heehee... Use com sabedoria! " << nomeDoNovoItem << " adicionado.\n";
+                        std::cout << "\n[Morgana]: Heehee... Use com sabedoria! " << nomeDoNovoItem << " adicionado.\n";
                     }
                 } else {
-                    std::cout << "\n" << margemMsg << "[Morgana]: Voce nao tem ouro suficiente para as minhas preparacoes!\n";
+                    std::cout << "\n[Morgana]: Voce nao tem ouro suficiente para as minhas preparacoes!\n";
                 }
                 SimplificacoesAparencia::aguardarEnter();
             }
         } while (opcaoCompra != "0");
     }
 
-    void processarMissaoLabirinto(SistemaPersonagem* jogadorAtual, const std::string& margemMsg) {
+    void processarMissaoLabirinto(SistemaPersonagem* jogadorAtual) {
         std::string nomeCoracao = FabricaItens::obterNomeDeID(ItemID::CoracaoFloresta);
         int qtdCoracoes = jogadorAtual->obterInventario()->contarItem(nomeCoracao);
         if (qtdCoracoes >= 3) {
@@ -304,17 +314,24 @@ namespace {
             
             SimplificacoesAparencia::limparTela();
             SimplificacoesAparencia::exibirCabecalho("MISSAO CONCLUIDA", Cor::VERDE);
-            std::cout << "\n" << margemMsg << "[Morgana]: Ah, perfeitos! Estes coracoes pulsam com uma magia ancestral.\n";
-            std::cout << margemMsg << "[Morgana]: Como recompensa, revelarei um segredo... Atrás de mim, ha uma passagem secreta.\n";
-            std::cout << margemMsg << "[Morgana]: Use a entrada [^L] para explorar o meu Labirinto Subterraneo.\n";
-            std::cout << margemMsg << "[Morgana]: E um lugar perigoso, mergulhado em uma nevoa de cor roxa, mas guarda grandes tesouros.\n";
+            std::vector<std::string> texto = {
+                "[Morgana]: Ah, perfeitos! Estes coracoes pulsam com uma magia ancestral.",
+                "[Morgana]: Como recompensa, revelarei um segredo... Atras de mim, ha uma passagem secreta.",
+                "[Morgana]: Use a entrada [^L] para explorar o meu Labirinto Subterraneo.",
+                "[Morgana]: E um lugar perigoso, mergulhado em uma nevoa de cor roxa, mas guarda grandes tesouros."
+            };
+            std::cout << "\n";
+            SimplificacoesAparencia::imprimirBlocoCentralizado(texto);
         }
         else {
             SimplificacoesAparencia::limparTela();
             SimplificacoesAparencia::exibirCabecalho("MISSAO", Cor::VERDE);
-            std::cout << "\n" << margemMsg << "[Morgana]: Voce ainda nao possui os 3 Coracoes da floresta que eu pedi.\n";
-            std::cout << margemMsg << "[Morgana]: (Voce possui: " << qtdCoracoes << "/3)\n";
-            std::cout << margemMsg << "[Morgana]: Eles sao dropados por Abominacoes no Coracao da Arvore.\n";
+            std::vector<std::string> texto = {
+                "[Morgana]: Voce ainda nao possui os 3 Coracoes da floresta que eu pedi. (Possui: " + std::to_string(qtdCoracoes) + "/3)",
+                "[Morgana]: Eles sao dropados por Abominacoes no Coracao da Arvore."
+            };
+            std::cout << "\n";
+            SimplificacoesAparencia::imprimirBlocoCentralizado(texto);
         }
         SimplificacoesAparencia::aguardarEnter();
     }

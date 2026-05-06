@@ -23,13 +23,7 @@ void TelaVitoria::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroOb
        "     ░░░      ░░░░░    ░░░░░       ░░░░░░░    ░░░░░   ░░░░░ ░░░░░ ░░░░░   ░░░░░ ░░░  "
     };
 
-    std::cout << "\n";
-    SimplificacoesAparencia::imprimirLinhaDivisoria();
-    std::cout << "\n";
-    SimplificacoesAparencia::imprimirCentralizadoMultilinha(logoVitoria, 85, SimplificacoesAparencia::cor(Cor::VERDE));
-    std::cout << "\n";
-    SimplificacoesAparencia::imprimirLinhaDivisoria();
-    std::cout << "\n";
+    SimplificacoesAparencia::exibirLogoAscii(logoVitoria, 85, Cor::VERDE);
 
     std::vector<std::string> linhas = TelaCombate::comporEstatisticasBatalha(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, curaTotalRecebida, turnosCombate);
     linhas.push_back("");
@@ -41,7 +35,7 @@ void TelaVitoria::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroOb
         for (auto const& [nome, qtd] : contagem) linhas.push_back("  +" + std::to_string(qtd) + "x " + nome);
     } else linhas.push_back("ITENS OBTIDOS: Nenhum");
 
-    SimplificacoesAparencia::imprimirCentralizadoMultilinha(linhas, 0, SimplificacoesAparencia::cor(Cor::VERDE));
+    SimplificacoesAparencia::imprimirBlocoCentralizado(linhas, SimplificacoesAparencia::cor(Cor::VERDE));
     std::cout << "\n";
     SimplificacoesAparencia::imprimirLinhaDivisoria();
 

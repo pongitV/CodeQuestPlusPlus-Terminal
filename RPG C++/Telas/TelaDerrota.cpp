@@ -23,16 +23,10 @@ void TelaDerrota::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroOb
         "░░░░░░░░░░   ░░░░░░░░░░ ░░░░░   ░░░░░ ░░░░░   ░░░░░    ░░░░░░░       ░░░░░    ░░░░░   ░░░░░ ░░ ░░ ░░ "
     };
 
-    std::cout << "\n";
-    SimplificacoesAparencia::imprimirLinhaDivisoria();
-    std::cout << "\n";
-    SimplificacoesAparencia::imprimirCentralizadoMultilinha(logoDerrota, 101, SimplificacoesAparencia::cor(Cor::VERMELHO));
-    std::cout << "\n";
-    SimplificacoesAparencia::imprimirLinhaDivisoria();
-    std::cout << "\n";
+    SimplificacoesAparencia::exibirLogoAscii(logoDerrota, 101, Cor::VERMELHO);
 
     std::vector<std::string> linhas = TelaCombate::comporEstatisticasBatalha(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, curaTotalRecebida, turnosCombate);
-    SimplificacoesAparencia::imprimirCentralizadoMultilinha(linhas, 0, SimplificacoesAparencia::cor(Cor::VERMELHO));
+    SimplificacoesAparencia::imprimirBlocoCentralizado(linhas, SimplificacoesAparencia::cor(Cor::VERMELHO));
     std::cout << "\n\n";
     SimplificacoesAparencia::imprimirLinhaDivisoria();
     SimplificacoesAparencia::aguardarEnter();

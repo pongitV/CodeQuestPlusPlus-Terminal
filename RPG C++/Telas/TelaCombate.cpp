@@ -57,19 +57,7 @@ void TelaCombate::exibirLogoParaTelaDeCombate(const std::string& tituloDaTela)
         "  ░░░░░░░░░     ░░░░░░░    ░░░░░     ░░░░░ ░░░░░░░░░░░  ░░░░░   ░░░░░    ░░░░░    ░░░░░░░░░░  "
     };
 
-    std::cout << "\n";
-    SimplificacoesAparencia::imprimirLinhaDivisoria();
-    std::cout << "\n";
-
-    // Imprime a logo centralizada com cor Vermelha
-    SimplificacoesAparencia::imprimirCentralizadoMultilinha(logo, 95, SimplificacoesAparencia::cor(Cor::VERMELHO));
-
-    std::cout << "\n";
-    
-    SimplificacoesAparencia::imprimirLinhaDivisoria();
-    std::cout << SimplificacoesAparencia::espacosParaCentralizar(tituloDaTela.length()) << tituloDaTela << "\n";
-    SimplificacoesAparencia::imprimirLinhaDivisoria();
-    std::cout << "\n";
+    SimplificacoesAparencia::exibirLogoAscii(logo, 95, Cor::VERMELHO, tituloDaTela);
 }
 
 void TelaCombate::exibirBarraDeStatusDoJogador(SistemaPersonagem* jogadorAtual) 
@@ -103,11 +91,8 @@ void TelaCombate::exibirBarraDeStatusDoJogador(SistemaPersonagem* jogadorAtual)
         "| " + std::string(11, ' ') + " |  STATUS: " + statusStr
     };
 
-    std::string margemEsquerda = SimplificacoesAparencia::espacosParaCentralizar(95);
-
     SimplificacoesAparencia::imprimirLinhaDivisoria();
-    for (const std::string& linhaDeTextoAtual : linhasParaImprimir) 
-        std::cout << margemEsquerda << linhaDeTextoAtual << "\n";
+    SimplificacoesAparencia::imprimirCentralizadoMultilinha(linhasParaImprimir, 95);
     SimplificacoesAparencia::imprimirLinhaDivisoria();
 }
 

@@ -9,11 +9,11 @@ void GerenciadorDrops::relatarEProcessarXpOuro(SistemaPersonagem* jogador, int x
     jogador->ganharOuro(ouroDrop);
     xpTotal += xpDrop;
     ouroTotal += ouroDrop;
-    std::cout << SimplificacoesAparencia::cor(Cor::FUNDO_AMARELO) << "+" << ouroDrop << "G" << SimplificacoesAparencia::cor(Cor::RESET) << " " 
+    std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::FUNDO_AMARELO) << "+" << ouroDrop << "G" << SimplificacoesAparencia::cor(Cor::RESET) << " " 
               << SimplificacoesAparencia::cor(Cor::FUNDO_AZUL) << "+" << xpDrop << " XP" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
 }
 
 void GerenciadorDrops::relatarDropItem(const std::string& nomeItem, int quantidade) 
 {
-    std::cout << SimplificacoesAparencia::cor(Cor::BRANCO) << "+" << quantidade << "x " << nomeItem << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+    std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::BRANCO) << "+" << quantidade << "x " << nomeItem << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
 }

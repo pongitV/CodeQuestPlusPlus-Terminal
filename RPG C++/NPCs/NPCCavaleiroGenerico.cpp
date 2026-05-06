@@ -133,7 +133,7 @@ void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trol
 
         if (posicaoTrollX == -1) {
             std::vector<std::string> texto = {
-                "{[Cavaleiro Real]: Ja temos Trolls tentando",
+                "[Cavaleiro Real]: Ja temos Trolls tentando",
                 "invadir nosso reino, voce precisa de permissao",
                 "se nao quiser ser tratado como invasor tambem"
             };
@@ -153,8 +153,7 @@ void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trol
             "[1] Ajudar os Cavaleiros | [0] Recuar"
         };
         exibirDialogoCavaleiro("PEDIDO DE AJUDA", texto, larguraDoTerminal);
-        int recuoEscolha = std::max(0, (larguraDoTerminal - 95) / 2);
-        std::cout << "\n" << std::string(recuoEscolha, ' ') << "Escolha: ";
+        SimplificacoesAparencia::exibirPrompt("Escolha: ");
         int escolha;
         if (std::cin >> escolha && escolha == 1) {
             std::vector<std::unique_ptr<SistemaPersonagem>> aliados;

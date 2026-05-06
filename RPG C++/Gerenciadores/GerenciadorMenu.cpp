@@ -78,17 +78,19 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::menuPrincipal()
             while (!(std::cin >> escolhaSave) || escolhaSave < 0 || escolhaSave > static_cast<int>(saves.size())) { 
                 std::cin.clear(); 
                 std::cin.ignore(1000, '\n'); 
-                std::cout << SimplificacoesAparencia::espacosParaCentralizar(20) << "Opcao invalida. Escolha: "; 
+                SimplificacoesAparencia::exibirPrompt("Opcao invalida. Escolha: "); 
             }
             
             if (escolhaSave > 0 && escolhaSave <= (int)saves.size()) {
                 auto jogador = SistemaSave::carregarJogo(saves[escolhaSave - 1]);
                 if (jogador) {
-                    std::cout << "\n" << SimplificacoesAparencia::espacosParaCentralizar(20) << "[SISTEMA]: Jogo carregado com sucesso!\n";
+                    std::cout << "\n";
+                    SimplificacoesAparencia::imprimirCentralizado("[SISTEMA]: Jogo carregado com sucesso!");
                     SimplificacoesAparencia::aguardarEnter();
                     return jogador;
                 } else {
-                    std::cout << "\n" << SimplificacoesAparencia::espacosParaCentralizar(20) << "[ERRO]: Falha ao carregar o save!\n";
+                    std::cout << "\n";
+                    SimplificacoesAparencia::imprimirCentralizado("[ERRO]: Falha ao carregar o save!");
                     SimplificacoesAparencia::aguardarEnter();
                 }
             }
@@ -122,7 +124,8 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::iniciarCriacaoDeSistemaPerso
     personagemCriado->definirParryAtivado(sistemaDeParryAtivado);
     personagemCriado->definirDificuldade(static_cast<DificuldadeJogo>(nivelDeDificuldadeEscolhido));
     std::cout << "\n";
-    SimplificacoesAparencia::imprimirDigitando(" [SISTEMA]: Personagem criado com sucesso! Iniciando jornada...\n", 35);
+    std::string textoFinal = "[SISTEMA]: Personagem criado com sucesso! Iniciando jornada...";
+    SimplificacoesAparencia::imprimirDigitando(SimplificacoesAparencia::espacosParaCentralizar(textoFinal.length()) + textoFinal + "\n", 35);
     SimplificacoesAparencia::aguardarEnter();
     return personagemCriado;
 }

@@ -14,6 +14,10 @@
 #endif
 #include "ControleDeInput.h"
 
+namespace {
+    std::vector<std::string> historicoBatalha;
+}
+
 void SimplificacoesAparencia::inicializarConsole() {
 #ifdef _WIN32
     SetConsoleOutputCP(65001); // Configura UTF-8 globalmente apenas uma vez
@@ -161,9 +165,26 @@ void SimplificacoesAparencia::imprimirCentralizadoMultilinha(const std::vector<s
     }
 }
 
+void SimplificacoesAparencia::imprimirBlocoCentralizado(const std::vector<std::string>& linhas, const std::string& corAnsi) {
+    int tamanhoDaLinhaMaisLonga = 0;
+    for (const std::string& linha : linhas) {
+        tamanhoDaLinhaMaisLonga = std::max(tamanhoDaLinhaMaisLonga, static_cast<int>(removerCoresANSI(linha).length()));
+    }
+    imprimirCentralizadoMultilinha(linhas, tamanhoDaLinhaMaisLonga, corAnsi);
+}
+
 void SimplificacoesAparencia::imprimirDigitando(const std::string& texto, int atrasoMs) {
     std::cout << "\033[s\033[80;1H" << cor(Cor::NEGRITO, Cor::CINZA) << "[Pressione 'k' para pular]" << cor(Cor::RESET) << "\033[u";
-    for (size_t i = 0; i < texto.length(); ++i) {
+
+    size_t i = 0;
+    // Imprime os espacos iniciais imediatamente para evitar lentidao da centralizacao
+    while (i < texto.length() && texto[i] == ' ') {
+        std::cout << texto[i];
+        i++;
+    }
+    std::cout << std::flush;
+
+    for (; i < texto.length(); ++i) {
         if (ControleDeInput::teclaPressionada()) { 
             char tecla = ControleDeInput::lerTecla(); 
             if (tecla == 'k' || tecla == 'K') { 
@@ -227,4 +248,85 @@ int SimplificacoesAparencia::imprimirLadoALado(const std::vector<std::string>& c
     }
     
     return recuo;
+}
+
+void SimplificacoesAparencia::exibirPrompt(const std::string& mensagem) {
+    std::cout << "\n" << espacosParaCentralizar(removerCoresANSI(mensagem).length()) << mensagem;
+}
+
+void SimplificacoesAparencia::exibirLogoAscii(const std::vector<std::string>& arteAscii, int larguraVisual, Cor corDaArte, const std::string& tituloSecundario) {
+    std::cout << "\n";
+    imprimirLinhaDivisoria();
+    std::cout << "\n";
+    imprimirCentralizadoMultilinha(arteAscii, larguraVisual, cor(corDaArte));
+    std::cout << "\n";
+    imprimirLinhaDivisoria();
+    
+    if (!tituloSecundario.empty()) {
+        imprimirCentralizado(tituloSecundario);
+        imprimirLinhaDivisoria();
+    }
+    std::cout << "\n";
+}
+
+std::string SimplificacoesAparencia::margemCombate() {
+    return espacosParaCentralizar(91); // Centraliza a partir do interior da HUD
+}
+
+void SimplificacoesAparencia::registrarLogBatalha(const std::string& texto) {
+    historicoBatalha.push_back(texto);
+}
+
+void SimplificacoesAparencia::limparLogBatalha() {
+    historicoBatalha.clear();
+}
+
+void SimplificacoesAparencia::exibirUltimosLogs(int quantidade) {
+    int inicio = std::max(0, static_cast<int>(historicoBatalha.size()) - quantidade);
+    for (size_t i = inicio; i < historicoBatalha.size(); ++i) {
+        imprimirCentralizado(historicoBatalha[i], cor(Cor::CINZA));
+    }
+}
+
+void SimplificacoesAparencia::exibirHistoricoCompleto() {
+    if (historicoBatalha.empty()) {
+        limparTela();
+        exibirCabecalho("HISTORICO DE BATALHA", Cor::CIANO);
+        imprimirCentralizado("O historico esta vazio.", cor(Cor::CINZA));
+        std::cout << "\n";
+        imprimirLinhaDivisoria();
+        aguardarEnter();
+        return;
+    }
+
+    int linhasPorPagina = std::max(5, obterAlturaTerminal() - 12);
+    int totalPaginas = (static_cast<int>(historicoBatalha.size()) + linhasPorPagina - 1) / linhasPorPagina;
+    int paginaAtual = totalPaginas - 1; // Inicia na pagina mais recente
+
+    while (true) {
+        limparTela();
+        exibirCabecalho("HISTORICO DE BATALHA", Cor::CIANO);
+
+        int inicio = paginaAtual * linhasPorPagina;
+        int fim = std::min(inicio + linhasPorPagina, static_cast<int>(historicoBatalha.size()));
+        std::vector<std::string> pagina(historicoBatalha.begin() + inicio, historicoBatalha.begin() + fim);
+        
+        imprimirBlocoCentralizado(pagina);
+        std::cout << "\n";
+        imprimirLinhaDivisoria();
+        imprimirCentralizado("Pagina " + std::to_string(paginaAtual + 1) + " de " + std::to_string(totalPaginas), cor(Cor::CIANO));
+        
+        if (totalPaginas > 1) {
+            exibirPrompt("[A] Pagina Anterior | [D] Proxima Pagina | [0] Sair\n\nEscolha: ");
+            std::string escolha;
+            std::cin >> escolha;
+            if (escolha == "0") break;
+            if ((escolha == "a" || escolha == "A") && paginaAtual > 0) paginaAtual--;
+            if ((escolha == "d" || escolha == "D") && paginaAtual < totalPaginas - 1) paginaAtual++;
+        } else {
+            std::cout << "\n";
+            aguardarEnter();
+            break;
+        }
+    }
 }

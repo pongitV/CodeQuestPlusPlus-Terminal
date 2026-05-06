@@ -13,7 +13,7 @@ void EfeitoSugaSangue::aplicarInicioTurno(SistemaPersonagem* alvo) {
     {
         alvo->modificarVida(-danoRaizes);
         atacante->modificarVida(danoRaizes);
-        std::cout << SimplificacoesAparencia::cor(Cor::VERDE) << ">> [" << nome << "]: Drenou " << danoRaizes << " de HP de " << alvo->obterNome() << " e curou " << atacante->obterNome() << "!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+        std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::VERDE) << ">> [" << nome << "]: Drenou " << danoRaizes << " de HP de " << alvo->obterNome() << " e curou " << atacante->obterNome() << "!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
     }
 }
 
@@ -25,7 +25,7 @@ void EfeitoLentidao::aoEntrar(SistemaPersonagem* alvo) {
 void EfeitoLentidao::aoSair(SistemaPersonagem* alvo) {
     if (alvo->obterClasse()) alvo->obterAtributosFinais().destreza = alvo->obterClasse()->reverterPenalidadeLentidaoPassivaArqueiro(alvo->obterAtributosFinais().destreza);
     else alvo->obterAtributosFinais().destreza *= 2;
-    std::cout << SimplificacoesAparencia::cor(Cor::MAGENTA) << "[EFEITO]: " << alvo->obterNome() << " se livrou da gosma e recuperou sua agilidade." << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+    std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::MAGENTA) << "[EFEITO]: " << alvo->obterNome() << " se livrou da gosma e recuperou sua agilidade." << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
 }
 
 void EfeitoFraqueza::aoEntrar(SistemaPersonagem* alvo) {
@@ -35,7 +35,7 @@ void EfeitoFraqueza::aoEntrar(SistemaPersonagem* alvo) {
 
 void EfeitoFraqueza::aoSair(SistemaPersonagem* alvo) {
     alvo->obterAtributosFinais().forca += forcaPerdida;
-    std::cout << SimplificacoesAparencia::cor(Cor::VERMELHO) << "[EFEITO]: " << alvo->obterNome() << " recuperou sua forca original." << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+    std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::VERMELHO) << "[EFEITO]: " << alvo->obterNome() << " recuperou sua forca original." << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
 }
 
 void EfeitoQuebraResistencia::aoEntrar(SistemaPersonagem* alvo) {
@@ -51,18 +51,18 @@ void EfeitoQuebraResistencia::aoSair(SistemaPersonagem* alvo) {
 }
 
 void EfeitoQuebraResistencia::aplicarInicioTurno(SistemaPersonagem* alvo) {
-    std::cout << SimplificacoesAparencia::cor(Cor::CIANO) << "[EFEITO]: " << alvo->obterNome() << " continua enfraquecido pelo po magico! (-" << resistenciaPerdida << " Res, -" << constituicaoPerdida << " Con)" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+    std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::CIANO) << "[EFEITO]: " << alvo->obterNome() << " continua enfraquecido pelo po magico! (-" << resistenciaPerdida << " Res, -" << constituicaoPerdida << " Con)" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
 }
 
 void EfeitoSangramento::aplicarInicioTurno(SistemaPersonagem* alvo) {
     if (alvo->obterVida() <= 0) return;
     alvo->modificarVida(-danoPorTurno);
-    std::cout << SimplificacoesAparencia::cor(Cor::VERMELHO) << "[EFEITO]: " << alvo->obterNome() << " sofreu " << danoPorTurno << " de dano por sangramento!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+    std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::VERMELHO) << "[EFEITO]: " << alvo->obterNome() << " sofreu " << danoPorTurno << " de dano por sangramento!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
 }
 
 int EfeitoMetadeDano::processarDanoRecebido(int dano) {
     int danoReduzido = dano / 2;
-    std::cout << SimplificacoesAparencia::cor(Cor::CIANO) << ">> [EFEITO]: O dano foi reduzido pela metade! (Through the wire)" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+    std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::CIANO) << ">> [EFEITO]: O dano foi reduzido pela metade! (Through the wire)" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
     return danoReduzido;
 }
 
@@ -80,5 +80,5 @@ void EfeitoBuffAtributos::aoSair(SistemaPersonagem* alvo) {
     if (alvo->obterMultiplicador() != 1.0) {
         alvo->definirMultiplicador(1.0);
     }
-    std::cout << "\n[SISTEMA]: O efeito da habilidade expirou!\n";
+    std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "[SISTEMA]: O efeito da habilidade expirou!\n";
 }

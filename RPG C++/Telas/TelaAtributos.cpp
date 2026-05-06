@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <iomanip>
+#include <sstream>
 
 #include "TelaAtributos.h"
 #include "../Racas/RacaBase.h"
@@ -20,6 +21,16 @@ namespace {
         SimplificacoesAparencia::limparTela();
         SimplificacoesAparencia::exibirCabecalho("DETALHES DOS ATRIBUTOS", Cor::MAGENTA);
         
+        std::vector<std::string> painelRaca = {"[ RACA: " + jogadorAtual->obterRaca()->obterNomeRaca() + " ]", ""};
+        for (const auto& linha : jogadorAtual->obterRaca()->obterAparenciaRaca()) painelRaca.push_back(linha);
+
+        std::vector<std::string> painelClasse = {"[ CLASSE: " + jogadorAtual->obterNomeClasse() + " ]", ""};
+        for (const auto& linha : jogadorAtual->obterClasse()->obterAparenciaClasseMenu()) painelClasse.push_back(linha);
+
+        SimplificacoesAparencia::imprimirLadoALado(painelRaca, painelClasse, 0, 10, Cor::BRANCO, Cor::BRANCO);
+        std::cout << "\n";
+        SimplificacoesAparencia::imprimirLinhaDivisoria();
+
         std::vector<std::string> linhas;
         linhas.push_back("");
         linhas.push_back("--- EFEITOS DE CADA ATRIBUTO ---");
@@ -51,12 +62,7 @@ namespace {
             linhas.push_back(" Nenhum atributo de dano especifico definido para esta classe.");
         }
 
-        int tamanhoDaLinhaMaisLonga = 0;
-        for (const std::string& linha : linhas) {
-            if (static_cast<int>(linha.length()) > tamanhoDaLinhaMaisLonga) tamanhoDaLinhaMaisLonga = linha.length();
-        }
-        
-        SimplificacoesAparencia::imprimirCentralizadoMultilinha(linhas, tamanhoDaLinhaMaisLonga, SimplificacoesAparencia::cor(Cor::BRANCO));
+        SimplificacoesAparencia::imprimirBlocoCentralizado(linhas, SimplificacoesAparencia::cor(Cor::BRANCO));
         SimplificacoesAparencia::aguardarEnter();
     }
 }
@@ -80,13 +86,7 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
        " ░░░░░       ░░░░░   ░░░░░░░░░  ░░░░░   ░░░░░ ░░░░░   ░░░░░ "
     };
 
-    std::cout << "\n";
-    SimplificacoesAparencia::imprimirLinhaDivisoria();
-    std::cout << "\n";
-    SimplificacoesAparencia::imprimirCentralizadoMultilinha(logoFicha, 59, SimplificacoesAparencia::cor(Cor::MAGENTA));
-    std::cout << "\n";
-    SimplificacoesAparencia::imprimirLinhaDivisoria();
-    std::cout << "\n";
+    SimplificacoesAparencia::exibirLogoAscii(logoFicha, 59, Cor::MAGENTA);
 
     double multiplicadorDeAtributosAtual = jogadorAtual->obterMultiplicador();
     int turnosBuff = jogadorAtual->obterTurnosEfeito(EfeitoID::BuffAtributos);
@@ -97,66 +97,90 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
     int resPerdida       = jogadorAtual->possuiEfeito(EfeitoID::QuebraResistencia) ? jogadorAtual->obterResistencia() : 0;
     int constPerdida     = jogadorAtual->possuiEfeito(EfeitoID::QuebraResistencia) ? (jogadorAtual->obterConstituicao() / 2) : 0;
 
-    std::string margem = SimplificacoesAparencia::espacosParaCentralizar(50);
-
-    std::cout << margem << "NOME:           " << jogadorAtual->obterNome() << "\n";
-    std::cout << margem << "RACA:           " << jogadorAtual->obterRaca()->obterNomeRaca() << "\n";
-    std::cout << margem << "CLASSE:         " << jogadorAtual->obterNomeClasse() << "\n";
-    std::cout << margem << "NIVEL:          " << jogadorAtual->obterNivel() << " (XP: " << SimplificacoesAparencia::cor(Cor::MAGENTA) << jogadorAtual->obterXpAtual() << " / " << jogadorAtual->obterXpParaSubir() << SimplificacoesAparencia::cor(Cor::RESET) << ")\n";
-    std::cout << margem << "DIFICULDADE:    " << SimplificacoesAparencia::cor(Cor::VERMELHO);
+    std::vector<std::string> linhasFicha;
+    linhasFicha.push_back("NOME:           " + jogadorAtual->obterNome());
+    linhasFicha.push_back("RACA:           " + jogadorAtual->obterRaca()->obterNomeRaca());
+    linhasFicha.push_back("CLASSE:         " + jogadorAtual->obterNomeClasse());
+    linhasFicha.push_back("NIVEL:          " + std::to_string(jogadorAtual->obterNivel()) + " (XP: " + SimplificacoesAparencia::cor(Cor::MAGENTA) + std::to_string(jogadorAtual->obterXpAtual()) + " / " + std::to_string(jogadorAtual->obterXpParaSubir()) + SimplificacoesAparencia::cor(Cor::RESET) + ")");
+    
+    std::string difStr = "DIFICULDADE:    " + SimplificacoesAparencia::cor(Cor::VERMELHO);
     switch (jogadorAtual->obterDificuldade()) {
-        case DificuldadeJogo::Facil: std::cout << "Facil"; break;
-        case DificuldadeJogo::Normal: std::cout << "Normal"; break;
-        case DificuldadeJogo::Dificil: std::cout << "Dificil"; break;
+        case DificuldadeJogo::Facil: difStr += "Facil"; break;
+        case DificuldadeJogo::Normal: difStr += "Normal"; break;
+        case DificuldadeJogo::Dificil: difStr += "Dificil"; break;
     }
-    std::cout << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-    std::cout << margem << "[PARRY]:        ";
-    if (jogadorAtual->obterParryAtivado()) {
-        std::cout << SimplificacoesAparencia::cor(Cor::VERDE) << "Ligado" << SimplificacoesAparencia::cor(Cor::RESET);
-    } else {
-        std::cout << SimplificacoesAparencia::cor(Cor::VERMELHO) << "Desligado" << SimplificacoesAparencia::cor(Cor::RESET);
-    }
-    std::cout << "\n";
-    std::cout << margem << "OURO:           " << SimplificacoesAparencia::cor(Cor::AMARELO) << jogadorAtual->obterInventario()->obterOuro() << "G" << SimplificacoesAparencia::cor(Cor::RESET) << "\n\n";
+    difStr += SimplificacoesAparencia::cor(Cor::RESET);
+    linhasFicha.push_back(difStr);
 
-    TipoClasse tipoClasse = jogadorAtual->obterTipoClasse();
+    std::string parryStr = "[PARRY]:        ";
+    parryStr += jogadorAtual->obterParryAtivado() ? (SimplificacoesAparencia::cor(Cor::VERDE) + "Ligado" + SimplificacoesAparencia::cor(Cor::RESET)) : (SimplificacoesAparencia::cor(Cor::VERMELHO) + "Desligado" + SimplificacoesAparencia::cor(Cor::RESET));
+    linhasFicha.push_back(parryStr);
+    
+    linhasFicha.push_back("OURO:           " + SimplificacoesAparencia::cor(Cor::AMARELO) + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G" + SimplificacoesAparencia::cor(Cor::RESET));
+    linhasFicha.push_back("");
 
-    std::cout << margem << "PASSIVA RACA:   " << jogadorAtual->obterRaca()->obterNomeHabilidadeRaca() << "\n";
-    std::cout << margem << "-> " << jogadorAtual->obterRaca()->obterDescricaoHabilidadeRaca() << "\n\n";
+    linhasFicha.push_back("PASSIVA RACA:   " + jogadorAtual->obterRaca()->obterNomeHabilidadeRaca());
+    linhasFicha.push_back("-> " + jogadorAtual->obterRaca()->obterDescricaoHabilidadeRaca());
+    linhasFicha.push_back("");
 
-    std::cout << margem << "PASSIVA CLASSE: " << jogadorAtual->obterClasse()->obterNomePassivaClasse() << "\n";
-    std::cout << margem << "-> " << jogadorAtual->obterClasse()->obterDescricaoPassivaClasse() << "\n\n";
+    linhasFicha.push_back("PASSIVA CLASSE: " + jogadorAtual->obterClasse()->obterNomePassivaClasse());
+    linhasFicha.push_back("-> " + jogadorAtual->obterClasse()->obterDescricaoPassivaClasse());
+    linhasFicha.push_back("");
 
-    std::cout << margem << "ATIVA CLASSE:   " << jogadorAtual->obterClasse()->obterNomeHabilidadeClasse() << " (" << jogadorAtual->obterClasse()->obterRecargaHabilidadeClasse() << ")\n";
-    std::cout << margem << "-> " << jogadorAtual->obterClasse()->obterDescricaoHabilidadeClasse() << "\n\n";
+    linhasFicha.push_back("ATIVA CLASSE:   " + jogadorAtual->obterClasse()->obterNomeHabilidadeClasse() + " (" + jogadorAtual->obterClasse()->obterRecargaHabilidadeClasse() + ")");
+    linhasFicha.push_back("-> " + jogadorAtual->obterClasse()->obterDescricaoHabilidadeClasse());
+    linhasFicha.push_back("");
 
-    std::cout << margem << "--- ATRIBUTOS TOTAIS ---\n";
-    std::cout << margem << " > Vida           : " << jogadorAtual->obterVida() << "/" << jogadorAtual->obterVidaMaxima() << "\n";
+    Atributos racaAttr = jogadorAtual->obterRaca()->obterAtributosRaca();
+    Atributos classeAttr = jogadorAtual->obterClasse()->obterAtributosClasse();
 
-    auto printAtributo = [margem, temBuff, multiplicadorDeAtributosAtual](std::string nomeDoAtributo, int valorBaseDoAtributo, int valorPerdidoPorDebuff, std::string_view sufixoOpcional)
+    linhasFicha.push_back("--- ATRIBUTOS TOTAIS ---");
+    
+    std::string hpStr = " > Vida           : " + std::to_string(jogadorAtual->obterVida()) + "/" + std::to_string(jogadorAtual->obterVidaMaxima());
+    int padHp = 45 - static_cast<int>(hpStr.length());
+    std::ostringstream linhaHp;
+    linhaHp << hpStr << std::string(padHp > 0 ? padHp : 0, ' ') 
+            << "| Raca: +" << std::left << std::setw(3) << racaAttr.vida 
+            << " | Classe: +" << classeAttr.vida;
+    linhasFicha.push_back(linhaHp.str());
+
+    auto formatarAtributo = [temBuff, multiplicadorDeAtributosAtual](std::string nomeDoAtributo, int valorBaseDoAtributo, int valorPerdidoPorDebuff, int atrRaca, int atrClasse) -> std::string
     {
         int bonusBuff = temBuff ? static_cast<int>(valorBaseDoAtributo * multiplicadorDeAtributosAtual) - valorBaseDoAtributo : 0;
 
-        std::cout << margem << " > " << std::left << std::setw(15) << nomeDoAtributo << sufixoOpcional << ": " << valorBaseDoAtributo;
+        std::ostringstream leftPart;
+        leftPart << " > " << std::left << std::setw(15) << nomeDoAtributo << ": " << valorBaseDoAtributo;
+        std::string leftStr = leftPart.str();
 
+        std::string extraText;
+        std::string extraColor;
         if (temBuff && bonusBuff > 0) {
-            std::cout << " " << SimplificacoesAparencia::cor(Cor::VERDE) << "(+" << bonusBuff << " Buff)" << SimplificacoesAparencia::cor(Cor::RESET);
+            extraColor = SimplificacoesAparencia::cor(Cor::VERDE);
+            extraText = "(+" + std::to_string(bonusBuff) + " Buff)";
+        } else if (valorPerdidoPorDebuff > 0) {
+            extraColor = SimplificacoesAparencia::cor(Cor::VERMELHO);
+            extraText = "(-" + std::to_string(valorPerdidoPorDebuff) + " Debuff)";
+        } else {
+            extraText = "(0)";
         }
-        if (valorPerdidoPorDebuff > 0) {
-            std::cout << " " << SimplificacoesAparencia::cor(Cor::VERMELHO) << "(-" << valorPerdidoPorDebuff << " Debuff)" << SimplificacoesAparencia::cor(Cor::RESET);
-        }
-        if (!temBuff && valorPerdidoPorDebuff == 0) {
-            std::cout << " (0)";
-        }
-        std::cout << "\n";
+
+        int visualLen = leftStr.length() + 1 + extraText.length();
+        int padding = 45 - visualLen;
+
+        std::ostringstream finalLine;
+        finalLine << leftStr << " " << extraColor << extraText << (extraColor.empty() ? "" : SimplificacoesAparencia::cor(Cor::RESET))
+                  << std::string(padding > 0 ? padding : 0, ' ')
+                  << "| Raca: +" << std::left << std::setw(3) << atrRaca
+                  << " | Classe: +" << atrClasse;
+        return finalLine.str();
     };
 
-    printAtributo("Forca",     jogadorAtual->obterForca(),     forcaPerdida,     "");
-    printAtributo("Destreza",  jogadorAtual->obterDestreza(),  destrezaPerdida,  "");
-    printAtributo("Resistencia", jogadorAtual->obterResistencia(), resPerdida, "");
-    printAtributo("Constituicao", jogadorAtual->obterConstituicao(), constPerdida, "");
-    printAtributo("Inteligencia", jogadorAtual->obterInteligencia(), 0, "");
-    printAtributo("Sabedoria",  jogadorAtual->obterSabedoria(), 0, "");
+    linhasFicha.push_back(formatarAtributo("Forca",     jogadorAtual->obterForca(),     forcaPerdida,     racaAttr.forca, classeAttr.forca));
+    linhasFicha.push_back(formatarAtributo("Destreza",  jogadorAtual->obterDestreza(),  destrezaPerdida,  racaAttr.destreza, classeAttr.destreza));
+    linhasFicha.push_back(formatarAtributo("Resistencia", jogadorAtual->obterResistencia(), resPerdida, racaAttr.resistencia, classeAttr.resistencia));
+    linhasFicha.push_back(formatarAtributo("Constituicao", jogadorAtual->obterConstituicao(), constPerdida, racaAttr.constituicao, classeAttr.constituicao));
+    linhasFicha.push_back(formatarAtributo("Inteligencia", jogadorAtual->obterInteligencia(), 0, racaAttr.inteligencia, classeAttr.inteligencia));
+    linhasFicha.push_back(formatarAtributo("Sabedoria",  jogadorAtual->obterSabedoria(), 0, racaAttr.sabedoria, classeAttr.sabedoria));
 
     static const EfeitoInfo efeitosParaExibir[] = {
         {EfeitoID::BuffAtributos,     Cor::VERDE,   "Buff Atributos",   true},
@@ -166,19 +190,23 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
         {EfeitoID::QuebraResistencia, Cor::CIANO,   "Quebra de Resistencia", false},
     };
 
-    std::cout << "\n" << margem << "--- STATUS ATUAIS ---\n";
+    linhasFicha.push_back("");
+    linhasFicha.push_back("--- STATUS ATUAIS ---");
     bool temStatus = false;
     for (const auto& info : efeitosParaExibir) {
         if (jogadorAtual->possuiEfeito(info.efeitoId)) {
-            std::cout << margem << "Efeito: " << SimplificacoesAparencia::cor(info.corId) << info.exibirNome;
+            std::string stStr = "Efeito: " + SimplificacoesAparencia::cor(info.corId) + info.exibirNome;
             if (info.mostrarTurnos) {
-                std::cout << " (" << jogadorAtual->obterTurnosEfeito(info.efeitoId) << " turnos)";
+                stStr += " (" + std::to_string(jogadorAtual->obterTurnosEfeito(info.efeitoId)) + " turnos)";
             }
-            std::cout << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+            stStr += SimplificacoesAparencia::cor(Cor::RESET);
+            linhasFicha.push_back(stStr);
             temStatus = true;
         }
     }
-    if (!temStatus) std::cout << margem << "Nenhum status ativo.\n";
+    if (!temStatus) linhasFicha.push_back("Nenhum status ativo.");
+    
+    SimplificacoesAparencia::imprimirBlocoCentralizado(linhasFicha);
 
     std::cout << "\n";
     SimplificacoesAparencia::imprimirLinhaDivisoria();
@@ -195,33 +223,40 @@ void TelaAtributos::gerenciarFichaDoJogador(SistemaPersonagem* jogadorAtual)
         std::string mensagemDoPrompt = "[0] VOLTAR | [1] LIGAR/DESLIGAR PARRY";
         if (jogadorAtual->podeSubirDeNivel()) mensagemDoPrompt += " | [2] SUBIR DE NIVEL";
         mensagemDoPrompt += " | [3] VOLTAR AO MENU PRINCIPAL | [4] DETALHES DE ATRIBUTOS: ";
-        std::cout << "\n" << SimplificacoesAparencia::espacosParaCentralizar(mensagemDoPrompt.length()) << mensagemDoPrompt;
+        SimplificacoesAparencia::exibirPrompt(mensagemDoPrompt);
         std::cin >> opcaoEscolhidaNoMenuJogador;
 
         if (opcaoEscolhidaNoMenuJogador == "1") {
             jogadorAtual->definirParryAtivado(!jogadorAtual->obterParryAtivado());
         } else if (opcaoEscolhidaNoMenuJogador == "2" && jogadorAtual->podeSubirDeNivel()) {
             int opcaoAtributo;
-            std::cout << "\nEscolha o atributo para melhorar:\n";
-            std::cout << "1. Vida\n2. Forca\n3. Destreza\n4. Resistencia\n5. Constituicao\n6. Inteligencia\n7. Sabedoria\n";
-            std::cout << "Opcao: ";
+            std::vector<std::string> opcoes = {
+                "Escolha o atributo para melhorar:",
+                "",
+                "1. Vida", "2. Forca", "3. Destreza", "4. Resistencia", "5. Constituicao", "6. Inteligencia", "7. Sabedoria"
+            };
+            std::cout << "\n";
+            SimplificacoesAparencia::imprimirBlocoCentralizado(opcoes);
+            std::cout << "\n";
+            SimplificacoesAparencia::exibirPrompt("Opcao: ");
+
             if (std::cin >> opcaoAtributo && opcaoAtributo >= 1 && opcaoAtributo <= 7) {
                 TipoAtributo atributo = static_cast<TipoAtributo>(opcaoAtributo);
                 if (jogadorAtual->subirDeNivel(atributo)) {
-                    std::cout << "[SISTEMA]: Nivel subiu! Atributo melhorado.\n";
+                    SimplificacoesAparencia::exibirPrompt("[SISTEMA]: Nivel subiu! Atributo melhorado.");
                     SimplificacoesAparencia::aguardarEnter();
                 }
             } else {
                 std::cin.clear(); std::cin.ignore(1000, '\n');
-                std::cout << "[ERRO]: Opcao invalida.\n";
+                SimplificacoesAparencia::exibirPrompt("[ERRO]: Opcao invalida.");
                 SimplificacoesAparencia::aguardarEnter();
             }
         } else if (opcaoEscolhidaNoMenuJogador == "3") {
             std::string confirmacao;
-            std::cout << "\n[AVISO]: Deseja salvar jogo e voltar para o menu principal? (S/N): ";
+            SimplificacoesAparencia::exibirPrompt("[AVISO]: Deseja salvar jogo e voltar para o menu principal? (S/N): ");
             std::cin >> confirmacao;
             if (confirmacao == "S" || confirmacao == "s") {
-                std::cout << "[AVISO]: Tem certeza? (S/N): ";
+                SimplificacoesAparencia::exibirPrompt("[AVISO]: Tem certeza? (S/N): ");
                 std::cin >> confirmacao;
                 if (confirmacao == "S" || confirmacao == "s") {
                     jogadorAtual->definirVoltarProMenu(true);

@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "../Utilidades/GeradorAleatorio.h"
+#include "../Utilidades/SimplificacoesAparencia.h"
 
 std::string Dwarf::obterNomeRaca() const
 {
@@ -73,7 +74,7 @@ int Dwarf::processarDanoDefensivo(int danoFinal, SistemaPersonagem* defensor)
         if (GeradorAleatorio::rolarChance(50)) 
         {
             defensor->obterEscudo()->aumentarDurabilidade(1);
-            std::cout << "[PASSIVA]: Forjado com determinacao poupou a durabilidade do escudo!\n";
+            std::cout << SimplificacoesAparencia::margemCombate() << "[PASSIVA]: Forjado com determinacao poupou a durabilidade do escudo!\n";
         }
     }
     return danoFinal;

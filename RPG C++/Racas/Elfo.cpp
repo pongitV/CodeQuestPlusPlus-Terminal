@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "../Utilidades/GeradorAleatorio.h"
+#include "../Utilidades/SimplificacoesAparencia.h"
 
 std::string Elfo::obterNomeRaca() const 
 {
@@ -69,7 +70,7 @@ int Elfo::processarDanoOfensivo(int danoBase, SistemaPersonagem* atacante)
 {
     if (GeradorAleatorio::rolarChance(33)) 
     {
-        std::cout << "[PASSIVA]: Agil e preciso! Golpe critico.\n";
+        std::cout << SimplificacoesAparencia::margemCombate() << "[PASSIVA]: Agil e preciso! Golpe critico.\n";
         return static_cast<int>(danoBase * 1.5);
     }
     return danoBase;

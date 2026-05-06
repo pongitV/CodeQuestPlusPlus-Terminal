@@ -75,15 +75,14 @@ void TelaMenu::exibirLogoDoJogo(const std::string& tituloDaTela)
     if (tituloDaTela.empty()) 
     {
         SimplificacoesAparencia::imprimirLinhaDivisoria();
-        std::cout << "\n";
     } 
     else 
     {
         SimplificacoesAparencia::imprimirLinhaDivisoria();
-        std::cout << SimplificacoesAparencia::espacosParaCentralizar(tituloDaTela.length()) << tituloDaTela << "\n";
+        SimplificacoesAparencia::imprimirCentralizado(tituloDaTela);
         SimplificacoesAparencia::imprimirLinhaDivisoria();
-        std::cout << "\n";
     }
+    std::cout << "\n";
 }
 
 std::vector<std::string> TelaMenu::comporQuadroDeAtributos(const Atributos& stats, const std::string& tituloSecao, const std::string& tituloHabilidade, const std::string& nomeHab, const std::string& descHab) {
@@ -109,72 +108,136 @@ std::vector<std::string> TelaMenu::comporQuadroDeAtributos(const Atributos& stat
 void TelaMenu::exibirOpcoesMenuPrincipal(bool temSave) {
     SimplificacoesAparencia::limparTela();
     exibirLogoDoJogo("MENU PRINCIPAL");
+    
+    std::vector<std::string> opcoes = { "[1] Novo Jogo" };
+    if (temSave) opcoes.push_back("[2] Continuar Jogo");
+    opcoes.push_back("[0] Sair");
+
     std::cout << "\n";
-    int espacos = std::max(0, (SimplificacoesAparencia::obterLarguraTerminal() - 20) / 2);
-    std::string margemEsquerda(espacos, ' ');
-    std::cout << margemEsquerda << "[1] Novo Jogo\n";
-    if (temSave) std::cout << margemEsquerda << "[2] Continuar Jogo\n";
-    std::cout << margemEsquerda << "[0] Sair\n\n";
-    std::cout << margemEsquerda << "Escolha: ";
+    SimplificacoesAparencia::imprimirBlocoCentralizado(opcoes);
+    std::cout << "\n";
+    SimplificacoesAparencia::exibirPrompt("Escolha: ");
 }
 
 void TelaMenu::exibirMenuCarregarJogo(const std::vector<std::string>& informacoesSaves) {
     SimplificacoesAparencia::limparTela();
     exibirLogoDoJogo("CARREGAR JOGO");
-    int espacos = std::max(0, (SimplificacoesAparencia::obterLarguraTerminal() - 20) / 2);
-    std::string margemEsquerda(espacos, ' ');
-    std::cout << "\n" << margemEsquerda << "Selecione o save que deseja carregar:\n\n";
-    for (const std::string& info : informacoesSaves) {
-        std::cout << margemEsquerda << info << "\n";
-    }
-    std::cout << "\n" << margemEsquerda << "[0] Voltar\n\n";
-    std::cout << margemEsquerda << "Escolha: ";
+    
+    std::cout << "\n";
+    SimplificacoesAparencia::imprimirCentralizado("Selecione o save que deseja carregar:");
+    std::cout << "\n";
+
+    std::vector<std::string> opcoes = informacoesSaves;
+    opcoes.push_back("");
+    opcoes.push_back("[0] Voltar");
+
+    SimplificacoesAparencia::imprimirBlocoCentralizado(opcoes);
+    std::cout << "\n";
+    SimplificacoesAparencia::exibirPrompt("Escolha: ");
 }
 
 void TelaMenu::exibirPromptNome() {
     SimplificacoesAparencia::limparTela();
     exibirLogoDoJogo("INTRODUCAO AO RPG");
-    SimplificacoesAparencia::imprimirDigitando(" [NARRACAO]: O reino clama por um novo destino...\n", 35);
-    SimplificacoesAparencia::imprimirDigitando(" [NARRACAO]: E todas lendas possuem um nome.\n\n", 35);
-    std::cout << " > Escolha o nome do seu personagem (ou '0' para sair): ";
+    std::string t1 = "[NARRACAO]: O reino clama por um novo destino...";
+    std::string t2 = "[NARRACAO]: E todas lendas possuem um nome.";
+    
+    int maxLen = std::max(t1.length(), t2.length());
+    std::string margem = SimplificacoesAparencia::espacosParaCentralizar(maxLen);
+    SimplificacoesAparencia::imprimirDigitando(margem + t1 + "\n", 35);
+    SimplificacoesAparencia::imprimirDigitando(margem + t2 + "\n\n", 35);
+    SimplificacoesAparencia::exibirPrompt(" > Escolha o nome do seu personagem (ou '0' para sair): ");
 }
 
 void TelaMenu::exibirPromptRaca(const std::string& nome) {
     SimplificacoesAparencia::limparTela();
     exibirLogoDoJogo("SELECAO DE RACA");
-    std::cout << "JOGADOR: " << nome << "\n";
-    std::cout << std::string(SimplificacoesAparencia::obterLarguraTerminal(), '-') << "\n";
-    SimplificacoesAparencia::imprimirDigitando(" [NARRACAO]: Qual sua origem?\n\n", 35);
-    std::cout << "  [1] Dwarf\n  [2] Elfo\n  [3] Humano\n  [4] Ork\n\n  [0] VOLTAR (selecao de nome)\n\n > Sua escolha: ";
+    
+    std::string info = "| JOGADOR: " + nome + " |";
+    std::string borda = "+" + std::string(info.length() - 2, '-') + "+";
+    SimplificacoesAparencia::imprimirCentralizado(borda);
+    SimplificacoesAparencia::imprimirCentralizado(info);
+    SimplificacoesAparencia::imprimirCentralizado(borda);
+    std::cout << "\n";
+    
+    std::string t1 = "[NARRACAO]: Qual sua origem?";
+    SimplificacoesAparencia::imprimirDigitando(SimplificacoesAparencia::espacosParaCentralizar(t1.length()) + t1 + "\n\n", 35);
+    
+    std::vector<std::string> opcoes = {
+        "[1] Dwarf", "[2] Elfo", "[3] Humano", "[4] Ork", "", "[0] VOLTAR (selecao de nome)"
+    };
+    SimplificacoesAparencia::imprimirBlocoCentralizado(opcoes);
+    SimplificacoesAparencia::exibirPrompt(" > Sua escolha: ");
 }
 
 void TelaMenu::exibirPromptClasse(const std::string& nome, const std::string& nomeRaca) {
     SimplificacoesAparencia::limparTela();
     exibirLogoDoJogo("SELECAO DE CLASSE");
-    std::cout << "JOGADOR: " << nome << " | RACA: " << nomeRaca << "\n";
-    std::cout << std::string(SimplificacoesAparencia::obterLarguraTerminal(), '-') << "\n";
-    SimplificacoesAparencia::imprimirDigitando(" [NARRACAO]: Qual caminho voce seguira neste mundo?\n\n", 35);
-    std::cout << "  [1] Arqueiro\n  [2] Bardo\n  [3] Guerreiro\n  [4] Mago\n\n  [0] VOLTAR (selecao de raca)\n\n > Sua escolha: ";
+    
+    std::string info = "| JOGADOR: " + nome + " | RACA: " + nomeRaca + " |";
+    std::string borda = "+" + std::string(info.length() - 2, '-') + "+";
+    SimplificacoesAparencia::imprimirCentralizado(borda);
+    SimplificacoesAparencia::imprimirCentralizado(info);
+    SimplificacoesAparencia::imprimirCentralizado(borda);
+    std::cout << "\n";
+    
+    std::string t1 = "[NARRACAO]: Qual caminho voce seguira neste mundo?";
+    SimplificacoesAparencia::imprimirDigitando(SimplificacoesAparencia::espacosParaCentralizar(t1.length()) + t1 + "\n\n", 35);
+
+    std::vector<std::string> opcoes = {
+        "[1] Arqueiro", "[2] Bardo", "[3] Guerreiro", "[4] Mago", "", "[0] VOLTAR (selecao de raca)"
+    };
+    SimplificacoesAparencia::imprimirBlocoCentralizado(opcoes);
+    SimplificacoesAparencia::exibirPrompt(" > Sua escolha: ");
 }
 
 void TelaMenu::exibirPromptParry(const std::string& nome, const std::string& nomeRaca, const std::string& nomeClasse) {
     SimplificacoesAparencia::limparTela();
     exibirLogoDoJogo("CONFIGURACOES DO JOGO");
-    std::cout << "JOGADOR: " << nome << " | RACA: " << nomeRaca << " | CLASSE: " << nomeClasse << "\n";
-    std::cout << std::string(SimplificacoesAparencia::obterLarguraTerminal(), '-') << "\n";
-    SimplificacoesAparencia::imprimirDigitando(" [SISTEMA]: Deseja ativar o sistema de PARRY?\n\n", 35);
-    SimplificacoesAparencia::imprimirDigitando(" (Permite reduzir danos ao digitar uma sequencia de numeros num tempo limite)\n\n", 35);
-    std::cout << "  [1] LIGAR Parry\n  [2] DESLIGAR Parry\n\n  [0] VOLTAR (selecao de classe)\n\n > Sua escolha: ";
+    
+    std::string info = "| JOGADOR: " + nome + " | RACA: " + nomeRaca + " | CLASSE: " + nomeClasse + " |";
+    std::string borda = "+" + std::string(info.length() - 2, '-') + "+";
+    SimplificacoesAparencia::imprimirCentralizado(borda);
+    SimplificacoesAparencia::imprimirCentralizado(info);
+    SimplificacoesAparencia::imprimirCentralizado(borda);
+    std::cout << "\n";
+    
+    std::string t1 = "[SISTEMA]: Deseja ativar o sistema de PARRY?";
+    std::string t2 = "(Permite reduzir danos ao digitar uma sequencia de numeros num tempo limite)";
+    
+    int maxLen = std::max(t1.length(), t2.length());
+    std::string margem = SimplificacoesAparencia::espacosParaCentralizar(maxLen);
+    SimplificacoesAparencia::imprimirDigitando(margem + t1 + "\n", 35);
+    SimplificacoesAparencia::imprimirDigitando(margem + t2 + "\n\n", 35);
+    
+    std::vector<std::string> opcoes = {
+        "[1] LIGAR Parry", "[2] DESLIGAR Parry", "", "[0] VOLTAR (selecao de classe)"
+    };
+    SimplificacoesAparencia::imprimirBlocoCentralizado(opcoes);
+    SimplificacoesAparencia::exibirPrompt(" > Sua escolha: ");
 }
 
 void TelaMenu::exibirPromptDificuldade(const std::string& nome, const std::string& nomeRaca, const std::string& nomeClasse) {
     SimplificacoesAparencia::limparTela();
     exibirLogoDoJogo("DIFICULDADE DO MUNDO");
-    std::cout << "JOGADOR: " << nome << " | RACA: " << nomeRaca << " | CLASSE: " << nomeClasse << "\n";
-    std::cout << std::string(SimplificacoesAparencia::obterLarguraTerminal(), '-') << "\n";
-    SimplificacoesAparencia::imprimirDigitando(" [SISTEMA]: Escolha o nivel de desafio da sua jornada:\n\n", 35);
-    std::cout << "  [1] FACIL   (Inimigos com 1x Atributos, sem habilidades de raca e sem classe)\n";
-    std::cout << "  [2] NORMAL  (Inimigos com 1.5x Atributos, com habilidades de raca mas sem classes)\n";
-    std::cout << "  [3] DIFICIL (Inimigos com 2x Atributos, com habilidades de raca e com classes)\n";
-    std::cout << "\n  [0] VOLTAR (configuracao de parry)\n\n > Sua escolha: ";
+    
+    std::string info = "| JOGADOR: " + nome + " | RACA: " + nomeRaca + " | CLASSE: " + nomeClasse + " |";
+    std::string borda = "+" + std::string(info.length() - 2, '-') + "+";
+    SimplificacoesAparencia::imprimirCentralizado(borda);
+    SimplificacoesAparencia::imprimirCentralizado(info);
+    SimplificacoesAparencia::imprimirCentralizado(borda);
+    std::cout << "\n";
+    
+    std::string t1 = "[SISTEMA]: Escolha o nivel de desafio da sua jornada:";
+    SimplificacoesAparencia::imprimirDigitando(SimplificacoesAparencia::espacosParaCentralizar(t1.length()) + t1 + "\n\n", 35);
+    
+    std::vector<std::string> opcoes = {
+        "[1] FACIL   (Inimigos com 1x Atributos, sem hab. raca/classe)",
+        "[2] NORMAL  (Inimigos com 1.5x Atributos, com hab. raca)",
+        "[3] DIFICIL (Inimigos com 2x Atributos, com hab. raca/classe)",
+        "",
+        "[0] VOLTAR (configuracao de parry)"
+    };
+    SimplificacoesAparencia::imprimirBlocoCentralizado(opcoes);
+    SimplificacoesAparencia::exibirPrompt(" > Sua escolha: ");
 }

@@ -24,19 +24,7 @@ static const std::vector<std::string> logoBestiario = {
 
 static void exibirCabecalho(int largura, const std::string& tituloSecundario = "") {
     SimplificacoesAparencia::limparTela();
-    std::cout << "\n";
-    SimplificacoesAparencia::imprimirLinhaDivisoria();
-    std::cout << "\n";
-    SimplificacoesAparencia::imprimirCentralizadoMultilinha(logoBestiario, 101, SimplificacoesAparencia::cor(Cor::VERDE));
-    std::cout << "\n";
-    SimplificacoesAparencia::imprimirLinhaDivisoria();
-    if (!tituloSecundario.empty()) {
-        SimplificacoesAparencia::imprimirCentralizado(tituloSecundario);
-        SimplificacoesAparencia::imprimirLinhaDivisoria();
-        std::cout << "\n";
-    } else {
-        std::cout << "\n";
-    }
+    SimplificacoesAparencia::exibirLogoAscii(logoBestiario, 101, Cor::VERDE, tituloSecundario);
 }
 
 void TelaBestiario::exibirLista(SistemaPersonagem* jogadorAtual) {
@@ -55,8 +43,7 @@ void TelaBestiario::exibirLista(SistemaPersonagem* jogadorAtual) {
         SimplificacoesAparencia::imprimirCentralizado("Nenhum inimigo descoberto ainda.");
         SimplificacoesAparencia::imprimirCentralizado("Explore e combata para desbloquear entries.");
         std::cout << "\n";
-        SimplificacoesAparencia::imprimirCentralizado("[0] Voltar");
-        std::cout << "\nEscolha: ";
+        SimplificacoesAparencia::exibirPrompt("[0] Voltar\n\nEscolha: ");
         std::string escolha;
         std::cin >> escolha;
         return;
@@ -94,14 +81,14 @@ void TelaBestiario::exibirLista(SistemaPersonagem* jogadorAtual) {
             std::cout << "\n";
         }
 
-        std::cout << "Escolha um numero (1-" << indiceFinal << "), [P] pagina, [0] Voltar: ";
+        SimplificacoesAparencia::exibirPrompt("Escolha um numero (1-" + std::to_string(indiceFinal) + "), [P] pagina, [0] Voltar: ");
         std::string entradaDigitadaPeloJogador;
         std::cin >> entradaDigitadaPeloJogador;
 
         while (std::cin.fail()) {
             std::cin.clear();
             std::cin.ignore(1000, '\n');
-            std::cout << "Entrada invalida. Escolha um numero (1-" << indiceFinal << "), [P] pagina, [0] Voltar: ";
+            SimplificacoesAparencia::exibirPrompt("Entrada invalida. Escolha um numero (1-" + std::to_string(indiceFinal) + "), [P] pagina, [0] Voltar: ");
             std::cin >> entradaDigitadaPeloJogador;
         }
 
@@ -170,7 +157,8 @@ void TelaBestiario::exibirFicha(SistemaPersonagem* jogadorAtual, const std::stri
         }, "(Derrote o inimigo para descobrir os atributos)");
 
         // Habilidades
-        std::cout << "=== HABILIDADES ===\n\n";
+        SimplificacoesAparencia::imprimirCentralizado("=== HABILIDADES ===");
+        std::cout << "\n";
         
         auto processarHabilidade = [&](const std::string& hab, bool checarDescoberta) {
             size_t pos = hab.find(" |");
@@ -183,7 +171,7 @@ void TelaBestiario::exibirFicha(SistemaPersonagem* jogadorAtual, const std::stri
             return false;
         };
 
-        std::cout << "Ativas:\n";
+        SimplificacoesAparencia::imprimirCentralizado("Ativas:");
         if (info->habilidadesAtivas.empty() || info->habilidadesAtivas[0].find("Nenhuma") != std::string::npos) {
             SimplificacoesAparencia::imprimirCentralizado("  Nenhuma", SimplificacoesAparencia::cor(Cor::CINZA));
         } else {
@@ -198,7 +186,7 @@ void TelaBestiario::exibirFicha(SistemaPersonagem* jogadorAtual, const std::stri
         }
         std::cout << "\n";
 
-        std::cout << "Passivas:\n";
+        SimplificacoesAparencia::imprimirCentralizado("Passivas:");
         if (info->habilidadePassiva.empty() || info->habilidadePassiva.find("Nenhuma") != std::string::npos) {
             SimplificacoesAparencia::imprimirCentralizado("  Nenhuma", SimplificacoesAparencia::cor(Cor::CINZA));
         } else {
@@ -227,8 +215,7 @@ void TelaBestiario::exibirFicha(SistemaPersonagem* jogadorAtual, const std::stri
             }
         }, "");
 
-        SimplificacoesAparencia::imprimirCentralizado("[0] Retornar a lista");
-        std::cout << "\nEscolha: ";
+        SimplificacoesAparencia::exibirPrompt("[0] Retornar a lista\n\nEscolha: ");
         std::string escolha;
         std::cin >> escolha;
         if (escolha == "0") break;

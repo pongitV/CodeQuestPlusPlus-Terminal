@@ -47,7 +47,7 @@ int AbominacaoFloresta::processarDanoOfensivo(int danoBase, SistemaPersonagem* a
             if (cura > 0)
             {
                 atacante->modificarVida(cura);
-                std::cout << SimplificacoesAparencia::cor(Cor::VERDE) << "[PASSIVA]: Raizes Parasitas! A Abominacao absorveu " << cura << " de HP!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+                std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::VERDE) << "[PASSIVA]: Raizes Parasitas! A Abominacao absorveu " << cura << " de HP!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
             }
         }
         if (atacante->obterVida() >= (vidaMax * 0.60))
