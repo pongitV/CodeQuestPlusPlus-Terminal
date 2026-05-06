@@ -64,6 +64,17 @@ const std::vector<std::string>& Slime::obterAparenciaRaca() const
     return aparencia;
 }
 
+InfoBestiario Slime::obterInfoBestiario() const {
+    return {
+        "Floresta", 
+        "Superficie",
+        "Massas gelatinosas que absorvem tudo o que tocam.",
+        "Slimes podem digerir materiais em dias, mas detestam sal.",
+        {FabricaItens::obterNomeDeID(ItemID::GosmaAcida), FabricaItens::obterNomeDeID(ItemID::NucleoPegajoso), "Ouro"},
+        2
+    };
+}
+
 void Slime::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)
 {
     int xpDrop = 35;

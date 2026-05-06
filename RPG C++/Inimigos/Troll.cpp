@@ -24,7 +24,6 @@ const std::vector<std::string>& Troll::obterAparenciaRaca() const
 {
     static const std::vector<std::string> aparencia =
     {
-        "                                                                                                               ",
         "                           -+::*.                                                                                ",
         "                       .=*++#%%.%#:                                                                            ",
         "                  .-:..***+*+#%%%+#%@+                                                                          ",
@@ -110,6 +109,17 @@ const std::vector<std::string>& Troll::obterAparenciaRaca() const
         "                                                                                           :#%--                                     "
     };
     return aparencia;
+}
+
+InfoBestiario Troll::obterInfoBestiario() const {
+    return {
+        "Montanhas", 
+        "Caverna Profunda",
+        "Uma criatura gigantesca, incrivelmente forte e resistente, capaz de empunhar arvores inteiras como clavas.",
+        "A lenda diz que as feridas de um Troll se fecham em segundos.",
+        {FabricaItens::obterNomeDeID(ItemID::TroncoAmarrotado), FabricaItens::obterNomeDeID(ItemID::OrgaoRegenerador), "Ouro"},
+        6
+    };
 }
 
 void Troll::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)

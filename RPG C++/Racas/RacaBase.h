@@ -21,6 +21,15 @@ enum class TipoRaca
     AbominacaoFloresta
 };
 
+struct InfoBestiario {
+    std::string mapa;
+    std::string habitat;
+    std::string lore;
+    std::string fatoCurioso;
+    std::vector<std::string> drops;
+    int dificuldade;
+};
+
 class RacaBase {
 public:
     virtual ~RacaBase() = default;
@@ -32,6 +41,8 @@ public:
 
     virtual std::string obterNomeHabilidadeRaca() const = 0;
     virtual std::string obterDescricaoHabilidadeRaca() const = 0;
+
+    virtual InfoBestiario obterInfoBestiario() const { return {"Desconhecido", "Desconhecido", "", "", {}, 1}; }
 
     virtual std::vector<std::unique_ptr<Item>> obterEquipamentoRaca() const { return {}; }
 

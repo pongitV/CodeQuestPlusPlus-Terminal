@@ -8,7 +8,6 @@
 #include "../Inimigos/AbominacaoFloresta.h"
 #include "../Inimigos/Troll.h"
 #include "../Inimigos/ClasseBaseInimigo.h"
-#include "../Inventario/FabricaItens.h"
 
 SistemaBestiario& SistemaBestiario::instancia() {
     static SistemaBestiario inst;
@@ -19,11 +18,15 @@ SistemaBestiario::SistemaBestiario() {
     inicializarInimigos();
 }
 
-void SistemaBestiario::inicializarInimigos() {
-    ClasseBaseInimigo classePadrao;
-
-    auto formatarAtributos = [](const Atributos& attr) -> std::vector<std::string> {
-        return {
+namespace {
+    template<typename T>
+    void registrarNoBestiario(std::map<std::string, SistemaBestiarioEnemyInfo>& inimigosBase) {
+        T raca;
+        ClasseBaseInimigo classePadrao;
+        Atributos attr = raca.obterAtributosRaca();
+        InfoBestiario info = raca.obterInfoBestiario();
+        
+        std::vector<std::string> attrTexto = {
             " > Vida           : " + std::to_string(attr.vida),
             " > Forca          : " + std::to_string(attr.forca),
             " > Destreza       : " + std::to_string(attr.destreza),
@@ -32,91 +35,28 @@ void SistemaBestiario::inicializarInimigos() {
             " > Inteligencia   : " + std::to_string(attr.inteligencia),
             " > Sabedoria      : " + std::to_string(attr.sabedoria)
         };
-    };
 
-    Goblin racaGoblin;
-    Atributos attrGoblin = racaGoblin.obterAtributosRaca();
-    inimigosBase[racaGoblin.obterNomeRaca()] = {
-        racaGoblin.obterNomeRaca(), "Vila Inicial", "Arredores",
-        racaGoblin.obterAparenciaRaca(),
-        "Pequenas criaturas verdes e astutas que costumam viver em bandos perto de vilarejos.",
-        "Goblins adoram itens brilhantes e guardam dentes como trofeus.",
-        formatarAtributos(attrGoblin),
-        {classePadrao.obterNomeHabilidadeClasse() + " | " + classePadrao.obterDescricaoHabilidadeClasse()},
-        racaGoblin.obterNomeHabilidadeRaca() + " | " + racaGoblin.obterDescricaoHabilidadeRaca(),
-        {FabricaItens::obterNomeDeID(ItemID::DenteGoblin), FabricaItens::obterNomeDeID(ItemID::AdagaPedra), "Ouro"},
-        1
-    };
+        inimigosBase[raca.obterNomeRaca()] = {
+            raca.obterNomeRaca(), info.mapa, info.habitat,
+            raca.obterAparenciaRaca(),
+            info.lore,
+            info.fatoCurioso,
+            attrTexto,
+            {classePadrao.obterNomeHabilidadeClasse() + " | " + classePadrao.obterDescricaoHabilidadeClasse()},
+            raca.obterNomeHabilidadeRaca() + " | " + raca.obterDescricaoHabilidadeRaca(),
+            info.drops,
+            info.dificuldade
+        };
+    }
+}
 
-    Slime racaSlime;
-    Atributos attrSlime = racaSlime.obterAtributosRaca();
-    inimigosBase[racaSlime.obterNomeRaca()] = {
-        racaSlime.obterNomeRaca(), "Floresta", "Superficie",
-        racaSlime.obterAparenciaRaca(),
-        "Massas gelatinosas que absorvem tudo o que tocam.",
-        "Slimes podem digerir materiais em dias, mas detestam sal.",
-        formatarAtributos(attrSlime),
-        {classePadrao.obterNomeHabilidadeClasse() + " | " + classePadrao.obterDescricaoHabilidadeClasse()},
-        racaSlime.obterNomeHabilidadeRaca() + " | " + racaSlime.obterDescricaoHabilidadeRaca(),
-        {FabricaItens::obterNomeDeID(ItemID::GosmaAcida), FabricaItens::obterNomeDeID(ItemID::NucleoPegajoso), "Ouro"},
-        2
-    };
-
-    Fada racaFada;
-    Atributos attrFada = racaFada.obterAtributosRaca();
-    inimigosBase[racaFada.obterNomeRaca()] = {
-        racaFada.obterNomeRaca(), "Floresta", "Superficie",
-        racaFada.obterAparenciaRaca(),
-        "Fadas corrompidas pela energia negra da floresta.",
-        "Elas costumavam guiar viajantes, agora os perdem.",
-        formatarAtributos(attrFada),
-        {classePadrao.obterNomeHabilidadeClasse() + " | " + classePadrao.obterDescricaoHabilidadeClasse()},
-        racaFada.obterNomeHabilidadeRaca() + " | " + racaFada.obterDescricaoHabilidadeRaca(),
-        {FabricaItens::obterNomeDeID(ItemID::PoMagico), FabricaItens::obterNomeDeID(ItemID::VarinhaCorroida), "Ouro"},
-        3
-    };
-
-    OrkExilado racaOrk;
-    Atributos attrOrk = racaOrk.obterAtributosRaca();
-    inimigosBase[racaOrk.obterNomeRaca()] = {
-        racaOrk.obterNomeRaca(), "Vila Inicial", "Caverna do Ork",
-        racaOrk.obterAparenciaRaca(),
-        "Um Ork expulso de seu cla, agora vive em cavernas escuras planejando vinganca.",
-        "Orks exilados pintam suas armaduras com o sangue de suas vitimas.",
-        formatarAtributos(attrOrk),
-        {classePadrao.obterNomeHabilidadeClasse() + " | " + classePadrao.obterDescricaoHabilidadeClasse()},
-        racaOrk.obterNomeHabilidadeRaca() + " | " + racaOrk.obterDescricaoHabilidadeRaca(),
-        {FabricaItens::obterNomeDeID(ItemID::MachadoGuerra), FabricaItens::obterNomeDeID(ItemID::ArmaduraTrapos), "Ouro"},
-        4
-    };
-
-    AbominacaoFloresta racaAbominacao;
-    Atributos attrAbom = racaAbominacao.obterAtributosRaca();
-    inimigosBase[racaAbominacao.obterNomeRaca()] = {
-        racaAbominacao.obterNomeRaca(), "Floresta", "Coracao da Arvore",
-        racaAbominacao.obterAparenciaRaca(),
-        "A essencia corrompida da propria floresta, manifestada em uma criatura horripilante.",
-        "Sua presenca apodrece a vida ao seu redor.",
-        formatarAtributos(attrAbom),
-        {classePadrao.obterNomeHabilidadeClasse() + " | " + classePadrao.obterDescricaoHabilidadeClasse()},
-        racaAbominacao.obterNomeHabilidadeRaca() + " | " + racaAbominacao.obterDescricaoHabilidadeRaca(),
-        {FabricaItens::obterNomeDeID(ItemID::CoracaoFloresta), FabricaItens::obterNomeDeID(ItemID::MadeiraEnfeiticada), "Ouro"},
-        5
-    };
-
-    Troll racaTroll;
-    Atributos attrTroll = racaTroll.obterAtributosRaca();
-    inimigosBase[racaTroll.obterNomeRaca()] = {
-        racaTroll.obterNomeRaca(), "Montanhas", "Caverna Profunda",
-        racaTroll.obterAparenciaRaca(),
-        "Uma criatura gigantesca, incrivelmente forte e resistente, capaz de empunhar arvores inteiras como clavas.",
-        "A lenda diz que as feridas de um Troll se fecham em segundos.",
-        formatarAtributos(attrTroll),
-        {classePadrao.obterNomeHabilidadeClasse() + " | " + classePadrao.obterDescricaoHabilidadeClasse()},
-        racaTroll.obterNomeHabilidadeRaca() + " | " + racaTroll.obterDescricaoHabilidadeRaca(),
-        {FabricaItens::obterNomeDeID(ItemID::TroncoAmarrotado), FabricaItens::obterNomeDeID(ItemID::OrgaoRegenerador), "Ouro"},
-        6
-    };
+void SistemaBestiario::inicializarInimigos() {
+    registrarNoBestiario<Goblin>(inimigosBase);
+    registrarNoBestiario<Slime>(inimigosBase);
+    registrarNoBestiario<Fada>(inimigosBase);
+    registrarNoBestiario<OrkExilado>(inimigosBase);
+    registrarNoBestiario<AbominacaoFloresta>(inimigosBase);
+    registrarNoBestiario<Troll>(inimigosBase);
 }
 
 void SistemaBestiario::registrarPrimeiraVista(const std::string& nomeInimigo) {

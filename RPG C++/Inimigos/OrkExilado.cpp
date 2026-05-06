@@ -72,6 +72,17 @@ const std::vector<std::string>& OrkExilado::obterAparenciaRaca() const
     return aparencia;
 }
 
+InfoBestiario OrkExilado::obterInfoBestiario() const {
+    return {
+        "Vila Inicial", 
+        "Caverna do Ork",
+        "Um Ork expulso de seu cla, agora vive em cavernas escuras planejando vinganca.",
+        "Orks exilados pintam suas armaduras com o sangue de suas vitimas.",
+        {FabricaItens::obterNomeDeID(ItemID::MachadoGuerra), FabricaItens::obterNomeDeID(ItemID::ArmaduraTrapos), "Ouro"},
+        4
+    };
+}
+
 std::vector<std::unique_ptr<Item>> OrkExilado::obterEquipamentoRaca() const {
     std::vector<std::unique_ptr<Item>> equipamentos;
     equipamentos.push_back(FabricaItens::criarItem(ItemID::MachadoGuerra));

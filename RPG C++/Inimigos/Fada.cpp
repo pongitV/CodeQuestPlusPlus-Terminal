@@ -57,6 +57,17 @@ const std::vector<std::string>& Fada::obterAparenciaRaca() const
     return aparencia;
 }
 
+InfoBestiario Fada::obterInfoBestiario() const {
+    return {
+        "Floresta", 
+        "Superficie",
+        "Fadas corrompidas pela energia negra da floresta.",
+        "Elas costumavam guiar viajantes, agora os perdem.",
+        {FabricaItens::obterNomeDeID(ItemID::PoMagico), FabricaItens::obterNomeDeID(ItemID::VarinhaCorroida), "Ouro"},
+        3
+    };
+}
+
 void Fada::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)
 {
     int xpDrop = 45;

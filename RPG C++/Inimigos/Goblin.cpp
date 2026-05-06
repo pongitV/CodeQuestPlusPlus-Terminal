@@ -55,6 +55,17 @@ const std::vector<std::string>& Goblin::obterAparenciaRaca() const
     return aparencia;
 }
 
+InfoBestiario Goblin::obterInfoBestiario() const {
+    return {
+        "Vila Inicial", 
+        "Arredores",
+        "Pequenas criaturas verdes e astutas que costumam viver em bandos perto de vilarejos.",
+        "Goblins adoram itens brilhantes e guardam dentes como trofeus.",
+        {FabricaItens::obterNomeDeID(ItemID::DenteGoblin), FabricaItens::obterNomeDeID(ItemID::AdagaPedra), "Ouro"},
+        1
+    };
+}
+
 void Goblin::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)
 {
     int xpDrop = 40;

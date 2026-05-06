@@ -149,6 +149,17 @@ const std::vector<std::string>& AbominacaoFloresta::obterAparenciaRaca() const
     return aparencia;
 }
 
+InfoBestiario AbominacaoFloresta::obterInfoBestiario() const {
+    return {
+        "Floresta", 
+        "Coracao da Arvore",
+        "A essencia corrompida da propria floresta, manifestada em uma criatura horripilante.",
+        "Sua presenca apodrece a vida ao seu redor.",
+        {FabricaItens::obterNomeDeID(ItemID::CoracaoFloresta), FabricaItens::obterNomeDeID(ItemID::MadeiraEnfeiticada), "Ouro"},
+        5
+    };
+}
+
 void AbominacaoFloresta::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)
 {
     int xpDrop = 250;
