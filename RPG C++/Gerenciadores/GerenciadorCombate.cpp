@@ -512,6 +512,15 @@ void GerenciadorCombate::aplicarDanoAoAlvo(SistemaPersonagem* personagemAtacante
 
     if (danoFinalAposReducoes > 0) 
     {
+        // ANIMACAO DO DANO NO INIMIGO (Piscar Vermelho + Flicker)
+        if (!isPersonagemJogadorOuAliado(personagemAlvo)) {
+            std::vector<SistemaPersonagem*> aliadosVivos;
+            for (const auto& aliado : listaDeAliados) {
+                if (aliado->obterVida() > 0) aliadosVivos.push_back(aliado.get());
+            }
+            TelaCombate::animarDanoNoInimigo(obterTituloDoCombate(), obterInimigosRaw(), personagemAlvo, jogadorAtual, aliadosVivos);
+        }
+
         // Aplicação dos efeitos no acerto
         if (personagemAtacante->obterArma()) 
         {

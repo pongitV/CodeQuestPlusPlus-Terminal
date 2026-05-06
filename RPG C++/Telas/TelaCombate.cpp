@@ -2,6 +2,8 @@
 #include <vector>
 #include <string>
 #include <iomanip>
+#include <thread>
+#include <chrono>
 
 #include "TelaCombate.h"
 #include "../Sistemas/SistemaPersonagem.h"
@@ -96,7 +98,7 @@ void TelaCombate::exibirBarraDeStatusDoJogador(SistemaPersonagem* jogadorAtual)
     SimplificacoesAparencia::imprimirLinhaDivisoria();
 }
 
-void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPersonagem*>& listaDeInimigos) 
+void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, int frameAnimacao, bool isCura) 
 {
     if (listaDeInimigos.empty()) return;
     int larguraTerminal = SimplificacoesAparencia::obterLarguraTerminal();
@@ -157,7 +159,26 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
         for (size_t indiceDoInimigoParaDesenhar = 0; indiceDoInimigoParaDesenhar < listaDeInimigos.size(); indiceDoInimigoParaDesenhar++) 
         {
             int espacosParaCentralizarAArte = (larguraSeparadaParaCadaColuna - (int)arteDoInimigo[indiceDaLinhaDaArte].length()) / 2;
-            std::cout << std::string(espacosParaCentralizarAArte > 0 ? espacosParaCentralizarAArte : 0, ' ') << std::left << std::setw(larguraSeparadaParaCadaColuna - espacosParaCentralizarAArte) << arteDoInimigo[indiceDaLinhaDaArte];
+            std::string espacos(espacosParaCentralizarAArte > 0 ? espacosParaCentralizarAArte : 0, ' ');
+            
+            SistemaPersonagem* inimigoAtual = listaDeInimigos[indiceDoInimigoParaDesenhar];
+            std::string linhaArte = arteDoInimigo[indiceDaLinhaDaArte];
+            
+            std::cout << espacos;
+            
+            if (inimigoAtual == alvoAnimacao && frameAnimacao > 0) {
+                if (frameAnimacao % 2 == 1) {
+                    Cor corDestaque = isCura ? Cor::VERDE : Cor::VERMELHO;
+                    std::cout << SimplificacoesAparencia::cor(corDestaque) << linhaArte << SimplificacoesAparencia::cor(Cor::RESET);
+                } else {
+                    std::cout << std::string(linhaArte.length(), ' ');
+                }
+            } else {
+                std::cout << linhaArte;
+            }
+            
+            int espacosDireita = larguraSeparadaParaCadaColuna - espacosParaCentralizarAArte - (int)linhaArte.length();
+            std::cout << std::string(espacosDireita > 0 ? espacosDireita : 0, ' ');
         }
         std::cout << "\n";
     }
@@ -183,4 +204,60 @@ std::vector<std::string> TelaCombate::comporEstatisticasBatalha(SistemaPersonage
         "CURA TOTAL RECEBIDA:  " + std::to_string(curaTotalRecebida),
         "NUMERO DE TURNOS:         " + std::to_string(turnosCombate)
     };
+}
+
+void TelaCombate::animarDanoNoInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados)
+{
+    int cursorYAnterior = SimplificacoesAparencia::obterPosicaoCursorY();
+
+    for (int frame = 1; frame <= 4; ++frame) {
+        SimplificacoesAparencia::moverCursor(0, 0); // Desenha por cima (sem piscar a tela toda)
+        exibirLogoParaTelaDeCombate(tituloCombate);
+        exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, frame);
+        exibirBarraDeStatusDoJogador(jogadorAtual);
+        for (auto* aliado : listaDeAliados) {
+            exibirBarraDeStatusDoJogador(aliado);
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    
+    // Desenha o ultimo quadro (Normal) sem limpar a tela
+    SimplificacoesAparencia::moverCursor(0, 0);
+    exibirLogoParaTelaDeCombate(tituloCombate);
+    exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, 0);
+    exibirBarraDeStatusDoJogador(jogadorAtual);
+    for (auto* aliado : listaDeAliados) {
+        exibirBarraDeStatusDoJogador(aliado);
+    }
+    
+    // Retorna o cursor lá pro fundo da tela para o jogo continuar imprimindo o log de combate!
+    SimplificacoesAparencia::moverCursor(0, cursorYAnterior); 
+}
+
+void TelaCombate::animarCuraNoInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados)
+{
+    int cursorYAnterior = SimplificacoesAparencia::obterPosicaoCursorY();
+
+    for (int frame = 1; frame <= 4; ++frame) {
+        SimplificacoesAparencia::moverCursor(0, 0); // Desenha por cima (sem piscar a tela toda)
+        exibirLogoParaTelaDeCombate(tituloCombate);
+        exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, frame, true); // true = piscar em verde
+        exibirBarraDeStatusDoJogador(jogadorAtual);
+        for (auto* aliado : listaDeAliados) {
+            exibirBarraDeStatusDoJogador(aliado);
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    
+    // Desenha o ultimo quadro (Normal) sem limpar a tela
+    SimplificacoesAparencia::moverCursor(0, 0);
+    exibirLogoParaTelaDeCombate(tituloCombate);
+    exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, 0);
+    exibirBarraDeStatusDoJogador(jogadorAtual);
+    for (auto* aliado : listaDeAliados) {
+        exibirBarraDeStatusDoJogador(aliado);
+    }
+    
+    // Retorna o cursor lá pro fundo da tela para o jogo continuar imprimindo o log de combate!
+    SimplificacoesAparencia::moverCursor(0, cursorYAnterior); 
 }
