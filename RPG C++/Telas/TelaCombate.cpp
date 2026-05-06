@@ -214,24 +214,12 @@ std::vector<std::string> TelaCombate::comporEstatisticasBatalha(SistemaPersonage
 
 void TelaCombate::animarDanoNoInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados)
 {
-    for (int frame = 1; frame <= 4; ++frame) {
-        Aparencia::limparTela();
-        exibirLogoParaTelaDeCombate(tituloCombate);
-        exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, frame);
-        exibirBarraDeStatusDoJogador(jogadorAtual);
-        for (auto* aliado : listaDeAliados) {
-            exibirBarraDeStatusDoJogador(aliado);
-        }
-        Aparencia::imprimirLinhaDivisoria();
-        for (const auto& msg : mensagensFixasCombate) std::cout << msg;
-        std::cout << std::flush;
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-    
-    // Desenha o ultimo quadro (Normal) sem limpar a tela
     Aparencia::limparTela();
     exibirLogoParaTelaDeCombate(tituloCombate);
+    
+    int yInimigos = Aparencia::obterPosicaoCursorY();
     exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, 0);
+    
     exibirBarraDeStatusDoJogador(jogadorAtual);
     for (auto* aliado : listaDeAliados) {
         exibirBarraDeStatusDoJogador(aliado);
@@ -239,34 +227,54 @@ void TelaCombate::animarDanoNoInimigo(const std::string& tituloCombate, const st
     Aparencia::imprimirLinhaDivisoria();
     for (const auto& msg : mensagensFixasCombate) std::cout << msg;
     std::cout << std::flush;
-}
 
-void TelaCombate::animarCuraNoInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados)
-{
+    int yFinal = Aparencia::obterPosicaoCursorY();
+
+    // Anima apenas o bloco dos Inimigos, preservando o resto da tela!
     for (int frame = 1; frame <= 4; ++frame) {
-        Aparencia::limparTela();
-        exibirLogoParaTelaDeCombate(tituloCombate);
-        exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, frame, true); // true = piscar em verde
-        exibirBarraDeStatusDoJogador(jogadorAtual);
-        for (auto* aliado : listaDeAliados) {
-            exibirBarraDeStatusDoJogador(aliado);
-        }
-        Aparencia::imprimirLinhaDivisoria();
-        for (const auto& msg : mensagensFixasCombate) std::cout << msg;
+        Aparencia::moverCursor(0, yInimigos);
+        exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, frame, false);
         std::cout << std::flush;
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     
-    // Desenha o ultimo quadro (Normal) sem limpar a tela
+    // Retorna ao normal e devolve o cursor pro final da tela
+    Aparencia::moverCursor(0, yInimigos);
+    exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, 0, false);
+    
+    Aparencia::moverCursor(0, yFinal);
+    std::cout << std::flush;
+}
+
+void TelaCombate::animarCuraNoInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados)
+{
     Aparencia::limparTela();
     exibirLogoParaTelaDeCombate(tituloCombate);
-    exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, 0);
+    
+    int yInimigos = Aparencia::obterPosicaoCursorY();
+    exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, 0, true);
+    
     exibirBarraDeStatusDoJogador(jogadorAtual);
     for (auto* aliado : listaDeAliados) {
         exibirBarraDeStatusDoJogador(aliado);
     }
     Aparencia::imprimirLinhaDivisoria();
     for (const auto& msg : mensagensFixasCombate) std::cout << msg;
+    std::cout << std::flush;
+
+    int yFinal = Aparencia::obterPosicaoCursorY();
+
+    for (int frame = 1; frame <= 4; ++frame) {
+        Aparencia::moverCursor(0, yInimigos);
+        exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, frame, true);
+        std::cout << std::flush;
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    
+    Aparencia::moverCursor(0, yInimigos);
+    exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, 0, true);
+    
+    Aparencia::moverCursor(0, yFinal);
     std::cout << std::flush;
 }
 
@@ -274,11 +282,23 @@ void TelaCombate::animarDanoNoJogador(const std::string& tituloCombate, const st
 {
     Cor corDestaque = isParry ? Cor::CIANO : Cor::VERMELHO;
 
+    Aparencia::limparTela();
+    exibirLogoParaTelaDeCombate(tituloCombate);
+    exibirHordaDeInimigosLadoALado(listaDeInimigos, nullptr, 0, false);
+    
+    int yHUD = Aparencia::obterPosicaoCursorY();
+    
+    exibirBarraDeStatusDoJogador(jogadorAtual, Cor::RESET);
+    for (auto* aliado : listaDeAliados) exibirBarraDeStatusDoJogador(aliado, Cor::RESET);
+    Aparencia::imprimirLinhaDivisoria();
+    for (const auto& msg : mensagensFixasCombate) std::cout << msg;
+    std::cout << std::flush;
+
+    int yFinal = Aparencia::obterPosicaoCursorY();
+
+    // Anima apenas o bloco do HUD, preservando Inimigos e as Mensagens Fixas!
     for (int frame = 1; frame <= 4; ++frame) {
-        Aparencia::limparTela();
-        exibirLogoParaTelaDeCombate(tituloCombate);
-        exibirHordaDeInimigosLadoALado(listaDeInimigos, nullptr, 0, false);
-        
+        Aparencia::moverCursor(0, yHUD);
         Cor corAplicada = (frame % 2 == 1) ? corDestaque : Cor::RESET;
 
         if (jogadorAtual == alvoAnimacao) exibirBarraDeStatusDoJogador(jogadorAtual, corAplicada);
@@ -289,17 +309,15 @@ void TelaCombate::animarDanoNoJogador(const std::string& tituloCombate, const st
             else exibirBarraDeStatusDoJogador(aliado, Cor::RESET);
         }
         Aparencia::imprimirLinhaDivisoria();
-        for (const auto& msg : mensagensFixasCombate) std::cout << msg;
         std::cout << std::flush;
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     
-    Aparencia::limparTela();
-    exibirLogoParaTelaDeCombate(tituloCombate);
-    exibirHordaDeInimigosLadoALado(listaDeInimigos, nullptr, 0, false);
+    Aparencia::moverCursor(0, yHUD);
     exibirBarraDeStatusDoJogador(jogadorAtual, Cor::RESET);
     for (auto* aliado : listaDeAliados) exibirBarraDeStatusDoJogador(aliado, Cor::RESET);
     Aparencia::imprimirLinhaDivisoria();
-    for (const auto& msg : mensagensFixasCombate) std::cout << msg;
+    
+    Aparencia::moverCursor(0, yFinal);
     std::cout << std::flush;
 }

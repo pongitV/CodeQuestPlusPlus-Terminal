@@ -194,7 +194,7 @@ void GerenciadorCombate::processarMenuDeAcoesDoJogador(SistemaPersonagem* person
     TelaCombate::limparMensagensFixas();
     Aparencia::exibirUltimosLogs(5);
     std::string textoDoTurno = "--- TURNO " + std::to_string(contadorDoTurnoAtual) + " | VEZ DE " + personagemAgindo->obterNome() + " ---";
-    std::string msgTurno = "\n" + Aparencia::espacosParaCentralizar(textoDoTurno.length()) + textoDoTurno + "\n\n";
+    std::string msgTurno = "\n" + Aparencia::espacosParaCentralizar(textoDoTurno.length()) + textoDoTurno + "\n";
     std::cout << msgTurno;
     TelaCombate::adicionarMensagemFixa(msgTurno);
 
@@ -377,7 +377,7 @@ void GerenciadorCombate::executarTurnoDeTodosOsInimigos()
     else
     {
         std::string textoTurnoInimigos = "--- TURNO DOS INIMIGOS ---";
-        std::string msgTurno = "\n" + Aparencia::espacosParaCentralizar(textoTurnoInimigos.length()) + textoTurnoInimigos + "\n\n";
+        std::string msgTurno = "\n" + Aparencia::espacosParaCentralizar(textoTurnoInimigos.length()) + textoTurnoInimigos + "\n";
         std::cout << msgTurno;
         TelaCombate::adicionarMensagemFixa(msgTurno);
         for (auto& inimigoAtualPtr : listaDeInimigos) 
