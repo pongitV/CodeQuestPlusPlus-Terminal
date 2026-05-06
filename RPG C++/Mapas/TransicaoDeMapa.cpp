@@ -1,20 +1,28 @@
 #include <iostream>
-#include <windows.h>
+#include <thread>
+#include <chrono>
 
 #include "TransicaoDeMapa.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
 
 namespace {
     void executarAnimacaoTransicao(const std::vector<std::string>& arte, int larguraArte, Cor corArte, const std::string& textoTransicao) {
-        SimplificacoesAparencia::limparTela();
+        Aparencia::limparTela();
         std::cout << "\n\n";
-        SimplificacoesAparencia::imprimirCentralizadoMultilinha(arte, larguraArte, SimplificacoesAparencia::cor(corArte));
 
-        int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
+        int larguraDoTerminal = Aparencia::obterLarguraTerminal();
         int espacosParaCentralizar = (larguraDoTerminal - (int)textoTransicao.length()) / 2;
+        
+        for (size_t i = 0; i < arte.size(); ++i) {
+            int espacos = (larguraDoTerminal - larguraArte) / 2;
+            if (espacos < 0) espacos = 0;
+            std::cout << std::string(espacos, ' ') << Aparencia::cor(corArte) << arte[i] << Aparencia::cor(Cor::RESET) << "\n";
+            std::this_thread::sleep_for(std::chrono::milliseconds(30)); // 30ms por linha criando o efeito Cortina
+        }
+
         std::cout << "\n\n" << std::string(espacosParaCentralizar > 0 ? espacosParaCentralizar : 0, ' ') << textoTransicao << "\n";
 
-        Sleep(3000); 
+        std::this_thread::sleep_for(std::chrono::milliseconds(1500)); 
     }
 }
 

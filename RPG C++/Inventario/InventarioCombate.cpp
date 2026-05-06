@@ -11,7 +11,7 @@
 #include "EquipamentoArmadura.h"
 #include "../Telas/TelaInventario.h"
 #include "../Telas/TelaMenu.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
 
 namespace {
     // Executa a acao diretamente e retorna true caso a propriedade possua um efeito de consumivel
@@ -19,7 +19,7 @@ namespace {
         auto aplicarTalisma = [&](TipoAtributo buffAtr, TipoAtributo debuffAtr) {
             personagemUsuario->alterarAtributoEstatico(buffAtr, 5);
             personagemUsuario->alterarAtributoEstatico(debuffAtr, -5);
-            std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "[SISTEMA]: " << itemConsumido->obterNomeItem() << " consumido!\n";
+            std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << itemConsumido->obterNomeItem() << " consumido!\n";
             personagemUsuario->obterInventario()->removerItem(itemConsumido);
             if (turnoFoiConsumido) *turnoFoiConsumido = true;
             return true;
@@ -28,29 +28,29 @@ namespace {
         switch(prop) {
         case Propriedade::ConsumivelCura: {
             if (personagemUsuario->obterVida() >= personagemUsuario->obterVidaMaxima()) {
-                std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "[SISTEMA]: Sua vida ja esta cheia!\n";
+                std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Sua vida ja esta cheia!\n";
                 return true;
             }
             int cura = static_cast<int>(personagemUsuario->obterVidaMaxima() * 0.30);
             personagemUsuario->modificarVida(cura);
-            std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "[SISTEMA]: " << itemConsumido->obterNomeItem() << " usada! +" << cura << " HP.\n";
+            std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << itemConsumido->obterNomeItem() << " usada! +" << cura << " HP.\n";
             personagemUsuario->obterInventario()->removerItem(itemConsumido);
             if (turnoFoiConsumido) *turnoFoiConsumido = true;
             return true;
         }
 
         case Propriedade::ConsumivelBuff:
-            if (!turnoFoiConsumido) { std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "[SISTEMA]: Pocoes de buff so podem ser usadas em combate!\n"; return true; }
+            if (!turnoFoiConsumido) { std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Pocoes de buff so podem ser usadas em combate!\n"; return true; }
             personagemUsuario->adicionarEfeito(std::make_unique<EfeitoBuffAtributos>(2));
             personagemUsuario->definirMultiplicador(1.5);
-            std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "[SISTEMA]: " << itemConsumido->obterNomeItem() << " consumida! Atributos ampliados em 1.5x por 2 turnos!\n";
+            std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << itemConsumido->obterNomeItem() << " consumida! Atributos ampliados em 1.5x por 2 turnos!\n";
             personagemUsuario->obterInventario()->removerItem(itemConsumido);
             *turnoFoiConsumido = true;
             return true;
 
         case Propriedade::ConsumivelDebuffLentidao:
         case Propriedade::ConsumivelDebuffFraqueza:
-            if (!turnoFoiConsumido) { std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "[SISTEMA]: Frascos de debuff so podem ser usados em combate!\n"; return true; }
+            if (!turnoFoiConsumido) { std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Frascos de debuff so podem ser usados em combate!\n"; return true; }
             personagemUsuario->definirItemSelecionadoParaUso(itemConsumido);
             return true;
 
@@ -61,11 +61,11 @@ namespace {
 
         case Propriedade::ConsumivelPoderTroll:
             if (personagemUsuario->possuiRegeneracaoTroll()) {
-                std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "[SISTEMA]: O poder regenerador do Troll ja corre em suas veias!\n";
+                std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: O poder regenerador do Troll ja corre em suas veias!\n";
             } else {
                 personagemUsuario->desbloquearRegeneracaoTroll();
                 personagemUsuario->modificarVida(personagemUsuario->obterVidaMaxima());
-                std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "[SISTEMA]: " << itemConsumido->obterNomeItem() << " consumido! Voce agora curara 100% do seu HP apos cada combate!\n";
+                std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << itemConsumido->obterNomeItem() << " consumido! Voce agora curara 100% do seu HP apos cada combate!\n";
                 personagemUsuario->obterInventario()->removerItem(itemConsumido);
             }
             if (turnoFoiConsumido) *turnoFoiConsumido = true;
@@ -84,7 +84,7 @@ void InventarioCombate::gerenciarInventario(SistemaPersonagem* jogadorAtual, boo
     do 
     {
         TelaInventario::exibir(jogadorAtual);
-        SimplificacoesAparencia::exibirPrompt("Digite o codigo do item para interagir ou [0] VOLTAR: ");
+        Aparencia::exibirPrompt("Digite o codigo do item para interagir ou [0] VOLTAR: ");
         std::cin >> codigoDoItemDigitado;
         std::cin.ignore(1000, '\n');
 
@@ -107,11 +107,11 @@ void InventarioCombate::gerenciarInventario(SistemaPersonagem* jogadorAtual, boo
                             processarUsoDeItem(jogadorAtual, itemEncontrado, turnoFoiConsumido);
                             acaoConcluida = true;
                         } else if (subOpcao == "2") {
-                            SimplificacoesAparencia::limparTela();
-                            SimplificacoesAparencia::exibirCabecalho("INSPECAO DE ITEM", Cor::AMARELO);
+                            Aparencia::limparTela();
+                            Aparencia::exibirCabecalho("INSPECAO DE ITEM", Cor::AMARELO);
                             itemEncontrado->exibirInspecao();
                             std::cout << "\n";
-                            SimplificacoesAparencia::aguardarEnter();
+                            Aparencia::aguardarEnter();
                         } else if (subOpcao == "0") {
                             acaoConcluida = true;
                         }
@@ -129,8 +129,8 @@ void InventarioCombate::processarUsoDeItem(SistemaPersonagem* jogadorAtual, Item
 {
     if (turnoFoiConsumido && *turnoFoiConsumido) 
     {
-        std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "[SISTEMA]: Voce ja usou um item neste turno!\n";
-        SimplificacoesAparencia::aguardarEnter();
+        std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Voce ja usou um item neste turno!\n";
+        Aparencia::aguardarEnter();
         return;
     }
 
@@ -139,30 +139,30 @@ void InventarioCombate::processarUsoDeItem(SistemaPersonagem* jogadorAtual, Item
     {
         if (itemEncontrado == jogadorAtual->obterArma()) {
             jogadorAtual->desequiparArma();
-            std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "[SISTEMA]: " << itemEncontrado->obterNomeItem() << " desequipado(a)!\n";
+            std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << itemEncontrado->obterNomeItem() << " desequipado(a)!\n";
         } else if (itemEncontrado == jogadorAtual->obterEscudo()) {
             jogadorAtual->desequiparEscudo();
-            std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "[SISTEMA]: " << itemEncontrado->obterNomeItem() << " desequipado(a)!\n";
+            std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << itemEncontrado->obterNomeItem() << " desequipado(a)!\n";
         } else if (itemEncontrado == jogadorAtual->obterArmadura()) {
             jogadorAtual->desequiparArmadura();
-            std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "[SISTEMA]: " << itemEncontrado->obterNomeItem() << " desequipado(a)!\n";
+            std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << itemEncontrado->obterNomeItem() << " desequipado(a)!\n";
         } else {
             if (!itemEncontrado->podeSerEquipadoPor(jogadorAtual)) {
                 std::string msg = itemEncontrado->obterMensagemRequisito();
-                if (msg.substr(0, 1) == "\n") std::cout << "\n" << SimplificacoesAparencia::margemCombate() << msg.substr(1);
-                else std::cout << SimplificacoesAparencia::margemCombate() << msg;
-                if (turnoFoiConsumido && !jogadorAtual->obterItemSelecionadoParaUso()) SimplificacoesAparencia::aguardarEnter();
+                if (msg.substr(0, 1) == "\n") std::cout << "\n" << Aparencia::margemCombate() << msg.substr(1);
+                else std::cout << Aparencia::margemCombate() << msg;
+                if (turnoFoiConsumido && !jogadorAtual->obterItemSelecionadoParaUso()) Aparencia::aguardarEnter();
                 return;
             }
             jogadorAtual->equiparItem(itemEncontrado);
-            std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "[SISTEMA]: " << itemEncontrado->obterNomeItem() << " equipado(a)!\n";
+            std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << itemEncontrado->obterNomeItem() << " equipado(a)!\n";
         }
 
         if (turnoFoiConsumido) {
             *turnoFoiConsumido = true;
-            std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "[SISTEMA]: Turno gasto alterando um equipamento...\n";
+            std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Turno gasto alterando um equipamento...\n";
         }
-        SimplificacoesAparencia::aguardarEnter();
+        Aparencia::aguardarEnter();
         return;
     }
     
@@ -173,12 +173,12 @@ void InventarioCombate::processarUsoDeItem(SistemaPersonagem* jogadorAtual, Item
         {
             // Se o item for Debuff (que seta o ponteiro para pedir alvo), ignorar enter
             if (!jogadorAtual->obterItemSelecionadoParaUso()) {
-                SimplificacoesAparencia::aguardarEnter();
+                Aparencia::aguardarEnter();
             }
             return;
         }
     }
 
-    std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "[SISTEMA]: Este item nao pode ser usado " << (turnoFoiConsumido ? "em combate!" : "fora de combate!") << "\n";
-    SimplificacoesAparencia::aguardarEnter();
+    std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Este item nao pode ser usado " << (turnoFoiConsumido ? "em combate!" : "fora de combate!") << "\n";
+    Aparencia::aguardarEnter();
 }

@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "../Inventario/FabricaItens.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
 
 std::string Arqueiro::obterNomeClasse() const 
 {
@@ -96,16 +96,16 @@ std::string Arqueiro::obterDescricaoHabilidadeClasse() const
 void Arqueiro::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::vector<SistemaPersonagem*>& /*listaDeInimigos*/) {
     if (personagemUsuario->obterRecarga()) 
     {
-        std::cout << "\n" << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::VERMELHO) << "[SISTEMA]: A habilidade " << obterNomeHabilidadeClasse() << " esta em recarga (1 turnos)!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-        SimplificacoesAparencia::registrarLogBatalha("[SISTEMA]: A habilidade " + obterNomeHabilidadeClasse() + " esta em recarga (1 turnos)!");
-        SimplificacoesAparencia::aguardarEnter();
+        std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << "[SISTEMA]: A habilidade " << obterNomeHabilidadeClasse() << " esta em recarga (1 turnos)!" << Aparencia::cor(Cor::RESET) << "\n";
+        Aparencia::registrarLogBatalha("[SISTEMA]: A habilidade " + obterNomeHabilidadeClasse() + " esta em recarga (1 turnos)!");
+        Aparencia::aguardarEnter();
         personagemUsuario->definirHabilidadeCancelada(true);
         return;
     }
     personagemUsuario->adicionarEfeito(std::make_unique<EfeitoInviolavel>(1));
     personagemUsuario->definirRecarga(true);
-    std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::VERDE) << "[HABILIDADE]: Retirada com pontaria! Voce se afasta neste turno." << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-    SimplificacoesAparencia::registrarLogBatalha("[HABILIDADE]: Retirada com pontaria! Voce se afasta neste turno.");
+    std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE) << "[HABILIDADE]: Retirada com pontaria! Voce se afasta neste turno." << Aparencia::cor(Cor::RESET) << "\n";
+    Aparencia::registrarLogBatalha("[HABILIDADE]: Retirada com pontaria! Voce se afasta neste turno.");
 }
 
 TipoAtaque Arqueiro::obterTipoAtaque() const { return TipoAtaque::UNICO; }

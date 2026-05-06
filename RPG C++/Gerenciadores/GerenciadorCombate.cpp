@@ -17,22 +17,22 @@
 #include "../Telas/TelaCombate.h"
 #include "../Telas/TelaDerrota.h"
 #include "../Telas/TelaVitoria.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
 #include "../Utilidades/GeradorAleatorio.h"
 #include "../Telas/TelaMenu.h"
 
 namespace {
     int lerInteiroComLimites(const std::string& promptMensagem, int minimo, int maximo, bool centralizarPrompt = false, bool usarMargemCombate = false) {
         int valor;
-        std::string prefixo = usarMargemCombate ? SimplificacoesAparencia::margemCombate() : "";
-        if (centralizarPrompt) SimplificacoesAparencia::exibirPrompt(promptMensagem);
+        std::string prefixo = usarMargemCombate ? Aparencia::margemCombate() : "";
+        if (centralizarPrompt) Aparencia::exibirPrompt(promptMensagem);
         else std::cout << prefixo << promptMensagem;
 
         while (!(std::cin >> valor) || valor < minimo || valor > maximo) {
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             if (centralizarPrompt) {
-                SimplificacoesAparencia::exibirPrompt("Entrada invalida! " + promptMensagem);
+                Aparencia::exibirPrompt("Entrada invalida! " + promptMensagem);
             } else {
                 std::cout << prefixo << "Entrada invalida! " << promptMensagem;
             }
@@ -96,7 +96,7 @@ std::vector<SistemaPersonagem*> GerenciadorCombate::obterInimigosRaw() const
 
 void GerenciadorCombate::exibirTelaDeCombate() const
 {
-    SimplificacoesAparencia::limparTela();
+    Aparencia::limparTela();
     TelaCombate::exibirLogoParaTelaDeCombate(obterTituloDoCombate());
     TelaCombate::exibirHordaDeInimigosLadoALado(obterInimigosRaw());
     TelaCombate::exibirBarraDeStatusDoJogador(jogadorAtual);
@@ -105,12 +105,13 @@ void GerenciadorCombate::exibirTelaDeCombate() const
             TelaCombate::exibirBarraDeStatusDoJogador(aliado.get());
         }
     }
+    Aparencia::imprimirLinhaDivisoria();
 }
 
 void GerenciadorCombate::iniciarCombate() 
 {
     jogadorAtual->prepararParaNovaBatalha();
-    SimplificacoesAparencia::limparLogBatalha();
+    Aparencia::limparLogBatalha();
 
     for (auto& aliado : listaDeAliados) {
         aliado->prepararParaNovaBatalha();
@@ -126,9 +127,9 @@ void GerenciadorCombate::iniciarCombate()
     
     if (maxDestrezaInimigos > jogadorAtual->obterDestreza()) {
         exibirTelaDeCombate();
-        std::cout << "\n" << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::VERMELHO) << "[SISTEMA]: Os inimigos sao mais ageis e atacam primeiro!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-        SimplificacoesAparencia::registrarLogBatalha("[SISTEMA]: Os inimigos sao mais ageis e atacam primeiro!");
-        SimplificacoesAparencia::aguardarEnter();
+        std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << "[SISTEMA]: Os inimigos sao mais ageis e atacam primeiro!" << Aparencia::cor(Cor::RESET) << "\n";
+        Aparencia::registrarLogBatalha("[SISTEMA]: Os inimigos sao mais ageis e atacam primeiro!");
+        Aparencia::aguardarEnter();
         executarTurnoDeTodosOsInimigos();
         if (verificarCondicaoDeVitoriaOuDerrota()) return;
     }
@@ -149,17 +150,17 @@ void GerenciadorCombate::iniciarCombate()
             }
 
             if (turnoExtraFirstTurn && contadorDoTurnoAtual == 1) {
-                std::cout << "\n" << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::CIANO) << "[SISTEMA]: Sua agilidade extrema (" << jogadorAtual->obterDestreza() << " VS " << maxDestrezaInimigos << ") permite que voce aja novamente!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-                SimplificacoesAparencia::registrarLogBatalha("[SISTEMA]: Sua agilidade extrema (" + std::to_string(jogadorAtual->obterDestreza()) + " VS " + std::to_string(maxDestrezaInimigos) + ") permite que voce aja novamente!");
-                SimplificacoesAparencia::aguardarEnter();
+                std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::CIANO) << "[SISTEMA]: Sua agilidade extrema (" << jogadorAtual->obterDestreza() << " VS " << maxDestrezaInimigos << ") permite que voce aja novamente!" << Aparencia::cor(Cor::RESET) << "\n";
+                Aparencia::registrarLogBatalha("[SISTEMA]: Sua agilidade extrema (" + std::to_string(jogadorAtual->obterDestreza()) + " VS " + std::to_string(maxDestrezaInimigos) + ") permite que voce aja novamente!");
+                Aparencia::aguardarEnter();
                 turnoExtraFirstTurn = false;
                 continue;
             }
 
             if (usouInventarioNoTurno) {
                 exibirTelaDeCombate();
-                std::cout << "\n" << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::AMARELO) << "[SISTEMA]: O inimigo te pegou desprevinido enquanto voce usava o inventario!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-                SimplificacoesAparencia::registrarLogBatalha("[SISTEMA]: O inimigo te pegou desprevinido enquanto voce usava o inventario!");
+                std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::AMARELO) << "[SISTEMA]: O inimigo te pegou desprevinido enquanto voce usava o inventario!" << Aparencia::cor(Cor::RESET) << "\n";
+                Aparencia::registrarLogBatalha("[SISTEMA]: O inimigo te pegou desprevinido enquanto voce usava o inventario!");
             }
         }
         
@@ -176,9 +177,6 @@ void GerenciadorCombate::iniciarCombate()
 
             while (!turnoAliadoConsumido && aliado->obterVida() > 0 && !listaDeInimigos.empty()) {
                 exibirTelaDeCombate();
-                std::string textoAliado = "--- TURNO DO ALIADO: " + aliado->obterNome() + " ---";
-                int espacos = std::max(0, (SimplificacoesAparencia::obterLarguraTerminal() - (int)textoAliado.length()) / 2);
-                std::cout << "\n" << std::string(espacos, ' ') << SimplificacoesAparencia::cor(Cor::CIANO) << textoAliado << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
                 processarMenuDeAcoesDoJogador(aliado.get(), turnoAliadoConsumido, usouInventarioAliado);
                 if (verificarCondicaoDeVitoriaOuDerrota()) return;
             }
@@ -193,11 +191,12 @@ void GerenciadorCombate::iniciarCombate()
 
 void GerenciadorCombate::processarMenuDeAcoesDoJogador(SistemaPersonagem* personagemAgindo, bool& turnoFoiConsumido, bool& usouInventarioNoTurno)
 {
-    int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
-    std::string textoDoTurno = "TURNO " + std::to_string(contadorDoTurnoAtual) + " | VEZ DE " + personagemAgindo->obterNome();
-    std::cout << "\n";
-    SimplificacoesAparencia::imprimirCentralizado("--- " + textoDoTurno + " ---");
-    std::cout << "\n";
+    TelaCombate::limparMensagensFixas();
+    Aparencia::exibirUltimosLogs(5);
+    std::string textoDoTurno = "--- TURNO " + std::to_string(contadorDoTurnoAtual) + " | VEZ DE " + personagemAgindo->obterNome() + " ---";
+    std::string msgTurno = "\n" + Aparencia::espacosParaCentralizar(textoDoTurno.length()) + textoDoTurno + "\n\n";
+    std::cout << msgTurno;
+    TelaCombate::adicionarMensagemFixa(msgTurno);
 
     std::string textoAcoes = "1. Atacar | 2. Defender | 3. Habilidade | 4. Inventario | 5. Jogador | 6. Bestiario | 7. Log | Escolha: ";
     int acaoEscolhida = lerInteiroComLimites(textoAcoes, 1, 7, true);
@@ -210,10 +209,10 @@ void GerenciadorCombate::processarMenuDeAcoesDoJogador(SistemaPersonagem* person
         case 4: processarAcaoInventario(personagemAgindo, turnoFoiConsumido, usouInventarioNoTurno); break;
         case 5: TelaAtributos::gerenciarFichaDoJogador(personagemAgindo); break;
         case 6: TelaBestiario::exibirLista(personagemAgindo); break;
-        case 7: SimplificacoesAparencia::exibirHistoricoCompleto(); break;
+        case 7: Aparencia::exibirHistoricoCompleto(); break;
         default: 
-            std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "[ERRO] Acao invalida!\n"; 
-            SimplificacoesAparencia::aguardarEnter(); 
+            std::cout << "\n" << Aparencia::margemCombate() << "[ERRO] Acao invalida!\n"; 
+            Aparencia::aguardarEnter(); 
             break;
     }
 }
@@ -249,16 +248,16 @@ Item* GerenciadorCombate::selecionarEscudo(SistemaPersonagem* personagemAgindo)
 
     if (listaDeEscudos.empty()) 
     {
-        std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "[!] " << personagemAgindo->obterNome() << " nao possui escudos no inventario para usar!\n";
+        std::cout << "\n" << Aparencia::margemCombate() << "[!] " << personagemAgindo->obterNome() << " nao possui escudos no inventario para usar!\n";
         return nullptr;
     }
 
-    std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "=== SELECIONE UM ESCUDO PARA " << personagemAgindo->obterNome() << " ===\n";
+    std::cout << "\n" << Aparencia::margemCombate() << "=== SELECIONE UM ESCUDO PARA " << personagemAgindo->obterNome() << " ===\n";
     for (size_t indice = 0; indice < listaDeEscudos.size(); indice++) 
     {
-        std::cout << SimplificacoesAparencia::margemCombate() << " [" << indice + 1 << "] " << listaDeEscudos[indice]->obterNomeItem() << listaDeEscudos[indice]->obterInfoStatus() << "\n";
+        std::cout << Aparencia::margemCombate() << " [" << indice + 1 << "] " << listaDeEscudos[indice]->obterNomeItem() << listaDeEscudos[indice]->obterInfoStatus() << "\n";
     }
-    std::cout << SimplificacoesAparencia::margemCombate() << " [0] Cancelar\n\n";
+    std::cout << Aparencia::margemCombate() << " [0] Cancelar\n\n";
     int opcaoEscolhida = lerInteiroComLimites("Escolha: ", 0, static_cast<int>(listaDeEscudos.size()), false, true);
     return (opcaoEscolhida == 0) ? nullptr : listaDeEscudos[opcaoEscolhida - 1];
 }
@@ -267,9 +266,9 @@ void GerenciadorCombate::processarAcaoDefender(SistemaPersonagem* personagemAgin
 {
     if (personagemAgindo->obterRecargaDefesa()) 
     {
-        std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "[ERRO]: " << personagemAgindo->obterNome() << " se desequilibrou e precisa de 1 turno para poder defender novamente!\n";
-        SimplificacoesAparencia::registrarLogBatalha("[ERRO]: " + personagemAgindo->obterNome() + " se desequilibrou e precisa de 1 turno para poder defender novamente!");
-        SimplificacoesAparencia::aguardarEnter();
+        std::cout << "\n" << Aparencia::margemCombate() << "[ERRO]: " << personagemAgindo->obterNome() << " se desequilibrou e precisa de 1 turno para poder defender novamente!\n";
+        Aparencia::registrarLogBatalha("[ERRO]: " + personagemAgindo->obterNome() + " se desequilibrou e precisa de 1 turno para poder defender novamente!");
+        Aparencia::aguardarEnter();
         return; 
     }
     
@@ -279,19 +278,19 @@ void GerenciadorCombate::processarAcaoDefender(SistemaPersonagem* personagemAgin
         if (!escudoEscolhido->podeSerEquipadoPor(personagemAgindo)) {
             std::string msg = escudoEscolhido->obterMensagemRequisito();
             if (msg.substr(0, 1) == "\n") {
-                std::cout << "\n" << SimplificacoesAparencia::margemCombate() << msg.substr(1);
+                std::cout << "\n" << Aparencia::margemCombate() << msg.substr(1);
             } else {
-                std::cout << SimplificacoesAparencia::margemCombate() << msg;
+                std::cout << Aparencia::margemCombate() << msg;
             }
-            SimplificacoesAparencia::aguardarEnter();
+            Aparencia::aguardarEnter();
             return;
         }
 
         personagemAgindo->equiparItem(escudoEscolhido);
         personagemAgindo->definirDefendendo(true);
-        std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "[SISTEMA]: " << personagemAgindo->obterNome() << " assumiu uma postura defensiva com " << escudoEscolhido->obterNomeItem() << "!\n";
-        SimplificacoesAparencia::registrarLogBatalha("[SISTEMA]: " + personagemAgindo->obterNome() + " assumiu uma postura defensiva com " + escudoEscolhido->obterNomeItem() + "!");
-        SimplificacoesAparencia::aguardarEnter();
+        std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << personagemAgindo->obterNome() << " assumiu uma postura defensiva com " << escudoEscolhido->obterNomeItem() << "!\n";
+        Aparencia::registrarLogBatalha("[SISTEMA]: " + personagemAgindo->obterNome() + " assumiu uma postura defensiva com " + escudoEscolhido->obterNomeItem() + "!");
+        Aparencia::aguardarEnter();
         turnoFoiConsumido = true;
     }
 }
@@ -306,7 +305,7 @@ void GerenciadorCombate::processarAcaoHabilidade(SistemaPersonagem* personagemAg
     if (personagemAgindo->obterHabilidadeCancelada()) return;
 
     if (personagemAgindo->habilidadeDaClasseConsomeTurno()) turnoFoiConsumido = true;
-    else SimplificacoesAparencia::aguardarEnter();
+    else Aparencia::aguardarEnter();
 }
 
 void GerenciadorCombate::processarAcaoInventario(SistemaPersonagem* personagemAgindo, bool& turnoFoiConsumido, bool& usouInventarioNoTurno)
@@ -321,9 +320,9 @@ void GerenciadorCombate::processarAcaoInventario(SistemaPersonagem* personagemAg
     {
         Item* itemSelecionado = personagemAgindo->obterItemSelecionadoParaUso();
         
-        std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "--- ESCOLHA UM ALVO ---\n";
+        std::cout << "\n" << Aparencia::margemCombate() << "--- ESCOLHA UM ALVO ---\n";
         for (size_t i = 0; i < listaDeInimigos.size(); ++i) {
-            std::cout << SimplificacoesAparencia::margemCombate() << "[" << i << "] " << listaDeInimigos[i]->obterNome() << " (HP: " << listaDeInimigos[i]->obterVida() << ")\n";
+            std::cout << Aparencia::margemCombate() << "[" << i << "] " << listaDeInimigos[i]->obterNome() << " (HP: " << listaDeInimigos[i]->obterVida() << ")\n";
         }
         
         int maxIndice = static_cast<int>(listaDeInimigos.size()) - 1;
@@ -331,7 +330,7 @@ void GerenciadorCombate::processarAcaoInventario(SistemaPersonagem* personagemAg
 
         if (indiceDoAlvoEscolhido == -1) 
         {
-            std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "[SISTEMA] Uso do frasco cancelado. O item voltou para a mochila.\n";
+            std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA] Uso do frasco cancelado. O item voltou para a mochila.\n";
             personagemAgindo->definirItemSelecionadoParaUso(nullptr);
         } 
         else 
@@ -345,7 +344,7 @@ void GerenciadorCombate::processarAcaoInventario(SistemaPersonagem* personagemAg
             turnoFoiConsumido = true;
             usouInventarioNoTurno = true;
         }
-        SimplificacoesAparencia::aguardarEnter();
+        Aparencia::aguardarEnter();
     }
 }
 
@@ -356,7 +355,7 @@ void GerenciadorCombate::limparInimigosMortos()
         if (inimigoPtr->obterVida() <= 0) 
         {
             processarMorteDeInimigo(inimigoPtr.get());
-            SimplificacoesAparencia::aguardarEnter();
+            Aparencia::aguardarEnter();
         }
     }
 
@@ -371,15 +370,16 @@ void GerenciadorCombate::executarTurnoDeTodosOsInimigos()
 {
     if (jogadorAtual->obterPularTurnoInimigo()) 
     {
-        std::cout << "\n" << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::VERDE) << "[EFEITO]: Os inimigos estao atordoados e nao podem agir!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-        SimplificacoesAparencia::registrarLogBatalha("[EFEITO]: Os inimigos estao atordoados e nao podem agir!");
+        std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE) << "[EFEITO]: Os inimigos estao atordoados e nao podem agir!" << Aparencia::cor(Cor::RESET) << "\n";
+        Aparencia::registrarLogBatalha("[EFEITO]: Os inimigos estao atordoados e nao podem agir!");
         jogadorAtual->definirPularTurnoInimigo(false); 
     }
     else
     {
-        std::cout << "\n";
-        SimplificacoesAparencia::imprimirCentralizado("--- TURNO DOS INIMIGOS ---");
-        std::cout << "\n";
+        std::string textoTurnoInimigos = "--- TURNO DOS INIMIGOS ---";
+        std::string msgTurno = "\n" + Aparencia::espacosParaCentralizar(textoTurnoInimigos.length()) + textoTurnoInimigos + "\n\n";
+        std::cout << msgTurno;
+        TelaCombate::adicionarMensagemFixa(msgTurno);
         for (auto& inimigoAtualPtr : listaDeInimigos) 
         {
             if (jogadorAtual->obterVida() <= 0) break; // Interrompe se o jogador morrer
@@ -388,7 +388,8 @@ void GerenciadorCombate::executarTurnoDeTodosOsInimigos()
             inimigoAtual->processarEfeitosInicioTurno();
             if (inimigoAtual->obterVida() <= 0) continue;
 
-            if (inimigoAtual->podeAgir()) 
+            std::string motivoIncapacidade;
+            if (inimigoAtual->podeAgir(motivoIncapacidade)) 
             {
                 SistemaPersonagem* alvo = jogadorAtual;
                 std::vector<SistemaPersonagem*> aliadosVivos;
@@ -406,6 +407,13 @@ void GerenciadorCombate::executarTurnoDeTodosOsInimigos()
                     realizarAtaqueFisico(inimigoAtual, alvo, contadorDoTurnoAtual);
                 }
             }
+            else
+            {
+                std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::VERDE) + ">> [EFEITO]: " + inimigoAtual->obterNome() + " esta sob efeito de " + motivoIncapacidade + " e nao pode agir neste turno!" + Aparencia::cor(Cor::RESET) + "\n";
+                std::cout << msg;
+                TelaCombate::adicionarMensagemFixa(msg);
+                Aparencia::registrarLogBatalha("[EFEITO]: " + inimigoAtual->obterNome() + " esta sob efeito de " + motivoIncapacidade + " e nao pode agir!");
+            }
         }
     }
 
@@ -422,7 +430,7 @@ void GerenciadorCombate::executarTurnoDeTodosOsInimigos()
 
 
     if (jogadorAtual->obterRecarga()) jogadorAtual->definirRecarga(false);
-    SimplificacoesAparencia::aguardarEnter();
+    Aparencia::aguardarEnter();
 }
 
 void GerenciadorCombate::realizarAtaqueFisico(SistemaPersonagem* personagemAtacante, SistemaPersonagem* personagemDefensor, int turnoAtualDoCombate) 
@@ -486,7 +494,9 @@ void GerenciadorCombate::aplicarDanoAoAlvo(SistemaPersonagem* personagemAtacante
 {
     if (personagemAlvo->possuiEfeito(EfeitoID::Inviolavel))
     {
-        std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "[COMBATE]: O alvo esta Inviolavel e desviou do ataque perfeitamente!\n";
+        std::string msg = "\n" + Aparencia::margemCombate() + "[COMBATE]: O alvo esta Inviolavel e desviou do ataque perfeitamente!\n";
+        std::cout << msg;
+        TelaCombate::adicionarMensagemFixa(msg);
         return;
     }
 
@@ -506,19 +516,27 @@ void GerenciadorCombate::aplicarDanoAoAlvo(SistemaPersonagem* personagemAtacante
     }
 
     bool aplicarPassivas = (isPersonagemJogadorOuAliado(personagemAlvo) || static_cast<int>(jogadorAtual->obterDificuldade()) >= 2);
-    int danoFinalAposReducoes = personagemAlvo->receberDano(quantidadeDeDanoBruto, danoPerfurante, quantidadeDeDanoReduzidoPeloParry, personagemAtacante, aplicarPassivas);
 
-    exibirResultadoDoAtaque(personagemAlvo, danoFinalAposReducoes, tentouParry, parryFoiBemSucedido);
+    int danoBloqueado = 0;
+    bool escudoQuebrou = false;
+    std::string nomeEscudoQuebrado = "";
+    int danoFinalAposReducoes = personagemAlvo->receberDano(quantidadeDeDanoBruto, danoPerfurante, quantidadeDeDanoReduzidoPeloParry, personagemAtacante, aplicarPassivas, danoBloqueado, escudoQuebrou, nomeEscudoQuebrado);
+
+    exibirResultadoDoAtaque(personagemAlvo, danoFinalAposReducoes, tentouParry, parryFoiBemSucedido, danoBloqueado, escudoQuebrou, nomeEscudoQuebrado);
+
+    std::vector<SistemaPersonagem*> aliadosVivos;
+    for (const auto& aliado : listaDeAliados) {
+        if (aliado->obterVida() > 0) aliadosVivos.push_back(aliado.get());
+    }
 
     if (danoFinalAposReducoes > 0) 
     {
         // ANIMACAO DO DANO NO INIMIGO (Piscar Vermelho + Flicker)
         if (!isPersonagemJogadorOuAliado(personagemAlvo)) {
-            std::vector<SistemaPersonagem*> aliadosVivos;
-            for (const auto& aliado : listaDeAliados) {
-                if (aliado->obterVida() > 0) aliadosVivos.push_back(aliado.get());
-            }
             TelaCombate::animarDanoNoInimigo(obterTituloDoCombate(), obterInimigosRaw(), personagemAlvo, jogadorAtual, aliadosVivos);
+        }
+        else {
+            TelaCombate::animarDanoNoJogador(obterTituloDoCombate(), obterInimigosRaw(), personagemAlvo, jogadorAtual, aliadosVivos, false);
         }
 
         // Aplicação dos efeitos no acerto
@@ -529,29 +547,45 @@ void GerenciadorCombate::aplicarDanoAoAlvo(SistemaPersonagem* personagemAtacante
 
         personagemAtacante->obterRaca()->aoCausarDano(personagemAtacante, personagemAlvo, danoFinalAposReducoes);
     }
+    else if (tentouParry && parryFoiBemSucedido && isPersonagemJogadorOuAliado(personagemAlvo))
+    {
+        // Animaçao Ciano na HUD caso execute um bloqueio/parry perfeito e anule 100% do dano
+        TelaCombate::animarDanoNoJogador(obterTituloDoCombate(), obterInimigosRaw(), personagemAlvo, jogadorAtual, aliadosVivos, true);
+    }
 }
 
-void GerenciadorCombate::exibirResultadoDoAtaque(SistemaPersonagem* alvo, int danoFinal, bool tentouParry, bool parrySucesso)
+void GerenciadorCombate::exibirResultadoDoAtaque(SistemaPersonagem* alvo, int danoFinal, bool tentouParry, bool parrySucesso, int danoBloqueado, bool escudoQuebrou, const std::string& nomeEscudoQuebrado)
 {
     bool isJogadorOuAliado = isPersonagemJogadorOuAliado(alvo);
+    std::string msg = "";
+
+    if (danoBloqueado > 0) {
+        msg += Aparencia::margemCombate() + Aparencia::cor(Cor::CIANO) + ">> [DEFESA]: O escudo bloqueou " + std::to_string(danoBloqueado) + " de dano!" + Aparencia::cor(Cor::RESET) + "\n";
+        Aparencia::registrarLogBatalha(">> [DEFESA]: O escudo bloqueou " + std::to_string(danoBloqueado) + " de dano!");
+        
+        if (escudoQuebrou) {
+            msg += Aparencia::margemCombate() + Aparencia::cor(Cor::FUNDO_VERMELHO) + "[!] ALERTA: O escudo " + nomeEscudoQuebrado + " foi DESTRUIDO em pedacos!" + Aparencia::cor(Cor::RESET) + "\n";
+            Aparencia::registrarLogBatalha("[!] ALERTA: O escudo " + nomeEscudoQuebrado + " foi DESTRUIDO em pedacos!");
+        }
+    }
 
     if (isJogadorOuAliado) 
     {
         if (tentouParry) 
         {
             std::string mensagemParry = parrySucesso ? (danoFinal <= 1 ? "parry efetivo! Ataque anulado!" : "parry efetivo! Mas o ataque e muito forte!") : "parry falhou!";
-            std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::FUNDO_VERMELHO) << ">> [PARRY]: " << mensagemParry << " Inimigo causou " << danoFinal << " de dano em " << alvo->obterNome() << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-            SimplificacoesAparencia::registrarLogBatalha("[PARRY]: " + mensagemParry + " Inimigo causou " + std::to_string(danoFinal) + " de dano em " + alvo->obterNome());
+            msg = Aparencia::margemCombate() + Aparencia::cor(Cor::FUNDO_VERMELHO) + ">> [PARRY]: " + mensagemParry + " Inimigo causou " + std::to_string(danoFinal) + " de dano em " + alvo->obterNome() + Aparencia::cor(Cor::RESET) + "\n";
+            Aparencia::registrarLogBatalha("[PARRY]: " + mensagemParry + " Inimigo causou " + std::to_string(danoFinal) + " de dano em " + alvo->obterNome());
         }
         else if (danoFinal > 0) 
         {
-            std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::FUNDO_VERMELHO) << ">> " << alvo->obterNome() << " recebeu " << danoFinal << " de dano" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-            SimplificacoesAparencia::registrarLogBatalha(">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano");
+            msg = Aparencia::margemCombate() + Aparencia::cor(Cor::FUNDO_VERMELHO) + ">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano" + Aparencia::cor(Cor::RESET) + "\n";
+            Aparencia::registrarLogBatalha(">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano");
         }
         else if (danoFinal == 0 && alvo->obterDefendendo()) 
         {
-            std::cout << SimplificacoesAparencia::margemCombate() << ">> O dano foi totalmente absorvido pela defesa de " << alvo->obterNome() << "!\n";
-            SimplificacoesAparencia::registrarLogBatalha(">> O dano foi totalmente absorvido pela defesa de " + alvo->obterNome() + "!");
+            msg = Aparencia::margemCombate() + ">> O dano foi totalmente absorvido pela defesa de " + alvo->obterNome() + "!\n";
+            Aparencia::registrarLogBatalha(">> O dano foi totalmente absorvido pela defesa de " + alvo->obterNome() + "!");
         }
         
         if (danoFinal > 0 && alvo == jogadorAtual) totalDeDanoRecebido += danoFinal;
@@ -559,8 +593,13 @@ void GerenciadorCombate::exibirResultadoDoAtaque(SistemaPersonagem* alvo, int da
     else if (danoFinal > 0) 
     {
         if (alvo != jogadorAtual) totalDeDanoCausado += danoFinal;
-        std::cout << SimplificacoesAparencia::margemCombate() << ">> " << alvo->obterNome() << " recebeu " << danoFinal << " de dano\n";
-        SimplificacoesAparencia::registrarLogBatalha(">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano");
+        msg = Aparencia::margemCombate() + ">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano\n";
+        Aparencia::registrarLogBatalha(">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano");
+    }
+
+    if (!msg.empty()) {
+        std::cout << msg;
+        TelaCombate::adicionarMensagemFixa(msg);
     }
 }
 
@@ -585,8 +624,8 @@ bool GerenciadorCombate::verificarCondicaoDeVitoriaOuDerrota()
 
 void GerenciadorCombate::processarMorteDeInimigo(SistemaPersonagem* inimigo)
 {
-    std::cout << "\n" << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::AMARELO) << "[!] " << inimigo->obterNome() << " derrotado!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-    SimplificacoesAparencia::registrarLogBatalha("[!] " + inimigo->obterNome() + " derrotado!");
+    std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::AMARELO) << "[!] " << inimigo->obterNome() << " derrotado!" << Aparencia::cor(Cor::RESET) << "\n";
+    Aparencia::registrarLogBatalha("[!] " + inimigo->obterNome() + " derrotado!");
 
     SistemaBestiario::instancia().registrarDerrota(inimigo->obterNome());
 

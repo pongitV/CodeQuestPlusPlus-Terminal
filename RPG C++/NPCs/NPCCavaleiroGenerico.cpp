@@ -13,7 +13,7 @@
 #include "../Gerenciadores/GerenciadorCombate.h"
 #include "../Gerenciadores/GerenciadorInimigos.h"
 #include "../Telas/TelaMenu.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
 
 namespace {
     Item* buscarPorNome(Inventario* inv, const std::string& nome) {
@@ -88,9 +88,9 @@ namespace {
     };
 
     void exibirDialogoCavaleiro(const std::string& titulo, const std::vector<std::string>& textoEsquerda, int larguraTerminalAtual) {
-        SimplificacoesAparencia::limparTela();
-        SimplificacoesAparencia::exibirCabecalho(titulo, Cor::CIANO);
-        SimplificacoesAparencia::imprimirLadoALado(textoEsquerda, arteCavaleiro, 55, 0, Cor::RESET, Cor::CIANO);
+        Aparencia::limparTela();
+        Aparencia::exibirCabecalho(titulo, Cor::CIANO);
+        Aparencia::imprimirLadoALado(textoEsquerda, arteCavaleiro, 55, 0, Cor::RESET, Cor::CIANO);
     }
 }
 
@@ -138,7 +138,7 @@ void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trol
                 "se nao quiser ser tratado como invasor tambem"
             };
             exibirDialogoCavaleiro("CAVALEIROS REAIS", texto, larguraDoTerminal);
-            SimplificacoesAparencia::aguardarEnter();
+            Aparencia::aguardarEnter();
             if (exploracaoEstaAtiva) restaurarTela();
             return;
         }
@@ -153,7 +153,7 @@ void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trol
             "[1] Ajudar os Cavaleiros | [0] Recuar"
         };
         exibirDialogoCavaleiro("PEDIDO DE AJUDA", texto, larguraDoTerminal);
-        SimplificacoesAparencia::exibirPrompt("Escolha: ");
+        Aparencia::exibirPrompt("Escolha: ");
         int escolha;
         if (std::cin >> escolha && escolha == 1) {
             std::vector<std::unique_ptr<SistemaPersonagem>> aliados;
@@ -196,7 +196,7 @@ void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trol
             exibirDialogoCavaleiro("RECOMPENSA", texto, larguraDoTerminal);
             jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::ConviteReal));
             conviteRecebido = true;
-            SimplificacoesAparencia::aguardarEnter();
+            Aparencia::aguardarEnter();
             restaurarTela();
         } else {
             std::vector<std::string> texto = {
@@ -204,7 +204,7 @@ void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trol
                 "Siga em frente!"
             };
             exibirDialogoCavaleiro("CAVALEIRO REAL", texto, larguraDoTerminal);
-            SimplificacoesAparencia::aguardarEnter();
+            Aparencia::aguardarEnter();
             restaurarTela();
         }
     }

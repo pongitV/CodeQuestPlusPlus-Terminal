@@ -2,7 +2,7 @@
 #include <iostream>
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Inventario/FabricaItens.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
 #include "../Utilidades/GeradorAleatorio.h"
 #include "../Gerenciadores/GerenciadorDrops.h"
 #include <memory>

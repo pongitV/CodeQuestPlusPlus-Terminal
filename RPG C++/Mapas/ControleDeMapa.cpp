@@ -3,7 +3,7 @@
 #include "../Telas/TelaAtributos.h"
 #include "../Telas/TelaBestiario.h"
 #include "../Telas/TelaMenu.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
 #include "../Gerenciadores/GerenciadorCombate.h"
 #include "../Utilidades/ControleDeInput.h"
 #include <iostream>
@@ -15,12 +15,12 @@ bool ControleDeMapa::processarInputEComandos(char tecla, SistemaPersonagem* joga
     if (tecla == '\\' || tecla == '`' || tecla == '=')
     {
         while(true) {
-            SimplificacoesAparencia::limparTela();
-            SimplificacoesAparencia::exibirCabecalho("MENU DE DEBUG (CHEAT)", Cor::AMARELO);
+            Aparencia::limparTela();
+            Aparencia::exibirCabecalho("MENU DE DEBUG (CHEAT)", Cor::AMARELO);
             std::cout << "\n  [1] God Mode (Max Atributos - Instakill/Imortal)\n";
             std::cout << "  [2] Obter Qualquer Item\n";
             std::cout << "  [3] Adicionar Ouro e XP (+10000)\n";
-            std::cout << "  [4] Noclip (Atravessar paredes): " << (jogador->isNoclip() ? SimplificacoesAparencia::cor(Cor::VERDE) + "LIGADO" : SimplificacoesAparencia::cor(Cor::VERMELHO) + "DESLIGADO") << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+            std::cout << "  [4] Noclip (Atravessar paredes): " << (jogador->isNoclip() ? Aparencia::cor(Cor::VERDE) + "LIGADO" : Aparencia::cor(Cor::VERMELHO) + "DESLIGADO") << Aparencia::cor(Cor::RESET) << "\n";
             std::cout << "  [0] Fechar Debug Menu\n\n  Escolha: ";
             
             std::string escolhaDebug;
@@ -37,7 +37,7 @@ bool ControleDeMapa::processarInputEComandos(char tecla, SistemaPersonagem* joga
                 jogador->forcarRecalculoCache();
                 jogador->definirVida(jogador->obterVidaMaxima());
                 std::cout << "\n[SISTEMA] God Mode ativado! Voce agora e um deus intocavel.\n";
-                SimplificacoesAparencia::aguardarEnter();
+                Aparencia::aguardarEnter();
             } else if (escolhaDebug == "2") {
                 static const std::vector<ItemID> todosItens = {
                     ItemID::AdagaPedra, ItemID::ArcoMadeira, ItemID::CajadoCristal, ItemID::VarinhaCorroida, ItemID::ViolaoEncantado,
@@ -49,8 +49,8 @@ bool ControleDeMapa::processarInputEComandos(char tecla, SistemaPersonagem* joga
                     ItemID::GosmaAcida, ItemID::DenteGoblin, ItemID::NucleoPegajoso, ItemID::PoMagico, ItemID::MadeiraEnfeiticada, ItemID::CoracaoFloresta, ItemID::PedraUpgrade, ItemID::ConviteReal,
                     ItemID::DispositivoLinguagem
                 };
-                SimplificacoesAparencia::limparTela();
-                SimplificacoesAparencia::exibirCabecalho("OBTER ITEM", Cor::AMARELO);
+                Aparencia::limparTela();
+                Aparencia::exibirCabecalho("OBTER ITEM", Cor::AMARELO);
                 for(size_t i=0; i<todosItens.size(); ++i) {
                     std::cout << "[" << i+1 << "] " << FabricaItens::obterNomeDeID(todosItens[i]) << "\n";
                 }
@@ -60,17 +60,17 @@ bool ControleDeMapa::processarInputEComandos(char tecla, SistemaPersonagem* joga
                     ItemID idEscolhido = todosItens[escolhaID-1];
                     jogador->obterInventario()->adicionarItem(FabricaItens::criarItem(idEscolhido));
                     std::cout << "\n[SISTEMA] Item '" << FabricaItens::obterNomeDeID(idEscolhido) << "' adicionado ao inventario!\n";
-                    SimplificacoesAparencia::aguardarEnter();
+                    Aparencia::aguardarEnter();
                 } else { std::cin.clear(); std::cin.ignore(1000, '\n'); }
             } else if (escolhaDebug == "3") {
                 jogador->ganharOuro(10000);
                 jogador->ganharXp(10000);
                 std::cout << "\n[SISTEMA] +10000 Ouro e +10000 XP adicionados!\n";
-                SimplificacoesAparencia::aguardarEnter();
+                Aparencia::aguardarEnter();
             } else if (escolhaDebug == "4") {
                 jogador->alternarNoclip();
                 std::cout << "\n[SISTEMA] Noclip " << (jogador->isNoclip() ? "ativado" : "desativado") << "!\n";
-                SimplificacoesAparencia::aguardarEnter();
+                Aparencia::aguardarEnter();
             } else if (escolhaDebug == "0") { break; }
         }
         restaurarTela();
@@ -119,11 +119,11 @@ void ControleDeMapa::processarCombate(
     const std::string& tituloDoCombate, const std::string& mensagemDeAviso, std::vector<std::unique_ptr<SistemaPersonagem>> inimigosParaBatalha, 
     int posicaoXAposCombate, int posicaoYAposCombate, int posicaoXInicialDoInimigo, int quantidadeDeCelulasOcupadas, int larguraDoTerminal, const std::function<void()>& restaurarTela)
 {
-    SimplificacoesAparencia::limparTela();
-    SimplificacoesAparencia::exibirCabecalho(tituloDoCombate, Cor::VERMELHO);
+    Aparencia::limparTela();
+    Aparencia::exibirCabecalho(tituloDoCombate, Cor::VERMELHO);
     int espacosParaCentralizarMensagem = std::max(0, (larguraDoTerminal - static_cast<int>(mensagemDeAviso.length())) / 2);
     std::string margemEsquerdaMensagem(espacosParaCentralizarMensagem, ' ');
-    std::cout << "\n" << margemEsquerdaMensagem << SimplificacoesAparencia::cor(Cor::AMARELO) << "[!] " << mensagemDeAviso << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+    std::cout << "\n" << margemEsquerdaMensagem << Aparencia::cor(Cor::AMARELO) << "[!] " << mensagemDeAviso << Aparencia::cor(Cor::RESET) << "\n";
     std::cout << margemEsquerdaMensagem << "[0] Nao, recuar | [1] Sim, batalha!\n" << margemEsquerdaMensagem << "Escolha: ";
 
     int opcaoEscolhidaPeloJogador;

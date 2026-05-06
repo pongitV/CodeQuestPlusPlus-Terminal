@@ -24,7 +24,7 @@ enum class Cor {
     FUNDO_BRANCO = 47
 };
 
-class SimplificacoesAparencia {
+class Aparencia {
 public:
     static void inicializarConsole();
     static std::string cor(Cor codigo);

@@ -4,7 +4,8 @@
 #include "../Inventario/Inventario.h"
 #include "../Inventario/Item.h"
 #include "../Inventario/FabricaItens.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
+#include "../Telas/TelaCombate.h"
 #include <memory>
 #include <functional>
 #include <iostream>
@@ -87,8 +88,10 @@ public:
 
 protected:
     virtual void executarAtaqueArea(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, int danoPerfurante, std::vector<std::unique_ptr<SistemaPersonagem>>& inimigos, const std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)>& aplicarDano, bool isAtacanteJogador) {
-        std::cout << SimplificacoesAparencia::margemCombate() << atacante->obterNome() << " desfere um ataque em area!\n";
-        SimplificacoesAparencia::registrarLogBatalha(atacante->obterNome() + " desfere um ataque em area!");
+        std::string msg = Aparencia::margemCombate() + atacante->obterNome() + " desfere um ataque em area!\n";
+        std::cout << msg;
+        TelaCombate::adicionarMensagemFixa(msg);
+        Aparencia::registrarLogBatalha(atacante->obterNome() + " desfere um ataque em area!");
         int danoDividido = std::max(1, danoBase / static_cast<int>(inimigos.size()));
         int perfuranteDividido = danoPerfurante / static_cast<int>(inimigos.size());
 
@@ -101,8 +104,10 @@ protected:
 
     virtual void executarAtaqueUnico(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, int danoPerfurante, std::vector<std::unique_ptr<SistemaPersonagem>>& inimigos, const std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)>& aplicarDano, bool isAtacanteJogador) {
         if (defensor != nullptr) {
-            std::cout << SimplificacoesAparencia::margemCombate() << atacante->obterNome() << " ataca " << defensor->obterNome() << "!\n";
-            SimplificacoesAparencia::registrarLogBatalha(atacante->obterNome() + " ataca " + defensor->obterNome() + "!");
+            std::string msg = Aparencia::margemCombate() + atacante->obterNome() + " ataca " + defensor->obterNome() + "!\n";
+            std::cout << msg;
+            TelaCombate::adicionarMensagemFixa(msg);
+            Aparencia::registrarLogBatalha(atacante->obterNome() + " ataca " + defensor->obterNome() + "!");
             aplicarDano(atacante, defensor, danoBase, danoPerfurante);
         }
 

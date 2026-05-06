@@ -7,7 +7,7 @@
 
 #include "../Gerenciadores/GerenciadorMenu.h"
 #include "../Telas/TelaMenu.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
 #include "ControleDeMapa.h"
 #include "../Utilidades/ControleDeInput.h"
 #include "../Gerenciadores/GerenciadorInimigos.h"
@@ -71,17 +71,17 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
 
     ControleDeMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
 
-    SimplificacoesAparencia::ocultarCursor();
+    Aparencia::ocultarCursor();
 
-    SimplificacoesAparencia::limparTela();
-    SimplificacoesAparencia::exibirCabecalho(tituloDoMapaAtual, Cor::CIANO);
+    Aparencia::limparTela();
+    Aparencia::exibirCabecalho(tituloDoMapaAtual, Cor::CIANO);
 
-    int linhaInicialParaDesenharOMapa = SimplificacoesAparencia::obterPosicaoCursorY();
+    int linhaInicialParaDesenharOMapa = Aparencia::obterPosicaoCursorY();
 
     auto restaurarTela = [&]() {
-        SimplificacoesAparencia::limparTela();
-        SimplificacoesAparencia::exibirCabecalho(tituloDoMapaAtual, Cor::CIANO);
-        linhaInicialParaDesenharOMapa = SimplificacoesAparencia::obterPosicaoCursorY();
+        Aparencia::limparTela();
+        Aparencia::exibirCabecalho(tituloDoMapaAtual, Cor::CIANO);
+        linhaInicialParaDesenharOMapa = Aparencia::obterPosicaoCursorY();
     };
 
     auto renderizarMapa = [&](int larguraDoTerminal, int alturaDoTerminal, int linhaInicial)
@@ -94,7 +94,7 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
         std::string textoDeControlesDoJogador = "W,A,S,D: Mover | I: Inventario | C: Ficha | B: Bestiario";
         std::string margemEsquerdaDosControles = ControleDeMapa::calcularMargemCentralizada(larguraDoTerminal, textoDeControlesDoJogador.length());
 
-        SimplificacoesAparencia::moverCursor(0, linhaInicial);
+        Aparencia::moverCursor(0, linhaInicial);
 
         int startY, endY;
         ControleDeMapa::calcularCameraVertical(alturaDoTerminal, posicaoYDoJogador, static_cast<int>(matrizDoMapaAtual.size()), startY, endY);
@@ -106,16 +106,16 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
             for (int x = startX; x < endX; x++)
             {
                 if (x == posicaoXDoJogador && y == posicaoYDoJogador) {
-                    linhaSendoRenderizada += SimplificacoesAparencia::cor(Cor::NEGRITO, Cor::VERDE) + "@" + SimplificacoesAparencia::cor(Cor::RESET);
+                    linhaSendoRenderizada += Aparencia::cor(Cor::NEGRITO, Cor::VERDE) + "@" + Aparencia::cor(Cor::RESET);
                 }
                 else if (matrizDoMapaAtual[y][x] == 'T') {
-                    linhaSendoRenderizada += SimplificacoesAparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + "T" + SimplificacoesAparencia::cor(Cor::RESET);
+                    linhaSendoRenderizada += Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + "T" + Aparencia::cor(Cor::RESET);
                 }
                 else if (matrizDoMapaAtual[y][x] == 'G') {
-                    linhaSendoRenderizada += SimplificacoesAparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "G" + SimplificacoesAparencia::cor(Cor::RESET);
+                    linhaSendoRenderizada += Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "G" + Aparencia::cor(Cor::RESET);
                 }
                 else if (matrizDoMapaAtual[y][x] == '=' || matrizDoMapaAtual[y][x] == '|') {
-                    linhaSendoRenderizada += SimplificacoesAparencia::cor(Cor::CINZA) + matrizDoMapaAtual[y][x] + SimplificacoesAparencia::cor(Cor::RESET);
+                    linhaSendoRenderizada += Aparencia::cor(Cor::CINZA) + matrizDoMapaAtual[y][x] + Aparencia::cor(Cor::RESET);
                 }
                 else {
                     linhaSendoRenderizada += matrizDoMapaAtual[y][x];
@@ -128,8 +128,8 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
 
     while (exploracaoEstaAtiva && jogadorAtual->obterVida() > 0)
     {
-        int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
-        int alturaDoTerminal = SimplificacoesAparencia::obterAlturaTerminal();
+        int larguraDoTerminal = Aparencia::obterLarguraTerminal();
+        int alturaDoTerminal = Aparencia::obterAlturaTerminal();
 
         renderizarMapa(larguraDoTerminal, alturaDoTerminal, linhaInicialParaDesenharOMapa);
 
@@ -151,19 +151,19 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
             char nextCell = matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX+1];
             if (nextCell == 'C') {
                 if (!conviteRecebido) {
-                    SimplificacoesAparencia::limparTela();
-                    SimplificacoesAparencia::exibirCabecalho("ACESSO NEGADO", Cor::CIANO);
+                    Aparencia::limparTela();
+                    Aparencia::exibirCabecalho("ACESSO NEGADO", Cor::CIANO);
                     int espacosM = (larguraDoTerminal - 60) / 2;
                     std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: Os portoes estao trancados. Voce precisa de uma permissao real.\n";
-                    SimplificacoesAparencia::aguardarEnter();
+                    Aparencia::aguardarEnter();
                     restaurarTela();
                 } else {
-                    SimplificacoesAparencia::limparTela();
-                    SimplificacoesAparencia::exibirCabecalho("FIM DA DEMO", Cor::CIANO);
+                    Aparencia::limparTela();
+                    Aparencia::exibirCabecalho("FIM DA DEMO", Cor::CIANO);
                     int espacosM = (larguraDoTerminal - 60) / 2;
                     std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: Voce apresentou o Convite Real e os portoes se abriram!\n";
                     std::cout << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: A historia continua em breve...\n";
-                    SimplificacoesAparencia::aguardarEnter();
+                    Aparencia::aguardarEnter();
                     exploracaoEstaAtiva = false;
                 }
             }
@@ -172,12 +172,12 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
             exploracaoEstaAtiva = false; // Interrompe o loop do Reino, devolvendo controle pra Floresta
         }
         } else if (celulaDestino == 'G') {
-            SimplificacoesAparencia::limparTela();
-            SimplificacoesAparencia::exibirCabecalho("GUARDA REAL", Cor::CIANO);
+            Aparencia::limparTela();
+            Aparencia::exibirCabecalho("GUARDA REAL", Cor::CIANO);
             int espacosM = (larguraDoTerminal - 60) / 2;
             std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[Guarda]: Alto la! Somente o Rei pode conceder passagem.\n";
             std::cout << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[Guarda]: (O castelo ainda esta em construcao pelos deuses/devs)\n";
-            SimplificacoesAparencia::aguardarEnter();
+            Aparencia::aguardarEnter();
             restaurarTela();
     } else if (celulaDestino == 'T' || celulaDestino == 'C') {
             NPCCavaleiroGenerico::interagir(jogadorAtual, trollDerrotado, conviteRecebido, larguraDoTerminal, matrizDoMapaAtual, exploracaoEstaAtiva, restaurarTela, celulaDestino, proximaPosicaoX, proximaPosicaoY);

@@ -18,7 +18,7 @@
 #include "Racas/Humano.h"
 #include "Racas/Ork.h"
 #include "Sistemas/SistemaSave.h"
-#include "Utilidades/SimplificacoesAparencia.h"
+#include "Utilidades/Aparencia.h"
 
 // Funcao para garantir que o jogo rode como Administrador
 bool garantirAdmin() 
@@ -129,9 +129,9 @@ int main()
     if (garantirAdmin()) return 0;
 
     // 2. Configura a tela (agora com permissao total)
-    SimplificacoesAparencia::inicializarConsole();
-    SimplificacoesAparencia::maximizarJanelaTerminal(); 
-    SimplificacoesAparencia::limparTela();
+    Aparencia::inicializarConsole();
+    Aparencia::maximizarJanelaTerminal(); 
+    Aparencia::limparTela();
 
     // 3. Inicia o fluxo do jogo usando o State Pattern
     Jogo rpg(std::make_unique<EstadoMenu>());

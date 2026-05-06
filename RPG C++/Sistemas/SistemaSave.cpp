@@ -17,7 +17,7 @@
 #include "../Racas/Humano.h"
 #include "../Racas/Ork.h"
 #include "../Sistemas/SistemaBestiario.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
 #include "SistemaPersonagem.h"
 
 bool SistemaSave::saveExiste() {

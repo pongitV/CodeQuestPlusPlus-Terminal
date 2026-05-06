@@ -4,12 +4,12 @@
 #include "TelaVitoria.h"
 #include "../Racas/RacaBase.h"
 #include "TelaCombate.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
 
 void TelaVitoria::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido, int curaTotalRecebida, int turnosCombate, const std::vector<std::string>& itensObtidos)
 {
-    SimplificacoesAparencia::limparTela();
-    int largura = SimplificacoesAparencia::obterLarguraTerminal();
+    Aparencia::limparTela();
+    int largura = Aparencia::obterLarguraTerminal();
 
     std::vector<std::string> logoVitoria = 
     {
@@ -23,7 +23,7 @@ void TelaVitoria::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroOb
        "     ░░░      ░░░░░    ░░░░░       ░░░░░░░    ░░░░░   ░░░░░ ░░░░░ ░░░░░   ░░░░░ ░░░  "
     };
 
-    SimplificacoesAparencia::exibirLogoAscii(logoVitoria, 85, Cor::VERDE);
+    Aparencia::exibirLogoAscii(logoVitoria, 85, Cor::VERDE);
 
     std::vector<std::string> linhas = TelaCombate::comporEstatisticasBatalha(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, curaTotalRecebida, turnosCombate);
     linhas.push_back("");
@@ -35,16 +35,16 @@ void TelaVitoria::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroOb
         for (auto const& [nome, qtd] : contagem) linhas.push_back("  +" + std::to_string(qtd) + "x " + nome);
     } else linhas.push_back("ITENS OBTIDOS: Nenhum");
 
-    SimplificacoesAparencia::imprimirBlocoCentralizado(linhas, SimplificacoesAparencia::cor(Cor::VERDE));
+    Aparencia::imprimirBlocoCentralizado(linhas, Aparencia::cor(Cor::VERDE));
     std::cout << "\n";
-    SimplificacoesAparencia::imprimirLinhaDivisoria();
+    Aparencia::imprimirLinhaDivisoria();
 
     if (jogadorAtual->podeSubirDeNivel())
     {
-        std::cout << "\n" << SimplificacoesAparencia::cor(Cor::MAGENTA) 
+        std::cout << "\n" << Aparencia::cor(Cor::MAGENTA) 
                   << "  *** VOCE PODE SUBIR DE NIVEL! ***\n"
-                  << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+                  << Aparencia::cor(Cor::RESET) << "\n";
     }
 
-    SimplificacoesAparencia::aguardarEnter();
+    Aparencia::aguardarEnter();
 }

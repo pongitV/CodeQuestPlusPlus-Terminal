@@ -3,9 +3,10 @@
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Inventario/FabricaItens.h"
 #include <memory>
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
 #include "../Gerenciadores/GerenciadorDrops.h"
 #include "../Utilidades/GeradorAleatorio.h"
+#include "../Telas/TelaCombate.h"
 
 std::string Slime::obterNomeRaca() const { return "Slime"; }
 Atributos Slime::obterAtributosRaca() const { return { 150, 15, 5, 10, 15, 0, 0 }; }
@@ -87,7 +88,9 @@ void Slime::aoCausarDano(SistemaPersonagem* atacante, SistemaPersonagem* alvo, i
     if (GeradorAleatorio::rolarChance(15)) {
         if (!alvo->possuiEfeito(EfeitoID::Lentidao)) {
             alvo->adicionarEfeito(std::make_unique<EfeitoLentidao>(3));
-            std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::MAGENTA) << ">> [PASSIVA SLIME]: Uma gosma esverdeada grudou e deixou " << alvo->obterNome() << " mais lento!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+            std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::MAGENTA) + ">> [PASSIVA SLIME]: Uma gosma esverdeada grudou e deixou " + alvo->obterNome() + " mais lento!" + Aparencia::cor(Cor::RESET) + "\n";
+            std::cout << msg;
+            TelaCombate::adicionarMensagemFixa(msg);
         }
     }
 }

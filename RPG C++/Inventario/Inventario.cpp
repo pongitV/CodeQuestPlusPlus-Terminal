@@ -7,7 +7,7 @@
 #include "Item.h"
 #include "ItemConsumivel.h"
 #include "../Gerenciadores/GerenciadorMenu.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
 
 Inventario::Inventario() : quantidadeDeOuro(0) {}
 

@@ -273,14 +273,14 @@ public:
 
     void adicionarEfeito(std::unique_ptr<EfeitoStatus> efeito);
     void processarEfeitosInicioTurno();
-    bool podeAgir() const;
+    bool podeAgir(std::string& outMotivoIncapacidade) const;
 
     // Preenche o vetor com os IDs de todos os efeitos ativos (evita alocações indesejadas)
     void obterIDsEfeitosAtivos(std::vector<EfeitoID>& outIDs) const;
     void limparEfeitos();
 
     int calcularDefesaBase(int danoBruto, int danoPerfurante) const;
-    int receberDano(int danoBruto, int danoPerfurante, int danoReduzidoParry, SistemaPersonagem* atacante, bool aplicarPassivas);
+    int receberDano(int danoBruto, int danoPerfurante, int danoReduzidoParry, SistemaPersonagem* atacante, bool aplicarPassivas, int& outDanoBloqueado, bool& outEscudoQuebrou, std::string& outNomeEscudoQuebrado);
 
     virtual void executarDrops(SistemaPersonagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal);
 };

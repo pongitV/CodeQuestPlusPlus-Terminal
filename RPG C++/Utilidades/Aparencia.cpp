@@ -1,4 +1,4 @@
-#include "SimplificacoesAparencia.h"
+#include "Aparencia.h"
 #include <iostream>
 #include <limits>
 #include <chrono>
@@ -18,31 +18,38 @@ namespace {
     std::vector<std::string> historicoBatalha;
 }
 
-void SimplificacoesAparencia::inicializarConsole() {
+void Aparencia::inicializarConsole() {
 #ifdef _WIN32
     SetConsoleOutputCP(65001); // Configura UTF-8 globalmente apenas uma vez
+    // Habilita interpretacao de codigos ANSI nativamente no console do Windows
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD dwMode = 0;
+    if (GetConsoleMode(hOut, &dwMode)) {
+        dwMode |= 0x0004; // ENABLE_VIRTUAL_TERMINAL_PROCESSING
+        SetConsoleMode(hOut, dwMode);
+    }
 #endif
 }
 
-std::string SimplificacoesAparencia::cor(Cor codigo) {
+std::string Aparencia::cor(Cor codigo) {
     if (codigo == Cor::RESET) return "\033[0m";
     if (codigo == Cor::LARANJA) return "\033[38;5;208m";
     return "\033[" + std::to_string(static_cast<int>(codigo)) + "m";
 }
 
-std::string SimplificacoesAparencia::cor(Cor estilo, Cor codigo) {
+std::string Aparencia::cor(Cor estilo, Cor codigo) {
     if (codigo == Cor::LARANJA) return "\033[" + std::to_string(static_cast<int>(estilo)) + ";38;5;208m";
     return "\033[" + std::to_string(static_cast<int>(estilo)) + ";" + std::to_string(static_cast<int>(codigo)) + "m";
 }
 
-void SimplificacoesAparencia::maximizarJanelaTerminal() {
+void Aparencia::maximizarJanelaTerminal() {
 #ifdef _WIN32
     HWND hwnd = GetConsoleWindow();
     ShowWindow(hwnd, SW_MAXIMIZE);
 #endif
 }
 
-void SimplificacoesAparencia::ocultarCursor() {
+void Aparencia::ocultarCursor() {
 #ifdef _WIN32
     HANDLE manipuladorDoTerminal = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_CURSOR_INFO informacoesDoCursor;
@@ -54,15 +61,15 @@ void SimplificacoesAparencia::ocultarCursor() {
 #endif
 }
 
-void SimplificacoesAparencia::limparTela() {
+void Aparencia::limparTela() {
 #ifdef _WIN32
     system("cls");
 #else
-    system("clear");
+    std::cout << "\033[2J\033[3J\033[H" << std::flush;
 #endif
 }
 
-void SimplificacoesAparencia::aguardarEnter() {
+void Aparencia::aguardarEnter() {
     std::cout << "\nPressione Enter para continuar...";
     ControleDeInput::limparBuffer();
     while (true) {
@@ -71,7 +78,7 @@ void SimplificacoesAparencia::aguardarEnter() {
     }
 }
 
-int SimplificacoesAparencia::obterLarguraTerminal() {
+int Aparencia::obterLarguraTerminal() {
 #ifdef _WIN32
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi)) {
@@ -81,7 +88,7 @@ int SimplificacoesAparencia::obterLarguraTerminal() {
     return 119;
 }
 
-int SimplificacoesAparencia::obterAlturaTerminal() {
+int Aparencia::obterAlturaTerminal() {
 #ifdef _WIN32
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi)) {
@@ -91,7 +98,7 @@ int SimplificacoesAparencia::obterAlturaTerminal() {
     return 30;
 }
 
-void SimplificacoesAparencia::moverCursor(int x, int y) {
+void Aparencia::moverCursor(int x, int y) {
 #ifdef _WIN32
     COORD coord = { static_cast<SHORT>(x), static_cast<SHORT>(y) };
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
@@ -100,7 +107,7 @@ void SimplificacoesAparencia::moverCursor(int x, int y) {
 #endif
 }
 
-int SimplificacoesAparencia::obterPosicaoCursorY() {
+int Aparencia::obterPosicaoCursorY() {
 #ifdef _WIN32
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi)) {
@@ -110,7 +117,7 @@ int SimplificacoesAparencia::obterPosicaoCursorY() {
     return 8;
 }
 
-std::string SimplificacoesAparencia::removerCoresANSI(const std::string& texto) {
+std::string Aparencia::removerCoresANSI(const std::string& texto) {
     std::string resultado;
     resultado.reserve(texto.length());
     bool in_sequence = false;
@@ -134,17 +141,17 @@ std::string SimplificacoesAparencia::removerCoresANSI(const std::string& texto) 
     return resultado;
 }
 
-std::string SimplificacoesAparencia::espacosParaCentralizar(int comprimentoTexto) {
+std::string Aparencia::espacosParaCentralizar(int comprimentoTexto) {
     int espacos = (obterLarguraTerminal() - comprimentoTexto) / 2;
     if (espacos < 0) espacos = 0;
     return std::string(espacos, ' ');
 }
 
-void SimplificacoesAparencia::imprimirLinhaDivisoria(char caractere) {
+void Aparencia::imprimirLinhaDivisoria(char caractere) {
     std::cout << std::string(obterLarguraTerminal(), caractere) << "\n";
 }
 
-void SimplificacoesAparencia::imprimirCentralizado(const std::string& texto, const std::string& corAnsi) {
+void Aparencia::imprimirCentralizado(const std::string& texto, const std::string& corAnsi) {
     int larguraTerminal = obterLarguraTerminal();
     std::string textoPuro = removerCoresANSI(texto);
     int espacos = (larguraTerminal - static_cast<int>(textoPuro.length())) / 2;
@@ -152,7 +159,7 @@ void SimplificacoesAparencia::imprimirCentralizado(const std::string& texto, con
     std::cout << std::string(espacos, ' ') << corAnsi << texto << (corAnsi.empty() ? "" : cor(Cor::RESET)) << "\n";
 }
 
-void SimplificacoesAparencia::imprimirCentralizadoMultilinha(const std::vector<std::string>& linhas, int larguraVisual, const std::string& corAnsi) {
+void Aparencia::imprimirCentralizadoMultilinha(const std::vector<std::string>& linhas, int larguraVisual, const std::string& corAnsi) {
     int larguraTerminal = obterLarguraTerminal();
     for (const std::string& linha : linhas) {
         if (larguraVisual > 0) {
@@ -165,7 +172,7 @@ void SimplificacoesAparencia::imprimirCentralizadoMultilinha(const std::vector<s
     }
 }
 
-void SimplificacoesAparencia::imprimirBlocoCentralizado(const std::vector<std::string>& linhas, const std::string& corAnsi) {
+void Aparencia::imprimirBlocoCentralizado(const std::vector<std::string>& linhas, const std::string& corAnsi) {
     int tamanhoDaLinhaMaisLonga = 0;
     for (const std::string& linha : linhas) {
         tamanhoDaLinhaMaisLonga = std::max(tamanhoDaLinhaMaisLonga, static_cast<int>(removerCoresANSI(linha).length()));
@@ -173,7 +180,7 @@ void SimplificacoesAparencia::imprimirBlocoCentralizado(const std::vector<std::s
     imprimirCentralizadoMultilinha(linhas, tamanhoDaLinhaMaisLonga, corAnsi);
 }
 
-void SimplificacoesAparencia::imprimirDigitando(const std::string& texto, int atrasoMs) {
+void Aparencia::imprimirDigitando(const std::string& texto, int atrasoMs) {
     std::cout << "\033[s\033[80;1H" << cor(Cor::NEGRITO, Cor::CINZA) << "[Pressione 'k' para pular]" << cor(Cor::RESET) << "\033[u";
 
     size_t i = 0;
@@ -198,7 +205,7 @@ void SimplificacoesAparencia::imprimirDigitando(const std::string& texto, int at
     std::cout << std::endl;
 }
 
-void SimplificacoesAparencia::exibirCabecalho(const std::string& titulo, Cor corDoCabecalho) {
+void Aparencia::exibirCabecalho(const std::string& titulo, Cor corDoCabecalho) {
     std::string tituloUpper = titulo;
     std::transform(tituloUpper.begin(), tituloUpper.end(), tituloUpper.begin(), [](unsigned char c){ return std::toupper(c); });
     
@@ -208,7 +215,7 @@ void SimplificacoesAparencia::exibirCabecalho(const std::string& titulo, Cor cor
     std::cout << "\n" << cor(corDoCabecalho) << std::string(largura, '=') << cor(Cor::RESET) << "\n";
 }
 
-int SimplificacoesAparencia::imprimirLadoALado(const std::vector<std::string>& colunaEsquerda, const std::vector<std::string>& colunaDireita, int minLarguraEsquerda, int espacamento, Cor corEsquerda, Cor corDireita) {
+int Aparencia::imprimirLadoALado(const std::vector<std::string>& colunaEsquerda, const std::vector<std::string>& colunaDireita, int minLarguraEsquerda, int espacamento, Cor corEsquerda, Cor corDireita) {
     int larguraEsq = minLarguraEsquerda;
     for (const auto& s : colunaEsquerda) {
         if (static_cast<int>(removerCoresANSI(s).length()) > larguraEsq) {
@@ -250,11 +257,11 @@ int SimplificacoesAparencia::imprimirLadoALado(const std::vector<std::string>& c
     return recuo;
 }
 
-void SimplificacoesAparencia::exibirPrompt(const std::string& mensagem) {
+void Aparencia::exibirPrompt(const std::string& mensagem) {
     std::cout << "\n" << espacosParaCentralizar(removerCoresANSI(mensagem).length()) << mensagem;
 }
 
-void SimplificacoesAparencia::exibirLogoAscii(const std::vector<std::string>& arteAscii, int larguraVisual, Cor corDaArte, const std::string& tituloSecundario) {
+void Aparencia::exibirLogoAscii(const std::vector<std::string>& arteAscii, int larguraVisual, Cor corDaArte, const std::string& tituloSecundario) {
     std::cout << "\n";
     imprimirLinhaDivisoria();
     std::cout << "\n";
@@ -269,26 +276,30 @@ void SimplificacoesAparencia::exibirLogoAscii(const std::vector<std::string>& ar
     std::cout << "\n";
 }
 
-std::string SimplificacoesAparencia::margemCombate() {
+std::string Aparencia::margemCombate() {
     return espacosParaCentralizar(91); // Centraliza a partir do interior da HUD
 }
 
-void SimplificacoesAparencia::registrarLogBatalha(const std::string& texto) {
+void Aparencia::registrarLogBatalha(const std::string& texto) {
     historicoBatalha.push_back(texto);
 }
 
-void SimplificacoesAparencia::limparLogBatalha() {
+void Aparencia::limparLogBatalha() {
     historicoBatalha.clear();
 }
 
-void SimplificacoesAparencia::exibirUltimosLogs(int quantidade) {
+void Aparencia::exibirUltimosLogs(int quantidade) {
+    if (historicoBatalha.empty()) return;
     int inicio = std::max(0, static_cast<int>(historicoBatalha.size()) - quantidade);
-    for (size_t i = inicio; i < historicoBatalha.size(); ++i) {
-        imprimirCentralizado(historicoBatalha[i], cor(Cor::CINZA));
+    int total = static_cast<int>(historicoBatalha.size()) - inicio;
+    for (int i = 0; i < total; ++i) {
+        int index = inicio + i;
+        imprimirCentralizado(removerCoresANSI(historicoBatalha[index]), cor(Cor::CINZA));
     }
+    std::cout << "\n";
 }
 
-void SimplificacoesAparencia::exibirHistoricoCompleto() {
+void Aparencia::exibirHistoricoCompleto() {
     if (historicoBatalha.empty()) {
         limparTela();
         exibirCabecalho("HISTORICO DE BATALHA", Cor::CIANO);

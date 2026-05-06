@@ -9,7 +9,7 @@
 #include "../Inventario/Item.h"
 #include "../Inventario/FabricaItens.h"
 #include "../Telas/TelaInventario.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
 
 namespace {
     void processarCompraPocoes(SistemaPersonagem* jogadorAtual);
@@ -20,7 +20,7 @@ namespace {
 
 void NPCFranchesco::interagir(SistemaPersonagem* jogadorAtual)
 {
-    int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
+    int larguraDoTerminal = Aparencia::obterLarguraTerminal();
     std::string opcaoFranchesco;
     
     std::vector<std::string> arteFranchesco = {
@@ -69,8 +69,8 @@ void NPCFranchesco::interagir(SistemaPersonagem* jogadorAtual)
     };
 
     do {
-        SimplificacoesAparencia::limparTela();
-        SimplificacoesAparencia::exibirCabecalho("LOJA AMBULANTE", Cor::AMARELO);
+        Aparencia::limparTela();
+        Aparencia::exibirCabecalho("LOJA AMBULANTE", Cor::AMARELO);
 
         std::vector<std::string> menuEsquerda = {
             "[Franchesco]: Bem-vindo! De uma olhada nas",
@@ -86,7 +86,7 @@ void NPCFranchesco::interagir(SistemaPersonagem* jogadorAtual)
             ""
         };
 
-        int recuo = SimplificacoesAparencia::imprimirLadoALado(menuEsquerda, arteFranchesco, 45, 0, Cor::RESET, Cor::AMARELO);
+        int recuo = Aparencia::imprimirLadoALado(menuEsquerda, arteFranchesco, 45, 0, Cor::RESET, Cor::AMARELO);
         std::cout << "\n" << std::string(recuo, ' ') << "Escolha: ";
         std::cin >> opcaoFranchesco;
 
@@ -109,8 +109,8 @@ namespace {
     void processarCompraPocoes(SistemaPersonagem* jogadorAtual) {
         std::string opcaoCompra;
         do {
-            SimplificacoesAparencia::limparTela();
-            SimplificacoesAparencia::exibirCabecalho("LOJA - POCOES", Cor::AMARELO);
+            Aparencia::limparTela();
+            Aparencia::exibirCabecalho("LOJA - POCOES", Cor::AMARELO);
             std::cout << "\n";
             
             std::vector<std::string> linhas = {
@@ -120,9 +120,9 @@ namespace {
                 "",
                 "[0] VOLTAR"
             };
-            SimplificacoesAparencia::imprimirBlocoCentralizado(linhas);
+            Aparencia::imprimirBlocoCentralizado(linhas);
             std::cout << "\n";
-            SimplificacoesAparencia::exibirPrompt("Escolha: ");
+            Aparencia::exibirPrompt("Escolha: ");
 
             std::cin >> opcaoCompra;
 
@@ -135,7 +135,7 @@ namespace {
                 } else {
                     std::cout << "\n[SISTEMA]: Ouro insuficiente!\n";
                 }
-                SimplificacoesAparencia::aguardarEnter();
+                Aparencia::aguardarEnter();
             }
         } while (opcaoCompra != "0");
     }
@@ -143,8 +143,8 @@ namespace {
     void processarCompraTalismas(SistemaPersonagem* jogadorAtual, int larguraDoTerminal) {
         std::string opcaoCompra;
         do {
-            SimplificacoesAparencia::limparTela();
-            SimplificacoesAparencia::exibirCabecalho("LOJA - TALISMAS", Cor::AMARELO);
+            Aparencia::limparTela();
+            Aparencia::exibirCabecalho("LOJA - TALISMAS", Cor::AMARELO);
             std::cout << "\n";
 
             std::vector<std::string> linhas = {
@@ -157,9 +157,9 @@ namespace {
                 "",
                 "[0] VOLTAR"
             };
-            SimplificacoesAparencia::imprimirBlocoCentralizado(linhas);
+            Aparencia::imprimirBlocoCentralizado(linhas);
             std::cout << "\n";
-            SimplificacoesAparencia::exibirPrompt("Escolha: ");
+            Aparencia::exibirPrompt("Escolha: ");
 
             std::cin >> opcaoCompra;
 
@@ -182,7 +182,7 @@ namespace {
                 } else {
                     std::cout << "\n[SISTEMA]: Ouro insuficiente!\n";
                 }
-                SimplificacoesAparencia::aguardarEnter();
+                Aparencia::aguardarEnter();
             }
         } while (opcaoCompra != "0");
     }
@@ -190,8 +190,8 @@ namespace {
     void processarCompraIguarias(SistemaPersonagem* jogadorAtual, int larguraDoTerminal) {
         std::string opcaoCompra;
         do {
-            SimplificacoesAparencia::limparTela();
-            SimplificacoesAparencia::exibirCabecalho("LOJA - IGUARIAS", Cor::AMARELO);
+            Aparencia::limparTela();
+            Aparencia::exibirCabecalho("LOJA - IGUARIAS", Cor::AMARELO);
             std::cout << "\n";
 
             std::vector<std::string> linhas = {
@@ -201,9 +201,9 @@ namespace {
                 "",
                 "[0] VOLTAR"
             };
-            SimplificacoesAparencia::imprimirBlocoCentralizado(linhas);
+            Aparencia::imprimirBlocoCentralizado(linhas);
             std::cout << "\n";
-            SimplificacoesAparencia::exibirPrompt("Escolha: ");
+            Aparencia::exibirPrompt("Escolha: ");
 
             std::cin >> opcaoCompra;
 
@@ -216,7 +216,7 @@ namespace {
                 } else {
                     std::cout << "\n[SISTEMA]: Ouro insuficiente!\n";
                 }
-                SimplificacoesAparencia::aguardarEnter();
+                Aparencia::aguardarEnter();
             }
         } while (opcaoCompra != "0");
     }
@@ -225,21 +225,21 @@ namespace {
         std::string codigoVenda;
         do {
             TelaInventario::exibir(jogadorAtual, true);
-        SimplificacoesAparencia::exibirPrompt("Digite o codigo do item para vender ou [0] VOLTAR: ");
+        Aparencia::exibirPrompt("Digite o codigo do item para vender ou [0] VOLTAR: ");
             std::cin >> codigoVenda;
 
             if (codigoVenda != "0") {
                 Item* itemParaVenda = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigoVenda, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
                 if (itemParaVenda) {
                     if (itemParaVenda == jogadorAtual->obterArma() || itemParaVenda == jogadorAtual->obterEscudo() || itemParaVenda == jogadorAtual->obterArmadura()) {
-                        std::cout << "\n[SISTEMA]: Nao e possivel vender itens que estao equipados!\n"; SimplificacoesAparencia::aguardarEnter(); continue;
+                        std::cout << "\n[SISTEMA]: Nao e possivel vender itens que estao equipados!\n"; Aparencia::aguardarEnter(); continue;
                     }
                     std::string nomeItemVenda = itemParaVenda->obterNomeItem();
                     int precoVenda = itemParaVenda->obterPrecoVenda();
                     jogadorAtual->obterInventario()->adicionarOuro(precoVenda);
                     jogadorAtual->obterInventario()->removerItem(itemParaVenda);
-                    std::cout << "\n[SISTEMA]: Voce vendeu " << nomeItemVenda << " por " << precoVenda << "G!\n"; SimplificacoesAparencia::aguardarEnter();
-                } else { std::cout << "\n[SISTEMA]: Item invalido!\n"; SimplificacoesAparencia::aguardarEnter(); }
+                    std::cout << "\n[SISTEMA]: Voce vendeu " << nomeItemVenda << " por " << precoVenda << "G!\n"; Aparencia::aguardarEnter();
+                } else { std::cout << "\n[SISTEMA]: Item invalido!\n"; Aparencia::aguardarEnter(); }
             }
         } while (codigoVenda != "0");
     }

@@ -17,7 +17,7 @@
 #include "../NPCs/NPCFranchesco.h"
 #include "../Inimigos/OrkExilado.h"
 #include "TransicaoDeMapa.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
 #include "ControleDeMapa.h"
 #include "../Utilidades/ControleDeInput.h"
 #include "../Utilidades/GeradorAleatorio.h"
@@ -104,8 +104,8 @@ namespace {
             if (ctx.self->tituloDoMapaAtual == "FORJA DA VILA" && ctx.celula == 'B') {
                 NPCBjorn::interagir(ctx.self->jogadorAtual);
             } else if (ctx.self->tituloDoMapaAtual == "CAVERNA DO ORK") {
-                SimplificacoesAparencia::limparTela();
-                SimplificacoesAparencia::exibirCabecalho("RESGATE NA CAVERNA", Cor::AMARELO);
+                Aparencia::limparTela();
+                Aparencia::exibirCabecalho("RESGATE NA CAVERNA", Cor::AMARELO);
                 int espacosM = std::max(0, (ctx.larguraDoTerminal - 50) / 2);
                 std::string mE(espacosM, ' ');
                 std::cout << "\n" << mE << "[Bjorn]: Pelos deuses, muito obrigado por me salvar!\n";
@@ -115,7 +115,7 @@ namespace {
                 int rootX = (ctx.celula == 'B') ? ctx.proximaPosicaoX : ctx.proximaPosicaoX - 1;
                 ctx.self->matrizDoMapaAtual[ctx.proximaPosicaoY][rootX] = '.';
                 ctx.self->matrizDoMapaAtual[ctx.proximaPosicaoY][rootX + 1] = '.';
-                SimplificacoesAparencia::aguardarEnter();
+                Aparencia::aguardarEnter();
             } else {
                 ctx.self->posicaoXDoJogador = ctx.proximaPosicaoX;
                 ctx.self->posicaoYDoJogador = ctx.proximaPosicaoY;
@@ -160,11 +160,11 @@ namespace {
             }
             else if (nextCell == 'F' && nextNextCell == 'o' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 if (!ctx.self->bjornResgatado) {
-                    SimplificacoesAparencia::limparTela();
-                SimplificacoesAparencia::exibirCabecalho(ctx.self->tituloDoMapaAtual, Cor::AMARELO);
+                    Aparencia::limparTela();
+                Aparencia::exibirCabecalho(ctx.self->tituloDoMapaAtual, Cor::AMARELO);
                     int espacosM = std::max(0, (ctx.larguraDoTerminal - 60) / 2);
                     std::cout << "\n" << std::string(espacosM, ' ') << "[SISTEMA]: A Forja esta trancada. O ferreiro sumiu...\n";
-                    SimplificacoesAparencia::aguardarEnter();
+                    Aparencia::aguardarEnter();
                     ctx.restaurarTela();
                     return;
                 }
@@ -211,18 +211,18 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
 
     ControleDeMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
 
-    SimplificacoesAparencia::ocultarCursor();
+    Aparencia::ocultarCursor();
 
-    SimplificacoesAparencia::limparTela();
-    SimplificacoesAparencia::exibirCabecalho(tituloDoMapaAtual, Cor::AMARELO);
+    Aparencia::limparTela();
+    Aparencia::exibirCabecalho(tituloDoMapaAtual, Cor::AMARELO);
 
-    int linhaInicialParaDesenharOMapa = SimplificacoesAparencia::obterPosicaoCursorY();
+    int linhaInicialParaDesenharOMapa = Aparencia::obterPosicaoCursorY();
 
     // Lambda para restaurar a tela apos eventos sem piscar
     auto restaurarTela = [&]() {
-        SimplificacoesAparencia::limparTela();
-        SimplificacoesAparencia::exibirCabecalho(tituloDoMapaAtual, Cor::AMARELO);
-        linhaInicialParaDesenharOMapa = SimplificacoesAparencia::obterPosicaoCursorY();
+        Aparencia::limparTela();
+        Aparencia::exibirCabecalho(tituloDoMapaAtual, Cor::AMARELO);
+        linhaInicialParaDesenharOMapa = Aparencia::obterPosicaoCursorY();
     };
 
     // Mapa base da vila — reutilizado no respawn apos a floresta
@@ -254,7 +254,7 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
         std::string textoDeControlesDoJogador = "W,A,S,D: Mover | I: Inventario | C: Ficha | B: Bestiario ";
         std::string margemEsquerdaDosControles = ControleDeMapa::calcularMargemCentralizada(larguraDoTerminal, textoDeControlesDoJogador.length());
 
-        SimplificacoesAparencia::moverCursor(0, linhaInicial);
+        Aparencia::moverCursor(0, linhaInicial);
 
         int startY, endY;
         ControleDeMapa::calcularCameraVertical(alturaDoTerminal, posicaoYDoJogador, static_cast<int>(matrizDoMapaAtual.size()), startY, endY);
@@ -269,45 +269,45 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
                 {
                     std::cout << linhaSendoRenderizada;
                     linhaSendoRenderizada = "";
-                    std::cout << SimplificacoesAparencia::cor(Cor::NEGRITO, Cor::VERDE) << '@' << SimplificacoesAparencia::cor(Cor::RESET);
+                    std::cout << Aparencia::cor(Cor::NEGRITO, Cor::VERDE) << '@' << Aparencia::cor(Cor::RESET);
                 }
                 else if (matrizDoMapaAtual[y][x] == 'G')
                 {
                     std::cout << linhaSendoRenderizada;
                     linhaSendoRenderizada = "";
-                    std::cout << SimplificacoesAparencia::cor(Cor::NEGRITO, Cor::VERMELHO) << 'G' << SimplificacoesAparencia::cor(Cor::RESET);
+                    std::cout << Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) << 'G' << Aparencia::cor(Cor::RESET);
                 }
                 else if (matrizDoMapaAtual[y][x] == 'O')
                 {
                     std::cout << linhaSendoRenderizada;
                     linhaSendoRenderizada = "";
-                    std::cout << SimplificacoesAparencia::cor(Cor::NEGRITO, Cor::VERMELHO);
+                    std::cout << Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO);
                     if (x + 1 < endX && matrizDoMapaAtual[y][x+1] == 'm') {
                         std::cout << "Om";
                         x++;
                     } else {
                         std::cout << 'O';
                     }
-                    std::cout << SimplificacoesAparencia::cor(Cor::RESET);
+                    std::cout << Aparencia::cor(Cor::RESET);
                 }
                 else if (matrizDoMapaAtual[y][x] == 'B')
                 {
                     std::cout << linhaSendoRenderizada;
                     linhaSendoRenderizada = "";
-                    std::cout << SimplificacoesAparencia::cor(Cor::NEGRITO, Cor::CIANO);
+                    std::cout << Aparencia::cor(Cor::NEGRITO, Cor::CIANO);
                     if (x + 1 < endX && matrizDoMapaAtual[y][x+1] == 'n') {
                         std::cout << "Bn";
                         x++;
                     } else {
                         std::cout << 'B';
                     }
-                    std::cout << SimplificacoesAparencia::cor(Cor::RESET);
+                    std::cout << Aparencia::cor(Cor::RESET);
                 }
                 else if (matrizDoMapaAtual[y][x] == 'F' && x > 0 && matrizDoMapaAtual[y][x-1] == '.')
                 {
                     std::cout << linhaSendoRenderizada;
                     linhaSendoRenderizada = "";
-                    std::cout << SimplificacoesAparencia::cor(Cor::NEGRITO, Cor::AMARELO) << 'F' << SimplificacoesAparencia::cor(Cor::RESET);
+                    std::cout << Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) << 'F' << Aparencia::cor(Cor::RESET);
                 }
                 else linhaSendoRenderizada += matrizDoMapaAtual[y][x];
             }
@@ -318,8 +318,8 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
 
     while (exploracaoEstaAtiva && jogadorAtual->obterVida() > 0)
     {
-        int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
-        int alturaDoTerminal = SimplificacoesAparencia::obterAlturaTerminal();
+        int larguraDoTerminal = Aparencia::obterLarguraTerminal();
+        int alturaDoTerminal = Aparencia::obterAlturaTerminal();
 
         renderizarMapa(larguraDoTerminal, alturaDoTerminal, linhaInicialParaDesenharOMapa);
 

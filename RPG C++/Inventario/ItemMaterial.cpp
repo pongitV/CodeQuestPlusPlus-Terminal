@@ -2,7 +2,7 @@
 #include <string_view>
 #include <map>
 #include <iostream>
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
 #include <vector>
 #include <functional>
 #include <unordered_map>
@@ -16,7 +16,7 @@ TipoEquipamento ItemMaterial::obterTipo() const { return TipoEquipamento::MATERI
 
 void ItemMaterial::exibirInspecao() const {
     std::vector<std::string> linhas;
-    linhas.push_back(SimplificacoesAparencia::cor(Cor::CIANO) + " === " + nome + " ===" + SimplificacoesAparencia::cor(Cor::RESET));
+    linhas.push_back(Aparencia::cor(Cor::CIANO) + " === " + nome + " ===" + Aparencia::cor(Cor::RESET));
     linhas.push_back(" > Tipo: Material");
     linhas.push_back(" > Preco de Venda: " + std::to_string(precoVenda) + "G");
     
@@ -32,11 +32,11 @@ void ItemMaterial::exibirInspecao() const {
     linhas.push_back(" > Descricao: " + utilidade);
 
     std::cout << "\n";
-    SimplificacoesAparencia::imprimirCentralizado(linhas[0]);
+    Aparencia::imprimirCentralizado(linhas[0]);
     std::cout << "\n";
     
     std::vector<std::string> resto(linhas.begin() + 1, linhas.end());
-    SimplificacoesAparencia::imprimirBlocoCentralizado(resto);
+    Aparencia::imprimirBlocoCentralizado(resto);
 }
 
 std::unique_ptr<Item> fabricarItemMaterial(const std::string& nome) {

@@ -3,7 +3,7 @@
 #include <map>
 #include <memory>
 #include "../Sistemas/SistemaPersonagem.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
 #include <vector>
 #include <functional>
 #include <unordered_map>
@@ -46,7 +46,7 @@ std::string EquipamentoEscudo::obterMensagemRequisito() const {
 
 void EquipamentoEscudo::exibirInspecao() const {
     std::vector<std::string> linhas;
-    linhas.push_back(SimplificacoesAparencia::cor(Cor::CIANO) + " === " + nome + " ===" + SimplificacoesAparencia::cor(Cor::RESET));
+    linhas.push_back(Aparencia::cor(Cor::CIANO) + " === " + nome + " ===" + Aparencia::cor(Cor::RESET));
     linhas.push_back(" > Tipo: Escudo");
     linhas.push_back(" > Poder de Bloqueio: " + std::to_string(reducaoFixa) + " (Dano bloqueado na acao 'Defender')");
     linhas.push_back(" > Durabilidade Maxima: " + std::to_string(durabilidade) + " usos");
@@ -66,11 +66,11 @@ void EquipamentoEscudo::exibirInspecao() const {
     linhas.push_back(" > Preco de Venda: " + std::to_string(precoVenda) + "G");
 
     std::cout << "\n";
-    SimplificacoesAparencia::imprimirCentralizado(linhas[0]);
+    Aparencia::imprimirCentralizado(linhas[0]);
     std::cout << "\n";
     
     std::vector<std::string> resto(linhas.begin() + 1, linhas.end());
-    SimplificacoesAparencia::imprimirBlocoCentralizado(resto);
+    Aparencia::imprimirBlocoCentralizado(resto);
 }
 
 std::string EquipamentoEscudo::obterInfoStatus() const {

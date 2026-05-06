@@ -7,7 +7,7 @@
 
 #include "../Inventario/FabricaItens.h"
 #include "../Utilidades/Constantes.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
 
 std::string Bardo::obterNomeClasse() const 
 {
@@ -107,36 +107,36 @@ void Bardo::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::vect
             int cura = static_cast<int>((personagemHabilidade->obterSabedoria() * 2) + (personagemHabilidade->obterVidaMaxima() * 0.15));
             personagemHabilidade->modificarVida(cura);
             personagemHabilidade->definirCooldown(HabilidadeID::FlashingLights, 3);
-            std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::VERDE) << "[HABILIDADE]: !Flashing lights! Voce recuperou " << cura << " HP e encantou os inimigos!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-            SimplificacoesAparencia::registrarLogBatalha("[HABILIDADE]: !Flashing lights! Voce recuperou " + std::to_string(cura) + " HP e encantou os inimigos!");
+            std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE) << "[HABILIDADE]: !Flashing lights! Voce recuperou " << cura << " HP e encantou os inimigos!" << Aparencia::cor(Cor::RESET) << "\n";
+            Aparencia::registrarLogBatalha("[HABILIDADE]: !Flashing lights! Voce recuperou " + std::to_string(cura) + " HP e encantou os inimigos!");
         }},
         { HabilidadeID::OnSight, "On sight", "1.5x Dano no proximo ataque", [](SistemaPersonagem* personagemHabilidade) {
             personagemHabilidade->definirMultiplicador(1.5);
-            std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::AMARELO) << personagemHabilidade->obterNome() << " tocou 'On sight' e ganhara 1.5x de dano!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-            SimplificacoesAparencia::registrarLogBatalha(personagemHabilidade->obterNome() + " tocou 'On sight' e ganhara 1.5x de dano!");
+            std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::AMARELO) << personagemHabilidade->obterNome() << " tocou 'On sight' e ganhara 1.5x de dano!" << Aparencia::cor(Cor::RESET) << "\n";
+            Aparencia::registrarLogBatalha(personagemHabilidade->obterNome() + " tocou 'On sight' e ganhara 1.5x de dano!");
             personagemHabilidade->definirCooldown(HabilidadeID::OnSight, 3);
-            std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::AMARELO) << "[HABILIDADE]: !On sight! Seu proximo ataque causara 1.5x de dano!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-            SimplificacoesAparencia::registrarLogBatalha("[HABILIDADE]: !On sight! Seu proximo ataque causara 1.5x de dano!");
+            std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::AMARELO) << "[HABILIDADE]: !On sight! Seu proximo ataque causara 1.5x de dano!" << Aparencia::cor(Cor::RESET) << "\n";
+            Aparencia::registrarLogBatalha("[HABILIDADE]: !On sight! Seu proximo ataque causara 1.5x de dano!");
         }},
         { HabilidadeID::ThroughTheWire, "Through the wire", "Metade do dano recebido", [](SistemaPersonagem* personagemHabilidade) {
             personagemHabilidade->adicionarEfeito(std::make_unique<EfeitoMetadeDano>(1));
             personagemHabilidade->definirCooldown(HabilidadeID::ThroughTheWire, 3);
-            std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::CIANO) << "[HABILIDADE]: !Through the wire! Voce esta protegido contra metade do dano recebido!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-            SimplificacoesAparencia::registrarLogBatalha("[HABILIDADE]: !Through the wire! Voce esta protegido contra metade do dano recebido!");
+            std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::CIANO) << "[HABILIDADE]: !Through the wire! Voce esta protegido contra metade do dano recebido!" << Aparencia::cor(Cor::RESET) << "\n";
+            Aparencia::registrarLogBatalha("[HABILIDADE]: !Through the wire! Voce esta protegido contra metade do dano recebido!");
         }}
     }};
 
-    std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "--- SINFONIA DO BARDO ---\n";
+    std::cout << "\n" << Aparencia::margemCombate() << "--- SINFONIA DO BARDO ---\n";
     for (size_t i = 0; i < habilidades.size(); ++i) {
         int cd = personagemUsuario->obterCooldown(habilidades[i].id);
-        std::cout << SimplificacoesAparencia::margemCombate() << "[" << i + 1 << "] " << habilidades[i].nome 
+        std::cout << Aparencia::margemCombate() << "[" << i + 1 << "] " << habilidades[i].nome 
                   << " (" << habilidades[i].descricao << " | Recarga: " << cd << ")\n";
     }
-    std::cout << SimplificacoesAparencia::margemCombate() << "[0] CANCELAR\n";
-    std::cout << SimplificacoesAparencia::margemCombate() << "Escolha: ";
+    std::cout << Aparencia::margemCombate() << "[0] CANCELAR\n";
+    std::cout << Aparencia::margemCombate() << "Escolha: ";
 
     int escolha;
-    while (!(std::cin >> escolha)) { std::cin.clear(); std::cin.ignore(1000, '\n'); std::cout << SimplificacoesAparencia::margemCombate() << "Escolha: "; }
+    while (!(std::cin >> escolha)) { std::cin.clear(); std::cin.ignore(1000, '\n'); std::cout << Aparencia::margemCombate() << "Escolha: "; }
 
     if (escolha == 0) {
         personagemUsuario->definirHabilidadeCancelada(true);
@@ -147,9 +147,9 @@ void Bardo::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::vect
         const auto& hab = habilidades[escolha - 1];
         int cd = personagemUsuario->obterCooldown(hab.id);
         if (cd > 0) {
-            std::cout << "\n" << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::VERMELHO) << "[SISTEMA]: A habilidade " << hab.nome << " esta em recarga (" << cd << " turnos)!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n"; 
-            SimplificacoesAparencia::registrarLogBatalha("[SISTEMA]: A habilidade " + hab.nome + " esta em recarga (" + std::to_string(cd) + " turnos)!");
-            SimplificacoesAparencia::aguardarEnter();
+            std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << "[SISTEMA]: A habilidade " << hab.nome << " esta em recarga (" << cd << " turnos)!" << Aparencia::cor(Cor::RESET) << "\n"; 
+            Aparencia::registrarLogBatalha("[SISTEMA]: A habilidade " + hab.nome + " esta em recarga (" + std::to_string(cd) + " turnos)!");
+            Aparencia::aguardarEnter();
             personagemUsuario->definirHabilidadeCancelada(true); 
             return; 
         }
@@ -157,8 +157,8 @@ void Bardo::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::vect
         return;
     }
 
-    std::cout << "\n" << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::VERMELHO) << "[SISTEMA]: Opcao invalida!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-    SimplificacoesAparencia::aguardarEnter();
+    std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << "[SISTEMA]: Opcao invalida!" << Aparencia::cor(Cor::RESET) << "\n";
+    Aparencia::aguardarEnter();
     personagemUsuario->definirHabilidadeCancelada(true);
 }
 

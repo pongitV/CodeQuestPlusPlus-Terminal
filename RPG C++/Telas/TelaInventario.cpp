@@ -4,15 +4,15 @@
 
 #include "TelaInventario.h"
 #include "TelaMenu.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
 
 void TelaInventario::exibir(SistemaPersonagem* jogadorAtual, bool mostrarPrecos) 
 {
 
   if (jogadorAtual == nullptr) return;
-    SimplificacoesAparencia::limparTela();
+    Aparencia::limparTela();
     
-    int largura = SimplificacoesAparencia::obterLarguraTerminal();
+    int largura = Aparencia::obterLarguraTerminal();
     std::vector<std::string> logoInventario = 
     {
       "  █████ ██████   █████ █████   █████ ██████████ ██████   █████ ███████████   █████████   ███████████   █████    ███████    ",
@@ -25,9 +25,9 @@ void TelaInventario::exibir(SistemaPersonagem* jogadorAtual, bool mostrarPrecos)
       " ░░░░░ ░░░░░    ░░░░░      ░░░      ░░░░░░░░░░ ░░░░░    ░░░░░    ░░░░░    ░░░░░   ░░░░░ ░░░░░   ░░░░░ ░░░░░    ░░░░░░░     "
     };
 
-    SimplificacoesAparencia::exibirLogoAscii(logoInventario, 121, Cor::AMARELO);
+    Aparencia::exibirLogoAscii(logoInventario, 121, Cor::AMARELO);
 
-    int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
+    int larguraDoTerminal = Aparencia::obterLarguraTerminal();
 
     Item* armaEquipada = jogadorAtual->obterArma();
     Item* escudoEquipado = jogadorAtual->obterEscudo();
@@ -81,19 +81,19 @@ void TelaInventario::exibir(SistemaPersonagem* jogadorAtual, bool mostrarPrecos)
     formatarAgrupamento("[ ESTOQUE ]", materiaisAgrupados, 'S', "G / un");
     formatarAgrupamento("[ ITENS DE MISSAO ]", missoesAgrupadas, 'M', "");
 
-    SimplificacoesAparencia::imprimirBlocoCentralizado(linhasParaImprimir);
+    Aparencia::imprimirBlocoCentralizado(linhasParaImprimir);
     
     std::cout << "\n";
-    SimplificacoesAparencia::imprimirLinhaDivisoria();
+    Aparencia::imprimirLinhaDivisoria();
 }
 
 void TelaInventario::exibirMenuInteracaoItem(Item* itemEncontrado)
 {
-    SimplificacoesAparencia::limparTela();
+    Aparencia::limparTela();
     TelaMenu::exibirLogoDoJogo("OPCOES DE ITEM");
     
     std::vector<std::string> linhas = {
-        "Item Selecionado: " + SimplificacoesAparencia::cor(Cor::CIANO) + itemEncontrado->obterNomeItem() + SimplificacoesAparencia::cor(Cor::RESET),
+        "Item Selecionado: " + Aparencia::cor(Cor::CIANO) + itemEncontrado->obterNomeItem() + Aparencia::cor(Cor::RESET),
         "",
         "[1] Usar / Equipar / Desequipar",
         "[2] Inspecionar Detalhes",
@@ -101,7 +101,7 @@ void TelaInventario::exibirMenuInteracaoItem(Item* itemEncontrado)
     };
 
     std::cout << "\n";
-    SimplificacoesAparencia::imprimirBlocoCentralizado(linhas);
+    Aparencia::imprimirBlocoCentralizado(linhas);
     std::cout << "\n";
-    SimplificacoesAparencia::exibirPrompt("Escolha: ");
+    Aparencia::exibirPrompt("Escolha: ");
 }

@@ -36,7 +36,7 @@
 #include "../Telas/TelaAtributos.h"
 #include "../Telas/TelaInventario.h"
 #include "../Telas/TelaMenu.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
 
 namespace {
 }
@@ -78,20 +78,20 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::menuPrincipal()
             while (!(std::cin >> escolhaSave) || escolhaSave < 0 || escolhaSave > static_cast<int>(saves.size())) { 
                 std::cin.clear(); 
                 std::cin.ignore(1000, '\n'); 
-                SimplificacoesAparencia::exibirPrompt("Opcao invalida. Escolha: "); 
+                Aparencia::exibirPrompt("Opcao invalida. Escolha: "); 
             }
             
             if (escolhaSave > 0 && escolhaSave <= (int)saves.size()) {
                 auto jogador = SistemaSave::carregarJogo(saves[escolhaSave - 1]);
                 if (jogador) {
                     std::cout << "\n";
-                    SimplificacoesAparencia::imprimirCentralizado("[SISTEMA]: Jogo carregado com sucesso!");
-                    SimplificacoesAparencia::aguardarEnter();
+                    Aparencia::imprimirCentralizado("[SISTEMA]: Jogo carregado com sucesso!");
+                    Aparencia::aguardarEnter();
                     return jogador;
                 } else {
                     std::cout << "\n";
-                    SimplificacoesAparencia::imprimirCentralizado("[ERRO]: Falha ao carregar o save!");
-                    SimplificacoesAparencia::aguardarEnter();
+                    Aparencia::imprimirCentralizado("[ERRO]: Falha ao carregar o save!");
+                    Aparencia::aguardarEnter();
                 }
             }
         } else if (escolha == "0") {
@@ -125,8 +125,8 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::iniciarCriacaoDeSistemaPerso
     personagemCriado->definirDificuldade(static_cast<DificuldadeJogo>(nivelDeDificuldadeEscolhido));
     std::cout << "\n";
     std::string textoFinal = "[SISTEMA]: Personagem criado com sucesso! Iniciando jornada...";
-    SimplificacoesAparencia::imprimirDigitando(SimplificacoesAparencia::espacosParaCentralizar(textoFinal.length()) + textoFinal + "\n", 35);
-    SimplificacoesAparencia::aguardarEnter();
+    Aparencia::imprimirDigitando(Aparencia::espacosParaCentralizar(textoFinal.length()) + textoFinal + "\n", 35);
+    Aparencia::aguardarEnter();
     return personagemCriado;
 }
 

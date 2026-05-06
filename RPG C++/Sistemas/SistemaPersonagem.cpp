@@ -9,7 +9,7 @@
 #include "../Classes/ClasseBase.h"
 #include "../Racas/RacaBase.h"
 #include "../Utilidades/Constantes.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
 
 std::unordered_set<SistemaPersonagem*> SistemaPersonagem::personagensAtivos;
 
@@ -281,7 +281,11 @@ int SistemaPersonagem::calcularDefesaBase(int danoBruto, int danoPerfurante) con
     return danoFinal + danoPerfurante;
 }
 
-int SistemaPersonagem::receberDano(int danoBruto, int danoPerfurante, int danoReduzidoParry, SistemaPersonagem* atacante, bool aplicarPassivas) {
+int SistemaPersonagem::receberDano(int danoBruto, int danoPerfurante, int danoReduzidoParry, SistemaPersonagem* atacante, bool aplicarPassivas, int& outDanoBloqueado, bool& outEscudoQuebrou, std::string& outNomeEscudoQuebrado) {
+    outDanoBloqueado = 0;
+    outEscudoQuebrou = false;
+    outNomeEscudoQuebrado = "";
+
     int danoFinal = calcularDefesaBase(danoBruto, danoPerfurante);
 
     for (auto& ef : efeitosAtivos) {
@@ -292,16 +296,14 @@ int SistemaPersonagem::receberDano(int danoBruto, int danoPerfurante, int danoRe
     if (danoFinal < 0) danoFinal = 0;
 
     if (combate.estaDefendendo && escudo != nullptr) {
-        int bloqueio = escudo->obterReducaoDanoFixaEscudo();
-        std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::CIANO) << ">> [DEFESA]: O escudo bloqueou " << bloqueio << " de dano!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-        SimplificacoesAparencia::registrarLogBatalha(">> [DEFESA]: O escudo bloqueou " + std::to_string(bloqueio) + " de dano!");
-        danoFinal -= bloqueio;
+        outDanoBloqueado = escudo->obterReducaoDanoFixaEscudo();
+        danoFinal -= outDanoBloqueado;
         if (danoFinal < 0) danoFinal = 0;
 
         escudo->reduzirDurabilidade(1);
         if (escudo->obterDurabilidadeAtualEscudo() <= 0) {
-            std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::FUNDO_VERMELHO) << "[!] ALERTA: O escudo " << escudo->obterNomeItem() << " foi DESTRUIDO em pedacos!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-            SimplificacoesAparencia::registrarLogBatalha("[!] ALERTA: O escudo " + escudo->obterNomeItem() + " foi DESTRUIDO em pedacos!");
+            outEscudoQuebrou = true;
+            outNomeEscudoQuebrado = escudo->obterNomeItem();
             mochila->removerItem(escudo);
             desequiparEscudo();
         }
@@ -350,10 +352,10 @@ void SistemaPersonagem::limparEfeitos() {
     cache_.sujo = true;
 }
 
-bool SistemaPersonagem::podeAgir() const {
+bool SistemaPersonagem::podeAgir(std::string& outMotivoIncapacidade) const {
     for (auto& ef : efeitosAtivos) {
         if (ef->impedeAcao()) {
-            std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::VERDE) << "[EFEITO]: " << nomePersonagem << " esta sob efeito de " << ef->obterNome() << " e nao pode agir neste turno!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+            outMotivoIncapacidade = ef->obterNome();
             return false;
         }
     }
@@ -380,7 +382,7 @@ void SistemaPersonagem::finalizarBatalha() {
     combate.vidaMaximaFixa = 0; 
     if (sistema.possuiRegeneracaoTroll && vidaAtual > 0 && vidaAtual < obterVidaMaxima()) {
         modificarVida(obterVidaMaxima());
-        std::cout << "\n" << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::VERDE) << "[SISTEMA]: Seu Orgao regenerador curou completamente suas feridas apos a batalha!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-        SimplificacoesAparencia::aguardarEnter();
+        std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE) << "[SISTEMA]: Seu Orgao regenerador curou completamente suas feridas apos a batalha!" << Aparencia::cor(Cor::RESET) << "\n";
+        Aparencia::aguardarEnter();
     }
 }

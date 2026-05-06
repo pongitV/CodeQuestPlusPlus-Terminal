@@ -7,7 +7,7 @@
 #include "ItemMissao.h"
 
 #include "../Sistemas/SistemaPersonagem.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
 
 #include <functional>
 #include <unordered_map>

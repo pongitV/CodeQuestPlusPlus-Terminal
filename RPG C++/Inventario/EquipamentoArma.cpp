@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "../Sistemas/SistemaPersonagem.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
 #include "../Utilidades/GeradorAleatorio.h"
 #include <functional>
 #include <unordered_map>
@@ -41,7 +41,7 @@ bool EquipamentoArma::podeSerEquipadoPor(SistemaPersonagem* personagem) const {
 
 void EquipamentoArma::exibirInspecao() const {
     std::vector<std::string> linhas;
-    linhas.push_back(SimplificacoesAparencia::cor(Cor::CIANO) + " === " + nome + " ===" + SimplificacoesAparencia::cor(Cor::RESET));
+    linhas.push_back(Aparencia::cor(Cor::CIANO) + " === " + nome + " ===" + Aparencia::cor(Cor::RESET));
     linhas.push_back(" > Tipo: Arma");
     linhas.push_back(" > Dano Fisico: " + std::to_string(danoFisico));
     linhas.push_back(" > Dano Magico: " + std::to_string(danoMagico));
@@ -65,11 +65,11 @@ void EquipamentoArma::exibirInspecao() const {
     linhas.push_back(" > Preco de Venda: " + std::to_string(precoVenda) + "G");
 
     std::cout << "\n";
-    SimplificacoesAparencia::imprimirCentralizado(linhas[0]);
+    Aparencia::imprimirCentralizado(linhas[0]);
     std::cout << "\n";
     
     std::vector<std::string> resto(linhas.begin() + 1, linhas.end());
-    SimplificacoesAparencia::imprimirBlocoCentralizado(resto);
+    Aparencia::imprimirBlocoCentralizado(resto);
 }
 
 std::string EquipamentoArma::obterInfoStatus() const {
@@ -95,7 +95,7 @@ void EquipamentoArma::aplicarEfeitoLentidao() { efeitoLentidao = true; }
 void EquipamentoArma::antesDeCausarDano(SistemaPersonagem* atacante, SistemaPersonagem* alvo) {
     if (temPropriedade(Propriedade::Penetrante) && !alvo->possuiEfeito(EfeitoID::QuebraResistencia)) {
         alvo->adicionarEfeito(std::make_unique<EfeitoQuebraResistencia>());
-        std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::CIANO) << ">> A arma de " << atacante->obterNome() << " ativou o po magico! O ataque enfraqueceu " << alvo->obterNome() << " ate o fim do combate!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+        std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::CIANO) << ">> A arma de " << atacante->obterNome() << " ativou o po magico! O ataque enfraqueceu " << alvo->obterNome() << " ate o fim do combate!" << Aparencia::cor(Cor::RESET) << "\n";
     }
 }
 
@@ -113,12 +113,12 @@ void EquipamentoArma::aoCausarDano(SistemaPersonagem* atacante, SistemaPersonage
     if (possuiEfeitoSangramento() && !alvo->possuiEfeito(EfeitoID::Sangramento)) {
         int danoSangramento = std::max(1, alvo->obterVidaMaxima() / 10);
         alvo->adicionarEfeito(std::make_unique<EfeitoSangramento>(3, danoSangramento));
-        std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::VERMELHO) << ">> " << alvo->obterNome() << " comecou a sangrar profundamente! (3 turnos)" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+        std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << ">> " << alvo->obterNome() << " comecou a sangrar profundamente! (3 turnos)" << Aparencia::cor(Cor::RESET) << "\n";
     }
 
     if (possuiEfeitoLentidao() && !alvo->possuiEfeito(EfeitoID::Lentidao)) {
         alvo->adicionarEfeito(std::make_unique<EfeitoLentidao>(3));
-        std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::MAGENTA) << ">> " << alvo->obterNome() << " foi coberto por gosma e sua destreza caiu pela metade! (3 turnos)" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+        std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::MAGENTA) << ">> " << alvo->obterNome() << " foi coberto por gosma e sua destreza caiu pela metade! (3 turnos)" << Aparencia::cor(Cor::RESET) << "\n";
     }
 }
 

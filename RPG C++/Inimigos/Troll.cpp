@@ -2,7 +2,7 @@
 #include <iostream>
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Inventario/FabricaItens.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
 #include "../Gerenciadores/GerenciadorDrops.h"
 
 std::string Troll::obterNomeRaca() const { return "Troll"; }

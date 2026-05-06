@@ -2,8 +2,9 @@
 #include <iostream>
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Inventario/FabricaItens.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
 #include "../Gerenciadores/GerenciadorDrops.h"
+#include "../Telas/TelaCombate.h"
 
 std::string AbominacaoFloresta::obterNomeRaca() const 
 { return "Abominacao da Floresta"; 
@@ -47,7 +48,9 @@ int AbominacaoFloresta::processarDanoOfensivo(int danoBase, SistemaPersonagem* a
             if (cura > 0)
             {
                 atacante->modificarVida(cura);
-                std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::VERDE) << "[PASSIVA]: Raizes Parasitas! A Abominacao absorveu " << cura << " de HP!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
+                std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::VERDE) + "[PASSIVA]: Raizes Parasitas! A Abominacao absorveu " + std::to_string(cura) + " de HP!" + Aparencia::cor(Cor::RESET) + "\n";
+                std::cout << msg;
+                TelaCombate::adicionarMensagemFixa(msg);
             }
         }
         if (atacante->obterVida() >= (vidaMax * 0.60))

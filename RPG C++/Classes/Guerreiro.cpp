@@ -4,7 +4,8 @@
 #include <memory>
 
 #include "../Inventario/FabricaItens.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
+#include "../Telas/TelaCombate.h"
 
 std::string Guerreiro::obterNomeClasse() const 
 { 
@@ -98,16 +99,16 @@ void Guerreiro::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::
 {
     int turnosRestantes = personagemUsuario->obterCooldown(HabilidadeID::Determinacao);
     if (turnosRestantes > 0) {
-        std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "[SISTEMA]: A habilidade " << obterNomeHabilidadeClasse() << " esta em recarga (" << turnosRestantes << " turnos)!\n";
-        SimplificacoesAparencia::registrarLogBatalha("[SISTEMA]: A habilidade " + obterNomeHabilidadeClasse() + " esta em recarga (" + std::to_string(turnosRestantes) + " turnos)!");
-        SimplificacoesAparencia::aguardarEnter();
+        std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: A habilidade " << obterNomeHabilidadeClasse() << " esta em recarga (" << turnosRestantes << " turnos)!\n";
+        Aparencia::registrarLogBatalha("[SISTEMA]: A habilidade " + obterNomeHabilidadeClasse() + " esta em recarga (" + std::to_string(turnosRestantes) + " turnos)!");
+        Aparencia::aguardarEnter();
         personagemUsuario->definirHabilidadeCancelada(true);
         return;
     }
     if (personagemUsuario->possuiEfeito(EfeitoID::GritoDeGuerra)) {
-        std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "[SISTEMA]: A habilidade " << obterNomeHabilidadeClasse() << " ja esta ativa!\n";
-        SimplificacoesAparencia::registrarLogBatalha("[SISTEMA]: A habilidade " + obterNomeHabilidadeClasse() + " ja esta ativa!");
-        SimplificacoesAparencia::aguardarEnter();
+        std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: A habilidade " << obterNomeHabilidadeClasse() << " ja esta ativa!\n";
+        Aparencia::registrarLogBatalha("[SISTEMA]: A habilidade " + obterNomeHabilidadeClasse() + " ja esta ativa!");
+        Aparencia::aguardarEnter();
         personagemUsuario->definirHabilidadeCancelada(true);
         return;
     }
@@ -118,8 +119,8 @@ void Guerreiro::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::
     personagemUsuario->adicionarEfeito(std::make_unique<EfeitoGritoGuerra>(2, bonusForca, bonusDestreza));
     personagemUsuario->definirCooldown(HabilidadeID::Determinacao, 4);
     
-    std::cout << SimplificacoesAparencia::margemCombate() << "[HABILIDADE]: Grito de guerra! Forca +" << bonusForca << " e Destreza +" << bonusDestreza << "!\n";
-    SimplificacoesAparencia::registrarLogBatalha("[HABILIDADE]: Grito de guerra! Forca +" + std::to_string(bonusForca) + " e Destreza +" + std::to_string(bonusDestreza) + "!");
+    std::cout << Aparencia::margemCombate() << "[HABILIDADE]: Grito de guerra! Forca +" << bonusForca << " e Destreza +" << bonusDestreza << "!\n";
+    Aparencia::registrarLogBatalha("[HABILIDADE]: Grito de guerra! Forca +" + std::to_string(bonusForca) + " e Destreza +" + std::to_string(bonusDestreza) + "!");
 }
 
 int Guerreiro::processarDanoPreAtaque(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, bool isAtacanteJogador, size_t qtdInimigos) {
@@ -129,16 +130,22 @@ int Guerreiro::processarDanoPreAtaque(SistemaPersonagem* atacante, SistemaPerson
         double percVida = (double)defensor->obterVida() / defensor->obterVidaMaxima();
         if (percVida < 0.10) {
             danoFinal = static_cast<int>(danoFinal * 1.30);
-            std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::VERMELHO) << "[Golpe Decisivo]: O inimigo esta nas ultimas! Dano aumentado em 30%!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-            SimplificacoesAparencia::registrarLogBatalha("[Golpe Decisivo]: O inimigo esta nas ultimas! Dano aumentado em 30%!");
+            std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::VERMELHO) + "[Golpe Decisivo]: O inimigo esta nas ultimas! Dano aumentado em 30%!" + Aparencia::cor(Cor::RESET) + "\n";
+            std::cout << msg;
+            TelaCombate::adicionarMensagemFixa(msg);
+            Aparencia::registrarLogBatalha("[Golpe Decisivo]: O inimigo esta nas ultimas! Dano aumentado em 30%!");
         } else if (percVida < 0.20) {
             danoFinal = static_cast<int>(danoFinal * 1.20);
-            std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::VERMELHO) << "[Golpe Decisivo]: O inimigo esta gravemente ferido! Dano aumentado em 20%!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-            SimplificacoesAparencia::registrarLogBatalha("[Golpe Decisivo]: O inimigo esta gravemente ferido! Dano aumentado em 20%!");
+            std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::VERMELHO) + "[Golpe Decisivo]: O inimigo esta gravemente ferido! Dano aumentado em 20%!" + Aparencia::cor(Cor::RESET) + "\n";
+            std::cout << msg;
+            TelaCombate::adicionarMensagemFixa(msg);
+            Aparencia::registrarLogBatalha("[Golpe Decisivo]: O inimigo esta gravemente ferido! Dano aumentado em 20%!");
         } else if (percVida < 0.30) {
             danoFinal = static_cast<int>(danoFinal * 1.10);
-            std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::VERMELHO) << "[Golpe Decisivo]: O inimigo esta ferido! Dano aumentado em 10%!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-            SimplificacoesAparencia::registrarLogBatalha("[Golpe Decisivo]: O inimigo esta ferido! Dano aumentado em 10%!");
+            std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::VERMELHO) + "[Golpe Decisivo]: O inimigo esta ferido! Dano aumentado em 10%!" + Aparencia::cor(Cor::RESET) + "\n";
+            std::cout << msg;
+            TelaCombate::adicionarMensagemFixa(msg);
+            Aparencia::registrarLogBatalha("[Golpe Decisivo]: O inimigo esta ferido! Dano aumentado em 10%!");
         }
     }
     

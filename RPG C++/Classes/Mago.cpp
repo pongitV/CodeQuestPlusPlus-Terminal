@@ -4,7 +4,8 @@
 #include <memory>
 
 #include "../Inventario/FabricaItens.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
+#include "../Telas/TelaCombate.h"
 
 std::string Mago::obterNomeClasse() const 
 {
@@ -97,9 +98,9 @@ void Mago::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::vecto
 {
     int turnosRestantes = personagemUsuario->obterCooldown(HabilidadeID::EstrategiaArcana);
     if (turnosRestantes > 0) {
-        std::cout << "\n" << SimplificacoesAparencia::margemCombate() << "[SISTEMA]: A habilidade " << obterNomeHabilidadeClasse() << " esta em recarga (" << turnosRestantes << " turnos)!\n";
-        SimplificacoesAparencia::registrarLogBatalha("[SISTEMA]: A habilidade " + obterNomeHabilidadeClasse() + " esta em recarga (" + std::to_string(turnosRestantes) + " turnos)!");
-        SimplificacoesAparencia::aguardarEnter();
+        std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: A habilidade " << obterNomeHabilidadeClasse() << " esta em recarga (" << turnosRestantes << " turnos)!\n";
+        Aparencia::registrarLogBatalha("[SISTEMA]: A habilidade " + obterNomeHabilidadeClasse() + " esta em recarga (" + std::to_string(turnosRestantes) + " turnos)!");
+        Aparencia::aguardarEnter();
         personagemUsuario->definirHabilidadeCancelada(true);
         return;
     }
@@ -111,11 +112,11 @@ void Mago::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::vecto
     Item* escudo = personagemUsuario->obterEscudo();
     if (escudo) {
         personagemUsuario->definirDefendendo(true);
-        std::cout << SimplificacoesAparencia::margemCombate() << "[HABILIDADE]: Canalizacao arcana! Voce se defende com " << escudo->obterNomeItem() << " e prepara um ataque devastador (2x Dano)!\n";
-        SimplificacoesAparencia::registrarLogBatalha("[HABILIDADE]: Canalizacao arcana! Voce se defende com " + escudo->obterNomeItem() + " e prepara um ataque devastador (2x Dano)!");
+        std::cout << Aparencia::margemCombate() << "[HABILIDADE]: Canalizacao arcana! Voce se defende com " << escudo->obterNomeItem() << " e prepara um ataque devastador (2x Dano)!\n";
+        Aparencia::registrarLogBatalha("[HABILIDADE]: Canalizacao arcana! Voce se defende com " + escudo->obterNomeItem() + " e prepara um ataque devastador (2x Dano)!");
     } else {
-        std::cout << SimplificacoesAparencia::margemCombate() << "[HABILIDADE]: Canalizacao arcana! Voce foca sua energia para um ataque devastador (2x Dano) no proximo turno!\n";
-        SimplificacoesAparencia::registrarLogBatalha("[HABILIDADE]: Canalizacao arcana! Voce foca sua energia para um ataque devastador (2x Dano) no proximo turno!");
+        std::cout << Aparencia::margemCombate() << "[HABILIDADE]: Canalizacao arcana! Voce foca sua energia para um ataque devastador (2x Dano) no proximo turno!\n";
+        Aparencia::registrarLogBatalha("[HABILIDADE]: Canalizacao arcana! Voce foca sua energia para um ataque devastador (2x Dano) no proximo turno!");
     }
 }
 
@@ -123,8 +124,10 @@ int Mago::processarDanoPreAtaque(SistemaPersonagem* atacante, SistemaPersonagem*
     if (defensor == nullptr) return danoBase;
     if (!isAtacanteJogador || qtdInimigos <= 1) {
         int danoAumentado = static_cast<int>(danoBase * 1.25);
-        std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::MAGENTA) << "[Foco Arcano]: Dano concentrado aumentado em 25%!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-        SimplificacoesAparencia::registrarLogBatalha("[Foco Arcano]: Dano concentrado aumentado em 25%!");
+        std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::MAGENTA) + "[Foco Arcano]: Dano concentrado aumentado em 25%!" + Aparencia::cor(Cor::RESET) + "\n";
+        std::cout << msg;
+        TelaCombate::adicionarMensagemFixa(msg);
+        Aparencia::registrarLogBatalha("[Foco Arcano]: Dano concentrado aumentado em 25%!");
         return danoAumentado;
     }
     return danoBase;
@@ -134,8 +137,10 @@ void Mago::processarDanoPosAtaque(SistemaPersonagem* atacante, SistemaPersonagem
     if (isAtacanteJogador && !isArea && alvoAtual != defensorPrincipal && alvoAtual->obterVida() > 0) {
         if (!ativouPassiva) {
             int danoAreaMsg = static_cast<int>(danoBase * 0.25);
-            std::cout << SimplificacoesAparencia::margemCombate() << SimplificacoesAparencia::cor(Cor::MAGENTA) << "[Foco Arcano]: A magia ressoa, causando " << danoAreaMsg << " de dano aos inimigos proximos!" << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
-            SimplificacoesAparencia::registrarLogBatalha("[Foco Arcano]: A magia ressoa, causando " + std::to_string(danoAreaMsg) + " de dano aos inimigos proximos!");
+            std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::MAGENTA) + "[Foco Arcano]: A magia ressoa, causando " + std::to_string(danoAreaMsg) + " de dano aos inimigos proximos!" + Aparencia::cor(Cor::RESET) + "\n";
+            std::cout << msg;
+            TelaCombate::adicionarMensagemFixa(msg);
+            Aparencia::registrarLogBatalha("[Foco Arcano]: A magia ressoa, causando " + std::to_string(danoAreaMsg) + " de dano aos inimigos proximos!");
             ativouPassiva = true;
         }
         int danoArea = static_cast<int>(danoBase * 0.25);

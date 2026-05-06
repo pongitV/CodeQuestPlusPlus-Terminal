@@ -9,7 +9,7 @@
 #include "TelaBestiario.h"
 #include "../Sistemas/SistemaBestiario.h"
 #include "../Sistemas/SistemaPersonagem.h"
-#include "../Utilidades/SimplificacoesAparencia.h"
+#include "../Utilidades/Aparencia.h"
 
 static const std::vector<std::string> logoBestiario = {
     " ███████████  ██████████  █████████  ███████████ █████   █████████   ███████████   █████    ███████   ",
@@ -23,14 +23,14 @@ static const std::vector<std::string> logoBestiario = {
 };
 
 static void exibirCabecalho(int largura, const std::string& tituloSecundario = "") {
-    SimplificacoesAparencia::limparTela();
-    SimplificacoesAparencia::exibirLogoAscii(logoBestiario, 101, Cor::VERDE, tituloSecundario);
+    Aparencia::limparTela();
+    Aparencia::exibirLogoAscii(logoBestiario, 101, Cor::VERDE, tituloSecundario);
 }
 
 void TelaBestiario::exibirLista(SistemaPersonagem* jogadorAtual) {
     if (jogadorAtual == nullptr) return;
 
-    int largura = SimplificacoesAparencia::obterLarguraTerminal();
+    int largura = Aparencia::obterLarguraTerminal();
     SistemaBestiario& bestiario = SistemaBestiario::instancia();
     const auto& inimigos = bestiario.obterInimigosOrdenadosPorDificuldade();
 
@@ -40,10 +40,10 @@ void TelaBestiario::exibirLista(SistemaPersonagem* jogadorAtual) {
 
     if (descobertos.empty()) {
         exibirCabecalho(largura);
-        SimplificacoesAparencia::imprimirCentralizado("Nenhum inimigo descoberto ainda.");
-        SimplificacoesAparencia::imprimirCentralizado("Explore e combata para desbloquear entries.");
+        Aparencia::imprimirCentralizado("Nenhum inimigo descoberto ainda.");
+        Aparencia::imprimirCentralizado("Explore e combata para desbloquear entries.");
         std::cout << "\n";
-        SimplificacoesAparencia::exibirPrompt("[0] Voltar\n\nEscolha: ");
+        Aparencia::exibirPrompt("[0] Voltar\n\nEscolha: ");
         std::string escolha;
         std::cin >> escolha;
         return;
@@ -57,13 +57,13 @@ void TelaBestiario::exibirLista(SistemaPersonagem* jogadorAtual) {
     while (true) {
         exibirCabecalho(largura);
 
-        SimplificacoesAparencia::imprimirCentralizado("Encontrados: " + std::to_string(totalDescobertos) + "/" + std::to_string(inimigos.size()));
+        Aparencia::imprimirCentralizado("Encontrados: " + std::to_string(totalDescobertos) + "/" + std::to_string(inimigos.size()));
         std::cout << "\n";
 
         int indiceInicial = paginaAtual * quantidadeMaximaPorPagina;
         int indiceFinal = std::min(indiceInicial + quantidadeMaximaPorPagina, totalDescobertos);
 
-        SimplificacoesAparencia::imprimirCentralizado("--- INIMIGOS ---");
+        Aparencia::imprimirCentralizado("--- INIMIGOS ---");
         std::cout << "\n";
 
         for (int i = indiceInicial; i < indiceFinal; ++i) {
@@ -72,23 +72,23 @@ void TelaBestiario::exibirLista(SistemaPersonagem* jogadorAtual) {
             if (!info) continue;
 
             std::string linhaInimigo = "[" + std::to_string(i + 1) + "] " + info->nome + " (" + info->mapa + " - " + info->habitat + ")";
-            SimplificacoesAparencia::imprimirCentralizado(linhaInimigo);
+            Aparencia::imprimirCentralizado(linhaInimigo);
         }
 
         std::cout << "\n";
         if (totalDePaginas > 1) {
-            SimplificacoesAparencia::imprimirCentralizado("[P] Pagina " + std::to_string(paginaAtual + 1) + "/" + std::to_string(totalDePaginas), SimplificacoesAparencia::cor(Cor::CIANO));
+            Aparencia::imprimirCentralizado("[P] Pagina " + std::to_string(paginaAtual + 1) + "/" + std::to_string(totalDePaginas), Aparencia::cor(Cor::CIANO));
             std::cout << "\n";
         }
 
-        SimplificacoesAparencia::exibirPrompt("Escolha um numero (1-" + std::to_string(indiceFinal) + "), [P] pagina, [0] Voltar: ");
+        Aparencia::exibirPrompt("Escolha um numero (1-" + std::to_string(indiceFinal) + "), [P] pagina, [0] Voltar: ");
         std::string entradaDigitadaPeloJogador;
         std::cin >> entradaDigitadaPeloJogador;
 
         while (std::cin.fail()) {
             std::cin.clear();
             std::cin.ignore(1000, '\n');
-            SimplificacoesAparencia::exibirPrompt("Entrada invalida. Escolha um numero (1-" + std::to_string(indiceFinal) + "), [P] pagina, [0] Voltar: ");
+            Aparencia::exibirPrompt("Entrada invalida. Escolha um numero (1-" + std::to_string(indiceFinal) + "), [P] pagina, [0] Voltar: ");
             std::cin >> entradaDigitadaPeloJogador;
         }
 
@@ -115,7 +115,7 @@ void TelaBestiario::exibirLista(SistemaPersonagem* jogadorAtual) {
 void TelaBestiario::exibirFicha(SistemaPersonagem* jogadorAtual, const std::string& nomeSelecionado, int /*indiceDescoberto*/, const std::vector<std::string>& /*descobertos*/) {
     if (jogadorAtual == nullptr) return;
 
-    int largura = SimplificacoesAparencia::obterLarguraTerminal();
+    int largura = Aparencia::obterLarguraTerminal();
     SistemaBestiario& bestiario = SistemaBestiario::instancia();
 
     const SistemaBestiarioEnemyInfo* info = bestiario.obterInfo(nomeSelecionado);
@@ -129,11 +129,11 @@ void TelaBestiario::exibirFicha(SistemaPersonagem* jogadorAtual, const std::stri
         if (deveExibirConteudo) {
             funcaoParaExibirConteudo();
         } else {
-            SimplificacoesAparencia::imprimirCentralizado("???", SimplificacoesAparencia::cor(Cor::CINZA));
-            SimplificacoesAparencia::imprimirCentralizado(textoCasoOculto, SimplificacoesAparencia::cor(Cor::CINZA));
+            Aparencia::imprimirCentralizado("???", Aparencia::cor(Cor::CINZA));
+            Aparencia::imprimirCentralizado(textoCasoOculto, Aparencia::cor(Cor::CINZA));
         }
         std::cout << "\n";
-        SimplificacoesAparencia::imprimirLinhaDivisoria('-');
+        Aparencia::imprimirLinhaDivisoria('-');
         std::cout << "\n";
     };
 
@@ -142,22 +142,22 @@ void TelaBestiario::exibirFicha(SistemaPersonagem* jogadorAtual, const std::stri
 
         // Aparencia
         imprimirSecaoBase("APARENCIA", visto, [&]() {
-            SimplificacoesAparencia::imprimirCentralizado(info->nome);
+            Aparencia::imprimirCentralizado(info->nome);
             std::cout << "\n";
-            SimplificacoesAparencia::imprimirCentralizadoMultilinha(info->aparencia);
+            Aparencia::imprimirCentralizadoMultilinha(info->aparencia);
             std::cout << "\n";
-            SimplificacoesAparencia::imprimirCentralizado("Lore: " + info->lore);
+            Aparencia::imprimirCentralizado("Lore: " + info->lore);
             std::cout << "\n";
-            SimplificacoesAparencia::imprimirCentralizado("Fato Curioso: " + info->fatoCurioso);
+            Aparencia::imprimirCentralizado("Fato Curioso: " + info->fatoCurioso);
         }, "(Nunca viu este inimigo em combate)");
 
         // Atributos
         imprimirSecaoBase("ATRIBUTOS", derrotado, [&]() {
-            SimplificacoesAparencia::imprimirCentralizadoMultilinha(info->atributosTexto);
+            Aparencia::imprimirCentralizadoMultilinha(info->atributosTexto);
         }, "(Derrote o inimigo para descobrir os atributos)");
 
         // Habilidades
-        SimplificacoesAparencia::imprimirCentralizado("=== HABILIDADES ===");
+        Aparencia::imprimirCentralizado("=== HABILIDADES ===");
         std::cout << "\n";
         
         auto processarHabilidade = [&](const std::string& hab, bool checarDescoberta) {
@@ -165,39 +165,39 @@ void TelaBestiario::exibirFicha(SistemaPersonagem* jogadorAtual, const std::stri
             std::string nomeHab = (pos != std::string::npos) ? hab.substr(0, pos) : hab;
 
             if (!checarDescoberta || bestiario.jaViuHabilidade(nomeSelecionado, nomeHab)) {
-                SimplificacoesAparencia::imprimirCentralizado("  - " + hab);
+                Aparencia::imprimirCentralizado("  - " + hab);
                 return true;
             }
             return false;
         };
 
-        SimplificacoesAparencia::imprimirCentralizado("Ativas:");
+        Aparencia::imprimirCentralizado("Ativas:");
         if (info->habilidadesAtivas.empty() || info->habilidadesAtivas[0].find("Nenhuma") != std::string::npos) {
-            SimplificacoesAparencia::imprimirCentralizado("  Nenhuma", SimplificacoesAparencia::cor(Cor::CINZA));
+            Aparencia::imprimirCentralizado("  Nenhuma", Aparencia::cor(Cor::CINZA));
         } else {
             bool temAtivas = false;
             for (const auto& hab : info->habilidadesAtivas) {
                 if (processarHabilidade(hab, true)) temAtivas = true;
             }
             if (!temAtivas) {
-                SimplificacoesAparencia::imprimirCentralizado("  ???", SimplificacoesAparencia::cor(Cor::CINZA));
-                SimplificacoesAparencia::imprimirCentralizado("(Deixe uma habilidade ativa te acertar)", SimplificacoesAparencia::cor(Cor::CINZA));
+                Aparencia::imprimirCentralizado("  ???", Aparencia::cor(Cor::CINZA));
+                Aparencia::imprimirCentralizado("(Deixe uma habilidade ativa te acertar)", Aparencia::cor(Cor::CINZA));
             }
         }
         std::cout << "\n";
 
-        SimplificacoesAparencia::imprimirCentralizado("Passivas:");
+        Aparencia::imprimirCentralizado("Passivas:");
         if (info->habilidadePassiva.empty() || info->habilidadePassiva.find("Nenhuma") != std::string::npos) {
-            SimplificacoesAparencia::imprimirCentralizado("  Nenhuma", SimplificacoesAparencia::cor(Cor::CINZA));
+            Aparencia::imprimirCentralizado("  Nenhuma", Aparencia::cor(Cor::CINZA));
         } else {
             bool temPassivas = derrotado && processarHabilidade(info->habilidadePassiva, false);
             if (!temPassivas) {
-                SimplificacoesAparencia::imprimirCentralizado("  ???", SimplificacoesAparencia::cor(Cor::CINZA));
-                SimplificacoesAparencia::imprimirCentralizado("(Derrote o inimigo para descobrir as passivas)", SimplificacoesAparencia::cor(Cor::CINZA));
+                Aparencia::imprimirCentralizado("  ???", Aparencia::cor(Cor::CINZA));
+                Aparencia::imprimirCentralizado("(Derrote o inimigo para descobrir as passivas)", Aparencia::cor(Cor::CINZA));
             }
         }
         std::cout << "\n";
-        SimplificacoesAparencia::imprimirLinhaDivisoria('-');
+        Aparencia::imprimirLinhaDivisoria('-');
         std::cout << "\n";
 
         // Drops
@@ -205,17 +205,17 @@ void TelaBestiario::exibirFicha(SistemaPersonagem* jogadorAtual, const std::stri
             bool temDrops = false;
             for (const auto& drop : info->drops) {
                 if (bestiario.jaColetouDrop(nomeSelecionado, drop)) {
-                    SimplificacoesAparencia::imprimirCentralizado("  - " + drop);
+                    Aparencia::imprimirCentralizado("  - " + drop);
                     temDrops = true;
                 }
             }
             if (!temDrops) {
-                SimplificacoesAparencia::imprimirCentralizado("  ???", SimplificacoesAparencia::cor(Cor::CINZA));
-                SimplificacoesAparencia::imprimirCentralizado("(Colete drops para desbloquear)", SimplificacoesAparencia::cor(Cor::CINZA));
+                Aparencia::imprimirCentralizado("  ???", Aparencia::cor(Cor::CINZA));
+                Aparencia::imprimirCentralizado("(Colete drops para desbloquear)", Aparencia::cor(Cor::CINZA));
             }
         }, "");
 
-        SimplificacoesAparencia::exibirPrompt("[0] Retornar a lista\n\nEscolha: ");
+        Aparencia::exibirPrompt("[0] Retornar a lista\n\nEscolha: ");
         std::string escolha;
         std::cin >> escolha;
         if (escolha == "0") break;
