@@ -7,9 +7,9 @@ std::string Ork::obterNomeRaca() const
     return "Ork";
 }
 
-std::vector<std::string> Ork::obterAparenciaRaca() const 
+const std::vector<std::string>& Ork::obterAparenciaRaca() const 
 {
-    return 
+    static const std::vector<std::string> aparencia = 
     {
         "                      #%=::@$$@#                          ",
         "                  +@#$)%%%#@@@*#+:                        ",
@@ -55,6 +55,7 @@ std::vector<std::string> Ork::obterAparenciaRaca() const
         "                                     -:=::%@%@#%%%%#.     ",
         "                                      ::::-#%%%%=%%       "
     };
+    return aparencia;
 }
 
 Atributos Ork::obterAtributosRaca() const

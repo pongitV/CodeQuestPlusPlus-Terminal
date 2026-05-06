@@ -89,7 +89,7 @@ namespace {
 
     void exibirDialogoCavaleiro(const std::string& titulo, const std::vector<std::string>& textoEsquerda, int larguraTerminalAtual) {
         SimplificacoesAparencia::limparTela();
-        TelaMenu::exibirLogoDoJogo(titulo);
+        SimplificacoesAparencia::exibirCabecalho(titulo, Cor::CIANO);
         int maxLinhas = std::max(textoEsquerda.size(), arteCavaleiro.size());
         int larguraInfo = 55;
         int recuo = std::max(0, (larguraTerminalAtual - (larguraInfo + 40)) / 2);

@@ -1,6 +1,7 @@
 #include "EquipamentoArmadura.h"
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
+#include <vector>
 #include <functional>
 #include <unordered_map>
 
@@ -27,21 +28,34 @@ std::string EquipamentoArmadura::obterMensagemRequisito() const {
 }
 
 void EquipamentoArmadura::exibirInspecao() const {
-    std::cout << "\n" << SimplificacoesAparencia::cor(Cor::CIANO) << " === " << nome << " ===" << SimplificacoesAparencia::cor(Cor::RESET) << "\n\n";
-    std::cout << " > Tipo: Armadura\n";
-    std::cout << " > Defesa Fixa: " << reducaoFixa << " (Reduz dano recebido permanentemente)\n";
-    std::cout << " > Requisitos:\n";
+    std::vector<std::string> linhas;
+    linhas.push_back(SimplificacoesAparencia::cor(Cor::CIANO) + " === " + nome + " ===" + SimplificacoesAparencia::cor(Cor::RESET));
+    linhas.push_back(" > Tipo: Armadura");
+    linhas.push_back(" > Defesa Fixa: " + std::to_string(reducaoFixa) + " (Reduz dano recebido permanentemente)");
+    linhas.push_back(" > Requisitos:");
     bool hasReq = false;
-    if (reqResistencia > 0) { std::cout << "   - Resistencia: " << reqResistencia << "\n"; hasReq = true; }
-    if (reqConstituicao > 0) { std::cout << "   - Constituicao: " << reqConstituicao << "\n"; hasReq = true; }
-    if (!hasReq) std::cout << "   - Nenhum requisito.\n";
+    if (reqResistencia > 0) { linhas.push_back("   - Resistencia: " + std::to_string(reqResistencia)); hasReq = true; }
+    if (reqConstituicao > 0) { linhas.push_back("   - Constituicao: " + std::to_string(reqConstituicao)); hasReq = true; }
+    if (!hasReq) linhas.push_back("   - Nenhum requisito.");
     
     if (reducaoFixa / 3 > 0) {
-        std::cout << " > Penalidade: -" << (reducaoFixa / 3) << " Destreza\n";
+        linhas.push_back(" > Penalidade: -" + std::to_string(reducaoFixa / 3) + " Destreza");
     } else {
-        std::cout << " > Penalidade: Nenhuma\n";
+        linhas.push_back(" > Penalidade: Nenhuma");
     }
-    std::cout << " > Preco de Venda: " << precoVenda << "G\n";
+    linhas.push_back(" > Preco de Venda: " + std::to_string(precoVenda) + "G");
+
+    std::cout << "\n";
+    SimplificacoesAparencia::imprimirCentralizado(linhas[0]);
+    std::cout << "\n";
+    
+    std::vector<std::string> resto(linhas.begin() + 1, linhas.end());
+    int maxLen = 0;
+    for (const auto& l : resto) {
+        int len = SimplificacoesAparencia::removerCoresANSI(l).length();
+        if (len > maxLen) maxLen = len;
+    }
+    SimplificacoesAparencia::imprimirCentralizadoMultilinha(resto, maxLen);
 }
 
 std::string EquipamentoArmadura::obterInfoStatus() const {

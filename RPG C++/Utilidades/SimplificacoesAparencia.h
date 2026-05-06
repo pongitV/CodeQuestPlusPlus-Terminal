@@ -31,12 +31,17 @@ public:
     static std::string cor(Cor estilo, Cor codigo);
 
     static void maximizarJanelaTerminal();
+    static void ocultarCursor();
     static void limparTela();
     static void aguardarEnter();
     static int obterLarguraTerminal();
+    static int obterAlturaTerminal();
+    static void moverCursor(int x, int y);
+    static int obterPosicaoCursorY();
     
     static std::string removerCoresANSI(const std::string& texto);
     static void imprimirCentralizado(const std::string& texto, const std::string& corAnsi = "");
     static void imprimirCentralizadoMultilinha(const std::vector<std::string>& linhas, int larguraVisual = 0, const std::string& corAnsi = "");
     static void imprimirDigitando(const std::string& texto, int atrasoMs);
+    static void exibirCabecalho(const std::string& titulo, Cor corDoCabecalho = Cor::BRANCO);
 };

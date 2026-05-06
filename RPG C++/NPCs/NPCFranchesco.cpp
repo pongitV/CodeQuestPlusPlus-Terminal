@@ -70,7 +70,7 @@ void NPCFranchesco::interagir(SistemaPersonagem* jogadorAtual)
 
     do {
         SimplificacoesAparencia::limparTela();
-        TelaMenu::exibirLogoDoJogo("LOJA AMBULANTE");
+        SimplificacoesAparencia::exibirCabecalho("LOJA AMBULANTE", Cor::AMARELO);
         
         int espacosMsg = (larguraDoTerminal - 55) / 2;
         std::string margemMsg(espacosMsg > 0 ? espacosMsg : 0, ' ');
@@ -131,7 +131,7 @@ namespace {
         std::string opcaoCompra;
         do {
             SimplificacoesAparencia::limparTela();
-            TelaMenu::exibirLogoDoJogo("LOJA - POCOES");
+            SimplificacoesAparencia::exibirCabecalho("LOJA - POCOES", Cor::AMARELO);
             std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
 
             std::cout << margemMsg << "[1] Pocao de Cura (30%VM)                          - 10G\n";
@@ -159,7 +159,7 @@ namespace {
         std::string opcaoCompra;
         do {
             SimplificacoesAparencia::limparTela();
-            TelaMenu::exibirLogoDoJogo("LOJA - TALISMAS");
+            SimplificacoesAparencia::exibirCabecalho("LOJA - TALISMAS", Cor::AMARELO);
             std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
 
             std::cout << margemMsg << "[1] Talisma do Urso (+5 Forca | -5 Int)             - 200G\n";
@@ -200,7 +200,7 @@ namespace {
         std::string opcaoCompra;
         do {
             SimplificacoesAparencia::limparTela();
-            TelaMenu::exibirLogoDoJogo("LOJA - IGUARIAS");
+            SimplificacoesAparencia::exibirCabecalho("LOJA - IGUARIAS", Cor::AMARELO);
             std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
 
             std::cout << margemMsg << "[1] Dispositivo de teclas de linguagem desconhecida - 1000G\n";

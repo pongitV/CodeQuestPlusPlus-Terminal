@@ -69,7 +69,7 @@ void NPCMorgana::interagir(SistemaPersonagem* jogadorAtual)
 
     do {
         SimplificacoesAparencia::limparTela();
-        TelaMenu::exibirLogoDoJogo("CABANA DA BRUXA");
+        SimplificacoesAparencia::exibirCabecalho("CABANA DA BRUXA", Cor::VERDE);
         
         int espacosMsg = (larguraDoTerminal - 55) / 2;
         std::string margemMsg(espacosMsg > 0 ? espacosMsg : 0, ' ');
@@ -134,7 +134,7 @@ namespace {
         std::string opcaoEncantar;
         do {
             SimplificacoesAparencia::limparTela();
-            TelaMenu::exibirLogoDoJogo(isUniversal ? "CABANA - ENCANTOS UNIVERSAIS" : "CABANA - ENCANTOS ESPECIFICOS");
+            SimplificacoesAparencia::exibirCabecalho(isUniversal ? "CABANA - ENCANTOS UNIVERSAIS" : "CABANA - ENCANTOS ESPECIFICOS", Cor::VERDE);
             std::cout << "\n" << margemMsg << "Escolha um encantamento:\n\n";
             
             if (isUniversal) {
@@ -240,7 +240,7 @@ namespace {
                 }
                 
                 SimplificacoesAparencia::limparTela();
-                TelaMenu::exibirLogoDoJogo("ENCANTAMENTO SUCESSO");
+                SimplificacoesAparencia::exibirCabecalho("ENCANTAMENTO SUCESSO", Cor::VERDE);
                 std::vector<std::string> arteCaldeirao = { 
                     "                                         ",
                     "⠀⠀⣤⣤⣤⣀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣠⣤⣤⡀⠀   ",
@@ -274,7 +274,7 @@ namespace {
         std::string opcaoCompra;
         do {
             SimplificacoesAparencia::limparTela();
-            TelaMenu::exibirLogoDoJogo(titulo);
+            SimplificacoesAparencia::exibirCabecalho(titulo, Cor::VERDE);
             std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
 
             if (isBuff) {
@@ -321,7 +321,7 @@ namespace {
             jogadorAtual->desbloquearLabirinto();
             
             SimplificacoesAparencia::limparTela();
-            TelaMenu::exibirLogoDoJogo("MISSAO CONCLUIDA");
+            SimplificacoesAparencia::exibirCabecalho("MISSAO CONCLUIDA", Cor::VERDE);
             std::cout << "\n" << margemMsg << "[Morgana]: Ah, perfeitos! Estes coracoes pulsam com uma magia ancestral.\n";
             std::cout << margemMsg << "[Morgana]: Como recompensa, revelarei um segredo... Atrás de mim, ha uma passagem secreta.\n";
             std::cout << margemMsg << "[Morgana]: Use a entrada [^L] para explorar o meu Labirinto Subterraneo.\n";
@@ -329,7 +329,7 @@ namespace {
         }
         else {
             SimplificacoesAparencia::limparTela();
-            TelaMenu::exibirLogoDoJogo("MISSAO");
+            SimplificacoesAparencia::exibirCabecalho("MISSAO", Cor::VERDE);
             std::cout << "\n" << margemMsg << "[Morgana]: Voce ainda nao possui os 3 Coracoes da floresta que eu pedi.\n";
             std::cout << margemMsg << "[Morgana]: (Voce possui: " << qtdCoracoes << "/3)\n";
             std::cout << margemMsg << "[Morgana]: Eles sao dropados por Abominacoes no Coracao da Arvore.\n";

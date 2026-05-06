@@ -7,9 +7,9 @@ std::string Humano::obterNomeRaca() const
     return "Humano";
 }
 
-std::vector<std::string> Humano::obterAparenciaRaca() const 
+const std::vector<std::string>& Humano::obterAparenciaRaca() const 
 {
-    return 
+    static const std::vector<std::string> aparencia = 
     {
         "                        @%%#                     ",
         "                       ##@%@#=                   ",
@@ -54,6 +54,7 @@ std::vector<std::string> Humano::obterAparenciaRaca() const
         "           @@%###-        =##*+                  ",
         "         %#@@@:.           ##@@                  "
     };
+    return aparencia;
 }
 
 Atributos Humano::obterAtributosRaca() const

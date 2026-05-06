@@ -4,6 +4,7 @@
 #include "../Inventario/FabricaItens.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
 #include "../Utilidades/GeradorAleatorio.h"
+#include "../Gerenciadores/GerenciadorDrops.h"
 #include <memory>
 
 std::string Fada::obterNomeRaca() const { return "Fada"; }

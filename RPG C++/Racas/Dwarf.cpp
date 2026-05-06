@@ -9,9 +9,9 @@ std::string Dwarf::obterNomeRaca() const
     return "Dwarf";
 }
 
-std::vector<std::string> Dwarf::obterAparenciaRaca() const 
+const std::vector<std::string>& Dwarf::obterAparenciaRaca() const 
 {
-    return 
+    static const std::vector<std::string> aparencia = 
     {
         "                     =%%#*#%                   ",
         "                   .%%%#**#%%=                 ",
@@ -56,6 +56,7 @@ std::vector<std::string> Dwarf::obterAparenciaRaca() const
         "          =#:***** .:        %*##*+*##**       ",
         "                              =******%.=       "
     };
+    return aparencia;
 }
 
 Atributos Dwarf::obterAtributosRaca() const

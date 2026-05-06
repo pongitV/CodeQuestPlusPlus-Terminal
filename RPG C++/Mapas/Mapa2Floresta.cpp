@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <vector>
-#include <windows.h>
 #include <memory>
 #include <utility>
 #include <functional>
@@ -208,7 +207,7 @@ namespace {
         void processar(ContextoInteracaoFloresta& ctx) override {
             if (ctx.self->tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") {
                 SimplificacoesAparencia::limparTela();
-            TelaMenu::exibirLogoDoJogo("TESOURO ESCONDIDO");
+                SimplificacoesAparencia::exibirCabecalho("TESOURO ESCONDIDO", Cor::VERDE);
                 int mE = (ctx.larguraDoTerminal - 40) / 2;
                 std::string margem(mE > 0 ? mE : 0, ' ');
                 std::cout << "\n" << margem << "[!] Voce encontrou um Baú ancestral!\n";
@@ -282,7 +281,7 @@ namespace {
             else if (nextCell == 'L' && ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 if (!ctx.self->jogadorAtual->obterLabirintoDesbloqueado()) {
                     SimplificacoesAparencia::limparTela();
-                    TelaMenu::exibirLogoDoJogo("PASSAGEM BLOQUEADA");
+                    SimplificacoesAparencia::exibirCabecalho("PASSAGEM BLOQUEADA", Cor::VERDE);
                     int espacosM = (ctx.larguraDoTerminal - 60) / 2;
                     std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: A passagem esta selada por magia. Fale com Morgana.\n";
                     SimplificacoesAparencia::aguardarEnter();
@@ -321,6 +320,7 @@ namespace {
     " '===================================================================================================' "
                     };
                     ctx.self->labirintoJaFoiVisitado = true;
+                    ControleDeMapa::padronizarTamanhoDoMapa(ctx.self->matrizDoMapaAtual);
                 } else {
                     ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaDoLabirintoSalva;
                 }
@@ -357,7 +357,7 @@ namespace {
             }
             else if (nextCell == 'E' && ctx.self->tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") {
                 SimplificacoesAparencia::limparTela();
-                TelaMenu::exibirLogoDoJogo("FIM DO LABIRINTO");
+                SimplificacoesAparencia::exibirCabecalho("FIM DO LABIRINTO", Cor::VERDE);
                 int espacosM = (ctx.larguraDoTerminal - 60) / 2;
                 std::string margem(espacosM > 0 ? espacosM : 0, ' ');
                 
@@ -457,6 +457,7 @@ namespace {
                         ctx.self->matrizDoMapaDoLabirintoSalva = ctx.self->matrizDoMapaAtual;
                         if (!ctx.self->salaDoChefeJaFoiVisitada) {
                             ctx.self->matrizDoMapaAtual = obterMapaSalaDoChefe();
+                            ControleDeMapa::padronizarTamanhoDoMapa(ctx.self->matrizDoMapaAtual);
                             ctx.self->salaDoChefeJaFoiVisitada = true;
                         } else {
                             ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaSalaDoChefeSalva;
@@ -502,48 +503,43 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
 {
     inicializarInteracoes();
 
-    HANDLE manipuladorDoTerminal = GetStdHandle(STD_OUTPUT_HANDLE);
-    CONSOLE_CURSOR_INFO informacoesDoCursor;
-    informacoesDoCursor.dwSize = 100;
-    informacoesDoCursor.bVisible = FALSE;
-    SetConsoleCursorInfo(manipuladorDoTerminal, &informacoesDoCursor);
+    ControleDeMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
+
+    SimplificacoesAparencia::ocultarCursor();
 
     SimplificacoesAparencia::limparTela();
-    TelaMenu::exibirLogoDoJogo(tituloDoMapaAtual);
+    SimplificacoesAparencia::exibirCabecalho(tituloDoMapaAtual, Cor::VERDE);
 
-    CONSOLE_SCREEN_BUFFER_INFO informacoesDoBufferDaTela;
-    GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
-    int linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
+    int linhaInicialParaDesenharOMapa = SimplificacoesAparencia::obterPosicaoCursorY();
 
     // Lambda para restaurar a tela apos eventos
     auto restaurarTela = [&]() {
         SimplificacoesAparencia::limparTela();
-        TelaMenu::exibirLogoDoJogo(tituloDoMapaAtual);
-        GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
-        linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
+        SimplificacoesAparencia::exibirCabecalho(tituloDoMapaAtual, Cor::VERDE);
+        linhaInicialParaDesenharOMapa = SimplificacoesAparencia::obterPosicaoCursorY();
     };
 
-    auto renderizarMapa = [&](int larguraDoTerminal, int linhaInicial)
+    auto renderizarMapa = [&](int larguraDoTerminal, int alturaDoTerminal, int linhaInicial)
     {
-        int larguraDoMapaEmColunas = matrizDoMapaAtual.empty() ? 0 : matrizDoMapaAtual[0].length();
-        int espacosParaCentralizarOMapa = (larguraDoTerminal - larguraDoMapaEmColunas) / 2;
-        std::string margemEsquerdaDoMapa(espacosParaCentralizarOMapa > 0 ? espacosParaCentralizarOMapa : 0, ' ');
+        int startX, endX;
+        ControleDeMapa::calcularCameraHorizontal(larguraDoTerminal, posicaoXDoJogador, matrizDoMapaAtual.empty() ? 0 : static_cast<int>(matrizDoMapaAtual[0].length()), startX, endX);
+
+        std::string margemEsquerdaDoMapa = ControleDeMapa::calcularMargemCentralizada(larguraDoTerminal, endX - startX);
         std::string margemDireitaDoMapa = "";
 
         std::string textoDeControlesDoJogador = "W,A,S,D: Mover | I: Inventario | C: Ficha | B: Bestiario";
-        int espacosParaCentralizarOsControles = (larguraDoTerminal - (int)textoDeControlesDoJogador.length()) / 2;
-        std::string margemEsquerdaDosControles(espacosParaCentralizarOsControles > 0 ? espacosParaCentralizarOsControles : 0, ' ');
+        std::string margemEsquerdaDosControles = ControleDeMapa::calcularMargemCentralizada(larguraDoTerminal, textoDeControlesDoJogador.length());
 
-        COORD posicaoDoCursorNoTerminal;
-        posicaoDoCursorNoTerminal.X = 0;
-        posicaoDoCursorNoTerminal.Y = linhaInicial;
-        SetConsoleCursorPosition(manipuladorDoTerminal, posicaoDoCursorNoTerminal);
+        SimplificacoesAparencia::moverCursor(0, linhaInicial);
 
-        for (int y = 0; y < matrizDoMapaAtual.size(); y++)
+        int startY, endY;
+        ControleDeMapa::calcularCameraVertical(alturaDoTerminal, posicaoYDoJogador, static_cast<int>(matrizDoMapaAtual.size()), startY, endY);
+
+        for (int y = startY; y < endY; y++)
         {
             std::string linhaSendoRenderizada = margemEsquerdaDoMapa;
-            linhaSendoRenderizada.reserve(margemEsquerdaDoMapa.size() + matrizDoMapaAtual[y].size() + 20);
-            for (int x = 0; x < matrizDoMapaAtual[y].size(); x++)
+            linhaSendoRenderizada.reserve(margemEsquerdaDoMapa.size() + (endX - startX) + 20);
+            for (int x = startX; x < endX; x++)
             {
                 if (x == posicaoXDoJogador && y == posicaoYDoJogador)
                 {
@@ -560,7 +556,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
                 else if (matrizDoMapaAtual[y][x] == 'A')
                 {
                     linhaSendoRenderizada += SimplificacoesAparencia::cor(Cor::NEGRITO, Cor::VERMELHO);
-                    if (x + 1 < matrizDoMapaAtual[y].size() && matrizDoMapaAtual[y][x+1] == 'm') {
+                    if (x + 1 < endX && matrizDoMapaAtual[y][x+1] == 'm') {
                         linhaSendoRenderizada += "Am";
                         x++;
                     } else {
@@ -591,7 +587,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
             }
             std::cout << linhaSendoRenderizada << margemDireitaDoMapa << "\n";
         }
-        std::cout << "\n" << margemEsquerdaDosControles << textoDeControlesDoJogador << "\n";
+        std::cout << "\n" << margemEsquerdaDosControles << textoDeControlesDoJogador << std::flush;
     };
 
     auto processarInteracao = [&](int proximaPosicaoX, int proximaPosicaoY, int larguraDoTerminal)
@@ -627,10 +623,10 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
 
     while (exploracaoEstaAtiva && jogadorAtual->obterVida() > 0)
     {
-        GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
-        int larguraDoTerminal = informacoesDoBufferDaTela.srWindow.Right - informacoesDoBufferDaTela.srWindow.Left + 1;
+        int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
+        int alturaDoTerminal = SimplificacoesAparencia::obterAlturaTerminal();
 
-        renderizarMapa(larguraDoTerminal, linhaInicialParaDesenharOMapa);
+        renderizarMapa(larguraDoTerminal, alturaDoTerminal, linhaInicialParaDesenharOMapa);
 
         char teclaPressionadaPeloJogador = ControleDeInput::lerTecla();
 
@@ -642,9 +638,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
         if (jogadorAtual->obterVoltarProMenu()) break;
         if (abriuMenu) continue;
 
-        // Limites do mapa para impedir crash quando noclip estiver ativo
-        if (proximaPosicaoY < 0) proximaPosicaoY = 0; else if (proximaPosicaoY >= static_cast<int>(matrizDoMapaAtual.size())) proximaPosicaoY = static_cast<int>(matrizDoMapaAtual.size()) - 1;
-        if (proximaPosicaoX < 0) proximaPosicaoX = 0; else if (proximaPosicaoX >= static_cast<int>(matrizDoMapaAtual[0].size())) proximaPosicaoX = static_cast<int>(matrizDoMapaAtual[0].size()) - 1;
+        ControleDeMapa::aplicarLimitesDeMapa(proximaPosicaoX, proximaPosicaoY, matrizDoMapaAtual);
 
         processarInteracao(proximaPosicaoX, proximaPosicaoY, larguraDoTerminal);
     }

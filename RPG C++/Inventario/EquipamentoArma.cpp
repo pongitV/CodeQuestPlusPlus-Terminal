@@ -3,6 +3,7 @@
 #include <iostream>
 #include <map>
 #include <string_view>
+#include <vector>
 
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
@@ -39,28 +40,41 @@ bool EquipamentoArma::podeSerEquipadoPor(SistemaPersonagem* personagem) const {
 }
 
 void EquipamentoArma::exibirInspecao() const {
-    std::cout << "\n" << SimplificacoesAparencia::cor(Cor::CIANO) << " === " << nome << " ===" << SimplificacoesAparencia::cor(Cor::RESET) << "\n\n";
-    std::cout << " > Tipo: Arma\n";
-    std::cout << " > Dano Fisico: " << danoFisico << "\n";
-    std::cout << " > Dano Magico: " << danoMagico << "\n";
-    std::cout << " > Requisitos:\n";
+    std::vector<std::string> linhas;
+    linhas.push_back(SimplificacoesAparencia::cor(Cor::CIANO) + " === " + nome + " ===" + SimplificacoesAparencia::cor(Cor::RESET));
+    linhas.push_back(" > Tipo: Arma");
+    linhas.push_back(" > Dano Fisico: " + std::to_string(danoFisico));
+    linhas.push_back(" > Dano Magico: " + std::to_string(danoMagico));
+    linhas.push_back(" > Requisitos:");
     bool hasReq = false;
-    if (reqForca > 0) { std::cout << "   - Forca: " << reqForca << "\n"; hasReq = true; }
-    if (reqDestreza > 0) { std::cout << "   - Destreza: " << reqDestreza << "\n"; hasReq = true; }
-    if (reqInteligencia > 0) { std::cout << "   - Inteligencia: " << reqInteligencia << "\n"; hasReq = true; }
-    if (reqSabedoria > 0) { std::cout << "   - Sabedoria: " << reqSabedoria << "\n"; hasReq = true; }
-    if (!hasReq) std::cout << "   - Nenhum requisito.\n";
+    if (reqForca > 0) { linhas.push_back("   - Forca: " + std::to_string(reqForca)); hasReq = true; }
+    if (reqDestreza > 0) { linhas.push_back("   - Destreza: " + std::to_string(reqDestreza)); hasReq = true; }
+    if (reqInteligencia > 0) { linhas.push_back("   - Inteligencia: " + std::to_string(reqInteligencia)); hasReq = true; }
+    if (reqSabedoria > 0) { linhas.push_back("   - Sabedoria: " + std::to_string(reqSabedoria)); hasReq = true; }
+    if (!hasReq) linhas.push_back("   - Nenhum requisito.");
     
-    std::cout << " > Efeitos e Propriedades:\n";
+    linhas.push_back(" > Efeitos e Propriedades:");
     bool hasEfeito = false;
-    if (efeitoSangramento) { std::cout << "   - Sangramento (Dano continuo no alvo)\n"; hasEfeito = true; }
-    if (efeitoLentidao) { std::cout << "   - Lentidao (Reduz destreza do alvo)\n"; hasEfeito = true; }
-    if (temPropriedade(Propriedade::Penetrante)) { std::cout << "   - Penetrante (Reduz resistencia do alvo)\n"; hasEfeito = true; }
-    if (temPropriedade(Propriedade::Magica)) { std::cout << "   - Magica (Parte do dano ignora defesa)\n"; hasEfeito = true; }
-    if (temPropriedade(Propriedade::ViolaoMagico)) { std::cout << "   - Raizes Drenantes (Causa dano e cura o usuario)\n"; hasEfeito = true; }
-    if (temPropriedade(Propriedade::CipoPrisao)) { std::cout << "   - Prisao de Cipos (Chance de atordoar alvo)\n"; hasEfeito = true; }
-    if (!hasEfeito) std::cout << "   - Nenhuma propriedade extra.\n";
-    std::cout << " > Preco de Venda: " << precoVenda << "G\n";
+    if (efeitoSangramento) { linhas.push_back("   - Sangramento (Dano continuo no alvo)"); hasEfeito = true; }
+    if (efeitoLentidao) { linhas.push_back("   - Lentidao (Reduz destreza do alvo)"); hasEfeito = true; }
+    if (temPropriedade(Propriedade::Penetrante)) { linhas.push_back("   - Penetrante (Reduz resistencia do alvo)"); hasEfeito = true; }
+    if (temPropriedade(Propriedade::Magica)) { linhas.push_back("   - Magica (Parte do dano ignora defesa)"); hasEfeito = true; }
+    if (temPropriedade(Propriedade::ViolaoMagico)) { linhas.push_back("   - Raizes Drenantes (Causa dano e cura o usuario)"); hasEfeito = true; }
+    if (temPropriedade(Propriedade::CipoPrisao)) { linhas.push_back("   - Prisao de Cipos (Chance de atordoar alvo)"); hasEfeito = true; }
+    if (!hasEfeito) linhas.push_back("   - Nenhuma propriedade extra.");
+    linhas.push_back(" > Preco de Venda: " + std::to_string(precoVenda) + "G");
+
+    std::cout << "\n";
+    SimplificacoesAparencia::imprimirCentralizado(linhas[0]);
+    std::cout << "\n";
+    
+    std::vector<std::string> resto(linhas.begin() + 1, linhas.end());
+    int maxLen = 0;
+    for (const auto& l : resto) {
+        int len = SimplificacoesAparencia::removerCoresANSI(l).length();
+        if (len > maxLen) maxLen = len;
+    }
+    SimplificacoesAparencia::imprimirCentralizadoMultilinha(resto, maxLen);
 }
 
 std::string EquipamentoArma::obterInfoStatus() const {

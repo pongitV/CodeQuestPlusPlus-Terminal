@@ -86,7 +86,7 @@ void NPCBjorn::interagir(SistemaPersonagem* jogadorAtual)
 
     do {
         SimplificacoesAparencia::limparTela();
-        TelaMenu::exibirLogoDoJogo("FORJA DO BJORN");
+        SimplificacoesAparencia::exibirCabecalho("FORJA DO BJORN", Cor::AMARELO);
         
         int espacosMsg = (larguraDoTerminal - 55) / 2;
         std::string margemMsg(espacosMsg > 0 ? espacosMsg : 0, ' ');
@@ -145,7 +145,7 @@ namespace {
         std::string opcaoCompra;
         do {
             SimplificacoesAparencia::limparTela();
-            TelaMenu::exibirLogoDoJogo(tituloLoja);
+            SimplificacoesAparencia::exibirCabecalho(tituloLoja, Cor::AMARELO);
             std::cout << "\n" << margemMsg << "Seu Ouro: " << jogadorAtual->obterInventario()->obterOuro() << "G\n\n";
             for (auto const& [id, idItem] : estoqueAtual) {
                 std::string preco = "40G";
@@ -220,7 +220,7 @@ namespace {
                 jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
 
                 SimplificacoesAparencia::limparTela();
-                TelaMenu::exibirLogoDoJogo("FORJA - SUCESSO");
+                SimplificacoesAparencia::exibirCabecalho("FORJA - SUCESSO", Cor::AMARELO);
                 std::vector<std::string> arteBigorna = {
                     "⠀⠀⠀⠀⠀⠀⠀⢰⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⡄⠀⠀⠀⠀⠀",
                     "⠀⠹⣿⣿⣿⣿⡇⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⢠⣄⡀⠀⠀",
@@ -250,7 +250,7 @@ namespace {
             int qtdPedraUpgrade = jogadorAtual->obterInventario()->contarItem(nomePedraUpgrade);
             if (qtdPedraUpgrade < 1) {
                 SimplificacoesAparencia::limparTela();
-                TelaMenu::exibirLogoDoJogo("FORJA - MELHORIA POR MATERIAL");
+                SimplificacoesAparencia::exibirCabecalho("FORJA - MELHORIA POR MATERIAL", Cor::AMARELO);
                 std::cout << "\n[Bjorn]: Voce nao tem nenhuma " << nomePedraUpgrade << "!\n";
                 SimplificacoesAparencia::aguardarEnter();
                 return;
@@ -304,8 +304,7 @@ namespace {
             jogadorAtual->obterInventario()->adicionarItem(std::move(novaArmadura));
 
             SimplificacoesAparencia::limparTela();
-                TelaMenu::exibirLogoDoJogo("FORJA - SUCESSO");
-                TelaMenu::exibirLogoDoJogo("FORJA - SUCESSO");
+            SimplificacoesAparencia::exibirCabecalho("FORJA - SUCESSO", Cor::AMARELO);
             std::string equacao = "[" + nomeAntigo + "] + [Pedra magica] = [" + novoNome + "]";
             std::cout << "\n" << SimplificacoesAparencia::cor(Cor::AMARELO) << equacao << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
             std::cout << "\n[Bjorn]: Impressionante! Essa pedra e mesmo magica. A armadura agora possui mais +3 de resistencia (defesa)!\n";

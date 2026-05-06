@@ -29,6 +29,7 @@ public:
     std::vector<std::string> matrizDoMapaDaCavernaSalva;
     std::vector<std::string> matrizDoMapaDaLojaSalva;
     std::vector<std::string> matrizDoMapaDaForjaSalva;
+    std::vector<std::string> mapaBaseDaVila;
 
     // State moved from loop function
     bool bjornResgatado;

@@ -4,6 +4,7 @@
 #include <memory>
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Utilidades/SimplificacoesAparencia.h"
+#include <vector>
 #include <functional>
 #include <unordered_map>
 
@@ -44,24 +45,37 @@ std::string EquipamentoEscudo::obterMensagemRequisito() const {
 }
 
 void EquipamentoEscudo::exibirInspecao() const {
-    std::cout << "\n" << SimplificacoesAparencia::cor(Cor::CIANO) << " === " << nome << " ===" << SimplificacoesAparencia::cor(Cor::RESET) << "\n\n";
-    std::cout << " > Tipo: Escudo\n";
-    std::cout << " > Poder de Bloqueio: " << reducaoFixa << " (Dano bloqueado na acao 'Defender')\n";
-    std::cout << " > Durabilidade Maxima: " << durabilidade << " usos\n";
-    std::cout << " > Requisitos:\n";
+    std::vector<std::string> linhas;
+    linhas.push_back(SimplificacoesAparencia::cor(Cor::CIANO) + " === " + nome + " ===" + SimplificacoesAparencia::cor(Cor::RESET));
+    linhas.push_back(" > Tipo: Escudo");
+    linhas.push_back(" > Poder de Bloqueio: " + std::to_string(reducaoFixa) + " (Dano bloqueado na acao 'Defender')");
+    linhas.push_back(" > Durabilidade Maxima: " + std::to_string(durabilidade) + " usos");
+    linhas.push_back(" > Requisitos:");
     bool hasReq = false;
-    if (reqResistencia > 0) { std::cout << "   - Resistencia Base: " << reqResistencia << "\n"; hasReq = true; }
+    if (reqResistencia > 0) { linhas.push_back("   - Resistencia Base: " + std::to_string(reqResistencia)); hasReq = true; }
     if (reqSecundario > 0) {
         std::string atrSec = "";
         if (tipoSecundario == TipoAtributo::Forca) atrSec = "Forca";
         else if (tipoSecundario == TipoAtributo::Destreza) atrSec = "Destreza";
         else if (tipoSecundario == TipoAtributo::Inteligencia) atrSec = "Inteligencia";
         else if (tipoSecundario == TipoAtributo::Sabedoria) atrSec = "Sabedoria";
-        std::cout << "   - Atributo Secundario (" << atrSec << "): " << reqSecundario << "\n";
+        linhas.push_back("   - Atributo Secundario (" + atrSec + "): " + std::to_string(reqSecundario));
         hasReq = true;
     }
-    if (!hasReq) std::cout << "   - Nenhum requisito.\n";
-    std::cout << " > Preco de Venda: " << precoVenda << "G\n";
+    if (!hasReq) linhas.push_back("   - Nenhum requisito.");
+    linhas.push_back(" > Preco de Venda: " + std::to_string(precoVenda) + "G");
+
+    std::cout << "\n";
+    SimplificacoesAparencia::imprimirCentralizado(linhas[0]);
+    std::cout << "\n";
+    
+    std::vector<std::string> resto(linhas.begin() + 1, linhas.end());
+    int maxLen = 0;
+    for (const auto& l : resto) {
+        int len = SimplificacoesAparencia::removerCoresANSI(l).length();
+        if (len > maxLen) maxLen = len;
+    }
+    SimplificacoesAparencia::imprimirCentralizadoMultilinha(resto, maxLen);
 }
 
 std::string EquipamentoEscudo::obterInfoStatus() const {

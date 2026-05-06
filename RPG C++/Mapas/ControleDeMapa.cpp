@@ -16,7 +16,7 @@ bool ControleDeMapa::processarInputEComandos(char tecla, SistemaPersonagem* joga
     {
         while(true) {
             SimplificacoesAparencia::limparTela();
-            TelaMenu::exibirLogoDoJogo("MENU DE DEBUG (CHEAT)");
+            SimplificacoesAparencia::exibirCabecalho("MENU DE DEBUG (CHEAT)", Cor::AMARELO);
             std::cout << "\n  [1] God Mode (Max Atributos - Instakill/Imortal)\n";
             std::cout << "  [2] Obter Qualquer Item\n";
             std::cout << "  [3] Adicionar Ouro e XP (+10000)\n";
@@ -50,7 +50,7 @@ bool ControleDeMapa::processarInputEComandos(char tecla, SistemaPersonagem* joga
                     ItemID::DispositivoLinguagem
                 };
                 SimplificacoesAparencia::limparTela();
-                TelaMenu::exibirLogoDoJogo("OBTER ITEM");
+                SimplificacoesAparencia::exibirCabecalho("OBTER ITEM", Cor::AMARELO);
                 for(size_t i=0; i<todosItens.size(); ++i) {
                     std::cout << "[" << i+1 << "] " << FabricaItens::obterNomeDeID(todosItens[i]) << "\n";
                 }
@@ -120,7 +120,7 @@ void ControleDeMapa::processarCombate(
     int posicaoXAposCombate, int posicaoYAposCombate, int posicaoXInicialDoInimigo, int quantidadeDeCelulasOcupadas, int larguraDoTerminal, const std::function<void()>& restaurarTela)
 {
     SimplificacoesAparencia::limparTela();
-    TelaMenu::exibirLogoDoJogo(tituloDoCombate);
+    SimplificacoesAparencia::exibirCabecalho(tituloDoCombate, Cor::VERMELHO);
     int espacosParaCentralizarMensagem = std::max(0, (larguraDoTerminal - static_cast<int>(mensagemDeAviso.length())) / 2);
     std::string margemEsquerdaMensagem(espacosParaCentralizarMensagem, ' ');
     std::cout << "\n" << margemEsquerdaMensagem << SimplificacoesAparencia::cor(Cor::AMARELO) << "[!] " << mensagemDeAviso << SimplificacoesAparencia::cor(Cor::RESET) << "\n";
@@ -159,10 +159,62 @@ void ControleDeMapa::entrarSubMapa(
 
     if (!subMapaJaFoiVisitado) { matrizDoMapaAtual = matrizDoSubMapaGerada; subMapaJaFoiVisitado = true; } 
     else { matrizDoMapaAtual = matrizDoSubMapaSalva; }
+    padronizarTamanhoDoMapa(matrizDoMapaAtual);
 
     posicaoXDoJogador = posicaoXInicialNoSubMapa;
     posicaoYDoJogador = posicaoYInicialNoSubMapa;
     jogadorEstaDentroDeUmSubMapa = true;
     tituloDoMapaAtual = tituloDoSubMapa;
     restaurarTela();
+}
+
+void ControleDeMapa::calcularCameraVertical(int alturaDoTerminal, int posicaoYDoJogador, int tamanhoDoMapa, int& startY, int& endY) {
+    int maxLinhasVisiveis = alturaDoTerminal - 7;
+    if (maxLinhasVisiveis < 5) maxLinhasVisiveis = 5;
+    startY = 0;
+    endY = tamanhoDoMapa;
+
+    if (endY > maxLinhasVisiveis) {
+        startY = posicaoYDoJogador - (maxLinhasVisiveis / 2);
+        if (startY < 0) startY = 0;
+        endY = startY + maxLinhasVisiveis;
+        if (endY > tamanhoDoMapa) {
+            endY = tamanhoDoMapa;
+            startY = endY - maxLinhasVisiveis;
+            if (startY < 0) startY = 0;
+        }
+    }
+}
+
+void ControleDeMapa::calcularCameraHorizontal(int larguraDoTerminal, int posicaoXDoJogador, int larguraDoMapa, int& startX, int& endX) {
+    int maxColunasVisiveis = larguraDoTerminal - 1; // -1 para evitar quebras de linha acidentais
+    if (maxColunasVisiveis < 10) maxColunasVisiveis = 10;
+    startX = 0;
+    endX = larguraDoMapa;
+
+    if (endX > maxColunasVisiveis) {
+        startX = posicaoXDoJogador - (maxColunasVisiveis / 2);
+        if (startX < 0) startX = 0;
+        endX = startX + maxColunasVisiveis;
+        if (endX > larguraDoMapa) {
+            endX = larguraDoMapa;
+            startX = endX - maxColunasVisiveis;
+            if (startX < 0) startX = 0;
+        }
+    }
+}
+
+std::string ControleDeMapa::calcularMargemCentralizada(int larguraDoTerminal, int larguraDoTexto) {
+    int espacos = (larguraDoTerminal - larguraDoTexto) / 2;
+    return std::string(espacos > 0 ? espacos : 0, ' ');
+}
+
+void ControleDeMapa::padronizarTamanhoDoMapa(std::vector<std::string>& matrizDoMapa) {
+    size_t maxLength = 0;
+    for (const auto& linha : matrizDoMapa) {
+        if (linha.length() > maxLength) maxLength = linha.length();
+    }
+    for (auto& linha : matrizDoMapa) {
+        if (linha.length() < maxLength) linha.append(maxLength - linha.length(), ' ');
+    }
 }

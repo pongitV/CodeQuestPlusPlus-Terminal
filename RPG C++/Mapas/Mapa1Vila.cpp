@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <vector>
-#include <windows.h>
 #include <memory>
 #include <utility>
 
@@ -39,8 +38,9 @@ Mapa1Vila::Mapa1Vila(SistemaPersonagem* personagemJogador) :
     cavernaJaFoiVisitada(false)
 {
     matrizDoMapaAtual = {
-        "             #####################################################################################################################################",
-        " #################################################################################################################################################",
+        "                                                                                                                                                  ",
+        "  ##         #####################################################################################################################################",
+        " #.###############################################################################################################################################",
         "##.###############......#######################..................................................#################################################",
         "##................................................................................................################################################",
         "##................................................................................................################################################",
@@ -105,7 +105,7 @@ namespace {
                 NPCBjorn::interagir(ctx.self->jogadorAtual);
             } else if (ctx.self->tituloDoMapaAtual == "CAVERNA DO ORK") {
                 SimplificacoesAparencia::limparTela();
-                TelaMenu::exibirLogoDoJogo("RESGATE NA CAVERNA");
+                SimplificacoesAparencia::exibirCabecalho("RESGATE NA CAVERNA", Cor::AMARELO);
                 int espacosM = std::max(0, (ctx.larguraDoTerminal - 50) / 2);
                 std::string mE(espacosM, ' ');
                 std::cout << "\n" << mE << "[Bjorn]: Pelos deuses, muito obrigado por me salvar!\n";
@@ -161,7 +161,7 @@ namespace {
             else if (nextCell == 'F' && nextNextCell == 'o' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 if (!ctx.self->bjornResgatado) {
                     SimplificacoesAparencia::limparTela();
-                    TelaMenu::exibirLogoDoJogo(ctx.self->tituloDoMapaAtual);
+                SimplificacoesAparencia::exibirCabecalho(ctx.self->tituloDoMapaAtual, Cor::AMARELO);
                     int espacosM = std::max(0, (ctx.larguraDoTerminal - 60) / 2);
                     std::cout << "\n" << std::string(espacosM, ' ') << "[SISTEMA]: A Forja esta trancada. O ferreiro sumiu...\n";
                     SimplificacoesAparencia::aguardarEnter();
@@ -181,7 +181,7 @@ namespace {
                     ctx.self->exploracaoEstaAtiva = false;
                     return;
                 }
-                ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaPrincipalSalva;
+                ctx.self->matrizDoMapaAtual = ctx.self->mapaBaseDaVila;
                 ctx.self->cavernaJaFoiVisitada = false;
                 ctx.restaurarTela();
             }
@@ -209,30 +209,25 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
     tituloDoMapaAtual = "VILA INICIAL";
     inicializarInteracoes();
 
-    HANDLE manipuladorDoTerminal = GetStdHandle(STD_OUTPUT_HANDLE);
-    CONSOLE_CURSOR_INFO informacoesDoCursor;
-    informacoesDoCursor.dwSize = 100;
-    informacoesDoCursor.bVisible = FALSE;
-    SetConsoleCursorInfo(manipuladorDoTerminal, &informacoesDoCursor);
+    ControleDeMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
+
+    SimplificacoesAparencia::ocultarCursor();
 
     SimplificacoesAparencia::limparTela();
-    TelaMenu::exibirLogoDoJogo(tituloDoMapaAtual);
+    SimplificacoesAparencia::exibirCabecalho(tituloDoMapaAtual, Cor::AMARELO);
 
-    CONSOLE_SCREEN_BUFFER_INFO informacoesDoBufferDaTela;
-    GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
-    int linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
+    int linhaInicialParaDesenharOMapa = SimplificacoesAparencia::obterPosicaoCursorY();
 
     // Lambda para restaurar a tela apos eventos sem piscar
     auto restaurarTela = [&]() {
         SimplificacoesAparencia::limparTela();
-        TelaMenu::exibirLogoDoJogo(tituloDoMapaAtual);
-        GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
-        linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
+        SimplificacoesAparencia::exibirCabecalho(tituloDoMapaAtual, Cor::AMARELO);
+        linhaInicialParaDesenharOMapa = SimplificacoesAparencia::obterPosicaoCursorY();
     };
 
     // Mapa base da vila — reutilizado no respawn apos a floresta
 
-    const auto mapaBaseDaVila = matrizDoMapaAtual; // Salva o estado inicial para respawn
+    if (mapaBaseDaVila.empty()) mapaBaseDaVila = matrizDoMapaAtual; // Salva o estado inicial para respawn
 
     auto processarInteracao = [&](int proximaPosicaoX, int proximaPosicaoY, int larguraDoTerminal) {
         char celulaDestinoDoMapa = matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX];
@@ -249,26 +244,26 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
         }
     };
 
-    auto renderizarMapa = [&](int larguraDoTerminal, int linhaInicial) 
+    auto renderizarMapa = [&](int larguraDoTerminal, int alturaDoTerminal, int linhaInicial) 
     {
-        int larguraDoMapaEmColunas = matrizDoMapaAtual.empty() ? 0 : matrizDoMapaAtual[0].length();
-        int espacosParaCentralizarOMapa = (larguraDoTerminal - larguraDoMapaEmColunas) / 2;
-        std::string margemEsquerdaDoMapa1Vila(espacosParaCentralizarOMapa > 0 ? espacosParaCentralizarOMapa : 0, ' ');
+        int startX, endX;
+        ControleDeMapa::calcularCameraHorizontal(larguraDoTerminal, posicaoXDoJogador, matrizDoMapaAtual.empty() ? 0 : static_cast<int>(matrizDoMapaAtual[0].length()), startX, endX);
+
+        std::string margemEsquerdaDoMapa1Vila = ControleDeMapa::calcularMargemCentralizada(larguraDoTerminal, endX - startX);
 
         std::string textoDeControlesDoJogador = "W,A,S,D: Mover | I: Inventario | C: Ficha | B: Bestiario ";
-        int espacosParaCentralizarOsControles = (larguraDoTerminal - (int)textoDeControlesDoJogador.length()) / 2;
-        std::string margemEsquerdaDosControles(espacosParaCentralizarOsControles > 0 ? espacosParaCentralizarOsControles : 0, ' ');
+        std::string margemEsquerdaDosControles = ControleDeMapa::calcularMargemCentralizada(larguraDoTerminal, textoDeControlesDoJogador.length());
 
-        COORD posicaoDoCursorNoTerminal;
-        posicaoDoCursorNoTerminal.X = 0;
-        posicaoDoCursorNoTerminal.Y = linhaInicial;
-        SetConsoleCursorPosition(manipuladorDoTerminal, posicaoDoCursorNoTerminal);
+        SimplificacoesAparencia::moverCursor(0, linhaInicial);
 
-        for (int y = 0; y < matrizDoMapaAtual.size(); y++)
+        int startY, endY;
+        ControleDeMapa::calcularCameraVertical(alturaDoTerminal, posicaoYDoJogador, static_cast<int>(matrizDoMapaAtual.size()), startY, endY);
+
+        for (int y = startY; y < endY; y++)
         {
             std::string linhaSendoRenderizada = margemEsquerdaDoMapa1Vila;
-            linhaSendoRenderizada.reserve(margemEsquerdaDoMapa1Vila.size() + matrizDoMapaAtual[y].size() + 20);
-            for (int x = 0; x < matrizDoMapaAtual[y].size(); x++)
+            linhaSendoRenderizada.reserve(margemEsquerdaDoMapa1Vila.size() + (endX - startX) + 20);
+            for (int x = startX; x < endX; x++)
             {
                 if (x == posicaoXDoJogador && y == posicaoYDoJogador)
                 {
@@ -287,7 +282,7 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
                     std::cout << linhaSendoRenderizada;
                     linhaSendoRenderizada = "";
                     std::cout << SimplificacoesAparencia::cor(Cor::NEGRITO, Cor::VERMELHO);
-                    if (x + 1 < matrizDoMapaAtual[y].size() && matrizDoMapaAtual[y][x+1] == 'm') {
+                    if (x + 1 < endX && matrizDoMapaAtual[y][x+1] == 'm') {
                         std::cout << "Om";
                         x++;
                     } else {
@@ -300,7 +295,7 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
                     std::cout << linhaSendoRenderizada;
                     linhaSendoRenderizada = "";
                     std::cout << SimplificacoesAparencia::cor(Cor::NEGRITO, Cor::CIANO);
-                    if (x + 1 < matrizDoMapaAtual[y].size() && matrizDoMapaAtual[y][x+1] == 'n') {
+                    if (x + 1 < endX && matrizDoMapaAtual[y][x+1] == 'n') {
                         std::cout << "Bn";
                         x++;
                     } else {
@@ -318,15 +313,15 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
             }
             std::cout << linhaSendoRenderizada << "\n";
         }
-        std::cout << "\n" << margemEsquerdaDosControles << textoDeControlesDoJogador << "\n";
+        std::cout << "\n" << margemEsquerdaDosControles << textoDeControlesDoJogador << std::flush;
     };
 
     while (exploracaoEstaAtiva && jogadorAtual->obterVida() > 0)
     {
-        GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
-        int larguraDoTerminal = informacoesDoBufferDaTela.srWindow.Right - informacoesDoBufferDaTela.srWindow.Left + 1;
+        int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
+        int alturaDoTerminal = SimplificacoesAparencia::obterAlturaTerminal();
 
-        renderizarMapa(larguraDoTerminal, linhaInicialParaDesenharOMapa);
+        renderizarMapa(larguraDoTerminal, alturaDoTerminal, linhaInicialParaDesenharOMapa);
 
         char teclaPressionadaPeloJogador = ControleDeInput::lerTecla();
 

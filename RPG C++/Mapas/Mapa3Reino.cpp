@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <vector>
-#include <windows.h>
 #include <iomanip>
 #include <algorithm>
 
@@ -25,15 +24,15 @@ Mapa3Reino::Mapa3Reino(SistemaPersonagem* personagemJogador) :
 {
     matrizDoMapaAtual = {
         "                                                                                                   ",
-        "        ###################################################################################        ",
-        "        #|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||#        ",
-        "        #|||||||||||||||||||||||||||||||...[^Castelo]..|||||||||||||||||||||||||||||||||||#        ",
-        "        #|||||||||||||||||||||||||||||||...............|||||||||||||||||||||||||||||||||||#        ",
-        "        #|||||||||||||||||||||||||||||||...............|||||||||||||||||||||||||||||||||||#        ",
-        "        #|||||||||||||||||||||||||||||||...............|||||||||||||||||||||||||||||||||||#        ",
-        "        #|||||||||||||||||||||||||||||||...............|||||||||||||||||||||||||||||||||||#        ",
-        "        #|||||||||||||||||||||||||||||||...............|||||||||||||||||||||||||||||||||||#        ",
-        "        #############       ############...C.......C...############       #################        ",
+        "        ################################################################################        ",
+        "        #||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||#        ",
+        "        #|||||||||||||||||||||||||||||||...[^Castelo]..||||||||||||||||||||||||||||||||#        ",
+        "        #|||||||||||||||||||||||||||||||...............||||||||||||||||||||||||||||||||#        ",
+        "        #|||||||||||||||||||||||||||||||...............||||||||||||||||||||||||||||||||#        ",
+        "        #|||||||||||||||||||||||||||||||...............||||||||||||||||||||||||||||||||#        ",
+        "        #|||||||||||||||||||||||||||||||...............||||||||||||||||||||||||||||||||#        ",
+        "        #|||||||||||||||||||||||||||||||...............||||||||||||||||||||||||||||||||#        ",
+        "        #############       ############...C.......C...############       ##############        ",
         "                    #       #          #...............#          #       #                        ",
         "                    #       #          #.......T.......#          #       #                        ",
         "                    #########          #...............#          #########                        ",
@@ -47,14 +46,14 @@ Mapa3Reino::Mapa3Reino(SistemaPersonagem* personagemJogador) :
         "                    #       #          #...............#          #       #                        ",
         "                    #       #          #...............#          #       #                        ",
         "                    #       #          #...............#          #       #                        ",
-        "        #############       ############...............############       #################        ",
-        "        #|||||||||||||||||||||||||||||||...............|||||||||||||||||||||||||||||||||||#        ",
-        "        #|||||||||||||||||||||||||||||||..C....T....C..|||||||||||||||||||||||||||||||||||#        ",
-        "        #|||||||||||||||||||||||||||||||...............|||||||||||||||||||||||||||||||||||#        ",
-        "        ################################...............####################################        ",
-        "        #==============================#...............#==================================#        ",
-        "        #==============================#...............#==================================#        ",
-        "        ################################...............####################################        ",
+        "        #############       ############...............############       #############      ",
+        "        #|||||||||||||||||||||||||||||||...............|||||||||||||||||||||||||||||||#        ",
+        "        #|||||||||||||||||||||||||||||||..C....T....C..|||||||||||||||||||||||||||||||#        ",
+        "        #|||||||||||||||||||||||||||||||...............|||||||||||||||||||||||||||||||#        ",
+        "        ################################...............################################        ",
+        "        #==============================#...............#==============================#        ",
+        "        #==============================#...............#==============================#        ",
+        "        ################################...............################################        ",
         "                                       #...............#                                           ",
         "                                       #...............#                                           ",
         "                                       #..[^Floresta]..#                                           ",
@@ -70,46 +69,41 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
     bool trollDerrotado = false;
     bool conviteRecebido = false;
 
-    HANDLE manipuladorDoTerminal = GetStdHandle(STD_OUTPUT_HANDLE);
-    CONSOLE_CURSOR_INFO informacoesDoCursor;
-    informacoesDoCursor.dwSize = 100;
-    informacoesDoCursor.bVisible = FALSE;
-    SetConsoleCursorInfo(manipuladorDoTerminal, &informacoesDoCursor);
+    ControleDeMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
+
+    SimplificacoesAparencia::ocultarCursor();
 
     SimplificacoesAparencia::limparTela();
-    TelaMenu::exibirLogoDoJogo(tituloDoMapaAtual);
+    SimplificacoesAparencia::exibirCabecalho(tituloDoMapaAtual, Cor::CIANO);
 
-    CONSOLE_SCREEN_BUFFER_INFO informacoesDoBufferDaTela;
-    GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
-    int linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
+    int linhaInicialParaDesenharOMapa = SimplificacoesAparencia::obterPosicaoCursorY();
 
     auto restaurarTela = [&]() {
         SimplificacoesAparencia::limparTela();
-        TelaMenu::exibirLogoDoJogo(tituloDoMapaAtual);
-        GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
-        linhaInicialParaDesenharOMapa = informacoesDoBufferDaTela.dwCursorPosition.Y;
+        SimplificacoesAparencia::exibirCabecalho(tituloDoMapaAtual, Cor::CIANO);
+        linhaInicialParaDesenharOMapa = SimplificacoesAparencia::obterPosicaoCursorY();
     };
 
-    auto renderizarMapa = [&](int larguraDoTerminal, int linhaInicial)
+    auto renderizarMapa = [&](int larguraDoTerminal, int alturaDoTerminal, int linhaInicial)
     {
-        int larguraDoMapaEmColunas = matrizDoMapaAtual.empty() ? 0 : matrizDoMapaAtual[0].length();
-        int espacosParaCentralizarOMapa = (larguraDoTerminal - larguraDoMapaEmColunas) / 2;
-        std::string margemEsquerdaDoMapa(espacosParaCentralizarOMapa > 0 ? espacosParaCentralizarOMapa : 0, ' ');
+        int startX, endX;
+        ControleDeMapa::calcularCameraHorizontal(larguraDoTerminal, posicaoXDoJogador, matrizDoMapaAtual.empty() ? 0 : static_cast<int>(matrizDoMapaAtual[0].length()), startX, endX);
+
+        std::string margemEsquerdaDoMapa = ControleDeMapa::calcularMargemCentralizada(larguraDoTerminal, endX - startX);
 
         std::string textoDeControlesDoJogador = "W,A,S,D: Mover | I: Inventario | C: Ficha | B: Bestiario";
-        int espacosParaCentralizarOsControles = (larguraDoTerminal - (int)textoDeControlesDoJogador.length()) / 2;
-        std::string margemEsquerdaDosControles(espacosParaCentralizarOsControles > 0 ? espacosParaCentralizarOsControles : 0, ' ');
+        std::string margemEsquerdaDosControles = ControleDeMapa::calcularMargemCentralizada(larguraDoTerminal, textoDeControlesDoJogador.length());
 
-        COORD posicaoDoCursorNoTerminal;
-        posicaoDoCursorNoTerminal.X = 0;
-        posicaoDoCursorNoTerminal.Y = linhaInicial;
-        SetConsoleCursorPosition(manipuladorDoTerminal, posicaoDoCursorNoTerminal);
+        SimplificacoesAparencia::moverCursor(0, linhaInicial);
 
-        for (int y = 0; y < matrizDoMapaAtual.size(); y++)
+        int startY, endY;
+        ControleDeMapa::calcularCameraVertical(alturaDoTerminal, posicaoYDoJogador, static_cast<int>(matrizDoMapaAtual.size()), startY, endY);
+
+        for (int y = startY; y < endY; y++)
         {
             std::string linhaSendoRenderizada = margemEsquerdaDoMapa;
-            linhaSendoRenderizada.reserve(margemEsquerdaDoMapa.size() + matrizDoMapaAtual[y].size() + 20);
-            for (int x = 0; x < matrizDoMapaAtual[y].size(); x++)
+            linhaSendoRenderizada.reserve(margemEsquerdaDoMapa.size() + (endX - startX) + 20);
+            for (int x = startX; x < endX; x++)
             {
                 if (x == posicaoXDoJogador && y == posicaoYDoJogador) {
                     linhaSendoRenderizada += SimplificacoesAparencia::cor(Cor::NEGRITO, Cor::VERDE) + "@" + SimplificacoesAparencia::cor(Cor::RESET);
@@ -129,15 +123,15 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
             }
             std::cout << linhaSendoRenderizada << "\n";
         }
-        std::cout << "\n" << margemEsquerdaDosControles << textoDeControlesDoJogador << "\n";
+        std::cout << "\n" << margemEsquerdaDosControles << textoDeControlesDoJogador << std::flush;
     };
 
     while (exploracaoEstaAtiva && jogadorAtual->obterVida() > 0)
     {
-        GetConsoleScreenBufferInfo(manipuladorDoTerminal, &informacoesDoBufferDaTela);
-        int larguraDoTerminal = informacoesDoBufferDaTela.srWindow.Right - informacoesDoBufferDaTela.srWindow.Left + 1;
+        int larguraDoTerminal = SimplificacoesAparencia::obterLarguraTerminal();
+        int alturaDoTerminal = SimplificacoesAparencia::obterAlturaTerminal();
 
-        renderizarMapa(larguraDoTerminal, linhaInicialParaDesenharOMapa);
+        renderizarMapa(larguraDoTerminal, alturaDoTerminal, linhaInicialParaDesenharOMapa);
 
         char teclaPressionadaPeloJogador = ControleDeInput::lerTecla();
 
@@ -149,9 +143,7 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
         if (jogadorAtual->obterVoltarProMenu()) break;
         if (abriuMenu) continue;
 
-        // Limites do mapa para impedir crash quando noclip estiver ativo
-        if (proximaPosicaoY < 0) proximaPosicaoY = 0; else if (proximaPosicaoY >= static_cast<int>(matrizDoMapaAtual.size())) proximaPosicaoY = static_cast<int>(matrizDoMapaAtual.size()) - 1;
-        if (proximaPosicaoX < 0) proximaPosicaoX = 0; else if (proximaPosicaoX >= static_cast<int>(matrizDoMapaAtual[0].size())) proximaPosicaoX = static_cast<int>(matrizDoMapaAtual[0].size()) - 1;
+        ControleDeMapa::aplicarLimitesDeMapa(proximaPosicaoX, proximaPosicaoY, matrizDoMapaAtual);
 
         char celulaDestino = matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX];
         
@@ -160,14 +152,14 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
             if (nextCell == 'C') {
                 if (!conviteRecebido) {
                     SimplificacoesAparencia::limparTela();
-                    TelaMenu::exibirLogoDoJogo("ACESSO NEGADO");
+                    SimplificacoesAparencia::exibirCabecalho("ACESSO NEGADO", Cor::CIANO);
                     int espacosM = (larguraDoTerminal - 60) / 2;
                     std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: Os portoes estao trancados. Voce precisa de uma permissao real.\n";
                     SimplificacoesAparencia::aguardarEnter();
                     restaurarTela();
                 } else {
                     SimplificacoesAparencia::limparTela();
-                    TelaMenu::exibirLogoDoJogo("FIM DA DEMO");
+                    SimplificacoesAparencia::exibirCabecalho("FIM DA DEMO", Cor::CIANO);
                     int espacosM = (larguraDoTerminal - 60) / 2;
                     std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: Voce apresentou o Convite Real e os portoes se abriram!\n";
                     std::cout << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: A historia continua em breve...\n";
@@ -181,7 +173,7 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
         }
         } else if (celulaDestino == 'G') {
             SimplificacoesAparencia::limparTela();
-            TelaMenu::exibirLogoDoJogo("GUARDA REAL");
+            SimplificacoesAparencia::exibirCabecalho("GUARDA REAL", Cor::CIANO);
             int espacosM = (larguraDoTerminal - 60) / 2;
             std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[Guarda]: Alto la! Somente o Rei pode conceder passagem.\n";
             std::cout << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[Guarda]: (O castelo ainda esta em construcao pelos deuses/devs)\n";

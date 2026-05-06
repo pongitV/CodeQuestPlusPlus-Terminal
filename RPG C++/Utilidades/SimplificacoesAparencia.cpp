@@ -3,6 +3,8 @@
 #include <limits>
 #include <chrono>
 #include <thread>
+#include <algorithm>
+#include <cctype>
 
 #ifdef _WIN32
     #include <windows.h>
@@ -36,6 +38,18 @@ void SimplificacoesAparencia::maximizarJanelaTerminal() {
 #endif
 }
 
+void SimplificacoesAparencia::ocultarCursor() {
+#ifdef _WIN32
+    HANDLE manipuladorDoTerminal = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_CURSOR_INFO informacoesDoCursor;
+    informacoesDoCursor.dwSize = 100;
+    informacoesDoCursor.bVisible = FALSE;
+    SetConsoleCursorInfo(manipuladorDoTerminal, &informacoesDoCursor);
+#else
+    std::cout << "\033[?25l";
+#endif
+}
+
 void SimplificacoesAparencia::limparTela() {
 #ifdef _WIN32
     system("cls");
@@ -54,16 +68,42 @@ void SimplificacoesAparencia::aguardarEnter() {
 }
 
 int SimplificacoesAparencia::obterLarguraTerminal() {
-    static int cachedLargura = 0;
-    if (cachedLargura > 0) return cachedLargura;
 #ifdef _WIN32
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi)) {
-        cachedLargura = csbi.srWindow.Right - csbi.srWindow.Left; // Removido o +1 para evitar line wrap duplo invisivel
+        return csbi.srWindow.Right - csbi.srWindow.Left; // Removido o +1 para evitar line wrap duplo invisivel
     }
 #endif
-    if (cachedLargura <= 0) cachedLargura = 119;
-    return cachedLargura;
+    return 119;
+}
+
+int SimplificacoesAparencia::obterAlturaTerminal() {
+#ifdef _WIN32
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi)) {
+        return csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+    }
+#endif
+    return 30;
+}
+
+void SimplificacoesAparencia::moverCursor(int x, int y) {
+#ifdef _WIN32
+    COORD coord = { static_cast<SHORT>(x), static_cast<SHORT>(y) };
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+#else
+    std::cout << "\033[" << (y + 1) << ";" << (x + 1) << "H";
+#endif
+}
+
+int SimplificacoesAparencia::obterPosicaoCursorY() {
+#ifdef _WIN32
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi)) {
+        return csbi.dwCursorPosition.Y;
+    }
+#endif
+    return 8;
 }
 
 std::string SimplificacoesAparencia::removerCoresANSI(const std::string& texto) {
@@ -125,4 +165,14 @@ void SimplificacoesAparencia::imprimirDigitando(const std::string& texto, int at
         std::this_thread::sleep_for(std::chrono::milliseconds(atrasoMs));
     }
     std::cout << std::endl;
+}
+
+void SimplificacoesAparencia::exibirCabecalho(const std::string& titulo, Cor corDoCabecalho) {
+    std::string tituloUpper = titulo;
+    std::transform(tituloUpper.begin(), tituloUpper.end(), tituloUpper.begin(), [](unsigned char c){ return std::toupper(c); });
+    
+    int largura = obterLarguraTerminal();
+    std::cout << cor(corDoCabecalho) << std::string(largura, '=') << cor(Cor::RESET) << "\n\n";
+    imprimirCentralizado(tituloUpper, cor(corDoCabecalho));
+    std::cout << "\n" << cor(corDoCabecalho) << std::string(largura, '=') << cor(Cor::RESET) << "\n";
 }

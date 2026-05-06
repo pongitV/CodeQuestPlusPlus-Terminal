@@ -9,9 +9,9 @@ std::string Elfo::obterNomeRaca() const
     return "Elfo";
 }
 
-std::vector<std::string> Elfo::obterAparenciaRaca() const 
+const std::vector<std::string>& Elfo::obterAparenciaRaca() const 
 {
-    return 
+    static const std::vector<std::string> aparencia = 
     {
         "                        ::::                          ",
         "                      =-:-..::                        ",
@@ -55,6 +55,7 @@ std::vector<std::string> Elfo::obterAparenciaRaca() const
         "            @@@@%.            :%%**                   ",
         "                               @@%@                   "
     };
+    return aparencia;
 }
 
 Atributos Elfo::obterAtributosRaca() const
