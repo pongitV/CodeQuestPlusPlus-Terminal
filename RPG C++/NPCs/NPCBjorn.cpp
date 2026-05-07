@@ -78,11 +78,11 @@ namespace {
     };
 
     void dialogoBjorn(const std::string& texto, bool novaLinhaAntes = true, bool novaLinhaDepois = true) {
-        if (novaLinhaAntes) std::cout << "\n";
-        std::cout << Aparencia::cor(Cor::CIANO);
-        Aparencia::imprimirDigitando("[Bjorn]:");
-        std::cout << Aparencia::cor(Cor::RESET);
-        Aparencia::imprimirDigitando(" " + texto + (novaLinhaDepois ? "\n" : ""));
+        Aparencia::imprimirDialogoNPC("Bjorn", Cor::CIANO, texto, novaLinhaAntes, novaLinhaDepois);
+    }
+
+    void dialogoBjorn(const std::vector<std::string>& linhas) {
+        Aparencia::imprimirDialogoNPC("Bjorn", Cor::CIANO, linhas);
     }
 }
 
@@ -103,12 +103,10 @@ const std::vector<std::string>& NPCBjorn::obterArteASCII() const {
 }
 
 void NPCBjorn::exibirDialogo(SistemaPersonagem* jogador) {
-    std::cout << "\n  ";
-    std::cout << Aparencia::cor(Cor::CIANO);
-    Aparencia::imprimirDigitando("[Bjorn]:");
-    std::cout << Aparencia::cor(Cor::RESET);
-    Aparencia::imprimirDigitando(" Bem-vindo a minha forja, salvador!\n");
-    Aparencia::imprimirDigitando(" O que vai ser hoje?\n\n");
+    dialogoBjorn(std::vector<std::string>{
+        "Bem-vindo a minha forja, salvador!",
+        "O que vai ser hoje?"
+    });
 }
 
 std::vector<std::string> NPCBjorn::obterOpcoesMenu(SistemaPersonagem* jogador, int larguraDoTerminal) {
@@ -187,33 +185,31 @@ namespace {
         std::string codigoDoItemBase, codigoDoItemCopia;
         do {
             TelaInventario::exibir(jogadorAtual);
-            Aparencia::exibirPrompt("[Bjorn]: Escolha a ARMA, ESCUDO ou ARMADURA para melhorar (requer copia) ou [0] VOLTAR: ");
+            dialogoBjorn("Escolha a ARMA, ESCUDO ou ARMADURA para melhorar (requer copia) ou [0] VOLTAR: ", true, false);
             std::cin >> codigoDoItemBase;
             if (codigoDoItemBase == "0") break;
             
             Item* itemBase = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigoDoItemBase, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
             if (!itemBase) { std::cout << "\n[SISTEMA]: Item invalido!\n"; Aparencia::aguardarEnter(); continue; }
-            if (itemBase == jogadorAtual->obterArma() || itemBase == jogadorAtual->obterEscudo() || itemBase == jogadorAtual->obterArmadura()) { std::cout << "\n[Bjorn]: Voce precisa DESEQUIPAR o item antes de usa-lo na bigorna!\n"; Aparencia::aguardarEnter(); continue; }
-            if (itemBase->temPropriedade(Propriedade::Melhorado)) { std::cout << "\n[Bjorn]: Este item ja atingiu o limite de melhoria basica!\n"; Aparencia::aguardarEnter(); continue; }
+            if (itemBase == jogadorAtual->obterArma() || itemBase == jogadorAtual->obterEscudo() || itemBase == jogadorAtual->obterArmadura()) { dialogoBjorn("Voce precisa DESEQUIPAR o item antes de usa-lo na bigorna!"); Aparencia::aguardarEnter(); continue; }
+            if (itemBase->temPropriedade(Propriedade::Melhorado)) { dialogoBjorn("Este item ja atingiu o limite de melhoria basica!"); Aparencia::aguardarEnter(); continue; }
             TipoEquipamento tipo = itemBase->obterTipo();
-            if (tipo != TipoEquipamento::ARMA && tipo != TipoEquipamento::ESCUDO && tipo != TipoEquipamento::ARMADURA) { std::cout << "\n[Bjorn]: Eu so posso melhorar Armas, Escudos e Armaduras!\n"; Aparencia::aguardarEnter(); continue; }
+            if (tipo != TipoEquipamento::ARMA && tipo != TipoEquipamento::ESCUDO && tipo != TipoEquipamento::ARMADURA) { dialogoBjorn("Eu so posso melhorar Armas, Escudos e Armaduras!"); Aparencia::aguardarEnter(); continue; }
 
-            Aparencia::exibirPrompt("[Bjorn]: Agora, escolha o SEGUNDO item identico (copia) ou [0] CANCELAR: ");
+            dialogoBjorn("Agora, escolha o SEGUNDO item identico (copia) ou [0] CANCELAR: ", true, false);
             std::cin >> codigoDoItemCopia;
             if (codigoDoItemCopia == "0") continue;
 
             Item* itemCopia = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigoDoItemCopia, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
             if (!itemCopia) { std::cout << "\n[SISTEMA]: Item invalido!\n"; Aparencia::aguardarEnter(); continue; }
-            if (itemBase->obterNomeItem() != itemCopia->obterNomeItem()) { std::cout << "\n[Bjorn]: Os itens precisam ser EXATAMENTE iguais para serem fundidos!\n"; Aparencia::aguardarEnter(); continue; }
+            if (itemBase->obterNomeItem() != itemCopia->obterNomeItem()) { dialogoBjorn("Os itens precisam ser EXATAMENTE iguais para serem fundidos!"); Aparencia::aguardarEnter(); continue; }
 
-            if (jogadorAtual->obterInventario()->contarItem(itemBase->obterNomeItem()) < 2) {
-                std::cout << "\n[Bjorn]: Voce nao possui UMA COPIA deste item!\n"; Aparencia::aguardarEnter(); continue; 
-            }
+            if (jogadorAtual->obterInventario()->contarItem(itemBase->obterNomeItem()) < 2) { dialogoBjorn("Voce nao possui UMA COPIA deste item!"); Aparencia::aguardarEnter(); continue; }
 
             if ((jogadorAtual->obterArma() && jogadorAtual->obterArma()->obterNomeItem() == itemBase->obterNomeItem()) ||
                 (jogadorAtual->obterEscudo() && jogadorAtual->obterEscudo()->obterNomeItem() == itemBase->obterNomeItem()) ||
                 (jogadorAtual->obterArmadura() && jogadorAtual->obterArmadura()->obterNomeItem() == itemBase->obterNomeItem())) {
-                std::cout << "\n[Bjorn]: Voce possui uma copia deste item equipada! DESEQUIPE antes de fundir.\n";
+                dialogoBjorn("Voce possui uma copia deste item equipada! DESEQUIPE antes de fundir.");
                 Aparencia::aguardarEnter(); continue;
             }
 

@@ -63,11 +63,11 @@ namespace {
     void processarVendaDeItens(SistemaPersonagem* jogadorAtual, int larguraDoTerminal);
 
     void dialogoFranchesco(const std::string& texto, bool novaLinhaAntes = true, bool novaLinhaDepois = true) {
-        if (novaLinhaAntes) std::cout << "\n";
-        std::cout << Aparencia::cor(Cor::AMARELO);
-        Aparencia::imprimirDigitando("[Franchesco]:"); // Using default speed
-        std::cout << Aparencia::cor(Cor::RESET);
-        Aparencia::imprimirDigitando(" " + texto + (novaLinhaDepois ? "\n" : "")); // Using default speed
+        Aparencia::imprimirDialogoNPC("Franchesco", Cor::AMARELO, texto, novaLinhaAntes, novaLinhaDepois);
+    }
+
+    void dialogoFranchesco(const std::vector<std::string>& linhas) {
+        Aparencia::imprimirDialogoNPC("Franchesco", Cor::AMARELO, linhas);
     }
 }
 
@@ -88,12 +88,10 @@ const std::vector<std::string>& NPCFranchesco::obterArteASCII() const {
 }
 
 void NPCFranchesco::exibirDialogo(SistemaPersonagem* jogador) {
-    std::cout << "\n  ";
-    std::cout << Aparencia::cor(Cor::AMARELO);
-    Aparencia::imprimirDigitando("[Franchesco]:");
-    std::cout << Aparencia::cor(Cor::RESET);
-    Aparencia::imprimirDigitando(" Bem-vindo! De uma olhada nas\n");
-    Aparencia::imprimirDigitando("  minhas mercadorias.\n\n");
+    dialogoFranchesco(std::vector<std::string>{
+        "Bem-vindo! De uma olhada nas",
+        "minhas mercadorias."
+    });
 }
 
 std::vector<std::string> NPCFranchesco::obterOpcoesMenu(SistemaPersonagem* jogador, int larguraDoTerminal) {

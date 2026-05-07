@@ -49,19 +49,34 @@ bool ControleDeMapa::processarInputEComandos(char tecla, SistemaPersonagem* joga
                     ItemID::GosmaAcida, ItemID::DenteGoblin, ItemID::NucleoPegajoso, ItemID::PoMagico, ItemID::MadeiraEnfeiticada, ItemID::CoracaoFloresta, ItemID::PedraUpgrade, ItemID::ConviteReal,
                     ItemID::DispositivoLinguagem
                 };
-                Aparencia::limparTela();
-                Aparencia::exibirCabecalho("OBTER ITEM", Cor::AMARELO);
-                for(size_t i=0; i<todosItens.size(); ++i) {
-                    std::cout << "[" << i+1 << "] " << FabricaItens::obterNomeDeID(todosItens[i]) << "\n";
+                while (true) {
+                    Aparencia::limparTela();
+                    Aparencia::exibirCabecalho("OBTER ITEM", Cor::AMARELO);
+                    for(size_t i=0; i<todosItens.size(); ++i) {
+                        std::cout << "[" << i+1 << "] " << FabricaItens::obterNomeDeID(todosItens[i]) << "\n";
+                    }
+                    std::cout << "[0] Voltar\n\nEscolha o ID do item: ";
+                    int escolhaID;
+                    if(std::cin >> escolhaID) {
+                        if (escolhaID == 0) break;
+                        if (escolhaID > 0 && escolhaID <= (int)todosItens.size()) {
+                            std::cout << "Quantidade: ";
+                            int quantidade;
+                            if (std::cin >> quantidade && quantidade > 0) {
+                                ItemID idEscolhido = todosItens[escolhaID-1];
+                                for (int q = 0; q < quantidade; ++q) {
+                                    jogador->obterInventario()->adicionarItem(FabricaItens::criarItem(idEscolhido));
+                                }
+                                std::cout << "\n[SISTEMA] " << quantidade << "x '" << FabricaItens::obterNomeDeID(idEscolhido) << "' adicionado(s) ao inventario!\n";
+                                Aparencia::aguardarEnter();
+                            } else {
+                                std::cin.clear(); std::cin.ignore(1000, '\n');
+                                std::cout << "\n[SISTEMA] Quantidade invalida!\n";
+                                Aparencia::aguardarEnter();
+                            }
+                        } else { std::cout << "\n[SISTEMA] ID invalido!\n"; Aparencia::aguardarEnter(); }
+                    } else { std::cin.clear(); std::cin.ignore(1000, '\n'); }
                 }
-                std::cout << "[0] Voltar\n\nEscolha o ID do item: ";
-                int escolhaID;
-                if(std::cin >> escolhaID && escolhaID > 0 && escolhaID <= (int)todosItens.size()) {
-                    ItemID idEscolhido = todosItens[escolhaID-1];
-                    jogador->obterInventario()->adicionarItem(FabricaItens::criarItem(idEscolhido));
-                    std::cout << "\n[SISTEMA] Item '" << FabricaItens::obterNomeDeID(idEscolhido) << "' adicionado ao inventario!\n";
-                    Aparencia::aguardarEnter();
-                } else { std::cin.clear(); std::cin.ignore(1000, '\n'); }
             } else if (escolhaDebug == "3") {
                 jogador->ganharOuro(10000);
                 jogador->ganharXp(10000);

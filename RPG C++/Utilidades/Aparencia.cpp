@@ -178,11 +178,23 @@ void Aparencia::imprimirBlocoCentralizado(const std::vector<std::string>& linhas
     imprimirCentralizadoMultilinha(linhas, tamanhoDaLinhaMaisLonga, corAnsi);
 }
 
-void Aparencia::imprimirDigitando(const std::string& texto, int atrasoMs) {
-    std::cout << "\033[s\033[80;1H" << cor(Cor::NEGRITO, Cor::CINZA) << "[Pressione 'k' para pular]" << cor(Cor::RESET) << "\033[u";
+void Aparencia::imprimirBlocoCentralizadoDigitando(const std::vector<std::string>& linhas, int atrasoMs) {
+    int tamanhoDaLinhaMaisLonga = 0;
+    for (const std::string& linha : linhas) {
+        tamanhoDaLinhaMaisLonga = std::max(tamanhoDaLinhaMaisLonga, static_cast<int>(removerCoresANSI(linha).length()));
+    }
+    std::string margem = espacosParaCentralizar(tamanhoDaLinhaMaisLonga);
+    for (const std::string& linha : linhas) {
+        imprimirDigitando(margem + linha, atrasoMs, true);
+    }
+}
+
+void Aparencia::imprimirDigitando(const std::string& texto, int atrasoMs, bool addNewline) {
+    int linhaMsg = Aparencia::obterAlturaTerminal() - 1; // Subtrai 1 para evitar scroll na ultima linha
+    if (linhaMsg < 1) linhaMsg = 1;
+    std::cout << "\033[s\033[" << linhaMsg << ";1H" << cor(Cor::NEGRITO, Cor::CINZA) << "[Pressione 'k' para pular]" << cor(Cor::RESET) << "\033[u";
 
     size_t i = 0;
-    // Imprime os espacos iniciais imediatamente para evitar lentidao da centralizacao
     while (i < texto.length() && texto[i] == ' ') {
         std::cout << texto[i];
         i++;
@@ -193,14 +205,22 @@ void Aparencia::imprimirDigitando(const std::string& texto, int atrasoMs) {
         if (ControleDeInput::teclaPressionada()) { 
             char tecla = ControleDeInput::lerTecla(); 
             if (tecla == 'k' || tecla == 'K') { 
-                std::cout << "\033[s\033[24;1H\033[K\033[u" << texto.substr(i) << std::flush; 
-                return; 
+                std::cout << "\033[s\033[" << linhaMsg << ";1H\033[K\033[u" << texto.substr(i) << std::flush; 
+                if (addNewline) {
+                    std::cout << std::endl;
+                }
+                return;
             } 
         }
         std::cout << texto[i] << std::flush;
         std::this_thread::sleep_for(std::chrono::milliseconds(atrasoMs));
     }
-    std::cout << std::endl;
+
+    std::cout << "\033[s\033[" << linhaMsg << ";1H\033[K\033[u" << std::flush;
+
+    if (addNewline) {
+        std::cout << std::endl;
+    }
 }
 
 void Aparencia::imprimirVetorAnimado(const std::vector<std::string>& linhas, int atrasoMs) {
@@ -347,4 +367,32 @@ void Aparencia::exibirHistoricoCompleto() {
         }
     }
     std::cout << "\n";
+}
+
+void Aparencia::imprimirDialogoNPC(const std::string& npcNome, Cor npcCor, const std::string& texto, bool novaLinhaAntes, bool novaLinhaDepois) {
+    if (novaLinhaAntes) {
+        std::cout << "\n";
+        // Imprime a tag colorida, depois reseta a cor
+        std::cout << Aparencia::cor(npcCor) << "[" << npcNome << "]: " << Aparencia::cor(Cor::RESET);
+        // Imprime o texto com a cor padrão
+        Aparencia::imprimirDigitando(texto, Aparencia::atrasoDigitacaoMS, novaLinhaDepois);
+    } else {
+        // Calcula o preenchimento para alinhar com o texto da primeira linha e o imprime
+        std::string tag = "[" + npcNome + "]: ";
+        std::cout << std::string(tag.length(), ' ');
+        // Imprime o texto com a cor padrão
+        Aparencia::imprimirDigitando(texto, Aparencia::atrasoDigitacaoMS, novaLinhaDepois);
+    }
+}
+
+void Aparencia::imprimirDialogoNPC(const std::string& npcNome, Cor npcCor, const std::vector<std::string>& linhas) {
+    if (linhas.empty()) return;
+    
+    // A primeira linha imprime a quebra de linha inicial e o Nome
+    imprimirDialogoNPC(npcNome, npcCor, linhas[0], true, true);
+    
+    // As linhas subsequentes apenas herdam o alinhamento
+    for (size_t i = 1; i < linhas.size(); ++i) {
+        imprimirDialogoNPC(npcNome, npcCor, linhas[i], false, true);
+    }
 }

@@ -88,11 +88,12 @@ namespace {
     };
 
     void dialogoCavaleiro(const std::string& texto, bool novaLinhaAntes = true, bool novaLinhaDepois = true) {
-        if (novaLinhaAntes) std::cout << "\n";
-        std::cout << "  " << Aparencia::cor(Cor::CINZA);
-        Aparencia::imprimirDigitando("[Cavaleiro Real]:");
-        std::cout << Aparencia::cor(Cor::RESET);
-        Aparencia::imprimirDigitando(" " + texto + (novaLinhaDepois ? "\n" : ""));
+        // Removido o "  " extra para consistência com a nova função auxiliar e outros NPCs.
+        Aparencia::imprimirDialogoNPC("Cavaleiro Real", Cor::CINZA, texto, novaLinhaAntes, novaLinhaDepois);
+    }
+
+    void dialogoCavaleiro(const std::vector<std::string>& linhas) {
+        Aparencia::imprimirDialogoNPC("Cavaleiro Real", Cor::CINZA, linhas);
     }
 }
 
@@ -136,9 +137,12 @@ void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trol
         if (posicaoTrollX == -1) {
             Aparencia::limparTela();
             Aparencia::exibirCabecalho("CAVALEIROS REAIS", Cor::CINZA);
-            dialogoCavaleiro("Ja temos Trolls tentando invadir nosso reino,");
-            Aparencia::imprimirDigitando("  voce precisa de permissao se nao quiser ser\n");
-            Aparencia::imprimirDigitando("  tratado como invasor tambem.\n\n");
+            dialogoCavaleiro(std::vector<std::string>{
+                "Ja temos Trolls tentando invadir nosso reino,",
+                "voce precisa de permissao se nao quiser ser",
+                "tratado como invasor tambem."
+            });
+            std::cout << "\n";
             
             Aparencia::imprimirLadoALado({""}, arteCavaleiro, 45, 0, Cor::RESET, Cor::CINZA);
             Aparencia::aguardarEnter();
@@ -148,9 +152,11 @@ void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trol
 
         Aparencia::limparTela();
         Aparencia::exibirCabecalho("PEDIDO DE AJUDA", Cor::CINZA);
-        dialogoCavaleiro("Viajante! Este Troll bloqueia a passagem.");
-        Aparencia::imprimirDigitando("  Nossas forcas estao se esgotando!\n");
-        dialogoCavaleiro("Nos ajude a derrota-lo e o recompensaremos!\n");
+        dialogoCavaleiro(std::vector<std::string>{
+            "Viajante! Este Troll bloqueia a passagem.",
+            "Nossas forcas estao se esgotando!",
+            "Nos ajude a derrota-lo e o recompensaremos!"
+        });
         
         std::vector<std::string> menuEsquerda = { "[1] Ajudar os Cavaleiros", "[0] Recuar" };
         int recuo = Aparencia::imprimirLadoALado(menuEsquerda, arteCavaleiro, 45, 0, Cor::RESET, Cor::CINZA);
@@ -189,8 +195,10 @@ void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trol
         if (!conviteRecebido) {
             Aparencia::limparTela();
             Aparencia::exibirCabecalho("RECOMPENSA", Cor::CINZA);
-            dialogoCavaleiro("Voce lutou bravamente e limpou o reino dos Trolls!\n");
-            dialogoCavaleiro("Como prometido, aqui esta a sua recompensa.\n", false);
+            dialogoCavaleiro(std::vector<std::string>{
+                "Voce lutou bravamente e limpou o reino dos Trolls!",
+                "Como prometido, aqui esta a sua recompensa."
+            });
             
             std::vector<std::string> menuEsquerda = { Aparencia::cor(Cor::AMARELO) + "[SISTEMA]: Voce recebeu o [Convite Real]!" + Aparencia::cor(Cor::RESET) };
             Aparencia::imprimirLadoALado(menuEsquerda, arteCavaleiro, 45, 0, Cor::RESET, Cor::CINZA);
@@ -202,7 +210,7 @@ void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trol
         } else {
             Aparencia::limparTela();
             Aparencia::exibirCabecalho("CAVALEIRO REAL", Cor::CINZA);
-            dialogoCavaleiro("O Rei o aguarda no castelo. Siga em frente!\n");
+            dialogoCavaleiro("O Rei o aguarda no castelo. Siga em frente!");
             Aparencia::imprimirLadoALado({""}, arteCavaleiro, 45, 0, Cor::RESET, Cor::CINZA);
             Aparencia::aguardarEnter();
             restaurarTela();

@@ -13,16 +13,19 @@ namespace {
         int larguraDoTerminal = Aparencia::obterLarguraTerminal();
         int espacosParaCentralizar = (larguraDoTerminal - (int)textoTransicao.length()) / 2;
         
+        int tempoTotalAnimacaoMs = 800;
+        int atrasoPorLinhaMs = arte.empty() ? 0 : tempoTotalAnimacaoMs / arte.size();
+
         for (size_t i = 0; i < arte.size(); ++i) {
             int espacos = (larguraDoTerminal - larguraArte) / 2;
             if (espacos < 0) espacos = 0;
             std::cout << std::string(espacos, ' ') << Aparencia::cor(corArte) << arte[i] << Aparencia::cor(Cor::RESET) << "\n";
-            std::this_thread::sleep_for(std::chrono::milliseconds(30)); // 30ms por linha criando o efeito Cortina
+            std::this_thread::sleep_for(std::chrono::milliseconds(atrasoPorLinhaMs)); 
         }
 
         std::cout << "\n\n" << std::string(espacosParaCentralizar > 0 ? espacosParaCentralizar : 0, ' ') << textoTransicao << "\n";
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1500)); 
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000)); 
     }
 }
 

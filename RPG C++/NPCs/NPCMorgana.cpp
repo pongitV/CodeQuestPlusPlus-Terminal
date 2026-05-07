@@ -62,11 +62,11 @@ namespace {
     void processarMissaoLabirinto(SistemaPersonagem* jogadorAtual);
 
     void dialogoMorgana(const std::string& texto, bool novaLinhaAntes = true, bool novaLinhaDepois = true) {
-        if (novaLinhaAntes) std::cout << "\n";
-        std::cout << Aparencia::cor(Cor::MAGENTA);
-        Aparencia::imprimirDigitando("[Morgana]:"); // Using default speed
-        std::cout << Aparencia::cor(Cor::RESET);
-        Aparencia::imprimirDigitando(" " + texto + (novaLinhaDepois ? "\n" : "")); // Using default speed
+        Aparencia::imprimirDialogoNPC("Morgana", Cor::MAGENTA, texto, novaLinhaAntes, novaLinhaDepois);
+    }
+
+    void dialogoMorgana(const std::vector<std::string>& linhas) {
+        Aparencia::imprimirDialogoNPC("Morgana", Cor::MAGENTA, linhas);
     }
 }
 
@@ -87,12 +87,10 @@ const std::vector<std::string>& NPCMorgana::obterArteASCII() const {
 }
 
 void NPCMorgana::exibirDialogo(SistemaPersonagem* jogador) {
-    std::cout << "\n  ";
-    std::cout << Aparencia::cor(Cor::MAGENTA);
-    Aparencia::imprimirDigitando("[Morgana]:");
-    std::cout << Aparencia::cor(Cor::RESET);
-    Aparencia::imprimirDigitando(" Hmmm... sinto cheiro de poder no ar.\n");
-    Aparencia::imprimirDigitando("  O que voce busca, viajante?\n\n");
+    dialogoMorgana(std::vector<std::string>{
+        "Hmmm... sinto cheiro de poder no ar.",
+        "O que voce busca, viajante?"
+    });
 }
 
 std::vector<std::string> NPCMorgana::obterOpcoesMenu(SistemaPersonagem* jogador, int larguraDoTerminal) {
@@ -247,26 +245,26 @@ namespace {
                 Aparencia::limparTela();
                 Aparencia::exibirCabecalho("ENCANTAMENTO SUCESSO", Cor::MAGENTA);
                 std::vector<std::string> arteCaldeirao = { 
-                    "                                         ",
-                    "⠀⠀⣤⣤⣤⣀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣠⣤⣤⡀⠀   ",
+                    "",
+                    "⠀⠀⣤⣤⣤⣀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣠⣤⣤⡀⠀",
                     "⠀⠀⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠁⠀",
                     "⠀⠀⣼⣿⣿⣦⠉⠉⠉⠉⠉⠉⠉⠙⠛⠛⠛⠛⠛⣛⣉⣩⣭⣽⣿⣿⣿⣧⠀⠀",
                     "⠀⢰⣿⣿⣿⣿⡇⢰⣿⣷⠀⣿⣿⣿⣧⠀⢸⡆⠸⣿⣿⣿⣿⣿⣿⣿⣿⣿⡆⠀",
                     "⠀⣼⣿⣿⣿⣿⡀⣸⣿⣿⣾⣿⣿⣿⣿⡇⢸⡇⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀",
                     "⠀⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⢸⣷⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠀",
                     "⠀⠸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠇⠀",
-                    "⠀⠀⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠀⠀ ",
-                    "⠀⠀⠀⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠀⠀⠀ ",
-                    "⠀⠀⠀⠀⠙⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠋⠀⠀⠀⠀ ",
-                    "⠀⠀⠀⠀⠀⣰⣿⣿⡿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⣿⣿⣇⠀⠀⠀⠀⠀  ",
-                    "⠀⠀⠀⠀⢰⣿⣿⡟⠀⠀⠉⠙⠛⠛⠛⠛⠛⠛⠋⠉⠀⠀⢻⣿⣿⣆⠀⠀⠀⠀  ",
-                    "⠀⠀⠀⠀⠈⠛⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠛⠁⠀⠀⠀⠀    ",
-                    "                                         "
+                    "⠀⠀⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠀⠀",
+                    "⠀⠀⠀⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠀⠀⠀",
+                    "⠀⠀⠀⠀⠙⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠋⠀⠀⠀⠀",
+                    "⠀⠀⠀⠀⠀⣰⣿⣿⡿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⣿⣿⣇⠀⠀⠀⠀⠀",
+                    "⠀⠀⠀⠀⢰⣿⣿⡟⠀⠀⠉⠙⠛⠛⠛⠛⠛⠛⠋⠉⠀⠀ ⢻⣿⣿⣆⠀⠀⠀⠀",
+                    "⠀⠀⠀⠀⠈⠛⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   ⠙⠛⠁⠀⠀⠀⠀",
+                    ""
                 };
                 
                 std::string equacao = "[" + nomeAntigoArma + "] + " + std::to_string(qtdNecessaria) + "x [" + itemNecessario + "] = [" + armaEscolhida->obterNomeItem() + "]";
-                Aparencia::imprimirCentralizadoMultilinha({equacao, ""}, 0, Aparencia::cor(Cor::AMARELO));
-                Aparencia::imprimirCentralizadoMultilinha(arteCaldeirao, 46, Aparencia::cor(Cor::RESET));
+                Aparencia::imprimirCentralizadoMultilinha({equacao, ""}, 0, Aparencia::cor(Cor::MAGENTA));
+                Aparencia::imprimirCentralizadoMultilinha(arteCaldeirao, 29, Aparencia::cor(Cor::MAGENTA));
                 
                 dialogoMorgana("Feito! A magia flui pela sua arma...");
                 Aparencia::aguardarEnter();
@@ -334,16 +332,20 @@ namespace {
             
             Aparencia::limparTela();
             Aparencia::exibirCabecalho("MISSAO CONCLUIDA", Cor::VERDE);
-            dialogoMorgana("Ah, perfeitos! Estes coracoes pulsam com uma magia ancestral.");
-            dialogoMorgana("Como recompensa, revelarei um segredo... Atras de mim, ha uma passagem secreta.", false);
-            dialogoMorgana("Use a entrada [^L] para explorar o meu Labirinto Subterraneo.", false);
-            dialogoMorgana("E um lugar perigoso, mergulhado em uma nevoa de cor roxa, mas guarda grandes tesouros.", false);
+            dialogoMorgana(std::vector<std::string>{
+                "Ah, perfeitos! Estes coracoes pulsam com uma magia ancestral.",
+                "Como recompensa, revelarei um segredo... Atras de mim, ha uma passagem secreta.",
+                "Use a entrada [^L] para explorar o meu Labirinto Subterraneo.",
+                "E um lugar perigoso, mergulhado em uma nevoa de cor roxa, mas guarda grandes tesouros."
+            });
         }
         else {
             Aparencia::limparTela();
             Aparencia::exibirCabecalho("MISSAO", Cor::VERDE);
-            dialogoMorgana("Voce ainda nao possui os 3 Coracoes da floresta que eu pedi. (Possui: " + std::to_string(qtdCoracoes) + "/3)");
-            dialogoMorgana("Eles sao dropados por Abominacoes no Coracao da Arvore.", false);
+            dialogoMorgana(std::vector<std::string>{
+                "Voce ainda nao possui os 3 Coracoes da floresta que eu pedi. (Possui: " + std::to_string(qtdCoracoes) + "/3)",
+                "Eles sao dropados por Abominacoes no Coracao da Arvore."
+            });
         }
         Aparencia::aguardarEnter();
     }
