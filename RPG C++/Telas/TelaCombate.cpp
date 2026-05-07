@@ -51,7 +51,18 @@ namespace {
         std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
         renderFunc();
         std::cout.rdbuf(oldCout);
-        std::cout << "\033[2J\033[3J\033[H" << buffer.str() << std::flush;
+        
+        std::string output = buffer.str();
+        size_t pos = 0;
+        // Insere o codigo ANSI \033[K antes de cada quebra de linha.
+        // Isso limpa o resto da linha no console, evitando que textos mais curtos 
+        // deixem "fantasmas" das renderizacoes anteriores.
+        while ((pos = output.find('\n', pos)) != std::string::npos) {
+            output.insert(pos, "\033[K");
+            pos += 4; // Avança o tamanho de "\033[K" (3) + "\n" (1)
+        }
+        
+        std::cout << "\033[H" << output << "\033[J" << std::flush;
     }
 }
 
@@ -291,6 +302,16 @@ void TelaCombate::animarMorteInimigo(const std::string& tituloCombate, const std
         });
         std::this_thread::sleep_for(std::chrono::milliseconds(25));
     }
+    
+    // Frame final para garantir que toda a arte seja apagada (corrige a falha quando totalLinhas for par)
+    renderizarFrameBufferizado([&]() {
+        exibirLogoParaTelaDeCombate(tituloCombate);
+        exibirHordaDeInimigosLadoALado(listaDeInimigos, inimigoMorto, totalLinhas, false, false, true);
+        exibirBarraDeStatusDoJogador(jogadorAtual);
+        for (auto* aliado : listaDeAliados) exibirBarraDeStatusDoJogador(aliado);
+        Aparencia::imprimirLinhaDivisoria();
+        for (const auto& msg : mensagensFixasCombate) std::cout << msg;
+    });
 }
 
 void TelaCombate::animarCuraNoInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados)
