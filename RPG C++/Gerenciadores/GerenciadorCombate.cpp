@@ -20,6 +20,7 @@
 #include "../Utilidades/Aparencia.h"
 #include "../Utilidades/GeradorAleatorio.h"
 #include "../Telas/TelaMenu.h"
+#include "../Utilidades/ControleDeInput.h"
 
 namespace {
     int lerInteiroComLimites(const std::string& promptMensagem, int minimo, int maximo, bool centralizarPrompt = false, bool usarMargemCombate = false) {
@@ -28,14 +29,15 @@ namespace {
         if (centralizarPrompt) Aparencia::exibirPrompt(promptMensagem);
         else std::cout << prefixo << promptMensagem;
 
-        while (!(std::cin >> valor) || valor < minimo || valor > maximo) {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            if (centralizarPrompt) {
-                Aparencia::exibirPrompt("Entrada invalida! " + promptMensagem);
-            } else {
-                std::cout << prefixo << "Entrada invalida! " << promptMensagem;
-            }
+        
+        while (true) {
+            std::string entrada = ControleDeInput::lerEntradaProtegida();
+            try {
+                valor = std::stoi(entrada);
+                if (valor >= minimo && valor <= maximo) break;
+            } catch (...) {}
+
+            std::cout << "\033[u\033[J"; // Apenas limpa a entrada invalida
         }
         return valor;
     }

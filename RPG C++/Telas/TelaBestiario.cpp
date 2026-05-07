@@ -10,6 +10,7 @@
 #include "../Sistemas/SistemaBestiario.h"
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Utilidades/Aparencia.h"
+#include "../Utilidades/ControleDeInput.h"
 
 static const std::vector<std::string> logoBestiario = {
     " ███████████  ██████████  █████████  ███████████ █████   █████████   ███████████   █████    ███████   ",
@@ -44,8 +45,7 @@ void TelaBestiario::exibirLista(SistemaPersonagem* jogadorAtual) {
         Aparencia::imprimirCentralizado("Explore e combata para desbloquear entries.");
         std::cout << "\n";
         Aparencia::exibirPrompt("[0] Voltar\n\nEscolha: ");
-        std::string escolha;
-        std::cin >> escolha;
+        std::string escolha = ControleDeInput::lerEntradaProtegida();
         return;
     }
 
@@ -82,15 +82,7 @@ void TelaBestiario::exibirLista(SistemaPersonagem* jogadorAtual) {
         }
 
         Aparencia::exibirPrompt("Escolha um numero (1-" + std::to_string(indiceFinal) + "), [P] pagina, [0] Voltar: ");
-        std::string entradaDigitadaPeloJogador;
-        std::cin >> entradaDigitadaPeloJogador;
-
-        while (std::cin.fail()) {
-            std::cin.clear();
-            std::cin.ignore(1000, '\n');
-            Aparencia::exibirPrompt("Entrada invalida. Escolha um numero (1-" + std::to_string(indiceFinal) + "), [P] pagina, [0] Voltar: ");
-            std::cin >> entradaDigitadaPeloJogador;
-        }
+        std::string entradaDigitadaPeloJogador = ControleDeInput::lerEntradaProtegida();
 
         if (entradaDigitadaPeloJogador == "p" || entradaDigitadaPeloJogador == "P") {
             paginaAtual = (paginaAtual + 1) % totalDePaginas;
@@ -223,8 +215,7 @@ void TelaBestiario::exibirFicha(SistemaPersonagem* jogadorAtual, const std::stri
         }, "");
 
         Aparencia::exibirPrompt("[0] Retornar a lista\n\nEscolha: ");
-        std::string escolha;
-        std::cin >> escolha;
+        std::string escolha = ControleDeInput::lerEntradaProtegida();
         if (escolha == "0") break;
     }
 }

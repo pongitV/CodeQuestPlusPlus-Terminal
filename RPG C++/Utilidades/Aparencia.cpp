@@ -157,7 +157,7 @@ void Aparencia::imprimirCentralizado(const std::string& texto, const std::string
     std::cout << std::string(espacos, ' ') << corAnsi << texto << (corAnsi.empty() ? "" : cor(Cor::RESET)) << "\n";
 }
 
-void Aparencia::imprimirCentralizadoMultilinha(const std::vector<std::string>& linhas, int larguraVisual, const std::string& corAnsi) {
+void Aparencia::imprimirCentralizadoMultilinha(const std::vector<std::string>& linhas, int larguraVisual, const std::string& corAnsi, int atrasoLinhaMs) {
     int larguraTerminal = obterLarguraTerminal();
     for (const std::string& linha : linhas) {
         if (larguraVisual > 0) {
@@ -167,15 +167,19 @@ void Aparencia::imprimirCentralizadoMultilinha(const std::vector<std::string>& l
         } else {
             imprimirCentralizado(linha, corAnsi);
         }
+        if (atrasoLinhaMs > 0) {
+            std::cout << std::flush;
+            std::this_thread::sleep_for(std::chrono::milliseconds(atrasoLinhaMs));
+        }
     }
 }
 
-void Aparencia::imprimirBlocoCentralizado(const std::vector<std::string>& linhas, const std::string& corAnsi) {
+void Aparencia::imprimirBlocoCentralizado(const std::vector<std::string>& linhas, const std::string& corAnsi, int atrasoLinhaMs) {
     int tamanhoDaLinhaMaisLonga = 0;
     for (const std::string& linha : linhas) {
         tamanhoDaLinhaMaisLonga = std::max(tamanhoDaLinhaMaisLonga, static_cast<int>(removerCoresANSI(linha).length()));
     }
-    imprimirCentralizadoMultilinha(linhas, tamanhoDaLinhaMaisLonga, corAnsi);
+    imprimirCentralizadoMultilinha(linhas, tamanhoDaLinhaMaisLonga, corAnsi, atrasoLinhaMs);
 }
 
 void Aparencia::imprimirBlocoCentralizadoDigitando(const std::vector<std::string>& linhas, int atrasoMs) {
@@ -241,7 +245,7 @@ void Aparencia::exibirCabecalho(const std::string& titulo, Cor corDoCabecalho) {
     std::cout << "\n" << cor(corDoCabecalho) << std::string(largura, '=') << cor(Cor::RESET) << "\n";
 }
 
-int Aparencia::imprimirLadoALado(const std::vector<std::string>& colunaEsquerda, const std::vector<std::string>& colunaDireita, int minLarguraEsquerda, int espacamento, Cor corEsquerda, Cor corDireita) {
+int Aparencia::imprimirLadoALado(const std::vector<std::string>& colunaEsquerda, const std::vector<std::string>& colunaDireita, int minLarguraEsquerda, int espacamento, Cor corEsquerda, Cor corDireita, int atrasoLinhaMs) {
     int larguraEsq = minLarguraEsquerda;
     for (const auto& s : colunaEsquerda) {
         if (static_cast<int>(removerCoresANSI(s).length()) > larguraEsq) {
@@ -278,6 +282,11 @@ int Aparencia::imprimirLadoALado(const std::vector<std::string>& colunaEsquerda,
             std::cout << cor(corDireita) << colunaDireita[i] << cor(Cor::RESET);
         }
         std::cout << "\n";
+        
+        if (atrasoLinhaMs > 0) {
+            std::cout << std::flush;
+            std::this_thread::sleep_for(std::chrono::milliseconds(atrasoLinhaMs));
+        }
     }
     
     return recuo;
@@ -287,11 +296,11 @@ void Aparencia::exibirPrompt(const std::string& mensagem) {
     std::cout << "\n" << espacosParaCentralizar(removerCoresANSI(mensagem).length()) << mensagem;
 }
 
-void Aparencia::exibirLogoAscii(const std::vector<std::string>& arteAscii, int larguraVisual, Cor corDaArte, const std::string& tituloSecundario) {
+void Aparencia::exibirLogoAscii(const std::vector<std::string>& arteAscii, int larguraVisual, Cor corDaArte, const std::string& tituloSecundario, int atrasoLinhaMs) {
     std::cout << "\n";
     imprimirLinhaDivisoria();
     std::cout << "\n";
-    imprimirCentralizadoMultilinha(arteAscii, larguraVisual, cor(corDaArte));
+    imprimirCentralizadoMultilinha(arteAscii, larguraVisual, cor(corDaArte), atrasoLinhaMs);
     std::cout << "\n";
     imprimirLinhaDivisoria();
     

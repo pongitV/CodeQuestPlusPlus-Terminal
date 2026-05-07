@@ -37,9 +37,7 @@
 #include "../Telas/TelaInventario.h"
 #include "../Telas/TelaMenu.h"
 #include "../Utilidades/Aparencia.h"
-
-namespace {
-}
+#include "../Utilidades/ControleDeInput.h"
 
 std::unique_ptr<SistemaPersonagem> GerenciadorMenu::menuPrincipal() 
 {
@@ -47,8 +45,7 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::menuPrincipal()
         bool temSave = SistemaSave::saveExiste();
         TelaMenu::exibirOpcoesMenuPrincipal(temSave);
         
-        std::string escolha;
-        std::cin >> escolha;
+        std::string escolha = ControleDeInput::lerEntradaProtegida();
         
         if (escolha == "1") {
             return iniciarCriacaoDeSistemaPersonagem();
@@ -75,10 +72,16 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::menuPrincipal()
             TelaMenu::exibirMenuCarregarJogo(informacoesSaves);
             
             int escolhaSave;
-            while (!(std::cin >> escolhaSave) || escolhaSave < 0 || escolhaSave > static_cast<int>(saves.size())) { 
-                std::cin.clear(); 
-                std::cin.ignore(1000, '\n'); 
-                Aparencia::exibirPrompt("Opcao invalida. Escolha: "); 
+            while (true) {
+                std::string entradaSave = ControleDeInput::lerEntradaProtegida();
+                try {
+                    escolhaSave = std::stoi(entradaSave);
+                    if (escolhaSave >= 0 && escolhaSave <= static_cast<int>(saves.size())) {
+                        break;
+                    }
+                } catch (...) {}
+                
+                std::cout << "\033[u\033[J"; 
             }
             
             if (escolhaSave > 0 && escolhaSave <= (int)saves.size()) {
@@ -134,8 +137,7 @@ void GerenciadorMenu::etapaEscolherNome(std::string& nomeDoPersonagem, EtapaCria
 {
     TelaMenu::exibirPromptNome();
     
-    std::string entrada;
-    std::getline(std::cin >> std::ws, entrada);
+    std::string entrada = ControleDeInput::lerEntradaProtegida();
 
     if (entrada == "0") exit(0);
     nomeDoPersonagem = entrada;
@@ -146,8 +148,9 @@ void GerenciadorMenu::etapaEscolherRaca(const std::string& nome, std::unique_ptr
 {
     TelaMenu::exibirPromptRaca(nome);
     
+    std::string entrada = ControleDeInput::lerEntradaProtegida();
     int escolha;
-    if (!(std::cin >> escolha)) { std::cin.clear(); std::cin.ignore(1000, '\n'); return; }
+    try { escolha = std::stoi(entrada); } catch (...) { return; }
     if (escolha == 0) { etapaAtual = EtapaCriacao::Nome; return; }
 
     std::unique_ptr<RacaBase> racaTemporaria;
@@ -174,8 +177,9 @@ void GerenciadorMenu::etapaEscolherClasse(const std::string& nome, RacaBase* rac
 {
     TelaMenu::exibirPromptClasse(nome, raca->obterNomeRaca());
     
+    std::string entrada = ControleDeInput::lerEntradaProtegida();
     int escolha;
-    if (!(std::cin >> escolha)) { std::cin.clear(); std::cin.ignore(1000, '\n'); return; }
+    try { escolha = std::stoi(entrada); } catch (...) { return; }
     if (escolha == 0) { etapaAtual = EtapaCriacao::Raca; return; }
 
     std::unique_ptr<ClasseBase> classeTemporaria;
@@ -229,8 +233,9 @@ void GerenciadorMenu::etapaConfigurarParry(const std::string& nome, RacaBase* ra
 {
     TelaMenu::exibirPromptParry(nome, raca->obterNomeRaca(), classe->obterNomeClasse());
     
+    std::string entrada = ControleDeInput::lerEntradaProtegida();
     int escolha;
-    if (!(std::cin >> escolha)) { std::cin.clear(); std::cin.ignore(1000, '\n'); return; }
+    try { escolha = std::stoi(entrada); } catch (...) { return; }
     if (escolha == 0) { etapaAtual = EtapaCriacao::Classe; return; }
 
     if (escolha == 1 || escolha == 2) 
@@ -244,8 +249,9 @@ void GerenciadorMenu::etapaEscolherDificuldade(const std::string& nome, RacaBase
 {
     TelaMenu::exibirPromptDificuldade(nome, raca->obterNomeRaca(), classe->obterNomeClasse());
     
+    std::string entrada = ControleDeInput::lerEntradaProtegida();
     int escolha;
-    if (!(std::cin >> escolha)) { std::cin.clear(); std::cin.ignore(1000, '\n'); return; }
+    try { escolha = std::stoi(entrada); } catch (...) { return; }
     if (escolha == 0) { etapaAtual = EtapaCriacao::Parry; return; }
 
     if (escolha >= 1 && escolha <= 3) 

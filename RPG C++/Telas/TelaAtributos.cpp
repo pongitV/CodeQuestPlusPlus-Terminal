@@ -3,11 +3,13 @@
 #include <string>
 #include <iomanip>
 #include <sstream>
+#include <chrono>
 
 #include "TelaAtributos.h"
 #include "../Racas/RacaBase.h"
 #include "../Classes/ClasseBase.h"
 #include "../Utilidades/Aparencia.h"
+#include "../Utilidades/ControleDeInput.h"
 
 struct EfeitoInfo {
     EfeitoID efeitoId;
@@ -27,7 +29,7 @@ namespace {
         std::vector<std::string> painelClasse = {"[ CLASSE: " + jogadorAtual->obterNomeClasse() + " ]", ""};
         for (const auto& linha : jogadorAtual->obterClasse()->obterAparenciaClasseMenu()) painelClasse.push_back(linha);
 
-        Aparencia::imprimirLadoALado(painelRaca, painelClasse, 0, 10, Cor::BRANCO, Cor::BRANCO);
+        Aparencia::imprimirLadoALado(painelRaca, painelClasse, 0, 10, Cor::BRANCO, Cor::BRANCO, 10);
         std::cout << "\n";
         Aparencia::imprimirLinhaDivisoria();
 
@@ -62,7 +64,7 @@ namespace {
             linhas.push_back(" Nenhum atributo de dano especifico definido para esta classe.");
         }
 
-        Aparencia::imprimirBlocoCentralizado(linhas, Aparencia::cor(Cor::BRANCO));
+        Aparencia::imprimirBlocoCentralizado(linhas, Aparencia::cor(Cor::BRANCO), 10);
         Aparencia::aguardarEnter();
     }
 }
@@ -71,6 +73,12 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
 {
     if (jogadorAtual == nullptr) return;
     Aparencia::limparTela();
+
+    static auto ultimoAcessoFicha = std::chrono::steady_clock::now() - std::chrono::hours(1);
+    auto agora = std::chrono::steady_clock::now();
+    bool animarEntrada = std::chrono::duration_cast<std::chrono::milliseconds>(agora - ultimoAcessoFicha).count() > 300;
+    ultimoAcessoFicha = agora;
+    int atrasoMs = animarEntrada ? 10 : 0;
 
     int largura = Aparencia::obterLarguraTerminal();
 
@@ -86,7 +94,7 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
        " ░░░░░       ░░░░░   ░░░░░░░░░  ░░░░░   ░░░░░ ░░░░░   ░░░░░ "
     };
 
-    Aparencia::exibirLogoAscii(logoFicha, 59, Cor::MAGENTA);
+    Aparencia::exibirLogoAscii(logoFicha, 59, Cor::MAGENTA, "", atrasoMs);
 
     double multiplicadorDeAtributosAtual = jogadorAtual->obterMultiplicador();
     int turnosBuff = jogadorAtual->obterTurnosEfeito(EfeitoID::BuffAtributos);
@@ -206,7 +214,7 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
     }
     if (!temStatus) linhasFicha.push_back("Nenhum status ativo.");
     
-    Aparencia::imprimirBlocoCentralizado(linhasFicha);
+    Aparencia::imprimirBlocoCentralizado(linhasFicha, "", atrasoMs);
 
     std::cout << "\n";
     Aparencia::imprimirLinhaDivisoria();
@@ -224,7 +232,7 @@ void TelaAtributos::gerenciarFichaDoJogador(SistemaPersonagem* jogadorAtual)
         if (jogadorAtual->podeSubirDeNivel()) mensagemDoPrompt += " | [2] SUBIR DE NIVEL";
         mensagemDoPrompt += " | [3] VOLTAR AO MENU PRINCIPAL | [4] DETALHES DE ATRIBUTOS: ";
         Aparencia::exibirPrompt(mensagemDoPrompt);
-        std::cin >> opcaoEscolhidaNoMenuJogador;
+        opcaoEscolhidaNoMenuJogador = ControleDeInput::lerEntradaProtegida();
 
         if (opcaoEscolhidaNoMenuJogador == "1") {
             jogadorAtual->definirParryAtivado(!jogadorAtual->obterParryAtivado());
@@ -240,24 +248,24 @@ void TelaAtributos::gerenciarFichaDoJogador(SistemaPersonagem* jogadorAtual)
             std::cout << "\n";
             Aparencia::exibirPrompt("Opcao: ");
 
-            if (std::cin >> opcaoAtributo && opcaoAtributo >= 1 && opcaoAtributo <= 7) {
-                TipoAtributo atributo = static_cast<TipoAtributo>(opcaoAtributo);
-                if (jogadorAtual->subirDeNivel(atributo)) {
-                    Aparencia::exibirPrompt("[SISTEMA]: Nivel subiu! Atributo melhorado.");
-                    Aparencia::aguardarEnter();
+            std::string entradaLvl = ControleDeInput::lerEntradaProtegida();
+            try {
+                opcaoAtributo = std::stoi(entradaLvl);
+                if (opcaoAtributo >= 1 && opcaoAtributo <= 7) {
+                    TipoAtributo atributo = static_cast<TipoAtributo>(opcaoAtributo);
+                    if (jogadorAtual->subirDeNivel(atributo)) {
+                        Aparencia::exibirPrompt("[SISTEMA]: Nivel subiu! Atributo melhorado.");
+                        Aparencia::aguardarEnter();
+                    }
                 }
-            } else {
-                std::cin.clear(); std::cin.ignore(1000, '\n');
-                Aparencia::exibirPrompt("[ERRO]: Opcao invalida.");
-                Aparencia::aguardarEnter();
-            }
+            } catch (...) {}
         } else if (opcaoEscolhidaNoMenuJogador == "3") {
             std::string confirmacao;
             Aparencia::exibirPrompt("[AVISO]: Deseja salvar jogo e voltar para o menu principal? (S/N): ");
-            std::cin >> confirmacao;
+            confirmacao = ControleDeInput::lerEntradaProtegida();
             if (confirmacao == "S" || confirmacao == "s") {
                 Aparencia::exibirPrompt("[AVISO]: Tem certeza? (S/N): ");
-                std::cin >> confirmacao;
+                confirmacao = ControleDeInput::lerEntradaProtegida();
                 if (confirmacao == "S" || confirmacao == "s") {
                     jogadorAtual->definirVoltarProMenu(true);
                     return;

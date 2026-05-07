@@ -23,7 +23,7 @@ void TelaVitoria::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroOb
        "     ░░░      ░░░░░    ░░░░░       ░░░░░░░    ░░░░░   ░░░░░ ░░░░░ ░░░░░   ░░░░░ ░░░  "
     };
 
-    Aparencia::exibirLogoAscii(logoVitoria, 85, Cor::VERDE);
+    Aparencia::exibirLogoAscii(logoVitoria, 85, Cor::VERDE, "", 15);
 
     std::vector<std::string> linhas = TelaCombate::comporEstatisticasBatalha(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, curaTotalRecebida, turnosCombate);
     linhas.push_back("");
@@ -35,7 +35,7 @@ void TelaVitoria::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroOb
         for (auto const& [nome, qtd] : contagem) linhas.push_back("  +" + std::to_string(qtd) + "x " + nome);
     } else linhas.push_back("ITENS OBTIDOS: Nenhum");
 
-    Aparencia::imprimirBlocoCentralizado(linhas, Aparencia::cor(Cor::VERDE));
+    Aparencia::imprimirBlocoCentralizado(linhas, Aparencia::cor(Cor::VERDE), 15);
     std::cout << "\n";
     Aparencia::imprimirLinhaDivisoria();
 

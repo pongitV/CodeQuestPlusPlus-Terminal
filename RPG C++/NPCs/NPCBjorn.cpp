@@ -12,6 +12,7 @@
 #include "../Inventario/EquipamentoArmadura.h"
 #include "../Telas/TelaInventario.h"
 #include "../Utilidades/Aparencia.h"
+#include "../Utilidades/ControleDeInput.h"
 
 namespace {
     std::map<int, ItemID> estoqueArmas = {
@@ -158,25 +159,29 @@ namespace {
             std::cout << "\n";
             Aparencia::imprimirBlocoCentralizado(linhas);
             std::cout << "\n";
-            Aparencia::exibirPrompt("Escolha: ");
-            std::cin >> opcaoCompra;
+            Aparencia::exibirPrompt("Escolha: \033[s");
+            
+            while (true) {
+                opcaoCompra = ControleDeInput::lerEntradaProtegida();
+                if (opcaoCompra == "0") break;
+                try {
+                    if (estoqueAtual.count(std::stoi(opcaoCompra))) break;
+                } catch (...) {}
+                std::cout << "\033[u\033[J";
+            }
             
             if (opcaoCompra != "0") {
-                try {
-                    int idCompra = std::stoi(opcaoCompra);
-                    if (estoqueAtual.count(idCompra)) {
-                        if (jogadorAtual->obterInventario()->obterOuro() >= 40) {
-                            jogadorAtual->obterInventario()->adicionarOuro(-40);
-                            std::unique_ptr<Item> novoItem = FabricaItens::criarItem(estoqueAtual[idCompra]);
-                            std::string nomeNovo = novoItem->obterNomeItem();
-                            jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
-                            dialogoBjorn("Otima escolha! Voce comprou " + nomeNovo + ".");
-                        } else {
-                            dialogoBjorn("Voce nao tem ouro suficiente para isso!");
-                        }
-                        Aparencia::aguardarEnter();
-                    }
-                } catch (...) {}
+                int idCompra = std::stoi(opcaoCompra);
+                if (jogadorAtual->obterInventario()->obterOuro() >= 40) {
+                    jogadorAtual->obterInventario()->adicionarOuro(-40);
+                    std::unique_ptr<Item> novoItem = FabricaItens::criarItem(estoqueAtual[idCompra]);
+                    std::string nomeNovo = novoItem->obterNomeItem();
+                    jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
+                    dialogoBjorn("Otima escolha! Voce comprou " + nomeNovo + ".");
+                } else {
+                    dialogoBjorn("Voce nao tem ouro suficiente para isso!");
+                }
+                Aparencia::aguardarEnter();
             }
         } while (opcaoCompra != "0");
     }
@@ -186,22 +191,36 @@ namespace {
         do {
             TelaInventario::exibir(jogadorAtual);
             dialogoBjorn("Escolha a ARMA, ESCUDO ou ARMADURA para melhorar (requer copia) ou [0] VOLTAR: ", true, false);
-            std::cin >> codigoDoItemBase;
+            std::cout << "\033[s";
+            
+            Item* itemBase = nullptr;
+            while (true) {
+                codigoDoItemBase = ControleDeInput::lerEntradaProtegida();
+                if (codigoDoItemBase == "0") break;
+                itemBase = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigoDoItemBase, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
+                if (itemBase) break;
+                std::cout << "\033[u\033[J";
+            }
             if (codigoDoItemBase == "0") break;
             
-            Item* itemBase = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigoDoItemBase, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
-            if (!itemBase) { std::cout << "\n[SISTEMA]: Item invalido!\n"; Aparencia::aguardarEnter(); continue; }
             if (itemBase == jogadorAtual->obterArma() || itemBase == jogadorAtual->obterEscudo() || itemBase == jogadorAtual->obterArmadura()) { dialogoBjorn("Voce precisa DESEQUIPAR o item antes de usa-lo na bigorna!"); Aparencia::aguardarEnter(); continue; }
             if (itemBase->temPropriedade(Propriedade::Melhorado)) { dialogoBjorn("Este item ja atingiu o limite de melhoria basica!"); Aparencia::aguardarEnter(); continue; }
             TipoEquipamento tipo = itemBase->obterTipo();
             if (tipo != TipoEquipamento::ARMA && tipo != TipoEquipamento::ESCUDO && tipo != TipoEquipamento::ARMADURA) { dialogoBjorn("Eu so posso melhorar Armas, Escudos e Armaduras!"); Aparencia::aguardarEnter(); continue; }
 
             dialogoBjorn("Agora, escolha o SEGUNDO item identico (copia) ou [0] CANCELAR: ", true, false);
-            std::cin >> codigoDoItemCopia;
-            if (codigoDoItemCopia == "0") continue;
+            std::cout << "\033[s";
 
-            Item* itemCopia = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigoDoItemCopia, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
-            if (!itemCopia) { std::cout << "\n[SISTEMA]: Item invalido!\n"; Aparencia::aguardarEnter(); continue; }
+            Item* itemCopia = nullptr;
+            while (true) {
+                codigoDoItemCopia = ControleDeInput::lerEntradaProtegida();
+                if (codigoDoItemCopia == "0") break;
+                itemCopia = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigoDoItemCopia, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
+                if (itemCopia) break;
+                std::cout << "\033[u\033[J";
+            }
+            if (codigoDoItemCopia == "0") continue;
+            
             if (itemBase->obterNomeItem() != itemCopia->obterNomeItem()) { dialogoBjorn("Os itens precisam ser EXATAMENTE iguais para serem fundidos!"); Aparencia::aguardarEnter(); continue; }
 
             if (jogadorAtual->obterInventario()->contarItem(itemBase->obterNomeItem()) < 2) { dialogoBjorn("Voce nao possui UMA COPIA deste item!"); Aparencia::aguardarEnter(); continue; }
@@ -261,11 +280,17 @@ namespace {
 
             TelaInventario::exibir(jogadorAtual);
         dialogoBjorn("Escolha a ARMADURA para melhorar (+3 Defesa/Resistencia) ou [0] VOLTAR: ", false, false);
-            std::cin >> codigoDaArmadura;
-            if (codigoDaArmadura == "0") break;
+            std::cout << "\033[s";
 
-            Item* itemParaUpgrade = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigoDaArmadura, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
-            if (!itemParaUpgrade) { std::cout << "\n[SISTEMA]: Item invalido!\n"; Aparencia::aguardarEnter(); continue; }
+            Item* itemParaUpgrade = nullptr;
+            while (true) {
+                codigoDaArmadura = ControleDeInput::lerEntradaProtegida();
+                if (codigoDaArmadura == "0") break;
+                itemParaUpgrade = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigoDaArmadura, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
+                if (itemParaUpgrade) break;
+                std::cout << "\033[u\033[J";
+            }
+            if (codigoDaArmadura == "0") break;
 
             if (itemParaUpgrade == jogadorAtual->obterArmadura() || itemParaUpgrade == jogadorAtual->obterArma() || itemParaUpgrade == jogadorAtual->obterEscudo()) {
             dialogoBjorn("Voce precisa DESEQUIPAR o item antes de usa-lo na bigorna!"); 

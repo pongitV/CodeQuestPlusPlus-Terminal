@@ -10,6 +10,7 @@
 #include "../Inventario/FabricaItens.h"
 #include "../Telas/TelaInventario.h"
 #include "../Utilidades/Aparencia.h"
+#include "../Utilidades/ControleDeInput.h"
 
 namespace {
     static const std::vector<std::string> arteFranchesco = {
@@ -139,9 +140,13 @@ namespace {
             };
             Aparencia::imprimirBlocoCentralizado(linhas);
             std::cout << "\n";
-            Aparencia::exibirPrompt("Escolha: ");
-
-            std::cin >> opcaoCompra;
+            Aparencia::exibirPrompt("Escolha: \033[s");
+            
+            while (true) {
+                opcaoCompra = ControleDeInput::lerEntradaProtegida();
+                if (opcaoCompra == "0" || opcaoCompra == "1") break;
+                std::cout << "\033[u\033[J";
+            }
 
             if (opcaoCompra == "1") {
                 int preco = 10;
@@ -176,11 +181,15 @@ namespace {
             };
             Aparencia::imprimirBlocoCentralizado(linhas);
             std::cout << "\n";
-            Aparencia::exibirPrompt("Escolha: ");
+            Aparencia::exibirPrompt("Escolha: \033[s");
+            
+            while (true) {
+                opcaoCompra = ControleDeInput::lerEntradaProtegida();
+                if (opcaoCompra >= "0" && opcaoCompra <= "4") break;
+                std::cout << "\033[u\033[J";
+            }
 
-            std::cin >> opcaoCompra;
-
-            if (opcaoCompra >= "1" && opcaoCompra <= "4") {
+            if (opcaoCompra != "0") {
                 int preco = 200;
                 if (jogadorAtual->obterInventario()->obterOuro() >= preco) {
                     jogadorAtual->obterInventario()->adicionarOuro(-preco);
@@ -220,9 +229,13 @@ namespace {
             };
             Aparencia::imprimirBlocoCentralizado(linhas);
             std::cout << "\n";
-            Aparencia::exibirPrompt("Escolha: ");
-
-            std::cin >> opcaoCompra;
+            Aparencia::exibirPrompt("Escolha: \033[s");
+            
+            while (true) {
+                opcaoCompra = ControleDeInput::lerEntradaProtegida();
+                if (opcaoCompra == "0" || opcaoCompra == "1") break;
+                std::cout << "\033[u\033[J";
+            }
 
             if (opcaoCompra == "1") {
                 int preco = 1000;
@@ -243,20 +256,26 @@ namespace {
         do {
             TelaInventario::exibir(jogadorAtual, true);
             dialogoFranchesco("Digite o codigo do item para vender ou [0] VOLTAR: ", false, false);
-            std::cin >> codigoVenda;
+            std::cout << "\033[s";
+            
+            Item* itemParaVenda = nullptr;
+            while (true) {
+                codigoVenda = ControleDeInput::lerEntradaProtegida();
+                if (codigoVenda == "0") break;
+                itemParaVenda = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigoVenda, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
+                if (itemParaVenda) break;
+                std::cout << "\033[u\033[J";
+            }
 
             if (codigoVenda != "0") {
-                Item* itemParaVenda = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigoVenda, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
-                if (itemParaVenda) {
-                    if (itemParaVenda == jogadorAtual->obterArma() || itemParaVenda == jogadorAtual->obterEscudo() || itemParaVenda == jogadorAtual->obterArmadura()) {
-                        dialogoFranchesco("Nao e possivel vender itens que estao equipados!"); Aparencia::aguardarEnter(); continue;
-                    }
-                    std::string nomeItemVenda = itemParaVenda->obterNomeItem();
-                    int precoVenda = itemParaVenda->obterPrecoVenda();
-                    jogadorAtual->obterInventario()->adicionarOuro(precoVenda);
-                    jogadorAtual->obterInventario()->removerItem(itemParaVenda);
-                    dialogoFranchesco("Voce vendeu " + nomeItemVenda + " por " + std::to_string(precoVenda) + "G!"); Aparencia::aguardarEnter();
-                } else { std::cout << "\n[SISTEMA]: Item invalido!\n"; Aparencia::aguardarEnter(); }
+                if (itemParaVenda == jogadorAtual->obterArma() || itemParaVenda == jogadorAtual->obterEscudo() || itemParaVenda == jogadorAtual->obterArmadura()) {
+                    dialogoFranchesco("Nao e possivel vender itens que estao equipados!"); Aparencia::aguardarEnter(); continue;
+                }
+                std::string nomeItemVenda = itemParaVenda->obterNomeItem();
+                int precoVenda = itemParaVenda->obterPrecoVenda();
+                jogadorAtual->obterInventario()->adicionarOuro(precoVenda);
+                jogadorAtual->obterInventario()->removerItem(itemParaVenda);
+                dialogoFranchesco("Voce vendeu " + nomeItemVenda + " por " + std::to_string(precoVenda) + "G!"); Aparencia::aguardarEnter();
             }
         } while (codigoVenda != "0");
     }

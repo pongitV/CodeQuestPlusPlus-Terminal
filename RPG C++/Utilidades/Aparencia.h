@@ -43,8 +43,8 @@ public:
     static std::string espacosParaCentralizar(int comprimentoTexto);
     static void imprimirLinhaDivisoria(char caractere = '=');
     static void imprimirCentralizado(const std::string& texto, const std::string& corAnsi = "");
-    static void imprimirCentralizadoMultilinha(const std::vector<std::string>& linhas, int larguraVisual = 0, const std::string& corAnsi = "");
-    static void imprimirBlocoCentralizado(const std::vector<std::string>& linhas, const std::string& corAnsi = "");
+    static void imprimirCentralizadoMultilinha(const std::vector<std::string>& linhas, int larguraVisual = 0, const std::string& corAnsi = "", int atrasoLinhaMs = 0);
+    static void imprimirBlocoCentralizado(const std::vector<std::string>& linhas, const std::string& corAnsi = "", int atrasoLinhaMs = 0);
     static void imprimirBlocoCentralizadoDigitando(const std::vector<std::string>& linhas, int atrasoMs = atrasoDigitacaoMS);
     static int atrasoDigitacaoMS; // Variável estática para a velocidade padrão
     static void imprimirDigitando(const std::string& texto, int atrasoMs = atrasoDigitacaoMS, bool addNewline = true);
@@ -52,10 +52,10 @@ public:
     static void imprimirDialogoNPC(const std::string& npcNome, Cor npcCor, const std::vector<std::string>& linhas);
     static void imprimirVetorAnimado(const std::vector<std::string>& linhas, int atrasoMs = 30);
     static void exibirCabecalho(const std::string& titulo, Cor corDoCabecalho = Cor::BRANCO);
-    static int imprimirLadoALado(const std::vector<std::string>& colunaEsquerda, const std::vector<std::string>& colunaDireita, int minLarguraEsquerda = 0, int espacamento = 0, Cor corEsquerda = Cor::RESET, Cor corDireita = Cor::RESET);
+    static int imprimirLadoALado(const std::vector<std::string>& colunaEsquerda, const std::vector<std::string>& colunaDireita, int minLarguraEsquerda = 0, int espacamento = 0, Cor corEsquerda = Cor::RESET, Cor corDireita = Cor::RESET, int atrasoLinhaMs = 0);
     static void exibirPrompt(const std::string& mensagem);
     static std::string margemCombate();
-    static void exibirLogoAscii(const std::vector<std::string>& arteAscii, int larguraVisual, Cor corDaArte, const std::string& tituloSecundario = "");
+    static void exibirLogoAscii(const std::vector<std::string>& arteAscii, int larguraVisual, Cor corDaArte, const std::string& tituloSecundario = "", int atrasoLinhaMs = 0);
 
     static void registrarLogBatalha(const std::string& texto);
     static void limparLogBatalha();

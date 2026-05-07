@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 enum class ComandoMapa {
     Cima,
     Baixo,
@@ -19,4 +21,5 @@ public:
     static char lerTecla();
     static ComandoMapa traduzirTeclaParaComando(char tecla);
     static void limparBuffer();
+    static std::string lerEntradaProtegida();
 };

@@ -6,6 +6,7 @@
 
 #include "../Utilidades/Aparencia.h"
 #include "../Sistemas/SistemaPersonagem.h"
+#include "../Utilidades/ControleDeInput.h"
 #include "../Racas/RacaBase.h"
 
 bool TelaMenu::exibirConfirmacaoDeEscolhaComArteLadoALado(const std::string& tipoDeEscolha, const std::string& nomeDaEscolha, const std::vector<std::string>& informacoesParaExibir, const std::vector<std::string>& arteAsciiParaExibir) 
@@ -18,11 +19,16 @@ bool TelaMenu::exibirConfirmacaoDeEscolhaComArteLadoALado(const std::string& tip
 
     std::cout << "\n" << std::string(recuoEsquerdo, ' ') << "0. VOLTAR | 1. CONFIRMAR\n";
     std::cout << std::string(recuoEsquerdo, ' ') << "Escolha: ";
-    int opcaoDeConfirmacao; 
-    while (!(std::cin >> opcaoDeConfirmacao) || (opcaoDeConfirmacao != 0 && opcaoDeConfirmacao != 1)) { 
-        std::cin.clear(); 
-        std::cin.ignore(1000, '\n'); 
-        std::cout << std::string(recuoEsquerdo, ' ') << "Opcao invalida. Escolha (0 ou 1): "; 
+    
+    int opcaoDeConfirmacao = -1; 
+    while (true) { 
+        std::string entrada = ControleDeInput::lerEntradaProtegida();
+        try {
+            opcaoDeConfirmacao = std::stoi(entrada);
+            if (opcaoDeConfirmacao == 0 || opcaoDeConfirmacao == 1) break;
+        } catch (...) {}
+        
+        std::cout << "\033[u\033[J"; 
     }
     return opcaoDeConfirmacao == 1;
 }

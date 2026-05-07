@@ -10,6 +10,7 @@
 #include "../Inventario/FabricaItens.h"
 #include "../Telas/TelaInventario.h"
 #include "../Utilidades/Aparencia.h"
+#include "../Utilidades/ControleDeInput.h"
 #include "../Inventario/EquipamentoArma.h"
 
 namespace {
@@ -149,10 +150,15 @@ namespace {
             std::cout << "\n";
             Aparencia::imprimirBlocoCentralizado(linhas);
             std::cout << "\n";
-            Aparencia::exibirPrompt("Escolha: ");
-            std::cin >> opcaoEncantar;
+            Aparencia::exibirPrompt("Escolha: \033[s");
+            
+            while (true) {
+                opcaoEncantar = ControleDeInput::lerEntradaProtegida();
+                if (opcaoEncantar >= "0" && opcaoEncantar <= "3") break;
+                std::cout << "\033[u\033[J";
+            }
 
-            if (opcaoEncantar == "1" || opcaoEncantar == "2" || opcaoEncantar == "3") {
+            if (opcaoEncantar != "0") {
                 struct EncantoInfo { ItemID idItem; int qtd; };
                 EncantoInfo encantos[] = {
                     {ItemID::DenteGoblin, 40}, {ItemID::NucleoPegajoso, 5}, {ItemID::PoMagico, 25},
@@ -176,11 +182,17 @@ namespace {
                 std::string codigoArma;
                 TelaInventario::exibir(jogadorAtual);
                 dialogoMorgana("Escolha a ARMA para encantar ou [0] VOLTAR: ", false, false);
-                std::cin >> codigoArma;
-                if (codigoArma == "0") continue;
+                std::cout << "\033[s";
                 
-                Item* itemEscolhido = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigoArma, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
-                if (!itemEscolhido) { std::cout << "\n[SISTEMA]: Item invalido!\n"; Aparencia::aguardarEnter(); continue; }
+                Item* itemEscolhido = nullptr;
+                while (true) {
+                    codigoArma = ControleDeInput::lerEntradaProtegida();
+                    if (codigoArma == "0") break;
+                    itemEscolhido = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigoArma, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
+                    if (itemEscolhido) break;
+                    std::cout << "\033[u\033[J";
+                }
+                if (codigoArma == "0") continue;
                 
                 EquipamentoArma* armaEscolhida = dynamic_cast<EquipamentoArma*>(itemEscolhido);
                 if (!armaEscolhida) { dialogoMorgana("Eu so posso encantar ARMAS com isso!"); Aparencia::aguardarEnter(); continue; }
@@ -294,10 +306,15 @@ namespace {
             std::cout << "\n";
             Aparencia::imprimirBlocoCentralizado(linhas);
             std::cout << "\n";
-            Aparencia::exibirPrompt("Escolha: ");
-            std::cin >> opcaoCompra;
+            Aparencia::exibirPrompt("Escolha: \033[s");
+            
+            while (true) {
+                opcaoCompra = ControleDeInput::lerEntradaProtegida();
+                if (opcaoCompra == "0" || opcaoCompra == "1" || opcaoCompra == "2") break;
+                std::cout << "\033[u\033[J";
+            }
 
-            if (opcaoCompra >= "1" && opcaoCompra <= "2") {
+            if (opcaoCompra != "0") {
                 int preco = (isBuff ? 25 : 30);
                 if (jogadorAtual->obterInventario()->obterOuro() >= preco) {
                     jogadorAtual->obterInventario()->adicionarOuro(-preco);

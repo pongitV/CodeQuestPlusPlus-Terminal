@@ -12,6 +12,7 @@
 #include "../Telas/TelaInventario.h"
 #include "../Telas/TelaMenu.h"
 #include "../Utilidades/Aparencia.h"
+#include "../Utilidades/ControleDeInput.h"
 
 namespace {
     // Executa a acao diretamente e retorna true caso a propriedade possua um efeito de consumivel
@@ -84,24 +85,32 @@ void InventarioCombate::gerenciarInventario(SistemaPersonagem* jogadorAtual, boo
     do 
     {
         TelaInventario::exibir(jogadorAtual);
-        Aparencia::exibirPrompt("Digite o codigo do item para interagir ou [0] VOLTAR: ");
-        std::cin >> codigoDoItemDigitado;
-        std::cin.ignore(1000, '\n');
+        Aparencia::exibirPrompt("Digite o codigo do item para interagir ou [0] VOLTAR: \033[s");
 
-        if (codigoDoItemDigitado != "0")
-        {
-            Item* itemEncontrado = jogadorAtual->obterInventario()->buscarItemPorCodigo(
+        Item* itemEncontrado = nullptr;
+        while (true) {
+            codigoDoItemDigitado = ControleDeInput::lerEntradaProtegida();
+            if (codigoDoItemDigitado == "0") break;
+            
+            itemEncontrado = jogadorAtual->obterInventario()->buscarItemPorCodigo(
                 codigoDoItemDigitado, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura()
             );
+            if (itemEncontrado) break;
+            
+            std::cout << "\033[u\033[J";
+        }
 
-            if (itemEncontrado)
-            {
+        if (codigoDoItemDigitado != "0" && itemEncontrado)
+        {
                     bool acaoConcluida = false;
                     while (!acaoConcluida) {
                         TelaInventario::exibirMenuInteracaoItem(itemEncontrado);
                         std::string subOpcao;
-                        std::cin >> subOpcao;
-                        std::cin.ignore(1000, '\n');
+                        while (true) {
+                            subOpcao = ControleDeInput::lerEntradaProtegida();
+                            if (subOpcao == "0" || subOpcao == "1" || subOpcao == "2") break;
+                            std::cout << "\033[u\033[J";
+                        }
 
                         if (subOpcao == "1") {
                             processarUsoDeItem(jogadorAtual, itemEncontrado, turnoFoiConsumido);
@@ -120,7 +129,6 @@ void InventarioCombate::gerenciarInventario(SistemaPersonagem* jogadorAtual, boo
                     if (turnoFoiConsumido && *turnoFoiConsumido) {
                         break;
                     }
-            }
         }
     } while (codigoDoItemDigitado != "0" && !(turnoFoiConsumido && *turnoFoiConsumido));
 }

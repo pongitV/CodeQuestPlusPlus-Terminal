@@ -23,8 +23,7 @@ bool ControleDeMapa::processarInputEComandos(char tecla, SistemaPersonagem* joga
             std::cout << "  [4] Noclip (Atravessar paredes): " << (jogador->isNoclip() ? Aparencia::cor(Cor::VERDE) + "LIGADO" : Aparencia::cor(Cor::VERMELHO) + "DESLIGADO") << Aparencia::cor(Cor::RESET) << "\n";
             std::cout << "  [0] Fechar Debug Menu\n\n  Escolha: ";
             
-            std::string escolhaDebug;
-            std::cin >> escolhaDebug;
+            std::string escolhaDebug = ControleDeInput::lerEntradaProtegida();
             
             if (escolhaDebug == "1") {
                 jogador->obterAtributosFinais().vida += 999999;
@@ -56,26 +55,29 @@ bool ControleDeMapa::processarInputEComandos(char tecla, SistemaPersonagem* joga
                         std::cout << "[" << i+1 << "] " << FabricaItens::obterNomeDeID(todosItens[i]) << "\n";
                     }
                     std::cout << "[0] Voltar\n\nEscolha o ID do item: ";
-                    int escolhaID;
-                    if(std::cin >> escolhaID) {
+                
+                std::string entradaID = ControleDeInput::lerEntradaProtegida();
+                int escolhaID = -1;
+                try { escolhaID = std::stoi(entradaID); } catch (...) {}
+                
+                if(escolhaID != -1) {
                         if (escolhaID == 0) break;
                         if (escolhaID > 0 && escolhaID <= (int)todosItens.size()) {
                             std::cout << "Quantidade: ";
-                            int quantidade;
-                            if (std::cin >> quantidade && quantidade > 0) {
+                        std::string entradaQtd = ControleDeInput::lerEntradaProtegida();
+                        int quantidade = -1;
+                        try { quantidade = std::stoi(entradaQtd); } catch (...) {}
+                        
+                        if (quantidade > 0) {
                                 ItemID idEscolhido = todosItens[escolhaID-1];
                                 for (int q = 0; q < quantidade; ++q) {
                                     jogador->obterInventario()->adicionarItem(FabricaItens::criarItem(idEscolhido));
                                 }
                                 std::cout << "\n[SISTEMA] " << quantidade << "x '" << FabricaItens::obterNomeDeID(idEscolhido) << "' adicionado(s) ao inventario!\n";
                                 Aparencia::aguardarEnter();
-                            } else {
-                                std::cin.clear(); std::cin.ignore(1000, '\n');
-                                std::cout << "\n[SISTEMA] Quantidade invalida!\n";
-                                Aparencia::aguardarEnter();
                             }
-                        } else { std::cout << "\n[SISTEMA] ID invalido!\n"; Aparencia::aguardarEnter(); }
-                    } else { std::cin.clear(); std::cin.ignore(1000, '\n'); }
+                        }
+                }
                 }
             } else if (escolhaDebug == "3") {
                 jogador->ganharOuro(10000);
@@ -141,10 +143,14 @@ void ControleDeMapa::processarCombate(
     std::cout << "\n" << margemEsquerdaMensagem << Aparencia::cor(Cor::AMARELO) << "[!] " << mensagemDeAviso << Aparencia::cor(Cor::RESET) << "\n";
     std::cout << margemEsquerdaMensagem << "[0] Nao, recuar | [1] Sim, batalha!\n" << margemEsquerdaMensagem << "Escolha: ";
 
-    int opcaoEscolhidaPeloJogador;
-    while (!(std::cin >> opcaoEscolhidaPeloJogador) || (opcaoEscolhidaPeloJogador != 0 && opcaoEscolhidaPeloJogador != 1)) {
-        std::cin.clear(); std::cin.ignore(1000, '\n');
-        std::cout << margemEsquerdaMensagem << "Entrada invalida. Escolha (0 ou 1): ";
+    int opcaoEscolhidaPeloJogador = -1;
+    while (true) {
+        std::string entrada = ControleDeInput::lerEntradaProtegida();
+        try {
+            opcaoEscolhidaPeloJogador = std::stoi(entrada);
+            if (opcaoEscolhidaPeloJogador == 0 || opcaoEscolhidaPeloJogador == 1) break;
+        } catch (...) {}
+        std::cout << "\033[u\033[J";
     }
 
     if (opcaoEscolhidaPeloJogador == 1) {

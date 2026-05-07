@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <chrono>
 
 #include "TelaInventario.h"
 #include "TelaMenu.h"
@@ -12,6 +13,12 @@ void TelaInventario::exibir(SistemaPersonagem* jogadorAtual, bool mostrarPrecos)
   if (jogadorAtual == nullptr) return;
     Aparencia::limparTela();
     
+    static auto ultimoAcesso = std::chrono::steady_clock::now() - std::chrono::hours(1);
+    auto agora = std::chrono::steady_clock::now();
+    bool animarEntrada = std::chrono::duration_cast<std::chrono::milliseconds>(agora - ultimoAcesso).count() > 300;
+    ultimoAcesso = agora;
+    int atrasoMs = animarEntrada ? 10 : 0;
+
     int largura = Aparencia::obterLarguraTerminal();
     std::vector<std::string> logoInventario = 
     {
@@ -25,7 +32,7 @@ void TelaInventario::exibir(SistemaPersonagem* jogadorAtual, bool mostrarPrecos)
       " ░░░░░ ░░░░░    ░░░░░      ░░░      ░░░░░░░░░░ ░░░░░    ░░░░░    ░░░░░    ░░░░░   ░░░░░ ░░░░░   ░░░░░ ░░░░░    ░░░░░░░     "
     };
 
-    Aparencia::exibirLogoAscii(logoInventario, 121, Cor::AMARELO);
+    Aparencia::exibirLogoAscii(logoInventario, 121, Cor::AMARELO, "", atrasoMs);
 
     int larguraDoTerminal = Aparencia::obterLarguraTerminal();
 
@@ -81,7 +88,7 @@ void TelaInventario::exibir(SistemaPersonagem* jogadorAtual, bool mostrarPrecos)
     formatarAgrupamento("[ ESTOQUE ]", materiaisAgrupados, 'S', "G / un");
     formatarAgrupamento("[ ITENS DE MISSAO ]", missoesAgrupadas, 'M', "");
 
-    Aparencia::imprimirBlocoCentralizado(linhasParaImprimir);
+    Aparencia::imprimirBlocoCentralizado(linhasParaImprimir, "", atrasoMs);
     
     std::cout << "\n";
     Aparencia::imprimirLinhaDivisoria();
@@ -103,5 +110,5 @@ void TelaInventario::exibirMenuInteracaoItem(Item* itemEncontrado)
     std::cout << "\n";
     Aparencia::imprimirBlocoCentralizado(linhas);
     std::cout << "\n";
-    Aparencia::exibirPrompt("Escolha: ");
+    Aparencia::exibirPrompt("Escolha: \033[s");
 }

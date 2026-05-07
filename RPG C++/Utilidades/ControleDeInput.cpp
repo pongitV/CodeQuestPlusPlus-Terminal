@@ -1,5 +1,6 @@
 #include "ControleDeInput.h"
 #include <iostream>
+#include <string>
 
 #ifdef _WIN32
     #include <conio.h>
@@ -44,4 +45,23 @@ ComandoMapa ControleDeInput::traduzirTeclaParaComando(char tecla)
     if (tecla == 'c' || tecla == 'C') return ComandoMapa::Ficha;
     if (tecla == 'b' || tecla == 'B') return ComandoMapa::Bestiario;
     return ComandoMapa::Nenhum;
+}
+
+std::string ControleDeInput::lerEntradaProtegida() {
+    std::cout << "\033[s";
+    std::string entrada;
+    while (true) {
+        if (!std::getline(std::cin, entrada)) std::cin.clear();
+        
+        if (!entrada.empty()) {
+            entrada.erase(0, entrada.find_first_not_of(" \n\r\t"));
+            entrada.erase(entrada.find_last_not_of(" \n\r\t") + 1);
+        }
+        
+        if (entrada.empty()) {
+            std::cout << "\033[u\033[J";
+            continue;
+        }
+        return entrada;
+    }
 }
