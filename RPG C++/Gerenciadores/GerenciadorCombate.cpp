@@ -94,11 +94,11 @@ std::vector<SistemaPersonagem*> GerenciadorCombate::obterInimigosRaw() const
     return ponteirosInimigos;
 }
 
-void GerenciadorCombate::exibirTelaDeCombate() const
+void GerenciadorCombate::exibirTelaDeCombate(bool animarEntrada) const
 {
     Aparencia::limparTela();
     TelaCombate::exibirLogoParaTelaDeCombate(obterTituloDoCombate());
-    TelaCombate::exibirHordaDeInimigosLadoALado(obterInimigosRaw());
+    TelaCombate::exibirHordaDeInimigosLadoALado(obterInimigosRaw(), nullptr, 0, false, animarEntrada);
     TelaCombate::exibirBarraDeStatusDoJogador(jogadorAtual);
     for (const auto& aliado : listaDeAliados) {
         if (aliado->obterVida() > 0) {
@@ -124,9 +124,11 @@ void GerenciadorCombate::iniciarCombate()
     }
     
     bool turnoExtraFirstTurn = (jogadorAtual->obterDestreza() > (maxDestrezaInimigos * 2));
+    bool primeiraRenderizacao = true;
     
     if (maxDestrezaInimigos > jogadorAtual->obterDestreza()) {
-        exibirTelaDeCombate();
+        exibirTelaDeCombate(primeiraRenderizacao);
+        primeiraRenderizacao = false;
         std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << "[SISTEMA]: Os inimigos sao mais ageis e atacam primeiro!" << Aparencia::cor(Cor::RESET) << "\n";
         Aparencia::registrarLogBatalha("[SISTEMA]: Os inimigos sao mais ageis e atacam primeiro!");
         Aparencia::aguardarEnter();
@@ -144,7 +146,8 @@ void GerenciadorCombate::iniciarCombate()
             bool usouInventarioNoTurno = false;
 
             while (!turnoFoiConsumido && jogadorAtual->obterVida() > 0 && !listaDeInimigos.empty()) {
-                exibirTelaDeCombate();
+                exibirTelaDeCombate(primeiraRenderizacao);
+                primeiraRenderizacao = false;
                 processarMenuDeAcoesDoJogador(jogadorAtual, turnoFoiConsumido, usouInventarioNoTurno);
                 if (verificarCondicaoDeVitoriaOuDerrota()) return; 
             }
@@ -354,6 +357,12 @@ void GerenciadorCombate::limparInimigosMortos()
     {
         if (inimigoPtr->obterVida() <= 0) 
         {
+                std::vector<SistemaPersonagem*> aliadosVivos;
+                for (const auto& aliado : listaDeAliados) {
+                    if (aliado->obterVida() > 0) aliadosVivos.push_back(aliado.get());
+                }
+                TelaCombate::animarMorteInimigo(obterTituloDoCombate(), obterInimigosRaw(), inimigoPtr.get(), jogadorAtual, aliadosVivos);
+
             processarMorteDeInimigo(inimigoPtr.get());
             Aparencia::aguardarEnter();
         }

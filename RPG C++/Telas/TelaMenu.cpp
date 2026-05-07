@@ -144,8 +144,8 @@ void TelaMenu::exibirPromptNome() {
     
     int maxLen = std::max(t1.length(), t2.length());
     std::string margem = Aparencia::espacosParaCentralizar(maxLen);
-    Aparencia::imprimirDigitando(margem + t1 + "\n", 35);
-    Aparencia::imprimirDigitando(margem + t2 + "\n\n", 35);
+    Aparencia::imprimirDigitando(margem + t1 + "\n");
+    Aparencia::imprimirDigitando(margem + t2 + "\n\n");
     Aparencia::exibirPrompt(" > Escolha o nome do seu personagem (ou '0' para sair): ");
 }
 
@@ -161,7 +161,7 @@ void TelaMenu::exibirPromptRaca(const std::string& nome) {
     std::cout << "\n";
     
     std::string t1 = "[NARRACAO]: Qual sua origem?";
-    Aparencia::imprimirDigitando(Aparencia::espacosParaCentralizar(t1.length()) + t1 + "\n\n", 35);
+    Aparencia::imprimirDigitando(Aparencia::espacosParaCentralizar(t1.length()) + t1 + "\n\n");
     
     std::vector<std::string> opcoes = {
         "[1] Dwarf", "[2] Elfo", "[3] Humano", "[4] Ork", "", "[0] VOLTAR (selecao de nome)"
@@ -182,7 +182,7 @@ void TelaMenu::exibirPromptClasse(const std::string& nome, const std::string& no
     std::cout << "\n";
     
     std::string t1 = "[NARRACAO]: Qual caminho voce seguira neste mundo?";
-    Aparencia::imprimirDigitando(Aparencia::espacosParaCentralizar(t1.length()) + t1 + "\n\n", 35);
+    Aparencia::imprimirDigitando(Aparencia::espacosParaCentralizar(t1.length()) + t1 + "\n\n");
 
     std::vector<std::string> opcoes = {
         "[1] Arqueiro", "[2] Bardo", "[3] Guerreiro", "[4] Mago", "", "[0] VOLTAR (selecao de raca)"
@@ -207,8 +207,8 @@ void TelaMenu::exibirPromptParry(const std::string& nome, const std::string& nom
     
     int maxLen = std::max(t1.length(), t2.length());
     std::string margem = Aparencia::espacosParaCentralizar(maxLen);
-    Aparencia::imprimirDigitando(margem + t1 + "\n", 35);
-    Aparencia::imprimirDigitando(margem + t2 + "\n\n", 35);
+    Aparencia::imprimirDigitando(margem + t1 + "\n");
+    Aparencia::imprimirDigitando(margem + t2 + "\n\n");
     
     std::vector<std::string> opcoes = {
         "[1] LIGAR Parry", "[2] DESLIGAR Parry", "", "[0] VOLTAR (selecao de classe)"
@@ -229,7 +229,7 @@ void TelaMenu::exibirPromptDificuldade(const std::string& nome, const std::strin
     std::cout << "\n";
     
     std::string t1 = "[SISTEMA]: Escolha o nivel de desafio da sua jornada:";
-    Aparencia::imprimirDigitando(Aparencia::espacosParaCentralizar(t1.length()) + t1 + "\n\n", 35);
+    Aparencia::imprimirDigitando(Aparencia::espacosParaCentralizar(t1.length()) + t1 + "\n\n");
     
     std::vector<std::string> opcoes = {
         "[1] FACIL   (Inimigos com 1x Atributos, sem hab. raca/classe)",

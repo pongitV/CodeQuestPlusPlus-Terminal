@@ -45,7 +45,9 @@ public:
     static void imprimirCentralizado(const std::string& texto, const std::string& corAnsi = "");
     static void imprimirCentralizadoMultilinha(const std::vector<std::string>& linhas, int larguraVisual = 0, const std::string& corAnsi = "");
     static void imprimirBlocoCentralizado(const std::vector<std::string>& linhas, const std::string& corAnsi = "");
-    static void imprimirDigitando(const std::string& texto, int atrasoMs);
+    static int atrasoDigitacaoMS; // Variável estática para a velocidade padrão
+    static void imprimirDigitando(const std::string& texto, int atrasoMs = atrasoDigitacaoMS); // Parâmetro com valor padrão
+    static void imprimirVetorAnimado(const std::vector<std::string>& linhas, int atrasoMs = 30);
     static void exibirCabecalho(const std::string& titulo, Cor corDoCabecalho = Cor::BRANCO);
     static int imprimirLadoALado(const std::vector<std::string>& colunaEsquerda, const std::vector<std::string>& colunaDireita, int minLarguraEsquerda = 0, int espacamento = 0, Cor corEsquerda = Cor::RESET, Cor corDireita = Cor::RESET);
     static void exibirPrompt(const std::string& mensagem);

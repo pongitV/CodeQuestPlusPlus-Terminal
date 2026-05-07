@@ -51,7 +51,7 @@ private:
 
     std::string obterTituloDoCombate() const;
     std::vector<SistemaPersonagem*> obterInimigosRaw() const;
-    void exibirTelaDeCombate() const;
+    void exibirTelaDeCombate(bool animarEntrada = false) const;
 
 public:
     GerenciadorCombate(SistemaPersonagem* jogadorParaOCombate, std::vector<std::unique_ptr<SistemaPersonagem>>&& inimigosParaOCombate);

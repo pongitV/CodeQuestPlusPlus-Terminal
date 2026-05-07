@@ -18,6 +18,8 @@ namespace {
     std::vector<std::string> historicoBatalha;
 }
 
+int Aparencia::atrasoDigitacaoMS = 25; // Inicialização da velocidade padrão (50ms)
+
 void Aparencia::inicializarConsole() {
 #ifdef _WIN32
     SetConsoleOutputCP(65001); // Configura UTF-8 globalmente apenas uma vez
@@ -62,11 +64,7 @@ void Aparencia::ocultarCursor() {
 }
 
 void Aparencia::limparTela() {
-#ifdef _WIN32
-    system("cls");
-#else
     std::cout << "\033[2J\033[3J\033[H" << std::flush;
-#endif
 }
 
 void Aparencia::aguardarEnter() {
@@ -203,6 +201,14 @@ void Aparencia::imprimirDigitando(const std::string& texto, int atrasoMs) {
         std::this_thread::sleep_for(std::chrono::milliseconds(atrasoMs));
     }
     std::cout << std::endl;
+}
+
+void Aparencia::imprimirVetorAnimado(const std::vector<std::string>& linhas, int atrasoMs) {
+    for (const std::string& linha : linhas) {
+        std::cout << linha << "\n";
+        std::cout << std::flush;
+        std::this_thread::sleep_for(std::chrono::milliseconds(atrasoMs));
+    }
 }
 
 void Aparencia::exibirCabecalho(const std::string& titulo, Cor corDoCabecalho) {

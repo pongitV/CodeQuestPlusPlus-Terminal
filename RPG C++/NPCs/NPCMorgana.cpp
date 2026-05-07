@@ -13,17 +13,7 @@
 #include "../Inventario/EquipamentoArma.h"
 
 namespace {
-    void processarEncantamentos(SistemaPersonagem* jogadorAtual, bool isUniversal);
-    void processarPocoes(SistemaPersonagem* jogadorAtual, bool isBuff);
-    void processarMissaoLabirinto(SistemaPersonagem* jogadorAtual);
-}
-
-void NPCMorgana::interagir(SistemaPersonagem* jogadorAtual)
-{
-    int larguraDoTerminal = Aparencia::obterLarguraTerminal();
-    std::string opcaoMorgana;
-    
-    std::vector<std::string> arteMorgana = 
+    static const std::vector<std::string> arteMorgana = 
     {
         "                                %*                          ",
         "                               #%%                          ",
@@ -67,45 +57,75 @@ void NPCMorgana::interagir(SistemaPersonagem* jogadorAtual)
         "                      +#%=                *#*:              "
     };
 
-    do {
-        Aparencia::limparTela();
-        Aparencia::exibirCabecalho("CABANA DA BRUXA", Cor::VERDE);
+    void processarEncantamentos(SistemaPersonagem* jogadorAtual, bool isUniversal);
+    void processarPocoes(SistemaPersonagem* jogadorAtual, bool isBuff);
+    void processarMissaoLabirinto(SistemaPersonagem* jogadorAtual);
 
-        std::vector<std::string> menuEsquerda = 
-        {
-            "[Morgana]: Hmmm... sinto cheiro de poder no ar.",
-            "O que voce busca, viajante?",
-            "",
-            "[1] ENCANTAR Armas (Universais)",
-            "[2] ENCANTAR Armas (Especificas)",
-            "[3] COMPRAR Pocoes de Buff",
-            "[4] COMPRAR Frascos de Debuff"
-        };
-        
-        if (!jogadorAtual->obterLabirintoDesbloqueado()) {
-            menuEsquerda.push_back("[5] [M] Consiga 3x Coracoes da floresta");
-        }
-        
-        menuEsquerda.push_back("[0] VOLTAR");
-        menuEsquerda.push_back("");
+    void dialogoMorgana(const std::string& texto, bool novaLinhaAntes = true, bool novaLinhaDepois = true) {
+        if (novaLinhaAntes) std::cout << "\n";
+        std::cout << Aparencia::cor(Cor::MAGENTA);
+        Aparencia::imprimirDigitando("[Morgana]:"); // Using default speed
+        std::cout << Aparencia::cor(Cor::RESET);
+        Aparencia::imprimirDigitando(" " + texto + (novaLinhaDepois ? "\n" : "")); // Using default speed
+    }
+}
 
-        int recuo = Aparencia::imprimirLadoALado(menuEsquerda, arteMorgana, 45, 0, Cor::RESET, Cor::MAGENTA);
-        std::cout << "\n" << std::string(recuo, ' ') << "Escolha: ";
-        std::cin >> opcaoMorgana;
+std::string NPCMorgana::obterNomeDoLugar() const {
+    return "CABANA DA BRUXA";
+}
 
-        if (opcaoMorgana == "1") {
-            processarEncantamentos(jogadorAtual, true);
-        }
-        else if (opcaoMorgana == "2") {
-            processarEncantamentos(jogadorAtual, false);
-        }
-        else if (opcaoMorgana == "3" || opcaoMorgana == "4") {
-            processarPocoes(jogadorAtual, opcaoMorgana == "3");
-        }
-        else if (opcaoMorgana == "5" && !jogadorAtual->obterLabirintoDesbloqueado()) {
-            processarMissaoLabirinto(jogadorAtual);
-        }
-    } while (opcaoMorgana != "0");
+Cor NPCMorgana::obterCorDoCabecalho() const {
+    return Cor::MAGENTA;
+}
+
+Cor NPCMorgana::obterCorDaArte() const {
+    return Cor::MAGENTA;
+}
+
+const std::vector<std::string>& NPCMorgana::obterArteASCII() const {
+    return arteMorgana;
+}
+
+void NPCMorgana::exibirDialogo(SistemaPersonagem* jogador) {
+    std::cout << "\n  ";
+    std::cout << Aparencia::cor(Cor::MAGENTA);
+    Aparencia::imprimirDigitando("[Morgana]:");
+    std::cout << Aparencia::cor(Cor::RESET);
+    Aparencia::imprimirDigitando(" Hmmm... sinto cheiro de poder no ar.\n");
+    Aparencia::imprimirDigitando("  O que voce busca, viajante?\n\n");
+}
+
+std::vector<std::string> NPCMorgana::obterOpcoesMenu(SistemaPersonagem* jogador, int larguraDoTerminal) {
+    std::vector<std::string> menuEsquerda = 
+    {
+        "[1] ENCANTAR Armas (Universais)",
+        "[2] ENCANTAR Armas (Especificas)",
+        "[3] COMPRAR Pocoes de Buff",
+        "[4] COMPRAR Frascos de Debuff"
+    };
+    
+    if (!jogador->obterLabirintoDesbloqueado()) {
+        menuEsquerda.push_back("[5] [M] Consiga 3x Coracoes da floresta");
+    }
+    
+    menuEsquerda.push_back("[0] VOLTAR");
+    menuEsquerda.push_back("");
+    return menuEsquerda;
+}
+
+void NPCMorgana::processarOpcao(SistemaPersonagem* jogador, const std::string& opcao, int larguraDoTerminal) {
+    if (opcao == "1") {
+        processarEncantamentos(jogador, true);
+    }
+    else if (opcao == "2") {
+        processarEncantamentos(jogador, false);
+    }
+    else if (opcao == "3" || opcao == "4") {
+        processarPocoes(jogador, opcao == "3");
+    }
+    else if (opcao == "5" && !jogador->obterLabirintoDesbloqueado()) {
+        processarMissaoLabirinto(jogador);
+    }
 }
 
 namespace {
@@ -113,7 +133,7 @@ namespace {
         std::string opcaoEncantar;
         do {
             Aparencia::limparTela();
-            Aparencia::exibirCabecalho(isUniversal ? "CABANA - ENCANTOS UNIVERSAIS" : "CABANA - ENCANTOS ESPECIFICOS", Cor::VERDE);
+            Aparencia::exibirCabecalho(isUniversal ? "CABANA - ENCANTOS UNIVERSAIS" : "CABANA - ENCANTOS ESPECIFICOS", Cor::MAGENTA);
             
             std::vector<std::string> linhas = { "Escolha um encantamento:", "" };
             if (isUniversal) {
@@ -150,14 +170,14 @@ namespace {
                 
                 int qtdAtual = jogadorAtual->obterInventario()->contarItem(itemNecessario);
                 if (qtdAtual < qtdNecessaria) {
-                    std::cout << "\n[Morgana]: Voce nao tem " << itemNecessario << " suficiente! (Possui: " << qtdAtual << "/" << qtdNecessaria << ")\n";
+                    dialogoMorgana("Voce nao tem " + itemNecessario + " suficiente! (Possui: " + std::to_string(qtdAtual) + "/" + std::to_string(qtdNecessaria) + ")");
                     Aparencia::aguardarEnter();
                     continue;
                 }
                 
                 std::string codigoArma;
                 TelaInventario::exibir(jogadorAtual);
-            Aparencia::exibirPrompt("[Morgana]: Escolha a ARMA para encantar ou [0] VOLTAR: ");
+                dialogoMorgana("Escolha a ARMA para encantar ou [0] VOLTAR: ", false, false);
                 std::cin >> codigoArma;
                 if (codigoArma == "0") continue;
                 
@@ -165,22 +185,22 @@ namespace {
                 if (!itemEscolhido) { std::cout << "\n[SISTEMA]: Item invalido!\n"; Aparencia::aguardarEnter(); continue; }
                 
                 EquipamentoArma* armaEscolhida = dynamic_cast<EquipamentoArma*>(itemEscolhido);
-                if (!armaEscolhida) { std::cout << "\n[Morgana]: Eu so posso encantar ARMAS com isso!\n"; Aparencia::aguardarEnter(); continue; }
+                if (!armaEscolhida) { dialogoMorgana("Eu so posso encantar ARMAS com isso!"); Aparencia::aguardarEnter(); continue; }
                 
                 std::string nomeArco = FabricaItens::obterNomeDeID(ItemID::ArcoMadeira);
                 std::string nomeCajado = FabricaItens::obterNomeDeID(ItemID::CajadoCristal);
                 std::string nomeViolao = FabricaItens::obterNomeDeID(ItemID::ViolaoEncantado);
 
-                if (isMagia && armaEscolhida->obterNomeItem().find(nomeArco) == std::string::npos) { std::cout << "\n[Morgana]: Este encantamento so funciona no Arco recurvo de madeira!\n"; Aparencia::aguardarEnter(); continue; }
-                if (isCipos && armaEscolhida->obterNomeItem().find(nomeCajado) == std::string::npos) { std::cout << "\n[Morgana]: Este encantamento so funciona no Cajado de cristal magico!\n"; Aparencia::aguardarEnter(); continue; }
-                if (isRaizes && armaEscolhida->obterNomeItem().find(nomeViolao) == std::string::npos) { std::cout << "\n[Morgana]: Este encantamento so funciona no Violao!\n"; Aparencia::aguardarEnter(); continue; }
+                if (isMagia && armaEscolhida->obterNomeItem().find(nomeArco) == std::string::npos) { dialogoMorgana("Este encantamento so funciona no Arco recurvo de madeira!"); Aparencia::aguardarEnter(); continue; }
+                if (isCipos && armaEscolhida->obterNomeItem().find(nomeCajado) == std::string::npos) { dialogoMorgana("Este encantamento so funciona no Cajado de cristal magico!"); Aparencia::aguardarEnter(); continue; }
+                if (isRaizes && armaEscolhida->obterNomeItem().find(nomeViolao) == std::string::npos) { dialogoMorgana("Este encantamento so funciona no Violao!"); Aparencia::aguardarEnter(); continue; }
                 
-                if (isSangramento && armaEscolhida->possuiEfeitoSangramento()) { std::cout << "\n[Morgana]: Esta arma ja esta encantada com Sangramento!\n"; Aparencia::aguardarEnter(); continue; }
-                if (isLentidao && armaEscolhida->possuiEfeitoLentidao()) { std::cout << "\n[Morgana]: Esta arma ja esta encantada com Lentidao!\n"; Aparencia::aguardarEnter(); continue; }
-                if (isResistencia && armaEscolhida->temPropriedade(Propriedade::Penetrante)) { std::cout << "\n[Morgana]: Esta arma ja esta encantada com Reducao de Resistencia!\n"; Aparencia::aguardarEnter(); continue; }
-                if (isMagia && armaEscolhida->temPropriedade(Propriedade::Magica)) { std::cout << "\n[Morgana]: Esta arma ja esta encantada com Magia!\n"; Aparencia::aguardarEnter(); continue; }
-                if (isCipos && armaEscolhida->temPropriedade(Propriedade::CipoPrisao)) { std::cout << "\n[Morgana]: Esta arma ja esta encantada com Cipos!\n"; Aparencia::aguardarEnter(); continue; }
-                if (isRaizes && armaEscolhida->temPropriedade(Propriedade::ViolaoMagico)) { std::cout << "\n[Morgana]: Esta arma ja esta encantada com Raizes!\n"; Aparencia::aguardarEnter(); continue; }
+                if (isSangramento && armaEscolhida->possuiEfeitoSangramento()) { dialogoMorgana("Esta arma ja esta encantada com Sangramento!"); Aparencia::aguardarEnter(); continue; }
+                if (isLentidao && armaEscolhida->possuiEfeitoLentidao()) { dialogoMorgana("Esta arma ja esta encantada com Lentidao!"); Aparencia::aguardarEnter(); continue; }
+                if (isResistencia && armaEscolhida->temPropriedade(Propriedade::Penetrante)) { dialogoMorgana("Esta arma ja esta encantada com Reducao de Resistencia!"); Aparencia::aguardarEnter(); continue; }
+                if (isMagia && armaEscolhida->temPropriedade(Propriedade::Magica)) { dialogoMorgana("Esta arma ja esta encantada com Magia!"); Aparencia::aguardarEnter(); continue; }
+                if (isCipos && armaEscolhida->temPropriedade(Propriedade::CipoPrisao)) { dialogoMorgana("Esta arma ja esta encantada com Cipos!"); Aparencia::aguardarEnter(); continue; }
+                if (isRaizes && armaEscolhida->temPropriedade(Propriedade::ViolaoMagico)) { dialogoMorgana("Esta arma ja esta encantada com Raizes!"); Aparencia::aguardarEnter(); continue; }
                 
                 std::string nomeAntigoArma = armaEscolhida->obterNomeItem();
 
@@ -225,7 +245,7 @@ namespace {
                 }
                 
                 Aparencia::limparTela();
-                Aparencia::exibirCabecalho("ENCANTAMENTO SUCESSO", Cor::VERDE);
+                Aparencia::exibirCabecalho("ENCANTAMENTO SUCESSO", Cor::MAGENTA);
                 std::vector<std::string> arteCaldeirao = { 
                     "                                         ",
                     "⠀⠀⣤⣤⣤⣀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣠⣤⣤⡀⠀   ",
@@ -248,7 +268,7 @@ namespace {
                 Aparencia::imprimirCentralizadoMultilinha({equacao, ""}, 0, Aparencia::cor(Cor::AMARELO));
                 Aparencia::imprimirCentralizadoMultilinha(arteCaldeirao, 46, Aparencia::cor(Cor::RESET));
                 
-                std::cout << "\n[Morgana]: Feito! A magia flui pela sua arma...\n";
+                dialogoMorgana("Feito! A magia flui pela sua arma...");
                 Aparencia::aguardarEnter();
             }
         } while (opcaoEncantar != "0");
@@ -259,7 +279,7 @@ namespace {
         std::string opcaoCompra;
         do {
             Aparencia::limparTela();
-            Aparencia::exibirCabecalho(titulo, Cor::VERDE);
+            Aparencia::exibirCabecalho(titulo, Cor::MAGENTA);
 
             std::vector<std::string> linhas = { "Seu Ouro: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G", "" };
 
@@ -295,10 +315,10 @@ namespace {
                     if (novoItem) {
                         std::string nomeDoNovoItem = novoItem->obterNomeItem();
                         jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
-                        std::cout << "\n[Morgana]: Heehee... Use com sabedoria! " << nomeDoNovoItem << " adicionado.\n";
+                        dialogoMorgana("Heehee... Use com sabedoria! " + nomeDoNovoItem + " adicionado.");
                     }
                 } else {
-                    std::cout << "\n[Morgana]: Voce nao tem ouro suficiente para as minhas preparacoes!\n";
+                    dialogoMorgana("Voce nao tem ouro suficiente para as minhas preparacoes!");
                 }
                 Aparencia::aguardarEnter();
             }
@@ -314,36 +334,17 @@ namespace {
             
             Aparencia::limparTela();
             Aparencia::exibirCabecalho("MISSAO CONCLUIDA", Cor::VERDE);
-            std::vector<std::string> texto = {
-                "[Morgana]: Ah, perfeitos! Estes coracoes pulsam com uma magia ancestral.",
-                "[Morgana]: Como recompensa, revelarei um segredo... Atras de mim, ha uma passagem secreta.",
-                "[Morgana]: Use a entrada [^L] para explorar o meu Labirinto Subterraneo.",
-                "[Morgana]: E um lugar perigoso, mergulhado em uma nevoa de cor roxa, mas guarda grandes tesouros."
-            };
-            std::cout << "\n";
-            Aparencia::imprimirBlocoCentralizado(texto);
+            dialogoMorgana("Ah, perfeitos! Estes coracoes pulsam com uma magia ancestral.");
+            dialogoMorgana("Como recompensa, revelarei um segredo... Atras de mim, ha uma passagem secreta.", false);
+            dialogoMorgana("Use a entrada [^L] para explorar o meu Labirinto Subterraneo.", false);
+            dialogoMorgana("E um lugar perigoso, mergulhado em uma nevoa de cor roxa, mas guarda grandes tesouros.", false);
         }
         else {
             Aparencia::limparTela();
             Aparencia::exibirCabecalho("MISSAO", Cor::VERDE);
-            std::vector<std::string> texto = {
-                "[Morgana]: Voce ainda nao possui os 3 Coracoes da floresta que eu pedi. (Possui: " + std::to_string(qtdCoracoes) + "/3)",
-                "[Morgana]: Eles sao dropados por Abominacoes no Coracao da Arvore."
-            };
-            std::cout << "\n";
-            Aparencia::imprimirBlocoCentralizado(texto);
+            dialogoMorgana("Voce ainda nao possui os 3 Coracoes da floresta que eu pedi. (Possui: " + std::to_string(qtdCoracoes) + "/3)");
+            dialogoMorgana("Eles sao dropados por Abominacoes no Coracao da Arvore.", false);
         }
         Aparencia::aguardarEnter();
     }
-}
-
-std::vector<std::string> NPCMorgana::obterMapaCabana()
-{
-    return {
-        " ######################",
-        "##..........;<>......##",
-        "##..[^S]..........M..^L#",
-        "##..........;<>......##",
-        " ######################"
-    };
 }

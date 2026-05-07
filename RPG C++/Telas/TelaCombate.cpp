@@ -4,6 +4,8 @@
 #include <iomanip>
 #include <thread>
 #include <chrono>
+#include <sstream>
+#include <functional>
 
 #include "TelaCombate.h"
 #include "../Sistemas/SistemaPersonagem.h"
@@ -43,6 +45,14 @@ namespace {
     }
 
     std::vector<std::string> mensagensFixasCombate;
+
+    void renderizarFrameBufferizado(const std::function<void()>& renderFunc) {
+        std::ostringstream buffer;
+        std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
+        renderFunc();
+        std::cout.rdbuf(oldCout);
+        std::cout << "\033[2J\033[3J\033[H" << buffer.str() << std::flush;
+    }
 }
 
 void TelaCombate::adicionarMensagemFixa(const std::string& msg) {
@@ -107,7 +117,7 @@ void TelaCombate::exibirBarraDeStatusDoJogador(SistemaPersonagem* jogadorAtual, 
     Aparencia::imprimirCentralizadoMultilinha(linhasParaImprimir, 95);
 }
 
-void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, int frameAnimacao, bool isCura) 
+void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, int frameAnimacao, bool isCura, bool animarSurgimento, bool isMorte) 
 {
     if (listaDeInimigos.empty()) return;
     int larguraTerminal = Aparencia::obterLarguraTerminal();
@@ -119,14 +129,22 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
     {
         std::string tagIdentificadoraDoInimigo = listaDeInimigos[indiceInimigo]->obterNome() + " [" + std::to_string(indiceInimigo) + "]";
         int espacosParaCentralizarOId = (larguraSeparadaParaCadaColuna - (int)tagIdentificadoraDoInimigo.length()) / 2;
-        std::cout << std::string(espacosParaCentralizarOId > 0 ? espacosParaCentralizarOId : 0, ' ') << std::left << std::setw(larguraSeparadaParaCadaColuna - espacosParaCentralizarOId) << tagIdentificadoraDoInimigo;
+        std::cout << std::string(espacosParaCentralizarOId > 0 ? espacosParaCentralizarOId : 0, ' ') << tagIdentificadoraDoInimigo;
+        if (indiceInimigo < listaDeInimigos.size() - 1) {
+            int espacosDir = larguraSeparadaParaCadaColuna - espacosParaCentralizarOId - tagIdentificadoraDoInimigo.length();
+            std::cout << std::string(espacosDir > 0 ? espacosDir : 0, ' ');
+        }
     }
     std::cout << "\n";
     for (size_t indiceInimigo = 0; indiceInimigo < listaDeInimigos.size(); indiceInimigo++) 
     {
         std::string valorDePontosDeVidaDoInimigo = "HP: " + std::to_string(listaDeInimigos[indiceInimigo]->obterVida()) + "/" + std::to_string(listaDeInimigos[indiceInimigo]->obterVidaMaxima());
         int espacosParaCentralizarOHp = (larguraSeparadaParaCadaColuna - (int)valorDePontosDeVidaDoInimigo.length()) / 2;
-        std::cout << std::string(espacosParaCentralizarOHp > 0 ? espacosParaCentralizarOHp : 0, ' ') << std::left << std::setw(larguraSeparadaParaCadaColuna - espacosParaCentralizarOHp) << valorDePontosDeVidaDoInimigo;
+        std::cout << std::string(espacosParaCentralizarOHp > 0 ? espacosParaCentralizarOHp : 0, ' ') << valorDePontosDeVidaDoInimigo;
+        if (indiceInimigo < listaDeInimigos.size() - 1) {
+            int espacosDir = larguraSeparadaParaCadaColuna - espacosParaCentralizarOHp - valorDePontosDeVidaDoInimigo.length();
+            std::cout << std::string(espacosDir > 0 ? espacosDir : 0, ' ');
+        }
     }
         std::cout << "\n";
         
@@ -153,16 +171,21 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
                 }
                 int espacosEsquerda = (larguraSeparadaParaCadaColuna - (int)visualStr.length()) / 2;
                 if (espacosEsquerda < 0) espacosEsquerda = 0;
-                int espacosDireita = larguraSeparadaParaCadaColuna - espacosEsquerda - (int)visualStr.length();
-                if (espacosDireita < 0) espacosDireita = 0;
-                std::cout << std::string(espacosEsquerda, ' ') << printStr << std::string(espacosDireita, ' ');
+                std::cout << std::string(espacosEsquerda, ' ') << printStr;
+                if (indiceInimigo < listaDeInimigos.size() - 1) {
+                    int espacosDireita = larguraSeparadaParaCadaColuna - espacosEsquerda - (int)visualStr.length();
+                    if (espacosDireita < 0) espacosDireita = 0;
+                    std::cout << std::string(espacosDireita, ' ');
+                }
             }
             std::cout << "\n";
         }
     std::cout << "\n";
         
+    std::vector<std::string> linhasDaArte;
     for (size_t indiceDaLinhaDaArte = 0; indiceDaLinhaDaArte < arteDoInimigo.size(); indiceDaLinhaDaArte++) 
     {
+        std::string linhaAtual = "";
         for (size_t indiceDoInimigoParaDesenhar = 0; indiceDoInimigoParaDesenhar < listaDeInimigos.size(); indiceDoInimigoParaDesenhar++) 
         {
             int espacosParaCentralizarAArte = (larguraSeparadaParaCadaColuna - (int)arteDoInimigo[indiceDaLinhaDaArte].length()) / 2;
@@ -171,23 +194,38 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
             SistemaPersonagem* inimigoAtual = listaDeInimigos[indiceDoInimigoParaDesenhar];
             std::string linhaArte = arteDoInimigo[indiceDaLinhaDaArte];
             
-            std::cout << espacos;
+            if (isMorte && inimigoAtual == alvoAnimacao) {
+                int totalLinhasArte = static_cast<int>(arteDoInimigo.size());
+                if (static_cast<int>(indiceDaLinhaDaArte) >= totalLinhasArte - frameAnimacao) {
+                    linhaArte = std::string(linhaArte.length(), ' ');
+                }
+            }
+
+            linhaAtual += espacos;
             
-            if (inimigoAtual == alvoAnimacao && frameAnimacao > 0) {
+            if (inimigoAtual == alvoAnimacao && frameAnimacao > 0 && !isMorte) {
                 if (frameAnimacao % 2 == 1) {
                     Cor corDestaque = isCura ? Cor::VERDE : Cor::VERMELHO;
-                    std::cout << Aparencia::cor(corDestaque) << linhaArte << Aparencia::cor(Cor::RESET);
+                    linhaAtual += Aparencia::cor(corDestaque) + linhaArte + Aparencia::cor(Cor::RESET);
                 } else {
-                    std::cout << std::string(linhaArte.length(), ' ');
+                    linhaAtual += std::string(linhaArte.length(), ' ');
                 }
             } else {
-                std::cout << linhaArte;
+                linhaAtual += linhaArte;
             }
             
             int espacosDireita = larguraSeparadaParaCadaColuna - espacosParaCentralizarAArte - (int)linhaArte.length();
-            std::cout << std::string(espacosDireita > 0 ? espacosDireita : 0, ' ');
+            if (indiceDoInimigoParaDesenhar < listaDeInimigos.size() - 1) {
+                linhaAtual += std::string(espacosDireita > 0 ? espacosDireita : 0, ' ');
+            }
         }
-        std::cout << "\n";
+        linhasDaArte.push_back(linhaAtual);
+    }
+    
+    if (animarSurgimento) {
+        Aparencia::imprimirVetorAnimado(linhasDaArte, 12);
+    } else {
+        for (const auto& linha : linhasDaArte) std::cout << linha << "\n";
     }
     std::cout << "\n";
 }
@@ -214,110 +252,101 @@ std::vector<std::string> TelaCombate::comporEstatisticasBatalha(SistemaPersonage
 
 void TelaCombate::animarDanoNoInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados)
 {
-    Aparencia::limparTela();
-    exibirLogoParaTelaDeCombate(tituloCombate);
-    
-    int yInimigos = Aparencia::obterPosicaoCursorY();
-    exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, 0);
-    
-    exibirBarraDeStatusDoJogador(jogadorAtual);
-    for (auto* aliado : listaDeAliados) {
-        exibirBarraDeStatusDoJogador(aliado);
-    }
-    Aparencia::imprimirLinhaDivisoria();
-    for (const auto& msg : mensagensFixasCombate) std::cout << msg;
-    std::cout << std::flush;
-
-    int yFinal = Aparencia::obterPosicaoCursorY();
-
-    // Anima apenas o bloco dos Inimigos, preservando o resto da tela!
     for (int frame = 1; frame <= 4; ++frame) {
-        Aparencia::moverCursor(0, yInimigos);
-        exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, frame, false);
-        std::cout << std::flush;
+        renderizarFrameBufferizado([&]() {
+            exibirLogoParaTelaDeCombate(tituloCombate);
+            exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, frame, false);
+            exibirBarraDeStatusDoJogador(jogadorAtual);
+            for (auto* aliado : listaDeAliados) exibirBarraDeStatusDoJogador(aliado);
+            Aparencia::imprimirLinhaDivisoria();
+            for (const auto& msg : mensagensFixasCombate) std::cout << msg;
+        });
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     
-    // Retorna ao normal e devolve o cursor pro final da tela
-    Aparencia::moverCursor(0, yInimigos);
-    exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, 0, false);
+    renderizarFrameBufferizado([&]() {
+        exibirLogoParaTelaDeCombate(tituloCombate);
+        exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, 0, false);
+        exibirBarraDeStatusDoJogador(jogadorAtual);
+        for (auto* aliado : listaDeAliados) exibirBarraDeStatusDoJogador(aliado);
+        Aparencia::imprimirLinhaDivisoria();
+        for (const auto& msg : mensagensFixasCombate) std::cout << msg;
+    });
+}
+
+void TelaCombate::animarMorteInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* inimigoMorto, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados)
+{
+    if (listaDeInimigos.empty()) return;
     
-    Aparencia::moverCursor(0, yFinal);
-    std::cout << std::flush;
+    int totalLinhas = static_cast<int>(listaDeInimigos[0]->obterRaca()->obterAparenciaRaca().size());
+
+    for (int frame = 1; frame <= totalLinhas; frame += 2) { // += 2 Para dar um efeito acelerado satisfatório
+        renderizarFrameBufferizado([&]() {
+            exibirLogoParaTelaDeCombate(tituloCombate);
+            exibirHordaDeInimigosLadoALado(listaDeInimigos, inimigoMorto, frame, false, false, true);
+            exibirBarraDeStatusDoJogador(jogadorAtual);
+            for (auto* aliado : listaDeAliados) exibirBarraDeStatusDoJogador(aliado);
+            Aparencia::imprimirLinhaDivisoria();
+            for (const auto& msg : mensagensFixasCombate) std::cout << msg;
+        });
+        std::this_thread::sleep_for(std::chrono::milliseconds(25));
+    }
 }
 
 void TelaCombate::animarCuraNoInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados)
 {
-    Aparencia::limparTela();
-    exibirLogoParaTelaDeCombate(tituloCombate);
-    
-    int yInimigos = Aparencia::obterPosicaoCursorY();
-    exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, 0, true);
-    
-    exibirBarraDeStatusDoJogador(jogadorAtual);
-    for (auto* aliado : listaDeAliados) {
-        exibirBarraDeStatusDoJogador(aliado);
-    }
-    Aparencia::imprimirLinhaDivisoria();
-    for (const auto& msg : mensagensFixasCombate) std::cout << msg;
-    std::cout << std::flush;
-
-    int yFinal = Aparencia::obterPosicaoCursorY();
-
     for (int frame = 1; frame <= 4; ++frame) {
-        Aparencia::moverCursor(0, yInimigos);
-        exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, frame, true);
-        std::cout << std::flush;
+        renderizarFrameBufferizado([&]() {
+            exibirLogoParaTelaDeCombate(tituloCombate);
+            exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, frame, true);
+            exibirBarraDeStatusDoJogador(jogadorAtual);
+            for (auto* aliado : listaDeAliados) exibirBarraDeStatusDoJogador(aliado);
+            Aparencia::imprimirLinhaDivisoria();
+            for (const auto& msg : mensagensFixasCombate) std::cout << msg;
+        });
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     
-    Aparencia::moverCursor(0, yInimigos);
-    exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, 0, true);
-    
-    Aparencia::moverCursor(0, yFinal);
-    std::cout << std::flush;
+    renderizarFrameBufferizado([&]() {
+        exibirLogoParaTelaDeCombate(tituloCombate);
+        exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, 0, true);
+        exibirBarraDeStatusDoJogador(jogadorAtual);
+        for (auto* aliado : listaDeAliados) exibirBarraDeStatusDoJogador(aliado);
+        Aparencia::imprimirLinhaDivisoria();
+        for (const auto& msg : mensagensFixasCombate) std::cout << msg;
+    });
 }
 
 void TelaCombate::animarDanoNoJogador(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados, bool isParry)
 {
     Cor corDestaque = isParry ? Cor::CIANO : Cor::VERMELHO;
 
-    Aparencia::limparTela();
-    exibirLogoParaTelaDeCombate(tituloCombate);
-    exibirHordaDeInimigosLadoALado(listaDeInimigos, nullptr, 0, false);
-    
-    int yHUD = Aparencia::obterPosicaoCursorY();
-    
-    exibirBarraDeStatusDoJogador(jogadorAtual, Cor::RESET);
-    for (auto* aliado : listaDeAliados) exibirBarraDeStatusDoJogador(aliado, Cor::RESET);
-    Aparencia::imprimirLinhaDivisoria();
-    for (const auto& msg : mensagensFixasCombate) std::cout << msg;
-    std::cout << std::flush;
-
-    int yFinal = Aparencia::obterPosicaoCursorY();
-
-    // Anima apenas o bloco do HUD, preservando Inimigos e as Mensagens Fixas!
     for (int frame = 1; frame <= 4; ++frame) {
-        Aparencia::moverCursor(0, yHUD);
-        Cor corAplicada = (frame % 2 == 1) ? corDestaque : Cor::RESET;
+        renderizarFrameBufferizado([&]() {
+            exibirLogoParaTelaDeCombate(tituloCombate);
+            exibirHordaDeInimigosLadoALado(listaDeInimigos, nullptr, 0, false);
+            
+            Cor corAplicada = (frame % 2 == 1) ? corDestaque : Cor::RESET;
 
-        if (jogadorAtual == alvoAnimacao) exibirBarraDeStatusDoJogador(jogadorAtual, corAplicada);
-        else exibirBarraDeStatusDoJogador(jogadorAtual, Cor::RESET);
+            if (jogadorAtual == alvoAnimacao) exibirBarraDeStatusDoJogador(jogadorAtual, corAplicada);
+            else exibirBarraDeStatusDoJogador(jogadorAtual, Cor::RESET);
 
-        for (auto* aliado : listaDeAliados) {
-            if (aliado == alvoAnimacao) exibirBarraDeStatusDoJogador(aliado, corAplicada);
-            else exibirBarraDeStatusDoJogador(aliado, Cor::RESET);
-        }
-        Aparencia::imprimirLinhaDivisoria();
-        std::cout << std::flush;
+            for (auto* aliado : listaDeAliados) {
+                if (aliado == alvoAnimacao) exibirBarraDeStatusDoJogador(aliado, corAplicada);
+                else exibirBarraDeStatusDoJogador(aliado, Cor::RESET);
+            }
+            Aparencia::imprimirLinhaDivisoria();
+            for (const auto& msg : mensagensFixasCombate) std::cout << msg;
+        });
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     
-    Aparencia::moverCursor(0, yHUD);
-    exibirBarraDeStatusDoJogador(jogadorAtual, Cor::RESET);
-    for (auto* aliado : listaDeAliados) exibirBarraDeStatusDoJogador(aliado, Cor::RESET);
-    Aparencia::imprimirLinhaDivisoria();
-    
-    Aparencia::moverCursor(0, yFinal);
-    std::cout << std::flush;
+    renderizarFrameBufferizado([&]() {
+        exibirLogoParaTelaDeCombate(tituloCombate);
+        exibirHordaDeInimigosLadoALado(listaDeInimigos, nullptr, 0, false);
+        exibirBarraDeStatusDoJogador(jogadorAtual, Cor::RESET);
+        for (auto* aliado : listaDeAliados) exibirBarraDeStatusDoJogador(aliado, Cor::RESET);
+        Aparencia::imprimirLinhaDivisoria();
+        for (const auto& msg : mensagensFixasCombate) std::cout << msg;
+    });
 }

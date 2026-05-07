@@ -125,7 +125,7 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::iniciarCriacaoDeSistemaPerso
     personagemCriado->definirDificuldade(static_cast<DificuldadeJogo>(nivelDeDificuldadeEscolhido));
     std::cout << "\n";
     std::string textoFinal = "[SISTEMA]: Personagem criado com sucesso! Iniciando jornada...";
-    Aparencia::imprimirDigitando(Aparencia::espacosParaCentralizar(textoFinal.length()) + textoFinal + "\n", 35);
+    Aparencia::imprimirDigitando(Aparencia::espacosParaCentralizar(textoFinal.length()) + textoFinal + "\n");
     Aparencia::aguardarEnter();
     return personagemCriado;
 }

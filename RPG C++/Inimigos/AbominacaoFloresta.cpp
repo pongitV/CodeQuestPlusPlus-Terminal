@@ -174,17 +174,3 @@ void AbominacaoFloresta::realizarDrops(SistemaPersonagem* inimigo, SistemaPerson
     itensObtidos.push_back("Coracao da floresta");
     GerenciadorDrops::relatarDropItem("Coracao da floresta", 1);
 }
-
-std::vector<std::string> AbominacaoFloresta::obterMapaCoracaoDaArvore()
-{
-    return {
-        "      ######################################",
-        "    ####....................Am............####",
-        "   ###......................................###",
-        "  ##....[^S]................Am................##",
-        "  ##..........................................##",
-        "   ###......................................###",
-        "    ####....................Am............####",
-        "      ######################################"
-    };
-}

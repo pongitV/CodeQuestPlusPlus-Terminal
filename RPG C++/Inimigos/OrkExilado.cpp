@@ -106,18 +106,3 @@ void OrkExilado::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jo
     GerenciadorDrops::relatarDropItem("Armadura de trapos e sucata", 1);
     itensObtidos.push_back("Armadura de trapos e sucata");
 }
-
-std::vector<std::string> OrkExilado::obterMapaCaverna(bool bjornResgatado)
-{
-    std::vector<std::string> mapa = {
-        "  ########################################",
-        "#############################################",
-        "###########.........###########################",
-        "######[^S]......................Om...Bn.########",
-        "#######.........................###############",
-        "###############################################",
-        "  ########################################",
-    };
-    if (bjornResgatado) mapa[3] = "######[^S]......................Om......########";
-    return mapa;
-}

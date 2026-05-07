@@ -22,6 +22,7 @@
 #include "../Utilidades/ControleDeInput.h"
 #include "../Utilidades/GeradorAleatorio.h"
 #include "MapaInteracao.h"
+#include "LayoutsMapa1Vila.h"
 
 Mapa1Vila::Mapa1Vila(SistemaPersonagem* personagemJogador) :
     posicaoXDoJogador(2), 
@@ -37,47 +38,7 @@ Mapa1Vila::Mapa1Vila(SistemaPersonagem* personagemJogador) :
     lojaJaFoiVisitada(false), 
     cavernaJaFoiVisitada(false)
 {
-    matrizDoMapaAtual = {
-        "                                                                                                                                                  ",
-        "  ##         #####################################################################################################################################",
-        " #.###############################################################################################################################################",
-        "##.###############......#######################..................................................#################################################",
-        "##................................................................................................################################################",
-        "##................................................................................................################################################",
-        "####..............................................................................................################################################",
-        "###................................_____........_____...._____....................................################################################",
-        "##................................| { } |......| {%} |..| { } |.........**........................################################################",
-        "##................................|  _  |......|  _  |..|  _  |........****.......................################################################",
-        "###...............................| | | |......| | | |..| | | |.........||..........................##############################################",
-        "##................................._____.......[^Forja].................||..**.......................####^C#######################################",
-        "###...............................| {$} |..................................****........................##...######################################",
-        "####..............................|  _  |...................................||...................................#################################",
-        "#####.............................| | | |...................................||....................................################################",
-        "##................................[^Loja].................~~~~~~~~~~~............................G......................##########################",
-        "##..............G...............................~~~~~~~~~~~~~~~~~~~~~~~~..................................................########################",
-        "####......................**..................~~~~~~~~~~~~~~~~~~~~~~~~~~~~..................................................######################",
-        "##.......................****...............~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~........G.........................................####################",
-        "###.......................||................~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~...................................................###################",
-        "###.......................||..................~~~~~~~~~~~~~~~~~~~~~~~~~~~~......................................................##################",
-        "#####............................................~~~~~~~~~~~~~~~~~~~~~~...................**..........G..........................#################",
-        "##..................................................~~~~~~~~~~~~~~~......................****....................................#################",
-        "###.................................G.....................................................||.....................................#################",
-        "####......................................................................................||.....................................#################",
-        "#####...........................................................................G.................................G...............################",
-        "###...............................................................................................................................################",
-        "##..........G....................G..........................G.....................................................................################",
-        "##............................................................................................G....................................###############",
-        "###................................................................................................................................###############",
-        "#####...................................................................G..........................................................###############",
-        "####...............................................................................................................................###############",
-        "###..........................................G.............................................................G.......................###############",
-        "#####..............................................................................................................................###############",
-        "###................................................................................................................................###############",
-        "#####...........############.............################.......................................................................##################",
-        "##########################################################################################################################^Floresta###############",
-        "    ##############################################################################################################################################",
-        "             ######                                                                                            ###################################"
-    };
+    matrizDoMapaAtual = LayoutsMapa1Vila::obterLayoutVilaInicial();
 }
 
 Mapa1Vila::~Mapa1Vila() = default;
@@ -93,8 +54,7 @@ namespace {
     class InteracaoCombateOrk : public InteracaoVila {
     public:
         void processar(ContextoInteracaoVila& ctx) override {
-            int rootX = (ctx.celula == 'O') ? ctx.proximaPosicaoX : ctx.proximaPosicaoX - 1;
-            ControleDeMapa::processarCombate(ctx.self->jogadorAtual, ctx.self->matrizDoMapaAtual, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->exploracaoEstaAtiva, "ENCONTRO NA CAVERNA", "Voce encontrou um Ork [m]!", GerenciadorInimigos::criarInimigoOrkExilado(1), ctx.proximaPosicaoX, ctx.proximaPosicaoY, rootX, 2, ctx.larguraDoTerminal, ctx.restaurarTela);
+            ControleDeMapa::processarCombate(ctx.self->jogadorAtual, ctx.self->matrizDoMapaAtual, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->exploracaoEstaAtiva, "ENCONTRO NA CAVERNA", "Voce encontrou um Ork!", GerenciadorInimigos::criarInimigoOrkExilado(1), ctx.proximaPosicaoX, ctx.proximaPosicaoY, ctx.proximaPosicaoX, 1, ctx.larguraDoTerminal, ctx.restaurarTela);
         }
     };
 
@@ -102,7 +62,8 @@ namespace {
     public:
         void processar(ContextoInteracaoVila& ctx) override {
             if (ctx.self->tituloDoMapaAtual == "FORJA DA VILA" && ctx.celula == 'B') {
-                NPCBjorn::interagir(ctx.self->jogadorAtual);
+                NPCBjorn interacaoBjorn;
+                interacaoBjorn.interagir(ctx.self->jogadorAtual);
             } else if (ctx.self->tituloDoMapaAtual == "CAVERNA DO ORK") {
                 Aparencia::limparTela();
                 Aparencia::exibirCabecalho("RESGATE NA CAVERNA", Cor::AMARELO);
@@ -112,9 +73,7 @@ namespace {
                 std::cout << mE << "[Bjorn]: Passe na Forja e eu ajudarei voce!\n";
                 ctx.self->bjornResgatado = true;
 
-                int rootX = (ctx.celula == 'B') ? ctx.proximaPosicaoX : ctx.proximaPosicaoX - 1;
-                ctx.self->matrizDoMapaAtual[ctx.proximaPosicaoY][rootX] = '.';
-                ctx.self->matrizDoMapaAtual[ctx.proximaPosicaoY][rootX + 1] = '.';
+                ctx.self->matrizDoMapaAtual[ctx.proximaPosicaoY][ctx.proximaPosicaoX] = '.';
                 Aparencia::aguardarEnter();
             } else {
                 ctx.self->posicaoXDoJogador = ctx.proximaPosicaoX;
@@ -127,8 +86,9 @@ namespace {
     class InteracaoNPCFranchesco : public InteracaoVila {
     public:
         void processar(ContextoInteracaoVila& ctx) override {
-            if (ctx.self->tituloDoMapaAtual == "LOJA DA VILA") {
-                NPCFranchesco::interagir(ctx.self->jogadorAtual);
+            if (ctx.self->tituloDoMapaAtual == "LOJA DA VILA") { // This check is redundant now, as interagir() handles the loop
+                NPCFranchesco interacaoFranchesco;
+                interacaoFranchesco.interagir(ctx.self->jogadorAtual);
                 if (ctx.self->exploracaoEstaAtiva) ctx.restaurarTela();
             } else {
                 ctx.self->posicaoXDoJogador = ctx.proximaPosicaoX;
@@ -144,7 +104,7 @@ namespace {
             char nextNextCell = ctx.self->matrizDoMapaAtual[ctx.proximaPosicaoY][ctx.proximaPosicaoX+2];
             
             if (nextCell == 'C' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                ControleDeMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaCavernaSalva, ctx.self->cavernaJaFoiVisitada, OrkExilado::obterMapaCaverna(ctx.self->bjornResgatado), 16, 2, "CAVERNA DO ORK", ctx.restaurarTela);
+                ControleDeMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaCavernaSalva, ctx.self->cavernaJaFoiVisitada, LayoutsMapa1Vila::obterLayoutCaverna(ctx.self->bjornResgatado), 16, 2, "CAVERNA DO ORK", ctx.restaurarTela);
             }
             else if (nextCell == 'S' && ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 if (ctx.self->tituloDoMapaAtual == "CAVERNA DO ORK") ctx.self->matrizDoMapaDaCavernaSalva = ctx.self->matrizDoMapaAtual;
@@ -168,10 +128,10 @@ namespace {
                     ctx.restaurarTela();
                     return;
                 }
-                ControleDeMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaForjaSalva, ctx.self->forjaJaFoiVisitada, NPCBjorn::obterMapaForja(), 8, 2, "FORJA DA VILA", ctx.restaurarTela);
+                ControleDeMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaForjaSalva, ctx.self->forjaJaFoiVisitada, LayoutsMapa1Vila::obterLayoutForja(), 8, 2, "FORJA DA VILA", ctx.restaurarTela);
             }
             else if (nextCell == 'L' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                ControleDeMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaLojaSalva, ctx.self->lojaJaFoiVisitada, NPCFranchesco::obterMapaLoja(), 8, 2, "LOJA DA VILA", ctx.restaurarTela);
+                ControleDeMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaLojaSalva, ctx.self->lojaJaFoiVisitada, LayoutsMapa1Vila::obterLayoutLoja(), 8, 2, "LOJA DA VILA", ctx.restaurarTela);
             }
             else if (nextCell == 'F' && nextNextCell == 'l' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 TransicaoDeMapa::exibirTransicaoParaFloresta();
@@ -196,9 +156,7 @@ namespace {
 void Mapa1Vila::inicializarInteracoes() {
     interacoes['G'] = std::make_unique<InteracaoCombateGoblin>();
     interacoes['O'] = std::make_unique<InteracaoCombateOrk>();
-    interacoes['m'] = std::make_unique<InteracaoCombateOrk>();
     interacoes['B'] = std::make_unique<InteracaoNPCBjorn>();
-    interacoes['n'] = std::make_unique<InteracaoNPCBjorn>();
     interacoes['F'] = std::make_unique<InteracaoNPCFranchesco>();
     interacoes['^'] = std::make_unique<InteracaoTeleporte>();
 }
@@ -281,27 +239,13 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
                 {
                     std::cout << linhaSendoRenderizada;
                     linhaSendoRenderizada = "";
-                    std::cout << Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO);
-                    if (x + 1 < endX && matrizDoMapaAtual[y][x+1] == 'm') {
-                        std::cout << "Om";
-                        x++;
-                    } else {
-                        std::cout << 'O';
-                    }
-                    std::cout << Aparencia::cor(Cor::RESET);
+                    std::cout << Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) << 'O' << Aparencia::cor(Cor::RESET);
                 }
                 else if (matrizDoMapaAtual[y][x] == 'B')
                 {
                     std::cout << linhaSendoRenderizada;
                     linhaSendoRenderizada = "";
-                    std::cout << Aparencia::cor(Cor::NEGRITO, Cor::CIANO);
-                    if (x + 1 < endX && matrizDoMapaAtual[y][x+1] == 'n') {
-                        std::cout << "Bn";
-                        x++;
-                    } else {
-                        std::cout << 'B';
-                    }
-                    std::cout << Aparencia::cor(Cor::RESET);
+                    std::cout << Aparencia::cor(Cor::NEGRITO, Cor::CIANO) << 'B' << Aparencia::cor(Cor::RESET);
                 }
                 else if (matrizDoMapaAtual[y][x] == 'F' && x > 0 && matrizDoMapaAtual[y][x-1] == '.')
                 {

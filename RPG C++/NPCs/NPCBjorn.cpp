@@ -7,7 +7,6 @@
 #include <memory>
 
 #include "NPCBjorn.h"
-#include "../Telas/TelaMenu.h"
 #include "../Inventario/Item.h"
 #include "../Inventario/FabricaItens.h"
 #include "../Inventario/EquipamentoArmadura.h"
@@ -32,14 +31,8 @@ namespace {
     void processarCompraDeEquipamento(SistemaPersonagem* jogadorAtual, bool comprandoArmas);
     void processarMelhoriaNaBigorna(SistemaPersonagem* jogadorAtual);
     void processarUpgradePorMaterial(SistemaPersonagem* jogadorAtual);
-}
 
-void NPCBjorn::interagir(SistemaPersonagem* jogadorAtual)
-{
-    int larguraDoTerminal = Aparencia::obterLarguraTerminal();
-    std::string opcaoBjorn;
-    
-    std::vector<std::string> arteBjorn = {
+    static const std::vector<std::string> arteBjorn = {
         "                                 =%@@@%                     ",
         "                                 *::==%%                    ",
         "                                #%%*%#+@@    @%@            ",
@@ -84,38 +77,61 @@ void NPCBjorn::interagir(SistemaPersonagem* jogadorAtual)
         "               @@%@@#                 %#%%%@%               "
     };
 
-    do {
-        Aparencia::limparTela();
-        Aparencia::exibirCabecalho("FORJA DO BJORN", Cor::AMARELO);
-        
-        std::string margemMsg = Aparencia::espacosParaCentralizar(55);
+    void dialogoBjorn(const std::string& texto, bool novaLinhaAntes = true, bool novaLinhaDepois = true) {
+        if (novaLinhaAntes) std::cout << "\n";
+        std::cout << Aparencia::cor(Cor::CIANO);
+        Aparencia::imprimirDigitando("[Bjorn]:");
+        std::cout << Aparencia::cor(Cor::RESET);
+        Aparencia::imprimirDigitando(" " + texto + (novaLinhaDepois ? "\n" : ""));
+    }
+}
 
-        std::vector<std::string> menuEsquerda = {
-            "[Bjorn]: Bem-vindo a minha forja, salvador!",
-            "O que vai ser hoje?",
-            "",
-            "Seu Ouro: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G",
-            "",
-            "[1] COMPRAR Armas das Classes",
-            "[2] COMPRAR Armaduras das Classes",
-            "[3] MELHORAR POR FUSAO",
-            "[4] MELHORAR POR MATERIAL",
-            "[0] VOLTAR",
-            ""
-        };
+std::string NPCBjorn::obterNomeDoLugar() const {
+    return "FORJA DO BJORN";
+}
 
-        int recuo = Aparencia::imprimirLadoALado(menuEsquerda, arteBjorn, 45, 0, Cor::RESET, Cor::AMARELO);
-        std::cout << "\n" << std::string(recuo, ' ') << "Escolha: ";
-        std::cin >> opcaoBjorn;
+Cor NPCBjorn::obterCorDoCabecalho() const {
+    return Cor::CIANO;
+}
 
-        if (opcaoBjorn == "1" || opcaoBjorn == "2") {
-        processarCompraDeEquipamento(jogadorAtual, opcaoBjorn == "1");
-        } else if (opcaoBjorn == "3") {
-            processarMelhoriaNaBigorna(jogadorAtual);
-        } else if (opcaoBjorn == "4") {
-            processarUpgradePorMaterial(jogadorAtual);
-        }
-    } while (opcaoBjorn != "0");
+Cor NPCBjorn::obterCorDaArte() const {
+    return Cor::CIANO;
+}
+
+const std::vector<std::string>& NPCBjorn::obterArteASCII() const {
+    return arteBjorn;
+}
+
+void NPCBjorn::exibirDialogo(SistemaPersonagem* jogador) {
+    std::cout << "\n  ";
+    std::cout << Aparencia::cor(Cor::CIANO);
+    Aparencia::imprimirDigitando("[Bjorn]:");
+    std::cout << Aparencia::cor(Cor::RESET);
+    Aparencia::imprimirDigitando(" Bem-vindo a minha forja, salvador!\n");
+    Aparencia::imprimirDigitando(" O que vai ser hoje?\n\n");
+}
+
+std::vector<std::string> NPCBjorn::obterOpcoesMenu(SistemaPersonagem* jogador, int larguraDoTerminal) {
+    return {
+        "Seu Ouro: " + std::to_string(jogador->obterInventario()->obterOuro()) + "G",
+        "",
+        "[1] COMPRAR Armas das Classes",
+        "[2] COMPRAR Armaduras das Classes",
+        "[3] MELHORAR POR FUSAO",
+        "[4] MELHORAR POR MATERIAL",
+        "[0] VOLTAR",
+        ""
+    };
+}
+
+void NPCBjorn::processarOpcao(SistemaPersonagem* jogador, const std::string& opcao, int larguraDoTerminal) {
+    if (opcao == "1" || opcao == "2") {
+        processarCompraDeEquipamento(jogador, opcao == "1");
+    } else if (opcao == "3") {
+        processarMelhoriaNaBigorna(jogador);
+    } else if (opcao == "4") {
+        processarUpgradePorMaterial(jogador);
+    }
 }
 
 namespace {
@@ -126,7 +142,7 @@ namespace {
         std::string opcaoCompra;
         do {
             Aparencia::limparTela();
-            Aparencia::exibirCabecalho(tituloLoja, Cor::AMARELO);
+            Aparencia::exibirCabecalho(tituloLoja, Cor::CIANO);
             
             std::vector<std::string> linhas;
             linhas.push_back("Seu Ouro: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G");
@@ -156,9 +172,9 @@ namespace {
                             std::unique_ptr<Item> novoItem = FabricaItens::criarItem(estoqueAtual[idCompra]);
                             std::string nomeNovo = novoItem->obterNomeItem();
                             jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
-                            std::cout << "\n[Bjorn]: Otima escolha! Voce comprou " << nomeNovo << ".\n";
+                            dialogoBjorn("Otima escolha! Voce comprou " + nomeNovo + ".");
                         } else {
-                            std::cout << "\n[Bjorn]: Voce nao tem ouro suficiente para isso!\n";
+                            dialogoBjorn("Voce nao tem ouro suficiente para isso!");
                         }
                         Aparencia::aguardarEnter();
                     }
@@ -211,7 +227,7 @@ namespace {
                 jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
 
                 Aparencia::limparTela();
-                Aparencia::exibirCabecalho("FORJA - SUCESSO", Cor::AMARELO);
+                Aparencia::exibirCabecalho("FORJA - SUCESSO", Cor::CIANO);
                 std::vector<std::string> arteBigorna = {
                     "⠀⠀⠀⠀⠀⠀⠀⢰⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⡄⠀⠀⠀⠀⠀",
                     "⠀⠹⣿⣿⣿⣿⡇⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⢠⣄⡀⠀⠀",
@@ -225,10 +241,10 @@ namespace {
                     "⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠀⠀⠀⠀"
                 };
                 std::string equacao = "[" + nomeAntigo + "] + [" + nomeAntigo + "] = [" + novoNome + "]";
-                Aparencia::imprimirCentralizadoMultilinha({equacao, ""}, 0, Aparencia::cor(Cor::AMARELO));
-                Aparencia::imprimirCentralizadoMultilinha(arteBigorna, 29, Aparencia::cor(Cor::RESET));
+                Aparencia::imprimirCentralizadoMultilinha({equacao, ""}, 0, Aparencia::cor(Cor::CIANO));
+                Aparencia::imprimirCentralizadoMultilinha(arteBigorna, 29, Aparencia::cor(Cor::CIANO));
 
-                std::cout << "\n[Bjorn]: Ha! Trabalho feito! Seu equipamento esta mais forte do que nunca!\n";
+                dialogoBjorn("Ha! Trabalho feito! Seu equipamento esta mais forte do que nunca!");
                 Aparencia::aguardarEnter();
             }
         } while (codigoDoItemBase != "0");
@@ -241,14 +257,14 @@ namespace {
             int qtdPedraUpgrade = jogadorAtual->obterInventario()->contarItem(nomePedraUpgrade);
             if (qtdPedraUpgrade < 1) {
                 Aparencia::limparTela();
-                Aparencia::exibirCabecalho("FORJA - MELHORIA POR MATERIAL", Cor::AMARELO);
-                std::cout << "\n[Bjorn]: Voce nao tem nenhuma " << nomePedraUpgrade << "!\n";
+                Aparencia::exibirCabecalho("FORJA - MELHORIA POR MATERIAL", Cor::CIANO);
+            dialogoBjorn("Voce nao tem nenhuma " + nomePedraUpgrade + "!");
                 Aparencia::aguardarEnter();
                 return;
             }
 
             TelaInventario::exibir(jogadorAtual);
-            Aparencia::exibirPrompt("[Bjorn]: Escolha a ARMADURA para melhorar (+3 Defesa/Resistencia) ou [0] VOLTAR: ");
+        dialogoBjorn("Escolha a ARMADURA para melhorar (+3 Defesa/Resistencia) ou [0] VOLTAR: ", false, false);
             std::cin >> codigoDaArmadura;
             if (codigoDaArmadura == "0") break;
 
@@ -256,13 +272,13 @@ namespace {
             if (!itemParaUpgrade) { std::cout << "\n[SISTEMA]: Item invalido!\n"; Aparencia::aguardarEnter(); continue; }
 
             if (itemParaUpgrade == jogadorAtual->obterArmadura() || itemParaUpgrade == jogadorAtual->obterArma() || itemParaUpgrade == jogadorAtual->obterEscudo()) {
-                std::cout << "\n[Bjorn]: Voce precisa DESEQUIPAR o item antes de usa-lo na bigorna!\n"; 
+            dialogoBjorn("Voce precisa DESEQUIPAR o item antes de usa-lo na bigorna!"); 
                 Aparencia::aguardarEnter(); 
                 continue; 
             }
 
             if (itemParaUpgrade->obterTipo() != TipoEquipamento::ARMADURA) {
-                std::cout << "\n[Bjorn]: Esta pedra magica so pode ser usada em ARMADURAS!\n";
+            dialogoBjorn("Esta pedra magica so pode ser usada em ARMADURAS!");
                 Aparencia::aguardarEnter(); 
                 continue;
             }
@@ -271,7 +287,7 @@ namespace {
             if (!armadura) continue;
 
             if (armadura->temPropriedade(Propriedade::MelhoradoMaterial)) {
-                std::cout << "\n[Bjorn]: Esta armadura ja foi imbuida com a pedra magica!\n";
+            dialogoBjorn("Esta armadura ja foi imbuida com a pedra magica!");
                 Aparencia::aguardarEnter();
                 continue;
             }
@@ -295,22 +311,11 @@ namespace {
             jogadorAtual->obterInventario()->adicionarItem(std::move(novaArmadura));
 
             Aparencia::limparTela();
-            Aparencia::exibirCabecalho("FORJA - SUCESSO", Cor::AMARELO);
+            Aparencia::exibirCabecalho("FORJA - SUCESSO", Cor::CIANO);
             std::string equacao = "[" + nomeAntigo + "] + [Pedra magica] = [" + novoNome + "]";
-            std::cout << "\n" << Aparencia::cor(Cor::AMARELO) << equacao << Aparencia::cor(Cor::RESET) << "\n";
-            std::cout << "\n[Bjorn]: Impressionante! Essa pedra e mesmo magica. A armadura agora possui mais +3 de resistencia (defesa)!\n";
+            std::cout << "\n" << Aparencia::cor(Cor::CIANO) << equacao << Aparencia::cor(Cor::RESET) << "\n";
+        dialogoBjorn("Impressionante! Essa pedra e mesmo magica. A armadura agora possui mais +3 de resistencia (defesa)!");
             Aparencia::aguardarEnter();
         } while (codigoDaArmadura != "0");
     }
-}
-
-std::vector<std::string> NPCBjorn::obterMapaForja()
-{
-    return {
-        " ##################################",
-        "##.........................../--/|##",
-        "##..[^S]......................B.$|##",
-        "##.........................../--/|##",
-        " ##################################"
-    };
 }

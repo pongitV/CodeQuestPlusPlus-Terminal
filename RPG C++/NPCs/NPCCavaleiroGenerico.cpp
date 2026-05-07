@@ -87,10 +87,12 @@ namespace {
         "                       *="
     };
 
-    void exibirDialogoCavaleiro(const std::string& titulo, const std::vector<std::string>& textoEsquerda, int larguraTerminalAtual) {
-        Aparencia::limparTela();
-        Aparencia::exibirCabecalho(titulo, Cor::CIANO);
-        Aparencia::imprimirLadoALado(textoEsquerda, arteCavaleiro, 55, 0, Cor::RESET, Cor::CIANO);
+    void dialogoCavaleiro(const std::string& texto, bool novaLinhaAntes = true, bool novaLinhaDepois = true) {
+        if (novaLinhaAntes) std::cout << "\n";
+        std::cout << "  " << Aparencia::cor(Cor::CINZA);
+        Aparencia::imprimirDigitando("[Cavaleiro Real]:");
+        std::cout << Aparencia::cor(Cor::RESET);
+        Aparencia::imprimirDigitando(" " + texto + (novaLinhaDepois ? "\n" : ""));
     }
 }
 
@@ -132,28 +134,28 @@ void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trol
         }
 
         if (posicaoTrollX == -1) {
-            std::vector<std::string> texto = {
-                "[Cavaleiro Real]: Ja temos Trolls tentando",
-                "invadir nosso reino, voce precisa de permissao",
-                "se nao quiser ser tratado como invasor tambem"
-            };
-            exibirDialogoCavaleiro("CAVALEIROS REAIS", texto, larguraDoTerminal);
+            Aparencia::limparTela();
+            Aparencia::exibirCabecalho("CAVALEIROS REAIS", Cor::CINZA);
+            dialogoCavaleiro("Ja temos Trolls tentando invadir nosso reino,");
+            Aparencia::imprimirDigitando("  voce precisa de permissao se nao quiser ser\n");
+            Aparencia::imprimirDigitando("  tratado como invasor tambem.\n\n");
+            
+            Aparencia::imprimirLadoALado({""}, arteCavaleiro, 45, 0, Cor::RESET, Cor::CINZA);
             Aparencia::aguardarEnter();
             if (exploracaoEstaAtiva) restaurarTela();
             return;
         }
 
-        std::vector<std::string> texto = {
-            "[Cavaleiro Real]: Viajante! Este Troll bloqueia a",
-            "passagem. Nossas forcas estao se esgotando!",
-            "",
-            "[Cavaleiro Real]: Nos ajude a derrota-lo e o",
-            "recompensaremos!",
-            "",
-            "[1] Ajudar os Cavaleiros | [0] Recuar"
-        };
-        exibirDialogoCavaleiro("PEDIDO DE AJUDA", texto, larguraDoTerminal);
-        Aparencia::exibirPrompt("Escolha: ");
+        Aparencia::limparTela();
+        Aparencia::exibirCabecalho("PEDIDO DE AJUDA", Cor::CINZA);
+        dialogoCavaleiro("Viajante! Este Troll bloqueia a passagem.");
+        Aparencia::imprimirDigitando("  Nossas forcas estao se esgotando!\n");
+        dialogoCavaleiro("Nos ajude a derrota-lo e o recompensaremos!\n");
+        
+        std::vector<std::string> menuEsquerda = { "[1] Ajudar os Cavaleiros", "[0] Recuar" };
+        int recuo = Aparencia::imprimirLadoALado(menuEsquerda, arteCavaleiro, 45, 0, Cor::RESET, Cor::CINZA);
+        std::cout << "\n" << std::string(recuo, ' ') << "Escolha: ";
+        
         int escolha;
         if (std::cin >> escolha && escolha == 1) {
             std::vector<std::unique_ptr<SistemaPersonagem>> aliados;
@@ -185,25 +187,23 @@ void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trol
         if (exploracaoEstaAtiva) restaurarTela();
     } else if (celulaDestino == 'C') {
         if (!conviteRecebido) {
-            std::vector<std::string> texto = {
-                "[Cavaleiro Real]: Voce lutou bravamente e",
-                "limpou o reino dos Trolls!",
-                "",
-                "Como prometido, aqui esta a sua recompensa.",
-                "",
-                "[SISTEMA]: Voce recebeu o [Convite Real]!"
-            };
-            exibirDialogoCavaleiro("RECOMPENSA", texto, larguraDoTerminal);
+            Aparencia::limparTela();
+            Aparencia::exibirCabecalho("RECOMPENSA", Cor::CINZA);
+            dialogoCavaleiro("Voce lutou bravamente e limpou o reino dos Trolls!\n");
+            dialogoCavaleiro("Como prometido, aqui esta a sua recompensa.\n", false);
+            
+            std::vector<std::string> menuEsquerda = { Aparencia::cor(Cor::AMARELO) + "[SISTEMA]: Voce recebeu o [Convite Real]!" + Aparencia::cor(Cor::RESET) };
+            Aparencia::imprimirLadoALado(menuEsquerda, arteCavaleiro, 45, 0, Cor::RESET, Cor::CINZA);
+            
             jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::ConviteReal));
             conviteRecebido = true;
             Aparencia::aguardarEnter();
             restaurarTela();
         } else {
-            std::vector<std::string> texto = {
-                "[Cavaleiro Real]: O Rei o aguarda no castelo.",
-                "Siga em frente!"
-            };
-            exibirDialogoCavaleiro("CAVALEIRO REAL", texto, larguraDoTerminal);
+            Aparencia::limparTela();
+            Aparencia::exibirCabecalho("CAVALEIRO REAL", Cor::CINZA);
+            dialogoCavaleiro("O Rei o aguarda no castelo. Siga em frente!\n");
+            Aparencia::imprimirLadoALado({""}, arteCavaleiro, 45, 0, Cor::RESET, Cor::CINZA);
             Aparencia::aguardarEnter();
             restaurarTela();
         }
