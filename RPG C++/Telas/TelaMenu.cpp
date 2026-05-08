@@ -17,19 +17,9 @@ bool TelaMenu::exibirConfirmacaoDeEscolhaComArteLadoALado(const std::string& tip
 
     int recuoEsquerdo = Aparencia::imprimirLadoALado(informacoesParaExibir, arteAsciiParaExibir, 40, 6, Cor::RESET, Cor::RESET);
 
-    std::cout << "\n" << std::string(recuoEsquerdo, ' ') << "0. VOLTAR | 1. CONFIRMAR\n";
-    std::cout << std::string(recuoEsquerdo, ' ') << "Escolha: ";
+    std::string margem = std::string(recuoEsquerdo, ' ');
+    int opcaoDeConfirmacao = ControleDeInput::lerInteiroComLimites("0. VOLTAR | 1. CONFIRMAR\n" + margem + "Escolha: ", 0, 1, false, "\n" + margem);
     
-    int opcaoDeConfirmacao = -1; 
-    while (true) { 
-        std::string entrada = ControleDeInput::lerEntradaProtegida();
-        try {
-            opcaoDeConfirmacao = std::stoi(entrada);
-            if (opcaoDeConfirmacao == 0 || opcaoDeConfirmacao == 1) break;
-        } catch (...) {}
-        
-        std::cout << "\033[u\033[J"; 
-    }
     return opcaoDeConfirmacao == 1;
 }
 

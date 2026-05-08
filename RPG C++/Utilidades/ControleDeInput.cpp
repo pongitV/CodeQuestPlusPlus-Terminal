@@ -9,6 +9,7 @@
     #include <termios.h>
     #include <fcntl.h>
 #endif
+#include "Aparencia.h"
 
 bool ControleDeInput::teclaPressionada() 
 {
@@ -64,4 +65,20 @@ std::string ControleDeInput::lerEntradaProtegida() {
         }
         return entrada;
     }
+}
+
+int ControleDeInput::lerInteiroComLimites(const std::string& promptMensagem, int minimo, int maximo, bool centralizarPrompt, const std::string& margemPersonalizada) {
+    int valor;
+    if (centralizarPrompt) Aparencia::exibirPrompt(promptMensagem);
+    else std::cout << margemPersonalizada << promptMensagem;
+
+    while (true) {
+        std::string entrada = lerEntradaProtegida();
+        try {
+            valor = std::stoi(entrada);
+            if (valor >= minimo && valor <= maximo) break;
+        } catch (...) {}
+        std::cout << "\033[u\033[J"; // Apenas limpa a entrada invalida
+    }
+    return valor;
 }

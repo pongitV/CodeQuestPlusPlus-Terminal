@@ -6,6 +6,7 @@
 #include <chrono>
 
 #include "TelaAtributos.h"
+#include "TelaBase.h"
 #include "../Racas/RacaBase.h"
 #include "../Classes/ClasseBase.h"
 #include "../Utilidades/Aparencia.h"
@@ -75,10 +76,7 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
     Aparencia::limparTela();
 
     static auto ultimoAcessoFicha = std::chrono::steady_clock::now() - std::chrono::hours(1);
-    auto agora = std::chrono::steady_clock::now();
-    bool animarEntrada = std::chrono::duration_cast<std::chrono::milliseconds>(agora - ultimoAcessoFicha).count() > 300;
-    ultimoAcessoFicha = agora;
-    int atrasoMs = animarEntrada ? 10 : 0;
+    int atrasoMs = TelaBase::deveAnimarEntradaDaTela(ultimoAcessoFicha, 300) ? 10 : 0;
 
     int largura = Aparencia::obterLarguraTerminal();
 

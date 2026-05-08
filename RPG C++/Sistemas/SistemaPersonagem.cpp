@@ -36,21 +36,16 @@ SistemaPersonagem::SistemaPersonagem(std::string nome, std::unique_ptr<RacaBase>
     this->xpParaSubir = Constantes::XP_BASE_PARA_SUBIR;
     this->xpRecompensa = 0;
 
-    auto kit = this->classe->obterEquipamentoClasse();
-    for (auto& itemUnique : kit) 
-    {
-        Item* ptr = itemUnique.get();
-        this->mochila->adicionarItem(std::move(itemUnique)); 
-        this->equiparItem(ptr);            
-    }
+    auto receberEEquiparKit = [this](std::vector<std::unique_ptr<Item>> kit) {
+        for (auto& itemUnique : kit) {
+            Item* ptr = itemUnique.get();
+            this->mochila->adicionarItem(std::move(itemUnique)); 
+            this->equiparItem(ptr);            
+        }
+    };
 
-    auto kitRaca = this->raca->obterEquipamentoRaca();
-    for (auto& itemUnique : kitRaca) 
-    {
-        Item* ptr = itemUnique.get();
-        this->mochila->adicionarItem(std::move(itemUnique)); 
-        this->equiparItem(ptr);            
-    }
+    receberEEquiparKit(this->classe->obterEquipamentoClasse());
+    receberEEquiparKit(this->raca->obterEquipamentoRaca());
 
     calcularAtributos();
     personagensAtivos.insert(this);
@@ -65,20 +60,20 @@ bool SistemaPersonagem::subirDeNivel(TipoAtributo atributo)
 {
     if (xpAtual < xpParaSubir) return false;
 
-    bool upou = false;
+    bool upou = true;
     switch (atributo)
     {
         case TipoAtributo::Vida:
             statsFinais.vida += Constantes::GANHO_VIDA_POR_NIVEL;
             vidaAtual += Constantes::GANHO_VIDA_POR_NIVEL;
-            upou = true;
             break;
-        case TipoAtributo::Forca: statsFinais.forca += Constantes::GANHO_ATRIBUTO_POR_NIVEL; upou = true; break;
-        case TipoAtributo::Destreza: statsFinais.destreza += Constantes::GANHO_ATRIBUTO_POR_NIVEL; upou = true; break;
-        case TipoAtributo::Resistencia: statsFinais.resistencia += Constantes::GANHO_ATRIBUTO_POR_NIVEL; upou = true; break;
-        case TipoAtributo::Constituicao: statsFinais.constituicao += Constantes::GANHO_ATRIBUTO_POR_NIVEL; upou = true; break;
-        case TipoAtributo::Inteligencia: statsFinais.inteligencia += Constantes::GANHO_ATRIBUTO_POR_NIVEL; upou = true; break;
-        case TipoAtributo::Sabedoria: statsFinais.sabedoria += Constantes::GANHO_ATRIBUTO_POR_NIVEL; upou = true; break;
+        case TipoAtributo::Forca: statsFinais.forca += Constantes::GANHO_ATRIBUTO_POR_NIVEL; break;
+        case TipoAtributo::Destreza: statsFinais.destreza += Constantes::GANHO_ATRIBUTO_POR_NIVEL; break;
+        case TipoAtributo::Resistencia: statsFinais.resistencia += Constantes::GANHO_ATRIBUTO_POR_NIVEL; break;
+        case TipoAtributo::Constituicao: statsFinais.constituicao += Constantes::GANHO_ATRIBUTO_POR_NIVEL; break;
+        case TipoAtributo::Inteligencia: statsFinais.inteligencia += Constantes::GANHO_ATRIBUTO_POR_NIVEL; break;
+        case TipoAtributo::Sabedoria: statsFinais.sabedoria += Constantes::GANHO_ATRIBUTO_POR_NIVEL; break;
+        default: upou = false; break;
     }
 
     if (upou)
@@ -95,18 +90,13 @@ bool SistemaPersonagem::subirDeNivel(TipoAtributo atributo)
 void SistemaPersonagem::alterarAtributoEstatico(TipoAtributo atributo, int valor)
 {
     switch (atributo) {
-        case TipoAtributo::Forca: statsFinais.forca += valor; break;
-        case TipoAtributo::Destreza: statsFinais.destreza += valor; break;
-        case TipoAtributo::Inteligencia: statsFinais.inteligencia += valor; break;
-        case TipoAtributo::Sabedoria: statsFinais.sabedoria += valor; break;
+        case TipoAtributo::Forca: statsFinais.forca = std::max(0, statsFinais.forca + valor); break;
+        case TipoAtributo::Destreza: statsFinais.destreza = std::max(0, statsFinais.destreza + valor); break;
+        case TipoAtributo::Inteligencia: statsFinais.inteligencia = std::max(0, statsFinais.inteligencia + valor); break;
+        case TipoAtributo::Sabedoria: statsFinais.sabedoria = std::max(0, statsFinais.sabedoria + valor); break;
         default: break;
     }
     cache_.sujo = true;
-
-    if (statsFinais.forca < 0) statsFinais.forca = 0;
-    if (statsFinais.destreza < 0) statsFinais.destreza = 0;
-    if (statsFinais.inteligencia < 0) statsFinais.inteligencia = 0;
-    if (statsFinais.sabedoria < 0) statsFinais.sabedoria = 0;
 }
 
 void SistemaPersonagem::reduzirCooldowns()

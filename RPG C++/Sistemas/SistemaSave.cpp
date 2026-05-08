@@ -136,9 +136,7 @@ std::unique_ptr<SistemaPersonagem> SistemaSave::carregarJogo(const std::string& 
         if (novoItem) {
             Item* ptr = novoItem.get();
             jogador->obterInventario()->adicionarItem(std::move(novoItem));
-            if (equipSlot == 1) jogador->equiparItem(ptr);
-            else if (equipSlot == 2) jogador->equiparItem(ptr);
-            else if (equipSlot == 3) jogador->equiparItem(ptr);
+            if (equipSlot != 0) jogador->equiparItem(ptr);
         }
     }
 

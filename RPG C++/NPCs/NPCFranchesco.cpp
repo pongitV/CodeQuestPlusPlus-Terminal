@@ -144,13 +144,8 @@ namespace {
             };
             Aparencia::imprimirBlocoCentralizado(linhas);
             std::cout << "\n";
-            Aparencia::exibirPrompt("Escolha: \033[s");
-            
-            while (true) {
-                opcaoCompra = ControleDeInput::lerEntradaProtegida();
-                if (opcaoCompra == "0" || opcaoCompra == "1") break;
-                std::cout << "\033[u\033[J";
-            }
+            int id = ControleDeInput::lerInteiroComLimites("Escolha: ", 0, 1, true);
+            opcaoCompra = std::to_string(id);
 
             if (opcaoCompra == "1") {
                 int preco = 10;
@@ -185,13 +180,8 @@ namespace {
             };
             Aparencia::imprimirBlocoCentralizado(linhas);
             std::cout << "\n";
-            Aparencia::exibirPrompt("Escolha: \033[s");
-            
-            while (true) {
-                opcaoCompra = ControleDeInput::lerEntradaProtegida();
-                if (opcaoCompra >= "0" && opcaoCompra <= "4") break;
-                std::cout << "\033[u\033[J";
-            }
+            int id = ControleDeInput::lerInteiroComLimites("Escolha: ", 0, 4, true);
+            opcaoCompra = std::to_string(id);
 
             if (opcaoCompra != "0") {
                 int preco = 200;
@@ -233,13 +223,8 @@ namespace {
             };
             Aparencia::imprimirBlocoCentralizado(linhas);
             std::cout << "\n";
-            Aparencia::exibirPrompt("Escolha: \033[s");
-            
-            while (true) {
-                opcaoCompra = ControleDeInput::lerEntradaProtegida();
-                if (opcaoCompra == "0" || opcaoCompra == "1") break;
-                std::cout << "\033[u\033[J";
-            }
+            int id = ControleDeInput::lerInteiroComLimites("Escolha: ", 0, 1, true);
+            opcaoCompra = std::to_string(id);
 
             if (opcaoCompra == "1") {
                 int preco = 1000;

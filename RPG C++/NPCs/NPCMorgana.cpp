@@ -154,13 +154,8 @@ namespace {
             std::cout << "\n";
             Aparencia::imprimirBlocoCentralizado(linhas);
             std::cout << "\n";
-            Aparencia::exibirPrompt("Escolha: \033[s");
-            
-            while (true) {
-                opcaoEncantar = ControleDeInput::lerEntradaProtegida();
-                if (opcaoEncantar >= "0" && opcaoEncantar <= "3") break;
-                std::cout << "\033[u\033[J";
-            }
+            int id = ControleDeInput::lerInteiroComLimites("Escolha: ", 0, 3, true);
+            opcaoEncantar = std::to_string(id);
 
             if (opcaoEncantar != "0") {
                 struct EncantoInfo { ItemID idItem; int qtd; };
@@ -310,13 +305,8 @@ namespace {
             std::cout << "\n";
             Aparencia::imprimirBlocoCentralizado(linhas);
             std::cout << "\n";
-            Aparencia::exibirPrompt("Escolha: \033[s");
-            
-            while (true) {
-                opcaoCompra = ControleDeInput::lerEntradaProtegida();
-                if (opcaoCompra == "0" || opcaoCompra == "1" || opcaoCompra == "2") break;
-                std::cout << "\033[u\033[J";
-            }
+            int id = ControleDeInput::lerInteiroComLimites("Escolha: ", 0, 2, true);
+            opcaoCompra = std::to_string(id);
 
             if (opcaoCompra != "0") {
                 int preco = (isBuff ? 25 : 30);

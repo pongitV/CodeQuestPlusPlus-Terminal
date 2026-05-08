@@ -141,17 +141,7 @@ void ControleDeMapa::processarCombate(
     int espacosParaCentralizarMensagem = std::max(0, (larguraDoTerminal - static_cast<int>(mensagemDeAviso.length())) / 2);
     std::string margemEsquerdaMensagem(espacosParaCentralizarMensagem, ' ');
     std::cout << "\n" << margemEsquerdaMensagem << Aparencia::cor(Cor::AMARELO) << "[!] " << mensagemDeAviso << Aparencia::cor(Cor::RESET) << "\n";
-    std::cout << margemEsquerdaMensagem << "[0] Nao, recuar | [1] Sim, batalha!\n" << margemEsquerdaMensagem << "Escolha: ";
-
-    int opcaoEscolhidaPeloJogador = -1;
-    while (true) {
-        std::string entrada = ControleDeInput::lerEntradaProtegida();
-        try {
-            opcaoEscolhidaPeloJogador = std::stoi(entrada);
-            if (opcaoEscolhidaPeloJogador == 0 || opcaoEscolhidaPeloJogador == 1) break;
-        } catch (...) {}
-        std::cout << "\033[u\033[J";
-    }
+    int opcaoEscolhidaPeloJogador = ControleDeInput::lerInteiroComLimites("[0] Nao, recuar | [1] Sim, batalha!\n" + margemEsquerdaMensagem + "Escolha: ", 0, 1, false, margemEsquerdaMensagem);
 
     if (opcaoEscolhidaPeloJogador == 1) {
         GerenciadorCombate combate(jogadorAtual, std::move(inimigosParaBatalha));

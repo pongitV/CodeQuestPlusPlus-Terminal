@@ -4,6 +4,7 @@
 #include <chrono>
 
 #include "TelaInventario.h"
+#include "TelaBase.h"
 #include "TelaMenu.h"
 #include "../Utilidades/Aparencia.h"
 
@@ -14,10 +15,7 @@ void TelaInventario::exibir(SistemaPersonagem* jogadorAtual, bool mostrarPrecos)
     Aparencia::limparTela();
     
     static auto ultimoAcesso = std::chrono::steady_clock::now() - std::chrono::hours(1);
-    auto agora = std::chrono::steady_clock::now();
-    bool animarEntrada = std::chrono::duration_cast<std::chrono::milliseconds>(agora - ultimoAcesso).count() > 300;
-    ultimoAcesso = agora;
-    int atrasoMs = animarEntrada ? 10 : 0;
+    int atrasoMs = TelaBase::deveAnimarEntradaDaTela(ultimoAcesso, 300) ? 10 : 0;
 
     int largura = Aparencia::obterLarguraTerminal();
     std::vector<std::string> logoInventario = 

@@ -13,6 +13,7 @@
 #include "../Racas/RacaBase.h"
 #include "../Classes/ClasseBase.h"
 #include "../Inventario/Item.h"
+#include "../Utilidades/ControleDeInput.h"
 
 namespace {
     std::vector<std::string> gerarArteCoracao(double porcentagemDeVida, const std::string& corVerde, const std::string& corLaranja, const std::string& corVermelho, const std::string& corReset) {
@@ -287,26 +288,6 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
     std::cout << "\n";
 }
 
-std::vector<std::string> TelaCombate::comporEstatisticasBatalha(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido, int curaTotalRecebida, int turnosCombate) 
-{
-    return {
-        "NOME:           " + jogadorAtual->obterNome(),
-        "RACA:           " + jogadorAtual->obterRaca()->obterNomeRaca(),
-        "CLASSE:         " + jogadorAtual->obterNomeClasse(),
-        "HP RESTANTE:    " + std::to_string(jogadorAtual->obterVida()) + "/" + std::to_string(jogadorAtual->obterVidaMaxima()),
-        "OURO TOTAL:     " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G",
-        "NIVEL:          " + std::to_string(jogadorAtual->obterNivel()) + " (XP: " + std::to_string(jogadorAtual->obterXpAtual()) + "/" + std::to_string(jogadorAtual->obterXpParaSubir()) + ")",
-        "",
-        "--- ESTATISTICAS DA BATALHA ---",
-        "OURO OBTIDO:   +" + std::to_string(quantidadeDeOuroObtido) + "G",
-        "XP OBTIDO:     +" + std::to_string(quantidadeDeXpObtido) + " XP",
-        "DANO TOTAL CAUSADO:   " + std::to_string(totalDeDanoCausado),
-        "DANO TOTAL RECEBIDO:  " + std::to_string(totalDeDanoRecebido),
-        "CURA TOTAL RECEBIDA:  " + std::to_string(curaTotalRecebida),
-        "NUMERO DE TURNOS:         " + std::to_string(turnosCombate)
-    };
-}
-
 void TelaCombate::animarDanoNoInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados)
 {
     for (int frame = 1; frame <= 4; ++frame) {
@@ -329,6 +310,91 @@ void TelaCombate::animarDanoNoInimigo(const std::string& tituloCombate, const st
         Aparencia::imprimirLinhaDivisoria();
         for (const auto& msg : mensagensFixasCombate) std::cout << msg;
     });
+}
+
+void TelaCombate::exibirCabecalhoDoTurno(int turnoAtual, const std::string& nomePersonagem) {
+    std::string textoDoTurno = "--- TURNO " + std::to_string(turnoAtual) + " | VEZ DE " + nomePersonagem + " ---";
+    std::string msgTurno = "\n" + Aparencia::espacosParaCentralizar(textoDoTurno.length()) + textoDoTurno + "\n";
+    std::cout << msgTurno;
+    adicionarMensagemFixa(msgTurno);
+}
+
+int TelaCombate::obterAcaoDoJogador() {
+    std::string textoAcoes = "1. Atacar | 2. Defender | 3. Habilidade | 4. Inventario | 5. Jogador | 6. Bestiario | 7. Log | Escolha: ";
+    return ControleDeInput::lerInteiroComLimites(textoAcoes, 1, 7, true);
+}
+
+int TelaCombate::obterAlvoAtaque(int maxIndice) {
+    return ControleDeInput::lerInteiroComLimites("Escolha o alvo (0 a " + std::to_string(maxIndice) + "): ", 0, maxIndice, false, Aparencia::margemCombate());
+}
+
+int TelaCombate::obterAlvoItem(const std::vector<SistemaPersonagem*>& listaDeInimigos) {
+    std::cout << "\n" << Aparencia::margemCombate() << "--- ESCOLHA UM ALVO ---\n";
+    for (size_t i = 0; i < listaDeInimigos.size(); ++i) {
+        std::cout << Aparencia::margemCombate() << "[" << i << "] " << listaDeInimigos[i]->obterNome() << " (HP: " << listaDeInimigos[i]->obterVida() << ")\n";
+    }
+    int maxIndice = static_cast<int>(listaDeInimigos.size()) - 1;
+    return ControleDeInput::lerInteiroComLimites("Escolha (ou -1 para CANCELAR): ", -1, maxIndice, false, Aparencia::margemCombate());
+}
+
+int TelaCombate::obterEscolhaDeEscudo(const std::string& nomePersonagem, const std::vector<Item*>& listaDeEscudos) {
+    std::cout << "\n" << Aparencia::margemCombate() << "=== SELECIONE UM ESCUDO PARA " << nomePersonagem << " ===\n";
+    for (size_t indice = 0; indice < listaDeEscudos.size(); indice++) {
+        std::cout << Aparencia::margemCombate() << " [" << indice + 1 << "] " << listaDeEscudos[indice]->obterNomeItem() << listaDeEscudos[indice]->obterInfoStatus() << "\n";
+    }
+    std::cout << Aparencia::margemCombate() << " [0] Cancelar\n\n";
+    return ControleDeInput::lerInteiroComLimites("Escolha: ", 0, static_cast<int>(listaDeEscudos.size()), false, Aparencia::margemCombate());
+}
+
+void TelaCombate::notificarInimigosMaisAgeis() {
+    std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << "[SISTEMA]: Os inimigos sao mais ageis e atacam primeiro!" << Aparencia::cor(Cor::RESET) << "\n";
+    Aparencia::registrarLogBatalha("[SISTEMA]: Os inimigos sao mais ageis e atacam primeiro!");
+    Aparencia::aguardarEnter();
+}
+
+void TelaCombate::notificarTurnoExtra(int destrezaJogador, int maxDestrezaInimigos) {
+    std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::CIANO) << "[SISTEMA]: Sua agilidade extrema (" << destrezaJogador << " VS " << maxDestrezaInimigos << ") permite que voce aja novamente!" << Aparencia::cor(Cor::RESET) << "\n";
+    Aparencia::registrarLogBatalha("[SISTEMA]: Sua agilidade extrema (" + std::to_string(destrezaJogador) + " VS " + std::to_string(maxDestrezaInimigos) + ") permite que voce aja novamente!");
+    Aparencia::aguardarEnter();
+}
+
+void TelaCombate::notificarDesprevencaoInventario() {
+    std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::AMARELO) << "[SISTEMA]: O inimigo te pegou desprevinido enquanto voce usava o inventario!" << Aparencia::cor(Cor::RESET) << "\n";
+    Aparencia::registrarLogBatalha("[SISTEMA]: O inimigo te pegou desprevinido enquanto voce usava o inventario!");
+}
+
+void TelaCombate::notificarSemEscudos(const std::string& nomePersonagem) {
+    std::cout << "\n" << Aparencia::margemCombate() << "[!] " << nomePersonagem << " nao possui escudos no inventario para usar!\n";
+}
+
+void TelaCombate::notificarDesequilibrioDefesa(const std::string& nomePersonagem) {
+    std::cout << "\n" << Aparencia::margemCombate() << "[ERRO]: " << nomePersonagem << " se desequilibrou e precisa de 1 turno para poder defender novamente!\n";
+    Aparencia::registrarLogBatalha("[ERRO]: " + nomePersonagem + " se desequilibrou e precisa de 1 turno para poder defender novamente!");
+    Aparencia::aguardarEnter();
+}
+
+void TelaCombate::notificarPosturaDefensiva(const std::string& nomePersonagem, const std::string& nomeEscudo) {
+    std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << nomePersonagem << " assumiu uma postura defensiva com " << nomeEscudo << "!\n";
+    Aparencia::registrarLogBatalha("[SISTEMA]: " + nomePersonagem + " assumiu uma postura defensiva com " + nomeEscudo + "!");
+    Aparencia::aguardarEnter();
+}
+
+void TelaCombate::notificarAcaoInvalida() {
+    std::cout << "\n" << Aparencia::margemCombate() << "[ERRO] Acao invalida!\n";
+    Aparencia::aguardarEnter();
+}
+
+void TelaCombate::notificarCancelamentoItem() {
+    std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA] Uso do frasco cancelado. O item voltou para a mochila.\n";
+}
+
+void TelaCombate::notificarRequisitoNaoAtendido(const std::string& mensagemRequisito) {
+    if (mensagemRequisito.substr(0, 1) == "\n") {
+        std::cout << "\n" << Aparencia::margemCombate() << mensagemRequisito.substr(1);
+    } else {
+        std::cout << Aparencia::margemCombate() << mensagemRequisito;
+    }
+    Aparencia::aguardarEnter();
 }
 
 void TelaCombate::atualizarTelaEstatica(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados)

@@ -3,7 +3,7 @@
 
 #include "TelaVitoria.h"
 #include "../Racas/RacaBase.h"
-#include "TelaCombate.h"
+#include "TelaBase.h"
 #include "../Utilidades/Aparencia.h"
 
 void TelaVitoria::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido, int curaTotalRecebida, int turnosCombate, const std::vector<std::string>& itensObtidos)
@@ -25,7 +25,7 @@ void TelaVitoria::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroOb
 
     Aparencia::exibirLogoAscii(logoVitoria, 85, Cor::VERDE, "", 15);
 
-    std::vector<std::string> linhas = TelaCombate::comporEstatisticasBatalha(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, curaTotalRecebida, turnosCombate);
+    std::vector<std::string> linhas = TelaBase::comporEstatisticasBatalha(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, curaTotalRecebida, turnosCombate);
     linhas.push_back("");
 
     if (!itensObtidos.empty()) {

@@ -25,24 +25,6 @@
 #include "../Utilidades/ControleDeInput.h"
 
 namespace {
-    int lerInteiroComLimites(const std::string& promptMensagem, int minimo, int maximo, bool centralizarPrompt = false, bool usarMargemCombate = false) {
-        int valor;
-        std::string prefixo = usarMargemCombate ? Aparencia::margemCombate() : "";
-        if (centralizarPrompt) Aparencia::exibirPrompt(promptMensagem);
-        else std::cout << prefixo << promptMensagem;
-
-        
-        while (true) {
-            std::string entrada = ControleDeInput::lerEntradaProtegida();
-            try {
-                valor = std::stoi(entrada);
-                if (valor >= minimo && valor <= maximo) break;
-            } catch (...) {}
-
-            std::cout << "\033[u\033[J"; // Apenas limpa a entrada invalida
-        }
-        return valor;
-    }
 }
 
 GerenciadorCombate::GerenciadorCombate(SistemaPersonagem* jogadorParaOCombate, std::vector<std::unique_ptr<SistemaPersonagem>>&& inimigosParaOCombate) 
@@ -133,9 +115,7 @@ void GerenciadorCombate::iniciarCombate()
     if (maxDestrezaInimigos > jogadorAtual->obterDestreza()) {
         exibirTelaDeCombate(primeiraRenderizacao);
         primeiraRenderizacao = false;
-        std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << "[SISTEMA]: Os inimigos sao mais ageis e atacam primeiro!" << Aparencia::cor(Cor::RESET) << "\n";
-        Aparencia::registrarLogBatalha("[SISTEMA]: Os inimigos sao mais ageis e atacam primeiro!");
-        Aparencia::aguardarEnter();
+        TelaCombate::notificarInimigosMaisAgeis();
         executarTurnoDeTodosOsInimigos();
         if (verificarCondicaoDeVitoriaOuDerrota()) return;
     }
@@ -157,17 +137,14 @@ void GerenciadorCombate::iniciarCombate()
             }
 
             if (turnoExtraFirstTurn && contadorDoTurnoAtual == 1) {
-                std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::CIANO) << "[SISTEMA]: Sua agilidade extrema (" << jogadorAtual->obterDestreza() << " VS " << maxDestrezaInimigos << ") permite que voce aja novamente!" << Aparencia::cor(Cor::RESET) << "\n";
-                Aparencia::registrarLogBatalha("[SISTEMA]: Sua agilidade extrema (" + std::to_string(jogadorAtual->obterDestreza()) + " VS " + std::to_string(maxDestrezaInimigos) + ") permite que voce aja novamente!");
-                Aparencia::aguardarEnter();
+                TelaCombate::notificarTurnoExtra(jogadorAtual->obterDestreza(), maxDestrezaInimigos);
                 turnoExtraFirstTurn = false;
                 continue;
             }
 
             if (usouInventarioNoTurno) {
                 exibirTelaDeCombate();
-                std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::AMARELO) << "[SISTEMA]: O inimigo te pegou desprevinido enquanto voce usava o inventario!" << Aparencia::cor(Cor::RESET) << "\n";
-                Aparencia::registrarLogBatalha("[SISTEMA]: O inimigo te pegou desprevinido enquanto voce usava o inventario!");
+                TelaCombate::notificarDesprevencaoInventario();
             }
         }
         
@@ -200,13 +177,9 @@ void GerenciadorCombate::processarMenuDeAcoesDoJogador(SistemaPersonagem* person
 {
     TelaCombate::limparMensagensFixas();
     Aparencia::exibirUltimosLogs(5);
-    std::string textoDoTurno = "--- TURNO " + std::to_string(contadorDoTurnoAtual) + " | VEZ DE " + personagemAgindo->obterNome() + " ---";
-    std::string msgTurno = "\n" + Aparencia::espacosParaCentralizar(textoDoTurno.length()) + textoDoTurno + "\n";
-    std::cout << msgTurno;
-    TelaCombate::adicionarMensagemFixa(msgTurno);
+    TelaCombate::exibirCabecalhoDoTurno(contadorDoTurnoAtual, personagemAgindo->obterNome());
 
-    std::string textoAcoes = "1. Atacar | 2. Defender | 3. Habilidade | 4. Inventario | 5. Jogador | 6. Bestiario | 7. Log | Escolha: ";
-    int acaoEscolhida = lerInteiroComLimites(textoAcoes, 1, 7, true);
+    int acaoEscolhida = TelaCombate::obterAcaoDoJogador();
 
     switch (acaoEscolhida) 
     {
@@ -218,8 +191,7 @@ void GerenciadorCombate::processarMenuDeAcoesDoJogador(SistemaPersonagem* person
         case 6: TelaBestiario::exibirLista(personagemAgindo); break;
         case 7: Aparencia::exibirHistoricoCompleto(); break;
         default: 
-            std::cout << "\n" << Aparencia::margemCombate() << "[ERRO] Acao invalida!\n"; 
-            Aparencia::aguardarEnter(); 
+            TelaCombate::notificarAcaoInvalida();
             break;
     }
 }
@@ -234,7 +206,7 @@ void GerenciadorCombate::processarAcaoAtacar(SistemaPersonagem* personagemAgindo
     else 
     {
         int maxIndice = static_cast<int>(listaDeInimigos.size()) - 1;
-        int indiceDoAlvoEscolhido = lerInteiroComLimites("Escolha o alvo (0 a " + std::to_string(maxIndice) + "): ", 0, maxIndice, false, true);
+        int indiceDoAlvoEscolhido = TelaCombate::obterAlvoAtaque(maxIndice);
 
         realizarAtaqueFisico(personagemAgindo, listaDeInimigos[indiceDoAlvoEscolhido].get(), contadorDoTurnoAtual);
         turnoFoiConsumido = true;
@@ -255,17 +227,11 @@ Item* GerenciadorCombate::selecionarEscudo(SistemaPersonagem* personagemAgindo)
 
     if (listaDeEscudos.empty()) 
     {
-        std::cout << "\n" << Aparencia::margemCombate() << "[!] " << personagemAgindo->obterNome() << " nao possui escudos no inventario para usar!\n";
+        TelaCombate::notificarSemEscudos(personagemAgindo->obterNome());
         return nullptr;
     }
 
-    std::cout << "\n" << Aparencia::margemCombate() << "=== SELECIONE UM ESCUDO PARA " << personagemAgindo->obterNome() << " ===\n";
-    for (size_t indice = 0; indice < listaDeEscudos.size(); indice++) 
-    {
-        std::cout << Aparencia::margemCombate() << " [" << indice + 1 << "] " << listaDeEscudos[indice]->obterNomeItem() << listaDeEscudos[indice]->obterInfoStatus() << "\n";
-    }
-    std::cout << Aparencia::margemCombate() << " [0] Cancelar\n\n";
-    int opcaoEscolhida = lerInteiroComLimites("Escolha: ", 0, static_cast<int>(listaDeEscudos.size()), false, true);
+    int opcaoEscolhida = TelaCombate::obterEscolhaDeEscudo(personagemAgindo->obterNome(), listaDeEscudos);
     return (opcaoEscolhida == 0) ? nullptr : listaDeEscudos[opcaoEscolhida - 1];
 }
 
@@ -273,9 +239,7 @@ void GerenciadorCombate::processarAcaoDefender(SistemaPersonagem* personagemAgin
 {
     if (personagemAgindo->obterRecargaDefesa()) 
     {
-        std::cout << "\n" << Aparencia::margemCombate() << "[ERRO]: " << personagemAgindo->obterNome() << " se desequilibrou e precisa de 1 turno para poder defender novamente!\n";
-        Aparencia::registrarLogBatalha("[ERRO]: " + personagemAgindo->obterNome() + " se desequilibrou e precisa de 1 turno para poder defender novamente!");
-        Aparencia::aguardarEnter();
+        TelaCombate::notificarDesequilibrioDefesa(personagemAgindo->obterNome());
         return; 
     }
     
@@ -283,21 +247,13 @@ void GerenciadorCombate::processarAcaoDefender(SistemaPersonagem* personagemAgin
     if (escudoEscolhido != nullptr) 
     {
         if (!escudoEscolhido->podeSerEquipadoPor(personagemAgindo)) {
-            std::string msg = escudoEscolhido->obterMensagemRequisito();
-            if (msg.substr(0, 1) == "\n") {
-                std::cout << "\n" << Aparencia::margemCombate() << msg.substr(1);
-            } else {
-                std::cout << Aparencia::margemCombate() << msg;
-            }
-            Aparencia::aguardarEnter();
+            TelaCombate::notificarRequisitoNaoAtendido(escudoEscolhido->obterMensagemRequisito());
             return;
         }
 
         personagemAgindo->equiparItem(escudoEscolhido);
         personagemAgindo->definirDefendendo(true);
-        std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << personagemAgindo->obterNome() << " assumiu uma postura defensiva com " << escudoEscolhido->obterNomeItem() << "!\n";
-        Aparencia::registrarLogBatalha("[SISTEMA]: " + personagemAgindo->obterNome() + " assumiu uma postura defensiva com " + escudoEscolhido->obterNomeItem() + "!");
-        Aparencia::aguardarEnter();
+        TelaCombate::notificarPosturaDefensiva(personagemAgindo->obterNome(), escudoEscolhido->obterNomeItem());
         turnoFoiConsumido = true;
     }
 }
@@ -327,17 +283,11 @@ void GerenciadorCombate::processarAcaoInventario(SistemaPersonagem* personagemAg
     {
         Item* itemSelecionado = personagemAgindo->obterItemSelecionadoParaUso();
         
-        std::cout << "\n" << Aparencia::margemCombate() << "--- ESCOLHA UM ALVO ---\n";
-        for (size_t i = 0; i < listaDeInimigos.size(); ++i) {
-            std::cout << Aparencia::margemCombate() << "[" << i << "] " << listaDeInimigos[i]->obterNome() << " (HP: " << listaDeInimigos[i]->obterVida() << ")\n";
-        }
-        
-        int maxIndice = static_cast<int>(listaDeInimigos.size()) - 1;
-        int indiceDoAlvoEscolhido = lerInteiroComLimites("Escolha (ou -1 para CANCELAR): ", -1, maxIndice, false, true);
+        int indiceDoAlvoEscolhido = TelaCombate::obterAlvoItem(obterInimigosRaw());
 
         if (indiceDoAlvoEscolhido == -1) 
         {
-            std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA] Uso do frasco cancelado. O item voltou para a mochila.\n";
+            TelaCombate::notificarCancelamentoItem();
             personagemAgindo->definirItemSelecionadoParaUso(nullptr);
         } 
         else 

@@ -164,16 +164,8 @@ namespace {
             std::cout << "\n";
             Aparencia::imprimirBlocoCentralizado(linhas);
             std::cout << "\n";
-            Aparencia::exibirPrompt("Escolha: \033[s");
-            
-            while (true) {
-                opcaoCompra = ControleDeInput::lerEntradaProtegida();
-                if (opcaoCompra == "0") break;
-                try {
-                    if (estoqueAtual.count(std::stoi(opcaoCompra))) break;
-                } catch (...) {}
-                std::cout << "\033[u\033[J";
-            }
+            int idCompra = ControleDeInput::lerInteiroComLimites("Escolha: ", 0, 4, true);
+            opcaoCompra = std::to_string(idCompra);
             
             if (opcaoCompra != "0") {
                 int idCompra = std::stoi(opcaoCompra);
