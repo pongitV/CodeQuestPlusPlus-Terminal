@@ -4,6 +4,8 @@
 #include <iostream>
 #include <limits>
 #include <vector>
+#include <thread>
+#include <chrono>
 
 #include "../Classes/ClasseBase.h"
 #include "../Inventario/InventarioCombate.h"
@@ -359,13 +361,13 @@ void GerenciadorCombate::limparInimigosMortos()
     {
         if (inimigoPtr->obterVida() <= 0) 
         {
+                processarMorteDeInimigo(inimigoPtr.get());
+
                 std::vector<SistemaPersonagem*> aliadosVivos;
                 for (const auto& aliado : listaDeAliados) {
                     if (aliado->obterVida() > 0) aliadosVivos.push_back(aliado.get());
                 }
                 TelaCombate::animarMorteInimigo(obterTituloDoCombate(), obterInimigosRaw(), inimigoPtr.get(), jogadorAtual, aliadosVivos);
-
-            processarMorteDeInimigo(inimigoPtr.get());
             Aparencia::aguardarEnter();
         }
     }
@@ -381,7 +383,8 @@ void GerenciadorCombate::executarTurnoDeTodosOsInimigos()
 {
     if (jogadorAtual->obterPularTurnoInimigo()) 
     {
-        std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE) << "[EFEITO]: Os inimigos estao atordoados e nao podem agir!" << Aparencia::cor(Cor::RESET) << "\n";
+        std::string msg = "\n" + Aparencia::margemCombate() + Aparencia::cor(Cor::VERDE) + "[EFEITO]: Os inimigos estao atordoados e nao podem agir!" + Aparencia::cor(Cor::RESET) + "\n";
+        TelaCombate::adicionarMensagemFixa(msg);
         Aparencia::registrarLogBatalha("[EFEITO]: Os inimigos estao atordoados e nao podem agir!");
         jogadorAtual->definirPularTurnoInimigo(false); 
     }
@@ -389,7 +392,6 @@ void GerenciadorCombate::executarTurnoDeTodosOsInimigos()
     {
         std::string textoTurnoInimigos = "--- TURNO DOS INIMIGOS ---";
         std::string msgTurno = "\n" + Aparencia::espacosParaCentralizar(textoTurnoInimigos.length()) + textoTurnoInimigos + "\n";
-        std::cout << msgTurno;
         TelaCombate::adicionarMensagemFixa(msgTurno);
         for (auto& inimigoAtualPtr : listaDeInimigos) 
         {
@@ -421,7 +423,6 @@ void GerenciadorCombate::executarTurnoDeTodosOsInimigos()
             else
             {
                 std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::VERDE) + ">> [EFEITO]: " + inimigoAtual->obterNome() + " esta sob efeito de " + motivoIncapacidade + " e nao pode agir neste turno!" + Aparencia::cor(Cor::RESET) + "\n";
-                std::cout << msg;
                 TelaCombate::adicionarMensagemFixa(msg);
                 Aparencia::registrarLogBatalha("[EFEITO]: " + inimigoAtual->obterNome() + " esta sob efeito de " + motivoIncapacidade + " e nao pode agir!");
             }
@@ -505,9 +506,10 @@ void GerenciadorCombate::aplicarDanoAoAlvo(SistemaPersonagem* personagemAtacante
 {
     if (personagemAlvo->possuiEfeito(EfeitoID::Inviolavel))
     {
-        std::string msg = "\n" + Aparencia::margemCombate() + "[COMBATE]: O alvo esta Inviolavel e desviou do ataque perfeitamente!\n";
-        std::cout << msg;
+        std::string msgSemCor = "[COMBATE]: O alvo esta Inviolavel e desviou do ataque perfeitamente!";
+        std::string msg = "\n" + Aparencia::margemCombate() + msgSemCor + "\n";
         TelaCombate::adicionarMensagemFixa(msg);
+        Aparencia::registrarLogBatalha(msgSemCor);
         return;
     }
 
@@ -563,6 +565,12 @@ void GerenciadorCombate::aplicarDanoAoAlvo(SistemaPersonagem* personagemAtacante
         // Animaçao Ciano na HUD caso execute um bloqueio/parry perfeito e anule 100% do dano
         TelaCombate::animarDanoNoJogador(obterTituloDoCombate(), obterInimigosRaw(), personagemAlvo, jogadorAtual, aliadosVivos, true);
     }
+    else
+    {
+        // Caso não haja dano e nem parry perfeito, atualiza a tela para exibir as mensagens geradas sem causar flicker
+        TelaCombate::atualizarTelaEstatica(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual, aliadosVivos);
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    }
 }
 
 void GerenciadorCombate::exibirResultadoDoAtaque(SistemaPersonagem* alvo, int danoFinal, bool tentouParry, bool parrySucesso, int danoBloqueado, bool escudoQuebrou, const std::string& nomeEscudoQuebrado)
@@ -609,7 +617,6 @@ void GerenciadorCombate::exibirResultadoDoAtaque(SistemaPersonagem* alvo, int da
     }
 
     if (!msg.empty()) {
-        std::cout << msg;
         TelaCombate::adicionarMensagemFixa(msg);
     }
 }
@@ -635,7 +642,8 @@ bool GerenciadorCombate::verificarCondicaoDeVitoriaOuDerrota()
 
 void GerenciadorCombate::processarMorteDeInimigo(SistemaPersonagem* inimigo)
 {
-    std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::AMARELO) << "[!] " << inimigo->obterNome() << " derrotado!" << Aparencia::cor(Cor::RESET) << "\n";
+    std::string msg = "\n" + Aparencia::margemCombate() + Aparencia::cor(Cor::AMARELO) + "[!] " + inimigo->obterNome() + " derrotado!" + Aparencia::cor(Cor::RESET) + "\n";
+    TelaCombate::adicionarMensagemFixa(msg);
     Aparencia::registrarLogBatalha("[!] " + inimigo->obterNome() + " derrotado!");
 
     SistemaBestiario::instancia().registrarDerrota(inimigo->obterNome());

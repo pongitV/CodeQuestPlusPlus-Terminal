@@ -94,17 +94,10 @@ void Slime::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogador
     int ouroDrop = 15;
     GerenciadorDrops::relatarEProcessarXpOuro(jogadorAtual, xpDrop, ouroDrop, ouroTotal, xpTotal);
 
-    for (int i = 0; i < 3; ++i) {
-        jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::GosmaAcida));
-        itensObtidos.push_back("Gosma acida");
-    }
-    GerenciadorDrops::relatarDropItem("Gosma acida", 3);
+    GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::GosmaAcida, 3, itensObtidos);
     
-    if (GeradorAleatorio::rolarChance(30)) 
-    {
-        jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::NucleoPegajoso));
-        GerenciadorDrops::relatarDropItem("Nucleo pegajoso", 1);
-        itensObtidos.push_back("Nucleo pegajoso");
+    if (GeradorAleatorio::rolarChance(30)) {
+        GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::NucleoPegajoso, 1, itensObtidos);
     }
 }
 
@@ -114,7 +107,6 @@ void Slime::aoCausarDano(SistemaPersonagem* atacante, SistemaPersonagem* alvo, i
         if (!alvo->possuiEfeito(EfeitoID::Lentidao)) {
             alvo->adicionarEfeito(std::make_unique<EfeitoLentidao>(3));
             std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::MAGENTA) + ">> [PASSIVA SLIME]: Uma gosma esverdeada grudou e deixou " + alvo->obterNome() + " mais lento!" + Aparencia::cor(Cor::RESET) + "\n";
-            std::cout << msg;
             TelaCombate::adicionarMensagemFixa(msg);
         }
     }

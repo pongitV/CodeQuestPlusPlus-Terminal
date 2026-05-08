@@ -53,16 +53,62 @@ namespace {
         std::cout.rdbuf(oldCout);
         
         std::string output = buffer.str();
-        size_t pos = 0;
+       // size_t pos = 0;
         // Insere o codigo ANSI \033[K antes de cada quebra de linha.
         // Isso limpa o resto da linha no console, evitando que textos mais curtos 
         // deixem "fantasmas" das renderizacoes anteriores.
-        while ((pos = output.find('\n', pos)) != std::string::npos) {
-            output.insert(pos, "\033[K");
-            pos += 4; // Avança o tamanho de "\033[K" (3) + "\n" (1)
+      //  while ((pos = output.find('\n', pos)) != std::string::npos) {
+         //   output.insert(pos, "\033[K");
+           // pos += 4; // Avança o tamanho de "\033[K" (3) + "\n" (1)
+      //  }
+
+      //   std::cout << "\033[H" << output << "\033[J" << std::flush;
+        // O uso de \033[2J\033[H garante que a tela seja completamente limpa e resetada 
+        // no terminal, evitando o efeito de "arrastar" a tela pra cima em consoles com scroll
+        
+        int alturaTerminal = Aparencia::obterAlturaTerminal();
+        // Reserva um espaco de seguranca para evitar scroll acidental na ultima linha
+        int maxLinhas = (alturaTerminal > 2) ? alturaTerminal - 1 : 24; 
+        
+        std::vector<std::string> linhas;
+        size_t start = 0, end = output.find('\n');
+        while (end != std::string::npos) {
+            linhas.push_back(output.substr(start, end - start));
+            start = end + 1;
+            end = output.find('\n', start);
+        }
+        if (start < output.length()) linhas.push_back(output.substr(start));
+
+        // Para evitar que a Logo seja cortada (causando sobreposição grotesca) quando há muitas mensagens de drops/ataques,
+        // nós truncamos as mensagens antigas a partir da divisória do HUD, preservando a arte e as mensagens mais recentes.
+        if (static_cast<int>(linhas.size()) > maxLinhas) {
+            int linhasParaRemover = static_cast<int>(linhas.size()) - maxLinhas;
+            int indiceDivisoria = -1;
+            for (int i = static_cast<int>(linhas.size()) - 1; i >= 0; --i) {
+                if (linhas[i].find("=====") != std::string::npos) {
+                    indiceDivisoria = i;
+                    break;
+                }
+            }
+
+            if (indiceDivisoria != -1 && indiceDivisoria + 1 < static_cast<int>(linhas.size())) {
+                int inicioRemocao = indiceDivisoria + 1;
+                int disponivelParaRemover = static_cast<int>(linhas.size()) - inicioRemocao;
+                if (linhasParaRemover > disponivelParaRemover) linhasParaRemover = disponivelParaRemover;
+                linhas.erase(linhas.begin() + inicioRemocao, linhas.begin() + inicioRemocao + linhasParaRemover);
+            } else {
+                // Fallback seguro caso não ache a divisória
+                linhas.erase(linhas.begin(), linhas.begin() + linhasParaRemover);
+            }
+        }
+
+        std::string finalOutput = "";
+        for (size_t i = 0; i < linhas.size(); ++i) {
+            finalOutput += linhas[i] + "\033[K";
+            if (i < linhas.size() - 1) finalOutput += "\n";
         }
         
-        std::cout << "\033[H" << output << "\033[J" << std::flush;
+        std::cout << "\033[H" << finalOutput << "\033[J" << std::flush;
     }
 }
 
@@ -278,6 +324,18 @@ void TelaCombate::animarDanoNoInimigo(const std::string& tituloCombate, const st
     renderizarFrameBufferizado([&]() {
         exibirLogoParaTelaDeCombate(tituloCombate);
         exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, 0, false);
+        exibirBarraDeStatusDoJogador(jogadorAtual);
+        for (auto* aliado : listaDeAliados) exibirBarraDeStatusDoJogador(aliado);
+        Aparencia::imprimirLinhaDivisoria();
+        for (const auto& msg : mensagensFixasCombate) std::cout << msg;
+    });
+}
+
+void TelaCombate::atualizarTelaEstatica(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados)
+{
+    renderizarFrameBufferizado([&]() {
+        exibirLogoParaTelaDeCombate(tituloCombate);
+        exibirHordaDeInimigosLadoALado(listaDeInimigos, nullptr, 0, false);
         exibirBarraDeStatusDoJogador(jogadorAtual);
         for (auto* aliado : listaDeAliados) exibirBarraDeStatusDoJogador(aliado);
         Aparencia::imprimirLinhaDivisoria();

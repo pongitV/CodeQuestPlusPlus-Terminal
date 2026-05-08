@@ -87,17 +87,10 @@ void Fada::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogadorA
     int ouroDrop = 20;
     GerenciadorDrops::relatarEProcessarXpOuro(jogadorAtual, xpDrop, ouroDrop, ouroTotal, xpTotal);
 
-    if (GeradorAleatorio::rolarChance(65)) 
-    {
-        jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::VarinhaCorroida));
-        itensObtidos.push_back("Varinha corroida");
-        GerenciadorDrops::relatarDropItem("Varinha corroida", 1);
+    if (GeradorAleatorio::rolarChance(65)) {
+        GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::VarinhaCorroida, 1, itensObtidos);
     }
 
     int qtdPo = GeradorAleatorio::obterInteiro(1, 6);
-    for (int i = 0; i < qtdPo; ++i) {
-        jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::PoMagico));
-        itensObtidos.push_back("Po magico");
-    }
-    GerenciadorDrops::relatarDropItem("Po magico", qtdPo);
+    GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::PoMagico, qtdPo, itensObtidos);
 }

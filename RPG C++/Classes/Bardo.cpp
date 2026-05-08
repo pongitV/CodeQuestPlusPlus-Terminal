@@ -129,28 +129,28 @@ void Bardo::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::vect
         std::function<void(SistemaPersonagem*)> acao;
     };
 
-    static const std::array<SubHabilidade, 3> habilidades = {{
-        { HabilidadeID::FlashingLights, "Flashing lights", "Cura e pula o turno", [](SistemaPersonagem* personagemHabilidade) {
+    const std::array<SubHabilidade, 3> habilidades = {{
+        { HabilidadeID::FlashingLights, "Flashing lights", "Cura e pula o turno", [this](SistemaPersonagem* personagemHabilidade) {
             personagemHabilidade->definirPularTurnoInimigo(true);
             int cura = static_cast<int>((personagemHabilidade->obterSabedoria() * 2) + (personagemHabilidade->obterVidaMaxima() * 0.15));
             personagemHabilidade->modificarVida(cura);
             personagemHabilidade->definirCooldown(HabilidadeID::FlashingLights, 3);
-            std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE) << "[HABILIDADE]: !Flashing lights! Voce recuperou " << cura << " HP e encantou os inimigos!" << Aparencia::cor(Cor::RESET) << "\n";
-            Aparencia::registrarLogBatalha("[HABILIDADE]: !Flashing lights! Voce recuperou " + std::to_string(cura) + " HP e encantou os inimigos!");
+            std::string msg = "[HABILIDADE]: !Flashing lights! Voce recuperou " + std::to_string(cura) + " HP e encantou os inimigos!";
+            this->notificarMensagemCombate(Aparencia::cor(Cor::VERDE) + msg + Aparencia::cor(Cor::RESET), msg);
         }},
-        { HabilidadeID::OnSight, "On sight", "1.5x Dano no proximo ataque", [](SistemaPersonagem* personagemHabilidade) {
+        { HabilidadeID::OnSight, "On sight", "1.5x Dano no proximo ataque", [this](SistemaPersonagem* personagemHabilidade) {
             personagemHabilidade->definirMultiplicador(1.5);
-            std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::AMARELO) << personagemHabilidade->obterNome() << " tocou 'On sight' e ganhara 1.5x de dano!" << Aparencia::cor(Cor::RESET) << "\n";
-            Aparencia::registrarLogBatalha(personagemHabilidade->obterNome() + " tocou 'On sight' e ganhara 1.5x de dano!");
             personagemHabilidade->definirCooldown(HabilidadeID::OnSight, 3);
-            std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::AMARELO) << "[HABILIDADE]: !On sight! Seu proximo ataque causara 1.5x de dano!" << Aparencia::cor(Cor::RESET) << "\n";
-            Aparencia::registrarLogBatalha("[HABILIDADE]: !On sight! Seu proximo ataque causara 1.5x de dano!");
+            std::string msg1 = personagemHabilidade->obterNome() + " tocou 'On sight' e ganhara 1.5x de dano!";
+            this->notificarMensagemCombate(Aparencia::cor(Cor::AMARELO) + msg1 + Aparencia::cor(Cor::RESET), msg1);
+            std::string msg2 = "[HABILIDADE]: !On sight! Seu proximo ataque causara 1.5x de dano!";
+            this->notificarMensagemCombate(Aparencia::cor(Cor::AMARELO) + msg2 + Aparencia::cor(Cor::RESET), msg2);
         }},
-        { HabilidadeID::ThroughTheWire, "Through the wire", "Metade do dano recebido", [](SistemaPersonagem* personagemHabilidade) {
+        { HabilidadeID::ThroughTheWire, "Through the wire", "Metade do dano recebido", [this](SistemaPersonagem* personagemHabilidade) {
             personagemHabilidade->adicionarEfeito(std::make_unique<EfeitoMetadeDano>(1));
             personagemHabilidade->definirCooldown(HabilidadeID::ThroughTheWire, 3);
-            std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::CIANO) << "[HABILIDADE]: !Through the wire! Voce esta protegido contra metade do dano recebido!" << Aparencia::cor(Cor::RESET) << "\n";
-            Aparencia::registrarLogBatalha("[HABILIDADE]: !Through the wire! Voce esta protegido contra metade do dano recebido!");
+            std::string msg = "[HABILIDADE]: !Through the wire! Voce esta protegido contra metade do dano recebido!";
+            this->notificarMensagemCombate(Aparencia::cor(Cor::CIANO) + msg + Aparencia::cor(Cor::RESET), msg);
         }}
     }};
 

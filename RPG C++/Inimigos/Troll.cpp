@@ -137,11 +137,6 @@ void Troll::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogador
     int ouroDrop = 350;
     GerenciadorDrops::relatarEProcessarXpOuro(jogadorAtual, xpDrop, ouroDrop, ouroTotal, xpTotal);
 
-    jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::TroncoAmarrotado));
-    itensObtidos.push_back("Tronco de arvore amarrotado");
-    GerenciadorDrops::relatarDropItem("Tronco de arvore amarrotado", 1);
-    
-    jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::OrgaoRegenerador));
-    itensObtidos.push_back("Orgao regenerador");
-    GerenciadorDrops::relatarDropItem("Orgao regenerador", 1);
+    GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::TroncoAmarrotado, 1, itensObtidos);
+    GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::OrgaoRegenerador, 1, itensObtidos);
 }

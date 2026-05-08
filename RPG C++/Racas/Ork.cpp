@@ -86,7 +86,6 @@ int Ork::processarDanoOfensivo(int danoBase, SistemaPersonagem* atacante)
     if (danoExtra > 0) 
     {
         std::string msg = Aparencia::margemCombate() + "[PASSIVA]: Furia cega aumentou o dano em " + std::to_string(danoExtra) + "!\n";
-        std::cout << msg;
         TelaCombate::adicionarMensagemFixa(msg);
         return danoBase + danoExtra;
     }

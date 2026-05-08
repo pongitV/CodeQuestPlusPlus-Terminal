@@ -84,7 +84,6 @@ int Elfo::processarDanoOfensivo(int danoBase, SistemaPersonagem* atacante)
     if (GeradorAleatorio::rolarChance(33)) 
     {
         std::string msg = Aparencia::margemCombate() + "[PASSIVA]: Agil e preciso! Golpe critico.\n";
-        std::cout << msg;
         TelaCombate::adicionarMensagemFixa(msg);
         return static_cast<int>(danoBase * 1.5);
     }

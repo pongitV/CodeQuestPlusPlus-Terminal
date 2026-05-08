@@ -126,8 +126,8 @@ void Guerreiro::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::
     personagemUsuario->adicionarEfeito(std::make_unique<EfeitoGritoGuerra>(2, bonusForca, bonusDestreza));
     personagemUsuario->definirCooldown(HabilidadeID::Determinacao, 4);
     
-    std::cout << Aparencia::margemCombate() << "[HABILIDADE]: Grito de guerra! Forca +" << bonusForca << " e Destreza +" << bonusDestreza << "!\n";
-    Aparencia::registrarLogBatalha("[HABILIDADE]: Grito de guerra! Forca +" + std::to_string(bonusForca) + " e Destreza +" + std::to_string(bonusDestreza) + "!");
+    std::string msg = "[HABILIDADE]: Grito de guerra! Forca +" + std::to_string(bonusForca) + " e Destreza +" + std::to_string(bonusDestreza) + "!";
+    notificarMensagemCombate(msg, msg);
 }
 
 // --- PROCESSAMENTO DE DANO  ---

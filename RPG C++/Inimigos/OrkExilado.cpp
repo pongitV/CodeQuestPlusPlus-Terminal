@@ -107,13 +107,6 @@ void OrkExilado::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jo
     int ouroDrop = 100;
     GerenciadorDrops::relatarEProcessarXpOuro(jogadorAtual, xpDrop, ouroDrop, ouroTotal, xpTotal);
 
-    for (int i = 0; i < 2; ++i) {
-        jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::MachadoGuerra));
-        itensObtidos.push_back("Machado de guerra danificado");
-    }
-    GerenciadorDrops::relatarDropItem("Machado de guerra danificado", 2);
-    
-    jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::ArmaduraTrapos));
-    GerenciadorDrops::relatarDropItem("Armadura de trapos e sucata", 1);
-    itensObtidos.push_back("Armadura de trapos e sucata");
+    GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::MachadoGuerra, 2, itensObtidos);
+    GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::ArmaduraTrapos, 1, itensObtidos);
 }

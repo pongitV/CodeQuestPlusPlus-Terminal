@@ -118,11 +118,11 @@ void Mago::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::vecto
     Item* escudo = personagemUsuario->obterEscudo();
     if (escudo) {
         personagemUsuario->definirDefendendo(true);
-        std::cout << Aparencia::margemCombate() << "[HABILIDADE]: Canalizacao arcana! Voce se defende com " << escudo->obterNomeItem() << " e prepara um ataque devastador (2x Dano)!\n";
-        Aparencia::registrarLogBatalha("[HABILIDADE]: Canalizacao arcana! Voce se defende com " + escudo->obterNomeItem() + " e prepara um ataque devastador (2x Dano)!");
+        std::string msg = "[HABILIDADE]: Canalizacao arcana! Voce se defende com " + escudo->obterNomeItem() + " e prepara um ataque devastador (2x Dano)!";
+        notificarMensagemCombate(msg, msg);
     } else {
-        std::cout << Aparencia::margemCombate() << "[HABILIDADE]: Canalizacao arcana! Voce foca sua energia para um ataque devastador (2x Dano) no proximo turno!\n";
-        Aparencia::registrarLogBatalha("[HABILIDADE]: Canalizacao arcana! Voce foca sua energia para um ataque devastador (2x Dano) no proximo turno!");
+        std::string msg = "[HABILIDADE]: Canalizacao arcana! Voce foca sua energia para um ataque devastador (2x Dano) no proximo turno!";
+        notificarMensagemCombate(msg, msg);
     }
 }
 

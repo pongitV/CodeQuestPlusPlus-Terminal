@@ -88,7 +88,6 @@ int Dwarf::processarDanoDefensivo(int danoFinal, SistemaPersonagem* defensor)
         {
             defensor->obterEscudo()->aumentarDurabilidade(1);
             std::string msg = Aparencia::margemCombate() + "[PASSIVA]: Forjado com determinacao poupou a durabilidade do escudo!\n";
-            std::cout << msg;
             TelaCombate::adicionarMensagemFixa(msg);
         }
     }

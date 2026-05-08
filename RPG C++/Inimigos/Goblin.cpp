@@ -87,18 +87,11 @@ void Goblin::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogado
 
     if (inimigo->obterArma() && inimigo->obterArma()->obterNomeItem() == "Adaga artesanal de pedra") 
     {
-        if (GeradorAleatorio::rolarChance(65)) 
-        {
-            jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::AdagaPedra));
-            GerenciadorDrops::relatarDropItem("Adaga artesanal de pedra", 1);
-            itensObtidos.push_back("Adaga artesanal de pedra");
+        if (GeradorAleatorio::rolarChance(65)) {
+            GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::AdagaPedra, 1, itensObtidos);
         }
     }
     
     int qtdDentes = GeradorAleatorio::obterInteiro(4, 8);
-    for (int i = 0; i < qtdDentes; ++i) {
-        jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::DenteGoblin));
-        itensObtidos.push_back("Dente de goblin");
-    }
-    GerenciadorDrops::relatarDropItem("Dente de goblin", qtdDentes);
+    GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::DenteGoblin, qtdDentes, itensObtidos);
 }

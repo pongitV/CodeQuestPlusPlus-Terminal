@@ -59,7 +59,6 @@ public:
 protected:
     void notificarMensagemCombate(const std::string& msgComCor, const std::string& msgSemCor) const {
         std::string msgFinal = Aparencia::margemCombate() + msgComCor + "\n";
-        std::cout << msgFinal;
         TelaCombate::adicionarMensagemFixa(msgFinal);
         Aparencia::registrarLogBatalha(msgSemCor);
     }
@@ -83,7 +82,7 @@ public:
     virtual int aplicarPenalidadeLentidaoPassivaArqueiro(int destrezaAtual) const { return destrezaAtual / 2; }
     virtual int reverterPenalidadeLentidaoPassivaArqueiro(int destrezaAtual) const { return destrezaAtual * 2; }
 
-    // PROCESSAMENTO DE DANO (POLIMORFISMO)
+    // PROCESSAMENTO DE DANO
     virtual void executarAtaqueComPassivaDaClasse(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, int danoPerfurante, std::vector<std::unique_ptr<SistemaPersonagem>>& inimigos, const std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)>& aplicarDano, bool isAtacanteJogador) {
 
         danoBase = processarDanoPreAtaque(atacante, defensor, danoBase, isAtacanteJogador, inimigos.size());

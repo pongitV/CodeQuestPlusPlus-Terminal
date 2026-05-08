@@ -60,7 +60,6 @@ int AbominacaoFloresta::processarDanoOfensivo(int danoBase, SistemaPersonagem* a
             {
                 atacante->modificarVida(cura);
                 std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::VERDE) + "[PASSIVA]: Raizes Parasitas! A Abominacao absorveu " + std::to_string(cura) + " de HP!" + Aparencia::cor(Cor::RESET) + "\n";
-                std::cout << msg;
                 TelaCombate::adicionarMensagemFixa(msg);
             }
         }
@@ -179,11 +178,6 @@ void AbominacaoFloresta::realizarDrops(SistemaPersonagem* inimigo, SistemaPerson
     int ouroDrop = 200;
     GerenciadorDrops::relatarEProcessarXpOuro(jogadorAtual, xpDrop, ouroDrop, ouroTotal, xpTotal);
 
-    jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::MadeiraEnfeiticada));
-    itensObtidos.push_back("Madeira enfeiticada");
-    GerenciadorDrops::relatarDropItem("Madeira enfeiticada", 1);
-
-    jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::CoracaoFloresta));
-    itensObtidos.push_back("Coracao da floresta");
-    GerenciadorDrops::relatarDropItem("Coracao da floresta", 1);
+    GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::MadeiraEnfeiticada, 1, itensObtidos);
+    GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::CoracaoFloresta, 1, itensObtidos);
 }

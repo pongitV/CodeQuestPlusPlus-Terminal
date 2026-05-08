@@ -126,6 +126,6 @@ void Arqueiro::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::v
 
     personagemUsuario->adicionarEfeito(std::make_unique<EfeitoInviolavel>(1));
     personagemUsuario->definirRecarga(true);
-    std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE) << "[HABILIDADE]: Retirada com pontaria! Voce se afasta neste turno." << Aparencia::cor(Cor::RESET) << "\n";
-    Aparencia::registrarLogBatalha("[HABILIDADE]: Retirada com pontaria! Voce se afasta neste turno.");
+    std::string msg = "[HABILIDADE]: Retirada com pontaria! Voce se afasta neste turno.";
+    notificarMensagemCombate(Aparencia::cor(Cor::VERDE) + msg + Aparencia::cor(Cor::RESET), msg);
 }

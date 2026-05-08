@@ -7,6 +7,13 @@
 #include "../Utilidades/Aparencia.h"
 #include "../Telas/TelaCombate.h"
 
+namespace {
+    void notificarEfeito(Cor cor, const std::string& texto) {
+        std::string msg = Aparencia::margemCombate() + Aparencia::cor(cor) + texto + Aparencia::cor(Cor::RESET) + "\n";
+        TelaCombate::adicionarMensagemFixa(msg);
+    }
+}
+
 void EfeitoSugaSangue::aplicarInicioTurno(SistemaPersonagem* alvo) {
     if (!SistemaPersonagem::isValido(atacante) || atacante->obterVida() <= 0) return;
     int danoRaizes = alvo->obterVida() / 5;
@@ -14,9 +21,7 @@ void EfeitoSugaSangue::aplicarInicioTurno(SistemaPersonagem* alvo) {
     {
         alvo->modificarVida(-danoRaizes);
         atacante->modificarVida(danoRaizes);
-        std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::VERDE) + ">> [" + nome + "]: Drenou " + std::to_string(danoRaizes) + " de HP de " + alvo->obterNome() + " e curou " + atacante->obterNome() + "!" + Aparencia::cor(Cor::RESET) + "\n";
-        std::cout << msg;
-        TelaCombate::adicionarMensagemFixa(msg);
+        notificarEfeito(Cor::VERDE, ">> [" + nome + "]: Drenou " + std::to_string(danoRaizes) + " de HP de " + alvo->obterNome() + " e curou " + atacante->obterNome() + "!");
     }
 }
 
@@ -28,9 +33,7 @@ void EfeitoLentidao::aoEntrar(SistemaPersonagem* alvo) {
 void EfeitoLentidao::aoSair(SistemaPersonagem* alvo) {
     if (alvo->obterClasse()) alvo->obterAtributosFinais().destreza = alvo->obterClasse()->reverterPenalidadeLentidaoPassivaArqueiro(alvo->obterAtributosFinais().destreza);
     else alvo->obterAtributosFinais().destreza *= 2;
-    std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::MAGENTA) + "[EFEITO]: " + alvo->obterNome() + " se livrou da gosma e recuperou sua agilidade." + Aparencia::cor(Cor::RESET) + "\n";
-    std::cout << msg;
-    TelaCombate::adicionarMensagemFixa(msg);
+    notificarEfeito(Cor::MAGENTA, "[EFEITO]: " + alvo->obterNome() + " se livrou da gosma e recuperou sua agilidade.");
 }
 
 void EfeitoFraqueza::aoEntrar(SistemaPersonagem* alvo) {
@@ -40,9 +43,7 @@ void EfeitoFraqueza::aoEntrar(SistemaPersonagem* alvo) {
 
 void EfeitoFraqueza::aoSair(SistemaPersonagem* alvo) {
     alvo->obterAtributosFinais().forca += forcaPerdida;
-    std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::VERMELHO) + "[EFEITO]: " + alvo->obterNome() + " recuperou sua forca original." + Aparencia::cor(Cor::RESET) + "\n";
-    std::cout << msg;
-    TelaCombate::adicionarMensagemFixa(msg);
+    notificarEfeito(Cor::VERMELHO, "[EFEITO]: " + alvo->obterNome() + " recuperou sua forca original.");
 }
 
 void EfeitoQuebraResistencia::aoEntrar(SistemaPersonagem* alvo) {
@@ -58,24 +59,18 @@ void EfeitoQuebraResistencia::aoSair(SistemaPersonagem* alvo) {
 }
 
 void EfeitoQuebraResistencia::aplicarInicioTurno(SistemaPersonagem* alvo) {
-    std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::CIANO) + "[EFEITO]: " + alvo->obterNome() + " continua enfraquecido pelo po magico! (-" + std::to_string(resistenciaPerdida) + " Res, -" + std::to_string(constituicaoPerdida) + " Con)" + Aparencia::cor(Cor::RESET) + "\n";
-    std::cout << msg;
-    TelaCombate::adicionarMensagemFixa(msg);
+    notificarEfeito(Cor::CIANO, "[EFEITO]: " + alvo->obterNome() + " continua enfraquecido pelo po magico! (-" + std::to_string(resistenciaPerdida) + " Res, -" + std::to_string(constituicaoPerdida) + " Con)");
 }
 
 void EfeitoSangramento::aplicarInicioTurno(SistemaPersonagem* alvo) {
     if (alvo->obterVida() <= 0) return;
     alvo->modificarVida(-danoPorTurno);
-    std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::VERMELHO) + "[EFEITO]: " + alvo->obterNome() + " sofreu " + std::to_string(danoPorTurno) + " de dano por sangramento!" + Aparencia::cor(Cor::RESET) + "\n";
-    std::cout << msg;
-    TelaCombate::adicionarMensagemFixa(msg);
+    notificarEfeito(Cor::VERMELHO, "[EFEITO]: " + alvo->obterNome() + " sofreu " + std::to_string(danoPorTurno) + " de dano por sangramento!");
 }
 
 int EfeitoMetadeDano::processarDanoRecebido(int dano) {
     int danoReduzido = dano / 2;
-    std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::CIANO) + ">> [EFEITO]: O dano foi reduzido pela metade! (Through the wire)" + Aparencia::cor(Cor::RESET) + "\n";
-    std::cout << msg;
-    TelaCombate::adicionarMensagemFixa(msg);
+    notificarEfeito(Cor::CIANO, ">> [EFEITO]: O dano foi reduzido pela metade! (Through the wire)");
     return danoReduzido;
 }
 
@@ -94,6 +89,5 @@ void EfeitoBuffAtributos::aoSair(SistemaPersonagem* alvo) {
         alvo->definirMultiplicador(1.0);
     }
     std::string msg = "\n" + Aparencia::margemCombate() + "[SISTEMA]: O efeito da habilidade expirou!\n";
-    std::cout << msg;
     TelaCombate::adicionarMensagemFixa(msg);
 }

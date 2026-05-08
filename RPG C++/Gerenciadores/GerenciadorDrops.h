@@ -4,6 +4,7 @@
 #include <vector>
 
 class SistemaPersonagem;
+enum class ItemID;
 
 class GerenciadorDrops 
 {
@@ -13,4 +14,7 @@ public:
     
     // Padroniza a mensagem verde ou branca do recebimento de um item 
     static void relatarDropItem(const std::string& nomeItem, int quantidade);
+
+    // Delega a responsabilidade de dar o item e processar a string no array (Aplicando DRY)
+    static void darEProcessarItem(SistemaPersonagem* jogador, ItemID idItem, int quantidade, std::vector<std::string>& itensObtidos);
 };
