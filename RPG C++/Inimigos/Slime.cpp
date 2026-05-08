@@ -8,17 +8,29 @@
 #include "../Utilidades/GeradorAleatorio.h"
 #include "../Telas/TelaCombate.h"
 
-std::string Slime::obterNomeRaca() const { return "Slime"; }
-Atributos Slime::obterAtributosRaca() const { return { 150, 15, 5, 10, 15, 0, 0 }; }
-std::string Slime::obterNomeHabilidadeRaca() const { return "Toque Gosmento"; }
-std::string Slime::obterDescricaoHabilidadeRaca() const { return "Ataques tem 20% de chance de causar Lentidao"; }
+// --- INFORMACOES DA RACA ---
+std::string Slime::obterNomeRaca() const 
+{ 
+    return "Slime"; 
+}
 
-std::vector<std::unique_ptr<Item>> Slime::obterEquipamentoRaca() const {
+Atributos Slime::obterAtributosRaca() const 
+{ 
+    return { 150, 15, 5, 10, 15, 0, 0 }; 
+}
+
+std::vector<std::unique_ptr<Item>> Slime::obterEquipamentoRaca() const 
+{
     std::vector<std::unique_ptr<Item>> equipamentos;
     equipamentos.push_back(FabricaItens::criarItem(ItemID::GosmaAcidaArma));
     return equipamentos;
 }
 
+// --- HABILIDADE DA RACA ---
+std::string Slime::obterNomeHabilidadeRaca() const { return "Toque Gosmento"; }
+std::string Slime::obterDescricaoHabilidadeRaca() const { return "Ataques tem 20% de chance de causar Lentidao"; }
+
+// --- APARENCIA ---
 const std::vector<std::string>& Slime::obterAparenciaRaca() const
 {
     static const std::vector<std::string> aparencia =
@@ -64,6 +76,7 @@ const std::vector<std::string>& Slime::obterAparenciaRaca() const
     return aparencia;
 }
 
+// --- BESTIARIO E DROPS ---
 InfoBestiario Slime::obterInfoBestiario() const {
     return {
         "Floresta", 
@@ -95,6 +108,7 @@ void Slime::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogador
     }
 }
 
+// --- PROCESSAMENTO DE DANO  ---
 void Slime::aoCausarDano(SistemaPersonagem* atacante, SistemaPersonagem* alvo, int danoCausado) {
     if (GeradorAleatorio::rolarChance(15)) {
         if (!alvo->possuiEfeito(EfeitoID::Lentidao)) {

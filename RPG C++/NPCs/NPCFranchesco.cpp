@@ -13,6 +13,7 @@
 #include "../Utilidades/ControleDeInput.h"
 
 namespace {
+    // --- APARENCIA E DIALOGOS ---
     static const std::vector<std::string> arteFranchesco = {
         "                    .==                    ",
         "                   :%%##%%-                ",
@@ -72,6 +73,7 @@ namespace {
     }
 }
 
+// --- INFORMACOES DO LUGAR ---
 std::string NPCFranchesco::obterNomeDoLugar() const {
     return "LOJA AMBULANTE";
 }
@@ -88,6 +90,7 @@ const std::vector<std::string>& NPCFranchesco::obterArteASCII() const {
     return arteFranchesco;
 }
 
+// --- INTERACAO E MENU ---
 void NPCFranchesco::exibirDialogo(SistemaPersonagem* jogador) {
     dialogoFranchesco(std::vector<std::string>{
         "Bem-vindo! De uma olhada nas",
@@ -124,6 +127,7 @@ void NPCFranchesco::processarOpcao(SistemaPersonagem* jogador, const std::string
 }
 
 namespace {
+    // --- PROCESSAMENTO DE OPCOES ---
     void processarCompraPocoes(SistemaPersonagem* jogadorAtual) {
         std::string opcaoCompra;
         do {

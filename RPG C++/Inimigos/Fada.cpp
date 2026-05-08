@@ -7,17 +7,29 @@
 #include "../Gerenciadores/GerenciadorDrops.h"
 #include <memory>
 
-std::string Fada::obterNomeRaca() const { return "Fada"; }
-Atributos Fada::obterAtributosRaca() const { return { 40, 0, 30, 2, 5, 10, 10 }; }
-std::string Fada::obterNomeHabilidadeRaca() const { return "Nenhuma"; }
-std::string Fada::obterDescricaoHabilidadeRaca() const { return "Monstros nao possuem passivas"; }
+// --- INFORMACOES DA RACA ---
+std::string Fada::obterNomeRaca() const 
+{ 
+    return "Fada"; 
+}
 
-std::vector<std::unique_ptr<Item>> Fada::obterEquipamentoRaca() const {
+Atributos Fada::obterAtributosRaca() const 
+{ 
+    return { 40, 0, 30, 2, 5, 10, 10 }; 
+}
+
+std::vector<std::unique_ptr<Item>> Fada::obterEquipamentoRaca() const 
+{
     std::vector<std::unique_ptr<Item>> equipamentos;
     equipamentos.push_back(FabricaItens::criarItem(ItemID::VarinhaCorroida));
     return equipamentos;
 }
 
+// --- HABILIDADE DA RACA ---
+std::string Fada::obterNomeHabilidadeRaca() const { return "Nenhuma"; }
+std::string Fada::obterDescricaoHabilidadeRaca() const { return "Monstros nao possuem passivas"; }
+
+// --- APARENCIA ---
 const std::vector<std::string>& Fada::obterAparenciaRaca() const
 {
     static const std::vector<std::string> aparencia =
@@ -57,6 +69,7 @@ const std::vector<std::string>& Fada::obterAparenciaRaca() const
     return aparencia;
 }
 
+// --- BESTIARIO E DROPS ---
 InfoBestiario Fada::obterInfoBestiario() const {
     return {
         "Floresta", 

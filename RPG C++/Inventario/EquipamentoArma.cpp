@@ -1,8 +1,6 @@
 #include "EquipamentoArma.h"
 
 #include <iostream>
-#include <map>
-#include <string_view>
 #include <vector>
 
 #include "../Sistemas/SistemaPersonagem.h"
@@ -39,9 +37,8 @@ bool EquipamentoArma::podeSerEquipadoPor(SistemaPersonagem* personagem) const {
            personagem->obterSabedoria() >= reqSabedoria;
 }
 
-void EquipamentoArma::exibirInspecao() const {
+std::vector<std::string> EquipamentoArma::obterDetalhesInspecao() const {
     std::vector<std::string> linhas;
-    linhas.push_back(Aparencia::cor(Cor::CIANO) + " === " + nome + " ===" + Aparencia::cor(Cor::RESET));
     linhas.push_back(" > Tipo: Arma");
     linhas.push_back(" > Dano Fisico: " + std::to_string(danoFisico));
     linhas.push_back(" > Dano Magico: " + std::to_string(danoMagico));
@@ -62,14 +59,7 @@ void EquipamentoArma::exibirInspecao() const {
     if (temPropriedade(Propriedade::ViolaoMagico)) { linhas.push_back("   - Raizes Drenantes (Causa dano e cura o usuario)"); hasEfeito = true; }
     if (temPropriedade(Propriedade::CipoPrisao)) { linhas.push_back("   - Prisao de Cipos (Chance de atordoar alvo)"); hasEfeito = true; }
     if (!hasEfeito) linhas.push_back("   - Nenhuma propriedade extra.");
-    linhas.push_back(" > Preco de Venda: " + std::to_string(precoVenda) + "G");
-
-    std::cout << "\n";
-    Aparencia::imprimirCentralizado(linhas[0]);
-    std::cout << "\n";
-    
-    std::vector<std::string> resto(linhas.begin() + 1, linhas.end());
-    Aparencia::imprimirBlocoCentralizado(resto);
+    return linhas;
 }
 
 std::string EquipamentoArma::obterInfoStatus() const {
@@ -123,10 +113,11 @@ void EquipamentoArma::aoCausarDano(SistemaPersonagem* atacante, SistemaPersonage
 }
 
 int EquipamentoArma::garantirDanoMinimo(int danoFinal) {
+    int minimo = 1;
     if (temPropriedade(Propriedade::ViolaoBase)) {
-        return std::max(danoFinal, danoMagico);
+        minimo = std::max(minimo, danoMagico);
     }
-    return danoFinal;
+    return std::max(danoFinal, minimo);
 }
 
 std::unique_ptr<Item> EquipamentoArma::gerarCopiaMelhorada() const {
@@ -147,11 +138,16 @@ std::unique_ptr<Item> fabricarEquipamentoArma(const std::string& nome) {
         {"Arco recurvo de madeira", []() { return std::make_unique<EquipamentoArma>("Arco recurvo de madeira", 10, 0, 0, 0, 0, 0, 3); }},
         {"Cajado de cristal magico", []() { return std::make_unique<EquipamentoArma>("Cajado de cristal magico", 0, 30, 0, 0, 0, 0, 3); }},
         {"Varinha corroida", []() { return std::make_unique<EquipamentoArma>("Varinha corroida", 0, 25, 0, 0, 0, 0, 3); }},
-        {"Violao encantado", []() { return std::make_unique<EquipamentoArma>("Violao encantado", 0, 10, 0, 0, 0, 0, 3); }},
+        {"Violao encantado", []() { 
+            auto violao = std::make_unique<EquipamentoArma>("Violao encantado", 0, 10, 0, 0, 0, 0, 3); 
+            violao->adicionarPropriedade(Propriedade::ViolaoBase);
+            return violao; 
+        }},
         {"Espada longa de ferro", []() { return std::make_unique<EquipamentoArma>("Espada longa de ferro", 10, 0, 0, 0, 0, 0, 3); }},
         {"Machado de guerra danificado", []() { return std::make_unique<EquipamentoArma>("Machado de guerra danificado", 15, 0, 10, 0, 0, 0, 3); }},
-        {"Gosma acida (Arma)", []() { return std::make_unique<EquipamentoArma>("Gosma acida", 2, 7, 0, 0, 0, 0, 3); }},
-        {"Tronco de arvore amarrotado", []() { return std::make_unique<EquipamentoArma>("Tronco de arvore amarrotado", 40, 0, 25, 0, 0, 0, 30); }}
+        {"Gosma acida corrosiva", []() { return std::make_unique<EquipamentoArma>("Gosma acida corrosiva", 2, 7, 0, 0, 0, 0, 3); }},
+        {"Tronco de arvore amarrotado", []() { return std::make_unique<EquipamentoArma>("Tronco de arvore amarrotado", 40, 0, 25, 0, 0, 0, 30); }},
+        {"Espada do Cavaleiro", []() { return std::make_unique<EquipamentoArma>("Espada do Cavaleiro", 12, 0, 0, 0, 0, 0, 0); }}
     };
     auto it = construtores.find(nome);
     if (it != construtores.end()) return it->second();

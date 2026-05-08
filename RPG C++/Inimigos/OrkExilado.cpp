@@ -6,9 +6,26 @@
 #include "../Gerenciadores/GerenciadorDrops.h"
 #include <memory>
 
-std::string OrkExilado::obterNomeRaca() const { return "Ork Exilado"; }
-Atributos OrkExilado::obterAtributosRaca() const { return { 200, 20, 10, 15, 20, 0, 0 }; }
+// --- INFORMACOES DA RACA ---
+std::string OrkExilado::obterNomeRaca() const 
+{ 
+    return "Ork Exilado"; 
+}
 
+Atributos OrkExilado::obterAtributosRaca() const 
+{ 
+    return { 200, 20, 10, 15, 20, 0, 0 }; 
+}
+
+std::vector<std::unique_ptr<Item>> OrkExilado::obterEquipamentoRaca() const 
+{
+    std::vector<std::unique_ptr<Item>> equipamentos;
+    equipamentos.push_back(FabricaItens::criarItem(ItemID::MachadoGuerra));
+    equipamentos.push_back(FabricaItens::criarItem(ItemID::ArmaduraTrapos));
+    return equipamentos;
+}
+
+// --- APARENCIA ---
 const std::vector<std::string>& OrkExilado::obterAparenciaRaca() const
 {
     static const std::vector<std::string> aparencia =
@@ -72,6 +89,7 @@ const std::vector<std::string>& OrkExilado::obterAparenciaRaca() const
     return aparencia;
 }
 
+// --- BESTIARIO E DROPS ---
 InfoBestiario OrkExilado::obterInfoBestiario() const {
     return {
         "Vila Inicial", 
@@ -81,13 +99,6 @@ InfoBestiario OrkExilado::obterInfoBestiario() const {
         {FabricaItens::obterNomeDeID(ItemID::MachadoGuerra), FabricaItens::obterNomeDeID(ItemID::ArmaduraTrapos), "Ouro"},
         4
     };
-}
-
-std::vector<std::unique_ptr<Item>> OrkExilado::obterEquipamentoRaca() const {
-    std::vector<std::unique_ptr<Item>> equipamentos;
-    equipamentos.push_back(FabricaItens::criarItem(ItemID::MachadoGuerra));
-    equipamentos.push_back(FabricaItens::criarItem(ItemID::ArmaduraTrapos));
-    return equipamentos;
 }
 
 void OrkExilado::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)

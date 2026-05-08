@@ -7,6 +7,7 @@
 #include "../Utilidades/Aparencia.h"
 #include "../Telas/TelaCombate.h"
 
+// --- INFORMACOES DA CLASSE ---
 std::string Guerreiro::obterNomeClasse() const 
 { 
     return "Guerreiro"; 
@@ -71,12 +72,7 @@ Atributos Guerreiro::obterAtributosClasse() const
 
 std::vector<std::unique_ptr<Item>> Guerreiro::obterEquipamentoClasse() const 
 {
-    std::vector<std::unique_ptr<Item>> equipamentos;
-    
-    int quantidadePocoes = 3;
-    for (int i = 0; i < quantidadePocoes; ++i) {
-        equipamentos.push_back(FabricaItens::criarItem(ItemID::PocaoCura30));
-    }
+    auto equipamentos = FabricaItens::criarKitPocoes();
 
     equipamentos.push_back(FabricaItens::criarItem(ItemID::EspadaFerro));
     equipamentos.push_back(FabricaItens::criarItem(ItemID::EscudoMetal));
@@ -84,27 +80,38 @@ std::vector<std::unique_ptr<Item>> Guerreiro::obterEquipamentoClasse() const
     return equipamentos;
 }
 
+// --- PASSIVA DA CLASSE ---
 std::string Guerreiro::obterNomePassivaClasse() const 
-{ return "Golpe decisivo"; }
+{ 
+    return "Golpe decisivo"; 
+}
+
 std::string Guerreiro::obterDescricaoPassivaClasse() const 
-{ return "Causa +10%/+20%/+30% de dano em inimigos com menos de 30%/20%/10% de HP."; }
+{ 
+    return "Causa +10%/+20%/+30% de dano em inimigos com menos de 30%/20%/10% de HP."; 
+}
+
+// --- HABILIDADE DA CLASSE ---
 std::string Guerreiro::obterRecargaHabilidadeClasse() const 
-{ return "Recarga: 3 turnos."; }
+{ 
+    return "Recarga: 3 turnos."; 
+}
 
 std::string Guerreiro::obterNomeHabilidadeClasse() const 
-{ return "Grito de guerra"; }
+{ 
+    return "Grito de guerra"; 
+}
+
 std::string Guerreiro::obterDescricaoHabilidadeClasse() const 
-{ return "Gasta seu turno para aumentar Forca e Destreza em 1.5x por 2 turnos."; }
+{ 
+    return "Gasta seu turno para aumentar Forca e Destreza em 1.5x por 2 turnos."; 
+}
+
 void Guerreiro::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::vector<SistemaPersonagem*>& /*listaDeInimigos*/) 
 {
     int turnosRestantes = personagemUsuario->obterCooldown(HabilidadeID::Determinacao);
-    if (turnosRestantes > 0) {
-        std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: A habilidade " << obterNomeHabilidadeClasse() << " esta em recarga (" << turnosRestantes << " turnos)!\n";
-        Aparencia::registrarLogBatalha("[SISTEMA]: A habilidade " + obterNomeHabilidadeClasse() + " esta em recarga (" + std::to_string(turnosRestantes) + " turnos)!");
-        Aparencia::aguardarEnter();
-        personagemUsuario->definirHabilidadeCancelada(true);
-        return;
-    }
+    if (verificarEReportarRecarga(personagemUsuario, turnosRestantes, obterNomeHabilidadeClasse())) return;
+
     if (personagemUsuario->possuiEfeito(EfeitoID::GritoDeGuerra)) {
         std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: A habilidade " << obterNomeHabilidadeClasse() << " ja esta ativa!\n";
         Aparencia::registrarLogBatalha("[SISTEMA]: A habilidade " + obterNomeHabilidadeClasse() + " ja esta ativa!");
@@ -123,34 +130,25 @@ void Guerreiro::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::
     Aparencia::registrarLogBatalha("[HABILIDADE]: Grito de guerra! Forca +" + std::to_string(bonusForca) + " e Destreza +" + std::to_string(bonusDestreza) + "!");
 }
 
+// --- PROCESSAMENTO DE DANO  ---
 int Guerreiro::processarDanoPreAtaque(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, bool isAtacanteJogador, size_t qtdInimigos) {
     int danoFinal = danoBase;
     
-    if (defensor != nullptr) {
-        double percVida = (double)defensor->obterVida() / defensor->obterVidaMaxima();
-        if (percVida < 0.10) {
-            danoFinal = static_cast<int>(danoFinal * 1.30);
-            std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::VERMELHO) + "[Golpe Decisivo]: O inimigo esta nas ultimas! Dano aumentado em 30%!" + Aparencia::cor(Cor::RESET) + "\n";
-            std::cout << msg;
-            TelaCombate::adicionarMensagemFixa(msg);
-            Aparencia::registrarLogBatalha("[Golpe Decisivo]: O inimigo esta nas ultimas! Dano aumentado em 30%!");
-        } else if (percVida < 0.20) {
-            danoFinal = static_cast<int>(danoFinal * 1.20);
-            std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::VERMELHO) + "[Golpe Decisivo]: O inimigo esta gravemente ferido! Dano aumentado em 20%!" + Aparencia::cor(Cor::RESET) + "\n";
-            std::cout << msg;
-            TelaCombate::adicionarMensagemFixa(msg);
-            Aparencia::registrarLogBatalha("[Golpe Decisivo]: O inimigo esta gravemente ferido! Dano aumentado em 20%!");
-        } else if (percVida < 0.30) {
-            danoFinal = static_cast<int>(danoFinal * 1.10);
-            std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::VERMELHO) + "[Golpe Decisivo]: O inimigo esta ferido! Dano aumentado em 10%!" + Aparencia::cor(Cor::RESET) + "\n";
-            std::cout << msg;
-            TelaCombate::adicionarMensagemFixa(msg);
-            Aparencia::registrarLogBatalha("[Golpe Decisivo]: O inimigo esta ferido! Dano aumentado em 10%!");
-        }
+    if (!defensor) return danoFinal;
+
+    double percVida = (double)defensor->obterVida() / defensor->obterVidaMaxima();
+    int bonus = 0;
+    std::string estado = "";
+    
+    if (percVida < 0.10) { bonus = 30; estado = "nas ultimas"; }
+    else if (percVida < 0.20) { bonus = 20; estado = "gravemente ferido"; }
+    else if (percVida < 0.30) { bonus = 10; estado = "ferido"; }
+    
+    if (bonus > 0) {
+        danoFinal = static_cast<int>(danoFinal * (1.0 + bonus / 100.0));
+        std::string textoLog = "[Golpe Decisivo]: O inimigo esta " + estado + "! Dano aumentado em " + std::to_string(bonus) + "%!";
+        notificarMensagemCombate(Aparencia::cor(Cor::VERMELHO) + textoLog + Aparencia::cor(Cor::RESET), textoLog);
     }
     
     return danoFinal;
 }
-
-TipoAtaque Guerreiro::obterTipoAtaque() const { return TipoAtaque::UNICO; }
-bool Guerreiro::habilidadeConsomeTurno() const { return true; }

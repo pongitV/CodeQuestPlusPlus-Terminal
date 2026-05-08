@@ -29,7 +29,7 @@ public:
 
     bool podeSerEquipadoPor(SistemaPersonagem* personagem) const override;
     std::string obterMensagemRequisito() const override;
-    void exibirInspecao() const override;
+    std::vector<std::string> obterDetalhesInspecao() const override;
 
     std::unique_ptr<Item> gerarCopiaMelhorada() const override;
 };

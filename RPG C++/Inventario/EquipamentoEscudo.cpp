@@ -1,6 +1,4 @@
 #include "EquipamentoEscudo.h"
-#include <string_view>
-#include <map>
 #include <memory>
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Utilidades/Aparencia.h"
@@ -44,9 +42,8 @@ std::string EquipamentoEscudo::obterMensagemRequisito() const {
     return "\n[SISTEMA]: Atributos insuficientes para equipar " + nome + "!\n";
 }
 
-void EquipamentoEscudo::exibirInspecao() const {
+std::vector<std::string> EquipamentoEscudo::obterDetalhesInspecao() const {
     std::vector<std::string> linhas;
-    linhas.push_back(Aparencia::cor(Cor::CIANO) + " === " + nome + " ===" + Aparencia::cor(Cor::RESET));
     linhas.push_back(" > Tipo: Escudo");
     linhas.push_back(" > Poder de Bloqueio: " + std::to_string(reducaoFixa) + " (Dano bloqueado na acao 'Defender')");
     linhas.push_back(" > Durabilidade Maxima: " + std::to_string(durabilidade) + " usos");
@@ -63,14 +60,7 @@ void EquipamentoEscudo::exibirInspecao() const {
         hasReq = true;
     }
     if (!hasReq) linhas.push_back("   - Nenhum requisito.");
-    linhas.push_back(" > Preco de Venda: " + std::to_string(precoVenda) + "G");
-
-    std::cout << "\n";
-    Aparencia::imprimirCentralizado(linhas[0]);
-    std::cout << "\n";
-    
-    std::vector<std::string> resto(linhas.begin() + 1, linhas.end());
-    Aparencia::imprimirBlocoCentralizado(resto);
+    return linhas;
 }
 
 std::string EquipamentoEscudo::obterInfoStatus() const {

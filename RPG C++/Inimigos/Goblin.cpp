@@ -6,17 +6,29 @@
 #include "../Gerenciadores/GerenciadorDrops.h"
 #include "../Utilidades/GeradorAleatorio.h"
 
-std::string Goblin::obterNomeRaca() const { return "Goblin"; }
-Atributos Goblin::obterAtributosRaca() const { return { 60, 10, 15, 5, 5, 0, 0 }; }
-std::string Goblin::obterNomeHabilidadeRaca() const { return "Nenhuma"; }
-std::string Goblin::obterDescricaoHabilidadeRaca() const { return "Monstros nao possuem passivas"; }
+// --- INFORMACOES DA RACA ---
+std::string Goblin::obterNomeRaca() const 
+{ 
+    return "Goblin"; 
+}
 
-std::vector<std::unique_ptr<Item>> Goblin::obterEquipamentoRaca() const {
+Atributos Goblin::obterAtributosRaca() const 
+{ 
+    return { 60, 10, 15, 5, 5, 0, 0 }; 
+}
+
+std::vector<std::unique_ptr<Item>> Goblin::obterEquipamentoRaca() const 
+{
     std::vector<std::unique_ptr<Item>> equipamentos;
     equipamentos.push_back(FabricaItens::criarItem(ItemID::AdagaPedra));
     return equipamentos;
 }
 
+// --- HABILIDADE DA RACA ---
+std::string Goblin::obterNomeHabilidadeRaca() const { return "Nenhuma"; }
+std::string Goblin::obterDescricaoHabilidadeRaca() const { return "Monstros nao possuem passivas"; }
+
+// --- APARENCIA ---
 const std::vector<std::string>& Goblin::obterAparenciaRaca() const
 {
     static const std::vector<std::string> aparencia =
@@ -55,6 +67,7 @@ const std::vector<std::string>& Goblin::obterAparenciaRaca() const
     return aparencia;
 }
 
+// --- BESTIARIO E DROPS ---
 InfoBestiario Goblin::obterInfoBestiario() const {
     return {
         "Vila Inicial", 

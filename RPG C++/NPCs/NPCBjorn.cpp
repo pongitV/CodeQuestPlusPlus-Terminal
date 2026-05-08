@@ -15,6 +15,7 @@
 #include "../Utilidades/ControleDeInput.h"
 
 namespace {
+    // --- DADOS DO ESTOQUE ---
     std::map<int, ItemID> estoqueArmas = {
         {1, ItemID::EspadaFerro},
         {2, ItemID::ArcoMadeira},
@@ -33,6 +34,7 @@ namespace {
     void processarMelhoriaNaBigorna(SistemaPersonagem* jogadorAtual);
     void processarUpgradePorMaterial(SistemaPersonagem* jogadorAtual);
 
+    // --- APARENCIA E DIALOGOS ---
     static const std::vector<std::string> arteBjorn = {
         "                                 =%@@@%                     ",
         "                                 *::==%%                    ",
@@ -87,6 +89,7 @@ namespace {
     }
 }
 
+// --- INFORMACOES DO LUGAR ---
 std::string NPCBjorn::obterNomeDoLugar() const {
     return "FORJA DO BJORN";
 }
@@ -103,6 +106,7 @@ const std::vector<std::string>& NPCBjorn::obterArteASCII() const {
     return arteBjorn;
 }
 
+// --- INTERACAO E MENU ---
 void NPCBjorn::exibirDialogo(SistemaPersonagem* jogador) {
     dialogoBjorn(std::vector<std::string>{
         "Bem-vindo a minha forja, salvador!",
@@ -134,6 +138,7 @@ void NPCBjorn::processarOpcao(SistemaPersonagem* jogador, const std::string& opc
 }
 
 namespace {
+    // --- PROCESSAMENTO DE OPCOES ---
     void processarCompraDeEquipamento(SistemaPersonagem* jogadorAtual, bool comprandoArmas) {
         auto& estoqueAtual = comprandoArmas ? estoqueArmas : estoqueArmaduras;
         std::string tituloLoja = comprandoArmas ? "FORJA - ARMAS" : "FORJA - ARMADURAS";

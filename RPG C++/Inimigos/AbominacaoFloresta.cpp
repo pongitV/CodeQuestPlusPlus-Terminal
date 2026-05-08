@@ -6,18 +6,29 @@
 #include "../Gerenciadores/GerenciadorDrops.h"
 #include "../Telas/TelaCombate.h"
 
+// --- INFORMACOES DA RACA ---
 std::string AbominacaoFloresta::obterNomeRaca() const 
-{ return "Abominacao da Floresta"; 
+{ 
+    return "Abominacao da Floresta"; 
 }
-Atributos AbominacaoFloresta::obterAtributosRaca() const{ return 
-    { 300, 30, 5, 20, 25, 0, 20 };
+
+Atributos AbominacaoFloresta::obterAtributosRaca() const
+{ 
+    return { 300, 30, 5, 20, 25, 0, 20 };
 }
+
+// --- HABILIDADE DA RACA ---
 std::string AbominacaoFloresta::obterNomeHabilidadeRaca() const 
-{ return "Raizes Parasitas"; 
+{ 
+    return "Raizes Parasitas"; 
 }
+
 std::string AbominacaoFloresta::obterDescricaoHabilidadeRaca() const 
-{ return "Abaixo de 40% de HP, recupera HP igual a 100% do dano causado ate 60% de HP"; 
+{ 
+    return "Abaixo de 40% de HP, recupera HP igual a 100% do dano causado ate 60% de HP"; 
 }
+
+// --- PROCESSAMENTO DE DANO  ---
 int AbominacaoFloresta::processarDanoOfensivo(int danoBase, SistemaPersonagem* atacante) 
 {
     int vidaMax = atacante->obterVidaMaxima();
@@ -61,6 +72,7 @@ int AbominacaoFloresta::processarDanoOfensivo(int danoBase, SistemaPersonagem* a
     return danoBase;
 }
 
+// --- APARENCIA ---
 const std::vector<std::string>& AbominacaoFloresta::obterAparenciaRaca() const
 {
     static const std::vector<std::string> aparencia =
@@ -149,6 +161,7 @@ const std::vector<std::string>& AbominacaoFloresta::obterAparenciaRaca() const
     return aparencia;
 }
 
+// --- BESTIARIO E DROPS ---
 InfoBestiario AbominacaoFloresta::obterInfoBestiario() const {
     return {
         "Floresta", 

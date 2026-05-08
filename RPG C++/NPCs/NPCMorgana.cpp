@@ -14,6 +14,7 @@
 #include "../Inventario/EquipamentoArma.h"
 
 namespace {
+    // --- APARENCIA E DIALOGOS ---
     static const std::vector<std::string> arteMorgana = 
     {
         "                                %*                          ",
@@ -71,6 +72,7 @@ namespace {
     }
 }
 
+// --- INFORMACOES DO LUGAR ---
 std::string NPCMorgana::obterNomeDoLugar() const {
     return "CABANA DA BRUXA";
 }
@@ -87,6 +89,7 @@ const std::vector<std::string>& NPCMorgana::obterArteASCII() const {
     return arteMorgana;
 }
 
+// --- INTERACAO E MENU ---
 void NPCMorgana::exibirDialogo(SistemaPersonagem* jogador) {
     dialogoMorgana(std::vector<std::string>{
         "Hmmm... sinto cheiro de poder no ar.",
@@ -128,6 +131,7 @@ void NPCMorgana::processarOpcao(SistemaPersonagem* jogador, const std::string& o
 }
 
 namespace {
+    // --- PROCESSAMENTO DE OPCOES ---
     void processarEncantamentos(SistemaPersonagem* jogadorAtual, bool isUniversal) {
         std::string opcaoEncantar;
         do {

@@ -5,21 +5,29 @@
 #include "../Utilidades/Aparencia.h"
 #include "../Gerenciadores/GerenciadorDrops.h"
 
-std::string Troll::obterNomeRaca() const { return "Troll"; }
+// --- INFORMACOES DA RACA ---
+std::string Troll::obterNomeRaca() const 
+{ 
+    return "Troll"; 
+}
 
-Atributos Troll::obterAtributosRaca() const { 
+Atributos Troll::obterAtributosRaca() const 
+{ 
     return { 500, 20, 1, 10, 10, 0, 0 }; // vida, forca, destreza, resistencia, constituicao, inteligencia, sabedoria
 }
 
-std::string Troll::obterNomeHabilidadeRaca() const { return "Regeneracao Troll"; }
-std::string Troll::obterDescricaoHabilidadeRaca() const { return "Pele aspera e capacidade de regenerar as feridas mais brutais. (Boss)"; }
-
-std::vector<std::unique_ptr<Item>> Troll::obterEquipamentoRaca() const {
+std::vector<std::unique_ptr<Item>> Troll::obterEquipamentoRaca() const 
+{
     std::vector<std::unique_ptr<Item>> equipamentos;
     equipamentos.push_back(FabricaItens::criarItem(ItemID::TroncoAmarrotado));
     return equipamentos;
 }
 
+// --- HABILIDADE DA RACA ---
+std::string Troll::obterNomeHabilidadeRaca() const { return "Regeneracao Troll"; }
+std::string Troll::obterDescricaoHabilidadeRaca() const { return "Pele aspera e capacidade de regenerar as feridas mais brutais. (Boss)"; }
+
+// --- APARENCIA ---
 const std::vector<std::string>& Troll::obterAparenciaRaca() const
 {
     static const std::vector<std::string> aparencia =
@@ -111,6 +119,7 @@ const std::vector<std::string>& Troll::obterAparenciaRaca() const
     return aparencia;
 }
 
+// --- BESTIARIO E DROPS ---
 InfoBestiario Troll::obterInfoBestiario() const {
     return {
         "Montanhas", 

@@ -4,11 +4,18 @@
 #include "../Utilidades/Aparencia.h"
 #include "../Telas/TelaCombate.h"
 
+// --- INFORMACOES DA RACA ---
 std::string Humano::obterNomeRaca() const 
 {
     return "Humano";
 }
 
+Atributos Humano::obterAtributosRaca() const
+{
+    return { 100, 10, 10, 0, 10, 10, 10 };
+}
+
+// --- APARENCIA ---
 const std::vector<std::string>& Humano::obterAparenciaRaca() const 
 {
     static const std::vector<std::string> aparencia = 
@@ -59,13 +66,18 @@ const std::vector<std::string>& Humano::obterAparenciaRaca() const
     return aparencia;
 }
 
-Atributos Humano::obterAtributosRaca() const
-{
-    return { 100, 10, 10, 0, 10, 10, 10 };
+// --- HABILIDADE DA RACA ---
+std::string Humano::obterNomeHabilidadeRaca() const 
+{ 
+    return "Espirito indomavel"; 
 }
 
-std::string Humano::obterNomeHabilidadeRaca() const { return "Espirito indomavel"; }
-std::string Humano::obterDescricaoHabilidadeRaca() const { return "Revive com metade da vida maxima uma vez"; }
+std::string Humano::obterDescricaoHabilidadeRaca() const 
+{ 
+    return "Revive com metade da vida maxima uma vez"; 
+}
+
+// --- PROCESSAMENTO DE DANO  ---
 int Humano::processarDanoDefensivo(int danoFinal, SistemaPersonagem* defensor) 
 {
     // Verifica se o golpe seria fatal

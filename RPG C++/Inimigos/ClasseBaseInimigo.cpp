@@ -1,23 +1,36 @@
 #include "ClasseBaseInimigo.h"
 
-std::string ClasseBaseInimigo::obterNomeClasse() const { return "Monstro"; }
-Atributos ClasseBaseInimigo::obterAtributosClasse() const { return { 0, 0, 0, 0, 0, 0, 0 }; }
+// --- INFORMACOES DA CLASSE ---
+std::string ClasseBaseInimigo::obterNomeClasse() const 
+{ 
+    return "Monstro"; 
+}
 
-const std::vector<std::string>& ClasseBaseInimigo::obterAparenciaClasseMenu() const { 
+Atributos ClasseBaseInimigo::obterAtributosClasse() const 
+{ 
+    return { 0, 0, 0, 0, 0, 0, 0 }; 
+}
+
+const std::vector<std::string>& ClasseBaseInimigo::obterAparenciaClasseMenu() const 
+{ 
     static const std::vector<std::string> aparenciaVazia = {};
     return aparenciaVazia;
 }
 
-std::vector<std::unique_ptr<Item>> ClasseBaseInimigo::obterEquipamentoClasse() const { return {}; }
+std::vector<std::unique_ptr<Item>> ClasseBaseInimigo::obterEquipamentoClasse() const 
+{ 
+    return {}; 
+}
 
-void ClasseBaseInimigo::usarHabilidadeClasse(SistemaPersonagem* /*personagemUsuario*/, std::vector<SistemaPersonagem*>& /*listaDeInimigos*/) {}
-
-std::string ClasseBaseInimigo::obterNomeHabilidadeClasse() const { return "Nenhuma"; }
-std::string ClasseBaseInimigo::obterDescricaoHabilidadeClasse() const { return "Inimigos basicos nao possuem habilidades ativas."; }
-
+// --- PASSIVA DA CLASSE ---
 std::string ClasseBaseInimigo::obterNomePassivaClasse() const { return "Nenhuma"; }
 std::string ClasseBaseInimigo::obterDescricaoPassivaClasse() const { return "Inimigos nao possuem passivas de classe."; }
+
+// --- HABILIDADE DA CLASSE ---
 std::string ClasseBaseInimigo::obterRecargaHabilidadeClasse() const { return ""; }
+std::string ClasseBaseInimigo::obterNomeHabilidadeClasse() const { return "Nenhuma"; }
+std::string ClasseBaseInimigo::obterDescricaoHabilidadeClasse() const { return "Inimigos basicos nao possuem habilidades ativas."; }
+void ClasseBaseInimigo::usarHabilidadeClasse(SistemaPersonagem* /*personagemUsuario*/, std::vector<SistemaPersonagem*>& /*listaDeInimigos*/) {}
 
 TipoAtaque ClasseBaseInimigo::obterTipoAtaque() const { return TipoAtaque::UNICO; }
 bool ClasseBaseInimigo::habilidadeConsomeTurno() const { return true; }

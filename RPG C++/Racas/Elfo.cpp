@@ -6,11 +6,18 @@
 #include "../Utilidades/Aparencia.h"
 #include "../Telas/TelaCombate.h"
 
+// --- INFORMACOES DA RACA ---
 std::string Elfo::obterNomeRaca() const 
 {
     return "Elfo";
 }
 
+Atributos Elfo::obterAtributosRaca() const
+{
+    return { 90, 5, 15, 0, 10, 15, 5 };
+}
+
+// --- APARENCIA ---
 const std::vector<std::string>& Elfo::obterAparenciaRaca() const 
 {
     static const std::vector<std::string> aparencia = 
@@ -60,13 +67,18 @@ const std::vector<std::string>& Elfo::obterAparenciaRaca() const
     return aparencia;
 }
 
-Atributos Elfo::obterAtributosRaca() const
-{
-    return { 90, 5, 15, 0, 10, 15, 5 };
+// --- HABILIDADE DA RACA ---
+std::string Elfo::obterNomeHabilidadeRaca() const 
+{ 
+    return "Agil e preciso"; 
 }
 
-std::string Elfo::obterNomeHabilidadeRaca() const { return "Agil e preciso"; }
-std::string Elfo::obterDescricaoHabilidadeRaca() const { return "Possui 33% chance de causar 1.5x de dano em cada ataque"; }
+std::string Elfo::obterDescricaoHabilidadeRaca() const 
+{ 
+    return "Possui 33% chance de causar 1.5x de dano em cada ataque"; 
+}
+
+// --- PROCESSAMENTO DE DANO  ---
 int Elfo::processarDanoOfensivo(int danoBase, SistemaPersonagem* atacante) 
 {
     if (GeradorAleatorio::rolarChance(33)) 

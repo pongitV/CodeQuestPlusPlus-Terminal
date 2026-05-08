@@ -6,11 +6,18 @@
 #include "../Utilidades/Aparencia.h"
 #include "../Telas/TelaCombate.h"
 
+// --- INFORMACOES DA RACA ---
 std::string Dwarf::obterNomeRaca() const
 {
     return "Dwarf";
 }
 
+Atributos Dwarf::obterAtributosRaca() const
+{
+    return { 110, 15, 5, 0, 10, 5, 15 };
+}
+
+// --- APARENCIA ---
 const std::vector<std::string>& Dwarf::obterAparenciaRaca() const 
 {
     static const std::vector<std::string> aparencia = 
@@ -61,13 +68,18 @@ const std::vector<std::string>& Dwarf::obterAparenciaRaca() const
     return aparencia;
 }
 
-Atributos Dwarf::obterAtributosRaca() const
-{
-    return { 110, 15, 5, 0, 10, 5, 15 };
+// --- HABILIDADE DA RACA ---
+std::string Dwarf::obterNomeHabilidadeRaca() const 
+{ 
+    return "Forjado com determinacao"; 
 }
 
-std::string Dwarf::obterNomeHabilidadeRaca() const { return "Forjado com determinacao"; }
-std::string Dwarf::obterDescricaoHabilidadeRaca() const { return "Escudos possuem o dobro de durabilidade"; }
+std::string Dwarf::obterDescricaoHabilidadeRaca() const 
+{ 
+    return "Escudos possuem o dobro de durabilidade"; 
+}
+
+// --- PROCESSAMENTO DE DANO  ---
 int Dwarf::processarDanoDefensivo(int danoFinal, SistemaPersonagem* defensor) 
 {
     if (defensor->obterDefendendo() && defensor->obterEscudo() != nullptr) 

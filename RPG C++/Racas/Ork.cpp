@@ -4,11 +4,18 @@
 #include "../Utilidades/Aparencia.h"
 #include "../Telas/TelaCombate.h"
 
+// --- INFORMACOES DA RACA ---
 std::string Ork::obterNomeRaca() const 
 {
     return "Ork";
 }
 
+Atributos Ork::obterAtributosRaca() const
+{
+    return { 120, 20, 10, 0, 10, 5, 5 };
+}
+
+// --- APARENCIA ---
 const std::vector<std::string>& Ork::obterAparenciaRaca() const 
 {
     static const std::vector<std::string> aparencia = 
@@ -60,13 +67,18 @@ const std::vector<std::string>& Ork::obterAparenciaRaca() const
     return aparencia;
 }
 
-Atributos Ork::obterAtributosRaca() const
-{
-    return { 120, 20, 10, 0, 10, 5, 5 };
+// --- HABILIDADE DA RACA ---
+std::string Ork::obterNomeHabilidadeRaca() const 
+{ 
+    return "Furia cega"; 
 }
 
-std::string Ork::obterNomeHabilidadeRaca() const { return "Furia cega"; }
-std::string Ork::obterDescricaoHabilidadeRaca() const { return "Dano extra baseado na porcentagem de vida perdida"; }
+std::string Ork::obterDescricaoHabilidadeRaca() const 
+{ 
+    return "Dano extra baseado na porcentagem de vida perdida"; 
+}
+
+// --- PROCESSAMENTO DE DANO  ---
 int Ork::processarDanoOfensivo(int danoBase, SistemaPersonagem* atacante) 
 {
     double percVidaPerdida = 1.0 - (static_cast<double>(atacante->obterVida()) / atacante->obterVidaMaxima());

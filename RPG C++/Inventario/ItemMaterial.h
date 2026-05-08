@@ -2,6 +2,7 @@
 
 #include "Item.h"
 #include <string>
+#include <vector>
 
 class ItemMaterial : public Item {
 private:
@@ -11,5 +12,5 @@ public:
 
     std::string obterNomeItem() const override;
     TipoEquipamento obterTipo() const override;
-    void exibirInspecao() const override;
+    std::vector<std::string> obterDetalhesInspecao() const override;
 };

@@ -1,7 +1,4 @@
 #include "ItemMaterial.h"
-#include <string_view>
-#include <map>
-#include <iostream>
 #include "../Utilidades/Aparencia.h"
 #include <vector>
 #include <functional>
@@ -14,11 +11,9 @@ ItemMaterial::ItemMaterial(std::string nome, int preco) : Item(preco), nome(nome
 std::string ItemMaterial::obterNomeItem() const { return nome; }
 TipoEquipamento ItemMaterial::obterTipo() const { return TipoEquipamento::MATERIAL; }
 
-void ItemMaterial::exibirInspecao() const {
+std::vector<std::string> ItemMaterial::obterDetalhesInspecao() const {
     std::vector<std::string> linhas;
-    linhas.push_back(Aparencia::cor(Cor::CIANO) + " === " + nome + " ===" + Aparencia::cor(Cor::RESET));
     linhas.push_back(" > Tipo: Material");
-    linhas.push_back(" > Preco de Venda: " + std::to_string(precoVenda) + "G");
     
     std::string utilidade = "Pode ser util para construcoes ou rituais.";
     if (nome == "Dente de goblin") utilidade = "Pode ser usado na Cabana da Bruxa para encantar armas com Sangramento (Requer 40x).";
@@ -30,13 +25,7 @@ void ItemMaterial::exibirInspecao() const {
     else if (nome == "Convite Real") utilidade = "Permite o acesso livre aos portoes do Castelo Real.";
     
     linhas.push_back(" > Descricao: " + utilidade);
-
-    std::cout << "\n";
-    Aparencia::imprimirCentralizado(linhas[0]);
-    std::cout << "\n";
-    
-    std::vector<std::string> resto(linhas.begin() + 1, linhas.end());
-    Aparencia::imprimirBlocoCentralizado(resto);
+    return linhas;
 }
 
 std::unique_ptr<Item> fabricarItemMaterial(const std::string& nome) {

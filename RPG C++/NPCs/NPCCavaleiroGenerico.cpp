@@ -6,8 +6,6 @@
 
 #include "../Classes/Guerreiro.h"
 #include "../Racas/Humano.h"
-#include "../Inventario/EquipamentoArmadura.h"
-#include "../Inventario/EquipamentoArma.h"
 #include "../Inventario/FabricaItens.h"
 #include "../Inventario/ItemMaterial.h"
 #include "../Gerenciadores/GerenciadorCombate.h"
@@ -16,6 +14,7 @@
 #include "../Utilidades/Aparencia.h"
 
 namespace {
+    // --- CLASSES E FUNCOES AUXILIARES ---
     Item* buscarPorNome(Inventario* inv, const std::string& nome) {
         for (auto* item : inv->obterTodosOsItens()) {
             if (item->obterNomeItem() == nome) return item;
@@ -35,11 +34,12 @@ namespace {
                     equipamentos.push_back(std::move(item));
                 }
             }
-            equipamentos.push_back(std::make_unique<EquipamentoArma>(FabricaItens::obterNomeDeID(ItemID::EspadaCavaleiro), 12, 0, 0, 0, 0, 0, 0));
+            equipamentos.push_back(FabricaItens::criarItem(ItemID::EspadaCavaleiro));
             return equipamentos;
         }
     };
 
+    // --- APARENCIA E DIALOGOS ---
     std::vector<std::string> arteCavaleiro = {
         "      .:-*+*                             ",
         "         +.   .*# *+*#                   ",
@@ -97,12 +97,12 @@ namespace {
     }
 }
 
+// --- CRIACAO DO NPC ---
 std::unique_ptr<SistemaPersonagem> NPCCavaleiroGenerico::criarCavaleiro(const std::string& nome) {
     auto cavaleiro = std::make_unique<SistemaPersonagem>(nome, std::make_unique<Humano>(), std::make_unique<ClasseCavaleiro>());
     std::string nomeArmadura = FabricaItens::obterNomeDeID(ItemID::ArmaduraCavaleiro);
     std::string nomeEspada = FabricaItens::obterNomeDeID(ItemID::EspadaCavaleiro);
-    auto armadura = std::make_unique<EquipamentoArmadura>(nomeArmadura, 12, 0, 0, 0);
-    cavaleiro->obterInventario()->adicionarItem(std::move(armadura));
+    cavaleiro->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::ArmaduraCavaleiro));
     cavaleiro->equiparItem(buscarPorNome(cavaleiro->obterInventario(), nomeArmadura));
     cavaleiro->equiparItem(buscarPorNome(cavaleiro->obterInventario(), nomeEspada));
     cavaleiro->calcularAtributos();
@@ -110,6 +110,7 @@ std::unique_ptr<SistemaPersonagem> NPCCavaleiroGenerico::criarCavaleiro(const st
     return cavaleiro;
 }
 
+// --- INTERACAO ---
 void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trollDerrotado, bool& conviteRecebido, int larguraDoTerminal, std::vector<std::string>& matrizDoMapaAtual, bool exploracaoEstaAtiva, const std::function<void()>& restaurarTela, char celulaDestino, int proximaPosicaoX, int proximaPosicaoY) {
     if (!trollDerrotado && (celulaDestino == 'T' || celulaDestino == 'C')) {
         int posicaoTrollX = -1, posicaoTrollY = -1;

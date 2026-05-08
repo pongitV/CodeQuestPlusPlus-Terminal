@@ -27,9 +27,8 @@ std::string EquipamentoArmadura::obterMensagemRequisito() const {
     return "\n[SISTEMA]: Atributos insuficientes para equipar " + nome + "!\n";
 }
 
-void EquipamentoArmadura::exibirInspecao() const {
+std::vector<std::string> EquipamentoArmadura::obterDetalhesInspecao() const {
     std::vector<std::string> linhas;
-    linhas.push_back(Aparencia::cor(Cor::CIANO) + " === " + nome + " ===" + Aparencia::cor(Cor::RESET));
     linhas.push_back(" > Tipo: Armadura");
     linhas.push_back(" > Defesa Fixa: " + std::to_string(reducaoFixa) + " (Reduz dano recebido permanentemente)");
     linhas.push_back(" > Requisitos:");
@@ -43,14 +42,7 @@ void EquipamentoArmadura::exibirInspecao() const {
     } else {
         linhas.push_back(" > Penalidade: Nenhuma");
     }
-    linhas.push_back(" > Preco de Venda: " + std::to_string(precoVenda) + "G");
-
-    std::cout << "\n";
-    Aparencia::imprimirCentralizado(linhas[0]);
-    std::cout << "\n";
-    
-    std::vector<std::string> resto(linhas.begin() + 1, linhas.end());
-    Aparencia::imprimirBlocoCentralizado(resto);
+    return linhas;
 }
 
 std::string EquipamentoArmadura::obterInfoStatus() const {
@@ -82,7 +74,8 @@ std::unique_ptr<Item> fabricarEquipamentoArmadura(const std::string& nome) {
         {"Armadura leve de couro com malha", []() { return std::make_unique<EquipamentoArmadura>("Armadura leve de couro com malha", 5, 0, 0, 3); }},
         {"Tunica", []() { return std::make_unique<EquipamentoArmadura>("Tunica", 2, 0, 0, 3); }},
         {"Traje de Couro e tecido nobre", []() { return std::make_unique<EquipamentoArmadura>("Traje de Couro e tecido nobre", 4, 0, 0, 3); }},
-        {"Armadura de trapos e sucata", []() { return std::make_unique<EquipamentoArmadura>("Armadura de trapos e sucata", 3, 0, 0, 3); }}
+        {"Armadura de trapos e sucata", []() { return std::make_unique<EquipamentoArmadura>("Armadura de trapos e sucata", 3, 0, 0, 3); }},
+        {"Armadura de Cavaleiro", []() { return std::make_unique<EquipamentoArmadura>("Armadura de Cavaleiro", 12, 0, 0, 0); }}
     };
     auto it = construtores.find(nome);
     if (it != construtores.end()) return it->second();

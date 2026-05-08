@@ -13,57 +13,65 @@
 #include <unordered_map>
 
 std::string FabricaItens::obterNomeDeID(ItemID id) {
-    switch(id) {
-        case ItemID::AdagaPedra: return "Adaga artesanal de pedra";
-        case ItemID::ArcoMadeira: return "Arco recurvo de madeira";
-        case ItemID::CajadoCristal: return "Cajado de cristal magico";
-        case ItemID::VarinhaCorroida: return "Varinha corroida";
-        case ItemID::ViolaoEncantado: return "Violao encantado";
-        case ItemID::EspadaFerro: return "Espada longa de ferro";
-        case ItemID::MachadoGuerra: return "Machado de guerra danificado";
-        case ItemID::GosmaAcidaArma: return "Gosma acida (Arma)";
-        case ItemID::TroncoAmarrotado: return "Tronco de arvore amarrotado";
-        case ItemID::EspadaCavaleiro: return "Espada do Cavaleiro";
-        
-        case ItemID::EscudoMetal: return "Escudo medio de metal";
-        case ItemID::BarreiraMagica: return "Barreira magica";
-        case ItemID::CapaMagica: return "Capa magica";
-        case ItemID::BracedeirasPrata: return "Bracedeiras de prata";
-
-        case ItemID::ArmaduraMalha: return "Armadura de malha e metal";
-        case ItemID::ArmaduraCouro: return "Armadura leve de couro com malha";
-        case ItemID::Tunica: return "Tunica";
-        case ItemID::TrajeNobre: return "Traje de Couro e tecido nobre";
-        case ItemID::ArmaduraTrapos: return "Armadura de trapos e sucata";
-        case ItemID::ArmaduraCavaleiro: return "Armadura de Cavaleiro";
-
-        case ItemID::PocaoCura30: return "Pocao de Cura (30%VM)";
-        case ItemID::PocaoFuria: return "Pocao de Furia (Buff)";
-        case ItemID::ElixirArcano: return "Elixir Arcano (Buff)";
-        case ItemID::FrascoGosma: return "Frasco de Gosma (Debuff)";
-        case ItemID::FrascoFraqueza: return "Frasco de Fraqueza (Debuff)";
-        case ItemID::OrgaoRegenerador: return "Orgao regenerador";
-        case ItemID::TalismaUrso: return "Talisma do Urso";
-        case ItemID::TalismaCorvo: return "Talisma do Corvo";
-        case ItemID::TalismaLeopardo: return "Talisma do Leopardo";
-        case ItemID::TalismaCoruja: return "Talisma da Coruja";
-
-        case ItemID::GosmaAcida: return "Gosma acida";
-        case ItemID::DenteGoblin: return "Dente de goblin";
-        case ItemID::NucleoPegajoso: return "Nucleo pegajoso";
-        case ItemID::PoMagico: return "Po magico";
-        case ItemID::MadeiraEnfeiticada: return "Madeira enfeiticada";
-        case ItemID::CoracaoFloresta: return "Coracao da floresta";
-        case ItemID::PedraUpgrade: return "Pedra magica de upgrade";
-        case ItemID::ConviteReal: return "Convite Real";
-
-        case ItemID::DispositivoLinguagem: return "Dispositivo de teclas de linguagem desconhecida";
-        default: return "";
-    }
+    static const std::unordered_map<ItemID, std::string> mapaDeNomes = {
+        {ItemID::AdagaPedra, "Adaga artesanal de pedra"},
+        {ItemID::ArcoMadeira, "Arco recurvo de madeira"},
+        {ItemID::CajadoCristal, "Cajado de cristal magico"},
+        {ItemID::VarinhaCorroida, "Varinha corroida"},
+        {ItemID::ViolaoEncantado, "Violao encantado"},
+        {ItemID::EspadaFerro, "Espada longa de ferro"},
+        {ItemID::MachadoGuerra, "Machado de guerra danificado"},
+        {ItemID::GosmaAcidaArma, "Gosma acida corrosiva"},
+        {ItemID::TroncoAmarrotado, "Tronco de arvore amarrotado"},
+        {ItemID::EspadaCavaleiro, "Espada do Cavaleiro"},
+        {ItemID::EscudoMetal, "Escudo medio de metal"},
+        {ItemID::BarreiraMagica, "Barreira magica"},
+        {ItemID::CapaMagica, "Capa magica"},
+        {ItemID::BracedeirasPrata, "Bracedeiras de prata"},
+        {ItemID::ArmaduraMalha, "Armadura de malha e metal"},
+        {ItemID::ArmaduraCouro, "Armadura leve de couro com malha"},
+        {ItemID::Tunica, "Tunica"},
+        {ItemID::TrajeNobre, "Traje de Couro e tecido nobre"},
+        {ItemID::ArmaduraTrapos, "Armadura de trapos e sucata"},
+        {ItemID::ArmaduraCavaleiro, "Armadura de Cavaleiro"},
+        {ItemID::PocaoCura30, "Pocao de Cura (30%VM)"},
+        {ItemID::PocaoFuria, "Pocao de Furia (Buff)"},
+        {ItemID::ElixirArcano, "Elixir Arcano (Buff)"},
+        {ItemID::FrascoGosma, "Frasco de Gosma (Debuff)"},
+        {ItemID::FrascoFraqueza, "Frasco de Fraqueza (Debuff)"},
+        {ItemID::OrgaoRegenerador, "Orgao regenerador"},
+        {ItemID::TalismaUrso, "Talisma do Urso"},
+        {ItemID::TalismaCorvo, "Talisma do Corvo"},
+        {ItemID::TalismaLeopardo, "Talisma do Leopardo"},
+        {ItemID::TalismaCoruja, "Talisma da Coruja"},
+        {ItemID::GosmaAcida, "Gosma acida"},
+        {ItemID::DenteGoblin, "Dente de goblin"},
+        {ItemID::NucleoPegajoso, "Nucleo pegajoso"},
+        {ItemID::PoMagico, "Po magico"},
+        {ItemID::MadeiraEnfeiticada, "Madeira enfeiticada"},
+        {ItemID::CoracaoFloresta, "Coracao da floresta"},
+        {ItemID::PedraUpgrade, "Pedra magica de upgrade"},
+        {ItemID::ConviteReal, "Convite Real"},
+        {ItemID::DispositivoLinguagem, "Dispositivo de teclas de linguagem desconhecida"}
+    };
+    auto it = mapaDeNomes.find(id);
+    return it != mapaDeNomes.end() ? it->second : "";
 }
 
 std::unique_ptr<Item> FabricaItens::criarItem(ItemID id) {
     return criarItem(obterNomeDeID(id));
+}
+
+std::vector<std::unique_ptr<Item>> FabricaItens::criarVariosItens(ItemID id, int quantidade) {
+    std::vector<std::unique_ptr<Item>> itens;
+    for (int i = 0; i < quantidade; ++i) {
+        itens.push_back(criarItem(id));
+    }
+    return itens;
+}
+
+std::vector<std::unique_ptr<Item>> FabricaItens::criarKitPocoes(int quantidade) {
+    return criarVariosItens(ItemID::PocaoCura30, quantidade);
 }
 
 std::unique_ptr<Item> fabricarEquipamentoArma(const std::string& nome);
@@ -82,25 +90,14 @@ std::unique_ptr<Item> FabricaItens::criarItem(const std::string& nome)
         return nullptr;
     }
 
-    std::unique_ptr<Item> item = nullptr;
+    static const std::vector<std::function<std::unique_ptr<Item>(const std::string&)>> cadeiaDeFabricantes = {
+        fabricarEquipamentoArma, fabricarEquipamentoEscudo, fabricarEquipamentoArmadura,
+        fabricarItemConsumivel, fabricarItemMaterial, fabricarItemMissao
+    };
 
-    item = fabricarEquipamentoArma(nome);
-    if (item) return item;
-
-    item = fabricarEquipamentoEscudo(nome);
-    if (item) return item;
-
-    item = fabricarEquipamentoArmadura(nome);
-    if (item) return item;
-
-    item = fabricarItemConsumivel(nome);
-    if (item) return item;
-
-    item = fabricarItemMaterial(nome);
-    if (item) return item;
-
-    item = fabricarItemMissao(nome);
-    if (item) return item;
+    for (const auto& fabricante : cadeiaDeFabricantes) {
+        if (auto item = fabricante(nome)) return item;
+    }
 
     return nullptr;
 }

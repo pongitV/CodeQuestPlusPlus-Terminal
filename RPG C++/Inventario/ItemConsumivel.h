@@ -7,7 +7,6 @@ class ItemConsumivel : public Item
 {
 private:
     std::string nome;
-    bool ehTalisma() const;
 
 public:
     ItemConsumivel(std::string nome, int preco = 3);

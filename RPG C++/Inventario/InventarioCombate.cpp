@@ -118,7 +118,7 @@ void InventarioCombate::gerenciarInventario(SistemaPersonagem* jogadorAtual, boo
                         } else if (subOpcao == "2") {
                             Aparencia::limparTela();
                             Aparencia::exibirCabecalho("INSPECAO DE ITEM", Cor::AMARELO);
-                            itemEncontrado->exibirInspecao();
+                            TelaInventario::exibirInspecaoItem(itemEncontrado);
                             std::cout << "\n";
                             Aparencia::aguardarEnter();
                         } else if (subOpcao == "0") {

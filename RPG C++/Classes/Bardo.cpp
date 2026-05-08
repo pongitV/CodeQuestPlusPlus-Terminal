@@ -9,6 +9,7 @@
 #include "../Utilidades/Constantes.h"
 #include "../Utilidades/Aparencia.h"
 
+// --- INFORMACOES DA CLASSE ---
 std::string Bardo::obterNomeClasse() const 
 {
      return "Bardo"; 
@@ -73,7 +74,7 @@ Atributos Bardo::obterAtributosClasse() const
 
 std::vector<std::unique_ptr<Item>> Bardo::obterEquipamentoClasse() const 
 {
-    auto equipamentos = criarEquipamentoBasico();
+    auto equipamentos = FabricaItens::criarKitPocoes();
     
     equipamentos.push_back(FabricaItens::criarItem(ItemID::ViolaoEncantado));
     equipamentos.push_back(FabricaItens::criarItem(ItemID::CapaMagica));
@@ -81,17 +82,44 @@ std::vector<std::unique_ptr<Item>> Bardo::obterEquipamentoClasse() const
     return equipamentos;
 }
 
+// --- PASSIVA DA CLASSE ---
 std::string Bardo::obterNomePassivaClasse() const 
-{ return "Touch the sky"; }
+{ 
+    return "Touch the sky"; 
+}
+
 std::string Bardo::obterDescricaoPassivaClasse() const 
-{ return "Curas e buffs recebidos sao 40% mais fortes."; }
+{ 
+    return "Curas e buffs recebidos sao 40% mais fortes."; 
+}
+
+int Bardo::processarCuraPassivaBardo(int curaBase) const 
+{
+    return static_cast<int>(curaBase * Constantes::MULTIPLICADOR_CURA_BARDO);
+}
+
+double Bardo::processarMultiplicadorBuffPassivaBardo(double multBase) const 
+{
+    if (multBase > 1.0) return 1.0 + (multBase - 1.0) * 1.4;
+    return multBase;
+}
+
+// --- HABILIDADE DA CLASSE ---
 std::string Bardo::obterRecargaHabilidadeClasse() const 
-{ return "Recarga: 3 turnos (Individuais)."; }
+{ 
+    return "Recarga: 3 turnos (Individuais)."; 
+}
 
 std::string Bardo::obterNomeHabilidadeClasse() const 
-{ return "Sinfonia do Bardo"; }
+{ 
+    return "Sinfonia do Bardo"; 
+}
+
 std::string Bardo::obterDescricaoHabilidadeClasse() const 
-{ return "Possui 3 habilidades: Flashing lights, On sight e Through the wire."; }
+{ 
+    return "Possui 3 habilidades: Flashing lights, On sight e Through the wire."; 
+}
+
 void Bardo::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::vector<SistemaPersonagem*>& /*listaDeInimigos*/)
 {
     struct SubHabilidade {
@@ -146,13 +174,8 @@ void Bardo::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::vect
     if (escolha > 0 && escolha <= static_cast<int>(habilidades.size())) {
         const auto& hab = habilidades[escolha - 1];
         int cd = personagemUsuario->obterCooldown(hab.id);
-        if (cd > 0) {
-            std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << "[SISTEMA]: A habilidade " << hab.nome << " esta em recarga (" << cd << " turnos)!" << Aparencia::cor(Cor::RESET) << "\n"; 
-            Aparencia::registrarLogBatalha("[SISTEMA]: A habilidade " + hab.nome + " esta em recarga (" + std::to_string(cd) + " turnos)!");
-            Aparencia::aguardarEnter();
-            personagemUsuario->definirHabilidadeCancelada(true); 
-            return; 
-        }
+        if (verificarEReportarRecarga(personagemUsuario, cd, hab.nome)) return;
+
         hab.acao(personagemUsuario);
         return;
     }
@@ -160,18 +183,4 @@ void Bardo::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::vect
     std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << "[SISTEMA]: Opcao invalida!" << Aparencia::cor(Cor::RESET) << "\n";
     Aparencia::aguardarEnter();
     personagemUsuario->definirHabilidadeCancelada(true);
-}
-
-TipoAtaque Bardo::obterTipoAtaque() const { return TipoAtaque::UNICO; }
-bool Bardo::habilidadeConsomeTurno() const { return true; }
-
-int Bardo::processarCuraPassivaBardo(int curaBase) const 
-{
-    return static_cast<int>(curaBase * Constantes::MULTIPLICADOR_CURA_BARDO);
-}
-
-double Bardo::processarMultiplicadorBuffPassivaBardo(double multBase) const 
-{
-    if (multBase > 1.0) return 1.0 + (multBase - 1.0) * 1.4;
-    return multBase;
 }

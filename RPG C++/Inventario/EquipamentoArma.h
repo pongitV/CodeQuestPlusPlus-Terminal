@@ -39,7 +39,7 @@ public:
     std::string obterInfoStatus() const override;
 
     bool podeSerEquipadoPor(SistemaPersonagem* personagem) const override;
-    void exibirInspecao() const override;
+    std::vector<std::string> obterDetalhesInspecao() const override;
 
     void aplicarEfeitoSangramento() override;
     void aplicarEfeitoLentidao() override;

@@ -7,6 +7,7 @@
 #include "../Utilidades/Aparencia.h"
 #include "../Telas/TelaCombate.h"
 
+// --- INFORMACOES DA CLASSE ---
 std::string Mago::obterNomeClasse() const 
 {
      return "Mago"; 
@@ -70,40 +71,45 @@ Atributos Mago::obterAtributosClasse() const
 
 std::vector<std::unique_ptr<Item>> Mago::obterEquipamentoClasse() const 
 {
-    std::vector<std::unique_ptr<Item>> equipamentos;
-    
-    int quantidadePocoes = 3;
-    for (int i = 0; i < quantidadePocoes; ++i) {
-        equipamentos.push_back(FabricaItens::criarItem(ItemID::PocaoCura30));
-    }
-    
+    auto equipamentos = FabricaItens::criarKitPocoes();
+
     equipamentos.push_back(FabricaItens::criarItem(ItemID::CajadoCristal));
     equipamentos.push_back(FabricaItens::criarItem(ItemID::BarreiraMagica));
     equipamentos.push_back(FabricaItens::criarItem(ItemID::Tunica));
     return equipamentos;
 }
 
+// --- PASSIVA DA CLASSE ---
 std::string Mago::obterNomePassivaClasse() const 
-{ return "Foco arcano"; }
+{ 
+    return "Foco arcano"; 
+}
+
 std::string Mago::obterDescricaoPassivaClasse() const 
-{ return "Ataques ressoam (25% em area) ou causam +25% de dano em alvo unico."; }
+{ 
+    return "Ataques ressoam (25% em area) ou causam +25% de dano em alvo unico."; 
+}
+
+// --- HABILIDADE DA CLASSE ---
 std::string Mago::obterRecargaHabilidadeClasse() const 
-{ return "Recarga: 3 turnos."; }
+{ 
+    return "Recarga: 3 turnos."; 
+}
 
 std::string Mago::obterNomeHabilidadeClasse() const 
-{ return "Canalizacao arcana"; }
+{ 
+    return "Canalizacao arcana"; 
+}
+
 std::string Mago::obterDescricaoHabilidadeClasse() const 
-{ return "Pula seu turno para se defender e dobra o dano no proximo turno. Recarga: 3 turnos."; }
+{ 
+    return "Pula seu turno para se defender e dobra o dano no proximo turno. Recarga: 3 turnos."; 
+}
+
 void Mago::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::vector<SistemaPersonagem*>& /*listaDeInimigos*/) 
 {
     int turnosRestantes = personagemUsuario->obterCooldown(HabilidadeID::EstrategiaArcana);
-    if (turnosRestantes > 0) {
-        std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: A habilidade " << obterNomeHabilidadeClasse() << " esta em recarga (" << turnosRestantes << " turnos)!\n";
-        Aparencia::registrarLogBatalha("[SISTEMA]: A habilidade " + obterNomeHabilidadeClasse() + " esta em recarga (" + std::to_string(turnosRestantes) + " turnos)!");
-        Aparencia::aguardarEnter();
-        personagemUsuario->definirHabilidadeCancelada(true);
-        return;
-    }
+    if (verificarEReportarRecarga(personagemUsuario, turnosRestantes, obterNomeHabilidadeClasse())) return;
     
     personagemUsuario->definirMultiplicador(2.0);
     personagemUsuario->adicionarEfeito(std::make_unique<EfeitoBuffAtributos>(2)); 
@@ -120,14 +126,13 @@ void Mago::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::vecto
     }
 }
 
+// --- PROCESSAMENTO DE DANO  ---
 int Mago::processarDanoPreAtaque(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, bool isAtacanteJogador, size_t qtdInimigos) {
     if (defensor == nullptr) return danoBase;
     if (!isAtacanteJogador || qtdInimigos <= 1) {
         int danoAumentado = static_cast<int>(danoBase * 1.25);
-        std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::MAGENTA) + "[Foco Arcano]: Dano concentrado aumentado em 25%!" + Aparencia::cor(Cor::RESET) + "\n";
-        std::cout << msg;
-        TelaCombate::adicionarMensagemFixa(msg);
-        Aparencia::registrarLogBatalha("[Foco Arcano]: Dano concentrado aumentado em 25%!");
+        std::string logMsg = "[Foco Arcano]: Dano concentrado aumentado em 25%!";
+        notificarMensagemCombate(Aparencia::cor(Cor::MAGENTA) + logMsg + Aparencia::cor(Cor::RESET), logMsg);
         return danoAumentado;
     }
     return danoBase;
@@ -137,10 +142,8 @@ void Mago::processarDanoPosAtaque(SistemaPersonagem* atacante, SistemaPersonagem
     if (isAtacanteJogador && !isArea && alvoAtual != defensorPrincipal && alvoAtual->obterVida() > 0) {
         if (!ativouPassiva) {
             int danoAreaMsg = static_cast<int>(danoBase * 0.25);
-            std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::MAGENTA) + "[Foco Arcano]: A magia ressoa, causando " + std::to_string(danoAreaMsg) + " de dano aos inimigos proximos!" + Aparencia::cor(Cor::RESET) + "\n";
-            std::cout << msg;
-            TelaCombate::adicionarMensagemFixa(msg);
-            Aparencia::registrarLogBatalha("[Foco Arcano]: A magia ressoa, causando " + std::to_string(danoAreaMsg) + " de dano aos inimigos proximos!");
+            std::string logMsg = "[Foco Arcano]: A magia ressoa, causando " + std::to_string(danoAreaMsg) + " de dano aos inimigos proximos!";
+            notificarMensagemCombate(Aparencia::cor(Cor::MAGENTA) + logMsg + Aparencia::cor(Cor::RESET), logMsg);
             ativouPassiva = true;
         }
         int danoArea = static_cast<int>(danoBase * 0.25);
@@ -148,6 +151,3 @@ void Mago::processarDanoPosAtaque(SistemaPersonagem* atacante, SistemaPersonagem
         aplicarDano(atacante, alvoAtual, danoArea, perfuranteArea);
     }
 }
-
-TipoAtaque Mago::obterTipoAtaque() const { return TipoAtaque::UNICO; }
-bool Mago::habilidadeConsomeTurno() const { return true; }

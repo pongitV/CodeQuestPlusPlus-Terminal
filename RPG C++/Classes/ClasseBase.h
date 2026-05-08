@@ -36,7 +36,6 @@ class Item;
 class ClasseBase 
 {
 public:
-    // Destrutor virtual para garantir a destruicao polimorfica correta das subclasses
     virtual ~ClasseBase() {}
 
     // INFORMACOES DA CLASSE
@@ -54,14 +53,26 @@ public:
     virtual std::string obterNomeHabilidadeClasse() const = 0;
     virtual std::string obterDescricaoHabilidadeClasse() const = 0;
     virtual void usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::vector<SistemaPersonagem*>& listaDeInimigos) = 0;
-    virtual TipoAtaque obterTipoAtaque() const = 0;
-    virtual bool habilidadeConsomeTurno() const = 0;
+    virtual TipoAtaque obterTipoAtaque() const { return TipoAtaque::UNICO; }
+    virtual bool habilidadeConsomeTurno() const { return true; }
 
 protected:
-    std::vector<std::unique_ptr<Item>> criarEquipamentoBasico() const {
-        std::vector<std::unique_ptr<Item>> equipamentos;
-        for (int i = 0; i < 3; ++i) equipamentos.push_back(FabricaItens::criarItem(ItemID::PocaoCura30));
-        return equipamentos;
+    void notificarMensagemCombate(const std::string& msgComCor, const std::string& msgSemCor) const {
+        std::string msgFinal = Aparencia::margemCombate() + msgComCor + "\n";
+        std::cout << msgFinal;
+        TelaCombate::adicionarMensagemFixa(msgFinal);
+        Aparencia::registrarLogBatalha(msgSemCor);
+    }
+
+    bool verificarEReportarRecarga(SistemaPersonagem* personagemUsuario, int turnosRestantes, const std::string& nomeHabilidade) const {
+        if (turnosRestantes > 0) {
+            std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << "[SISTEMA]: A habilidade " << nomeHabilidade << " esta em recarga (" << turnosRestantes << " turnos)!" << Aparencia::cor(Cor::RESET) << "\n";
+            Aparencia::registrarLogBatalha("[SISTEMA]: A habilidade " + nomeHabilidade + " esta em recarga (" + std::to_string(turnosRestantes) + " turnos)!");
+            Aparencia::aguardarEnter();
+            personagemUsuario->definirHabilidadeCancelada(true);
+            return true;
+        }
+        return false;
     }
 
 public:
@@ -88,10 +99,8 @@ public:
 
 protected:
     virtual void executarAtaqueArea(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, int danoPerfurante, std::vector<std::unique_ptr<SistemaPersonagem>>& inimigos, const std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)>& aplicarDano, bool isAtacanteJogador) {
-        std::string msg = Aparencia::margemCombate() + atacante->obterNome() + " desfere um ataque em area!\n";
-        std::cout << msg;
-        TelaCombate::adicionarMensagemFixa(msg);
-        Aparencia::registrarLogBatalha(atacante->obterNome() + " desfere um ataque em area!");
+        std::string msgInfo = atacante->obterNome() + " desfere um ataque em area!";
+        notificarMensagemCombate(msgInfo, msgInfo);
         int danoDividido = std::max(1, danoBase / static_cast<int>(inimigos.size()));
         int perfuranteDividido = danoPerfurante / static_cast<int>(inimigos.size());
 
@@ -104,10 +113,8 @@ protected:
 
     virtual void executarAtaqueUnico(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, int danoPerfurante, std::vector<std::unique_ptr<SistemaPersonagem>>& inimigos, const std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)>& aplicarDano, bool isAtacanteJogador) {
         if (defensor != nullptr) {
-            std::string msg = Aparencia::margemCombate() + atacante->obterNome() + " ataca " + defensor->obterNome() + "!\n";
-            std::cout << msg;
-            TelaCombate::adicionarMensagemFixa(msg);
-            Aparencia::registrarLogBatalha(atacante->obterNome() + " ataca " + defensor->obterNome() + "!");
+            std::string msgInfo = atacante->obterNome() + " ataca " + defensor->obterNome() + "!";
+            notificarMensagemCombate(msgInfo, msgInfo);
             aplicarDano(atacante, defensor, danoBase, danoPerfurante);
         }
 

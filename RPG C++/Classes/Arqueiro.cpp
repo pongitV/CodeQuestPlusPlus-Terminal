@@ -6,6 +6,7 @@
 #include "../Inventario/FabricaItens.h"
 #include "../Utilidades/Aparencia.h"
 
+// --- INFORMACOES DA CLASSE ---
 std::string Arqueiro::obterNomeClasse() const 
 {
      return "Arqueiro"; 
@@ -69,47 +70,24 @@ Atributos Arqueiro::obterAtributosClasse() const
 
 std::vector<std::unique_ptr<Item>> Arqueiro::obterEquipamentoClasse() const 
 {
-    std::vector<std::unique_ptr<Item>> equipamentos;
-    
-    int quantidadePocoes = 3;
-    for (int i = 0; i < quantidadePocoes; ++i) {
-        equipamentos.push_back(FabricaItens::criarItem(ItemID::PocaoCura30));
-    }
-    
+    auto equipamentos = FabricaItens::criarKitPocoes();
+
     equipamentos.push_back(FabricaItens::criarItem(ItemID::ArcoMadeira));
     equipamentos.push_back(FabricaItens::criarItem(ItemID::BracedeirasPrata));
     equipamentos.push_back(FabricaItens::criarItem(ItemID::ArmaduraCouro));
     return equipamentos;
 }
 
+// --- PASSIVA DA CLASSE ---
 std::string Arqueiro::obterNomePassivaClasse() const 
-{ return "Passos leves"; }
-std::string Arqueiro::obterDescricaoPassivaClasse() const 
-{ return "Penalidade de armaduras e debuffs de lentidao reduzidos pela metade."; }
-std::string Arqueiro::obterRecargaHabilidadeClasse() const 
-{ return "Recarga: 1 turno."; }
-
-std::string Arqueiro::obterNomeHabilidadeClasse() const 
-{ return "Retirada com pontaria"; }
-std::string Arqueiro::obterDescricaoHabilidadeClasse() const 
-{ return "Se afasta durante um turno, no proximo turno causa 2x dano"; }
-void Arqueiro::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::vector<SistemaPersonagem*>& /*listaDeInimigos*/) {
-    if (personagemUsuario->obterRecarga()) 
-    {
-        std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << "[SISTEMA]: A habilidade " << obterNomeHabilidadeClasse() << " esta em recarga (1 turnos)!" << Aparencia::cor(Cor::RESET) << "\n";
-        Aparencia::registrarLogBatalha("[SISTEMA]: A habilidade " + obterNomeHabilidadeClasse() + " esta em recarga (1 turnos)!");
-        Aparencia::aguardarEnter();
-        personagemUsuario->definirHabilidadeCancelada(true);
-        return;
-    }
-    personagemUsuario->adicionarEfeito(std::make_unique<EfeitoInviolavel>(1));
-    personagemUsuario->definirRecarga(true);
-    std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE) << "[HABILIDADE]: Retirada com pontaria! Voce se afasta neste turno." << Aparencia::cor(Cor::RESET) << "\n";
-    Aparencia::registrarLogBatalha("[HABILIDADE]: Retirada com pontaria! Voce se afasta neste turno.");
+{ 
+    return "Passos leves"; 
 }
 
-TipoAtaque Arqueiro::obterTipoAtaque() const { return TipoAtaque::UNICO; }
-bool Arqueiro::habilidadeConsomeTurno() const { return true; }
+std::string Arqueiro::obterDescricaoPassivaClasse() const 
+{ 
+    return "Penalidade de armaduras e debuffs de lentidao reduzidos pela metade."; 
+}
 
 int Arqueiro::processarPenalidadeArmaduraPassivaArqueiro(int penalidadeBase) const 
 {
@@ -124,4 +102,30 @@ int Arqueiro::aplicarPenalidadeLentidaoPassivaArqueiro(int destrezaAtual) const
 int Arqueiro::reverterPenalidadeLentidaoPassivaArqueiro(int destrezaAtual) const 
 {
     return (destrezaAtual * 4) / 3;
+}
+
+// --- HABILIDADE DA CLASSE ---
+std::string Arqueiro::obterRecargaHabilidadeClasse() const 
+{ 
+    return "Recarga: 1 turno."; 
+}
+
+std::string Arqueiro::obterNomeHabilidadeClasse() const 
+{ 
+    return "Retirada com pontaria"; 
+}
+
+std::string Arqueiro::obterDescricaoHabilidadeClasse() const 
+{ 
+    return "Se afasta durante um turno, no proximo turno causa 2x dano"; 
+}
+
+void Arqueiro::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::vector<SistemaPersonagem*>& /*listaDeInimigos*/) 
+{
+    if (verificarEReportarRecarga(personagemUsuario, personagemUsuario->obterRecarga() ? 1 : 0, obterNomeHabilidadeClasse())) return;
+
+    personagemUsuario->adicionarEfeito(std::make_unique<EfeitoInviolavel>(1));
+    personagemUsuario->definirRecarga(true);
+    std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE) << "[HABILIDADE]: Retirada com pontaria! Voce se afasta neste turno." << Aparencia::cor(Cor::RESET) << "\n";
+    Aparencia::registrarLogBatalha("[HABILIDADE]: Retirada com pontaria! Voce se afasta neste turno.");
 }

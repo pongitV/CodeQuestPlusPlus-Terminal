@@ -2,6 +2,7 @@
 #include <iostream>
 #include "../Utilidades/ControleDeInput.h"
 
+// --- INTERACAO PRINCIPAL ---
 void InteracaoNPC::interagir(SistemaPersonagem* jogadorAtual) {
     std::string opcao;
     bool primeiraVez = true; // Controla o efeito de transicao

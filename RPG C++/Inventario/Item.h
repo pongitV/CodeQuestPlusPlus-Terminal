@@ -6,6 +6,7 @@
 #include <functional>
 #include <iostream>
 #include <algorithm>
+#include "../Utilidades/Aparencia.h"
 
 enum class TipoEquipamento 
 {
@@ -84,16 +85,12 @@ public:
     virtual bool podeSerEquipadoPor(SistemaPersonagem* personagem) const { return true; }
     virtual std::string obterMensagemRequisito() const { return "\n[SISTEMA]: Atributos insuficientes para equipar " + obterNomeItem() + "!\n"; }
     
-    virtual void exibirInspecao() const {
-        std::cout << "\n === " << obterNomeItem() << " ===\n\n";
+    virtual std::vector<std::string> obterDetalhesInspecao() const {
         TipoEquipamento tipo = obterTipo();
-        std::cout << " > Tipo: " << (tipo == TipoEquipamento::CONSUMIVEL ? "Consumivel" : 
-                                  tipo == TipoEquipamento::MATERIAL ? "Material" :
-                                  tipo == TipoEquipamento::MISSAO ? "Item de Missao" : "Desconhecido") << "\n";
-        std::cout << " > Preco de Venda: " << precoVenda << "G\n";
-        std::cout << " > Descricao: " << (tipo == TipoEquipamento::MATERIAL ? "Material usado em forjas ou encantamentos." :
-                                        tipo == TipoEquipamento::CONSUMIVEL ? "Pode ser consumido para aplicar efeitos." : 
-                                        "Pode ser importante para o seu progresso.") << "\n";
+        std::vector<std::string> detalhes;
+        detalhes.push_back(" > Tipo: " + std::string(tipo == TipoEquipamento::CONSUMIVEL ? "Consumivel" : tipo == TipoEquipamento::MATERIAL ? "Material" : tipo == TipoEquipamento::MISSAO ? "Item de Missao" : "Desconhecido"));
+        detalhes.push_back(" > Descricao: " + std::string(tipo == TipoEquipamento::MATERIAL ? "Material usado em forjas ou encantamentos." : tipo == TipoEquipamento::CONSUMIVEL ? "Pode ser consumido para aplicar efeitos." : "Pode ser importante para o seu progresso."));
+        return detalhes;
     }
 
     virtual void alterarNome(const std::string& n) {}
@@ -107,7 +104,7 @@ public:
     
     virtual void antesDeCausarDano(SistemaPersonagem* atacante, SistemaPersonagem* alvo) {}
     virtual void aoCausarDano(SistemaPersonagem* atacante, SistemaPersonagem* alvo, int danoCausado) {}
-    virtual int garantirDanoMinimo(int danoFinal) { return danoFinal; }
+    virtual int garantirDanoMinimo(int danoFinal) { return std::max(danoFinal, 1); }
 
     virtual int obterPrecoVenda() const { return precoVenda; }
     virtual std::string obterInfoStatus() const { return ""; } // Vazio por padrão para itens sem status extra
