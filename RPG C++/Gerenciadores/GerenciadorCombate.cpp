@@ -496,7 +496,7 @@ void GerenciadorCombate::aplicarDanoAoAlvo(SistemaPersonagem* personagemAtacante
     {
         // ANIMACAO DO DANO NO INIMIGO (Piscar Vermelho + Flicker)
         if (!isPersonagemJogadorOuAliado(personagemAlvo)) {
-            TelaCombate::animarDanoNoInimigo(obterTituloDoCombate(), obterInimigosRaw(), personagemAlvo, jogadorAtual, aliadosVivos);
+            TelaCombate::animarDanoNoInimigo(obterTituloDoCombate(), obterInimigosRaw(), personagemAlvo, personagemAtacante, jogadorAtual, aliadosVivos);
         }
         else {
             TelaCombate::animarDanoNoJogador(obterTituloDoCombate(), obterInimigosRaw(), personagemAlvo, jogadorAtual, aliadosVivos, false);
@@ -597,6 +597,9 @@ void GerenciadorCombate::processarMorteDeInimigo(SistemaPersonagem* inimigo)
     Aparencia::registrarLogBatalha("[!] " + inimigo->obterNome() + " derrotado!");
 
     SistemaBestiario::instancia().registrarDerrota(inimigo->obterNome());
+
+    std::string msgDrops = Aparencia::margemCombate() + Aparencia::cor(Cor::AMARELO) + "=== DROPS ===" + Aparencia::cor(Cor::RESET) + "\n";
+    TelaCombate::adicionarMensagemFixa(msgDrops);
 
     size_t itensAntes = itensObtidos.size();
     inimigo->executarDrops(jogadorAtual, itensObtidos, quantidadeDeOuroObtido, quantidadeDeXpObtido);

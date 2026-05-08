@@ -175,7 +175,7 @@ void TelaCombate::exibirBarraDeStatusDoJogador(SistemaPersonagem* jogadorAtual, 
     Aparencia::imprimirCentralizadoMultilinha(linhasParaImprimir, 95);
 }
 
-void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, int frameAnimacao, bool isCura, bool animarSurgimento, bool isMorte) 
+void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, int frameAnimacao, bool isCura, bool animarSurgimento, bool isMorte, Item* armaAtacante) 
 {
     if (listaDeInimigos.empty()) return;
     int larguraTerminal = Aparencia::obterLarguraTerminal();
@@ -262,11 +262,93 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
             linhaAtual += espacos;
             
             if (inimigoAtual == alvoAnimacao && frameAnimacao > 0 && !isMorte) {
+                std::string baseLinha;
+                std::string corDestaque = isCura ? Aparencia::cor(Cor::VERDE) : Aparencia::cor(Cor::VERMELHO);
+                
                 if (frameAnimacao % 2 == 1) {
-                    Cor corDestaque = isCura ? Cor::VERDE : Cor::VERMELHO;
-                    linhaAtual += Aparencia::cor(corDestaque) + linhaArte + Aparencia::cor(Cor::RESET);
+                    baseLinha = linhaArte;
                 } else {
-                    linhaAtual += std::string(linhaArte.length(), ' ');
+                    baseLinha = std::string(linhaArte.length(), ' ');
+                }
+                
+                bool temImpactoNaLinha = false;
+                std::vector<std::string> arteImpacto;
+                int linhaImpacto = 0;
+                
+                if (!isCura) {
+                    arteImpacto = {
+
+                        "░█░█░▀█▀░▀█▀░",
+                        "░█▀█░░█░░░█░░",
+                        "░▀░▀░▀▀▀░░▀░░"
+                    };
+                    int centroY = static_cast<int>(arteDoInimigo.size()) / 2;
+                    int inicioY = centroY - 1;
+                    int fimY = centroY + 1;
+                    
+                    if (static_cast<int>(indiceDaLinhaDaArte) >= inicioY && static_cast<int>(indiceDaLinhaDaArte) <= fimY) {
+                        linhaImpacto = static_cast<int>(indiceDaLinhaDaArte) - inicioY;
+                        temImpactoNaLinha = true;
+                    }
+                }
+                
+                if (temImpactoNaLinha) {
+                    auto splitUTF8 = [](const std::string& s) {
+                        std::vector<std::string> chars;
+                        for (size_t i = 0; i < s.length(); ) {
+                            int len = 1;
+                            unsigned char c = static_cast<unsigned char>(s[i]);
+                            if ((c & 0x80) == 0) len = 1;
+                            else if ((c & 0xE0) == 0xC0) len = 2;
+                            else if ((c & 0xF0) == 0xE0) len = 3;
+                            else if ((c & 0xF8) == 0xF0) len = 4;
+                            chars.push_back(s.substr(i, len));
+                            i += len;
+                        }
+                        return chars;
+                    };
+
+                    std::vector<std::string> baseChars = splitUTF8(baseLinha);
+                    
+                    if (linhaImpacto < 0) linhaImpacto = 0;
+                    if (linhaImpacto >= static_cast<int>(arteImpacto.size())) linhaImpacto = static_cast<int>(arteImpacto.size()) - 1;
+                    std::vector<std::string> impChars = splitUTF8(arteImpacto[linhaImpacto]);
+
+                    int centroX = static_cast<int>(baseChars.size()) / 2;
+                    int startX = centroX - static_cast<int>(impChars.size()) / 2;
+                    if (startX < 0) startX = 0;
+                    
+                    std::string linhaConstruida = (frameAnimacao % 2 == 1) ? corDestaque : "";
+                    bool inWhite = false;
+                    for (int i = 0; i < static_cast<int>(baseChars.size()); ++i) {
+                        if (i >= startX && i < startX + static_cast<int>(impChars.size())) {
+                            std::string cImpacto = impChars[i - startX];
+                            if (cImpacto == " ") {
+                                if (inWhite) { 
+                                    linhaConstruida += (frameAnimacao % 2 == 1) ? corDestaque : Aparencia::cor(Cor::RESET); 
+                                    inWhite = false; 
+                                }
+                                linhaConstruida += baseChars[i];
+                            } else {
+                                if (!inWhite) { linhaConstruida += Aparencia::cor(Cor::BRANCO); inWhite = true; }
+                                linhaConstruida += cImpacto;
+                            }
+                        } else {
+                            if (inWhite) { 
+                                linhaConstruida += (frameAnimacao % 2 == 1) ? corDestaque : Aparencia::cor(Cor::RESET); 
+                                inWhite = false; 
+                            }
+                            linhaConstruida += baseChars[i];
+                        }
+                    }
+                    linhaConstruida += Aparencia::cor(Cor::RESET);
+                    linhaAtual += linhaConstruida;
+                } else {
+                    if (frameAnimacao % 2 == 1) {
+                        linhaAtual += corDestaque + baseLinha + Aparencia::cor(Cor::RESET);
+                    } else {
+                        linhaAtual += baseLinha;
+                    }
                 }
             } else {
                 linhaAtual += linhaArte;
@@ -288,12 +370,14 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
     std::cout << "\n";
 }
 
-void TelaCombate::animarDanoNoInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados)
+void TelaCombate::animarDanoNoInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* atacante, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados)
 {
-    for (int frame = 1; frame <= 4; ++frame) {
+    Item* armaAtacante = (atacante != nullptr) ? atacante->obterArma() : nullptr;
+    
+    for (int frame = 1; frame <= 8; ++frame) {
         renderizarFrameBufferizado([&]() {
             exibirLogoParaTelaDeCombate(tituloCombate);
-            exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, frame, false);
+            exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, frame, false, false, false, armaAtacante);
             exibirBarraDeStatusDoJogador(jogadorAtual);
             for (auto* aliado : listaDeAliados) exibirBarraDeStatusDoJogador(aliado);
             Aparencia::imprimirLinhaDivisoria();
