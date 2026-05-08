@@ -12,53 +12,10 @@
 #include "../Utilidades/Aparencia.h"
 #include "../Utilidades/ControleDeInput.h"
 #include "../Inventario/EquipamentoArma.h"
+#include "NPCMorganaLayouts.h"
 
 namespace {
     // --- APARENCIA E DIALOGOS ---
-    static const std::vector<std::string> arteMorgana = 
-    {
-        "                                %*                          ",
-        "                               #%%                          ",
-        "                              =%%%                          ",
-        "                              %%%#                          ",
-        "                             %%%%%                          ",
-        "                            #%%%%%.                         ",
-        "                      .    .%%%%%%-                         ",
-        "                      .####%%%%%%%@:+*-         -:-         ",
-        "                           *+*=*+#-@%%%@       ::: .        ",
-        "                           -==---:+           :-:           ",
-        "           :  *            . ---+-   +:       @%%           ",
-        "           -               +%%@%%@%%@%%@      %%%           ",
-        "          *            #%%%%%%%%%%%%%@%%%%%% %%%-           ",
-        "          *           -%%%%%%%@%@%%%%%%%%%%%%%%%            ",
-        "          #-          %%%@%%%%%%%%%%%%%%%%%%%%%=            ",
-        "           =+        -%@@%%%%%%%%%%%%%   .                  ",
-        "            #:       .%@%%%%%%%#%%%%%                       ",
-        "             #        .@%%%%%%%*%%%%                        ",
-        "             -%.   :%%@%@%%%%%%%%%%%#                       ",
-        "             :-%-%%%%@@#%%%%%%%%%%%%%                       ",
-        "              #:       %%%%%%%@%%%%%%                       ",
-        "              #:      #%%%%%%@@%%%%%%#                      ",
-        "              #-      %%%%%%%%@%@%%%%%                      ",
-        "              *-     :%%%%%%%%%%@%#%%%                      ",
-        "              #-     =%%%%%%%@%%%%@%%%.                     ",
-        "              #.     +%%%%%%%%%%%%@%%%+                     ",
-        "             .#      +%%%%%%%%%%%%@%%%#                     ",
-        "             +#      +%%%%%%%%%%%%@@%%%                     ",
-        "             @%      *%%%%%%%%%%%%@@%%%                     ",
-        "             %%      %%%%%%%%%%%%%@@%%%-                    ",
-        "           .%%%:     %%%%%%%%%%%%%%@%%%@                    ",
-        "          .#%%%#.    #%%%%%%%%%%%%%@%%%%                    ",
-        "          -%%%%%     *%%%%%%%%%%%%%@%%%%=                   ",
-        "          +%#%%#:    *%%%%%%%%%%%%%%%%%%@                   ",
-        "         .*#%%%#     +%%%%%%%%%%%%%%%%%%%                   ",
-        "         .-*#+*-     =%%%%%%%%%%%%%%%%%%%%                  ",
-        "          ::=:=:.    -%%%%%%%%%%%%%%%%%%%%                  ",
-        "                       %%%%%%%%%%     +@%%@                 ",
-        "                      .%%*             @.@#%                ",
-        "                      +#%=                *#*:              "
-    };
-
     void processarEncantamentos(SistemaPersonagem* jogadorAtual, bool isUniversal);
     void processarPocoes(SistemaPersonagem* jogadorAtual, bool isBuff);
     void processarMissaoLabirinto(SistemaPersonagem* jogadorAtual);
@@ -86,7 +43,8 @@ Cor NPCMorgana::obterCorDaArte() const {
 }
 
 const std::vector<std::string>& NPCMorgana::obterArteASCII() const {
-    return arteMorgana;
+    static std::vector<std::string> arte = NPCMorganaLayouts::obterArteMorgana();
+    return arte;
 }
 
 // --- INTERACAO E MENU ---
@@ -255,23 +213,7 @@ namespace {
                 
                 Aparencia::limparTela();
                 Aparencia::exibirCabecalho("ENCANTAMENTO SUCESSO", Cor::MAGENTA);
-                std::vector<std::string> arteCaldeirao = { 
-                    "",
-                    "⠀⠀⣤⣤⣤⣀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣠⣤⣤⡀⠀",
-                    "⠀⠀⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠁⠀",
-                    "⠀⠀⣼⣿⣿⣦⠉⠉⠉⠉⠉⠉⠉⠙⠛⠛⠛⠛⠛⣛⣉⣩⣭⣽⣿⣿⣿⣧⠀⠀",
-                    "⠀⢰⣿⣿⣿⣿⡇⢰⣿⣷⠀⣿⣿⣿⣧⠀⢸⡆⠸⣿⣿⣿⣿⣿⣿⣿⣿⣿⡆⠀",
-                    "⠀⣼⣿⣿⣿⣿⡀⣸⣿⣿⣾⣿⣿⣿⣿⡇⢸⡇⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀",
-                    "⠀⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⢸⣷⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠀",
-                    "⠀⠸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠇⠀",
-                    "⠀⠀⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠀⠀",
-                    "⠀⠀⠀⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠀⠀⠀",
-                    "⠀⠀⠀⠀⠙⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠋⠀⠀⠀⠀",
-                    "⠀⠀⠀⠀⠀⣰⣿⣿⡿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⣿⣿⣇⠀⠀⠀⠀⠀",
-                    "⠀⠀⠀⠀⢰⣿⣿⡟⠀⠀⠉⠙⠛⠛⠛⠛⠛⠛⠋⠉⠀⠀ ⢻⣿⣿⣆⠀⠀⠀⠀",
-                    "⠀⠀⠀⠀⠈⠛⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀   ⠙⠛⠁⠀⠀⠀⠀",
-                    ""
-                };
+                std::vector<std::string> arteCaldeirao = NPCMorganaLayouts::obterArteCaldeirao();
                 
                 std::string equacao = "[" + nomeAntigoArma + "] + " + std::to_string(qtdNecessaria) + "x [" + itemNecessario + "] = [" + armaEscolhida->obterNomeItem() + "]";
                 Aparencia::imprimirCentralizadoMultilinha({equacao, ""}, 0, Aparencia::cor(Cor::MAGENTA));

@@ -12,8 +12,8 @@ public:
         Nome = 1,
         Raca,
         Classe,
-        Parry,
         Dificuldade,
+        Parry,
         Concluido
     };
 
@@ -25,6 +25,6 @@ private:
     static void etapaEscolherNome(std::string& nomeDoPersonagem, EtapaCriacao& etapaAtual);
     static void etapaEscolherRaca(const std::string& nome, std::unique_ptr<RacaBase>& racaEscolhida, EtapaCriacao& etapaAtual);
     static void etapaEscolherClasse(const std::string& nome, RacaBase* raca, std::unique_ptr<ClasseBase>& classeEscolhida, EtapaCriacao& etapaAtual);
-    static void etapaConfigurarParry(const std::string& nome, RacaBase* raca, ClasseBase* classe, bool& parry, EtapaCriacao& etapaAtual);
+    static void etapaConfigurarParry(const std::string& nome, RacaBase* raca, ClasseBase* classe, int dificuldade, bool& parry, EtapaCriacao& etapaAtual);
     static void etapaEscolherDificuldade(const std::string& nome, RacaBase* raca, ClasseBase* classe, int& dificuldade, EtapaCriacao& etapaAtual);
 };

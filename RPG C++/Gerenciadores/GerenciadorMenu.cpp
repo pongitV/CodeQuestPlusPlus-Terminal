@@ -119,8 +119,8 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::iniciarCriacaoDeSistemaPerso
             case EtapaCriacao::Nome: etapaEscolherNome(nomeDoPersonagem, etapaDeCriacaoAtual); break;
             case EtapaCriacao::Raca: etapaEscolherRaca(nomeDoPersonagem, racaEscolhida, etapaDeCriacaoAtual); break;
             case EtapaCriacao::Classe: etapaEscolherClasse(nomeDoPersonagem, racaEscolhida.get(), classeEscolhida, etapaDeCriacaoAtual); break;
-            case EtapaCriacao::Parry: etapaConfigurarParry(nomeDoPersonagem, racaEscolhida.get(), classeEscolhida.get(), sistemaDeParryAtivado, etapaDeCriacaoAtual); break;
             case EtapaCriacao::Dificuldade: etapaEscolherDificuldade(nomeDoPersonagem, racaEscolhida.get(), classeEscolhida.get(), nivelDeDificuldadeEscolhido, etapaDeCriacaoAtual); break;
+            case EtapaCriacao::Parry: etapaConfigurarParry(nomeDoPersonagem, racaEscolhida.get(), classeEscolhida.get(), nivelDeDificuldadeEscolhido, sistemaDeParryAtivado, etapaDeCriacaoAtual); break;
         }
     }
     auto personagemCriado = std::make_unique<SistemaPersonagem>(nomeDoPersonagem, std::move(racaEscolhida), std::move(classeEscolhida));
@@ -224,24 +224,28 @@ void GerenciadorMenu::etapaEscolherClasse(const std::string& nome, RacaBase* rac
         if (TelaMenu::exibirConfirmacaoDeEscolhaComArteLadoALado("CLASSE", classeTemporaria->obterNomeClasse(), info, classeTemporaria->obterAparenciaClasseMenu())) 
         {
             classeEscolhida = std::move(classeTemporaria); 
-            etapaAtual = EtapaCriacao::Parry;
+            etapaAtual = EtapaCriacao::Dificuldade;
         }
     }
 }
 
-void GerenciadorMenu::etapaConfigurarParry(const std::string& nome, RacaBase* raca, ClasseBase* classe, bool& parry, EtapaCriacao& etapaAtual)
+void GerenciadorMenu::etapaConfigurarParry(const std::string& nome, RacaBase* raca, ClasseBase* classe, int dificuldade, bool& parry, EtapaCriacao& etapaAtual)
 {
-    TelaMenu::exibirPromptParry(nome, raca->obterNomeRaca(), classe->obterNomeClasse());
+    std::string nomeDificuldade = "Normal";
+    if (dificuldade == 1) nomeDificuldade = "Facil";
+    else if (dificuldade == 3) nomeDificuldade = "Dificil";
+
+    TelaMenu::exibirPromptParry(nome, raca->obterNomeRaca(), classe->obterNomeClasse() + " | DIFICULDADE: " + nomeDificuldade);
     
     std::string entrada = ControleDeInput::lerEntradaProtegida();
     int escolha;
     try { escolha = std::stoi(entrada); } catch (...) { return; }
-    if (escolha == 0) { etapaAtual = EtapaCriacao::Classe; return; }
+    if (escolha == 0) { etapaAtual = EtapaCriacao::Dificuldade; return; }
 
     if (escolha == 1 || escolha == 2) 
     {
         parry = (escolha == 1);
-        etapaAtual = EtapaCriacao::Dificuldade;
+        etapaAtual = EtapaCriacao::Concluido;
     }
 }
 
@@ -252,11 +256,11 @@ void GerenciadorMenu::etapaEscolherDificuldade(const std::string& nome, RacaBase
     std::string entrada = ControleDeInput::lerEntradaProtegida();
     int escolha;
     try { escolha = std::stoi(entrada); } catch (...) { return; }
-    if (escolha == 0) { etapaAtual = EtapaCriacao::Parry; return; }
+    if (escolha == 0) { etapaAtual = EtapaCriacao::Classe; return; }
 
     if (escolha >= 1 && escolha <= 3) 
     {
         dificuldade = escolha;
-        etapaAtual = EtapaCriacao::Concluido;
+        etapaAtual = EtapaCriacao::Parry;
     }
 }

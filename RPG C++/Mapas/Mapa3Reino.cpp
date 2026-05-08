@@ -11,7 +11,7 @@
 #include "ControleDeMapa.h"
 #include "../Utilidades/ControleDeInput.h"
 #include "../Gerenciadores/GerenciadorInimigos.h"
-#include "LayoutsMapa3Reino.h"
+#include "Mapa3ReinoLayouts.h"
 #include "TransicaoDeMapa.h"
 #include "../NPCs/NPCCavaleiroGenerico.h"
 
@@ -23,10 +23,12 @@ Mapa3Reino::Mapa3Reino(SistemaPersonagem* personagemJogador) :
     exploracaoEstaAtiva(true), 
     tituloDoMapaAtual("CAMINHO DO CASTELO")
 {
-    matrizDoMapaAtual = LayoutsMapa3Reino::obterLayoutReino();
+    matrizDoMapaAtual = Mapa3ReinoLayouts::obterLayoutReino();
 }
 
 Mapa3Reino::~Mapa3Reino() = default;
+
+extern void exibirTituloDoMapaReino(const std::string& tituloDoMapa);
 
 void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
 {
@@ -38,13 +40,13 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
     Aparencia::ocultarCursor();
 
     Aparencia::limparTela();
-    Aparencia::exibirCabecalho(tituloDoMapaAtual, Cor::CIANO);
+    exibirTituloDoMapaReino(tituloDoMapaAtual);
 
     int linhaInicialParaDesenharOMapa = Aparencia::obterPosicaoCursorY();
 
     auto restaurarTela = [&]() {
         Aparencia::limparTela();
-        Aparencia::exibirCabecalho(tituloDoMapaAtual, Cor::CIANO);
+        exibirTituloDoMapaReino(tituloDoMapaAtual);
         linhaInicialParaDesenharOMapa = Aparencia::obterPosicaoCursorY();
     };
 

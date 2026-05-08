@@ -26,7 +26,7 @@
 #include "../Utilidades/ControleDeInput.h"
 #include "../Utilidades/GeradorAleatorio.h"
 #include "Mapa3Reino.h"
-#include "LayoutsMapa2Floresta.h"
+#include "Mapa2FlorestaLayouts.h"
 
 Mapa2Floresta::Mapa2Floresta(SistemaPersonagem* personagemJogador) :
     posicaoXDoJogador(31), 
@@ -42,10 +42,12 @@ Mapa2Floresta::Mapa2Floresta(SistemaPersonagem* personagemJogador) :
     exploracaoEstaAtiva(true), 
     tituloDoMapaAtual("FLORESTA")
 {
-    matrizDoMapaAtual = LayoutsMapa2Floresta::obterLayoutFloresta();
+    matrizDoMapaAtual = Mapa2FlorestaLayouts::obterLayoutFloresta();
 }
 
 Mapa2Floresta::~Mapa2Floresta() = default;
+
+extern void exibirTituloDoMapaFloresta(const std::string& tituloDoMapa);
 
 namespace {
     class InteracaoSlime : public InteracaoFloresta {
@@ -141,14 +143,14 @@ namespace {
             char nextCell = ctx.self->matrizDoMapaAtual[ctx.proximaPosicaoY][ctx.proximaPosicaoX+1];
             
             if (nextCell == 'C' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                ControleDeMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaCabanaSalva, ctx.self->cabanaJaFoiVisitada, LayoutsMapa2Floresta::obterLayoutCabana(), 8, 2, "CABANA DA BRUXA", ctx.restaurarTela);
+                ControleDeMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaCabanaSalva, ctx.self->cabanaJaFoiVisitada, Mapa2FlorestaLayouts::obterLayoutCabana(), 8, 2, "CABANA DA BRUXA", ctx.restaurarTela);
             }
             else if (nextCell == 'V') {
                 TransicaoDeMapa::exibirTransicaoParaVila();
                 ctx.self->exploracaoEstaAtiva = false;
             }
             else if (nextCell == 'T' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                ControleDeMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDoCoracaoDaArvoreSalva, ctx.self->coracaoDaArvoreJaFoiVisitado, LayoutsMapa2Floresta::obterLayoutCoracaoDaArvore(), 10, 3, "CORACAO DA ARVORE", ctx.restaurarTela);
+                ControleDeMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDoCoracaoDaArvoreSalva, ctx.self->coracaoDaArvoreJaFoiVisitado, Mapa2FlorestaLayouts::obterLayoutCoracaoDaArvore(), 10, 3, "CORACAO DA ARVORE", ctx.restaurarTela);
             }
             else if (nextCell == 'R' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 TransicaoDeMapa::exibirTransicaoParaReino();
@@ -174,7 +176,7 @@ namespace {
                 if (ctx.self->tituloDoMapaAtual == "CABANA DA BRUXA") ctx.self->matrizDoMapaDaCabanaSalva = ctx.self->matrizDoMapaAtual;
 
                 if (!ctx.self->labirintoJaFoiVisitado) {
-                    ctx.self->matrizDoMapaAtual = LayoutsMapa2Floresta::obterLayoutLabirinto();
+                    ctx.self->matrizDoMapaAtual = Mapa2FlorestaLayouts::obterLayoutLabirinto();
                     ctx.self->labirintoJaFoiVisitado = true;
                     ControleDeMapa::padronizarTamanhoDoMapa(ctx.self->matrizDoMapaAtual);
                 } else {
@@ -312,7 +314,7 @@ namespace {
                     if (escolhaBoss == 1) {
                         ctx.self->matrizDoMapaDoLabirintoSalva = ctx.self->matrizDoMapaAtual;
                         if (!ctx.self->salaDoChefeJaFoiVisitada) {
-                            ctx.self->matrizDoMapaAtual = LayoutsMapa2Floresta::obterLayoutSalaDoChefe();
+                            ctx.self->matrizDoMapaAtual = Mapa2FlorestaLayouts::obterLayoutSalaDoChefe();
                             ControleDeMapa::padronizarTamanhoDoMapa(ctx.self->matrizDoMapaAtual);
                             ctx.self->salaDoChefeJaFoiVisitada = true;
                         } else {
@@ -364,14 +366,14 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
     Aparencia::ocultarCursor();
 
     Aparencia::limparTela();
-    Aparencia::exibirCabecalho(tituloDoMapaAtual, Cor::VERDE);
+    exibirTituloDoMapaFloresta(tituloDoMapaAtual);
 
     int linhaInicialParaDesenharOMapa = Aparencia::obterPosicaoCursorY();
 
     // Lambda para restaurar a tela apos eventos
     auto restaurarTela = [&]() {
         Aparencia::limparTela();
-        Aparencia::exibirCabecalho(tituloDoMapaAtual, Cor::VERDE);
+        exibirTituloDoMapaFloresta(tituloDoMapaAtual);
         linhaInicialParaDesenharOMapa = Aparencia::obterPosicaoCursorY();
     };
 

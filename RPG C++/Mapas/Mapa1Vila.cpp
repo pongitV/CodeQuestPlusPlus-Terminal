@@ -22,7 +22,7 @@
 #include "../Utilidades/ControleDeInput.h"
 #include "../Utilidades/GeradorAleatorio.h"
 #include "MapaInteracao.h"
-#include "LayoutsMapa1Vila.h"
+#include "Mapa1VilaLayouts.h"
 
 Mapa1Vila::Mapa1Vila(SistemaPersonagem* personagemJogador) :
     posicaoXDoJogador(2), 
@@ -38,10 +38,12 @@ Mapa1Vila::Mapa1Vila(SistemaPersonagem* personagemJogador) :
     lojaJaFoiVisitada(false), 
     cavernaJaFoiVisitada(false)
 {
-    matrizDoMapaAtual = LayoutsMapa1Vila::obterLayoutVilaInicial();
+    matrizDoMapaAtual = Mapa1VilaLayouts::obterLayoutVilaInicial();
 }
 
 Mapa1Vila::~Mapa1Vila() = default;
+
+extern void exibirTituloDoMapaVila(const std::string& tituloDoMapa);
 
 namespace {
     class InteracaoCombateGoblin : public InteracaoVila {
@@ -104,7 +106,7 @@ namespace {
             char nextNextCell = ctx.self->matrizDoMapaAtual[ctx.proximaPosicaoY][ctx.proximaPosicaoX+2];
             
             if (nextCell == 'C' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                ControleDeMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaCavernaSalva, ctx.self->cavernaJaFoiVisitada, LayoutsMapa1Vila::obterLayoutCaverna(ctx.self->bjornResgatado), 16, 2, "CAVERNA DO ORK", ctx.restaurarTela);
+                ControleDeMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaCavernaSalva, ctx.self->cavernaJaFoiVisitada, Mapa1VilaLayouts::obterLayoutCaverna(ctx.self->bjornResgatado), 16, 2, "CAVERNA DO ORK", ctx.restaurarTela);
             }
             else if (nextCell == 'S' && ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 if (ctx.self->tituloDoMapaAtual == "CAVERNA DO ORK") ctx.self->matrizDoMapaDaCavernaSalva = ctx.self->matrizDoMapaAtual;
@@ -121,17 +123,17 @@ namespace {
             else if (nextCell == 'F' && nextNextCell == 'o' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 if (!ctx.self->bjornResgatado) {
                     Aparencia::limparTela();
-                Aparencia::exibirCabecalho(ctx.self->tituloDoMapaAtual, Cor::AMARELO);
+                    exibirTituloDoMapaVila(ctx.self->tituloDoMapaAtual);
                     int espacosM = std::max(0, (ctx.larguraDoTerminal - 60) / 2);
                     std::cout << "\n" << std::string(espacosM, ' ') << "[SISTEMA]: A Forja esta trancada. O ferreiro sumiu...\n";
                     Aparencia::aguardarEnter();
                     ctx.restaurarTela();
                     return;
                 }
-                ControleDeMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaForjaSalva, ctx.self->forjaJaFoiVisitada, LayoutsMapa1Vila::obterLayoutForja(), 8, 2, "FORJA DA VILA", ctx.restaurarTela);
+                ControleDeMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaForjaSalva, ctx.self->forjaJaFoiVisitada, Mapa1VilaLayouts::obterLayoutForja(), 8, 2, "FORJA DA VILA", ctx.restaurarTela);
             }
             else if (nextCell == 'L' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                ControleDeMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaLojaSalva, ctx.self->lojaJaFoiVisitada, LayoutsMapa1Vila::obterLayoutLoja(), 8, 2, "LOJA DA VILA", ctx.restaurarTela);
+                ControleDeMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaLojaSalva, ctx.self->lojaJaFoiVisitada, Mapa1VilaLayouts::obterLayoutLoja(), 8, 2, "LOJA DA VILA", ctx.restaurarTela);
             }
             else if (nextCell == 'F' && nextNextCell == 'l' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 TransicaoDeMapa::exibirTransicaoParaFloresta();
@@ -172,14 +174,14 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
     Aparencia::ocultarCursor();
 
     Aparencia::limparTela();
-    Aparencia::exibirCabecalho(tituloDoMapaAtual, Cor::AMARELO);
+    exibirTituloDoMapaVila(tituloDoMapaAtual);
 
     int linhaInicialParaDesenharOMapa = Aparencia::obterPosicaoCursorY();
 
     // Lambda para restaurar a tela apos eventos sem piscar
     auto restaurarTela = [&]() {
         Aparencia::limparTela();
-        Aparencia::exibirCabecalho(tituloDoMapaAtual, Cor::AMARELO);
+        exibirTituloDoMapaVila(tituloDoMapaAtual);
         linhaInicialParaDesenharOMapa = Aparencia::obterPosicaoCursorY();
     };
 

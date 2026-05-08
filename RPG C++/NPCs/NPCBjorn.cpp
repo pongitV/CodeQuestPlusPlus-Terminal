@@ -13,6 +13,7 @@
 #include "../Telas/TelaInventario.h"
 #include "../Utilidades/Aparencia.h"
 #include "../Utilidades/ControleDeInput.h"
+#include "NPCBjornLayouts.h"
 
 namespace {
     // --- DADOS DO ESTOQUE ---
@@ -35,51 +36,6 @@ namespace {
     void processarUpgradePorMaterial(SistemaPersonagem* jogadorAtual);
 
     // --- APARENCIA E DIALOGOS ---
-    static const std::vector<std::string> arteBjorn = {
-        "                                 =%@@@%                     ",
-        "                                 *::==%%                    ",
-        "                                #%%*%#+@@    @%@            ",
-        "                                 *@@*#@@@     +%#           ",
-        "                                @@%%@@@@@ -*%@ @#*          ",
-        "                                 @@@@@@*+%@     +           ",
-        "                               +#**+**%@#+*+*               ",
-        "                              =+-%%**=**#**###              ",
-        "                            =++#@%@%**##%###%##             ",
-        "                            *##**%%@@@%%##**#*%             ",
-        "                            %*###@%@@@@#*=+%%#*@            ",
-        "                            %#%#%@##@@@%#%**%#*@            ",
-        "                            :=*+*****%@@@#%%#@#             ",
-        "                           +=-*+**+***#%@@@%%@              ",
-        "                           -+**++**+%##*#@@                 ",
-        "                           @%#%##%%#@%@@#@+                 ",
-        "                           +@%%%%%%%%@%%@%                  ",
-        "                         ##%*+#=*###*++#*%#                 ",
-        "                        =#%@+#####**#%%###%                 ",
-        "                       ##%%#%*##***##*#%%@@                 ",
-        "                       @%%%%%%###**#****%@@#                ",
-        "                       %@@%+%%%##*****#@@@@%                ",
-        "                        %*# %%%%#*##%##*#%@@                ",
-        "                            %%#%########%%@@                ",
-        "                            ##%%%%#######%@@                ",
-        "                            *%%%%###**+*#@@@                ",
-        "                            *#%%%##*##%@%@@@                ",
-        "     #-*+-==++*#*****+*##+  *#%%%###**###%@@                ",
-        "      @@%@@@@%@@@@%%%%%%#***@#%%#%%*#+#*+%@@                ",
-        "       @%@@%@%@@%%%@@@@@@@@ *#%%###*****#%@@%%              ",
-        "       +@@@@%%@@@%%@@@@@@#  %#%%##*#*#**+%@@%%%             ",
-        "        :@@@@@@@@@@@@@@@-   *##%##%***#*+*%%%@              ",
-        "          @@@@@@@@@@@@@       @%#*%+++*#**@@*%              ",
-        "          @@@@@@@@@@@@#       %@@@@@    @@@%%@              ",
-        "          @@@@@@@%@@@@        %@@@@     @@@#%%              ",
-        "           @@@%@%%@@@@        @@@@@@     @%@%#              ",
-        "          @%@@%@#%@@@@       #@%@@@@    =###%%              ",
-        "          @@%%%%*%@@@%@      %@@@@@#    #####@=             ",
-        "         #%%%%%%:#%%%#%    %@@@@@@@     =@%@@@+             ",
-        "       -=++*#*%@%+#%#####@*%%@@@@@*     %@%%%@              ",
-        "      @#*+*%@@@**#%####%@@@@=          *#%#@%@              ",
-        "               @@%@@#                 %#%%%@%               "
-    };
-
     void dialogoBjorn(const std::string& texto, bool novaLinhaAntes = true, bool novaLinhaDepois = true) {
         Aparencia::imprimirDialogoNPC("Bjorn", Cor::CIANO, texto, novaLinhaAntes, novaLinhaDepois);
     }
@@ -103,7 +59,8 @@ Cor NPCBjorn::obterCorDaArte() const {
 }
 
 const std::vector<std::string>& NPCBjorn::obterArteASCII() const {
-    return arteBjorn;
+    static std::vector<std::string> arte = NPCBjornLayouts::obterArteBjorn();
+    return arte;
 }
 
 // --- INTERACAO E MENU ---
@@ -240,18 +197,7 @@ namespace {
 
                 Aparencia::limparTela();
                 Aparencia::exibirCabecalho("FORJA - SUCESSO", Cor::CIANO);
-                std::vector<std::string> arteBigorna = {
-                    "⠀⠀⠀⠀⠀⠀⠀⢰⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⡄⠀⠀⠀⠀⠀",
-                    "⠀⠹⣿⣿⣿⣿⡇⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⢠⣄⡀⠀⠀",
-                    "⠀⠀⠙⢿⣿⣿⡇⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⢸⣿⣿⡶⠀",
-                    "⠀⠀⠀⠀⠉⠛⠇⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠸⠟⠋⠀⠀",
-                    "⠀⠀⠀⠀⠀⠀⠀⠸⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿⠇⠀⠀⠀⠀⠀",
-                    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣶⣶⣶⣶⣶⣶⣶⣶⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
-                    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣷⡀⠀⠀⠀⠀⠀⠀⠀⠀",
-                    "⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣄⠀⠀⠀⠀⠀⠀⠀",
-                    "⠀⠀⠀⠀⠀⠀⣀⣀⣈⣉⣉⣉⣉⣉⣉⣉⣉⣉⣉⣉⣉⣉⣉⣁⣀⣀⠀⠀⠀⠀",
-                    "⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠀⠀⠀⠀"
-                };
+                std::vector<std::string> arteBigorna = NPCBjornLayouts::obterArteBigorna();
                 std::string equacao = "[" + nomeAntigo + "] + [" + nomeAntigo + "] = [" + novoNome + "]";
                 Aparencia::imprimirCentralizadoMultilinha({equacao, ""}, 0, Aparencia::cor(Cor::CIANO));
                 Aparencia::imprimirCentralizadoMultilinha(arteBigorna, 29, Aparencia::cor(Cor::CIANO));

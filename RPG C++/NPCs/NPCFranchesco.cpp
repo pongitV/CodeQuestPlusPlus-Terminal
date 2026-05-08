@@ -11,54 +11,10 @@
 #include "../Telas/TelaInventario.h"
 #include "../Utilidades/Aparencia.h"
 #include "../Utilidades/ControleDeInput.h"
+#include "NPCFranchescoLayouts.h"
 
 namespace {
     // --- APARENCIA E DIALOGOS ---
-    static const std::vector<std::string> arteFranchesco = {
-        "                    .==                    ",
-        "                   :%%##%%-                ",
-        "                   #+=-:+%%                ",
-        "                   .++++=++.               ",
-        "                    =#++=+-                ",
-        "                     ***%#=                ",
-        "                      @%*=+*#%.            ",
-        "                     #**--%###***.         ",
-        "                   +%%+-*+***#+*###        ",
-        "                 :##=--..-##%#%#*###.      ",
-        "                #%#*-++#=.:#*#%#%##%%#     ",
-        "              .#%##+=++:::%%*%##%-*--+*    ",
-        "              :#%#%+*--###%%#%%#+=+=--*=   ",
-        "            +=%#@%#*####*##@#%%#*-*-===#+  ",
-        "           ==+*%%%#########%%%.:=.::-*+==: ",
-        "          .:+-##@%%#####%#+-#=+::=.=-*#%#+ ",
-        "        =**%=:=%%#***++=-==-=+-#:-#-**#+ - ",
-        "      =+++#:-%*%%#%####**#%#+#*--*=#++*=   ",
-        "     +*+*#@=#*#%#+%#+*#*%*%#*%#**=%++#+.   ",
-        "      %+#*#+%+%%%%%%#%%###*#@@%%***#@%#    ",
-        "      + * ++%@%#*#**##*##%%%@%@@@@@@#%%    ",
-        "        :   %%%++++=##+***#@%%%%%#@#%#%.   ",
-        "        #-  @%#+=+==%%+=###%#%#%%%%%%#%.   ",
-        "        *%   *=*++=-##=-**#%%%%##%#%%#%:   ",
-        "        +%  :#=*=+==+*=-+#*%%@#%*%#%%##=   ",
-        "        .*  -*+*=*===*=-#####%%%*##%#%%-   ",
-        "         *  ++**=*==++==#+#@@%#%#####%#=   ",
-        "         %:.*=**=*==++-=#+*%@%*%*#%#%@%-   ",
-        "         ##+#%@*-*==++-==**++##@*+%*#%%=   ",
-        "         +@ %@@+*#####**#%%####%##%%%%%-   ",
-        "         :# #%@@@@@##+=++#%%%%#%%+%%*%#=   ",
-        "          #  %%@%%***-@%%#%%  ##%#%#*##-   ",
-        "          %.  +%%%@#*.-%%%%.  #%%###+*#-   ",
-        "          #+  +%%%%-  :%*=*-    #*##+      ",
-        "          *@   %%%%=  *%#+#-    %#*        ",
-        "          :#   -%%%    %%*%                ",
-        "           #   %%%%+   %*#:                ",
-        "           %   *%%#   *%###                ",
-        "           #=:-%%%%*===%%#-:....           ",
-        "    .:--=+**%%###%%%***#%%*+==-::..        ",
-        "        .-*+#%*==--+**%#*##+-:..           ",
-        "                     ***###.               "
-    };
-
     void processarCompraPocoes(SistemaPersonagem* jogadorAtual);
     void processarCompraTalismas(SistemaPersonagem* jogadorAtual, int larguraDoTerminal);
     void processarCompraIguarias(SistemaPersonagem* jogadorAtual, int larguraDoTerminal);
@@ -87,7 +43,8 @@ Cor NPCFranchesco::obterCorDaArte() const {
 }
 
 const std::vector<std::string>& NPCFranchesco::obterArteASCII() const {
-    return arteFranchesco;
+    static std::vector<std::string> arte = NPCFranchescoLayouts::obterArteFranchesco();
+    return arte;
 }
 
 // --- INTERACAO E MENU ---

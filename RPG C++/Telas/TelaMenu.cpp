@@ -137,8 +137,8 @@ void TelaMenu::exibirPromptNome() {
     exibirLogoDoJogo("INTRODUCAO AO RPG");
     
     Aparencia::imprimirBlocoCentralizadoDigitando({
-        "[NARRACAO]: O reino clama por um novo destino...",
-        "[NARRACAO]: E todas lendas possuem um nome."
+        "[NARRACAO]: O mudno clama por um novo destino...",
+        "[NARRACAO]: E todas lendas possuem um nome, Qual o seu?"
     });
     std::cout << "\n";
     Aparencia::exibirPrompt(" > Escolha o nome do seu personagem (ou '0' para sair): ");
@@ -179,12 +179,39 @@ void TelaMenu::exibirPromptClasse(const std::string& nome, const std::string& no
     std::cout << "\n";
     
     Aparencia::imprimirBlocoCentralizadoDigitando({
-        "[NARRACAO]: Qual caminho voce seguira neste mundo?"
+        "[NARRACAO]: Qual seu caminho?"
     });
     std::cout << "\n";
 
     std::vector<std::string> opcoes = {
         "[1] Arqueiro", "[2] Bardo", "[3] Guerreiro", "[4] Mago", "", "[0] VOLTAR (selecao de raca)"
+    };
+    Aparencia::imprimirBlocoCentralizado(opcoes);
+    Aparencia::exibirPrompt(" > Sua escolha: ");
+}
+
+void TelaMenu::exibirPromptDificuldade(const std::string& nome, const std::string& nomeRaca, const std::string& nomeClasse) {
+    Aparencia::limparTela();
+    exibirLogoDoJogo("DIFICULDADE DO MUNDO");
+    
+    std::string info = "| JOGADOR: " + nome + " | RACA: " + nomeRaca + " | CLASSE: " + nomeClasse + " |";
+    std::string borda = "+" + std::string(info.length() - 2, '-') + "+";
+    Aparencia::imprimirCentralizado(borda);
+    Aparencia::imprimirCentralizado(info);
+    Aparencia::imprimirCentralizado(borda);
+    std::cout << "\n";
+    
+    Aparencia::imprimirBlocoCentralizadoDigitando({
+        "[SISTEMA]: Escolha o nivel de desafio da sua jornada:"
+    });
+    std::cout << "\n";
+    
+    std::vector<std::string> opcoes = {
+        "[1] FACIL   (Inimigos com 1x Atributos, sem habilidades de raca ou classe)",
+        "[2] NORMAL  (Inimigos com 1.5x Atributos, com habilidades de raca)",
+        "[3] DIFICIL (Inimigos com 2x Atributos, com habilidades raca e classe)",
+        "",
+        "[0] VOLTAR (selecao de classe)"
     };
     Aparencia::imprimirBlocoCentralizado(opcoes);
     Aparencia::exibirPrompt(" > Sua escolha: ");
@@ -208,34 +235,7 @@ void TelaMenu::exibirPromptParry(const std::string& nome, const std::string& nom
     std::cout << "\n";
     
     std::vector<std::string> opcoes = {
-        "[1] LIGAR Parry", "[2] DESLIGAR Parry", "", "[0] VOLTAR (selecao de classe)"
-    };
-    Aparencia::imprimirBlocoCentralizado(opcoes);
-    Aparencia::exibirPrompt(" > Sua escolha: ");
-}
-
-void TelaMenu::exibirPromptDificuldade(const std::string& nome, const std::string& nomeRaca, const std::string& nomeClasse) {
-    Aparencia::limparTela();
-    exibirLogoDoJogo("DIFICULDADE DO MUNDO");
-    
-    std::string info = "| JOGADOR: " + nome + " | RACA: " + nomeRaca + " | CLASSE: " + nomeClasse + " |";
-    std::string borda = "+" + std::string(info.length() - 2, '-') + "+";
-    Aparencia::imprimirCentralizado(borda);
-    Aparencia::imprimirCentralizado(info);
-    Aparencia::imprimirCentralizado(borda);
-    std::cout << "\n";
-    
-    Aparencia::imprimirBlocoCentralizadoDigitando({
-        "[SISTEMA]: Escolha o nivel de desafio da sua jornada:"
-    });
-    std::cout << "\n";
-    
-    std::vector<std::string> opcoes = {
-        "[1] FACIL   (Inimigos com 1x Atributos, sem hab. raca/classe)",
-        "[2] NORMAL  (Inimigos com 1.5x Atributos, com hab. raca)",
-        "[3] DIFICIL (Inimigos com 2x Atributos, com hab. raca/classe)",
-        "",
-        "[0] VOLTAR (configuracao de parry)"
+        "[1] LIGAR Parry", "[2] DESLIGAR Parry", "", "[0] VOLTAR (selecao de dificuldade)"
     };
     Aparencia::imprimirBlocoCentralizado(opcoes);
     Aparencia::exibirPrompt(" > Sua escolha: ");

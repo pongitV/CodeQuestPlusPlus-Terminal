@@ -34,7 +34,9 @@ GerenciadorCombate::GerenciadorCombate(SistemaPersonagem* jogadorParaOCombate, s
     int nivelDeDificuldade = static_cast<int>(jogadorAtual->obterDificuldade());
     double multiplicadorDeDificuldadeDosInimigos = 1.0;
 
-    if (nivelDeDificuldade == 3) {
+    if (nivelDeDificuldade == 2) {
+        multiplicadorDeDificuldadeDosInimigos = 1.5;
+    } else if (nivelDeDificuldade == 3) {
         multiplicadorDeDificuldadeDosInimigos = 2.0;
     }
 
@@ -410,7 +412,9 @@ void GerenciadorCombate::realizarAtaqueFisico(SistemaPersonagem* personagemAtaca
         this->aplicarDanoAoAlvo(atacante, alvo, danoBruto, perfurante, turnoAtualDoCombate);
     };
 
-    personagemAtacante->obterClasse()->executarAtaqueComPassivaDaClasse(personagemAtacante, personagemDefensor, danoBaseCalculado, danoPerfurante, listaDeInimigos, callbackAplicarDano, isAtacanteJogadorOuAliado);
+    bool aplicarPassivaClasse = isAtacanteJogadorOuAliado || static_cast<int>(jogadorAtual->obterDificuldade()) == 3;
+
+    personagemAtacante->obterClasse()->executarAtaqueComPassivaDaClasse(personagemAtacante, personagemDefensor, danoBaseCalculado, danoPerfurante, listaDeInimigos, callbackAplicarDano, aplicarPassivaClasse);
 }
 
 std::pair<int, int> GerenciadorCombate::calcularDanoBase(SistemaPersonagem* atacante) 

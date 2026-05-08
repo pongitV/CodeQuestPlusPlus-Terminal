@@ -11,7 +11,7 @@ namespace {
         std::cout << "\n\n";
 
         int larguraDoTerminal = Aparencia::obterLarguraTerminal();
-        int espacosParaCentralizar = (larguraDoTerminal - (int)textoTransicao.length()) / 2;
+        int espacosParaCentralizar = (larguraDoTerminal - (int)Aparencia::removerCoresANSI(textoTransicao).length()) / 2;
         
         int tempoTotalAnimacaoMs = 800;
         int atrasoPorLinhaMs = arte.empty() ? 0 : tempoTotalAnimacaoMs / arte.size();
@@ -56,7 +56,8 @@ void TransicaoDeMapa::exibirTransicaoParaVila()
         "___|_______|__[ == ==]/.::::::;;;:::::::::::::::;;;:::::::.\\[=  == ]___|_____"
     };
 
-    executarAnimacaoTransicao(arteVila, 75, Cor::AMARELO, "Voltando para a Vila...");
+    std::string textoMsg = "Voltando para a " + Aparencia::cor(Cor::AMARELO) + "Vila" + Aparencia::cor(Cor::RESET) + "...";
+    executarAnimacaoTransicao(arteVila, 75, Cor::AMARELO, textoMsg);
 }
 
 void TransicaoDeMapa::exibirTransicaoParaReino()
@@ -80,7 +81,8 @@ void TransicaoDeMapa::exibirTransicaoParaReino()
         "-~--~                   ~---__|,--~'                  ~~----_____-~'   `~----~"
     };
 
-    executarAnimacaoTransicao(arteReino, 75, Cor::CIANO, "Viajando para o Reino...");
+    std::string textoMsg = "Viajando para o " + Aparencia::cor(Cor::CIANO) + "Reino" + Aparencia::cor(Cor::RESET) + "...";
+    executarAnimacaoTransicao(arteReino, 75, Cor::CIANO, textoMsg);
 }
 
 void TransicaoDeMapa::exibirTransicaoParaFloresta()
@@ -139,5 +141,6 @@ void TransicaoDeMapa::exibirTransicaoParaFloresta()
         "⡙⣌⠋⡍⢎⠱⢌⡑⣊⠱⠌⡌⢢⠉⢆⠱⡈⢆⠡⣉⠒⡄⢣⠘⠤⡘⢄⢊⡑⠢⢁⠆⡱⠐⠌⢒⡈⢄⠊⢄⠊⡄⠩⡀⠆⣁⠂⠹⡀⣩⣖⠀⠡⢁⠠⠈⠄⠨⠐⠡⠙⣷⡄⠂⡐⢀⠂⠄⡁⠂⠄⡁⠂⡁⠌⠀⠄⡀⠠⠈⠙⣮⠁⠀⠠⠁⠄⡀⠈⠙⢷⡀⠠⢀⠀⢹⡆⠀⢁⠠⠐⠀⠐⠀⠀⠂⣼⡟⠁⠀⠈⠑⠢⠤⣀⡁⠀⠁⠀⠀⠸⣯⠀⠀⠠⠀⠀⠲⡀⢦⠀⠂⠀⠄⠀"
     };
 
-    executarAnimacaoTransicao(arteFloresta, 140, Cor::VERDE, "Viajando para a Floresta...");
+    std::string textoMsg = "Viajando para a " + Aparencia::cor(Cor::VERDE) + "Floresta" + Aparencia::cor(Cor::RESET) + "...";
+    executarAnimacaoTransicao(arteFloresta, 140, Cor::VERDE, textoMsg);
 }
