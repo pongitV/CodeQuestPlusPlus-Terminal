@@ -21,7 +21,7 @@ public:
     static char lerTecla();
     static ComandoMapa traduzirTeclaParaComando(char tecla);
     static void limparBuffer();
-    static std::string lerEntradaProtegida();
+    static std::string lerEntradaProtegida(const std::string& promptMensagem = "");
     
     static int lerInteiroComLimites(const std::string& promptMensagem, int minimo, int maximo, bool centralizarPrompt = false, const std::string& margemPersonalizada = "");
 };

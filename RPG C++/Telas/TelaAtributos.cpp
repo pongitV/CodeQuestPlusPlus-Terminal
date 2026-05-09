@@ -228,7 +228,7 @@ void TelaAtributos::gerenciarFichaDoJogador(SistemaPersonagem* jogadorAtual)
         TelaAtributos::exibir(jogadorAtual);
         std::string mensagemDoPrompt = "[0] VOLTAR | [1] LIGAR/DESLIGAR PARRY";
         if (jogadorAtual->podeSubirDeNivel()) mensagemDoPrompt += " | [2] SUBIR DE NIVEL";
-        mensagemDoPrompt += " | [3] VOLTAR AO MENU PRINCIPAL | [4] DETALHES DE ATRIBUTOS: ";
+        mensagemDoPrompt += " | [3] SALVAR E SAIR | [4] DETALHES DE ATRIBUTOS: ";
         Aparencia::exibirPrompt(mensagemDoPrompt);
         opcaoEscolhidaNoMenuJogador = ControleDeInput::lerEntradaProtegida();
 

@@ -48,7 +48,10 @@ ComandoMapa ControleDeInput::traduzirTeclaParaComando(char tecla)
     return ComandoMapa::Nenhum;
 }
 
-std::string ControleDeInput::lerEntradaProtegida() {
+std::string ControleDeInput::lerEntradaProtegida(const std::string& promptMensagem) {
+    if (!promptMensagem.empty()) {
+        Aparencia::exibirPrompt(promptMensagem);
+    }
     std::cout << "\033[s";
     std::string entrada;
     while (true) {

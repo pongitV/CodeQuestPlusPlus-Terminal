@@ -33,7 +33,7 @@ public:
     static void maximizarJanelaTerminal();
     static void ocultarCursor();
     static void limparTela();
-    static void aguardarEnter();
+    static void aguardarEnter(const std::string& mensagem = "Pressione ENTER para continuar...");
     static int obterLarguraTerminal();
     static int obterAlturaTerminal();
     static void moverCursor(int x, int y);
@@ -46,6 +46,7 @@ public:
     static void imprimirCentralizadoMultilinha(const std::vector<std::string>& linhas, int larguraVisual = 0, const std::string& corAnsi = "", int atrasoLinhaMs = 0);
     static void imprimirBlocoCentralizado(const std::vector<std::string>& linhas, const std::string& corAnsi = "", int atrasoLinhaMs = 0);
     static void imprimirBlocoCentralizadoDigitando(const std::vector<std::string>& linhas, int atrasoMs = atrasoDigitacaoMS);
+    static void imprimirCentralizadoDigitando(const std::string& texto, int atrasoMs = atrasoDigitacaoMS);
     static int atrasoDigitacaoMS; // Variável estática para a velocidade padrão
     static void imprimirDigitando(const std::string& texto, int atrasoMs = atrasoDigitacaoMS, bool addNewline = true);
     static void imprimirDialogoNPC(const std::string& npcNome, Cor npcCor, const std::string& texto, bool novaLinhaAntes = true, bool novaLinhaDepois = true);

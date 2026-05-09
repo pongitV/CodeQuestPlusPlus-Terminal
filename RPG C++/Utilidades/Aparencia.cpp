@@ -67,8 +67,8 @@ void Aparencia::limparTela() {
     std::cout << "\033[2J\033[3J\033[H" << std::flush;
 }
 
-void Aparencia::aguardarEnter() {
-    std::cout << "\nPressione Enter para continuar...";
+void Aparencia::aguardarEnter(const std::string& mensagem) {
+    std::cout << "\n" << espacosParaCentralizar(removerCoresANSI(mensagem).length()) << mensagem << "\n";
     ControleDeInput::limparBuffer();
     while (true) {
         char c = ControleDeInput::lerTecla();
@@ -191,6 +191,11 @@ void Aparencia::imprimirBlocoCentralizadoDigitando(const std::vector<std::string
     for (const std::string& linha : linhas) {
         imprimirDigitando(margem + linha, atrasoMs, true);
     }
+}
+
+void Aparencia::imprimirCentralizadoDigitando(const std::string& texto, int atrasoMs) {
+    std::string margem = espacosParaCentralizar(removerCoresANSI(texto).length());
+    imprimirDigitando(margem + texto, atrasoMs, true);
 }
 
 void Aparencia::imprimirDigitando(const std::string& texto, int atrasoMs, bool addNewline) {

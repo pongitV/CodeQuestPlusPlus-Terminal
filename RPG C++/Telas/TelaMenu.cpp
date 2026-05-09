@@ -235,7 +235,7 @@ void TelaMenu::exibirPromptParry(const std::string& nome, const std::string& nom
     std::cout << "\n";
     
     std::vector<std::string> opcoes = {
-        "[1] LIGAR Parry", "[2] DESLIGAR Parry", "", "[0] VOLTAR (selecao de dificuldade)"
+        "[1] LIGAR Parry (Inicia o Tutorial)", "[2] DESLIGAR Parry", "", "[0] VOLTAR (selecao de dificuldade)"
     };
     Aparencia::imprimirBlocoCentralizado(opcoes);
     Aparencia::exibirPrompt(" > Sua escolha: ");
