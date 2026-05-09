@@ -3,6 +3,7 @@
 #include <string>
 #include <iomanip>
 #include <algorithm>
+#include <map>
 
 #include "NPCMorgana.h"
 #include "../Telas/TelaMenu.h"
@@ -15,6 +16,22 @@
 #include "NPCMorganaLayouts.h"
 
 namespace {
+     struct Produto {
+        ItemID idItem;
+        int preco;
+        int quantidade; // -1 para infinito
+    };
+
+    std::map<int, Produto> estoquePocoesBuff = {
+        {1, {ItemID::PocaoFuria, 25, -1}},
+        {2, {ItemID::ElixirArcano, 25, -1}}
+    };
+
+    std::map<int, Produto> estoquePocoesDebuff = {
+        {1, {ItemID::FrascoGosma, 30, -1}},
+        {2, {ItemID::FrascoFraqueza, 30, -1}}
+    };
+
     // --- APARENCIA E DIALOGOS ---
     void processarEncantamentos(SistemaPersonagem* jogadorAtual, bool isUniversal);
     void processarPocoes(SistemaPersonagem* jogadorAtual, bool isBuff);
@@ -227,6 +244,7 @@ namespace {
 
     void processarPocoes(SistemaPersonagem* jogadorAtual, bool isBuff) {
         std::string titulo = isBuff ? "CABANA - POCOES DE BUFF" : "CABANA - FRASCOS DE DEBUFF";
+        auto& estoqueAtual = isBuff ? estoquePocoesBuff : estoquePocoesDebuff;
         std::string opcaoCompra;
         do {
             Aparencia::limparTela();
@@ -234,12 +252,18 @@ namespace {
 
             std::vector<std::string> linhas = { "Seu Ouro: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G", "" };
 
-            if (isBuff) {
-                linhas.push_back("[1] Pocao de Furia (Buff x1.5 Atributos | 2 Turnos) - 25G");
-                linhas.push_back("[2] Elixir Arcano (Buff x1.5 Atributos | 2 Turnos)  - 25G");
-            } else {
-                linhas.push_back("[1] Frasco de Gosma (Debuff Lentidao | 3 Turnos)    - 30G");
-                linhas.push_back("[2] Frasco de Fraqueza (Debuff Fraqueza | 3 Turnos) - 30G");
+            int maxId = 0;
+            for (auto const& [id, produto] : estoqueAtual) {
+                if (id > maxId) maxId = id;
+                std::string nomeItem = FabricaItens::obterNomeDeID(produto.idItem);
+                if (produto.idItem == ItemID::PocaoFuria || produto.idItem == ItemID::ElixirArcano) nomeItem += " (Buff x1.5 Atributos | 2 Turnos)";
+                else if (produto.idItem == ItemID::FrascoGosma) nomeItem += " (Debuff Lentidao | 3 Turnos)";
+                else if (produto.idItem == ItemID::FrascoFraqueza) nomeItem += " (Debuff Fraqueza | 3 Turnos)";
+                
+                std::string preco = std::to_string(produto.preco) + "G";
+                std::string estoqueInfo = (produto.quantidade == -1) ? "" : (produto.quantidade == 0 ? " (Esgotado)" : " (Estoque: " + std::to_string(produto.quantidade) + ")");
+                
+                linhas.push_back("[" + std::to_string(id) + "] " + nomeItem + " - " + preco + estoqueInfo);
             }
             linhas.push_back("");
             linhas.push_back("[0] VOLTAR");
@@ -247,29 +271,36 @@ namespace {
             std::cout << "\n";
             Aparencia::imprimirBlocoCentralizado(linhas);
             std::cout << "\n";
-            int id = ControleDeInput::lerInteiroComLimites("Escolha: ", 0, 2, true);
-            opcaoCompra = std::to_string(id);
+            int idCompra = ControleDeInput::lerInteiroComLimites("Escolha: ", 0, maxId, true);
+            opcaoCompra = std::to_string(idCompra);
 
-            if (opcaoCompra != "0") {
-                int preco = (isBuff ? 25 : 30);
-                if (jogadorAtual->obterInventario()->obterOuro() >= preco) {
-                    jogadorAtual->obterInventario()->adicionarOuro(-preco);
-                    ItemID idPot = ItemID::Nenhum;
-                    if (isBuff) {
-                        if (opcaoCompra == "1") idPot = ItemID::PocaoFuria;
-                        else if (opcaoCompra == "2") idPot = ItemID::ElixirArcano;
-                    } else {
-                        if (opcaoCompra == "1") idPot = ItemID::FrascoGosma;
-                        else if (opcaoCompra == "2") idPot = ItemID::FrascoFraqueza;
-                    }
-                    auto novoItem = FabricaItens::criarItem(idPot);
-                    if (novoItem) {
-                        std::string nomeDoNovoItem = novoItem->obterNomeItem();
-                        jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
-                        dialogoMorgana("Heehee... Use com sabedoria! " + nomeDoNovoItem + " adicionado.");
-                    }
+            if (opcaoCompra != "0" && estoqueAtual.find(idCompra) != estoqueAtual.end()) {
+                auto& produto = estoqueAtual[idCompra];
+                if (produto.quantidade == 0) {
+                    dialogoMorgana("Acabou, volte mais tarde!");
                 } else {
-                    dialogoMorgana("Voce nao tem ouro suficiente para as minhas preparacoes!");
+                    int maxComprador = jogadorAtual->obterInventario()->obterOuro() / produto.preco;
+                    if (maxComprador == 0) {
+                        dialogoMorgana("Voce nao tem ouro suficiente para as minhas preparacoes!");
+                    } else {
+                        int maxPossivel = (produto.quantidade == -1) ? maxComprador : std::min(maxComprador, produto.quantidade);
+                        int qtdComprar = 1;
+                        if (maxPossivel > 1) {
+                            std::cout << "\n";
+                            qtdComprar = ControleDeInput::lerInteiroComLimites("Quantidade para comprar (1 a " + std::to_string(maxPossivel) + ", ou 0 para cancelar): ", 0, maxPossivel, false);
+                        }
+                        
+                        if (qtdComprar > 0) {
+                            jogadorAtual->obterInventario()->adicionarOuro(-(produto.preco * qtdComprar));
+                            if (produto.quantidade != -1) produto.quantidade -= qtdComprar;
+                            
+                            std::string nomeNovo = FabricaItens::obterNomeDeID(produto.idItem);
+                            for (int i = 0; i < qtdComprar; ++i) {
+                                jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(produto.idItem));
+                            }
+                            dialogoMorgana("Heehee... Use com sabedoria! " + std::to_string(qtdComprar) + "x " + nomeNovo + " adicionado.");
+                        }
+                    }
                 }
                 Aparencia::aguardarEnter();
             }

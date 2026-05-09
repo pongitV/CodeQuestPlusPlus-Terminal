@@ -3,6 +3,7 @@
 #include <string>
 #include <iomanip>
 #include <algorithm>
+#include <map>
 
 #include "NPCFranchesco.h"
 #include "../Telas/TelaMenu.h"
@@ -14,7 +15,29 @@
 #include "NPCFranchescoLayouts.h"
 
 namespace {
+    struct Produto {
+        ItemID idItem;
+        int preco;
+        int quantidade; // -1 para infinito
+    };
+
+    std::map<int, Produto> estoquePocoes = {
+        {1, {ItemID::PocaoCura30, 10, -1}}
+    };
+
+    std::map<int, Produto> estoqueTalismas = {
+        {1, {ItemID::TalismaUrso, 200, 1}},
+        {2, {ItemID::TalismaCorvo, 200, 1}},
+        {3, {ItemID::TalismaLeopardo, 200, 1}},
+        {4, {ItemID::TalismaCoruja, 200, 1}}
+    };
+
+    std::map<int, Produto> estoqueIguarias = {
+        {1, {ItemID::DispositivoLinguagem, 1000, 1}}
+    };
+
     // --- APARENCIA E DIALOGOS ---
+    void processarCompraGenerica(SistemaPersonagem* jogadorAtual, const std::string& tituloLoja, std::map<int, Produto>& estoqueAtual);
     void processarCompraPocoes(SistemaPersonagem* jogadorAtual);
     void processarCompraTalismas(SistemaPersonagem* jogadorAtual, int larguraDoTerminal);
     void processarCompraIguarias(SistemaPersonagem* jogadorAtual, int larguraDoTerminal);
@@ -85,116 +108,84 @@ void NPCFranchesco::processarOpcao(SistemaPersonagem* jogador, const std::string
 
 namespace {
     // --- PROCESSAMENTO DE OPCOES ---
-    void processarCompraPocoes(SistemaPersonagem* jogadorAtual) {
+    void processarCompraGenerica(SistemaPersonagem* jogadorAtual, const std::string& tituloLoja, std::map<int, Produto>& estoqueAtual) {
         std::string opcaoCompra;
         do {
             Aparencia::limparTela();
-            Aparencia::exibirCabecalho("LOJA - POCOES", Cor::AMARELO);
+            Aparencia::exibirCabecalho(tituloLoja, Cor::AMARELO);
             std::cout << "\n";
             
             std::vector<std::string> linhas = {
                 "Seu Ouro: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G",
-                "",
-                "[1] Pocao de Cura (30%VM)                          - 10G",
-                "",
-                "[0] VOLTAR"
+                ""
             };
+
+            int maxId = 0;
+            for (auto const& [id, produto] : estoqueAtual) {
+                if (id > maxId) maxId = id;
+                std::string nomeItem = FabricaItens::obterNomeDeID(produto.idItem);
+                if (produto.idItem == ItemID::PocaoCura30) nomeItem += " (30%VM)";
+                else if (produto.idItem == ItemID::TalismaUrso) nomeItem += " (+5 Forca | -5 Int)";
+                else if (produto.idItem == ItemID::TalismaCorvo) nomeItem += " (+5 Int | -5 Forca)";
+                else if (produto.idItem == ItemID::TalismaLeopardo) nomeItem += " (+5 Dest | -5 Sab)";
+                else if (produto.idItem == ItemID::TalismaCoruja) nomeItem += " (+5 Sab | -5 Dest)";
+                
+                std::string preco = std::to_string(produto.preco) + "G";
+                std::string estoqueInfo = (produto.quantidade == -1) ? "" : (produto.quantidade == 0 ? " (Esgotado)" : " (Estoque: " + std::to_string(produto.quantidade) + ")");
+                
+                linhas.push_back("[" + std::to_string(id) + "] " + nomeItem + " - " + preco + estoqueInfo);
+            }
+            linhas.push_back("");
+            linhas.push_back("[0] VOLTAR");
+
             Aparencia::imprimirBlocoCentralizado(linhas);
             std::cout << "\n";
-            int id = ControleDeInput::lerInteiroComLimites("Escolha: ", 0, 1, true);
+            int id = ControleDeInput::lerInteiroComLimites("Escolha: ", 0, maxId, true);
             opcaoCompra = std::to_string(id);
 
-            if (opcaoCompra == "1") {
-                int preco = 10;
-                if (jogadorAtual->obterInventario()->obterOuro() >= preco) {
-                    jogadorAtual->obterInventario()->adicionarOuro(-preco);
-                    jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::PocaoCura30));
-                    dialogoFranchesco("Pocao de Cura comprada!");
+            if (opcaoCompra != "0" && estoqueAtual.find(id) != estoqueAtual.end()) {
+                auto& produto = estoqueAtual[id];
+                if (produto.quantidade == 0) {
+                    dialogoFranchesco("Sinto muito, nao tenho mais disso em estoque.");
                 } else {
-                    dialogoFranchesco("Pobreta...");
+                    int maxComprador = jogadorAtual->obterInventario()->obterOuro() / produto.preco;
+                    if (maxComprador == 0) {
+                        dialogoFranchesco("Pobreta...");
+                    } else {
+                        int maxPossivel = (produto.quantidade == -1) ? maxComprador : std::min(maxComprador, produto.quantidade);
+                        int qtdComprar = 1;
+                        if (maxPossivel > 1) {
+                            std::cout << "\n";
+                            qtdComprar = ControleDeInput::lerInteiroComLimites("Quantidade para comprar (1 a " + std::to_string(maxPossivel) + ", ou 0 para cancelar): ", 0, maxPossivel, false);
+                        }
+                        
+                        if (qtdComprar > 0) {
+                            jogadorAtual->obterInventario()->adicionarOuro(-(produto.preco * qtdComprar));
+                            if (produto.quantidade != -1) produto.quantidade -= qtdComprar;
+                            
+                            std::string nomeNovo = FabricaItens::obterNomeDeID(produto.idItem);
+                            for (int i = 0; i < qtdComprar; ++i) {
+                                jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(produto.idItem));
+                            }
+                            dialogoFranchesco(std::to_string(qtdComprar) + "x " + nomeNovo + " comprado!");
+                        }
+                    }
                 }
                 Aparencia::aguardarEnter();
             }
         } while (opcaoCompra != "0");
+    }
+
+    void processarCompraPocoes(SistemaPersonagem* jogadorAtual) {
+        processarCompraGenerica(jogadorAtual, "LOJA - POCOES", estoquePocoes);
     }
 
     void processarCompraTalismas(SistemaPersonagem* jogadorAtual, int larguraDoTerminal) {
-        std::string opcaoCompra;
-        do {
-            Aparencia::limparTela();
-            Aparencia::exibirCabecalho("LOJA - TALISMAS", Cor::AMARELO);
-            std::cout << "\n";
-
-            std::vector<std::string> linhas = {
-                "Seu Ouro: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G",
-                "",
-                "[1] Talisma do Urso (+5 Forca | -5 Int)             - 200G",
-                "[2] Talisma do Corvo (+5 Int | -5 Forca)            - 200G",
-                "[3] Talisma do Leopardo (+5 Dest | -5 Sab)          - 200G",
-                "[4] Talisma da Coruja (+5 Sab | -5 Dest)            - 200G",
-                "",
-                "[0] VOLTAR"
-            };
-            Aparencia::imprimirBlocoCentralizado(linhas);
-            std::cout << "\n";
-            int id = ControleDeInput::lerInteiroComLimites("Escolha: ", 0, 4, true);
-            opcaoCompra = std::to_string(id);
-
-            if (opcaoCompra != "0") {
-                int preco = 200;
-                if (jogadorAtual->obterInventario()->obterOuro() >= preco) {
-                    jogadorAtual->obterInventario()->adicionarOuro(-preco);
-                    
-                    ItemID idTalisma = ItemID::Nenhum;
-                    if (opcaoCompra == "1") idTalisma = ItemID::TalismaUrso;
-                    else if (opcaoCompra == "2") idTalisma = ItemID::TalismaCorvo;
-                    else if (opcaoCompra == "3") idTalisma = ItemID::TalismaLeopardo;
-                    else if (opcaoCompra == "4") idTalisma = ItemID::TalismaCoruja;
-                    
-                    auto novoItem = FabricaItens::criarItem(idTalisma);
-                    if (novoItem) {
-                        dialogoFranchesco(novoItem->obterNomeItem() + " comprado!");
-                        jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
-                    }
-                } else {
-                    dialogoFranchesco("Pobreta...");
-                }
-                Aparencia::aguardarEnter();
-            }
-        } while (opcaoCompra != "0");
+        processarCompraGenerica(jogadorAtual, "LOJA - TALISMAS", estoqueTalismas);
     }
 
     void processarCompraIguarias(SistemaPersonagem* jogadorAtual, int larguraDoTerminal) {
-        std::string opcaoCompra;
-        do {
-            Aparencia::limparTela();
-            Aparencia::exibirCabecalho("LOJA - IGUARIAS", Cor::AMARELO);
-            std::cout << "\n";
-
-            std::vector<std::string> linhas = {
-                "Seu Ouro: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G",
-                "",
-                "[1] Dispositivo de teclas de linguagem desconhecida - 1000G",
-                "",
-                "[0] VOLTAR"
-            };
-            Aparencia::imprimirBlocoCentralizado(linhas);
-            std::cout << "\n";
-            int id = ControleDeInput::lerInteiroComLimites("Escolha: ", 0, 1, true);
-            opcaoCompra = std::to_string(id);
-
-            if (opcaoCompra == "1") {
-                int preco = 1000;
-                if (jogadorAtual->obterInventario()->obterOuro() >= preco) {
-                    jogadorAtual->obterInventario()->adicionarOuro(-preco);
-                    jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::DispositivoLinguagem));
-                    dialogoFranchesco("Dispositivo misterioso comprado!");
-                } else {
-                    dialogoFranchesco("Pobreta...");
-                }
-                Aparencia::aguardarEnter();
-            }
-        } while (opcaoCompra != "0");
+        processarCompraGenerica(jogadorAtual, "LOJA - IGUARIAS", estoqueIguarias);
     }
 
     void processarVendaDeItens(SistemaPersonagem* jogadorAtual, int larguraDoTerminal) {

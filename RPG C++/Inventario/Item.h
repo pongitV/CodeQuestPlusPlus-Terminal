@@ -88,8 +88,33 @@ public:
     virtual std::vector<std::string> obterDetalhesInspecao() const {
         TipoEquipamento tipo = obterTipo();
         std::vector<std::string> detalhes;
-        detalhes.push_back(" > Tipo: " + std::string(tipo == TipoEquipamento::CONSUMIVEL ? "Consumivel" : tipo == TipoEquipamento::MATERIAL ? "Material" : tipo == TipoEquipamento::MISSAO ? "Item de Missao" : "Desconhecido"));
-        detalhes.push_back(" > Descricao: " + std::string(tipo == TipoEquipamento::MATERIAL ? "Material usado em forjas ou encantamentos." : tipo == TipoEquipamento::CONSUMIVEL ? "Pode ser consumido para aplicar efeitos." : "Pode ser importante para o seu progresso."));
+
+        if (tipo == TipoEquipamento::CONSUMIVEL) {
+            detalhes.push_back(" > Tipo: Consumivel");
+            std::string efeito = "Pode ser consumido para aplicar efeitos.";
+            if (temPropriedade(Propriedade::ConsumivelCura)) efeito = "Restaura 30% da sua Vida Maxima.";
+            else if (temPropriedade(Propriedade::ConsumivelBuff)) efeito = "Aumenta seus atributos em 1.5x por 2 turnos.";
+            else if (temPropriedade(Propriedade::ConsumivelDebuffLentidao)) efeito = "Aplica Lentidao no alvo por 3 turnos (Reduz Destreza).";
+            else if (temPropriedade(Propriedade::ConsumivelDebuffFraqueza)) efeito = "Aplica Fraqueza no alvo por 3 turnos (-25% Forca).";
+            else if (temPropriedade(Propriedade::ConsumivelPoderTroll)) efeito = "Concede a regeneracao do Troll permanentemente (cura 100% HP apos batalhas).";
+            else if (temPropriedade(Propriedade::TalismaForca)) efeito = "Concede +5 Forca e -5 Inteligencia permanentemente.";
+            else if (temPropriedade(Propriedade::TalismaInteligencia)) efeito = "Concede +5 Inteligencia e -5 Forca permanentemente.";
+            else if (temPropriedade(Propriedade::TalismaDestreza)) efeito = "Concede +5 Destreza e -5 Sabedoria permanentemente.";
+            else if (temPropriedade(Propriedade::TalismaSabedoria)) efeito = "Concede +5 Sabedoria e -5 Destreza permanentemente.";
+            detalhes.push_back(" > Efeitos: " + efeito);
+        } else if (tipo == TipoEquipamento::MISSAO) {
+            detalhes.push_back(" > Tipo: Item de Missao");
+            if (obterNomeItem() == "Dispositivo de teclas de linguagem desconhecida") {
+                detalhes.push_back(" > Lore: Um estranho artefato de plastico com teclas.");
+                detalhes.push_back("   Nao parece pertencer a este mundo, mas emana");
+                detalhes.push_back("   uma energia peculiar...");
+            } else {
+                detalhes.push_back(" > Lore: Um item misterioso e importante para sua jornada.");
+            }
+        } else {
+            detalhes.push_back(" > Tipo: " + std::string(tipo == TipoEquipamento::MATERIAL ? "Material" : "Desconhecido"));
+            detalhes.push_back(" > Descricao: " + std::string(tipo == TipoEquipamento::MATERIAL ? "Material usado em forjas ou encantamentos." : "Pode ser importante para o seu progresso."));
+        }
         return detalhes;
     }
 

@@ -97,11 +97,26 @@ void TelaInventario::exibirMenuInteracaoItem(Item* itemEncontrado)
     Aparencia::limparTela();
     TelaMenu::exibirLogoDoJogo("OPCOES DE ITEM");
     
+    TipoEquipamento tipo = itemEncontrado->obterTipo();
+    std::string opcao1 = "[1] Usar";
+    std::string opcao2 = "[2] Inspecionar Detalhes";
+
+    if (tipo == TipoEquipamento::ARMA || tipo == TipoEquipamento::ESCUDO || tipo == TipoEquipamento::ARMADURA) {
+        opcao1 = "[1] Equipar / Desequipar";
+        opcao2 = "[2] Inspecionar (Dano, Durabilidade, Requisitos, etc)";
+    } else if (tipo == TipoEquipamento::MISSAO) {
+        opcao1 = "[1] Usar em quantidade";
+        opcao2 = "[2] Inspecionar (Lore)";
+    } else if (tipo == TipoEquipamento::CONSUMIVEL) {
+        opcao1 = "[1] Usar em quantidade";
+        opcao2 = "[2] Inspecionar Efeitos";
+    }
+
     std::vector<std::string> linhas = {
         "Item Selecionado: " + Aparencia::cor(Cor::CIANO) + itemEncontrado->obterNomeItem() + Aparencia::cor(Cor::RESET),
         "",
-        "[1] Usar / Equipar / Desequipar",
-        "[2] Inspecionar Detalhes",
+        opcao1,
+        opcao2,
         "[0] Cancelar"
     };
 

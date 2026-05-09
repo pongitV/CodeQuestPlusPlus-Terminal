@@ -16,19 +16,25 @@
 #include "NPCBjornLayouts.h"
 
 namespace {
+    struct Produto {
+        ItemID idItem;
+        int preco;
+        int quantidade; // -1 para infinito
+    };
+
     // --- DADOS DO ESTOQUE ---
-    std::map<int, ItemID> estoqueArmas = {
-        {1, ItemID::EspadaFerro},
-        {2, ItemID::ArcoMadeira},
-        {3, ItemID::CajadoCristal},
-        {4, ItemID::ViolaoEncantado}
+    std::map<int, Produto> estoqueArmas = {
+        {1, {ItemID::EspadaFerro, 40, -1}},
+        {2, {ItemID::ArcoMadeira, 40, -1}},
+        {3, {ItemID::CajadoCristal, 40, -1}},
+        {4, {ItemID::ViolaoEncantado, 40, -1}}
     };
     
-    std::map<int, ItemID> estoqueArmaduras = {
-        {1, ItemID::ArmaduraMalha},
-        {2, ItemID::ArmaduraCouro},
-        {3, ItemID::Tunica},
-        {4, ItemID::TrajeNobre}
+    std::map<int, Produto> estoqueArmaduras = {
+        {1, {ItemID::ArmaduraMalha, 40, -1}},
+        {2, {ItemID::ArmaduraCouro, 40, -1}},
+        {3, {ItemID::Tunica, 40, -1}},
+        {4, {ItemID::TrajeNobre, 40, -1}}
     };
     
     void processarCompraDeEquipamento(SistemaPersonagem* jogadorAtual, bool comprandoArmas);
@@ -109,11 +115,12 @@ namespace {
             linhas.push_back("Seu Ouro: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G");
             linhas.push_back("");
 
-            for (auto const& [id, idItem] : estoqueAtual) {
-                std::string preco = "40G";
-                std::unique_ptr<Item> tempItem = FabricaItens::criarItem(idItem);
+            for (auto const& [id, produto] : estoqueAtual) {
+                std::string preco = std::to_string(produto.preco) + "G";
+                std::unique_ptr<Item> tempItem = FabricaItens::criarItem(produto.idItem);
                 std::string infoStatus = tempItem ? tempItem->obterInfoStatus() : "";
-                linhas.push_back("[" + std::to_string(id) + "] " + (tempItem ? tempItem->obterNomeItem() : "???") + infoStatus + " (" + preco + ")");
+                std::string estoqueInfo = (produto.quantidade == -1) ? "" : (produto.quantidade == 0 ? " (Esgotado)" : " (Estoque: " + std::to_string(produto.quantidade) + ")");
+                linhas.push_back("[" + std::to_string(id) + "] " + (tempItem ? tempItem->obterNomeItem() : "???") + infoStatus + " (" + preco + ")" + estoqueInfo);
             }
             linhas.push_back("");
             linhas.push_back("[0] VOLTAR");
@@ -124,16 +131,33 @@ namespace {
             int idCompra = ControleDeInput::lerInteiroComLimites("Escolha: ", 0, 4, true);
             opcaoCompra = std::to_string(idCompra);
             
-            if (opcaoCompra != "0") {
-                int idCompra = std::stoi(opcaoCompra);
-                if (jogadorAtual->obterInventario()->obterOuro() >= 40) {
-                    jogadorAtual->obterInventario()->adicionarOuro(-40);
-                    std::unique_ptr<Item> novoItem = FabricaItens::criarItem(estoqueAtual[idCompra]);
-                    std::string nomeNovo = novoItem->obterNomeItem();
-                    jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
-                    dialogoBjorn("Otima escolha! Voce comprou " + nomeNovo + ".");
+            if (opcaoCompra != "0" && estoqueAtual.find(idCompra) != estoqueAtual.end()) {
+                auto& produto = estoqueAtual[idCompra];
+                if (produto.quantidade == 0) {
+                    dialogoBjorn("Este item esta esgotado!");
                 } else {
-                    dialogoBjorn("Voce nao tem ouro suficiente para isso!");
+                    int maxComprador = jogadorAtual->obterInventario()->obterOuro() / produto.preco;
+                    if (maxComprador == 0) {
+                        dialogoBjorn("Voce nao tem ouro suficiente para isso!");
+                    } else {
+                        int maxPossivel = (produto.quantidade == -1) ? maxComprador : std::min(maxComprador, produto.quantidade);
+                        int qtdComprar = 1;
+                        if (maxPossivel > 1) {
+                            std::cout << "\n";
+                            qtdComprar = ControleDeInput::lerInteiroComLimites("Quantidade para comprar (1 a " + std::to_string(maxPossivel) + ", 0 cancelar): ", 0, maxPossivel, false);
+                        }
+                        
+                        if (qtdComprar > 0) {
+                            jogadorAtual->obterInventario()->adicionarOuro(-(produto.preco * qtdComprar));
+                            if (produto.quantidade != -1) produto.quantidade -= qtdComprar;
+                            
+                            std::string nomeNovo = FabricaItens::obterNomeDeID(produto.idItem);
+                            for (int i = 0; i < qtdComprar; ++i) {
+                                jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(produto.idItem));
+                            }
+                            dialogoBjorn("Otima escolha! Voce comprou " + std::to_string(qtdComprar) + "x " + nomeNovo + ".");
+                        }
+                    }
                 }
                 Aparencia::aguardarEnter();
             }
@@ -141,7 +165,7 @@ namespace {
     }
 
     void processarMelhoriaNaBigorna(SistemaPersonagem* jogadorAtual) {
-        std::string codigoDoItemBase, codigoDoItemCopia;
+        std::string codigoDoItemBase;
         do {
             TelaInventario::exibir(jogadorAtual);
             dialogoBjorn("Escolha a ARMA, ESCUDO ou ARMADURA para melhorar (requer copia) ou [0] VOLTAR: ", true, false);
@@ -162,21 +186,6 @@ namespace {
             TipoEquipamento tipo = itemBase->obterTipo();
             if (tipo != TipoEquipamento::ARMA && tipo != TipoEquipamento::ESCUDO && tipo != TipoEquipamento::ARMADURA) { dialogoBjorn("Eu so posso melhorar Armas, Escudos e Armaduras!"); Aparencia::aguardarEnter(); continue; }
 
-            dialogoBjorn("Agora, escolha o SEGUNDO item identico (copia) ou [0] CANCELAR: ", true, false);
-            std::cout << "\033[s";
-
-            Item* itemCopia = nullptr;
-            while (true) {
-                codigoDoItemCopia = ControleDeInput::lerEntradaProtegida();
-                if (codigoDoItemCopia == "0") break;
-                itemCopia = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigoDoItemCopia, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
-                if (itemCopia) break;
-                std::cout << "\033[u\033[J";
-            }
-            if (codigoDoItemCopia == "0") continue;
-            
-            if (itemBase->obterNomeItem() != itemCopia->obterNomeItem()) { dialogoBjorn("Os itens precisam ser EXATAMENTE iguais para serem fundidos!"); Aparencia::aguardarEnter(); continue; }
-
             if (jogadorAtual->obterInventario()->contarItem(itemBase->obterNomeItem()) < 2) { dialogoBjorn("Voce nao possui UMA COPIA deste item!"); Aparencia::aguardarEnter(); continue; }
 
             if ((jogadorAtual->obterArma() && jogadorAtual->obterArma()->obterNomeItem() == itemBase->obterNomeItem()) ||
@@ -192,7 +201,7 @@ namespace {
                 std::string nomeAntigo = itemBase->obterNomeItem();
                 std::string novoNome = novoItem->obterNomeItem();
                 jogadorAtual->obterInventario()->removerItem(itemBase);
-                jogadorAtual->obterInventario()->removerItem(itemCopia);
+                jogadorAtual->obterInventario()->removerItem(nomeAntigo);
                 jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
 
                 Aparencia::limparTela();

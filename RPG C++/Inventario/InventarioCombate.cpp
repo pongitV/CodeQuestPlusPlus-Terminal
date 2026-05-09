@@ -113,7 +113,53 @@ void InventarioCombate::gerenciarInventario(SistemaPersonagem* jogadorAtual, boo
                         }
 
                         if (subOpcao == "1") {
-                            processarUsoDeItem(jogadorAtual, itemEncontrado, turnoFoiConsumido);
+                            TipoEquipamento tipo = itemEncontrado->obterTipo();
+                            int quantidadeParaUsar = 1;
+                            
+                            if (tipo == TipoEquipamento::CONSUMIVEL || tipo == TipoEquipamento::MISSAO) {
+                                int qtdDisponivel = jogadorAtual->obterInventario()->contarItem(itemEncontrado->obterNomeItem());
+                                if (qtdDisponivel > 1) {
+                                    std::cout << "\n" << Aparencia::margemCombate();
+                                    quantidadeParaUsar = ControleDeInput::lerInteiroComLimites("Quantidade para usar (1 a " + std::to_string(qtdDisponivel) + "): ", 1, qtdDisponivel, false, Aparencia::margemCombate());
+                                }
+                            }
+                            
+                            std::string nomeItem = itemEncontrado->obterNomeItem();
+                            bool consumiuAlgumTurno = false;
+                            
+                            for (int i = 0; i < quantidadeParaUsar; ++i) {
+                                Item* itemAtual = nullptr;
+                                for (auto* it : jogadorAtual->obterInventario()->obterTodosOsItens()) {
+                                    if (it->obterNomeItem() == nomeItem && it != jogadorAtual->obterArma() && it != jogadorAtual->obterEscudo() && it != jogadorAtual->obterArmadura()) {
+                                        itemAtual = it;
+                                        break;
+                                    }
+                                }
+                                
+                                if (itemAtual) {
+                                    int countAntes = jogadorAtual->obterInventario()->contarItem(nomeItem);
+                                    bool turnoLocal = false;
+                                    processarUsoDeItem(jogadorAtual, itemAtual, turnoFoiConsumido ? &turnoLocal : nullptr);
+                                    if (turnoLocal) consumiuAlgumTurno = true;
+                                    
+                                    if (jogadorAtual->obterItemSelecionadoParaUso() != nullptr) {
+                                        if (quantidadeParaUsar > 1) {
+                                            std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Este item requer selecao de alvo e sera usado apenas uma vez.\n";
+                                            Aparencia::aguardarEnter();
+                                        }
+                                        break;
+                                    }
+                                    
+                                    int countDepois = jogadorAtual->obterInventario()->contarItem(nomeItem);
+                                    if (countDepois == countAntes) {
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            if (turnoFoiConsumido && consumiuAlgumTurno) {
+                                *turnoFoiConsumido = true;
+                            }
                             acaoConcluida = true;
                         } else if (subOpcao == "2") {
                             Aparencia::limparTela();
