@@ -95,10 +95,21 @@ namespace {
             if (indiceDivisoria != -1 && indiceDivisoria + 1 < static_cast<int>(linhas.size())) {
                 int inicioRemocao = indiceDivisoria + 1;
                 int disponivelParaRemover = static_cast<int>(linhas.size()) - inicioRemocao;
-                if (linhasParaRemover > disponivelParaRemover) linhasParaRemover = disponivelParaRemover;
-                linhas.erase(linhas.begin() + inicioRemocao, linhas.begin() + inicioRemocao + linhasParaRemover);
+                if (linhasParaRemover <= disponivelParaRemover) {
+                    linhas.erase(linhas.begin() + inicioRemocao, linhas.begin() + inicioRemocao + linhasParaRemover);
+                    linhasParaRemover = 0;
+                } else {
+                    linhas.erase(linhas.begin() + inicioRemocao, linhas.end());
+                    linhasParaRemover -= disponivelParaRemover;
+                }
             } else {
                 // Fallback seguro caso não ache a divisória
+                linhas.erase(linhas.begin(), linhas.begin() + linhasParaRemover);
+                linhasParaRemover = 0;
+            }
+            
+            // Se ainda precisar remover (ex: arte gigantesca e as msg nao bastarem), removemos do topo da Logo
+            if (linhasParaRemover > 0) {
                 linhas.erase(linhas.begin(), linhas.begin() + linhasParaRemover);
             }
         }
@@ -183,6 +194,21 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
     int quantidadeTotalDeInimigosNaHorda = static_cast<int>(listaDeInimigos.size());
     int larguraSeparadaParaCadaColuna = larguraTerminal / quantidadeTotalDeInimigosNaHorda; 
 
+    auto splitUTF8 = [](const std::string& s) {
+        std::vector<std::string> chars;
+        for (size_t i = 0; i < s.length(); ) {
+            int len = 1;
+            unsigned char c = static_cast<unsigned char>(s[i]);
+            if ((c & 0x80) == 0) len = 1;
+            else if ((c & 0xE0) == 0xC0) len = 2;
+            else if ((c & 0xF0) == 0xE0) len = 3;
+            else if ((c & 0xF8) == 0xF0) len = 4;
+            chars.push_back(s.substr(i, len));
+            i += len;
+        }
+        return chars;
+    };
+
     for (size_t indiceInimigo = 0; indiceInimigo < listaDeInimigos.size(); indiceInimigo++) 
     {
         std::string tagIdentificadoraDoInimigo = listaDeInimigos[indiceInimigo]->obterNome() + " [" + std::to_string(indiceInimigo) + "]";
@@ -246,7 +272,8 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
         std::string linhaAtual = "";
         for (size_t indiceDoInimigoParaDesenhar = 0; indiceDoInimigoParaDesenhar < listaDeInimigos.size(); indiceDoInimigoParaDesenhar++) 
         {
-            int espacosParaCentralizarAArte = (larguraSeparadaParaCadaColuna - (int)arteDoInimigo[indiceDaLinhaDaArte].length()) / 2;
+            int visivelLen = static_cast<int>(splitUTF8(arteDoInimigo[indiceDaLinhaDaArte]).size());
+            int espacosParaCentralizarAArte = (larguraSeparadaParaCadaColuna - visivelLen) / 2;
             std::string espacos(espacosParaCentralizarAArte > 0 ? espacosParaCentralizarAArte : 0, ' ');
             
             SistemaPersonagem* inimigoAtual = listaDeInimigos[indiceDoInimigoParaDesenhar];
@@ -255,7 +282,7 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
             if (isMorte && inimigoAtual == alvoAnimacao) {
                 int totalLinhasArte = static_cast<int>(arteDoInimigo.size());
                 if (static_cast<int>(indiceDaLinhaDaArte) >= totalLinhasArte - frameAnimacao) {
-                    linhaArte = std::string(linhaArte.length(), ' ');
+                    linhaArte = std::string(visivelLen, ' ');
                 }
             }
 
@@ -268,7 +295,7 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
                 if (frameAnimacao % 2 == 1) {
                     baseLinha = linhaArte;
                 } else {
-                    baseLinha = std::string(linhaArte.length(), ' ');
+                    baseLinha = std::string(visivelLen, ' ');
                 }
                 
                 bool temImpactoNaLinha = false;
@@ -293,21 +320,6 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
                 }
                 
                 if (temImpactoNaLinha) {
-                    auto splitUTF8 = [](const std::string& s) {
-                        std::vector<std::string> chars;
-                        for (size_t i = 0; i < s.length(); ) {
-                            int len = 1;
-                            unsigned char c = static_cast<unsigned char>(s[i]);
-                            if ((c & 0x80) == 0) len = 1;
-                            else if ((c & 0xE0) == 0xC0) len = 2;
-                            else if ((c & 0xF0) == 0xE0) len = 3;
-                            else if ((c & 0xF8) == 0xF0) len = 4;
-                            chars.push_back(s.substr(i, len));
-                            i += len;
-                        }
-                        return chars;
-                    };
-
                     std::vector<std::string> baseChars = splitUTF8(baseLinha);
                     
                     if (linhaImpacto < 0) linhaImpacto = 0;
@@ -354,7 +366,7 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
                 linhaAtual += linhaArte;
             }
             
-            int espacosDireita = larguraSeparadaParaCadaColuna - espacosParaCentralizarAArte - (int)linhaArte.length();
+            int espacosDireita = larguraSeparadaParaCadaColuna - espacosParaCentralizarAArte - visivelLen;
             if (indiceDoInimigoParaDesenhar < listaDeInimigos.size() - 1) {
                 linhaAtual += std::string(espacosDireita > 0 ? espacosDireita : 0, ' ');
             }
