@@ -1,4 +1,5 @@
 #include "GerenciadorInimigos.h"
+#include <type_traits>
 #include "../Racas/Ork.h"
 #include "../Classes/ClasseBase.h"
 #include "../Inventario/Item.h"
@@ -10,6 +11,7 @@
 #include "../Inimigos/Fada.h"
 #include "../Inimigos/OrkExilado.h"
 #include "../Inimigos/AbominacaoFloresta.h"
+#include "../Inimigos/Mimico.h"
 #include "../Inimigos/Troll.h"
 #include "../Utilidades/GeradorAleatorio.h"
 
@@ -18,6 +20,12 @@ std::vector<std::unique_ptr<SistemaPersonagem>> GerenciadorInimigos::criarInimig
 {
     std::vector<std::unique_ptr<SistemaPersonagem>> horda;
     horda.reserve(quantidade); 
+
+    int variacaoMaxima = 10;
+    if (std::is_same<RacaType, OrkExilado>::value || std::is_same<RacaType, AbominacaoFloresta>::value || std::is_same<RacaType, Troll>::value) {
+        variacaoMaxima = 5;
+    }
+
     for (auto i{0}; i < quantidade; ++i) 
     {
         auto raca{std::make_unique<RacaType>()};
@@ -28,15 +36,15 @@ std::vector<std::unique_ptr<SistemaPersonagem>> GerenciadorInimigos::criarInimig
             std::make_unique<ClasseType>()
         );
 
-        // Aplica uma pequena variacao (+/- 10%) nos atributos para que cada monstro da horda seja unico
-        int variacaoVida = GeradorAleatorio::obterInteiro(-10, 10);
+        // Aplica uma pequena variacao nos atributos para que cada monstro da horda seja unico
+        int variacaoVida = GeradorAleatorio::obterInteiro(-variacaoMaxima, variacaoMaxima);
         inimigo->obterAtributosFinais().vida += (inimigo->obterAtributosFinais().vida * variacaoVida) / 100;
         inimigo->definirVida(inimigo->obterAtributosFinais().vida); // Sincroniza a vida atual com a nova vida maxima
         
-        int variacaoForca = GeradorAleatorio::obterInteiro(-10, 10);
+        int variacaoForca = GeradorAleatorio::obterInteiro(-variacaoMaxima, variacaoMaxima);
         inimigo->obterAtributosFinais().forca += (inimigo->obterAtributosFinais().forca * variacaoForca) / 100;
         
-        int variacaoDestreza = GeradorAleatorio::obterInteiro(-10, 10);
+        int variacaoDestreza = GeradorAleatorio::obterInteiro(-variacaoMaxima, variacaoMaxima);
         inimigo->obterAtributosFinais().destreza += (inimigo->obterAtributosFinais().destreza * variacaoDestreza) / 100;
 
         horda.push_back(std::move(inimigo));
@@ -72,4 +80,9 @@ std::vector<std::unique_ptr<SistemaPersonagem>> GerenciadorInimigos::criarInimig
 std::vector<std::unique_ptr<SistemaPersonagem>> GerenciadorInimigos::criarInimigoTroll(int quantidade)
 {
     return criarInimigosGenericos<Troll, ClasseBaseInimigo>(quantidade);
+}
+
+std::vector<std::unique_ptr<SistemaPersonagem>> GerenciadorInimigos::criarInimigoMimico(int quantidade)
+{
+    return criarInimigosGenericos<Mimico, ClasseBaseInimigo>(quantidade);
 }

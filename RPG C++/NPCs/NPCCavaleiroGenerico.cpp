@@ -12,6 +12,7 @@
 #include "../Gerenciadores/GerenciadorInimigos.h"
 #include "../Telas/TelaMenu.h"
 #include "../Utilidades/Aparencia.h"
+#include "NPCCavaleiroGenericoLayouts.h"
 
 namespace {
     // --- CLASSES E FUNCOES AUXILIARES ---
@@ -40,53 +41,6 @@ namespace {
     };
 
     // --- APARENCIA E DIALOGOS ---
-    std::vector<std::string> arteCavaleiro = {
-        "      .:-*+*                             ",
-        "         +.   .*# *+*#                   ",
-        "          =  *: -=*-*.:+                 ",
-        "           ** ::.==**=                   ",
-        "            **--:-***#                   ",
-        "            :*-=--#.:=                   ",
-        "          =+*#++= #%** *+                ",
-        "           +%@%%%*.**....:*              ",
-        "        #**=#+*%#: =-.::...:*+           ",
-        "        --=#**-::..-*.:::.==-*           ",
-        "       %#+=*#%.::#-. -. :- .:-#          ",
-        "       %*+#+*--.=:.  -++==:.- =          ",
-        "       *%*+=#-::. :-..#@%%@#*#           ",
-        "       #%##+*-=+=--:=:+*%%%*=*           ",
-        "      @%%%##*-+=====-**%%%+-*#           ",
-        "     #%#%@%#+==++++***#  %%#*=+%         ",
-        "    *%+%#*+#%*=+=+**+#=  %==*-.#         ",
-        "    #*%+#.#%#==+:#%%%=#  *%%%*+%         ",
-        "   =#-## %%%%%#%%##*##%% %%%%#%          ",
-        "   **=+ %#%@%%%%%%#%%@%%@=*=:-%          ",
-        "   *#= *#*#*=**=*#++*-#*%#*-+*#          ",
-        "   *+@*%=+#+---:-+++*=-*%##%*            ",
-        "  ** *=+#@*+---:--*=*=:*%#=#.            ",
-        "  :#*  *##=+:--:-.+=++-##%#*             ",
-        "   *  .#@#==:-:-::+#+#=+*%+%+            ",
-        "       #@%==:-:=::-##+*-*#*==+           ",
-        "       +@#=+:=:=-:-%%*###%+.++:          ",
-        "       %@*=*=*:#=.*%%*+=#**#+=+          ",
-        "      -*@*%#**:#+=+%#++-%%*: *           ",
-        "      =*##*@*%*** *%##*=+#*:-            ",
-        "     :*#=++%***** #%**#-**##:            ",
-        "     :*****#**++* :*%##=+*%#:-           ",
-        "    =:+*##*+=-++*  *+%*#+#=*:=           ",
-        "    =-**+*==#*++*  *+%##++-*:=           ",
-        "    #%** #=-*+     ++=##*==#+#           ",
-        "    =+   +==#         -*#+=.-=           ",
-        "    :=   *==+          **++ #            ",
-        "        .%#--*         #*+%              ",
-        "        -+*+*          **+#              ",
-        "      .====#.          ###*              ",
-        "    #-:++:             #*#%              ",
-        "                       *:*%              ",
-        "                      #=::%              ",
-        "                       *="
-    };
-
     void dialogoCavaleiro(const std::string& texto, bool novaLinhaAntes = true, bool novaLinhaDepois = true) {
         // Removido o "  " extra para consistência com a nova função auxiliar e outros NPCs.
         Aparencia::imprimirDialogoNPC("Cavaleiro Real", Cor::CINZA, texto, novaLinhaAntes, novaLinhaDepois);
@@ -139,13 +93,15 @@ void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trol
             Aparencia::limparTela();
             Aparencia::exibirCabecalho("CAVALEIROS REAIS", Cor::CINZA);
             dialogoCavaleiro(std::vector<std::string>{
-                "Ja temos Trolls tentando invadir nosso reino,",
+                "Ainda temos invasores no reino!,",
                 "voce precisa de permissao se nao quiser ser",
-                "tratado como invasor tambem."
+                "tratado como invasor tambem...",
+                "Nos ajude a derrotar todos e podemos",
+                "garantir sua entrar no reino!"
             });
             std::cout << "\n";
             
-            Aparencia::imprimirLadoALado({""}, arteCavaleiro, 45, 0, Cor::RESET, Cor::CINZA);
+            Aparencia::imprimirLadoALado({""}, NPCCavaleiroGenericoLayouts::obterArteCavaleiro(), 45, 0, Cor::RESET, Cor::CINZA);
             Aparencia::aguardarEnter();
             if (exploracaoEstaAtiva) restaurarTela();
             return;
@@ -160,7 +116,7 @@ void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trol
         });
         
         std::vector<std::string> menuEsquerda = { "[1] Ajudar os Cavaleiros", "[0] Recuar" };
-        int recuo = Aparencia::imprimirLadoALado(menuEsquerda, arteCavaleiro, 45, 0, Cor::RESET, Cor::CINZA);
+        int recuo = Aparencia::imprimirLadoALado(menuEsquerda, NPCCavaleiroGenericoLayouts::obterArteCavaleiro(), 45, 0, Cor::RESET, Cor::CINZA);
         std::cout << "\n" << std::string(recuo, ' ') << "Escolha: ";
         
         int escolha;
@@ -202,7 +158,7 @@ void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trol
             });
             
             std::vector<std::string> menuEsquerda = { Aparencia::cor(Cor::AMARELO) + "[SISTEMA]: Voce recebeu o [Convite Real]!" + Aparencia::cor(Cor::RESET) };
-            Aparencia::imprimirLadoALado(menuEsquerda, arteCavaleiro, 45, 0, Cor::RESET, Cor::CINZA);
+            Aparencia::imprimirLadoALado(menuEsquerda, NPCCavaleiroGenericoLayouts::obterArteCavaleiro(), 45, 0, Cor::RESET, Cor::CINZA);
             
             jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::ConviteReal));
             conviteRecebido = true;
@@ -212,7 +168,7 @@ void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trol
             Aparencia::limparTela();
             Aparencia::exibirCabecalho("CAVALEIRO REAL", Cor::CINZA);
             dialogoCavaleiro("O Rei o aguarda no castelo. Siga em frente!");
-            Aparencia::imprimirLadoALado({""}, arteCavaleiro, 45, 0, Cor::RESET, Cor::CINZA);
+            Aparencia::imprimirLadoALado({""}, NPCCavaleiroGenericoLayouts::obterArteCavaleiro(), 45, 0, Cor::RESET, Cor::CINZA);
             Aparencia::aguardarEnter();
             restaurarTela();
         }

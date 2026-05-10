@@ -49,7 +49,7 @@ enum class ItemID {
     EscudoMetal, BarreiraMagica, CapaMagica, BracedeirasPrata,
     
     // Armaduras
-    ArmaduraMalha, ArmaduraCouro, Tunica, TrajeNobre, ArmaduraTrapos, ArmaduraCavaleiro,
+    ArmaduraMalha, ArmaduraCouro, Tunica, TrajeNobre, ArmaduraTrapos, ArmaduraCavaleiro, ArmaduraBau,
     
     // Consumiveis
     PocaoCura30, PocaoFuria, ElixirArcano, FrascoGosma, FrascoFraqueza, OrgaoRegenerador,

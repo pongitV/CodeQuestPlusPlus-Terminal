@@ -137,6 +137,7 @@ void SistemaPersonagem::atualizarCacheSeNecessario() const {
     cache_.sabedoria = static_cast<int>(statsFinais.sabedoria * mult);
 
     int penalidade = armadura ? (armadura->obterReducaoFixa() / 3) : 0;
+    if (armadura && armadura->obterNomeItem() == "Armadura de bau") penalidade = 10;
     if (classe) penalidade = classe->processarPenalidadeArmaduraPassivaArqueiro(penalidade);
     
     int destrezaBase = static_cast<int>(statsFinais.destreza * mult);

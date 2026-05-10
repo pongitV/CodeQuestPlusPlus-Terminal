@@ -34,6 +34,7 @@ std::string FabricaItens::obterNomeDeID(ItemID id) {
         {ItemID::TrajeNobre, "Traje de Couro e tecido nobre"},
         {ItemID::ArmaduraTrapos, "Armadura de trapos e sucata"},
         {ItemID::ArmaduraCavaleiro, "Armadura de Cavaleiro"},
+        {ItemID::ArmaduraBau, "Armadura de bau"},
         {ItemID::PocaoCura30, "Pocao de Cura (30%VM)"},
         {ItemID::PocaoFuria, "Pocao de Furia (Buff)"},
         {ItemID::ElixirArcano, "Elixir Arcano (Buff)"},

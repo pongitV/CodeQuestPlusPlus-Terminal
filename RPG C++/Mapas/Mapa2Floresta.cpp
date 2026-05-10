@@ -72,8 +72,7 @@ namespace {
     class InteracaoAbominacao : public InteracaoFloresta {
     public:
         void processar(ContextoInteracaoFloresta& ctx) override {
-            int rootX = (ctx.celula == 'A') ? ctx.proximaPosicaoX : ctx.proximaPosicaoX - 1;
-            ControleDeMapa::processarCombate(ctx.self->jogadorAtual, ctx.self->matrizDoMapaAtual, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->exploracaoEstaAtiva, "ENCONTRO BOSS", "Voce encontrou a Abominacao da Floresta!", GerenciadorInimigos::criarInimigoAbominacaoFloresta(1), ctx.proximaPosicaoX, ctx.proximaPosicaoY, rootX, 2, ctx.larguraDoTerminal, ctx.restaurarTela);
+            ControleDeMapa::processarCombate(ctx.self->jogadorAtual, ctx.self->matrizDoMapaAtual, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->exploracaoEstaAtiva, "ENCONTRO BOSS", "Voce encontrou a Abominacao da Floresta!", GerenciadorInimigos::criarInimigoAbominacaoFloresta(1), ctx.proximaPosicaoX, ctx.proximaPosicaoY, ctx.proximaPosicaoX, 1, ctx.larguraDoTerminal, ctx.restaurarTela);
         }
     };
 
@@ -99,6 +98,11 @@ namespace {
 
                 int opcao;
                 if (std::cin >> opcao && opcao == 1) {
+                    if (GeradorAleatorio::rolarChance(25)) { // 25% de chance de ser um Mímico
+                        std::cout << "\n" << margem << Aparencia::cor(Cor::VERMELHO) << "[!] O bau se revela uma criatura viva! E UM MIMICO!" << Aparencia::cor(Cor::RESET) << "\n";
+                        Aparencia::aguardarEnter();
+                        ControleDeMapa::processarCombate(ctx.self->jogadorAtual, ctx.self->matrizDoMapaAtual, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->exploracaoEstaAtiva, "CILADA!", "O Bau era um Mimico!", GerenciadorInimigos::criarInimigoMimico(1), ctx.proximaPosicaoX, ctx.proximaPosicaoY, ctx.proximaPosicaoX, 1, ctx.larguraDoTerminal, ctx.restaurarTela);
+                    } else {
                     std::cout << "\n" << margem << "[SISTEMA]: O baú se abre rangendo... Voce obteve itens valiosos!\n";
 
                     int qtdPocoes = GeradorAleatorio::obterInteiro(2, 4);
@@ -127,6 +131,7 @@ namespace {
                     ctx.self->posicaoXDoJogador = ctx.proximaPosicaoX;
                     ctx.self->posicaoYDoJogador = ctx.proximaPosicaoY;
                     Aparencia::aguardarEnter();
+                    }
                 } else { std::cin.clear(); std::cin.ignore(1000, '\n'); }
 
                 if (ctx.self->exploracaoEstaAtiva) ctx.restaurarTela();
@@ -351,7 +356,6 @@ void Mapa2Floresta::inicializarInteracoes() {
     interacoes['S'] = std::make_unique<InteracaoSlime>();
     interacoes['F'] = std::make_unique<InteracaoFada>();
     interacoes['A'] = std::make_unique<InteracaoAbominacao>();
-    interacoes['m'] = std::make_unique<InteracaoAbominacao>();
     interacoes['M'] = std::make_unique<InteracaoMorgana>();
     interacoes['B'] = std::make_unique<InteracaoBau>();
     interacoes['^'] = std::make_unique<InteracaoTeleporte>();
@@ -413,14 +417,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
                 }
                 else if (matrizDoMapaAtual[y][x] == 'A')
                 {
-                    linhaSendoRenderizada += Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO);
-                    if (x + 1 < endX && matrizDoMapaAtual[y][x+1] == 'm') {
-                        linhaSendoRenderizada += "Am";
-                        x++;
-                    } else {
-                        linhaSendoRenderizada += 'A';
-                    }
-                    linhaSendoRenderizada += Aparencia::cor(Cor::RESET);
+                    linhaSendoRenderizada += Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + "A" + Aparencia::cor(Cor::RESET);
                 }
                 else if (matrizDoMapaAtual[y][x] == 'M')
                 {

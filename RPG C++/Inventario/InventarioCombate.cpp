@@ -32,9 +32,12 @@ namespace {
                 std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Sua vida ja esta cheia!\n";
                 return true;
             }
-            int cura = static_cast<int>(personagemUsuario->obterVidaMaxima() * 0.30);
-            personagemUsuario->modificarVida(cura);
-            std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << itemConsumido->obterNomeItem() << " usada! +" << cura << " HP.\n";
+            int vidaAntes = personagemUsuario->obterVida();
+            int curaEstimada = static_cast<int>(personagemUsuario->obterVidaMaxima() * 0.30);
+            personagemUsuario->modificarVida(curaEstimada);
+            int vidaDepois = personagemUsuario->obterVida();
+            int curaReal = vidaDepois - vidaAntes;
+            std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << itemConsumido->obterNomeItem() << " usada! +" << curaReal << " HP. (Vida atual: " << vidaDepois << "/" << personagemUsuario->obterVidaMaxima() << ")\n";
             personagemUsuario->obterInventario()->removerItem(itemConsumido);
             if (turnoFoiConsumido) *turnoFoiConsumido = true;
             return true;

@@ -37,7 +37,9 @@ std::vector<std::string> EquipamentoArmadura::obterDetalhesInspecao() const {
     if (reqConstituicao > 0) { linhas.push_back("   - Constituicao: " + std::to_string(reqConstituicao)); hasReq = true; }
     if (!hasReq) linhas.push_back("   - Nenhum requisito.");
     
-    if (reducaoFixa / 3 > 0) {
+    if (nome == "Armadura de bau") {
+        linhas.push_back(" > Penalidade: -10 Destreza");
+    } else if (reducaoFixa / 3 > 0) {
         linhas.push_back(" > Penalidade: -" + std::to_string(reducaoFixa / 3) + " Destreza");
     } else {
         linhas.push_back(" > Penalidade: Nenhuma");
@@ -47,7 +49,8 @@ std::vector<std::string> EquipamentoArmadura::obterDetalhesInspecao() const {
 
 std::string EquipamentoArmadura::obterInfoStatus() const {
     std::string info = " (Def: " + std::to_string(reducaoFixa);
-    if (int penalidadeDestreza = reducaoFixa / 3; penalidadeDestreza > 0) {
+    int penalidadeDestreza = (nome == "Armadura de bau") ? 10 : reducaoFixa / 3;
+    if (penalidadeDestreza > 0) {
         info += " | -" + std::to_string(penalidadeDestreza) + " Dest";
     }
     
@@ -75,7 +78,8 @@ std::unique_ptr<Item> fabricarEquipamentoArmadura(const std::string& nome) {
         {"Tunica", []() { return std::make_unique<EquipamentoArmadura>("Tunica", 2, 0, 0, 3); }},
         {"Traje de Couro e tecido nobre", []() { return std::make_unique<EquipamentoArmadura>("Traje de Couro e tecido nobre", 4, 0, 0, 3); }},
         {"Armadura de trapos e sucata", []() { return std::make_unique<EquipamentoArmadura>("Armadura de trapos e sucata", 3, 0, 0, 3); }},
-        {"Armadura de Cavaleiro", []() { return std::make_unique<EquipamentoArmadura>("Armadura de Cavaleiro", 12, 0, 0, 0); }}
+        {"Armadura de Cavaleiro", []() { return std::make_unique<EquipamentoArmadura>("Armadura de Cavaleiro", 12, 0, 0, 0); }},
+        {"Armadura de bau", []() { return std::make_unique<EquipamentoArmadura>("Armadura de bau", 20, 0, 0, 150); }}
     };
     auto it = construtores.find(nome);
     if (it != construtores.end()) return it->second();
