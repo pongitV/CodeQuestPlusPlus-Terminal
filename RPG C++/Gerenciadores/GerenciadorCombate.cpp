@@ -29,12 +29,13 @@ namespace {
         std::string msgFormatada = (quebraLinhaAntes ? "\n" : "") + Aparencia::margemCombate();
         if (cor != Cor::RESET) {
             msgFormatada += Aparencia::cor(cor) + textoPuro + Aparencia::cor(Cor::RESET);
+                Aparencia::registrarLogBatalha(Aparencia::cor(cor) + textoPuro + Aparencia::cor(Cor::RESET));
         } else {
             msgFormatada += textoPuro;
+                Aparencia::registrarLogBatalha(textoPuro);
         }
         msgFormatada += "\n";
         TelaCombate::adicionarMensagemFixa(msgFormatada);
-        Aparencia::registrarLogBatalha(textoPuro);
     }
 }
 
@@ -96,7 +97,9 @@ std::vector<SistemaPersonagem*> GerenciadorCombate::obterInimigosRaw() const
 void GerenciadorCombate::exibirTelaDeCombate(bool animarEntrada) const
 {
     Aparencia::limparTela();
-    TelaCombate::exibirLogoParaTelaDeCombate(obterTituloDoCombate());
+    std::cout << Aparencia::cor(Cor::BRANCO);
+    Aparencia::imprimirLinhaDivisoria('=');
+    std::cout << Aparencia::cor(Cor::RESET) << "\n";
     TelaCombate::exibirHordaDeInimigosLadoALado(obterInimigosRaw(), nullptr, 0, false, animarEntrada);
     TelaCombate::exibirBarraDeStatusDoJogador(jogadorAtual);
     for (const auto& aliado : listaDeAliados) {
@@ -116,6 +119,15 @@ void GerenciadorCombate::iniciarCombate()
         aliado->prepararParaNovaBatalha();
     }
 
+    // Introducao ao combate
+    Aparencia::limparTela();
+    TelaCombate::exibirLogoParaTelaDeCombate(obterTituloDoCombate());
+    TelaCombate::exibirHordaDeInimigosLadoALado(obterInimigosRaw(), nullptr, 0, false, true);
+    std::cout << "\n";
+    Aparencia::imprimirCentralizado("Prepare-se! O combate esta prestes a comecar...", Aparencia::cor(Cor::VERMELHO));
+    std::cout << "\n";
+    Aparencia::aguardarEnter();
+
     int maxDestrezaInimigos = 0;
     for (const auto& inimigoPtr : listaDeInimigos) {
         SistemaBestiario::instancia().registrarPrimeiraVista(inimigoPtr->obterNome());
@@ -123,7 +135,7 @@ void GerenciadorCombate::iniciarCombate()
     }
     
     bool turnoExtraFirstTurn = (jogadorAtual->obterDestreza() > (maxDestrezaInimigos * 2));
-    bool primeiraRenderizacao = true;
+    bool primeiraRenderizacao = false; // Modificado, pois ja animamos na intro
     
     if (maxDestrezaInimigos > jogadorAtual->obterDestreza()) {
         exibirTelaDeCombate(primeiraRenderizacao);
@@ -136,6 +148,8 @@ void GerenciadorCombate::iniciarCombate()
     while (jogadorAtual->obterVida() > 0 && !listaDeInimigos.empty()) {
         // Turno do Jogador
         if (jogadorAtual->obterVida() > 0) {
+            Aparencia::registrarLogBatalha("");
+            Aparencia::registrarLogBatalha("--- TURNO " + std::to_string(contadorDoTurnoAtual) + " | VEZ DE " + jogadorAtual->obterNome() + " ---");
             jogadorAtual->reduzirCooldowns();
             jogadorAtual->processarEfeitosInicioTurno();
 
@@ -165,6 +179,8 @@ void GerenciadorCombate::iniciarCombate()
         for (auto& aliado : listaDeAliados) {
             if (aliado->obterVida() <= 0 || listaDeInimigos.empty()) continue;
             
+            Aparencia::registrarLogBatalha("");
+            Aparencia::registrarLogBatalha("--- TURNO " + std::to_string(contadorDoTurnoAtual) + " | VEZ DE " + aliado->obterNome() + " ---");
             aliado->reduzirCooldowns();
             aliado->processarEfeitosInicioTurno();
             if (aliado->obterVida() <= 0) continue;
@@ -189,7 +205,6 @@ void GerenciadorCombate::iniciarCombate()
 void GerenciadorCombate::processarMenuDeAcoesDoJogador(SistemaPersonagem* personagemAgindo, bool& turnoFoiConsumido, bool& usouInventarioNoTurno)
 {
     TelaCombate::limparMensagensFixas();
-    Aparencia::exibirUltimosLogs(5);
     TelaCombate::exibirCabecalhoDoTurno(contadorDoTurnoAtual, personagemAgindo->obterNome());
 
     int acaoEscolhida = TelaCombate::obterAcaoDoJogador();
@@ -353,9 +368,11 @@ void GerenciadorCombate::executarTurnoDeTodosOsInimigos()
     }
     else
     {
-        std::string textoTurnoInimigos = "--- TURNO DOS INIMIGOS ---";
+        std::string textoTurnoInimigos = "--- TURNO " + std::to_string(contadorDoTurnoAtual) + " | VEZ DOS INIMIGOS ---";
         std::string msgTurno = "\n" + Aparencia::espacosParaCentralizar(textoTurnoInimigos.length()) + textoTurnoInimigos + "\n";
         TelaCombate::adicionarMensagemFixa(msgTurno);
+        Aparencia::registrarLogBatalha("");
+        Aparencia::registrarLogBatalha(textoTurnoInimigos);
         for (auto& inimigoAtualPtr : listaDeInimigos) 
         {
             if (jogadorAtual->obterVida() <= 0) break; // Interrompe se o jogador morrer
@@ -545,11 +562,11 @@ void GerenciadorCombate::exibirResultadoDoAtaque(SistemaPersonagem* alvo, int da
 
     if (danoBloqueado > 0) {
         msg += Aparencia::margemCombate() + Aparencia::cor(Cor::CIANO) + ">> [DEFESA]: O escudo bloqueou " + std::to_string(danoBloqueado) + " de dano!" + Aparencia::cor(Cor::RESET) + "\n";
-        Aparencia::registrarLogBatalha(">> [DEFESA]: O escudo bloqueou " + std::to_string(danoBloqueado) + " de dano!");
+        Aparencia::registrarLogBatalha(Aparencia::cor(Cor::CIANO) + ">> [DEFESA]: O escudo bloqueou " + std::to_string(danoBloqueado) + " de dano!" + Aparencia::cor(Cor::RESET));
         
         if (escudoQuebrou) {
             msg += Aparencia::margemCombate() + Aparencia::cor(Cor::FUNDO_VERMELHO) + "[!] ALERTA: O escudo " + nomeEscudoQuebrado + " foi DESTRUIDO em pedacos!" + Aparencia::cor(Cor::RESET) + "\n";
-            Aparencia::registrarLogBatalha("[!] ALERTA: O escudo " + nomeEscudoQuebrado + " foi DESTRUIDO em pedacos!");
+            Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERMELHO) + "[!] ALERTA: O escudo " + nomeEscudoQuebrado + " foi DESTRUIDO em pedacos!" + Aparencia::cor(Cor::RESET));
         }
     }
 
@@ -558,18 +575,18 @@ void GerenciadorCombate::exibirResultadoDoAtaque(SistemaPersonagem* alvo, int da
         if (tentouParry) 
         {
             std::string mensagemParry = parrySucesso ? (danoFinal <= 1 ? "parry efetivo! Ataque anulado!" : "parry efetivo! Mas o ataque e muito forte!") : "parry falhou!";
-            msg = Aparencia::margemCombate() + Aparencia::cor(Cor::FUNDO_VERMELHO) + ">> [PARRY]: " + mensagemParry + " Inimigo causou " + std::to_string(danoFinal) + " de dano em " + alvo->obterNome() + Aparencia::cor(Cor::RESET) + "\n";
-            Aparencia::registrarLogBatalha("[PARRY]: " + mensagemParry + " Inimigo causou " + std::to_string(danoFinal) + " de dano em " + alvo->obterNome());
+            msg += Aparencia::margemCombate() + Aparencia::cor(Cor::VERMELHO_CLARO) + ">> [PARRY]: " + mensagemParry + " Inimigo causou " + std::to_string(danoFinal) + " de dano em " + alvo->obterNome() + Aparencia::cor(Cor::RESET) + "\n";
+            Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERMELHO_CLARO) + "[PARRY]: " + mensagemParry + " Inimigo causou " + std::to_string(danoFinal) + " de dano em " + alvo->obterNome() + Aparencia::cor(Cor::RESET));
         }
         else if (danoFinal > 0) 
         {
-            msg = Aparencia::margemCombate() + Aparencia::cor(Cor::FUNDO_VERMELHO) + ">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano" + Aparencia::cor(Cor::RESET) + "\n";
-            Aparencia::registrarLogBatalha(">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano");
+            msg += Aparencia::margemCombate() + Aparencia::cor(Cor::VERMELHO_CLARO) + ">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano" + Aparencia::cor(Cor::RESET) + "\n";
+            Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERMELHO_CLARO) + ">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano" + Aparencia::cor(Cor::RESET));
         }
         else if (danoFinal == 0 && alvo->obterDefendendo()) 
         {
-            msg = Aparencia::margemCombate() + ">> O dano foi totalmente absorvido pela defesa de " + alvo->obterNome() + "!\n";
-            Aparencia::registrarLogBatalha(">> O dano foi totalmente absorvido pela defesa de " + alvo->obterNome() + "!");
+            msg += Aparencia::margemCombate() + ">> O dano foi totalmente absorvido pela defesa de " + alvo->obterNome() + "!\n";
+            Aparencia::registrarLogBatalha(Aparencia::cor(Cor::CIANO) + ">> O dano foi totalmente absorvido pela defesa de " + alvo->obterNome() + "!" + Aparencia::cor(Cor::RESET));
         }
         
         if (danoFinal > 0 && alvo == jogadorAtual) totalDeDanoRecebido += danoFinal;
@@ -577,8 +594,8 @@ void GerenciadorCombate::exibirResultadoDoAtaque(SistemaPersonagem* alvo, int da
     else if (danoFinal > 0) 
     {
         if (alvo != jogadorAtual) totalDeDanoCausado += danoFinal;
-        msg = Aparencia::margemCombate() + ">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano\n";
-        Aparencia::registrarLogBatalha(">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano");
+        msg += Aparencia::margemCombate() + Aparencia::cor(Cor::VERMELHO) + ">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano" + Aparencia::cor(Cor::RESET) + "\n";
+        Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERMELHO) + ">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano" + Aparencia::cor(Cor::RESET));
     }
 
     if (!msg.empty()) {

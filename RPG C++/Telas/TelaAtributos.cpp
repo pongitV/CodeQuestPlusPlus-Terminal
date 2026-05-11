@@ -161,7 +161,7 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
         std::string extraText;
         std::string extraColor;
         if (temBuff && bonusBuff > 0) {
-            extraColor = Aparencia::cor(Cor::VERDE);
+            extraColor = Aparencia::cor(Cor::VERDE_CLARO);
             extraText = "(+" + std::to_string(bonusBuff) + " Buff)";
         } else if (valorPerdidoPorDebuff > 0) {
             extraColor = Aparencia::cor(Cor::VERMELHO);
@@ -189,7 +189,7 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
     linhasFicha.push_back(formatarAtributo("Sabedoria",  jogadorAtual->obterSabedoria(), 0, racaAttr.sabedoria, classeAttr.sabedoria));
 
     static const EfeitoInfo efeitosParaExibir[] = {
-        {EfeitoID::BuffAtributos,     Cor::VERDE,   "Buff Atributos",   true},
+        {EfeitoID::BuffAtributos,     Cor::VERDE_CLARO,   "Buff Atributos",   true},
         {EfeitoID::Lentidao,           Cor::MAGENTA, "Lentidao",         true},
         {EfeitoID::Sangramento,        Cor::VERMELHO,"Sangramento",      true},
         {EfeitoID::Fraqueza,           Cor::VERMELHO,"Fraqueza",         true},

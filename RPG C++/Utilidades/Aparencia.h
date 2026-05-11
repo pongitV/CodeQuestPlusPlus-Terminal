@@ -14,6 +14,8 @@ enum class Cor {
     CIANO = 36,
     BRANCO = 37,
     CINZA = 90,
+    VERMELHO_CLARO = 91,
+    VERDE_CLARO = 92,
     LARANJA = 208,
     FUNDO_VERMELHO = 41,
     FUNDO_VERDE = 42,
@@ -41,6 +43,7 @@ public:
     
     static std::string removerCoresANSI(const std::string& texto);
     static std::string espacosParaCentralizar(int comprimentoTexto);
+    static std::string centralizarTexto(const std::string& texto);
     static void imprimirLinhaDivisoria(char caractere = '=');
     static void imprimirCentralizado(const std::string& texto, const std::string& corAnsi = "");
     static void imprimirCentralizadoMultilinha(const std::vector<std::string>& linhas, int larguraVisual = 0, const std::string& corAnsi = "", int atrasoLinhaMs = 0);

@@ -61,6 +61,7 @@ int AbominacaoFloresta::processarDanoOfensivo(int danoBase, SistemaPersonagem* a
                 atacante->modificarVida(cura);
                 std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::VERDE) + "[PASSIVA]: Raizes Parasitas! A Abominacao absorveu " + std::to_string(cura) + " de HP!" + Aparencia::cor(Cor::RESET) + "\n";
                 TelaCombate::adicionarMensagemFixa(msg);
+                Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERDE) + "[PASSIVA]: Raizes Parasitas! A Abominacao absorveu " + std::to_string(cura) + " de HP!" + Aparencia::cor(Cor::RESET));
             }
         }
         if (atacante->obterVida() >= (vidaMax * 0.60))

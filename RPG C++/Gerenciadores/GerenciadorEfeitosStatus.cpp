@@ -11,6 +11,7 @@ namespace {
     void notificarEfeito(Cor cor, const std::string& texto) {
         std::string msg = Aparencia::margemCombate() + Aparencia::cor(cor) + texto + Aparencia::cor(Cor::RESET) + "\n";
         TelaCombate::adicionarMensagemFixa(msg);
+        Aparencia::registrarLogBatalha(Aparencia::cor(cor) + texto + Aparencia::cor(Cor::RESET));
     }
 }
 
@@ -65,7 +66,8 @@ void EfeitoQuebraResistencia::aplicarInicioTurno(SistemaPersonagem* alvo) {
 void EfeitoSangramento::aplicarInicioTurno(SistemaPersonagem* alvo) {
     if (alvo->obterVida() <= 0) return;
     alvo->modificarVida(-danoPorTurno);
-    notificarEfeito(Cor::VERMELHO, "[EFEITO]: " + alvo->obterNome() + " sofreu " + std::to_string(danoPorTurno) + " de dano por sangramento!");
+    Cor corSangramento = (alvo->obterNomeClasse() != "Monstro") ? Cor::VERMELHO_CLARO : Cor::VERMELHO;
+    notificarEfeito(corSangramento, "[EFEITO]: " + alvo->obterNome() + " sofreu " + std::to_string(danoPorTurno) + " de dano por sangramento!");
 }
 
 int EfeitoMetadeDano::processarDanoRecebido(int dano) {
@@ -88,6 +90,7 @@ void EfeitoBuffAtributos::aoSair(SistemaPersonagem* alvo) {
     if (alvo->obterMultiplicador() != 1.0) {
         alvo->definirMultiplicador(1.0);
     }
-    std::string msg = "\n" + Aparencia::margemCombate() + "[SISTEMA]: O efeito da habilidade expirou!\n";
+    std::string msg = "\n" + Aparencia::margemCombate() + Aparencia::cor(Cor::VERDE_CLARO) + "[SISTEMA]: O efeito da habilidade expirou!" + Aparencia::cor(Cor::RESET) + "\n";
     TelaCombate::adicionarMensagemFixa(msg);
+    Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERDE_CLARO) + "[SISTEMA]: O efeito da habilidade expirou!" + Aparencia::cor(Cor::RESET));
 }

@@ -145,6 +145,10 @@ std::string Aparencia::espacosParaCentralizar(int comprimentoTexto) {
     return std::string(espacos, ' ');
 }
 
+std::string Aparencia::centralizarTexto(const std::string& texto) {
+    return espacosParaCentralizar(removerCoresANSI(texto).length()) + texto;
+}
+
 void Aparencia::imprimirLinhaDivisoria(char caractere) {
     std::cout << std::string(obterLarguraTerminal(), caractere) << "\n";
 }

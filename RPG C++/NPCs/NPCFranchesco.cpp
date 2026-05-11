@@ -155,8 +155,8 @@ namespace {
                         int maxPossivel = (produto.quantidade == -1) ? maxComprador : std::min(maxComprador, produto.quantidade);
                         int qtdComprar = 1;
                         if (maxPossivel > 1) {
-                            std::cout << "\n";
-                            qtdComprar = ControleDeInput::lerInteiroComLimites("Quantidade para comprar (1 a " + std::to_string(maxPossivel) + ", ou 0 para cancelar): ", 0, maxPossivel, false);
+                            std::string msgQtd = "Quantidade para comprar (1 a " + std::to_string(maxPossivel) + ", ou 0 para cancelar): ";
+                            qtdComprar = ControleDeInput::lerInteiroComLimites(msgQtd, 0, maxPossivel, true);
                         }
                         
                         if (qtdComprar > 0) {

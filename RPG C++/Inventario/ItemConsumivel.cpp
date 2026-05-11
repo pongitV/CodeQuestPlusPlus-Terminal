@@ -41,7 +41,8 @@ std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
             usuario->modificarVida(curaEstimada);
             int vidaDepois = usuario->obterVida();
             int curaReal = vidaDepois - vidaAntes;
-            std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << item->obterNomeItem() << " usada! +" << curaReal << " HP. (Vida atual: " << vidaDepois << "/" << usuario->obterVidaMaxima() << ")\n";
+            std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE) << "[SISTEMA]: " << item->obterNomeItem() << " usada! +" << curaReal << " HP. (Vida atual: " << vidaDepois << "/" << usuario->obterVidaMaxima() << ")" << Aparencia::cor(Cor::RESET) << "\n";
+            Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERDE) + "[SISTEMA]: " + item->obterNomeItem() + " usada! +" + std::to_string(curaReal) + " HP." + Aparencia::cor(Cor::RESET));
             usuario->obterInventario()->removerItem(item);
             if (turnoFoiConsumido) *turnoFoiConsumido = true;
             return true;
@@ -72,7 +73,8 @@ std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
             if (!turnoFoiConsumido) { std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Pocoes de buff so podem ser usadas em combate!\n"; return true; }
             usuario->adicionarEfeito(std::make_unique<EfeitoBuffAtributos>(2));
             usuario->definirMultiplicador(1.5);
-            std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << item->obterNomeItem() << " consumida! Atributos ampliados em 1.5x por 2 turnos!\n";
+            std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE_CLARO) << "[SISTEMA]: " << item->obterNomeItem() << " consumida! Atributos ampliados em 1.5x por 2 turnos!" << Aparencia::cor(Cor::RESET) << "\n";
+            Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERDE_CLARO) + "[SISTEMA]: " + item->obterNomeItem() + " consumida! Atributos ampliados em 1.5x por 2 turnos!" + Aparencia::cor(Cor::RESET));
             usuario->obterInventario()->removerItem(item);
             *turnoFoiConsumido = true;
             return true;
@@ -125,7 +127,7 @@ std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
                 } else {
                     usuario->desbloquearRegeneracaoTroll();
                     usuario->modificarVida(usuario->obterVidaMaxima());
-                    std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << item->obterNomeItem() << " consumido! Voce agora curara 100% do seu HP apos cada combate!\n";
+                    std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE) << "[SISTEMA]: " << item->obterNomeItem() << " consumido! Voce agora curara 100% do seu HP apos cada combate!" << Aparencia::cor(Cor::RESET) << "\n";
                     usuario->obterInventario()->removerItem(item);
                 }
                 if (turnoFoiConsumido) *turnoFoiConsumido = true;

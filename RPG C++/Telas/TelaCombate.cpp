@@ -33,9 +33,9 @@ namespace {
         return barra + corMagenta + std::to_string(jogadorAtual->obterXpAtual()) + corReset + "/" + std::to_string(jogadorAtual->obterXpParaSubir());
     }
 
-    std::string gerarStringDeStatus(SistemaPersonagem* jogadorAtual, const std::string& corVerde, const std::string& corLaranja, const std::string& corVermelho, const std::string& corCiano, const std::string& corAzul, const std::string& corMagenta, const std::string& corReset) {
+    std::string gerarStringDeStatus(SistemaPersonagem* jogadorAtual, const std::string& corVerdeClaro, const std::string& corLaranja, const std::string& corVermelho, const std::string& corCiano, const std::string& corAzul, const std::string& corMagenta, const std::string& corReset) {
         std::string status = "";
-        if (jogadorAtual->possuiEfeito(EfeitoID::BuffAtributos)) status += corVerde + "[Buff Atributos]" + corReset + " ";
+        if (jogadorAtual->possuiEfeito(EfeitoID::BuffAtributos)) status += corVerdeClaro + "[Buff Atributos]" + corReset + " ";
         if (jogadorAtual->possuiEfeito(EfeitoID::MetadeDano)) status += corCiano + "[Metade Dano]" + corReset + " ";
         if (jogadorAtual->possuiEfeito(EfeitoID::Inviolavel)) status += corAzul + "[Inviolavel]" + corReset + " ";
         if (jogadorAtual->possuiEfeito(EfeitoID::Sangramento)) status += corVermelho + "[Sangrando]" + corReset + " ";
@@ -54,18 +54,6 @@ namespace {
         std::cout.rdbuf(oldCout);
         
         std::string output = buffer.str();
-       // size_t pos = 0;
-        // Insere o codigo ANSI \033[K antes de cada quebra de linha.
-        // Isso limpa o resto da linha no console, evitando que textos mais curtos 
-        // deixem "fantasmas" das renderizacoes anteriores.
-      //  while ((pos = output.find('\n', pos)) != std::string::npos) {
-         //   output.insert(pos, "\033[K");
-           // pos += 4; // Avança o tamanho de "\033[K" (3) + "\n" (1)
-      //  }
-
-      //   std::cout << "\033[H" << output << "\033[J" << std::flush;
-        // O uso de \033[2J\033[H garante que a tela seja completamente limpa e resetada 
-        // no terminal, evitando o efeito de "arrastar" a tela pra cima em consoles com scroll
         
         int alturaTerminal = Aparencia::obterAlturaTerminal();
         // Reserva um espaco de seguranca para evitar scroll acidental na ultima linha
@@ -125,7 +113,10 @@ namespace {
 
     void renderizarCenaPadrao(const std::string& titulo, const std::vector<SistemaPersonagem*>& inimigos, SistemaPersonagem* alvoAnimacao, int frame, bool isCura, bool isMorte, Item* arma, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& aliados, SistemaPersonagem* alvoDanoJogador = nullptr, Cor corDanoJogador = Cor::RESET) {
         renderizarFrameBufferizado([&]() {
-            TelaCombate::exibirLogoParaTelaDeCombate(titulo);
+            (void)titulo; // Parametro nao e mais usado visualmente na interface limpa
+            std::cout << Aparencia::cor(Cor::BRANCO);
+            Aparencia::imprimirLinhaDivisoria('=');
+            std::cout << Aparencia::cor(Cor::RESET) << "\n";
             TelaCombate::exibirHordaDeInimigosLadoALado(inimigos, alvoAnimacao, frame, isCura, false, isMorte, arma);
             
             TelaCombate::exibirBarraDeStatusDoJogador(jogadorAtual, (alvoDanoJogador == jogadorAtual) ? corDanoJogador : Cor::RESET);
@@ -180,12 +171,13 @@ void TelaCombate::exibirBarraDeStatusDoJogador(SistemaPersonagem* jogadorAtual, 
     std::string corAzul = Aparencia::cor(Cor::AZUL);
     std::string corCiano = Aparencia::cor(Cor::CIANO);
     std::string corMagenta = Aparencia::cor(Cor::MAGENTA);
+    std::string corVerdeClaro = Aparencia::cor(Cor::VERDE_CLARO);
     std::string corReset = Aparencia::cor(Cor::RESET);
     
     std::string corVida = (porcentagemDeVida > 0.70) ? corVerde : (porcentagemDeVida > 0.30) ? corLaranja : corVermelho;
     auto arteDoCoracao = gerarArteCoracao(porcentagemDeVida, corVerde, corLaranja, corVermelho, corReset);
     std::string arteDeBarraDeXp = gerarBarraDeXp(jogadorAtual, corMagenta, corReset);
-    std::string statusStr = gerarStringDeStatus(jogadorAtual, corVerde, corLaranja, corVermelho, corCiano, corAzul, corMagenta, corReset);
+    std::string statusStr = gerarStringDeStatus(jogadorAtual, corVerdeClaro, corLaranja, corVermelho, corCiano, corAzul, corMagenta, corReset);
 
     // Aplicando a cor dinâmica ao HP na linha do status
     std::vector<std::string> linhasParaImprimir = 

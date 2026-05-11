@@ -88,6 +88,7 @@ void EquipamentoArma::antesDeCausarDano(SistemaPersonagem* atacante, SistemaPers
     if (temPropriedade(Propriedade::Penetrante) && !alvo->possuiEfeito(EfeitoID::QuebraResistencia)) {
         alvo->adicionarEfeito(std::make_unique<EfeitoQuebraResistencia>());
         TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + Aparencia::cor(Cor::CIANO) + ">> A arma de " + atacante->obterNome() + " ativou o po magico! O ataque enfraqueceu " + alvo->obterNome() + " ate o fim do combate!" + Aparencia::cor(Cor::RESET) + "\n");
+        Aparencia::registrarLogBatalha(Aparencia::cor(Cor::CIANO) + ">> A arma de " + atacante->obterNome() + " ativou o po magico! O ataque enfraqueceu " + alvo->obterNome() + " ate o fim do combate!" + Aparencia::cor(Cor::RESET));
     }
 }
 
@@ -105,12 +106,15 @@ void EquipamentoArma::aoCausarDano(SistemaPersonagem* atacante, SistemaPersonage
     if (possuiEfeitoSangramento() && !alvo->possuiEfeito(EfeitoID::Sangramento)) {
         int danoSangramento = std::max(1, alvo->obterVidaMaxima() / 10);
         alvo->adicionarEfeito(std::make_unique<EfeitoSangramento>(3, danoSangramento));
-        TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + Aparencia::cor(Cor::VERMELHO) + ">> " + alvo->obterNome() + " comecou a sangrar profundamente! (3 turnos)" + Aparencia::cor(Cor::RESET) + "\n");
+        Cor corSangramento = (alvo->obterNomeClasse() != "Monstro") ? Cor::VERMELHO_CLARO : Cor::VERMELHO;
+        TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + Aparencia::cor(corSangramento) + ">> " + alvo->obterNome() + " comecou a sangrar profundamente! (3 turnos)" + Aparencia::cor(Cor::RESET) + "\n");
+        Aparencia::registrarLogBatalha(Aparencia::cor(corSangramento) + ">> " + alvo->obterNome() + " comecou a sangrar profundamente! (3 turnos)" + Aparencia::cor(Cor::RESET));
     }
 
     if (possuiEfeitoLentidao() && !alvo->possuiEfeito(EfeitoID::Lentidao)) {
         alvo->adicionarEfeito(std::make_unique<EfeitoLentidao>(3));
         TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + Aparencia::cor(Cor::MAGENTA) + ">> " + alvo->obterNome() + " foi coberto por gosma e sua destreza caiu pela metade! (3 turnos)" + Aparencia::cor(Cor::RESET) + "\n");
+        Aparencia::registrarLogBatalha(Aparencia::cor(Cor::MAGENTA) + ">> " + alvo->obterNome() + " foi coberto por gosma e sua destreza caiu pela metade! (3 turnos)" + Aparencia::cor(Cor::RESET));
     }
 }
 

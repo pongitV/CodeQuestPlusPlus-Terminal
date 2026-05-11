@@ -59,8 +59,8 @@ void InventarioCombate::gerenciarInventario(SistemaPersonagem* jogadorAtual, boo
                                 int qtdDisponivel = jogadorAtual->obterInventario()->contarItem(itemEncontrado->obterNomeItem());
                                 // Apenas permite escolher a quantidade se NÃO estiver em combate
                                 if (qtdDisponivel > 1 && turnoFoiConsumido == nullptr) {
-                                    std::cout << "\n" << Aparencia::margemCombate();
-                                    quantidadeParaUsar = ControleDeInput::lerInteiroComLimites("Quantidade para usar (1 a " + std::to_string(qtdDisponivel) + "): ", 1, qtdDisponivel, false, Aparencia::margemCombate());
+                                    std::string msgQtd = "Quantidade para usar (1 a " + std::to_string(qtdDisponivel) + "): ";
+                                    quantidadeParaUsar = ControleDeInput::lerInteiroComLimites(msgQtd, 1, qtdDisponivel, true);
                                 }
                             }
                             

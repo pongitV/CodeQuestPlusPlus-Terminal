@@ -62,7 +62,7 @@ const std::vector<std::string>& Goblin::obterAparenciaRaca() const
         "              .#===+*#              ++===%.        ",
         "         %===+=+=++#..:            ..#-======*=..  ",
         "         #*=+=#==*# =                ..%===--+++%. ",
-        "          ....##...                   :.#+++#*.=   "
+        "         ##....##...                  :.#+++#*.=## "
     };
     return aparencia;
 }

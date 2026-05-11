@@ -108,6 +108,7 @@ void Slime::aoCausarDano(SistemaPersonagem* atacante, SistemaPersonagem* alvo, i
             alvo->adicionarEfeito(std::make_unique<EfeitoLentidao>(3));
             std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::MAGENTA) + ">> [PASSIVA SLIME]: Uma gosma esverdeada grudou e deixou " + alvo->obterNome() + " mais lento!" + Aparencia::cor(Cor::RESET) + "\n";
             TelaCombate::adicionarMensagemFixa(msg);
+            Aparencia::registrarLogBatalha(Aparencia::cor(Cor::MAGENTA) + ">> [PASSIVA SLIME]: Uma gosma esverdeada grudou e deixou " + alvo->obterNome() + " mais lento!" + Aparencia::cor(Cor::RESET));
         }
     }
 }
