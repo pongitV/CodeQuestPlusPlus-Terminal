@@ -6,8 +6,10 @@
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Utilidades/Aparencia.h"
 #include "../Utilidades/GeradorAleatorio.h"
+#include "../Telas/TelaCombate.h"
 #include <functional>
 #include <unordered_map>
+#include "FabricaItens.h"
 
 EquipamentoArma::EquipamentoArma(std::string nome, int danoFisico, int danoMagico, int reqForca, int reqDestreza, int reqInteligencia, int reqSabedoria, int preco)
     : Item(preco), nome(nome), danoFisico(danoFisico), danoMagico(danoMagico), reqForca(reqForca), reqDestreza(reqDestreza), reqInteligencia(reqInteligencia), reqSabedoria(reqSabedoria), efeitoSangramento(false), efeitoLentidao(false)
@@ -85,7 +87,7 @@ void EquipamentoArma::aplicarEfeitoLentidao() { efeitoLentidao = true; }
 void EquipamentoArma::antesDeCausarDano(SistemaPersonagem* atacante, SistemaPersonagem* alvo) {
     if (temPropriedade(Propriedade::Penetrante) && !alvo->possuiEfeito(EfeitoID::QuebraResistencia)) {
         alvo->adicionarEfeito(std::make_unique<EfeitoQuebraResistencia>());
-        std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::CIANO) << ">> A arma de " << atacante->obterNome() << " ativou o po magico! O ataque enfraqueceu " << alvo->obterNome() << " ate o fim do combate!" << Aparencia::cor(Cor::RESET) << "\n";
+        TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + Aparencia::cor(Cor::CIANO) + ">> A arma de " + atacante->obterNome() + " ativou o po magico! O ataque enfraqueceu " + alvo->obterNome() + " ate o fim do combate!" + Aparencia::cor(Cor::RESET) + "\n");
     }
 }
 
@@ -103,12 +105,12 @@ void EquipamentoArma::aoCausarDano(SistemaPersonagem* atacante, SistemaPersonage
     if (possuiEfeitoSangramento() && !alvo->possuiEfeito(EfeitoID::Sangramento)) {
         int danoSangramento = std::max(1, alvo->obterVidaMaxima() / 10);
         alvo->adicionarEfeito(std::make_unique<EfeitoSangramento>(3, danoSangramento));
-        std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << ">> " << alvo->obterNome() << " comecou a sangrar profundamente! (3 turnos)" << Aparencia::cor(Cor::RESET) << "\n";
+        TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + Aparencia::cor(Cor::VERMELHO) + ">> " + alvo->obterNome() + " comecou a sangrar profundamente! (3 turnos)" + Aparencia::cor(Cor::RESET) + "\n");
     }
 
     if (possuiEfeitoLentidao() && !alvo->possuiEfeito(EfeitoID::Lentidao)) {
         alvo->adicionarEfeito(std::make_unique<EfeitoLentidao>(3));
-        std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::MAGENTA) << ">> " << alvo->obterNome() << " foi coberto por gosma e sua destreza caiu pela metade! (3 turnos)" << Aparencia::cor(Cor::RESET) << "\n";
+        TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + Aparencia::cor(Cor::MAGENTA) + ">> " + alvo->obterNome() + " foi coberto por gosma e sua destreza caiu pela metade! (3 turnos)" + Aparencia::cor(Cor::RESET) + "\n");
     }
 }
 
@@ -132,24 +134,24 @@ std::unique_ptr<Item> EquipamentoArma::gerarCopiaMelhorada() const {
     return novaArma;
 }
 
-std::unique_ptr<Item> fabricarEquipamentoArma(const std::string& nome) {
-    static const std::unordered_map<std::string, std::function<std::unique_ptr<Item>()>> construtores = {
-        {"Adaga artesanal de pedra", []() { return std::make_unique<EquipamentoArma>("Adaga artesanal de pedra", 5, 0, 0, 0, 0, 0, 3); }},
-        {"Arco recurvo de madeira", []() { return std::make_unique<EquipamentoArma>("Arco recurvo de madeira", 10, 0, 0, 0, 0, 0, 3); }},
-        {"Cajado de cristal magico", []() { return std::make_unique<EquipamentoArma>("Cajado de cristal magico", 0, 30, 0, 0, 0, 0, 3); }},
-        {"Varinha corroida", []() { return std::make_unique<EquipamentoArma>("Varinha corroida", 0, 25, 0, 0, 0, 0, 3); }},
-        {"Violao encantado", []() { 
-            auto violao = std::make_unique<EquipamentoArma>("Violao encantado", 0, 10, 0, 0, 0, 0, 3); 
+std::unique_ptr<Item> fabricarEquipamentoArma(ItemID id) {
+    static const std::unordered_map<ItemID, std::function<std::unique_ptr<Item>()>> construtores = {
+        {ItemID::AdagaPedra, []() { return std::make_unique<EquipamentoArma>(FabricaItens::obterNomeDeID(ItemID::AdagaPedra), 5, 0, 0, 0, 0, 0, 3); }},
+        {ItemID::ArcoMadeira, []() { return std::make_unique<EquipamentoArma>(FabricaItens::obterNomeDeID(ItemID::ArcoMadeira), 10, 0, 0, 0, 0, 0, 3); }},
+        {ItemID::CajadoCristal, []() { return std::make_unique<EquipamentoArma>(FabricaItens::obterNomeDeID(ItemID::CajadoCristal), 0, 30, 0, 0, 0, 0, 3); }},
+        {ItemID::VarinhaCorroida, []() { return std::make_unique<EquipamentoArma>(FabricaItens::obterNomeDeID(ItemID::VarinhaCorroida), 0, 25, 0, 0, 0, 0, 3); }},
+        {ItemID::ViolaoEncantado, []() { 
+            auto violao = std::make_unique<EquipamentoArma>(FabricaItens::obterNomeDeID(ItemID::ViolaoEncantado), 0, 10, 0, 0, 0, 0, 3); 
             violao->adicionarPropriedade(Propriedade::ViolaoBase);
             return violao; 
         }},
-        {"Espada longa de ferro", []() { return std::make_unique<EquipamentoArma>("Espada longa de ferro", 10, 0, 0, 0, 0, 0, 3); }},
-        {"Machado de guerra danificado", []() { return std::make_unique<EquipamentoArma>("Machado de guerra danificado", 15, 0, 10, 0, 0, 0, 3); }},
-        {"Gosma acida corrosiva", []() { return std::make_unique<EquipamentoArma>("Gosma acida corrosiva", 2, 7, 0, 0, 0, 0, 3); }},
-        {"Tronco de arvore amarrotado", []() { return std::make_unique<EquipamentoArma>("Tronco de arvore amarrotado", 40, 0, 25, 0, 0, 0, 30); }},
-        {"Espada do Cavaleiro", []() { return std::make_unique<EquipamentoArma>("Espada do Cavaleiro", 12, 0, 0, 0, 0, 0, 0); }}
+        {ItemID::EspadaFerro, []() { return std::make_unique<EquipamentoArma>(FabricaItens::obterNomeDeID(ItemID::EspadaFerro), 10, 0, 0, 0, 0, 0, 3); }},
+        {ItemID::MachadoGuerra, []() { return std::make_unique<EquipamentoArma>(FabricaItens::obterNomeDeID(ItemID::MachadoGuerra), 15, 0, 10, 0, 0, 0, 3); }},
+        {ItemID::GosmaAcidaArma, []() { return std::make_unique<EquipamentoArma>(FabricaItens::obterNomeDeID(ItemID::GosmaAcidaArma), 2, 7, 0, 0, 0, 0, 3); }},
+        {ItemID::TroncoAmarrotado, []() { return std::make_unique<EquipamentoArma>(FabricaItens::obterNomeDeID(ItemID::TroncoAmarrotado), 40, 0, 25, 0, 0, 0, 30); }},
+        {ItemID::EspadaCavaleiro, []() { return std::make_unique<EquipamentoArma>(FabricaItens::obterNomeDeID(ItemID::EspadaCavaleiro), 12, 0, 0, 0, 0, 0, 0); }}
     };
-    auto it = construtores.find(nome);
+    auto it = construtores.find(id);
     if (it != construtores.end()) return it->second();
     return nullptr;
 }

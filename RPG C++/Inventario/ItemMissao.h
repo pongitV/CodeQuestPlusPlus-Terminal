@@ -10,4 +10,7 @@ public:
     ItemMissao(std::string nome, int preco = 500);
     std::string obterNomeItem() const override;
     TipoEquipamento obterTipo() const override;
+    std::vector<std::string> obterDetalhesInspecao() const override;
 };
+
+std::unique_ptr<Item> fabricarItemMissao(ItemID id);

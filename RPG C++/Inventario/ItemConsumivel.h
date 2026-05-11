@@ -13,4 +13,7 @@ public:
 
     std::string obterNomeItem() const override;
     TipoEquipamento obterTipo() const override;
+    std::vector<std::string> obterDetalhesInspecao() const override;
 };
+
+std::unique_ptr<Item> fabricarItemConsumivel(ItemID id);

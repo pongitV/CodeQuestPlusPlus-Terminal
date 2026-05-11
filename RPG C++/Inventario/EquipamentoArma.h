@@ -39,6 +39,7 @@ public:
     std::string obterInfoStatus() const override;
 
     bool podeSerEquipadoPor(SistemaPersonagem* personagem) const override;
+    bool isEquipavel() const override { return true; }
     std::vector<std::string> obterDetalhesInspecao() const override;
 
     void aplicarEfeitoSangramento() override;
@@ -50,3 +51,5 @@ public:
 
     std::unique_ptr<Item> gerarCopiaMelhorada() const override;
 };
+
+std::unique_ptr<Item> fabricarEquipamentoArma(ItemID id);

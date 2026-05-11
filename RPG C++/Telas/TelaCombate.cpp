@@ -122,6 +122,21 @@ namespace {
         
         std::cout << "\033[H" << finalOutput << "\033[J" << std::flush;
     }
+
+    void renderizarCenaPadrao(const std::string& titulo, const std::vector<SistemaPersonagem*>& inimigos, SistemaPersonagem* alvoAnimacao, int frame, bool isCura, bool isMorte, Item* arma, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& aliados, SistemaPersonagem* alvoDanoJogador = nullptr, Cor corDanoJogador = Cor::RESET) {
+        renderizarFrameBufferizado([&]() {
+            TelaCombate::exibirLogoParaTelaDeCombate(titulo);
+            TelaCombate::exibirHordaDeInimigosLadoALado(inimigos, alvoAnimacao, frame, isCura, false, isMorte, arma);
+            
+            TelaCombate::exibirBarraDeStatusDoJogador(jogadorAtual, (alvoDanoJogador == jogadorAtual) ? corDanoJogador : Cor::RESET);
+            for (auto* aliado : aliados) {
+                TelaCombate::exibirBarraDeStatusDoJogador(aliado, (alvoDanoJogador == aliado) ? corDanoJogador : Cor::RESET);
+            }
+            
+            Aparencia::imprimirLinhaDivisoria();
+            for (const auto& msg : mensagensFixasCombate) std::cout << msg;
+        });
+    }
 }
 
 void TelaCombate::adicionarMensagemFixa(const std::string& msg) {
@@ -387,25 +402,11 @@ void TelaCombate::animarDanoNoInimigo(const std::string& tituloCombate, const st
     Item* armaAtacante = (atacante != nullptr) ? atacante->obterArma() : nullptr;
     
     for (int frame = 1; frame <= 8; ++frame) {
-        renderizarFrameBufferizado([&]() {
-            exibirLogoParaTelaDeCombate(tituloCombate);
-            exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, frame, false, false, false, armaAtacante);
-            exibirBarraDeStatusDoJogador(jogadorAtual);
-            for (auto* aliado : listaDeAliados) exibirBarraDeStatusDoJogador(aliado);
-            Aparencia::imprimirLinhaDivisoria();
-            for (const auto& msg : mensagensFixasCombate) std::cout << msg;
-        });
+        renderizarCenaPadrao(tituloCombate, listaDeInimigos, alvoAnimacao, frame, false, false, armaAtacante, jogadorAtual, listaDeAliados);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     
-    renderizarFrameBufferizado([&]() {
-        exibirLogoParaTelaDeCombate(tituloCombate);
-        exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, 0, false);
-        exibirBarraDeStatusDoJogador(jogadorAtual);
-        for (auto* aliado : listaDeAliados) exibirBarraDeStatusDoJogador(aliado);
-        Aparencia::imprimirLinhaDivisoria();
-        for (const auto& msg : mensagensFixasCombate) std::cout << msg;
-    });
+    renderizarCenaPadrao(tituloCombate, listaDeInimigos, alvoAnimacao, 0, false, false, nullptr, jogadorAtual, listaDeAliados);
 }
 
 void TelaCombate::exibirCabecalhoDoTurno(int turnoAtual, const std::string& nomePersonagem) {
@@ -443,20 +444,23 @@ int TelaCombate::obterEscolhaDeEscudo(const std::string& nomePersonagem, const s
 }
 
 void TelaCombate::notificarInimigosMaisAgeis() {
-    std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << "[SISTEMA]: Os inimigos sao mais ageis e atacam primeiro!" << Aparencia::cor(Cor::RESET) << "\n";
-    Aparencia::registrarLogBatalha("[SISTEMA]: Os inimigos sao mais ageis e atacam primeiro!");
+    std::string msg = "[SISTEMA]: Os inimigos sao mais ageis e atacam primeiro!";
+    std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << msg << Aparencia::cor(Cor::RESET) << "\n";
+    Aparencia::registrarLogBatalha(msg);
     Aparencia::aguardarEnter();
 }
 
 void TelaCombate::notificarTurnoExtra(int destrezaJogador, int maxDestrezaInimigos) {
-    std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::CIANO) << "[SISTEMA]: Sua agilidade extrema (" << destrezaJogador << " VS " << maxDestrezaInimigos << ") permite que voce aja novamente!" << Aparencia::cor(Cor::RESET) << "\n";
-    Aparencia::registrarLogBatalha("[SISTEMA]: Sua agilidade extrema (" + std::to_string(destrezaJogador) + " VS " + std::to_string(maxDestrezaInimigos) + ") permite que voce aja novamente!");
+    std::string msg = "[SISTEMA]: Sua agilidade extrema (" + std::to_string(destrezaJogador) + " VS " + std::to_string(maxDestrezaInimigos) + ") permite que voce aja novamente!";
+    std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::CIANO) << msg << Aparencia::cor(Cor::RESET) << "\n";
+    Aparencia::registrarLogBatalha(msg);
     Aparencia::aguardarEnter();
 }
 
 void TelaCombate::notificarDesprevencaoInventario() {
-    std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::AMARELO) << "[SISTEMA]: O inimigo te pegou desprevinido enquanto voce usava o inventario!" << Aparencia::cor(Cor::RESET) << "\n";
-    Aparencia::registrarLogBatalha("[SISTEMA]: O inimigo te pegou desprevinido enquanto voce usava o inventario!");
+    std::string msg = "[SISTEMA]: O inimigo te pegou desprevinido enquanto voce usava o inventario!";
+    std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::AMARELO) << msg << Aparencia::cor(Cor::RESET) << "\n";
+    Aparencia::registrarLogBatalha(msg);
 }
 
 void TelaCombate::notificarSemEscudos(const std::string& nomePersonagem) {
@@ -464,14 +468,16 @@ void TelaCombate::notificarSemEscudos(const std::string& nomePersonagem) {
 }
 
 void TelaCombate::notificarDesequilibrioDefesa(const std::string& nomePersonagem) {
-    std::cout << "\n" << Aparencia::margemCombate() << "[ERRO]: " << nomePersonagem << " se desequilibrou e precisa de 1 turno para poder defender novamente!\n";
-    Aparencia::registrarLogBatalha("[ERRO]: " + nomePersonagem + " se desequilibrou e precisa de 1 turno para poder defender novamente!");
+    std::string msg = "[ERRO]: " + nomePersonagem + " se desequilibrou e precisa de 1 turno para poder defender novamente!";
+    std::cout << "\n" << Aparencia::margemCombate() << msg << "\n";
+    Aparencia::registrarLogBatalha(msg);
     Aparencia::aguardarEnter();
 }
 
 void TelaCombate::notificarPosturaDefensiva(const std::string& nomePersonagem, const std::string& nomeEscudo) {
-    std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << nomePersonagem << " assumiu uma postura defensiva com " << nomeEscudo << "!\n";
-    Aparencia::registrarLogBatalha("[SISTEMA]: " + nomePersonagem + " assumiu uma postura defensiva com " + nomeEscudo + "!");
+    std::string msg = "[SISTEMA]: " + nomePersonagem + " assumiu uma postura defensiva com " + nomeEscudo + "!";
+    std::cout << "\n" << Aparencia::margemCombate() << msg << "\n";
+    Aparencia::registrarLogBatalha(msg);
     Aparencia::aguardarEnter();
 }
 
@@ -495,14 +501,7 @@ void TelaCombate::notificarRequisitoNaoAtendido(const std::string& mensagemRequi
 
 void TelaCombate::atualizarTelaEstatica(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados)
 {
-    renderizarFrameBufferizado([&]() {
-        exibirLogoParaTelaDeCombate(tituloCombate);
-        exibirHordaDeInimigosLadoALado(listaDeInimigos, nullptr, 0, false);
-        exibirBarraDeStatusDoJogador(jogadorAtual);
-        for (auto* aliado : listaDeAliados) exibirBarraDeStatusDoJogador(aliado);
-        Aparencia::imprimirLinhaDivisoria();
-        for (const auto& msg : mensagensFixasCombate) std::cout << msg;
-    });
+    renderizarCenaPadrao(tituloCombate, listaDeInimigos, nullptr, 0, false, false, nullptr, jogadorAtual, listaDeAliados);
 }
 
 void TelaCombate::animarMorteInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* inimigoMorto, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados)
@@ -512,50 +511,22 @@ void TelaCombate::animarMorteInimigo(const std::string& tituloCombate, const std
     int totalLinhas = static_cast<int>(listaDeInimigos[0]->obterRaca()->obterAparenciaRaca().size());
 
     for (int frame = 1; frame <= totalLinhas; frame += 2) { // += 2 Para dar um efeito acelerado satisfatório
-        renderizarFrameBufferizado([&]() {
-            exibirLogoParaTelaDeCombate(tituloCombate);
-            exibirHordaDeInimigosLadoALado(listaDeInimigos, inimigoMorto, frame, false, false, true);
-            exibirBarraDeStatusDoJogador(jogadorAtual);
-            for (auto* aliado : listaDeAliados) exibirBarraDeStatusDoJogador(aliado);
-            Aparencia::imprimirLinhaDivisoria();
-            for (const auto& msg : mensagensFixasCombate) std::cout << msg;
-        });
+        renderizarCenaPadrao(tituloCombate, listaDeInimigos, inimigoMorto, frame, false, true, nullptr, jogadorAtual, listaDeAliados);
         std::this_thread::sleep_for(std::chrono::milliseconds(25));
     }
     
     // Frame final para garantir que toda a arte seja apagada (corrige a falha quando totalLinhas for par)
-    renderizarFrameBufferizado([&]() {
-        exibirLogoParaTelaDeCombate(tituloCombate);
-        exibirHordaDeInimigosLadoALado(listaDeInimigos, inimigoMorto, totalLinhas, false, false, true);
-        exibirBarraDeStatusDoJogador(jogadorAtual);
-        for (auto* aliado : listaDeAliados) exibirBarraDeStatusDoJogador(aliado);
-        Aparencia::imprimirLinhaDivisoria();
-        for (const auto& msg : mensagensFixasCombate) std::cout << msg;
-    });
+    renderizarCenaPadrao(tituloCombate, listaDeInimigos, inimigoMorto, totalLinhas, false, true, nullptr, jogadorAtual, listaDeAliados);
 }
 
 void TelaCombate::animarCuraNoInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados)
 {
     for (int frame = 1; frame <= 4; ++frame) {
-        renderizarFrameBufferizado([&]() {
-            exibirLogoParaTelaDeCombate(tituloCombate);
-            exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, frame, true);
-            exibirBarraDeStatusDoJogador(jogadorAtual);
-            for (auto* aliado : listaDeAliados) exibirBarraDeStatusDoJogador(aliado);
-            Aparencia::imprimirLinhaDivisoria();
-            for (const auto& msg : mensagensFixasCombate) std::cout << msg;
-        });
+        renderizarCenaPadrao(tituloCombate, listaDeInimigos, alvoAnimacao, frame, true, false, nullptr, jogadorAtual, listaDeAliados);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     
-    renderizarFrameBufferizado([&]() {
-        exibirLogoParaTelaDeCombate(tituloCombate);
-        exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, 0, true);
-        exibirBarraDeStatusDoJogador(jogadorAtual);
-        for (auto* aliado : listaDeAliados) exibirBarraDeStatusDoJogador(aliado);
-        Aparencia::imprimirLinhaDivisoria();
-        for (const auto& msg : mensagensFixasCombate) std::cout << msg;
-    });
+    renderizarCenaPadrao(tituloCombate, listaDeInimigos, alvoAnimacao, 0, true, false, nullptr, jogadorAtual, listaDeAliados);
 }
 
 void TelaCombate::animarDanoNoJogador(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados, bool isParry)
@@ -563,31 +534,10 @@ void TelaCombate::animarDanoNoJogador(const std::string& tituloCombate, const st
     Cor corDestaque = isParry ? Cor::CIANO : Cor::VERMELHO;
 
     for (int frame = 1; frame <= 4; ++frame) {
-        renderizarFrameBufferizado([&]() {
-            exibirLogoParaTelaDeCombate(tituloCombate);
-            exibirHordaDeInimigosLadoALado(listaDeInimigos, nullptr, 0, false);
-            
-            Cor corAplicada = (frame % 2 == 1) ? corDestaque : Cor::RESET;
-
-            if (jogadorAtual == alvoAnimacao) exibirBarraDeStatusDoJogador(jogadorAtual, corAplicada);
-            else exibirBarraDeStatusDoJogador(jogadorAtual, Cor::RESET);
-
-            for (auto* aliado : listaDeAliados) {
-                if (aliado == alvoAnimacao) exibirBarraDeStatusDoJogador(aliado, corAplicada);
-                else exibirBarraDeStatusDoJogador(aliado, Cor::RESET);
-            }
-            Aparencia::imprimirLinhaDivisoria();
-            for (const auto& msg : mensagensFixasCombate) std::cout << msg;
-        });
+        Cor corAplicada = (frame % 2 == 1) ? corDestaque : Cor::RESET;
+        renderizarCenaPadrao(tituloCombate, listaDeInimigos, nullptr, 0, false, false, nullptr, jogadorAtual, listaDeAliados, alvoAnimacao, corAplicada);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     
-    renderizarFrameBufferizado([&]() {
-        exibirLogoParaTelaDeCombate(tituloCombate);
-        exibirHordaDeInimigosLadoALado(listaDeInimigos, nullptr, 0, false);
-        exibirBarraDeStatusDoJogador(jogadorAtual, Cor::RESET);
-        for (auto* aliado : listaDeAliados) exibirBarraDeStatusDoJogador(aliado, Cor::RESET);
-        Aparencia::imprimirLinhaDivisoria();
-        for (const auto& msg : mensagensFixasCombate) std::cout << msg;
-    });
+    renderizarCenaPadrao(tituloCombate, listaDeInimigos, nullptr, 0, false, false, nullptr, jogadorAtual, listaDeAliados);
 }

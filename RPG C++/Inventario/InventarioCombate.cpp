@@ -15,70 +15,6 @@
 #include "../Utilidades/ControleDeInput.h"
 
 namespace {
-    // Executa a acao diretamente e retorna true caso a propriedade possua um efeito de consumivel
-    bool executarEfeitoConsumivel(Propriedade prop, SistemaPersonagem* personagemUsuario, Item* itemConsumido, bool* turnoFoiConsumido) {
-        auto aplicarTalisma = [&](TipoAtributo buffAtr, TipoAtributo debuffAtr) {
-            personagemUsuario->alterarAtributoEstatico(buffAtr, 5);
-            personagemUsuario->alterarAtributoEstatico(debuffAtr, -5);
-            std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << itemConsumido->obterNomeItem() << " consumido!\n";
-            personagemUsuario->obterInventario()->removerItem(itemConsumido);
-            if (turnoFoiConsumido) *turnoFoiConsumido = true;
-            return true;
-        };
-
-        switch(prop) {
-        case Propriedade::ConsumivelCura: {
-            if (personagemUsuario->obterVida() >= personagemUsuario->obterVidaMaxima()) {
-                std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Sua vida ja esta cheia!\n";
-                return true;
-            }
-            int vidaAntes = personagemUsuario->obterVida();
-            int curaEstimada = static_cast<int>(personagemUsuario->obterVidaMaxima() * 0.30);
-            personagemUsuario->modificarVida(curaEstimada);
-            int vidaDepois = personagemUsuario->obterVida();
-            int curaReal = vidaDepois - vidaAntes;
-            std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << itemConsumido->obterNomeItem() << " usada! +" << curaReal << " HP. (Vida atual: " << vidaDepois << "/" << personagemUsuario->obterVidaMaxima() << ")\n";
-            personagemUsuario->obterInventario()->removerItem(itemConsumido);
-            if (turnoFoiConsumido) *turnoFoiConsumido = true;
-            return true;
-        }
-
-        case Propriedade::ConsumivelBuff:
-            if (!turnoFoiConsumido) { std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Pocoes de buff so podem ser usadas em combate!\n"; return true; }
-            personagemUsuario->adicionarEfeito(std::make_unique<EfeitoBuffAtributos>(2));
-            personagemUsuario->definirMultiplicador(1.5);
-            std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << itemConsumido->obterNomeItem() << " consumida! Atributos ampliados em 1.5x por 2 turnos!\n";
-            personagemUsuario->obterInventario()->removerItem(itemConsumido);
-            *turnoFoiConsumido = true;
-            return true;
-
-        case Propriedade::ConsumivelDebuffLentidao:
-        case Propriedade::ConsumivelDebuffFraqueza:
-            if (!turnoFoiConsumido) { std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Frascos de debuff so podem ser usados em combate!\n"; return true; }
-            personagemUsuario->definirItemSelecionadoParaUso(itemConsumido);
-            return true;
-
-        case Propriedade::TalismaForca:        return aplicarTalisma(TipoAtributo::Forca, TipoAtributo::Inteligencia);
-        case Propriedade::TalismaInteligencia: return aplicarTalisma(TipoAtributo::Inteligencia, TipoAtributo::Forca);
-        case Propriedade::TalismaDestreza:     return aplicarTalisma(TipoAtributo::Destreza, TipoAtributo::Sabedoria);
-        case Propriedade::TalismaSabedoria:    return aplicarTalisma(TipoAtributo::Sabedoria, TipoAtributo::Destreza);
-
-        case Propriedade::ConsumivelPoderTroll:
-            if (personagemUsuario->possuiRegeneracaoTroll()) {
-                std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: O poder regenerador do Troll ja corre em suas veias!\n";
-            } else {
-                personagemUsuario->desbloquearRegeneracaoTroll();
-                personagemUsuario->modificarVida(personagemUsuario->obterVidaMaxima());
-                std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << itemConsumido->obterNomeItem() << " consumido! Voce agora curara 100% do seu HP apos cada combate!\n";
-                personagemUsuario->obterInventario()->removerItem(itemConsumido);
-            }
-            if (turnoFoiConsumido) *turnoFoiConsumido = true;
-            return true;
-
-        default:
-            return false;
-        }
-    }
 }
 
 void InventarioCombate::gerenciarInventario(SistemaPersonagem* jogadorAtual, bool* turnoFoiConsumido)
@@ -192,17 +128,21 @@ void InventarioCombate::processarUsoDeItem(SistemaPersonagem* jogadorAtual, Item
         return;
     }
 
-    TipoEquipamento tipoDoItem = itemEncontrado->obterTipo();
-    if (tipoDoItem == TipoEquipamento::ARMA || tipoDoItem == TipoEquipamento::ESCUDO || tipoDoItem == TipoEquipamento::ARMADURA)
+    if (itemEncontrado->isEquipavel())
     {
+        bool desequipou = false;
         if (itemEncontrado == jogadorAtual->obterArma()) {
             jogadorAtual->desequiparArma();
-            std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << itemEncontrado->obterNomeItem() << " desequipado(a)!\n";
+            desequipou = true;
         } else if (itemEncontrado == jogadorAtual->obterEscudo()) {
             jogadorAtual->desequiparEscudo();
-            std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << itemEncontrado->obterNomeItem() << " desequipado(a)!\n";
+            desequipou = true;
         } else if (itemEncontrado == jogadorAtual->obterArmadura()) {
             jogadorAtual->desequiparArmadura();
+            desequipou = true;
+        }
+        
+        if (desequipou) {
             std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << itemEncontrado->obterNomeItem() << " desequipado(a)!\n";
         } else {
             if (!itemEncontrado->podeSerEquipadoPor(jogadorAtual)) {
@@ -224,17 +164,13 @@ void InventarioCombate::processarUsoDeItem(SistemaPersonagem* jogadorAtual, Item
         return;
     }
     
-    // Executa a Estrategia O(1) do dicionario para Consumiveis
-    for (Propriedade prop : itemEncontrado->obterPropriedades())
+    if (itemEncontrado->usarDoInventario(jogadorAtual, turnoFoiConsumido))
     {
-        if (executarEfeitoConsumivel(prop, jogadorAtual, itemEncontrado, turnoFoiConsumido))
-        {
-            // Se o item for Debuff (que seta o ponteiro para pedir alvo), ignorar enter
-            if (!jogadorAtual->obterItemSelecionadoParaUso()) {
-                Aparencia::aguardarEnter();
-            }
-            return;
+        // Se o item for Debuff (que seta o ponteiro para pedir alvo), ignorar enter
+        if (!jogadorAtual->obterItemSelecionadoParaUso()) {
+            Aparencia::aguardarEnter();
         }
+        return;
     }
 
     std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Este item nao pode ser usado " << (turnoFoiConsumido ? "em combate!" : "fora de combate!") << "\n";

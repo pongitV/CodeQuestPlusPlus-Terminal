@@ -49,14 +49,13 @@ void Inventario::removerItem(const std::string& nomeDoItem)
     
     if (it != listaDeItens.end()) 
     {
-        contagemItens_[nomeDoItem]--;
-        if (contagemItens_[nomeDoItem] <= 0) contagemItens_.erase(nomeDoItem);
-        listaDeItens.erase(it);
+        removerItem(it->get());
     }
 }
 
 void Inventario::removerItem(Item* itemExato) 
 {
+    if (!itemExato) return;
     auto it = std::find_if(listaDeItens.begin(), listaDeItens.end(), [&](const std::unique_ptr<Item>& item) 
     {
         return item.get() == itemExato;
@@ -116,8 +115,7 @@ Item* Inventario::buscarItemPorCodigo(const std::string& codigoDigitado, Item* a
     switch (letraDaCategoria) {
         case 'A':
             return buscarPorTipoAgrupado([&](Item* itemAvaliado) { 
-                auto tipoDoItem = itemAvaliado->obterTipo(); 
-                return (tipoDoItem == TipoEquipamento::ARMA || tipoDoItem == TipoEquipamento::ESCUDO || tipoDoItem == TipoEquipamento::ARMADURA) && itemAvaliado != armaEquipada && itemAvaliado != escudoEquipado && itemAvaliado != armaduraEquipada; 
+                return itemAvaliado->isEquipavel() && itemAvaliado != armaEquipada && itemAvaliado != escudoEquipado && itemAvaliado != armaduraEquipada; 
             });
         case 'C': return buscarPorTipoAgrupado([](Item* itemAvaliado) { return itemAvaliado->obterTipo() == TipoEquipamento::CONSUMIVEL; });
         case 'S': return buscarPorTipoAgrupado([](Item* itemAvaliado) { return itemAvaliado->obterTipo() == TipoEquipamento::MATERIAL; });

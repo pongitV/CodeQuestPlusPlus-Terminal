@@ -52,7 +52,7 @@ namespace {
             "Digite os numeros rapidamente na sequencia correta e pressione ENTER.",
             "Se for rapido o suficiente e nao errar, o dano sera reduzido ou totalmente anulado!",
             "",
-            "[1] INICIAR TESTE | [0] SAIR"
+            "[1] INICIAR TESTE | [0] PULAR"
         };
         Aparencia::imprimirBlocoCentralizado(explicacao);
         std::string escolha = ControleDeInput::lerEntradaProtegida("> ");

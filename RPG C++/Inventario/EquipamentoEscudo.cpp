@@ -5,6 +5,7 @@
 #include <vector>
 #include <functional>
 #include <unordered_map>
+#include "FabricaItens.h"
 
 EquipamentoEscudo::EquipamentoEscudo(std::string nome, int reducaoFixa, int durabilidade, int reqResistencia, int reqSecundario, TipoAtributo tipoSecundario, int preco)
     : Item(preco), nome(nome), reducaoFixa(reducaoFixa), durabilidade(durabilidade), reqResistencia(reqResistencia), reqSecundario(reqSecundario), tipoSecundario(tipoSecundario)
@@ -36,10 +37,6 @@ bool EquipamentoEscudo::podeSerEquipadoPor(SistemaPersonagem* personagem) const 
         default: secVal = 9999;
     }
     return secVal >= reqSecundario;
-}
-
-std::string EquipamentoEscudo::obterMensagemRequisito() const {
-    return "\n[SISTEMA]: Atributos insuficientes para equipar " + nome + "!\n";
 }
 
 std::vector<std::string> EquipamentoEscudo::obterDetalhesInspecao() const {
@@ -87,14 +84,14 @@ std::unique_ptr<Item> EquipamentoEscudo::gerarCopiaMelhorada() const {
     return novoEscudo;
 }
 
-std::unique_ptr<Item> fabricarEquipamentoEscudo(const std::string& nome) {
-    static const std::unordered_map<std::string, std::function<std::unique_ptr<Item>()>> construtores = {
-        {"Escudo medio de metal", []() { return std::make_unique<EquipamentoEscudo>("Escudo medio de metal", 15, 5, 0, 0, TipoAtributo::Forca, 9); }},
-        {"Barreira magica", []() { return std::make_unique<EquipamentoEscudo>("Barreira magica", 50, 2, 0, 0, TipoAtributo::Inteligencia, 3); }},
-        {"Capa magica", []() { return std::make_unique<EquipamentoEscudo>("Capa magica", 6, 10, 0, 0, TipoAtributo::Sabedoria, 9); }},
-        {"Bracedeiras de prata", []() { return std::make_unique<EquipamentoEscudo>("Bracedeiras de prata", 5, 3, 0, 0, TipoAtributo::Destreza, 3); }}
+std::unique_ptr<Item> fabricarEquipamentoEscudo(ItemID id) {
+    static const std::unordered_map<ItemID, std::function<std::unique_ptr<Item>()>> construtores = {
+        {ItemID::EscudoMetal, []() { return std::make_unique<EquipamentoEscudo>(FabricaItens::obterNomeDeID(ItemID::EscudoMetal), 15, 5, 0, 0, TipoAtributo::Forca, 9); }},
+        {ItemID::BarreiraMagica, []() { return std::make_unique<EquipamentoEscudo>(FabricaItens::obterNomeDeID(ItemID::BarreiraMagica), 50, 2, 0, 0, TipoAtributo::Inteligencia, 3); }},
+        {ItemID::CapaMagica, []() { return std::make_unique<EquipamentoEscudo>(FabricaItens::obterNomeDeID(ItemID::CapaMagica), 6, 10, 0, 0, TipoAtributo::Sabedoria, 9); }},
+        {ItemID::BracedeirasPrata, []() { return std::make_unique<EquipamentoEscudo>(FabricaItens::obterNomeDeID(ItemID::BracedeirasPrata), 5, 3, 0, 0, TipoAtributo::Destreza, 3); }}
     };
-    auto it = construtores.find(nome);
+    auto it = construtores.find(id);
     if (it != construtores.end()) return it->second();
     return nullptr;
 }

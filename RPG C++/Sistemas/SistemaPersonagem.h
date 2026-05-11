@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <mutex>
 
 #include "../Gerenciadores/GerenciadorEfeitosStatus.h"
 #include "../Inventario/Inventario.h"
@@ -137,6 +138,7 @@ protected:
         bool sujo = true;
     };
     mutable CacheAtributos cache_;
+    mutable std::mutex mutexCache_; // Protege o acesso ao cache em ambientes multithread
     void atualizarCacheSeNecessario() const;
     
     int nivel;

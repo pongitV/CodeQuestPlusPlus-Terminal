@@ -25,6 +25,17 @@
 #include "../Utilidades/ControleDeInput.h"
 
 namespace {
+    void registrarMensagemELog(const std::string& textoPuro, Cor cor = Cor::RESET, bool quebraLinhaAntes = false) {
+        std::string msgFormatada = (quebraLinhaAntes ? "\n" : "") + Aparencia::margemCombate();
+        if (cor != Cor::RESET) {
+            msgFormatada += Aparencia::cor(cor) + textoPuro + Aparencia::cor(Cor::RESET);
+        } else {
+            msgFormatada += textoPuro;
+        }
+        msgFormatada += "\n";
+        TelaCombate::adicionarMensagemFixa(msgFormatada);
+        Aparencia::registrarLogBatalha(textoPuro);
+    }
 }
 
 GerenciadorCombate::GerenciadorCombate(SistemaPersonagem* jogadorParaOCombate, std::vector<std::unique_ptr<SistemaPersonagem>>&& inimigosParaOCombate) 
@@ -596,9 +607,7 @@ bool GerenciadorCombate::verificarCondicaoDeVitoriaOuDerrota()
 
 void GerenciadorCombate::processarMorteDeInimigo(SistemaPersonagem* inimigo)
 {
-    std::string msg = "\n" + Aparencia::margemCombate() + Aparencia::cor(Cor::AMARELO) + "[!] " + inimigo->obterNome() + " derrotado!" + Aparencia::cor(Cor::RESET) + "\n";
-    TelaCombate::adicionarMensagemFixa(msg);
-    Aparencia::registrarLogBatalha("[!] " + inimigo->obterNome() + " derrotado!");
+    registrarMensagemELog("[!] " + inimigo->obterNome() + " derrotado!", Cor::AMARELO, true);
 
     SistemaBestiario::instancia().registrarDerrota(inimigo->obterNome());
 

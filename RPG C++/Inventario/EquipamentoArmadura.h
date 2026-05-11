@@ -13,6 +13,7 @@ private:
     int reducaoFixa;
     int reqResistencia;
     int reqConstituicao;
+    int penalidadeDestreza;
 
 public:
     EquipamentoArmadura(std::string nome, int reducaoFixa, int reqResistencia, int reqConstituicao, int preco = 3);
@@ -24,12 +25,15 @@ public:
     TipoEquipamento obterTipo() const override;
 
     int obterReducaoFixa() const override;
+    void definirPenalidadeDestreza(int pen) { penalidadeDestreza = pen; }
 
     std::string obterInfoStatus() const override;
 
     bool podeSerEquipadoPor(SistemaPersonagem* personagem) const override;
-    std::string obterMensagemRequisito() const override;
+    bool isEquipavel() const override { return true; }
     std::vector<std::string> obterDetalhesInspecao() const override;
 
     std::unique_ptr<Item> gerarCopiaMelhorada() const override;
 };
+
+std::unique_ptr<Item> fabricarEquipamentoArmadura(ItemID id);

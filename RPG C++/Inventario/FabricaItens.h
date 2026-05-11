@@ -6,6 +6,7 @@
 
 class FabricaItens {
 public:
+
     // Cria um item de forma type-safe baseada num Enum.
     static std::unique_ptr<Item> criarItem(ItemID id);
 
@@ -16,4 +17,5 @@ public:
     static std::vector<std::unique_ptr<Item>> criarKitPocoes(int quantidade = 3);
 
     static std::string obterNomeDeID(ItemID id);
+    static ItemID obterIDDeNome(const std::string& nome);
 };

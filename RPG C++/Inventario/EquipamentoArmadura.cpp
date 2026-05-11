@@ -4,9 +4,10 @@
 #include <vector>
 #include <functional>
 #include <unordered_map>
+#include "FabricaItens.h"
 
 EquipamentoArmadura::EquipamentoArmadura(std::string nome, int reducaoFixa, int reqResistencia, int reqConstituicao, int preco) 
-    : Item(preco), nome(nome), reducaoFixa(reducaoFixa), reqResistencia(reqResistencia), reqConstituicao(reqConstituicao)
+    : Item(preco), nome(nome), reducaoFixa(reducaoFixa), reqResistencia(reqResistencia), reqConstituicao(reqConstituicao), penalidadeDestreza(reducaoFixa / 3)
 {
 }
 
@@ -23,10 +24,6 @@ bool EquipamentoArmadura::podeSerEquipadoPor(SistemaPersonagem* personagem) cons
            personagem->obterConstituicao() >= reqConstituicao;
 }
 
-std::string EquipamentoArmadura::obterMensagemRequisito() const {
-    return "\n[SISTEMA]: Atributos insuficientes para equipar " + nome + "!\n";
-}
-
 std::vector<std::string> EquipamentoArmadura::obterDetalhesInspecao() const {
     std::vector<std::string> linhas;
     linhas.push_back(" > Tipo: Armadura");
@@ -37,10 +34,8 @@ std::vector<std::string> EquipamentoArmadura::obterDetalhesInspecao() const {
     if (reqConstituicao > 0) { linhas.push_back("   - Constituicao: " + std::to_string(reqConstituicao)); hasReq = true; }
     if (!hasReq) linhas.push_back("   - Nenhum requisito.");
     
-    if (nome == "Armadura de bau") {
-        linhas.push_back(" > Penalidade: -10 Destreza");
-    } else if (reducaoFixa / 3 > 0) {
-        linhas.push_back(" > Penalidade: -" + std::to_string(reducaoFixa / 3) + " Destreza");
+    if (penalidadeDestreza > 0) {
+        linhas.push_back(" > Penalidade: -" + std::to_string(penalidadeDestreza) + " Destreza");
     } else {
         linhas.push_back(" > Penalidade: Nenhuma");
     }
@@ -49,7 +44,6 @@ std::vector<std::string> EquipamentoArmadura::obterDetalhesInspecao() const {
 
 std::string EquipamentoArmadura::obterInfoStatus() const {
     std::string info = " (Def: " + std::to_string(reducaoFixa);
-    int penalidadeDestreza = (nome == "Armadura de bau") ? 10 : reducaoFixa / 3;
     if (penalidadeDestreza > 0) {
         info += " | -" + std::to_string(penalidadeDestreza) + " Dest";
     }
@@ -71,17 +65,21 @@ std::unique_ptr<Item> EquipamentoArmadura::gerarCopiaMelhorada() const {
     return novaArmadura;
 }
 
-std::unique_ptr<Item> fabricarEquipamentoArmadura(const std::string& nome) {
-    static const std::unordered_map<std::string, std::function<std::unique_ptr<Item>()>> construtores = {
-        {"Armadura de malha e metal", []() { return std::make_unique<EquipamentoArmadura>("Armadura de malha e metal", 7, 0, 0, 3); }},
-        {"Armadura leve de couro com malha", []() { return std::make_unique<EquipamentoArmadura>("Armadura leve de couro com malha", 5, 0, 0, 3); }},
-        {"Tunica", []() { return std::make_unique<EquipamentoArmadura>("Tunica", 2, 0, 0, 3); }},
-        {"Traje de Couro e tecido nobre", []() { return std::make_unique<EquipamentoArmadura>("Traje de Couro e tecido nobre", 4, 0, 0, 3); }},
-        {"Armadura de trapos e sucata", []() { return std::make_unique<EquipamentoArmadura>("Armadura de trapos e sucata", 3, 0, 0, 3); }},
-        {"Armadura de Cavaleiro", []() { return std::make_unique<EquipamentoArmadura>("Armadura de Cavaleiro", 12, 0, 0, 0); }},
-        {"Armadura de bau", []() { return std::make_unique<EquipamentoArmadura>("Armadura de bau", 20, 0, 0, 150); }}
+std::unique_ptr<Item> fabricarEquipamentoArmadura(ItemID id) {
+    static const std::unordered_map<ItemID, std::function<std::unique_ptr<Item>()>> construtores = {
+        {ItemID::ArmaduraMalha, []() { return std::make_unique<EquipamentoArmadura>(FabricaItens::obterNomeDeID(ItemID::ArmaduraMalha), 7, 0, 0, 3); }},
+        {ItemID::ArmaduraCouro, []() { return std::make_unique<EquipamentoArmadura>(FabricaItens::obterNomeDeID(ItemID::ArmaduraCouro), 5, 0, 0, 3); }},
+        {ItemID::Tunica, []() { return std::make_unique<EquipamentoArmadura>(FabricaItens::obterNomeDeID(ItemID::Tunica), 2, 0, 0, 3); }},
+        {ItemID::TrajeNobre, []() { return std::make_unique<EquipamentoArmadura>(FabricaItens::obterNomeDeID(ItemID::TrajeNobre), 4, 0, 0, 3); }},
+        {ItemID::ArmaduraTrapos, []() { return std::make_unique<EquipamentoArmadura>(FabricaItens::obterNomeDeID(ItemID::ArmaduraTrapos), 3, 0, 0, 3); }},
+        {ItemID::ArmaduraCavaleiro, []() { return std::make_unique<EquipamentoArmadura>(FabricaItens::obterNomeDeID(ItemID::ArmaduraCavaleiro), 12, 0, 0, 0); }},
+        {ItemID::ArmaduraBau, []() { 
+            auto armadura = std::make_unique<EquipamentoArmadura>(FabricaItens::obterNomeDeID(ItemID::ArmaduraBau), 20, 0, 0, 150); 
+            armadura->definirPenalidadeDestreza(10);
+            return armadura; 
+        }}
     };
-    auto it = construtores.find(nome);
+    auto it = construtores.find(id);
     if (it != construtores.end()) return it->second();
     return nullptr;
 }
