@@ -22,7 +22,7 @@
 #include "../Inimigos/AbominacaoFloresta.h"
 #include "TransicaoDeMapa.h"
 #include "../Utilidades/Aparencia.h"
-#include "ControleDeMapa.h"
+#include "ControleMapa.h"
 #include "../Utilidades/ControleDeInput.h"
 #include "../Utilidades/GeradorAleatorio.h"
 #include "Mapa3Reino.h"
@@ -54,7 +54,7 @@ namespace {
     public:
         void processar(ContextoInteracaoFloresta& ctx) override {
             if (ctx.proximaPosicaoX > 0 && ctx.self->matrizDoMapaAtual[ctx.proximaPosicaoY][ctx.proximaPosicaoX-1] != '^') {
-                ControleDeMapa::processarCombate(ctx.self->jogadorAtual, ctx.self->matrizDoMapaAtual, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->exploracaoEstaAtiva, "ENCONTRO PEGAJOSO", "Voce encontrou Slimes selvagens!", GerenciadorInimigos::criarInimigoSlime(GeradorAleatorio::obterInteiro(1, 3)), ctx.proximaPosicaoX, ctx.proximaPosicaoY, ctx.proximaPosicaoX, 1, ctx.larguraDoTerminal, ctx.restaurarTela);
+                ControleMapa::processarCombate(ctx.self->jogadorAtual, ctx.self->matrizDoMapaAtual, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->exploracaoEstaAtiva, "ENCONTRO PEGAJOSO", "Voce encontrou Slimes selvagens!", GerenciadorInimigos::criarInimigoSlime(GeradorAleatorio::obterInteiro(1, 3)), ctx.proximaPosicaoX, ctx.proximaPosicaoY, ctx.proximaPosicaoX, 1, ctx.larguraDoTerminal, ctx.restaurarTela);
             } else {
                 ctx.self->posicaoXDoJogador = ctx.proximaPosicaoX;
                 ctx.self->posicaoYDoJogador = ctx.proximaPosicaoY;
@@ -65,14 +65,14 @@ namespace {
     class InteracaoFada : public InteracaoFloresta {
     public:
         void processar(ContextoInteracaoFloresta& ctx) override {
-            ControleDeMapa::processarCombate(ctx.self->jogadorAtual, ctx.self->matrizDoMapaAtual, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->exploracaoEstaAtiva, "ENCONTRO MAGICO", "Voce encontrou Fadas hostis!", GerenciadorInimigos::criarInimigoFada(GeradorAleatorio::obterInteiro(1, 3)), ctx.proximaPosicaoX, ctx.proximaPosicaoY, ctx.proximaPosicaoX, 1, ctx.larguraDoTerminal, ctx.restaurarTela);
+            ControleMapa::processarCombate(ctx.self->jogadorAtual, ctx.self->matrizDoMapaAtual, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->exploracaoEstaAtiva, "ENCONTRO MAGICO", "Voce encontrou Fadas hostis!", GerenciadorInimigos::criarInimigoFada(GeradorAleatorio::obterInteiro(1, 3)), ctx.proximaPosicaoX, ctx.proximaPosicaoY, ctx.proximaPosicaoX, 1, ctx.larguraDoTerminal, ctx.restaurarTela);
         }
     };
 
     class InteracaoAbominacao : public InteracaoFloresta {
     public:
         void processar(ContextoInteracaoFloresta& ctx) override {
-            ControleDeMapa::processarCombate(ctx.self->jogadorAtual, ctx.self->matrizDoMapaAtual, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->exploracaoEstaAtiva, "ENCONTRO BOSS", "Voce encontrou a Abominacao da Floresta!", GerenciadorInimigos::criarInimigoAbominacaoFloresta(1), ctx.proximaPosicaoX, ctx.proximaPosicaoY, ctx.proximaPosicaoX, 1, ctx.larguraDoTerminal, ctx.restaurarTela);
+            ControleMapa::processarCombate(ctx.self->jogadorAtual, ctx.self->matrizDoMapaAtual, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->exploracaoEstaAtiva, "ENCONTRO BOSS", "Voce encontrou a Abominacao da Floresta!", GerenciadorInimigos::criarInimigoAbominacaoFloresta(1), ctx.proximaPosicaoX, ctx.proximaPosicaoY, ctx.proximaPosicaoX, 1, ctx.larguraDoTerminal, ctx.restaurarTela);
         }
     };
 
@@ -101,7 +101,7 @@ namespace {
                     if (GeradorAleatorio::rolarChance(25)) { // 25% de chance de ser um Mímico
                         std::cout << "\n" << margem << Aparencia::cor(Cor::VERMELHO) << "[!] O bau se revela uma criatura viva! E UM MIMICO!" << Aparencia::cor(Cor::RESET) << "\n";
                         Aparencia::aguardarEnter();
-                        ControleDeMapa::processarCombate(ctx.self->jogadorAtual, ctx.self->matrizDoMapaAtual, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->exploracaoEstaAtiva, "CILADA!", "O Bau era um Mimico!", GerenciadorInimigos::criarInimigoMimico(1), ctx.proximaPosicaoX, ctx.proximaPosicaoY, ctx.proximaPosicaoX, 1, ctx.larguraDoTerminal, ctx.restaurarTela);
+                        ControleMapa::processarCombate(ctx.self->jogadorAtual, ctx.self->matrizDoMapaAtual, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->exploracaoEstaAtiva, "CILADA!", "O Bau era um Mimico!", GerenciadorInimigos::criarInimigoMimico(1), ctx.proximaPosicaoX, ctx.proximaPosicaoY, ctx.proximaPosicaoX, 1, ctx.larguraDoTerminal, ctx.restaurarTela);
                     } else {
                     std::cout << "\n" << margem << "[SISTEMA]: O baú se abre rangendo... Voce obteve itens valiosos!\n";
 
@@ -148,14 +148,14 @@ namespace {
             char nextCell = ctx.self->matrizDoMapaAtual[ctx.proximaPosicaoY][ctx.proximaPosicaoX+1];
             
             if (nextCell == 'C' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                ControleDeMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaCabanaSalva, ctx.self->cabanaJaFoiVisitada, Mapa2FlorestaLayouts::obterLayoutCabana(), 8, 2, "CABANA DA BRUXA", ctx.restaurarTela);
+                ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaCabanaSalva, ctx.self->cabanaJaFoiVisitada, Mapa2FlorestaLayouts::obterLayoutCabana(), 8, 2, "CABANA DA BRUXA", ctx.restaurarTela);
             }
             else if (nextCell == 'V') {
                 TransicaoDeMapa::exibirTransicaoParaVila();
                 ctx.self->exploracaoEstaAtiva = false;
             }
             else if (nextCell == 'T' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                ControleDeMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDoCoracaoDaArvoreSalva, ctx.self->coracaoDaArvoreJaFoiVisitado, Mapa2FlorestaLayouts::obterLayoutCoracaoDaArvore(), 10, 3, "CORACAO DA ARVORE", ctx.restaurarTela);
+                ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDoCoracaoDaArvoreSalva, ctx.self->coracaoDaArvoreJaFoiVisitado, Mapa2FlorestaLayouts::obterLayoutCoracaoDaArvore(), 10, 3, "CORACAO DA ARVORE", ctx.restaurarTela);
             }
             else if (nextCell == 'R' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 TransicaoDeMapa::exibirTransicaoParaReino();
@@ -183,7 +183,7 @@ namespace {
                 if (!ctx.self->labirintoJaFoiVisitado) {
                     ctx.self->matrizDoMapaAtual = Mapa2FlorestaLayouts::obterLayoutLabirinto();
                     ctx.self->labirintoJaFoiVisitado = true;
-                    ControleDeMapa::padronizarTamanhoDoMapa(ctx.self->matrizDoMapaAtual);
+                    ControleMapa::padronizarTamanhoDoMapa(ctx.self->matrizDoMapaAtual);
                 } else {
                     ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaDoLabirintoSalva;
                 }
@@ -239,64 +239,7 @@ namespace {
 
                 if (escolha == 1) {
                     Aparencia::limparTela();
-                    std::vector<std::string> arteSimbolo = {
-                        "                                                    ###%%                                                    ",
-                        "                                                 *******####                                                 ",
-                        "                                               ***********##%#                                               ",
-                        "                                               **+++++*****##%                                               ",
-                        "                                              **+++++++*****#%#                                              ",
-                        "                                              **+++++++*****#%#                                              ",
-                        "                                               ***+++++****###                                               ",
-                        "                    ######%                     **********##%                      ######                    ",
-                        "                  ******###%#                     *****###%                     #*******###                  ",
-                        "                **********###%#                      +++                      ***+*******##%#                ",
-                        "                **++++*****####                      +++                      *+++++++****##%                ",
-                        "               **++++++****###%#             #*+++++++++++++++*#             **++++++++****###               ",
-                        "               **+++++++****##%#        #++++++++++++++++++++++++++*#         *++++++++****###               ",
-                        "                **+++++****####      *++++++++++     +++     ++++++++++*      **++++++****###                ",
-                        "                 **********#%++#   ++++++++          +++          ++++++++   #++*********###                 ",
-                        "                    *****##  ++++++++++              +++              +++++++++++ *****##                    ",
-                        "                               ++++++                +++                +++++++                              ",
-                        "                             *+++++++                +++                *++++++*                             ",
-                        "                            +++++ ++++*              +++              *++++ +++++                            ",
-                        "                           +++++    ++++*            +++            *++++    +++++                           ",
-                        "                          +++++       ++++#          +++          *++++       +++++                          ",
-                        "                         +++++          ++++#        +++        #++++          +++++                         ",
-                        "                         ++++             ++++#      +++      #++++             ++++                         ",
-                        "                        ++++*               ++++     +++     ++++               *++++                        ",
-                        "       ######%#         ++++                 +++++#######%#+++++                 ++++         ########       ",
-                        "     *******###%#       ++++                   ++********###++                   *+++       ********####     ",
-                        "    ****++****#####     +++*                   *****+*****####                   *+++     #***********##%    ",
-                        "   *+++++++****##%#++++++++++++++++++++++++++++*+++++++****##%++++++++++++++++++++++++++++**++++++*****###   ",
-                        "   *+++++++****####+++++++++++++++++++++++++++++++++++++***##%++++++++++++++++++++++++++++**++++++++***##%   ",
-                        "   **++++++****##%#     +++*                   **+++++++***##%                   *+++     **+++++++****###   ",
-                        "    *++++******###      ++++                   #*++++++****#%#                   ++++      ***++++*****#%    ",
-                        "      ********##        ++++*                 ++++********#*+++                 *++++        ********##      ",
-                        "                         ++++               +++++    +**    +++++               ++++                         ",
-                        "                         +++++            *++++      +++      ++++*            +++++                         ",
-                        "                          +++++         *++++        +++        ++++*         +++++                          ",
-                        "                           +++++      *++++          +++          ++++#      +++++                           ",
-                        "                            +++++#  #++++            +++            ++++#  #+++++                            ",
-                        "                              +++++++++              +++              +++++++++                              ",
-                        "                               ++++++#               +++               #++++++                               ",
-                        "                               ++++++++#             +++             #++++++++                               ",
-                        "                     ###%%#  +++++ +++++++*#         +++         #*+++++++ ++++*  %#%%%%                     ",
-                        "                  #*****###%%+++      +++++++++*##%  +++  %%#*+++++++++      +++****#####%#                  ",
-                        "                 **********##%#          +++++++++++++++++++++++++++          **********##%#                 ",
-                        "                ****+++*****##%#              +++++++++++++++++              ****+++*****##%#                ",
-                        "                **+++++++***##%#                     +++                     **+++++++****###                ",
-                        "                *++++++++***##%#                     +++                     **+++++++****###                ",
-                        "                 *++++++****##%                      +++                      **++++++****#%                 ",
-                        "                  *********##%                    ######%##                    **********##                  ",
-                        "                     ****##                     #*******###%#                     *****#                     ",
-                        "                                               ***********##%#                                               ",
-                        "                                               ***++++*****##%                                               ",
-                        "                                               *+++++++*****#%                                               ",
-                        "                                               *++++++++***###                                               ",
-                        "                                                *++++++****##                                                ",
-                        "                                                 *********#%                                                 ",
-                        "                                                     ###                                                     "
-                    };
+                    std::vector<std::string> arteSimbolo = Mapa2FlorestaLayouts::obterArteSimboloChefe();
                     
                     std::cout << "\n\n";
                     Aparencia::imprimirCentralizadoMultilinha(arteSimbolo, 109, Aparencia::cor(Cor::BRANCO));
@@ -320,7 +263,7 @@ namespace {
                         ctx.self->matrizDoMapaDoLabirintoSalva = ctx.self->matrizDoMapaAtual;
                         if (!ctx.self->salaDoChefeJaFoiVisitada) {
                             ctx.self->matrizDoMapaAtual = Mapa2FlorestaLayouts::obterLayoutSalaDoChefe();
-                            ControleDeMapa::padronizarTamanhoDoMapa(ctx.self->matrizDoMapaAtual);
+                            ControleMapa::padronizarTamanhoDoMapa(ctx.self->matrizDoMapaAtual);
                             ctx.self->salaDoChefeJaFoiVisitada = true;
                         } else {
                             ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaSalaDoChefeSalva;
@@ -365,7 +308,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
 {
     inicializarInteracoes();
 
-    ControleDeMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
+    ControleMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
 
     Aparencia::ocultarCursor();
 
@@ -379,70 +322,6 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
         Aparencia::limparTela();
         exibirTituloDoMapaFloresta(tituloDoMapaAtual);
         linhaInicialParaDesenharOMapa = Aparencia::obterPosicaoCursorY();
-    };
-
-    auto renderizarMapa = [&](int larguraDoTerminal, int alturaDoTerminal, int linhaInicial)
-    {
-        int startX, endX;
-        ControleDeMapa::calcularCameraHorizontal(larguraDoTerminal, posicaoXDoJogador, matrizDoMapaAtual.empty() ? 0 : static_cast<int>(matrizDoMapaAtual[0].length()), startX, endX);
-
-        std::string margemEsquerdaDoMapa = ControleDeMapa::calcularMargemCentralizada(larguraDoTerminal, endX - startX);
-        std::string margemDireitaDoMapa = "";
-
-        std::string textoDeControlesDoJogador = "W,A,S,D: Mover | I: Inventario | C: Ficha | B: Bestiario";
-        std::string margemEsquerdaDosControles = ControleDeMapa::calcularMargemCentralizada(larguraDoTerminal, textoDeControlesDoJogador.length());
-
-        Aparencia::moverCursor(0, linhaInicial);
-
-        int startY, endY;
-        ControleDeMapa::calcularCameraVertical(alturaDoTerminal, posicaoYDoJogador, static_cast<int>(matrizDoMapaAtual.size()), startY, endY);
-
-        for (int y = startY; y < endY; y++)
-        {
-            std::string linhaSendoRenderizada = margemEsquerdaDoMapa;
-            linhaSendoRenderizada.reserve(margemEsquerdaDoMapa.size() + (endX - startX) + 20);
-            for (int x = startX; x < endX; x++)
-            {
-                if (x == posicaoXDoJogador && y == posicaoYDoJogador)
-                {
-                    linhaSendoRenderizada += Aparencia::cor(Cor::NEGRITO, Cor::VERDE) + "@" + Aparencia::cor(Cor::RESET);
-                }
-                else if (matrizDoMapaAtual[y][x] == 'S' && (x == 0 || matrizDoMapaAtual[y][x-1] != '^'))
-                {
-                    linhaSendoRenderizada += Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + "S" + Aparencia::cor(Cor::RESET);
-                }
-                else if (matrizDoMapaAtual[y][x] == 'F')
-                {
-                    linhaSendoRenderizada += Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + "F" + Aparencia::cor(Cor::RESET);
-                }
-                else if (matrizDoMapaAtual[y][x] == 'A')
-                {
-                    linhaSendoRenderizada += Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + "A" + Aparencia::cor(Cor::RESET);
-                }
-                else if (matrizDoMapaAtual[y][x] == 'M')
-                {
-                    linhaSendoRenderizada += Aparencia::cor(Cor::NEGRITO, Cor::MAGENTA) + "M" + Aparencia::cor(Cor::RESET);
-                }
-                else if (matrizDoMapaAtual[y][x] == 'B')
-                {
-                    linhaSendoRenderizada += Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "B" + Aparencia::cor(Cor::RESET);
-                }
-                else if (tituloDoMapaAtual == "SALA DO CHEFE" && (matrizDoMapaAtual[y][x] == 'M' || matrizDoMapaAtual[y][x] == 'A' || matrizDoMapaAtual[y][x] == 'H' || matrizDoMapaAtual[y][x] == 'O'))
-                {
-                    linhaSendoRenderizada += Aparencia::cor(Cor::NEGRITO, Cor::MAGENTA) + matrizDoMapaAtual[y][x] + Aparencia::cor(Cor::RESET);
-                }
-                else if (matrizDoMapaAtual[y][x] == '.' && tituloDoMapaAtual == "SALA DO CHEFE")
-                {
-                    linhaSendoRenderizada += Aparencia::cor(Cor::CINZA) + "." + Aparencia::cor(Cor::RESET);
-                }
-                else
-                {
-                    linhaSendoRenderizada += matrizDoMapaAtual[y][x];
-                }
-            }
-            std::cout << linhaSendoRenderizada << margemDireitaDoMapa << "\n";
-        }
-        std::cout << "\n" << margemEsquerdaDosControles << textoDeControlesDoJogador << std::flush;
     };
 
     auto processarInteracao = [&](int proximaPosicaoX, int proximaPosicaoY, int larguraDoTerminal)
@@ -481,19 +360,29 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
         int larguraDoTerminal = Aparencia::obterLarguraTerminal();
         int alturaDoTerminal = Aparencia::obterAlturaTerminal();
 
-        renderizarMapa(larguraDoTerminal, alturaDoTerminal, linhaInicialParaDesenharOMapa);
+        auto formatador = [&](char celula, int x, int y) -> std::string {
+            if (x == posicaoXDoJogador && y == posicaoYDoJogador) return Aparencia::cor(Cor::NEGRITO, Cor::VERDE) + "@" + Aparencia::cor(Cor::RESET);
+            if (celula == 'S' && (x == 0 || matrizDoMapaAtual[y][x-1] != '^')) return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + "S" + Aparencia::cor(Cor::RESET);
+            if (celula == 'F' || celula == 'A') return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
+            if (celula == 'M') return Aparencia::cor(Cor::NEGRITO, Cor::MAGENTA) + "M" + Aparencia::cor(Cor::RESET);
+            if (celula == 'B') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "B" + Aparencia::cor(Cor::RESET);
+            if (tituloDoMapaAtual == "SALA DO CHEFE" && (celula == 'M' || celula == 'A' || celula == 'H' || celula == 'O')) return Aparencia::cor(Cor::NEGRITO, Cor::MAGENTA) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
+            if (tituloDoMapaAtual == "SALA DO CHEFE" && celula == '.') return Aparencia::cor(Cor::CINZA) + "." + Aparencia::cor(Cor::RESET);
+            return std::string(1, celula);
+        };
+        ControleMapa::renderizarMapa(matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, larguraDoTerminal, alturaDoTerminal, linhaInicialParaDesenharOMapa, formatador);
 
         char teclaPressionadaPeloJogador = ControleDeInput::lerTecla();
 
         int proximaPosicaoX = posicaoXDoJogador;
         int proximaPosicaoY = posicaoYDoJogador;
 
-        bool abriuMenu = ControleDeMapa::processarInputEComandos(teclaPressionadaPeloJogador, jogadorAtual, proximaPosicaoX, proximaPosicaoY, restaurarTela);
+        bool abriuMenu = ControleMapa::processarInputEComandos(teclaPressionadaPeloJogador, jogadorAtual, proximaPosicaoX, proximaPosicaoY, restaurarTela);
         
         if (jogadorAtual->obterVoltarProMenu()) break;
         if (abriuMenu) continue;
 
-        ControleDeMapa::aplicarLimitesDeMapa(proximaPosicaoX, proximaPosicaoY, matrizDoMapaAtual);
+        ControleMapa::aplicarLimitesDeMapa(proximaPosicaoX, proximaPosicaoY, matrizDoMapaAtual);
 
         processarInteracao(proximaPosicaoX, proximaPosicaoY, larguraDoTerminal);
     }

@@ -49,7 +49,9 @@ void Inventario::removerItem(const std::string& nomeDoItem)
     
     if (it != listaDeItens.end()) 
     {
-        removerItem(it->get());
+        contagemItens_[nomeDoItem]--;
+        if (contagemItens_[nomeDoItem] <= 0) contagemItens_.erase(nomeDoItem);
+        listaDeItens.erase(it);
     }
 }
 

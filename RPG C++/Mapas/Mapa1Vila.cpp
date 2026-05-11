@@ -18,7 +18,7 @@
 #include "../Inimigos/OrkExilado.h"
 #include "TransicaoDeMapa.h"
 #include "../Utilidades/Aparencia.h"
-#include "ControleDeMapa.h"
+#include "ControleMapa.h"
 #include "../Utilidades/ControleDeInput.h"
 #include "../Utilidades/GeradorAleatorio.h"
 #include "MapaInteracao.h"
@@ -49,14 +49,14 @@ namespace {
     class InteracaoCombateGoblin : public InteracaoVila {
     public:
         void processar(ContextoInteracaoVila& ctx) override {
-            ControleDeMapa::processarCombate(ctx.self->jogadorAtual, ctx.self->matrizDoMapaAtual, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->exploracaoEstaAtiva, "ENCONTRO INESPERADO", "Voce encontrou uma horda de Goblins!", GerenciadorInimigos::criarInimigoGoblin(GeradorAleatorio::obterInteiro(1, 3)), ctx.proximaPosicaoX, ctx.proximaPosicaoY, ctx.proximaPosicaoX, 1, ctx.larguraDoTerminal, ctx.restaurarTela);
+            ControleMapa::processarCombate(ctx.self->jogadorAtual, ctx.self->matrizDoMapaAtual, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->exploracaoEstaAtiva, "ENCONTRO INESPERADO", "Voce encontrou uma horda de Goblins!", GerenciadorInimigos::criarInimigoGoblin(GeradorAleatorio::obterInteiro(1, 3)), ctx.proximaPosicaoX, ctx.proximaPosicaoY, ctx.proximaPosicaoX, 1, ctx.larguraDoTerminal, ctx.restaurarTela);
         }
     };
 
     class InteracaoCombateOrk : public InteracaoVila {
     public:
         void processar(ContextoInteracaoVila& ctx) override {
-            ControleDeMapa::processarCombate(ctx.self->jogadorAtual, ctx.self->matrizDoMapaAtual, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->exploracaoEstaAtiva, "ENCONTRO NA CAVERNA", "Voce encontrou um Ork!", GerenciadorInimigos::criarInimigoOrkExilado(1), ctx.proximaPosicaoX, ctx.proximaPosicaoY, ctx.proximaPosicaoX, 1, ctx.larguraDoTerminal, ctx.restaurarTela);
+            ControleMapa::processarCombate(ctx.self->jogadorAtual, ctx.self->matrizDoMapaAtual, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->exploracaoEstaAtiva, "ENCONTRO NA CAVERNA", "Voce encontrou um Ork!", GerenciadorInimigos::criarInimigoOrkExilado(1), ctx.proximaPosicaoX, ctx.proximaPosicaoY, ctx.proximaPosicaoX, 1, ctx.larguraDoTerminal, ctx.restaurarTela);
         }
     };
 
@@ -106,7 +106,7 @@ namespace {
             char nextNextCell = ctx.self->matrizDoMapaAtual[ctx.proximaPosicaoY][ctx.proximaPosicaoX+2];
             
             if (nextCell == 'C' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                ControleDeMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaCavernaSalva, ctx.self->cavernaJaFoiVisitada, Mapa1VilaLayouts::obterLayoutCaverna(ctx.self->bjornResgatado), 16, 2, "CAVERNA DO ORK", ctx.restaurarTela);
+                ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaCavernaSalva, ctx.self->cavernaJaFoiVisitada, Mapa1VilaLayouts::obterLayoutCaverna(ctx.self->bjornResgatado), 16, 2, "CAVERNA DO ORK", ctx.restaurarTela);
             }
             else if (nextCell == 'S' && ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 if (ctx.self->tituloDoMapaAtual == "CAVERNA DO ORK") ctx.self->matrizDoMapaDaCavernaSalva = ctx.self->matrizDoMapaAtual;
@@ -130,10 +130,10 @@ namespace {
                     ctx.restaurarTela();
                     return;
                 }
-                ControleDeMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaForjaSalva, ctx.self->forjaJaFoiVisitada, Mapa1VilaLayouts::obterLayoutForja(), 8, 2, "FORJA DA VILA", ctx.restaurarTela);
+                ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaForjaSalva, ctx.self->forjaJaFoiVisitada, Mapa1VilaLayouts::obterLayoutForja(), 8, 2, "FORJA DA VILA", ctx.restaurarTela);
             }
             else if (nextCell == 'L' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                ControleDeMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaLojaSalva, ctx.self->lojaJaFoiVisitada, Mapa1VilaLayouts::obterLayoutLoja(), 8, 2, "LOJA DA VILA", ctx.restaurarTela);
+                ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaLojaSalva, ctx.self->lojaJaFoiVisitada, Mapa1VilaLayouts::obterLayoutLoja(), 8, 2, "LOJA DA VILA", ctx.restaurarTela);
             }
             else if (nextCell == 'F' && nextNextCell == 'l' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 TransicaoDeMapa::exibirTransicaoParaFloresta();
@@ -169,7 +169,7 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
     tituloDoMapaAtual = "VILA INICIAL";
     inicializarInteracoes();
 
-    ControleDeMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
+    ControleMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
 
     Aparencia::ocultarCursor();
 
@@ -204,82 +204,31 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
         }
     };
 
-    auto renderizarMapa = [&](int larguraDoTerminal, int alturaDoTerminal, int linhaInicial) 
-    {
-        int startX, endX;
-        ControleDeMapa::calcularCameraHorizontal(larguraDoTerminal, posicaoXDoJogador, matrizDoMapaAtual.empty() ? 0 : static_cast<int>(matrizDoMapaAtual[0].length()), startX, endX);
-
-        std::string margemEsquerdaDoMapa1Vila = ControleDeMapa::calcularMargemCentralizada(larguraDoTerminal, endX - startX);
-
-        std::string textoDeControlesDoJogador = "W,A,S,D: Mover | I: Inventario | C: Ficha | B: Bestiario ";
-        std::string margemEsquerdaDosControles = ControleDeMapa::calcularMargemCentralizada(larguraDoTerminal, textoDeControlesDoJogador.length());
-
-        Aparencia::moverCursor(0, linhaInicial);
-
-        int startY, endY;
-        ControleDeMapa::calcularCameraVertical(alturaDoTerminal, posicaoYDoJogador, static_cast<int>(matrizDoMapaAtual.size()), startY, endY);
-
-        for (int y = startY; y < endY; y++)
-        {
-            std::string linhaSendoRenderizada = margemEsquerdaDoMapa1Vila;
-            linhaSendoRenderizada.reserve(margemEsquerdaDoMapa1Vila.size() + (endX - startX) + 20);
-            for (int x = startX; x < endX; x++)
-            {
-                if (x == posicaoXDoJogador && y == posicaoYDoJogador)
-                {
-                    std::cout << linhaSendoRenderizada;
-                    linhaSendoRenderizada = "";
-                    std::cout << Aparencia::cor(Cor::NEGRITO, Cor::VERDE) << '@' << Aparencia::cor(Cor::RESET);
-                }
-                else if (matrizDoMapaAtual[y][x] == 'G')
-                {
-                    std::cout << linhaSendoRenderizada;
-                    linhaSendoRenderizada = "";
-                    std::cout << Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) << 'G' << Aparencia::cor(Cor::RESET);
-                }
-                else if (matrizDoMapaAtual[y][x] == 'O')
-                {
-                    std::cout << linhaSendoRenderizada;
-                    linhaSendoRenderizada = "";
-                    std::cout << Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) << 'O' << Aparencia::cor(Cor::RESET);
-                }
-                else if (matrizDoMapaAtual[y][x] == 'B')
-                {
-                    std::cout << linhaSendoRenderizada;
-                    linhaSendoRenderizada = "";
-                    std::cout << Aparencia::cor(Cor::NEGRITO, Cor::CIANO) << 'B' << Aparencia::cor(Cor::RESET);
-                }
-                else if (matrizDoMapaAtual[y][x] == 'F' && x > 0 && matrizDoMapaAtual[y][x-1] == '.')
-                {
-                    std::cout << linhaSendoRenderizada;
-                    linhaSendoRenderizada = "";
-                    std::cout << Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) << 'F' << Aparencia::cor(Cor::RESET);
-                }
-                else linhaSendoRenderizada += matrizDoMapaAtual[y][x];
-            }
-            std::cout << linhaSendoRenderizada << "\n";
-        }
-        std::cout << "\n" << margemEsquerdaDosControles << textoDeControlesDoJogador << std::flush;
-    };
-
     while (exploracaoEstaAtiva && jogadorAtual->obterVida() > 0)
     {
         int larguraDoTerminal = Aparencia::obterLarguraTerminal();
         int alturaDoTerminal = Aparencia::obterAlturaTerminal();
 
-        renderizarMapa(larguraDoTerminal, alturaDoTerminal, linhaInicialParaDesenharOMapa);
+        auto formatador = [&](char celula, int x, int y) -> std::string {
+            if (x == posicaoXDoJogador && y == posicaoYDoJogador) return Aparencia::cor(Cor::NEGRITO, Cor::VERDE) + "@" + Aparencia::cor(Cor::RESET);
+            if (celula == 'G' || celula == 'O') return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
+            if (celula == 'B') return Aparencia::cor(Cor::NEGRITO, Cor::CIANO) + "B" + Aparencia::cor(Cor::RESET);
+            if (celula == 'F' && x > 0 && matrizDoMapaAtual[y][x-1] == '.') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "F" + Aparencia::cor(Cor::RESET);
+            return std::string(1, celula);
+        };
+        ControleMapa::renderizarMapa(matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, larguraDoTerminal, alturaDoTerminal, linhaInicialParaDesenharOMapa, formatador);
 
         char teclaPressionadaPeloJogador = ControleDeInput::lerTecla();
 
         int proximaPosicaoX = posicaoXDoJogador;
         int proximaPosicaoY = posicaoYDoJogador;
 
-        bool abriuMenu = ControleDeMapa::processarInputEComandos(teclaPressionadaPeloJogador, jogadorAtual, proximaPosicaoX, proximaPosicaoY, restaurarTela);
+        bool abriuMenu = ControleMapa::processarInputEComandos(teclaPressionadaPeloJogador, jogadorAtual, proximaPosicaoX, proximaPosicaoY, restaurarTela);
         
         if (jogadorAtual->obterVoltarProMenu()) break;
         if (abriuMenu) continue;
 
-        ControleDeMapa::aplicarLimitesDeMapa(proximaPosicaoX, proximaPosicaoY, matrizDoMapaAtual);
+        ControleMapa::aplicarLimitesDeMapa(proximaPosicaoX, proximaPosicaoY, matrizDoMapaAtual);
 
         processarInteracao(proximaPosicaoX, proximaPosicaoY, larguraDoTerminal);
     }

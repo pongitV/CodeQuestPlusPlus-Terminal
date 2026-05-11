@@ -9,6 +9,27 @@
 #include "../Utilidades/ControleDeInput.h"
 #include "../Racas/RacaBase.h"
 
+namespace {
+    void exibirPromptGenerico(const std::string& titulo, const std::string& infoBox, const std::vector<std::string>& narracao, const std::vector<std::string>& opcoes) {
+        Aparencia::limparTela();
+        TelaMenu::exibirLogoDoJogo(titulo);
+        
+        if (!infoBox.empty()) {
+            std::string borda = "+" + std::string(infoBox.length() - 2, '-') + "+";
+            Aparencia::imprimirCentralizado(borda);
+            Aparencia::imprimirCentralizado(infoBox);
+            Aparencia::imprimirCentralizado(borda);
+            std::cout << "\n";
+        }
+        
+        Aparencia::imprimirBlocoCentralizadoDigitando(narracao);
+        std::cout << "\n";
+        
+        Aparencia::imprimirBlocoCentralizado(opcoes);
+        Aparencia::exibirPrompt(" > Sua escolha: ");
+    }
+}
+
 bool TelaMenu::exibirConfirmacaoDeEscolhaComArteLadoALado(const std::string& tipoDeEscolha, const std::string& nomeDaEscolha, const std::vector<std::string>& informacoesParaExibir, const std::vector<std::string>& arteAsciiParaExibir) 
 {
     Aparencia::limparTela();
@@ -145,98 +166,34 @@ void TelaMenu::exibirPromptNome() {
 }
 
 void TelaMenu::exibirPromptRaca(const std::string& nome) {
-    Aparencia::limparTela();
-    exibirLogoDoJogo("SELECAO DE RACA");
-    
-    std::string info = "| JOGADOR: " + nome + " |";
-    std::string borda = "+" + std::string(info.length() - 2, '-') + "+";
-    Aparencia::imprimirCentralizado(borda);
-    Aparencia::imprimirCentralizado(info);
-    Aparencia::imprimirCentralizado(borda);
-    std::cout << "\n";
-    
-    Aparencia::imprimirBlocoCentralizadoDigitando({
-        "[NARRACAO]: Qual sua origem?"
-    });
-    std::cout << "\n";
-    
-    std::vector<std::string> opcoes = {
-        "[1] Dwarf", "[2] Elfo", "[3] Humano", "[4] Ork", "", "[0] VOLTAR (selecao de nome)"
-    };
-    Aparencia::imprimirBlocoCentralizado(opcoes);
-    Aparencia::exibirPrompt(" > Sua escolha: ");
+    exibirPromptGenerico("SELECAO DE RACA", "| JOGADOR: " + nome + " |", 
+        {"[NARRACAO]: Qual sua origem?"}, 
+        {"[1] Dwarf", "[2] Elfo", "[3] Humano", "[4] Ork", "", "[0] VOLTAR (selecao de nome)"});
 }
 
 void TelaMenu::exibirPromptClasse(const std::string& nome, const std::string& nomeRaca) {
-    Aparencia::limparTela();
-    exibirLogoDoJogo("SELECAO DE CLASSE");
-    
-    std::string info = "| JOGADOR: " + nome + " | RACA: " + nomeRaca + " |";
-    std::string borda = "+" + std::string(info.length() - 2, '-') + "+";
-    Aparencia::imprimirCentralizado(borda);
-    Aparencia::imprimirCentralizado(info);
-    Aparencia::imprimirCentralizado(borda);
-    std::cout << "\n";
-    
-    Aparencia::imprimirBlocoCentralizadoDigitando({
-        "[NARRACAO]: Qual seu caminho?"
-    });
-    std::cout << "\n";
-
-    std::vector<std::string> opcoes = {
-        "[1] Arqueiro", "[2] Bardo", "[3] Guerreiro", "[4] Mago", "", "[0] VOLTAR (selecao de raca)"
-    };
-    Aparencia::imprimirBlocoCentralizado(opcoes);
-    Aparencia::exibirPrompt(" > Sua escolha: ");
+    exibirPromptGenerico("SELECAO DE CLASSE", "| JOGADOR: " + nome + " | RACA: " + nomeRaca + " |", 
+        {"[NARRACAO]: Qual seu caminho?"}, 
+        {"[1] Arqueiro", "[2] Bardo", "[3] Guerreiro", "[4] Mago", "", "[0] VOLTAR (selecao de raca)"});
 }
 
 void TelaMenu::exibirPromptDificuldade(const std::string& nome, const std::string& nomeRaca, const std::string& nomeClasse) {
-    Aparencia::limparTela();
-    exibirLogoDoJogo("DIFICULDADE DO MUNDO");
-    
-    std::string info = "| JOGADOR: " + nome + " | RACA: " + nomeRaca + " | CLASSE: " + nomeClasse + " |";
-    std::string borda = "+" + std::string(info.length() - 2, '-') + "+";
-    Aparencia::imprimirCentralizado(borda);
-    Aparencia::imprimirCentralizado(info);
-    Aparencia::imprimirCentralizado(borda);
-    std::cout << "\n";
-    
-    Aparencia::imprimirBlocoCentralizadoDigitando({
-        "[SISTEMA]: Escolha o nivel de desafio da sua jornada:"
-    });
-    std::cout << "\n";
-    
-    std::vector<std::string> opcoes = {
-        "[1] FACIL   (Inimigos com 1x Atributos, sem habilidades de raca ou classe)",
-        "[2] NORMAL  (Inimigos com 1.5x Atributos, com habilidades de raca)",
-        "[3] DIFICIL (Inimigos com 2x Atributos, com habilidades raca e classe)",
-        "",
-        "[0] VOLTAR (selecao de classe)"
-    };
-    Aparencia::imprimirBlocoCentralizado(opcoes);
-    Aparencia::exibirPrompt(" > Sua escolha: ");
+    exibirPromptGenerico("DIFICULDADE DO MUNDO", "| JOGADOR: " + nome + " | RACA: " + nomeRaca + " | CLASSE: " + nomeClasse + " |", 
+        {"[SISTEMA]: Escolha o nivel de desafio da sua jornada:"}, 
+        {
+            "[1] FACIL   (Inimigos com 1x Atributos, sem habilidades de raca ou classe)",
+            "[2] NORMAL  (Inimigos com 1.5x Atributos, com habilidades de raca)",
+            "[3] DIFICIL (Inimigos com 2x Atributos, com habilidades raca e classe)",
+            "",
+            "[0] VOLTAR (selecao de classe)"
+        });
 }
 
 void TelaMenu::exibirPromptParry(const std::string& nome, const std::string& nomeRaca, const std::string& nomeClasse) {
-    Aparencia::limparTela();
-    exibirLogoDoJogo("CONFIGURACOES DO JOGO");
-    
-    std::string info = "| JOGADOR: " + nome + " | RACA: " + nomeRaca + " | CLASSE: " + nomeClasse + " |";
-    std::string borda = "+" + std::string(info.length() - 2, '-') + "+";
-    Aparencia::imprimirCentralizado(borda);
-    Aparencia::imprimirCentralizado(info);
-    Aparencia::imprimirCentralizado(borda);
-    std::cout << "\n";
-    
-    Aparencia::imprimirBlocoCentralizadoDigitando({
-        "[SISTEMA]: Deseja ativar o sistema de PARRY?",
-        "(Permite reduzir danos ao digitar uma sequencia de numeros num tempo limite)"
-    });
-    std::cout << "\n";
-    
-    std::vector<std::string> opcoes = {
-        "[1] LIGAR Parry (Inicia o Tutorial)", "[2] DESLIGAR Parry", "", "[0] VOLTAR (selecao de dificuldade)"
-    };
-    Aparencia::imprimirBlocoCentralizado(opcoes);
-    Aparencia::exibirPrompt(" > Sua escolha: ");
+    exibirPromptGenerico("CONFIGURACOES DO JOGO", "| JOGADOR: " + nome + " | RACA: " + nomeRaca + " | CLASSE: " + nomeClasse + " |", 
+        {
+            "[SISTEMA]: Deseja ativar o sistema de PARRY?",
+            "(Permite reduzir danos ao digitar uma sequencia de numeros num tempo limite)"
+        }, 
+        {"[1] LIGAR Parry (Inicia o Tutorial)", "[2] DESLIGAR Parry", "", "[0] VOLTAR (selecao de dificuldade)"});
 }

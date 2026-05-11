@@ -81,17 +81,11 @@ InfoBestiario Goblin::obterInfoBestiario() const {
 
 void Goblin::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)
 {
-    int xpDrop = 40;
-    int ouroDrop = 20;
-    GerenciadorDrops::relatarEProcessarXpOuro(jogadorAtual, xpDrop, ouroDrop, ouroTotal, xpTotal);
+    GerenciadorDrops::relatarEProcessarXpOuro(jogadorAtual, 40, 20, ouroTotal, xpTotal);
 
-    if (inimigo->obterArma() && inimigo->obterArma()->obterNomeItem() == "Adaga artesanal de pedra") 
-    {
-        if (GeradorAleatorio::rolarChance(65)) {
-            GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::AdagaPedra, 1, itensObtidos);
-        }
+    if (inimigo->obterArma() && inimigo->obterArma()->obterNomeItem() == "Adaga artesanal de pedra") {
+        GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::AdagaPedra, 1, itensObtidos, 65);
     }
     
-    int qtdDentes = GeradorAleatorio::obterInteiro(4, 8);
-    GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::DenteGoblin, qtdDentes, itensObtidos);
+    GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::DenteGoblin, GeradorAleatorio::obterInteiro(4, 8), itensObtidos);
 }

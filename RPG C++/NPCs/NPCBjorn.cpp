@@ -13,24 +13,19 @@
 #include "../Telas/TelaInventario.h"
 #include "../Utilidades/Aparencia.h"
 #include "../Utilidades/ControleDeInput.h"
+#include "../Gerenciadores/GerenciadorLoja.h"
 #include "NPCBjornLayouts.h"
 
 namespace {
-    struct Produto {
-        ItemID idItem;
-        int preco;
-        int quantidade; // -1 para infinito
-    };
-
     // --- DADOS DO ESTOQUE ---
-    std::map<int, Produto> estoqueArmas = {
+    std::map<int, ProdutoLoja> estoqueArmas = {
         {1, {ItemID::EspadaFerro, 40, -1}},
         {2, {ItemID::ArcoMadeira, 40, -1}},
         {3, {ItemID::CajadoCristal, 40, -1}},
         {4, {ItemID::ViolaoEncantado, 40, -1}}
     };
     
-    std::map<int, Produto> estoqueArmaduras = {
+    std::map<int, ProdutoLoja> estoqueArmaduras = {
         {1, {ItemID::ArmaduraMalha, 40, -1}},
         {2, {ItemID::ArmaduraCouro, 40, -1}},
         {3, {ItemID::Tunica, 40, -1}},
@@ -106,62 +101,13 @@ namespace {
         auto& estoqueAtual = comprandoArmas ? estoqueArmas : estoqueArmaduras;
         std::string tituloLoja = comprandoArmas ? "FORJA - ARMAS" : "FORJA - ARMADURAS";
 
-        std::string opcaoCompra;
-        do {
-            Aparencia::limparTela();
-            Aparencia::exibirCabecalho(tituloLoja, Cor::CIANO);
-            
-            std::vector<std::string> linhas;
-            linhas.push_back("Seu Ouro: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G");
-            linhas.push_back("");
+        auto formatador = [](ItemID id) {
+            std::unique_ptr<Item> tempItem = FabricaItens::criarItem(id);
+            return tempItem ? tempItem->obterInfoStatus() : "";
+        };
 
-            for (auto const& [id, produto] : estoqueAtual) {
-                std::string preco = std::to_string(produto.preco) + "G";
-                std::unique_ptr<Item> tempItem = FabricaItens::criarItem(produto.idItem);
-                std::string infoStatus = tempItem ? tempItem->obterInfoStatus() : "";
-                std::string estoqueInfo = (produto.quantidade == -1) ? "" : (produto.quantidade == 0 ? " (Esgotado)" : " (Estoque: " + std::to_string(produto.quantidade) + ")");
-                linhas.push_back("[" + std::to_string(id) + "] " + (tempItem ? tempItem->obterNomeItem() : "???") + infoStatus + " (" + preco + ")" + estoqueInfo);
-            }
-            linhas.push_back("");
-            linhas.push_back("[0] VOLTAR");
-
-            std::cout << "\n";
-            Aparencia::imprimirBlocoCentralizado(linhas);
-            std::cout << "\n";
-            int idCompra = ControleDeInput::lerInteiroComLimites("Escolha: ", 0, 4, true);
-            opcaoCompra = std::to_string(idCompra);
-            
-            if (opcaoCompra != "0" && estoqueAtual.find(idCompra) != estoqueAtual.end()) {
-                auto& produto = estoqueAtual[idCompra];
-                if (produto.quantidade == 0) {
-                    dialogoBjorn("Este item esta esgotado!");
-                } else {
-                    int maxComprador = jogadorAtual->obterInventario()->obterOuro() / produto.preco;
-                    if (maxComprador == 0) {
-                        dialogoBjorn("Voce nao tem ouro suficiente para isso!");
-                    } else {
-                        int maxPossivel = (produto.quantidade == -1) ? maxComprador : std::min(maxComprador, produto.quantidade);
-                        int qtdComprar = 1;
-                        if (maxPossivel > 1) {
-                            std::string msgQtd = "Quantidade para comprar (1 a " + std::to_string(maxPossivel) + ", 0 cancelar): ";
-                            qtdComprar = ControleDeInput::lerInteiroComLimites(msgQtd, 0, maxPossivel, true);
-                        }
-                        
-                        if (qtdComprar > 0) {
-                            jogadorAtual->obterInventario()->adicionarOuro(-(produto.preco * qtdComprar));
-                            if (produto.quantidade != -1) produto.quantidade -= qtdComprar;
-                            
-                            std::string nomeNovo = FabricaItens::obterNomeDeID(produto.idItem);
-                            for (int i = 0; i < qtdComprar; ++i) {
-                                jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(produto.idItem));
-                            }
-                            dialogoBjorn("Otima escolha! Voce comprou " + std::to_string(qtdComprar) + "x " + nomeNovo + ".");
-                        }
-                    }
-                }
-                Aparencia::aguardarEnter();
-            }
-        } while (opcaoCompra != "0");
+        GerenciadorLoja::processarCompra(jogadorAtual, tituloLoja, Cor::CIANO, estoqueAtual, 
+            [](const std::string& msg) { dialogoBjorn(msg); }, formatador);
     }
 
     void processarMelhoriaNaBigorna(SistemaPersonagem* jogadorAtual) {
@@ -171,17 +117,10 @@ namespace {
             dialogoBjorn("Escolha a ARMA, ESCUDO ou ARMADURA para melhorar (requer copia) ou [0] VOLTAR: ", true, false);
             std::cout << "\033[s";
             
-            Item* itemBase = nullptr;
-            while (true) {
-                codigoDoItemBase = ControleDeInput::lerEntradaProtegida();
-                if (codigoDoItemBase == "0") break;
-                itemBase = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigoDoItemBase, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
-                if (itemBase) break;
-                std::cout << "\033[u\033[J";
-            }
+            Item* itemBase = TelaInventario::lerSelecaoDeItem(jogadorAtual, codigoDoItemBase);
             if (codigoDoItemBase == "0") break;
             
-            if (itemBase == jogadorAtual->obterArma() || itemBase == jogadorAtual->obterEscudo() || itemBase == jogadorAtual->obterArmadura()) { dialogoBjorn("Voce precisa DESEQUIPAR o item antes de usa-lo na bigorna!"); Aparencia::aguardarEnter(); continue; }
+            if (jogadorAtual->isItemEquipado(itemBase)) { dialogoBjorn("Voce precisa DESEQUIPAR o item antes de usa-lo na bigorna!"); Aparencia::aguardarEnter(); continue; }
             if (itemBase->temPropriedade(Propriedade::Melhorado)) { dialogoBjorn("Este item ja atingiu o limite de melhoria basica!"); Aparencia::aguardarEnter(); continue; }
             TipoEquipamento tipo = itemBase->obterTipo();
             if (tipo != TipoEquipamento::ARMA && tipo != TipoEquipamento::ESCUDO && tipo != TipoEquipamento::ARMADURA) { dialogoBjorn("Eu so posso melhorar Armas, Escudos e Armaduras!"); Aparencia::aguardarEnter(); continue; }
@@ -234,17 +173,10 @@ namespace {
         dialogoBjorn("Escolha a ARMADURA para melhorar (+3 Defesa/Resistencia) ou [0] VOLTAR: ", false, false);
             std::cout << "\033[s";
 
-            Item* itemParaUpgrade = nullptr;
-            while (true) {
-                codigoDaArmadura = ControleDeInput::lerEntradaProtegida();
-                if (codigoDaArmadura == "0") break;
-                itemParaUpgrade = jogadorAtual->obterInventario()->buscarItemPorCodigo(codigoDaArmadura, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura());
-                if (itemParaUpgrade) break;
-                std::cout << "\033[u\033[J";
-            }
+            Item* itemParaUpgrade = TelaInventario::lerSelecaoDeItem(jogadorAtual, codigoDaArmadura);
             if (codigoDaArmadura == "0") break;
 
-            if (itemParaUpgrade == jogadorAtual->obterArmadura() || itemParaUpgrade == jogadorAtual->obterArma() || itemParaUpgrade == jogadorAtual->obterEscudo()) {
+            if (jogadorAtual->isItemEquipado(itemParaUpgrade)) {
             dialogoBjorn("Voce precisa DESEQUIPAR o item antes de usa-lo na bigorna!"); 
                 Aparencia::aguardarEnter(); 
                 continue; 

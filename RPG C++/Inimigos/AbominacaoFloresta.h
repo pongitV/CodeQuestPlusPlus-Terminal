@@ -23,5 +23,4 @@ public:
     int processarDanoOfensivo(int danoBase, SistemaPersonagem* atacante) override;
 
     void realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal) override;
-    static std::vector<std::string> obterMapaCoracaoDaArvore();
 };

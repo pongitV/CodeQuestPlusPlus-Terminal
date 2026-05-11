@@ -10,4 +10,5 @@ public:
     static void exibirMenuInteracaoItem(Item* itemEncontrado);
     static void exibirInspecaoItem(Item* item);
     static void exibirPrompt(const std::string& mensagem);
+    static Item* lerSelecaoDeItem(SistemaPersonagem* jogadorAtual, std::string& outCodigoDigitado);
 };

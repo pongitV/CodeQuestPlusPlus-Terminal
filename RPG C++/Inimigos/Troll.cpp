@@ -125,7 +125,7 @@ InfoBestiario Troll::obterInfoBestiario() const {
         "Montanhas", 
         "Caverna Profunda",
         "Uma criatura gigantesca, incrivelmente forte e resistente, capaz de empunhar arvores inteiras como clavas.",
-        "A lenda diz que as feridas de um Troll se fecham em segundos.",
+        "A lenda diz que as feridas de um Troll se fecham por completo enquanto ele dorme.",
         {FabricaItens::obterNomeDeID(ItemID::TroncoAmarrotado), FabricaItens::obterNomeDeID(ItemID::OrgaoRegenerador), "Ouro"},
         6
     };
@@ -133,10 +133,7 @@ InfoBestiario Troll::obterInfoBestiario() const {
 
 void Troll::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)
 {
-    int xpDrop = 400;
-    int ouroDrop = 350;
-    GerenciadorDrops::relatarEProcessarXpOuro(jogadorAtual, xpDrop, ouroDrop, ouroTotal, xpTotal);
-
+    GerenciadorDrops::relatarEProcessarXpOuro(jogadorAtual, 400, 350, ouroTotal, xpTotal);
     GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::TroncoAmarrotado, 1, itensObtidos);
     GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::OrgaoRegenerador, 1, itensObtidos);
 }

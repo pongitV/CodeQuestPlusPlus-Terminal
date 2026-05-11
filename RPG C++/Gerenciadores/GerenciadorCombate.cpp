@@ -110,6 +110,42 @@ void GerenciadorCombate::exibirTelaDeCombate(bool animarEntrada) const
     Aparencia::imprimirLinhaDivisoria();
 }
 
+std::vector<SistemaPersonagem*> GerenciadorCombate::obterAliadosVivosRaw() const {
+    std::vector<SistemaPersonagem*> aliadosVivos;
+    for (const auto& aliado : listaDeAliados) {
+        if (aliado->obterVida() > 0) aliadosVivos.push_back(aliado.get());
+    }
+    return aliadosVivos;
+}
+
+void GerenciadorCombate::prepararTurnoPersonagem(SistemaPersonagem* personagem) {
+    Aparencia::registrarLogBatalha("");
+    Aparencia::registrarLogBatalha("--- TURNO " + std::to_string(contadorDoTurnoAtual) + " | VEZ DE " + personagem->obterNome() + " ---");
+    personagem->reduzirCooldowns();
+    personagem->processarEfeitosInicioTurno();
+}
+
+bool GerenciadorCombate::executarTurnoJogadorOuAliado(SistemaPersonagem* personagem, bool& primeiraRenderizacao) {
+    prepararTurnoPersonagem(personagem);
+    if (personagem->obterVida() <= 0) return false;
+
+    bool turnoConsumido = false;
+    bool usouInventario = false;
+
+    while (!turnoConsumido && personagem->obterVida() > 0 && !listaDeInimigos.empty()) {
+        exibirTelaDeCombate(primeiraRenderizacao);
+        primeiraRenderizacao = false;
+        processarMenuDeAcoesDoJogador(personagem, turnoConsumido, usouInventario);
+        if (verificarCondicaoDeVitoriaOuDerrota()) return true; 
+    }
+
+    if (usouInventario) {
+        exibirTelaDeCombate();
+        TelaCombate::notificarDesprevencaoInventario();
+    }
+    return false;
+}
+
 void GerenciadorCombate::iniciarCombate() 
 {
     jogadorAtual->prepararParaNovaBatalha();
@@ -148,30 +184,12 @@ void GerenciadorCombate::iniciarCombate()
     while (jogadorAtual->obterVida() > 0 && !listaDeInimigos.empty()) {
         // Turno do Jogador
         if (jogadorAtual->obterVida() > 0) {
-            Aparencia::registrarLogBatalha("");
-            Aparencia::registrarLogBatalha("--- TURNO " + std::to_string(contadorDoTurnoAtual) + " | VEZ DE " + jogadorAtual->obterNome() + " ---");
-            jogadorAtual->reduzirCooldowns();
-            jogadorAtual->processarEfeitosInicioTurno();
-
-            bool turnoFoiConsumido = false;
-            bool usouInventarioNoTurno = false;
-
-            while (!turnoFoiConsumido && jogadorAtual->obterVida() > 0 && !listaDeInimigos.empty()) {
-                exibirTelaDeCombate(primeiraRenderizacao);
-                primeiraRenderizacao = false;
-                processarMenuDeAcoesDoJogador(jogadorAtual, turnoFoiConsumido, usouInventarioNoTurno);
-                if (verificarCondicaoDeVitoriaOuDerrota()) return; 
-            }
+            if (executarTurnoJogadorOuAliado(jogadorAtual, primeiraRenderizacao)) return;
 
             if (turnoExtraFirstTurn && contadorDoTurnoAtual == 1) {
                 TelaCombate::notificarTurnoExtra(jogadorAtual->obterDestreza(), maxDestrezaInimigos);
                 turnoExtraFirstTurn = false;
                 continue;
-            }
-
-            if (usouInventarioNoTurno) {
-                exibirTelaDeCombate();
-                TelaCombate::notificarDesprevencaoInventario();
             }
         }
         
@@ -179,20 +197,8 @@ void GerenciadorCombate::iniciarCombate()
         for (auto& aliado : listaDeAliados) {
             if (aliado->obterVida() <= 0 || listaDeInimigos.empty()) continue;
             
-            Aparencia::registrarLogBatalha("");
-            Aparencia::registrarLogBatalha("--- TURNO " + std::to_string(contadorDoTurnoAtual) + " | VEZ DE " + aliado->obterNome() + " ---");
-            aliado->reduzirCooldowns();
-            aliado->processarEfeitosInicioTurno();
-            if (aliado->obterVida() <= 0) continue;
-
-            bool turnoAliadoConsumido = false;
-            bool usouInventarioAliado = false;
-
-            while (!turnoAliadoConsumido && aliado->obterVida() > 0 && !listaDeInimigos.empty()) {
-                exibirTelaDeCombate();
-                processarMenuDeAcoesDoJogador(aliado.get(), turnoAliadoConsumido, usouInventarioAliado);
-                if (verificarCondicaoDeVitoriaOuDerrota()) return;
-            }
+            bool isPrimeiraRend = false;
+            if (executarTurnoJogadorOuAliado(aliado.get(), isPrimeiraRend)) return;
         }
         
         executarTurnoDeTodosOsInimigos();
@@ -341,10 +347,7 @@ void GerenciadorCombate::limparInimigosMortos()
         {
                 processarMorteDeInimigo(inimigoPtr.get());
 
-                std::vector<SistemaPersonagem*> aliadosVivos;
-                for (const auto& aliado : listaDeAliados) {
-                    if (aliado->obterVida() > 0) aliadosVivos.push_back(aliado.get());
-                }
+                std::vector<SistemaPersonagem*> aliadosVivos = obterAliadosVivosRaw();
                 TelaCombate::animarMorteInimigo(obterTituloDoCombate(), obterInimigosRaw(), inimigoPtr.get(), jogadorAtual, aliadosVivos);
             Aparencia::aguardarEnter();
         }
@@ -385,10 +388,7 @@ void GerenciadorCombate::executarTurnoDeTodosOsInimigos()
             if (inimigoAtual->podeAgir(motivoIncapacidade)) 
             {
                 SistemaPersonagem* alvo = jogadorAtual;
-                std::vector<SistemaPersonagem*> aliadosVivos;
-                for (auto& aliado : listaDeAliados) {
-                    if (aliado->obterVida() > 0) aliadosVivos.push_back(aliado.get());
-                }
+                std::vector<SistemaPersonagem*> aliadosVivos = obterAliadosVivosRaw();
                 if (!aliadosVivos.empty()) {
                     alvo = aliadosVivos[GeradorAleatorio::obterInteiro(0, static_cast<int>(aliadosVivos.size()) - 1)];
                 }
@@ -484,6 +484,33 @@ std::pair<int, int> GerenciadorCombate::calcularDanoBase(SistemaPersonagem* atac
     return { static_cast<int>(total * multiplicadorDeAtributos), perfuranteAtual };
 }
 
+void GerenciadorCombate::processarPosDano(SistemaPersonagem* atacante, SistemaPersonagem* alvo, int danoFinal, bool tentouParry, bool parrySucesso) {
+    std::vector<SistemaPersonagem*> aliadosVivos = obterAliadosVivosRaw();
+
+    if (danoFinal > 0) 
+    {
+        // ANIMACAO DO DANO NO INIMIGO (Piscar Vermelho + Flicker)
+        if (!isPersonagemJogadorOuAliado(alvo)) {
+            TelaCombate::animarDanoNoInimigo(obterTituloDoCombate(), obterInimigosRaw(), alvo, atacante, jogadorAtual, aliadosVivos);
+        }
+        else {
+            TelaCombate::animarDanoNoJogador(obterTituloDoCombate(), obterInimigosRaw(), alvo, jogadorAtual, aliadosVivos, false);
+        }
+
+        // Aplicação dos efeitos no acerto
+        if (atacante->obterArma()) {
+            atacante->obterArma()->aoCausarDano(atacante, alvo, danoFinal);
+        }
+        atacante->obterRaca()->aoCausarDano(atacante, alvo, danoFinal);
+    }
+    else if (tentouParry && parrySucesso && isPersonagemJogadorOuAliado(alvo)) {
+        TelaCombate::animarDanoNoJogador(obterTituloDoCombate(), obterInimigosRaw(), alvo, jogadorAtual, aliadosVivos, true);
+    } else {
+        TelaCombate::atualizarTelaEstatica(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual, aliadosVivos);
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    }
+}
+
 void GerenciadorCombate::aplicarDanoAoAlvo(SistemaPersonagem* personagemAtacante, SistemaPersonagem* personagemAlvo, int quantidadeDeDanoBruto, int danoPerfurante, int turnoAtualDoCombate) 
 {
     if (personagemAlvo->possuiEfeito(EfeitoID::Inviolavel))
@@ -512,47 +539,11 @@ void GerenciadorCombate::aplicarDanoAoAlvo(SistemaPersonagem* personagemAtacante
 
     bool aplicarPassivas = (isPersonagemJogadorOuAliado(personagemAlvo) || static_cast<int>(jogadorAtual->obterDificuldade()) >= 2);
 
-    int danoBloqueado = 0;
-    bool escudoQuebrou = false;
-    std::string nomeEscudoQuebrado = "";
-    int danoFinalAposReducoes = personagemAlvo->receberDano(quantidadeDeDanoBruto, danoPerfurante, quantidadeDeDanoReduzidoPeloParry, personagemAtacante, aplicarPassivas, danoBloqueado, escudoQuebrou, nomeEscudoQuebrado);
+    ResultadoDano res = personagemAlvo->receberDano(quantidadeDeDanoBruto, danoPerfurante, quantidadeDeDanoReduzidoPeloParry, personagemAtacante, aplicarPassivas);
 
-    exibirResultadoDoAtaque(personagemAlvo, danoFinalAposReducoes, tentouParry, parryFoiBemSucedido, danoBloqueado, escudoQuebrou, nomeEscudoQuebrado);
+    exibirResultadoDoAtaque(personagemAlvo, res.danoFinal, tentouParry, parryFoiBemSucedido, res.danoBloqueado, res.escudoQuebrou, res.nomeEscudoQuebrado);
 
-    std::vector<SistemaPersonagem*> aliadosVivos;
-    for (const auto& aliado : listaDeAliados) {
-        if (aliado->obterVida() > 0) aliadosVivos.push_back(aliado.get());
-    }
-
-    if (danoFinalAposReducoes > 0) 
-    {
-        // ANIMACAO DO DANO NO INIMIGO (Piscar Vermelho + Flicker)
-        if (!isPersonagemJogadorOuAliado(personagemAlvo)) {
-            TelaCombate::animarDanoNoInimigo(obterTituloDoCombate(), obterInimigosRaw(), personagemAlvo, personagemAtacante, jogadorAtual, aliadosVivos);
-        }
-        else {
-            TelaCombate::animarDanoNoJogador(obterTituloDoCombate(), obterInimigosRaw(), personagemAlvo, jogadorAtual, aliadosVivos, false);
-        }
-
-        // Aplicação dos efeitos no acerto
-        if (personagemAtacante->obterArma()) 
-        {
-            personagemAtacante->obterArma()->aoCausarDano(personagemAtacante, personagemAlvo, danoFinalAposReducoes);
-        }
-
-        personagemAtacante->obterRaca()->aoCausarDano(personagemAtacante, personagemAlvo, danoFinalAposReducoes);
-    }
-    else if (tentouParry && parryFoiBemSucedido && isPersonagemJogadorOuAliado(personagemAlvo))
-    {
-        // Animaçao Ciano na HUD caso execute um bloqueio/parry perfeito e anule 100% do dano
-        TelaCombate::animarDanoNoJogador(obterTituloDoCombate(), obterInimigosRaw(), personagemAlvo, jogadorAtual, aliadosVivos, true);
-    }
-    else
-    {
-        // Caso não haja dano e nem parry perfeito, atualiza a tela para exibir as mensagens geradas sem causar flicker
-        TelaCombate::atualizarTelaEstatica(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual, aliadosVivos);
-        std::this_thread::sleep_for(std::chrono::milliseconds(300));
-    }
+    processarPosDano(personagemAtacante, personagemAlvo, res.danoFinal, tentouParry, parryFoiBemSucedido);
 }
 
 void GerenciadorCombate::exibirResultadoDoAtaque(SistemaPersonagem* alvo, int danoFinal, bool tentouParry, bool parrySucesso, int danoBloqueado, bool escudoQuebrou, const std::string& nomeEscudoQuebrado)

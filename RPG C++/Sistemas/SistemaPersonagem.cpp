@@ -56,47 +56,44 @@ SistemaPersonagem::~SistemaPersonagem()
     personagensAtivos.erase(this);
 }  
 
+int* SistemaPersonagem::obterPonteiroAtributoEstatico(TipoAtributo atributo) {
+    switch (atributo) {
+        case TipoAtributo::Forca: return &statsFinais.forca;
+        case TipoAtributo::Destreza: return &statsFinais.destreza;
+        case TipoAtributo::Resistencia: return &statsFinais.resistencia;
+        case TipoAtributo::Constituicao: return &statsFinais.constituicao;
+        case TipoAtributo::Inteligencia: return &statsFinais.inteligencia;
+        case TipoAtributo::Sabedoria: return &statsFinais.sabedoria;
+        default: return nullptr;
+    }
+}
+
 bool SistemaPersonagem::subirDeNivel(TipoAtributo atributo)
 {
     if (xpAtual < xpParaSubir) return false;
 
-    bool upou = true;
-    switch (atributo)
-    {
-        case TipoAtributo::Vida:
-            statsFinais.vida += Constantes::GANHO_VIDA_POR_NIVEL;
-            vidaAtual += Constantes::GANHO_VIDA_POR_NIVEL;
-            break;
-        case TipoAtributo::Forca: statsFinais.forca += Constantes::GANHO_ATRIBUTO_POR_NIVEL; break;
-        case TipoAtributo::Destreza: statsFinais.destreza += Constantes::GANHO_ATRIBUTO_POR_NIVEL; break;
-        case TipoAtributo::Resistencia: statsFinais.resistencia += Constantes::GANHO_ATRIBUTO_POR_NIVEL; break;
-        case TipoAtributo::Constituicao: statsFinais.constituicao += Constantes::GANHO_ATRIBUTO_POR_NIVEL; break;
-        case TipoAtributo::Inteligencia: statsFinais.inteligencia += Constantes::GANHO_ATRIBUTO_POR_NIVEL; break;
-        case TipoAtributo::Sabedoria: statsFinais.sabedoria += Constantes::GANHO_ATRIBUTO_POR_NIVEL; break;
-        default: upou = false; break;
+    if (atributo == TipoAtributo::Vida) {
+        statsFinais.vida += Constantes::GANHO_VIDA_POR_NIVEL;
+        vidaAtual += Constantes::GANHO_VIDA_POR_NIVEL;
+    } else if (int* attr = obterPonteiroAtributoEstatico(atributo)) {
+        *attr += Constantes::GANHO_ATRIBUTO_POR_NIVEL;
+    } else {
+        return false;
     }
 
-    if (upou)
-    {
-        xpAtual -= xpParaSubir;
-        xpParaSubir = static_cast<int>(std::min(xpParaSubir * Constantes::MULTIPLICADOR_XP_POR_NIVEL, Constantes::MAX_XP));
-        nivel++;
-        cache_.sujo = true;
-        return true;
-    }
-    return false;
+    xpAtual -= xpParaSubir;
+    xpParaSubir = static_cast<int>(std::min(xpParaSubir * Constantes::MULTIPLICADOR_XP_POR_NIVEL, Constantes::MAX_XP));
+    nivel++;
+    cache_.sujo = true;
+    return true;
 }
 
 void SistemaPersonagem::alterarAtributoEstatico(TipoAtributo atributo, int valor)
 {
-    switch (atributo) {
-        case TipoAtributo::Forca: statsFinais.forca = std::max(0, statsFinais.forca + valor); break;
-        case TipoAtributo::Destreza: statsFinais.destreza = std::max(0, statsFinais.destreza + valor); break;
-        case TipoAtributo::Inteligencia: statsFinais.inteligencia = std::max(0, statsFinais.inteligencia + valor); break;
-        case TipoAtributo::Sabedoria: statsFinais.sabedoria = std::max(0, statsFinais.sabedoria + valor); break;
-        default: break;
+    if (int* attr = obterPonteiroAtributoEstatico(atributo)) {
+        *attr = std::max(0, *attr + valor);
+        cache_.sujo = true;
     }
-    cache_.sujo = true;
 }
 
 void SistemaPersonagem::reduzirCooldowns()
@@ -129,12 +126,14 @@ void SistemaPersonagem::atualizarCacheSeNecessario() const {
     if (!cache_.sujo) return;
     
     double mult = sistema.dificuldadeMultiplicador;
-    cache_.vidaMaxima = static_cast<int>(statsFinais.vida * mult);
-    cache_.forca = static_cast<int>(statsFinais.forca * mult);
-    cache_.resistencia = static_cast<int>(statsFinais.resistencia * mult);
-    cache_.constituicao = static_cast<int>(statsFinais.constituicao * mult);
-    cache_.inteligencia = static_cast<int>(statsFinais.inteligencia * mult);
-    cache_.sabedoria = static_cast<int>(statsFinais.sabedoria * mult);
+    auto aplicarMult = [mult](int val) { return static_cast<int>(val * mult); };
+
+    cache_.vidaMaxima = aplicarMult(statsFinais.vida);
+    cache_.forca = aplicarMult(statsFinais.forca);
+    cache_.resistencia = aplicarMult(statsFinais.resistencia);
+    cache_.constituicao = aplicarMult(statsFinais.constituicao);
+    cache_.inteligencia = aplicarMult(statsFinais.inteligencia);
+    cache_.sabedoria = aplicarMult(statsFinais.sabedoria);
 
     int penalidade = armadura ? (armadura->obterReducaoFixa() / 3) : 0;
     if (armadura && armadura->obterNomeItem() == "Armadura de bau") penalidade = 10;
@@ -177,9 +176,7 @@ void SistemaPersonagem::modificarVida(int valor)
     if (valor > 0 && classe) valor = classe->processarCuraPassivaBardo(valor);
 
     int vidaAntes = this->vidaAtual;
-    this->vidaAtual += valor;
-    if (this->vidaAtual < 0) this->vidaAtual = 0;
-    if (this->vidaAtual > obterVidaMaxima()) this->vidaAtual = obterVidaMaxima();
+    this->vidaAtual = std::clamp(this->vidaAtual + valor, 0, obterVidaMaxima());
 
     if (this->vidaAtual > vidaAntes) 
     {
@@ -260,8 +257,7 @@ bool SistemaPersonagem::habilidadeDaClasseConsomeTurno() const
 }
 
 int SistemaPersonagem::calcularDefesaBase(int danoBruto, int danoPerfurante) const {
-    int danoSemPerfuracao = danoBruto - danoPerfurante;
-    if (danoSemPerfuracao < 0) danoSemPerfuracao = 0;
+    int danoSemPerfuracao = std::max(0, danoBruto - danoPerfurante);
 
     atualizarCacheSeNecessario();
 
@@ -272,10 +268,8 @@ int SistemaPersonagem::calcularDefesaBase(int danoBruto, int danoPerfurante) con
     return danoFinal + danoPerfurante;
 }
 
-int SistemaPersonagem::receberDano(int danoBruto, int danoPerfurante, int danoReduzidoParry, SistemaPersonagem* atacante, bool aplicarPassivas, int& outDanoBloqueado, bool& outEscudoQuebrou, std::string& outNomeEscudoQuebrado) {
-    outDanoBloqueado = 0;
-    outEscudoQuebrou = false;
-    outNomeEscudoQuebrado = "";
+ResultadoDano SistemaPersonagem::receberDano(int danoBruto, int danoPerfurante, int danoReduzidoParry, SistemaPersonagem* atacante, bool aplicarPassivas) {
+    ResultadoDano resultado;
 
     int danoFinal = calcularDefesaBase(danoBruto, danoPerfurante);
 
@@ -283,18 +277,16 @@ int SistemaPersonagem::receberDano(int danoBruto, int danoPerfurante, int danoRe
         danoFinal = ef->processarDanoRecebido(danoFinal);
     }
 
-    danoFinal -= danoReduzidoParry;
-    if (danoFinal < 0) danoFinal = 0;
+    danoFinal = std::max(0, danoFinal - danoReduzidoParry);
 
     if (combate.estaDefendendo && escudo != nullptr) {
-        outDanoBloqueado = escudo->obterReducaoDanoFixaEscudo();
-        danoFinal -= outDanoBloqueado;
-        if (danoFinal < 0) danoFinal = 0;
+        resultado.danoBloqueado = escudo->obterReducaoDanoFixaEscudo();
+        danoFinal = std::max(0, danoFinal - resultado.danoBloqueado);
 
         escudo->reduzirDurabilidade(1);
         if (escudo->obterDurabilidadeAtualEscudo() <= 0) {
-            outEscudoQuebrou = true;
-            outNomeEscudoQuebrado = escudo->obterNomeItem();
+            resultado.escudoQuebrou = true;
+            resultado.nomeEscudoQuebrado = escudo->obterNomeItem();
             mochila->removerItem(escudo);
             desequiparEscudo();
         }
@@ -306,7 +298,8 @@ int SistemaPersonagem::receberDano(int danoBruto, int danoPerfurante, int danoRe
 
     if (danoFinal > 0) modificarVida(-danoFinal);
 
-    return danoFinal;
+    resultado.danoFinal = danoFinal;
+    return resultado;
 }
 
 void SistemaPersonagem::adicionarEfeito(std::unique_ptr<EfeitoStatus> efeito) {

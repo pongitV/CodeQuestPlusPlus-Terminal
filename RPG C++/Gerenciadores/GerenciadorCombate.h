@@ -38,6 +38,10 @@ private:
     void processarMorteDeInimigo(SistemaPersonagem* inimigo);
     void exibirResultadoDoAtaque(SistemaPersonagem* alvo, int danoFinal, bool tentouParry, bool parrySucesso, int danoBloqueado, bool escudoQuebrou, const std::string& nomeEscudoQuebrado);
 
+    std::vector<SistemaPersonagem*> obterAliadosVivosRaw() const;
+    void prepararTurnoPersonagem(SistemaPersonagem* personagem);
+    bool executarTurnoJogadorOuAliado(SistemaPersonagem* personagem, bool& primeiraRenderizacao);
+    void processarPosDano(SistemaPersonagem* atacante, SistemaPersonagem* alvo, int danoFinal, bool tentouParry, bool parrySucesso);
     bool isPersonagemJogadorOuAliado(SistemaPersonagem* personagem) const;
     void processarMenuDeAcoesDoJogador(SistemaPersonagem* personagemAgindo, bool& turnoFoiConsumido, bool& usouInventarioNoTurno);
     void processarAcaoAtacar(SistemaPersonagem* personagemAgindo, bool& turnoFoiConsumido);

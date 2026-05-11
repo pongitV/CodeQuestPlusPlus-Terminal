@@ -103,9 +103,7 @@ InfoBestiario Mimico::obterInfoBestiario() const {
 
 void Mimico::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)
 {
-    int xpDrop = 150;
-    int ouroDrop = 120 + ouroRoubadoTotal; // Retorna o que roubou + base
-    GerenciadorDrops::relatarEProcessarXpOuro(jogadorAtual, xpDrop, ouroDrop, ouroTotal, xpTotal);
+    GerenciadorDrops::relatarEProcessarXpOuro(jogadorAtual, 150, 120 + ouroRoubadoTotal, ouroTotal, xpTotal);
 
     if (ouroRoubadoTotal > 0) {
          std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::AMARELO) + ">> Voce recuperou " + std::to_string(ouroRoubadoTotal) + "G que haviam sido roubados!" + Aparencia::cor(Cor::RESET) + "\n";

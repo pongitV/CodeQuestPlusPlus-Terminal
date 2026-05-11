@@ -11,6 +11,7 @@
 
 #include <functional>
 #include <utility>
+#include <unordered_map>
 
 namespace {
     const std::pair<const char*, ItemID> mapaDeNomesGlobais[] = {
@@ -60,20 +61,34 @@ namespace {
         
         {"Dispositivo de teclas de linguagem desconhecida", ItemID::DispositivoLinguagem}
     };
+
+    struct MapasItens {
+        std::unordered_map<ItemID, std::string> idParaNome;
+        std::unordered_map<std::string, ItemID> nomeParaId;
+        MapasItens() {
+            for (const auto& par : mapaDeNomesGlobais) {
+                idParaNome[par.second] = par.first;
+                nomeParaId[par.first] = par.second;
+            }
+        }
+    };
+
+    const MapasItens& obterMapasItens() {
+        static MapasItens mapas;
+        return mapas;
+    }
 }
 
 std::string FabricaItens::obterNomeDeID(ItemID id) {
-    for (const auto& par : mapaDeNomesGlobais) {
-        if (par.second == id) return par.first;
-    }
-    return "";
+    const auto& mapa = obterMapasItens().idParaNome;
+    auto it = mapa.find(id);
+    return it != mapa.end() ? it->second : "";
 }
 
 ItemID FabricaItens::obterIDDeNome(const std::string& nome) {
-    for (const auto& par : mapaDeNomesGlobais) {
-        if (par.first == nome) return par.second;
-    }
-    return ItemID::Nenhum;
+    const auto& mapa = obterMapasItens().nomeParaId;
+    auto it = mapa.find(nome);
+    return it != mapa.end() ? it->second : ItemID::Nenhum;
 }
 
 std::vector<std::unique_ptr<Item>> FabricaItens::criarVariosItens(ItemID id, int quantidade) {

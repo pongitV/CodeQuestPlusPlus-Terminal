@@ -58,23 +58,31 @@ public:
 class Jogo {
 private:
     std::unique_ptr<EstadoJogo> estadoAtual;
+    std::unique_ptr<EstadoJogo> proximoEstado;
+    bool mudancaPendente = false;
     std::unique_ptr<SistemaPersonagem> jogadorAtual;
 public:
     Jogo(std::unique_ptr<EstadoJogo> estadoInicial) : estadoAtual(std::move(estadoInicial)) {
-        if (estadoAtual) estadoAtual->onEnter(*this);
     }
     
     void mudarEstado(std::unique_ptr<EstadoJogo> novoEstado) { 
-        if (estadoAtual) estadoAtual->onExit(*this);
-        estadoAtual = std::move(novoEstado); 
-        if (estadoAtual) estadoAtual->onEnter(*this);
+        proximoEstado = std::move(novoEstado);
+        mudancaPendente = true;
     }
     void definirJogador(std::unique_ptr<SistemaPersonagem> jogador) { jogadorAtual = std::move(jogador); }
     SistemaPersonagem* obterJogador() const { return jogadorAtual.get(); }
     
     void rodar() {
+        if (estadoAtual) estadoAtual->onEnter(*this);
         while (estadoAtual) {
             estadoAtual->executar(*this);
+            
+            if (mudancaPendente) {
+                if (estadoAtual) estadoAtual->onExit(*this);
+                estadoAtual = std::move(proximoEstado);
+                if (estadoAtual) estadoAtual->onEnter(*this);
+                mudancaPendente = false;
+            }
         }
     }
 };

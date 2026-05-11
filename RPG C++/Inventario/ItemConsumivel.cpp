@@ -27,8 +27,8 @@ std::vector<std::string> ItemConsumivel::obterDetalhesInspecao() const {
 }
 
 std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
-    if (id == ItemID::PocaoCura30) {
-        auto cura = std::make_unique<ItemConsumivel>(FabricaItens::obterNomeDeID(id), 6);
+    auto criarPocaoCura = []() {
+        auto cura = std::make_unique<ItemConsumivel>(FabricaItens::obterNomeDeID(ItemID::PocaoCura30), 6);
         cura->adicionarPropriedade(Propriedade::ConsumivelCura);
         cura->definirDescricaoInspecao("Restaura 30% da sua Vida Maxima.");
         cura->definirAcaoInventario([](Item* item, SistemaPersonagem* usuario, bool* turnoFoiConsumido) {
@@ -48,7 +48,7 @@ std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
             return true;
         });
         return cura;
-    }
+    };
 
     auto criarTalisma = [](ItemID id, Propriedade prop, TipoAtributo buffAtr, TipoAtributo debuffAtr, const std::string& desc) {
         auto t = std::make_unique<ItemConsumivel>(FabricaItens::obterNomeDeID(id), 120);
@@ -83,6 +83,7 @@ std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
     };
 
     static const std::unordered_map<ItemID, std::function<std::unique_ptr<Item>()>> construtores = {
+        {ItemID::PocaoCura30, criarPocaoCura},
         {ItemID::PocaoFuria, [criarBuffAtributos]() { return criarBuffAtributos(ItemID::PocaoFuria); }},
         {ItemID::ElixirArcano, [criarBuffAtributos]() { return criarBuffAtributos(ItemID::ElixirArcano); }},
         {ItemID::FrascoGosma, []() {

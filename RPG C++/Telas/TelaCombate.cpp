@@ -33,15 +33,30 @@ namespace {
         return barra + corMagenta + std::to_string(jogadorAtual->obterXpAtual()) + corReset + "/" + std::to_string(jogadorAtual->obterXpParaSubir());
     }
 
-    std::string gerarStringDeStatus(SistemaPersonagem* jogadorAtual, const std::string& corVerdeClaro, const std::string& corLaranja, const std::string& corVermelho, const std::string& corCiano, const std::string& corAzul, const std::string& corMagenta, const std::string& corReset) {
+    struct DisplayEfeito { std::string nome; Cor cor; };
+    DisplayEfeito obterDisplayEfeito(EfeitoID id) {
+        switch(id) {
+            case EfeitoID::BuffAtributos: return {"Buff Atributos", Cor::VERDE_CLARO};
+            case EfeitoID::MetadeDano: return {"Metade Dano", Cor::CIANO};
+            case EfeitoID::Inviolavel: return {"Inviolavel", Cor::AZUL};
+            case EfeitoID::Sangramento: return {"Sangramento", Cor::VERMELHO};
+            case EfeitoID::Lentidao: return {"Lentidao", Cor::MAGENTA};
+            case EfeitoID::Fraqueza: return {"Fraqueza", Cor::AMARELO};
+            case EfeitoID::QuebraResistencia: return {"Quebra Def.", Cor::CIANO};
+            default: return {"", Cor::RESET};
+        }
+    }
+
+    std::string gerarStringDeStatus(SistemaPersonagem* jogadorAtual) {
+        std::vector<EfeitoID> efeitos;
+        jogadorAtual->obterIDsEfeitosAtivos(efeitos);
         std::string status = "";
-        if (jogadorAtual->possuiEfeito(EfeitoID::BuffAtributos)) status += corVerdeClaro + "[Buff Atributos]" + corReset + " ";
-        if (jogadorAtual->possuiEfeito(EfeitoID::MetadeDano)) status += corCiano + "[Metade Dano]" + corReset + " ";
-        if (jogadorAtual->possuiEfeito(EfeitoID::Inviolavel)) status += corAzul + "[Inviolavel]" + corReset + " ";
-        if (jogadorAtual->possuiEfeito(EfeitoID::Sangramento)) status += corVermelho + "[Sangrando]" + corReset + " ";
-        if (jogadorAtual->possuiEfeito(EfeitoID::Lentidao)) status += corMagenta + "[Lento]" + corReset + " ";
-        if (jogadorAtual->possuiEfeito(EfeitoID::Fraqueza)) status += corLaranja + "[Fraqueza]" + corReset + " ";
-        if (jogadorAtual->possuiEfeito(EfeitoID::QuebraResistencia)) status += corCiano + "[Quebra Def.]" + corReset + " ";
+        for (EfeitoID id : efeitos) {
+            auto disp = obterDisplayEfeito(id);
+            if (!disp.nome.empty()) {
+                status += Aparencia::cor(disp.cor) + "[" + disp.nome + "]" + Aparencia::cor(Cor::RESET) + " ";
+            }
+        }
         return status.empty() ? "Nenhum" : status;
     }
 
@@ -168,25 +183,21 @@ void TelaCombate::exibirBarraDeStatusDoJogador(SistemaPersonagem* jogadorAtual, 
     std::string corVerde = Aparencia::cor(Cor::VERDE);
     std::string corLaranja = Aparencia::cor(Cor::AMARELO);
     std::string corVermelho = Aparencia::cor(Cor::VERMELHO);
-    std::string corAzul = Aparencia::cor(Cor::AZUL);
-    std::string corCiano = Aparencia::cor(Cor::CIANO);
     std::string corMagenta = Aparencia::cor(Cor::MAGENTA);
-    std::string corVerdeClaro = Aparencia::cor(Cor::VERDE_CLARO);
     std::string corReset = Aparencia::cor(Cor::RESET);
     
     std::string corVida = (porcentagemDeVida > 0.70) ? corVerde : (porcentagemDeVida > 0.30) ? corLaranja : corVermelho;
     auto arteDoCoracao = gerarArteCoracao(porcentagemDeVida, corVerde, corLaranja, corVermelho, corReset);
     std::string arteDeBarraDeXp = gerarBarraDeXp(jogadorAtual, corMagenta, corReset);
-    std::string statusStr = gerarStringDeStatus(jogadorAtual, corVerdeClaro, corLaranja, corVermelho, corCiano, corAzul, corMagenta, corReset);
+    std::string statusStr = gerarStringDeStatus(jogadorAtual);
 
     // Aplicando a cor dinâmica ao HP na linha do status
     std::vector<std::string> linhasParaImprimir = 
     {
-        "| " + arteDoCoracao[0] + " |",
-        "| " + arteDoCoracao[1] + " |  JOGADOR: " + jogadorAtual->obterNome() + " (" + jogadorAtual->obterRaca()->obterNomeRaca() + " / " + jogadorAtual->obterNomeClasse() + ") | NIVEL: " + std::to_string(jogadorAtual->obterNivel()),
-        "| " + arteDoCoracao[2] + " |  HP: " + corVida + std::to_string(jogadorAtual->obterVida()) + corReset + "/" + std::to_string(jogadorAtual->obterVidaMaxima()) + " | OURO: " + corLaranja + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G" + corReset + " | XP: " + arteDeBarraDeXp,
-        "| " + arteDoCoracao[3] + " |  EQUIP: " + nomeDaArma + " | " + nomeDoEscudo + " | " + nomeDaArmadura,
-        "| " + std::string(11, ' ') + " |  STATUS: " + statusStr
+        "| " + arteDoCoracao[0] + " |  JOGADOR: " + jogadorAtual->obterNome() + " (" + jogadorAtual->obterRaca()->obterNomeRaca() + " / " + jogadorAtual->obterNomeClasse() + ") | NIVEL: " + std::to_string(jogadorAtual->obterNivel()) + " | HP: " + corVida + std::to_string(jogadorAtual->obterVida()) + corReset + "/" + std::to_string(jogadorAtual->obterVidaMaxima()),
+        "| " + arteDoCoracao[1] + " |  XP: " + arteDeBarraDeXp + " | OURO: " + corLaranja + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G" + corReset,
+        "| " + arteDoCoracao[2] + " |  EQUIP: " + nomeDaArma + " | " + nomeDoEscudo + " | " + nomeDaArmadura,
+        "| " + arteDoCoracao[3] + " |  STATUS: " + statusStr
     };
 
     Aparencia::imprimirLinhaDivisoria();
@@ -216,61 +227,51 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
         return chars;
     };
 
-    for (size_t indiceInimigo = 0; indiceInimigo < listaDeInimigos.size(); indiceInimigo++) 
-    {
-        std::string tagIdentificadoraDoInimigo = listaDeInimigos[indiceInimigo]->obterNome() + " [" + std::to_string(indiceInimigo) + "]";
-        int espacosParaCentralizarOId = (larguraSeparadaParaCadaColuna - (int)tagIdentificadoraDoInimigo.length()) / 2;
-        std::cout << std::string(espacosParaCentralizarOId > 0 ? espacosParaCentralizarOId : 0, ' ') << tagIdentificadoraDoInimigo;
-        if (indiceInimigo < listaDeInimigos.size() - 1) {
-            int espacosDir = larguraSeparadaParaCadaColuna - espacosParaCentralizarOId - tagIdentificadoraDoInimigo.length();
-            std::cout << std::string(espacosDir > 0 ? espacosDir : 0, ' ');
+    auto imprimirLinhaHorda = [&](const std::function<std::pair<std::string, std::string>(SistemaPersonagem*, size_t)>& gerador) {
+        for (size_t i = 0; i < listaDeInimigos.size(); ++i) {
+            auto [textoVisual, textoPrint] = gerador(listaDeInimigos[i], i);
+            int espacosEsq = std::max(0, (larguraSeparadaParaCadaColuna - static_cast<int>(textoVisual.length())) / 2);
+            std::cout << std::string(espacosEsq, ' ') << textoPrint;
+            if (i < listaDeInimigos.size() - 1) {
+                int espacosDir = std::max(0, larguraSeparadaParaCadaColuna - espacosEsq - static_cast<int>(textoVisual.length()));
+                std::cout << std::string(espacosDir, ' ');
+            }
         }
-    }
-    std::cout << "\n";
-    for (size_t indiceInimigo = 0; indiceInimigo < listaDeInimigos.size(); indiceInimigo++) 
-    {
-        std::string valorDePontosDeVidaDoInimigo = "HP: " + std::to_string(listaDeInimigos[indiceInimigo]->obterVida()) + "/" + std::to_string(listaDeInimigos[indiceInimigo]->obterVidaMaxima());
-        int espacosParaCentralizarOHp = (larguraSeparadaParaCadaColuna - (int)valorDePontosDeVidaDoInimigo.length()) / 2;
-        std::cout << std::string(espacosParaCentralizarOHp > 0 ? espacosParaCentralizarOHp : 0, ' ') << valorDePontosDeVidaDoInimigo;
-        if (indiceInimigo < listaDeInimigos.size() - 1) {
-            int espacosDir = larguraSeparadaParaCadaColuna - espacosParaCentralizarOHp - valorDePontosDeVidaDoInimigo.length();
-            std::cout << std::string(espacosDir > 0 ? espacosDir : 0, ' ');
-        }
-    }
         std::cout << "\n";
-        
-        bool hordaTemDebuffs = false;
-        std::vector<std::vector<std::pair<std::string, std::string>>> todosDebuffs(listaDeInimigos.size());
-        for (size_t indiceInimigo = 0; indiceInimigo < listaDeInimigos.size(); indiceInimigo++) {
+    };
+
+    imprimirLinhaHorda([](SistemaPersonagem* inimigo, size_t i) {
+        std::string tag = inimigo->obterNome() + " [" + std::to_string(i) + "]";
+        return std::make_pair(tag, tag);
+    });
+
+    imprimirLinhaHorda([](SistemaPersonagem* inimigo, size_t i) {
+        std::string hp = "HP: " + std::to_string(inimigo->obterVida()) + "/" + std::to_string(inimigo->obterVidaMaxima());
+        return std::make_pair(hp, hp);
+    });
+
+    bool hordaTemDebuffs = false;
+    for (auto* ini : listaDeInimigos) {
+        std::vector<EfeitoID> effs; ini->obterIDsEfeitosAtivos(effs);
+        if (!effs.empty()) { hordaTemDebuffs = true; break; }
+    }
+
+    if (hordaTemDebuffs) {
+        imprimirLinhaHorda([&](SistemaPersonagem* inimigo, size_t i) {
             std::vector<EfeitoID> efeitosAtivos;
-            listaDeInimigos[indiceInimigo]->obterIDsEfeitosAtivos(efeitosAtivos);
-            for (auto& id : efeitosAtivos) {
-                if (id == EfeitoID::Sangramento) todosDebuffs[indiceInimigo].push_back({"[Sangramento]", Aparencia::cor(Cor::VERMELHO) + "[Sangramento]" + Aparencia::cor(Cor::RESET)});
-                else if (id == EfeitoID::Lentidao) todosDebuffs[indiceInimigo].push_back({"[Lentidao]", Aparencia::cor(Cor::MAGENTA) + "[Lentidao]" + Aparencia::cor(Cor::RESET)});
-                else if (id == EfeitoID::Fraqueza) todosDebuffs[indiceInimigo].push_back({"[Fraqueza]", Aparencia::cor(Cor::AMARELO) + "[Fraqueza]" + Aparencia::cor(Cor::RESET)});
-                else if (id == EfeitoID::QuebraResistencia) todosDebuffs[indiceInimigo].push_back({"[Quebra Def.]", Aparencia::cor(Cor::CIANO) + "[Quebra Def.]" + Aparencia::cor(Cor::RESET)});
-            }
-            if (!todosDebuffs[indiceInimigo].empty()) hordaTemDebuffs = true;
-        }
-        if (hordaTemDebuffs) {
-            for (size_t indiceInimigo = 0; indiceInimigo < listaDeInimigos.size(); indiceInimigo++) {
-                std::string visualStr = "", printStr = "";
-                for (size_t i = 0; i < todosDebuffs[indiceInimigo].size(); ++i) {
-                    visualStr += todosDebuffs[indiceInimigo][i].first;
-                    printStr += todosDebuffs[indiceInimigo][i].second;
-                    if (i < todosDebuffs[indiceInimigo].size() - 1) { visualStr += " "; printStr += " "; }
-                }
-                int espacosEsquerda = (larguraSeparadaParaCadaColuna - (int)visualStr.length()) / 2;
-                if (espacosEsquerda < 0) espacosEsquerda = 0;
-                std::cout << std::string(espacosEsquerda, ' ') << printStr;
-                if (indiceInimigo < listaDeInimigos.size() - 1) {
-                    int espacosDireita = larguraSeparadaParaCadaColuna - espacosEsquerda - (int)visualStr.length();
-                    if (espacosDireita < 0) espacosDireita = 0;
-                    std::cout << std::string(espacosDireita, ' ');
+            inimigo->obterIDsEfeitosAtivos(efeitosAtivos);
+            std::string visualStr = "", printStr = "";
+            for (size_t e = 0; e < efeitosAtivos.size(); ++e) {
+                auto disp = obterDisplayEfeito(efeitosAtivos[e]);
+                if (!disp.nome.empty()) {
+                    visualStr += "[" + disp.nome + "]";
+                    printStr += Aparencia::cor(disp.cor) + "[" + disp.nome + "]" + Aparencia::cor(Cor::RESET);
+                    if (e < efeitosAtivos.size() - 1) { visualStr += " "; printStr += " "; }
                 }
             }
-            std::cout << "\n";
-        }
+            return std::make_pair(visualStr, printStr);
+        });
+    }
     std::cout << "\n";
         
     std::vector<std::string> linhasDaArte;

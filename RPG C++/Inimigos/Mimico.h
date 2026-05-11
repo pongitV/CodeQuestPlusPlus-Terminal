@@ -12,7 +12,7 @@ private:
 
 public:
     std::string obterNomeRaca() const override;
-    TipoRaca obterTipoRaca() const override { return static_cast<TipoRaca>(10); } // Ajuste o Enum TipoRaca no RacaBase.h se necessario
+    TipoRaca obterTipoRaca() const override { return TipoRaca::Mimico; }
     const std::vector<std::string>& obterAparenciaRaca() const override;
     Atributos obterAtributosRaca() const override;
     std::vector<std::unique_ptr<Item>> obterEquipamentoRaca() const override;

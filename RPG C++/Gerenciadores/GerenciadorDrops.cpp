@@ -3,6 +3,7 @@
 #include "../Inventario/FabricaItens.h"
 #include "../Utilidades/Aparencia.h"
 #include "../Telas/TelaCombate.h"
+#include "../Utilidades/GeradorAleatorio.h"
 
 void GerenciadorDrops::relatarEProcessarXpOuro(SistemaPersonagem* jogador, int xpDrop, int ouroDrop, int& ouroTotal, int& xpTotal) 
 {
@@ -24,9 +25,11 @@ void GerenciadorDrops::relatarDropItem(const std::string& nomeItem, int quantida
     TelaCombate::adicionarMensagemFixa(msg);
 }
 
-void GerenciadorDrops::darEProcessarItem(SistemaPersonagem* jogador, ItemID idItem, int quantidade, std::vector<std::string>& itensObtidos)
+void GerenciadorDrops::darEProcessarItem(SistemaPersonagem* jogador, ItemID idItem, int quantidade, std::vector<std::string>& itensObtidos, int chanceDeDrop)
 {
     if (quantidade <= 0) return;
+    if (chanceDeDrop < 100 && !GeradorAleatorio::rolarChance(chanceDeDrop)) return;
+
     std::string nomeItem = FabricaItens::obterNomeDeID(idItem);
     for (int i = 0; i < quantidade; ++i) {
         jogador->obterInventario()->adicionarItem(FabricaItens::criarItem(idItem));

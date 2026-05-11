@@ -66,15 +66,19 @@ std::unique_ptr<Item> EquipamentoArmadura::gerarCopiaMelhorada() const {
 }
 
 std::unique_ptr<Item> fabricarEquipamentoArmadura(ItemID id) {
+    auto criarArmadura = [](ItemID id, int def, int rRes, int rCon, int preco) {
+        return std::make_unique<EquipamentoArmadura>(FabricaItens::obterNomeDeID(id), def, rRes, rCon, preco);
+    };
+
     static const std::unordered_map<ItemID, std::function<std::unique_ptr<Item>()>> construtores = {
-        {ItemID::ArmaduraMalha, []() { return std::make_unique<EquipamentoArmadura>(FabricaItens::obterNomeDeID(ItemID::ArmaduraMalha), 7, 0, 0, 3); }},
-        {ItemID::ArmaduraCouro, []() { return std::make_unique<EquipamentoArmadura>(FabricaItens::obterNomeDeID(ItemID::ArmaduraCouro), 5, 0, 0, 3); }},
-        {ItemID::Tunica, []() { return std::make_unique<EquipamentoArmadura>(FabricaItens::obterNomeDeID(ItemID::Tunica), 2, 0, 0, 3); }},
-        {ItemID::TrajeNobre, []() { return std::make_unique<EquipamentoArmadura>(FabricaItens::obterNomeDeID(ItemID::TrajeNobre), 4, 0, 0, 3); }},
-        {ItemID::ArmaduraTrapos, []() { return std::make_unique<EquipamentoArmadura>(FabricaItens::obterNomeDeID(ItemID::ArmaduraTrapos), 3, 0, 0, 3); }},
-        {ItemID::ArmaduraCavaleiro, []() { return std::make_unique<EquipamentoArmadura>(FabricaItens::obterNomeDeID(ItemID::ArmaduraCavaleiro), 12, 0, 0, 0); }},
-        {ItemID::ArmaduraBau, []() { 
-            auto armadura = std::make_unique<EquipamentoArmadura>(FabricaItens::obterNomeDeID(ItemID::ArmaduraBau), 20, 0, 0, 150); 
+        {ItemID::ArmaduraMalha, [criarArmadura]() { return criarArmadura(ItemID::ArmaduraMalha, 7, 0, 0, 3); }},
+        {ItemID::ArmaduraCouro, [criarArmadura]() { return criarArmadura(ItemID::ArmaduraCouro, 5, 0, 0, 3); }},
+        {ItemID::Tunica, [criarArmadura]() { return criarArmadura(ItemID::Tunica, 2, 0, 0, 3); }},
+        {ItemID::TrajeNobre, [criarArmadura]() { return criarArmadura(ItemID::TrajeNobre, 4, 0, 0, 3); }},
+        {ItemID::ArmaduraTrapos, [criarArmadura]() { return criarArmadura(ItemID::ArmaduraTrapos, 3, 0, 0, 3); }},
+        {ItemID::ArmaduraCavaleiro, [criarArmadura]() { return criarArmadura(ItemID::ArmaduraCavaleiro, 12, 0, 0, 0); }},
+        {ItemID::ArmaduraBau, [criarArmadura]() { 
+            auto armadura = criarArmadura(ItemID::ArmaduraBau, 20, 0, 0, 150); 
             armadura->definirPenalidadeDestreza(10);
             return armadura; 
         }}

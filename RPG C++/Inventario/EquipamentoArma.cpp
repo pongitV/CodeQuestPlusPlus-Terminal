@@ -139,21 +139,25 @@ std::unique_ptr<Item> EquipamentoArma::gerarCopiaMelhorada() const {
 }
 
 std::unique_ptr<Item> fabricarEquipamentoArma(ItemID id) {
+    auto criarArma = [](ItemID id, int dFis, int dMag, int rFor, int rDes, int rInt, int rSab, int preco) {
+        return std::make_unique<EquipamentoArma>(FabricaItens::obterNomeDeID(id), dFis, dMag, rFor, rDes, rInt, rSab, preco);
+    };
+
     static const std::unordered_map<ItemID, std::function<std::unique_ptr<Item>()>> construtores = {
-        {ItemID::AdagaPedra, []() { return std::make_unique<EquipamentoArma>(FabricaItens::obterNomeDeID(ItemID::AdagaPedra), 5, 0, 0, 0, 0, 0, 3); }},
-        {ItemID::ArcoMadeira, []() { return std::make_unique<EquipamentoArma>(FabricaItens::obterNomeDeID(ItemID::ArcoMadeira), 10, 0, 0, 0, 0, 0, 3); }},
-        {ItemID::CajadoCristal, []() { return std::make_unique<EquipamentoArma>(FabricaItens::obterNomeDeID(ItemID::CajadoCristal), 0, 30, 0, 0, 0, 0, 3); }},
-        {ItemID::VarinhaCorroida, []() { return std::make_unique<EquipamentoArma>(FabricaItens::obterNomeDeID(ItemID::VarinhaCorroida), 0, 25, 0, 0, 0, 0, 3); }},
-        {ItemID::ViolaoEncantado, []() { 
-            auto violao = std::make_unique<EquipamentoArma>(FabricaItens::obterNomeDeID(ItemID::ViolaoEncantado), 0, 10, 0, 0, 0, 0, 3); 
+        {ItemID::AdagaPedra, [criarArma]() { return criarArma(ItemID::AdagaPedra, 5, 0, 0, 0, 0, 0, 3); }},
+        {ItemID::ArcoMadeira, [criarArma]() { return criarArma(ItemID::ArcoMadeira, 10, 0, 0, 0, 0, 0, 3); }},
+        {ItemID::CajadoCristal, [criarArma]() { return criarArma(ItemID::CajadoCristal, 0, 30, 0, 0, 0, 0, 3); }},
+        {ItemID::VarinhaCorroida, [criarArma]() { return criarArma(ItemID::VarinhaCorroida, 0, 25, 0, 0, 0, 0, 3); }},
+        {ItemID::ViolaoEncantado, [criarArma]() { 
+            auto violao = criarArma(ItemID::ViolaoEncantado, 0, 10, 0, 0, 0, 0, 3); 
             violao->adicionarPropriedade(Propriedade::ViolaoBase);
             return violao; 
         }},
-        {ItemID::EspadaFerro, []() { return std::make_unique<EquipamentoArma>(FabricaItens::obterNomeDeID(ItemID::EspadaFerro), 10, 0, 0, 0, 0, 0, 3); }},
-        {ItemID::MachadoGuerra, []() { return std::make_unique<EquipamentoArma>(FabricaItens::obterNomeDeID(ItemID::MachadoGuerra), 15, 0, 10, 0, 0, 0, 3); }},
-        {ItemID::GosmaAcidaArma, []() { return std::make_unique<EquipamentoArma>(FabricaItens::obterNomeDeID(ItemID::GosmaAcidaArma), 2, 7, 0, 0, 0, 0, 3); }},
-        {ItemID::TroncoAmarrotado, []() { return std::make_unique<EquipamentoArma>(FabricaItens::obterNomeDeID(ItemID::TroncoAmarrotado), 40, 0, 25, 0, 0, 0, 30); }},
-        {ItemID::EspadaCavaleiro, []() { return std::make_unique<EquipamentoArma>(FabricaItens::obterNomeDeID(ItemID::EspadaCavaleiro), 12, 0, 0, 0, 0, 0, 0); }}
+        {ItemID::EspadaFerro, [criarArma]() { return criarArma(ItemID::EspadaFerro, 10, 0, 0, 0, 0, 0, 3); }},
+        {ItemID::MachadoGuerra, [criarArma]() { return criarArma(ItemID::MachadoGuerra, 15, 0, 10, 0, 0, 0, 3); }},
+        {ItemID::GosmaAcidaArma, [criarArma]() { return criarArma(ItemID::GosmaAcidaArma, 2, 7, 0, 0, 0, 0, 3); }},
+        {ItemID::TroncoAmarrotado, [criarArma]() { return criarArma(ItemID::TroncoAmarrotado, 40, 0, 25, 0, 0, 0, 30); }},
+        {ItemID::EspadaCavaleiro, [criarArma]() { return criarArma(ItemID::EspadaCavaleiro, 12, 0, 0, 0, 0, 0, 0); }}
     };
     auto it = construtores.find(id);
     if (it != construtores.end()) return it->second();

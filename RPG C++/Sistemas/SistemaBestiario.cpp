@@ -156,48 +156,30 @@ void SistemaBestiario::carregar(std::ifstream& in) {
     habilidadesVistas.clear();
     dropsColetados.clear();
 
-    size_t size;
-    std::string linhaLida;
-
-    if (!(in >> size)) return; // Protecao para saves antigos que nao tinham bestiario
-    std::getline(in, linhaLida); // Limpa o \n
-    for (size_t i = 0; i < size; ++i) {
-        std::getline(in, linhaLida);
-        vistos.insert(linhaLida);
-    }
-
-    in >> size;
-    std::getline(in, linhaLida);
-    for (size_t i = 0; i < size; ++i) {
-        std::getline(in, linhaLida);
-        derrotados.insert(linhaLida);
-    }
-
-    in >> size;
-    std::getline(in, linhaLida);
-    for (size_t i = 0; i < size; ++i) {
-        std::string nomeInimigoLido;
-        std::getline(in, nomeInimigoLido);
-        size_t habSize;
-        in >> habSize;
-        std::getline(in, linhaLida);
-        for (size_t j = 0; j < habSize; ++j) {
-            std::getline(in, linhaLida);
-            habilidadesVistas[nomeInimigoLido].insert(linhaLida);
+    auto lerConjunto = [&](auto& conjunto) {
+        size_t size;
+        if (!(in >> size)) return false;
+        std::string linha; std::getline(in, linha);
+        for (size_t i = 0; i < size; ++i) {
+            std::getline(in, linha);
+            conjunto.insert(linha);
         }
-    }
+        return true;
+    };
+    
+    if (!lerConjunto(vistos)) return; // Failsafe para saves antigos
+    lerConjunto(derrotados);
 
-    in >> size;
-    std::getline(in, linhaLida);
-    for (size_t i = 0; i < size; ++i) {
-        std::string nomeInimigoLido;
-        std::getline(in, nomeInimigoLido);
-        size_t dropSize;
-        in >> dropSize;
-        std::getline(in, linhaLida);
-        for (size_t j = 0; j < dropSize; ++j) {
-            std::getline(in, linhaLida);
-            dropsColetados[nomeInimigoLido].insert(linhaLida);
+    auto lerMapa = [&](auto& mapa) {
+        size_t size;
+        if (!(in >> size)) return;
+        std::string linha; std::getline(in, linha);
+        for (size_t i = 0; i < size; ++i) {
+            std::string chave; std::getline(in, chave);
+            lerConjunto(mapa[chave]);
         }
-    }
+    };
+
+    lerMapa(habilidadesVistas);
+    lerMapa(dropsColetados);
 }

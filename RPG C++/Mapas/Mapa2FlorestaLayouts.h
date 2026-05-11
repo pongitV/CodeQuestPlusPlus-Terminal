@@ -10,4 +10,5 @@ public:
     static std::vector<std::string> obterLayoutCoracaoDaArvore();
     static std::vector<std::string> obterLayoutLabirinto();
     static std::vector<std::string> obterLayoutSalaDoChefe();
+    static std::vector<std::string> obterArteSimboloChefe();
 };

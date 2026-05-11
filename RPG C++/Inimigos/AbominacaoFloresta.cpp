@@ -175,10 +175,7 @@ InfoBestiario AbominacaoFloresta::obterInfoBestiario() const {
 
 void AbominacaoFloresta::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)
 {
-    int xpDrop = 250;
-    int ouroDrop = 200;
-    GerenciadorDrops::relatarEProcessarXpOuro(jogadorAtual, xpDrop, ouroDrop, ouroTotal, xpTotal);
-
+    GerenciadorDrops::relatarEProcessarXpOuro(jogadorAtual, 250, 200, ouroTotal, xpTotal);
     GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::MadeiraEnfeiticada, 1, itensObtidos);
     GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::CoracaoFloresta, 1, itensObtidos);
 }

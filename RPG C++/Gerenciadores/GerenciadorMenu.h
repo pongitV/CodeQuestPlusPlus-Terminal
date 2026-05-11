@@ -22,6 +22,7 @@ public:
 
 private:
 
+    static std::vector<std::string> lerInformacoesDosSaves(const std::vector<std::string>& saves);
     static void etapaEscolherNome(std::string& nomeDoPersonagem, EtapaCriacao& etapaAtual);
     static void etapaEscolherRaca(const std::string& nome, std::unique_ptr<RacaBase>& racaEscolhida, EtapaCriacao& etapaAtual);
     static void etapaEscolherClasse(const std::string& nome, RacaBase* raca, std::unique_ptr<ClasseBase>& classeEscolhida, EtapaCriacao& etapaAtual);

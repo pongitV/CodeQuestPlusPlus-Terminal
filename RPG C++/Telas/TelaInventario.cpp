@@ -6,6 +6,7 @@
 #include "TelaInventario.h"
 #include "TelaBase.h"
 #include "TelaMenu.h"
+#include "../Utilidades/ControleDeInput.h"
 #include "../Utilidades/Aparencia.h"
 
 void TelaInventario::exibir(SistemaPersonagem* jogadorAtual, bool mostrarPrecos) 
@@ -144,4 +145,24 @@ void TelaInventario::exibirInspecaoItem(Item* item)
     
     std::vector<std::string> resto(linhas.begin() + 1, linhas.end());
     Aparencia::imprimirBlocoCentralizado(resto);
+}
+
+Item* TelaInventario::lerSelecaoDeItem(SistemaPersonagem* jogadorAtual, std::string& outCodigoDigitado) {
+    std::cout << "\033[s";
+    Item* itemEncontrado = nullptr;
+    while (true) {
+        outCodigoDigitado = ControleDeInput::lerEntradaProtegida();
+        if (outCodigoDigitado == "0") break;
+        
+        itemEncontrado = jogadorAtual->obterInventario()->buscarItemPorCodigo(
+            outCodigoDigitado, 
+            jogadorAtual->obterArma(), 
+            jogadorAtual->obterEscudo(), 
+            jogadorAtual->obterArmadura()
+        );
+        if (itemEncontrado) break;
+        
+        std::cout << "\033[u\033[J";
+    }
+    return itemEncontrado;
 }

@@ -18,7 +18,9 @@ enum class TipoRaca
     Goblin,
     Fada,
     Slime,
-    AbominacaoFloresta
+    AbominacaoFloresta,
+    Mimico,
+    Troll
 };
 
 struct InfoBestiario {

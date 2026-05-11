@@ -56,6 +56,13 @@ enum class TipoClasse;
 enum class HabilidadeID;
 enum class TipoRaca;
 
+struct ResultadoDano {
+    int danoFinal = 0;
+    int danoBloqueado = 0;
+    bool escudoQuebrou = false;
+    std::string nomeEscudoQuebrado = "";
+};
+
 enum class DificuldadeJogo 
 {
     Facil = 1,
@@ -146,6 +153,8 @@ protected:
     int xpParaSubir;
     int xpRecompensa;
 
+    int* obterPonteiroAtributoEstatico(TipoAtributo atributo);
+
 public:
     SistemaPersonagem(std::string nome, std::unique_ptr<RacaBase> r, std::unique_ptr<ClasseBase> c);
     virtual ~SistemaPersonagem();
@@ -199,6 +208,7 @@ public:
     Item* obterArmadura() const { return armadura; }
     Inventario* obterInventario() const { return mochila.get(); }
     Item* obterItemSelecionadoParaUso() const { return itemSelecionadoParaUso; }
+    bool isItemEquipado(Item* item) const { return item != nullptr && (item == arma || item == escudo || item == armadura); }
     void definirItemSelecionadoParaUso(Item* item) { itemSelecionadoParaUso = item; }
 
     void definirOuroRecompensa(int valor) { ouroRecompensa = valor; }
@@ -282,7 +292,7 @@ public:
     void limparEfeitos();
 
     int calcularDefesaBase(int danoBruto, int danoPerfurante) const;
-    int receberDano(int danoBruto, int danoPerfurante, int danoReduzidoParry, SistemaPersonagem* atacante, bool aplicarPassivas, int& outDanoBloqueado, bool& outEscudoQuebrou, std::string& outNomeEscudoQuebrado);
+    ResultadoDano receberDano(int danoBruto, int danoPerfurante, int danoReduzidoParry, SistemaPersonagem* atacante, bool aplicarPassivas);
 
     virtual void executarDrops(SistemaPersonagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal);
 };

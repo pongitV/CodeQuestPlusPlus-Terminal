@@ -103,10 +103,7 @@ InfoBestiario OrkExilado::obterInfoBestiario() const {
 
 void OrkExilado::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)
 {
-    int xpDrop = 120;
-    int ouroDrop = 100;
-    GerenciadorDrops::relatarEProcessarXpOuro(jogadorAtual, xpDrop, ouroDrop, ouroTotal, xpTotal);
-
+    GerenciadorDrops::relatarEProcessarXpOuro(jogadorAtual, 120, 100, ouroTotal, xpTotal);
     GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::MachadoGuerra, 2, itensObtidos);
     GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::ArmaduraTrapos, 1, itensObtidos);
 }

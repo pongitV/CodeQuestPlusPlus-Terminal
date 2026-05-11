@@ -154,20 +154,13 @@ void Aparencia::imprimirLinhaDivisoria(char caractere) {
 }
 
 void Aparencia::imprimirCentralizado(const std::string& texto, const std::string& corAnsi) {
-    int larguraTerminal = obterLarguraTerminal();
-    std::string textoPuro = removerCoresANSI(texto);
-    int espacos = (larguraTerminal - static_cast<int>(textoPuro.length())) / 2;
-    if (espacos < 0) espacos = 0;
-    std::cout << std::string(espacos, ' ') << corAnsi << texto << (corAnsi.empty() ? "" : cor(Cor::RESET)) << "\n";
+    std::cout << espacosParaCentralizar(removerCoresANSI(texto).length()) << corAnsi << texto << (corAnsi.empty() ? "" : cor(Cor::RESET)) << "\n";
 }
 
 void Aparencia::imprimirCentralizadoMultilinha(const std::vector<std::string>& linhas, int larguraVisual, const std::string& corAnsi, int atrasoLinhaMs) {
-    int larguraTerminal = obterLarguraTerminal();
     for (const std::string& linha : linhas) {
         if (larguraVisual > 0) {
-            int espacos = (larguraTerminal - larguraVisual) / 2;
-            if (espacos < 0) espacos = 0;
-            std::cout << std::string(espacos, ' ') << corAnsi << linha << (corAnsi.empty() ? "" : cor(Cor::RESET)) << "\n";
+            std::cout << espacosParaCentralizar(larguraVisual) << corAnsi << linha << (corAnsi.empty() ? "" : cor(Cor::RESET)) << "\n";
         } else {
             imprimirCentralizado(linha, corAnsi);
         }

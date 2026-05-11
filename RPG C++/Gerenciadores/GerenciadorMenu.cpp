@@ -124,6 +124,26 @@ namespace {
     }
 }
 
+std::vector<std::string> GerenciadorMenu::lerInformacoesDosSaves(const std::vector<std::string>& saves) {
+    std::vector<std::string> informacoesSaves;
+    for (size_t i = 0; i < saves.size(); ++i) {
+        std::ifstream arquivoSave(saves[i]);
+        if (arquivoSave.is_open()) {
+            std::string nome, racaStr, classeStr;
+            std::getline(arquivoSave, nome);
+            std::getline(arquivoSave, racaStr);
+            std::getline(arquivoSave, classeStr);
+            int nivel;
+            arquivoSave >> nivel;
+            informacoesSaves.push_back("[" + std::to_string(i + 1) + "] " + nome + " | Nv " + std::to_string(nivel) + " | " + classeStr + " | " + racaStr);
+        } else {
+            std::string nomeExibicao = saves[i].substr(5, saves[i].size() - 9);
+            informacoesSaves.push_back("[" + std::to_string(i + 1) + "] " + nomeExibicao);
+        }
+    }
+    return informacoesSaves;
+}
+
 std::unique_ptr<SistemaPersonagem> GerenciadorMenu::menuPrincipal() 
 {
     while (true) {
@@ -138,22 +158,7 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::menuPrincipal()
             auto saves = SistemaSave::listarSaves();
             if (saves.empty()) continue;
             
-            std::vector<std::string> informacoesSaves;
-            for (size_t i = 0; i < saves.size(); ++i) {
-                std::ifstream arquivoSave(saves[i]);
-                if (arquivoSave.is_open()) {
-                    std::string nome, racaStr, classeStr;
-                    std::getline(arquivoSave, nome);
-                    std::getline(arquivoSave, racaStr);
-                    std::getline(arquivoSave, classeStr);
-                    int nivel;
-                    arquivoSave >> nivel;
-                    informacoesSaves.push_back("[" + std::to_string(i + 1) + "] " + nome + " | Nv " + std::to_string(nivel) + " | " + classeStr + " | " + racaStr);
-                } else {
-                    std::string nomeExibicao = saves[i].substr(5, saves[i].size() - 9);
-                    informacoesSaves.push_back("[" + std::to_string(i + 1) + "] " + nomeExibicao);
-                }
-            }
+            std::vector<std::string> informacoesSaves = lerInformacoesDosSaves(saves);
             TelaMenu::exibirMenuCarregarJogo(informacoesSaves);
             
             int escolhaSave;

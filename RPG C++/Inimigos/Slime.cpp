@@ -90,15 +90,10 @@ InfoBestiario Slime::obterInfoBestiario() const {
 
 void Slime::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)
 {
-    int xpDrop = 35;
-    int ouroDrop = 15;
-    GerenciadorDrops::relatarEProcessarXpOuro(jogadorAtual, xpDrop, ouroDrop, ouroTotal, xpTotal);
+    GerenciadorDrops::relatarEProcessarXpOuro(jogadorAtual, 35, 15, ouroTotal, xpTotal);
 
     GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::GosmaAcida, 3, itensObtidos);
-    
-    if (GeradorAleatorio::rolarChance(30)) {
-        GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::NucleoPegajoso, 1, itensObtidos);
-    }
+    GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::NucleoPegajoso, 1, itensObtidos, 30);
 }
 
 // --- PROCESSAMENTO DE DANO  ---

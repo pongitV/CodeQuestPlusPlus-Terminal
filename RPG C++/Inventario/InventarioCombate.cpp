@@ -26,18 +26,7 @@ void InventarioCombate::gerenciarInventario(SistemaPersonagem* jogadorAtual, boo
         TelaInventario::exibir(jogadorAtual);
         Aparencia::exibirPrompt("Digite o codigo do item para interagir ou [0] VOLTAR: \033[s");
 
-        Item* itemEncontrado = nullptr;
-        while (true) {
-            codigoDoItemDigitado = ControleDeInput::lerEntradaProtegida();
-            if (codigoDoItemDigitado == "0") break;
-            
-            itemEncontrado = jogadorAtual->obterInventario()->buscarItemPorCodigo(
-                codigoDoItemDigitado, jogadorAtual->obterArma(), jogadorAtual->obterEscudo(), jogadorAtual->obterArmadura()
-            );
-            if (itemEncontrado) break;
-            
-            std::cout << "\033[u\033[J";
-        }
+        Item* itemEncontrado = TelaInventario::lerSelecaoDeItem(jogadorAtual, codigoDoItemDigitado);
 
         if (codigoDoItemDigitado != "0" && itemEncontrado)
         {
@@ -70,7 +59,7 @@ void InventarioCombate::gerenciarInventario(SistemaPersonagem* jogadorAtual, boo
                             for (int i = 0; i < quantidadeParaUsar; ++i) {
                                 Item* itemAtual = nullptr;
                                 for (auto* it : jogadorAtual->obterInventario()->obterTodosOsItens()) {
-                                    if (it->obterNomeItem() == nomeItem && it != jogadorAtual->obterArma() && it != jogadorAtual->obterEscudo() && it != jogadorAtual->obterArmadura()) {
+                                if (it->obterNomeItem() == nomeItem && !jogadorAtual->isItemEquipado(it)) {
                                         itemAtual = it;
                                         break;
                                     }

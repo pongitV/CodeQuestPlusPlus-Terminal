@@ -83,14 +83,7 @@ InfoBestiario Fada::obterInfoBestiario() const {
 
 void Fada::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)
 {
-    int xpDrop = 45;
-    int ouroDrop = 20;
-    GerenciadorDrops::relatarEProcessarXpOuro(jogadorAtual, xpDrop, ouroDrop, ouroTotal, xpTotal);
-
-    if (GeradorAleatorio::rolarChance(65)) {
-        GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::VarinhaCorroida, 1, itensObtidos);
-    }
-
-    int qtdPo = GeradorAleatorio::obterInteiro(1, 6);
-    GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::PoMagico, qtdPo, itensObtidos);
+    GerenciadorDrops::relatarEProcessarXpOuro(jogadorAtual, 45, 20, ouroTotal, xpTotal);
+    GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::VarinhaCorroida, 1, itensObtidos, 65);
+    GerenciadorDrops::darEProcessarItem(jogadorAtual, ItemID::PoMagico, GeradorAleatorio::obterInteiro(1, 6), itensObtidos);
 }

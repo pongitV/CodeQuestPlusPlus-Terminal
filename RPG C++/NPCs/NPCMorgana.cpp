@@ -13,21 +13,16 @@
 #include "../Utilidades/Aparencia.h"
 #include "../Utilidades/ControleDeInput.h"
 #include "../Inventario/EquipamentoArma.h"
+#include "../Gerenciadores/GerenciadorLoja.h"
 #include "NPCMorganaLayouts.h"
 
 namespace {
-     struct Produto {
-        ItemID idItem;
-        int preco;
-        int quantidade; // -1 para infinito
-    };
-
-    std::map<int, Produto> estoquePocoesBuff = {
+    std::map<int, ProdutoLoja> estoquePocoesBuff = {
         {1, {ItemID::PocaoFuria, 25, -1}},
         {2, {ItemID::ElixirArcano, 25, -1}}
     };
 
-    std::map<int, Produto> estoquePocoesDebuff = {
+    std::map<int, ProdutoLoja> estoquePocoesDebuff = {
         {1, {ItemID::FrascoGosma, 30, -1}},
         {2, {ItemID::FrascoFraqueza, 30, -1}}
     };
@@ -133,22 +128,84 @@ namespace {
             opcaoEncantar = std::to_string(id);
 
             if (opcaoEncantar != "0") {
-                struct EncantoInfo { ItemID idItem; int qtd; };
-                EncantoInfo encantos[] = {
-                    {ItemID::DenteGoblin, 40}, {ItemID::NucleoPegajoso, 5}, {ItemID::PoMagico, 25},
-                    {ItemID::MadeiraEnfeiticada, 1}, {ItemID::CoracaoFloresta, 1}, {ItemID::MadeiraEnfeiticada, 1}
+                struct EncantoOperacao {
+                    ItemID materialId;
+                    int qtd;
+                    ItemID armaRestritaId; 
+                    std::function<bool(EquipamentoArma*)> checarConflito;
+                    std::string msgConflito;
+                    std::function<std::string(SistemaPersonagem*, EquipamentoArma*)> aplicar;
                 };
-                
-                int index = (isUniversal ? 0 : 3) + (opcaoEncantar[0] - '1');
-                bool isSangramento = (index == 0), isLentidao = (index == 1), isResistencia = (index == 2);
-                bool isMagia = (index == 3), isCipos = (index == 4), isRaizes = (index == 5);
 
-                auto [itemIdNecessario, qtdNecessaria] = encantos[index];
-                std::string itemNecessario = FabricaItens::obterNomeDeID(itemIdNecessario);
+                std::vector<EncantoOperacao> operacoes = {
+                    { ItemID::DenteGoblin, 40, ItemID::Nenhum, 
+                      [](EquipamentoArma* a){ return a->possuiEfeitoSangramento(); }, "Esta arma ja esta encantada com Sangramento!",
+                      [](SistemaPersonagem*, EquipamentoArma* a){ a->aplicarEfeitoSangramento(); a->alterarNome(a->obterNomeItem() + " (Sangrenta)"); return a->obterNomeItem(); } },
+                      
+                    { ItemID::NucleoPegajoso, 5, ItemID::Nenhum,
+                      [](EquipamentoArma* a){ return a->possuiEfeitoLentidao(); }, "Esta arma ja esta encantada com Lentidao!",
+                      [](SistemaPersonagem*, EquipamentoArma* a){ a->aplicarEfeitoLentidao(); a->alterarNome(a->obterNomeItem() + " (Viscosa)"); return a->obterNomeItem(); } },
+                      
+                    { ItemID::PoMagico, 25, ItemID::Nenhum,
+                      [](EquipamentoArma* a){ return a->temPropriedade(Propriedade::Penetrante); }, "Esta arma ja esta encantada com Reducao de Resistencia!",
+                      [](SistemaPersonagem*, EquipamentoArma* a){ a->alterarNome(a->obterNomeItem() + " (Quebra-Defesas)"); a->adicionarPropriedade(Propriedade::Penetrante); return a->obterNomeItem(); } },
+                      
+                    { ItemID::MadeiraEnfeiticada, 1, ItemID::ArcoMadeira,
+                      [](EquipamentoArma* a){ return a->temPropriedade(Propriedade::Magica); }, "Esta arma ja esta encantada com Magia!",
+                      [](SistemaPersonagem* jogadorAtual, EquipamentoArma* armaEscolhida) {
+                          std::string nomeArco = FabricaItens::obterNomeDeID(ItemID::ArcoMadeira);
+                          std::string nome = armaEscolhida->obterNomeItem();
+                          size_t pos = nome.find(nomeArco);
+                          if (pos != std::string::npos) nome.replace(pos, 23, "Arco recurvo de madeira enfeiticada");
+                          int novoDanoMagico = armaEscolhida->obterDanoMagico() + (armaEscolhida->obterDanoFisico() / 2);
+                          auto novoArcoObj = std::make_unique<EquipamentoArma>(nome, armaEscolhida->obterDanoFisico(), novoDanoMagico, armaEscolhida->obterReqForca(), armaEscolhida->obterReqDestreza(), armaEscolhida->obterReqInteligencia(), armaEscolhida->obterReqSabedoria(), 0);
+                          EquipamentoArma* novoArco = novoArcoObj.get();
+                          if (armaEscolhida->possuiEfeitoSangramento()) novoArco->aplicarEfeitoSangramento();
+                          if (armaEscolhida->possuiEfeitoLentidao()) novoArco->aplicarEfeitoLentidao();
+                          if (armaEscolhida->temPropriedade(Propriedade::Penetrante)) novoArco->adicionarPropriedade(Propriedade::Penetrante);
+                          novoArco->adicionarPropriedade(Propriedade::Magica);
+
+                          bool estavaEquipado = (jogadorAtual->obterArma() == armaEscolhida);
+                          if (estavaEquipado) jogadorAtual->desequiparArma();
+                          jogadorAtual->obterInventario()->removerItem(armaEscolhida);
+                          jogadorAtual->obterInventario()->adicionarItem(std::move(novoArcoObj));
+                          if (estavaEquipado) jogadorAtual->equiparItem(novoArco);
+                          return novoArco->obterNomeItem();
+                      } },
+                      
+                    { ItemID::CoracaoFloresta, 1, ItemID::CajadoCristal,
+                      [](EquipamentoArma* a){ return a->temPropriedade(Propriedade::CipoPrisao); }, "Esta arma ja esta encantada com Cipos!",
+                      [](SistemaPersonagem*, EquipamentoArma* a){
+                          std::string nomeCajado = FabricaItens::obterNomeDeID(ItemID::CajadoCristal);
+                          std::string nome = a->obterNomeItem();
+                          size_t pos = nome.find(nomeCajado);
+                          if (pos != std::string::npos) nome.replace(pos, 24, "Cajado de cipos");
+                          a->alterarNome(nome);
+                          a->adicionarPropriedade(Propriedade::CipoPrisao);
+                          return a->obterNomeItem();
+                      } },
+                      
+                    { ItemID::MadeiraEnfeiticada, 1, ItemID::ViolaoEncantado,
+                      [](EquipamentoArma* a){ return a->temPropriedade(Propriedade::ViolaoMagico); }, "Esta arma ja esta encantada com Raizes!",
+                      [](SistemaPersonagem*, EquipamentoArma* a){
+                          std::string nomeViolao = FabricaItens::obterNomeDeID(ItemID::ViolaoEncantado);
+                          std::string nome = a->obterNomeItem();
+                          size_t pos = nome.find(nomeViolao);
+                          if (pos != std::string::npos) nome.replace(pos, 16, "Violao enfeiticado");
+                          else nome += " enfeiticado";
+                          a->alterarNome(nome);
+                          a->adicionarPropriedade(Propriedade::ViolaoMagico);
+                          return a->obterNomeItem();
+                      } }
+                };
+
+                int index = (isUniversal ? 0 : 3) + (opcaoEncantar[0] - '1');
+                auto& op = operacoes[index];
                 
+                std::string itemNecessario = FabricaItens::obterNomeDeID(op.materialId);
                 int qtdAtual = jogadorAtual->obterInventario()->contarItem(itemNecessario);
-                if (qtdAtual < qtdNecessaria) {
-                    dialogoMorgana("Voce nao tem " + itemNecessario + " suficiente! (Possui: " + std::to_string(qtdAtual) + "/" + std::to_string(qtdNecessaria) + ")");
+                if (qtdAtual < op.qtd) {
+                    dialogoMorgana("Voce nao tem " + itemNecessario + " suficiente! (Possui: " + std::to_string(qtdAtual) + "/" + std::to_string(op.qtd) + ")");
                     Aparencia::aguardarEnter();
                     continue;
                 }
@@ -171,68 +228,31 @@ namespace {
                 EquipamentoArma* armaEscolhida = dynamic_cast<EquipamentoArma*>(itemEscolhido);
                 if (!armaEscolhida) { dialogoMorgana("Eu so posso encantar ARMAS com isso!"); Aparencia::aguardarEnter(); continue; }
                 
-                std::string nomeArco = FabricaItens::obterNomeDeID(ItemID::ArcoMadeira);
-                std::string nomeCajado = FabricaItens::obterNomeDeID(ItemID::CajadoCristal);
-                std::string nomeViolao = FabricaItens::obterNomeDeID(ItemID::ViolaoEncantado);
-
-                if (isMagia && armaEscolhida->obterNomeItem().find(nomeArco) == std::string::npos) { dialogoMorgana("Este encantamento so funciona no Arco recurvo de madeira!"); Aparencia::aguardarEnter(); continue; }
-                if (isCipos && armaEscolhida->obterNomeItem().find(nomeCajado) == std::string::npos) { dialogoMorgana("Este encantamento so funciona no Cajado de cristal magico!"); Aparencia::aguardarEnter(); continue; }
-                if (isRaizes && armaEscolhida->obterNomeItem().find(nomeViolao) == std::string::npos) { dialogoMorgana("Este encantamento so funciona no Violao!"); Aparencia::aguardarEnter(); continue; }
+                if (op.armaRestritaId != ItemID::Nenhum) {
+                    std::string nomeRestrito = FabricaItens::obterNomeDeID(op.armaRestritaId);
+                    if (armaEscolhida->obterNomeItem().find(nomeRestrito) == std::string::npos) {
+                        dialogoMorgana("Este encantamento so funciona no " + nomeRestrito + "!");
+                        Aparencia::aguardarEnter();
+                        continue;
+                    }
+                }
                 
-                if (isSangramento && armaEscolhida->possuiEfeitoSangramento()) { dialogoMorgana("Esta arma ja esta encantada com Sangramento!"); Aparencia::aguardarEnter(); continue; }
-                if (isLentidao && armaEscolhida->possuiEfeitoLentidao()) { dialogoMorgana("Esta arma ja esta encantada com Lentidao!"); Aparencia::aguardarEnter(); continue; }
-                if (isResistencia && armaEscolhida->temPropriedade(Propriedade::Penetrante)) { dialogoMorgana("Esta arma ja esta encantada com Reducao de Resistencia!"); Aparencia::aguardarEnter(); continue; }
-                if (isMagia && armaEscolhida->temPropriedade(Propriedade::Magica)) { dialogoMorgana("Esta arma ja esta encantada com Magia!"); Aparencia::aguardarEnter(); continue; }
-                if (isCipos && armaEscolhida->temPropriedade(Propriedade::CipoPrisao)) { dialogoMorgana("Esta arma ja esta encantada com Cipos!"); Aparencia::aguardarEnter(); continue; }
-                if (isRaizes && armaEscolhida->temPropriedade(Propriedade::ViolaoMagico)) { dialogoMorgana("Esta arma ja esta encantada com Raizes!"); Aparencia::aguardarEnter(); continue; }
+                if (op.checarConflito(armaEscolhida)) {
+                    dialogoMorgana(op.msgConflito);
+                    Aparencia::aguardarEnter();
+                    continue;
+                }
                 
                 std::string nomeAntigoArma = armaEscolhida->obterNomeItem();
-
-                for (int i = 0; i < qtdNecessaria; ++i) jogadorAtual->obterInventario()->removerItem(itemNecessario);
+                for (int i = 0; i < op.qtd; ++i) jogadorAtual->obterInventario()->removerItem(itemNecessario);
                 
-                if (isSangramento) { armaEscolhida->aplicarEfeitoSangramento(); armaEscolhida->alterarNome(armaEscolhida->obterNomeItem() + " (Sangrenta)"); }
-                else if (isLentidao) { armaEscolhida->aplicarEfeitoLentidao(); armaEscolhida->alterarNome(armaEscolhida->obterNomeItem() + " (Viscosa)"); }
-                else if (isResistencia) { armaEscolhida->alterarNome(armaEscolhida->obterNomeItem() + " (Quebra-Defesas)"); armaEscolhida->adicionarPropriedade(Propriedade::Penetrante); }
-                else if (isMagia) {
-                    std::string nome = armaEscolhida->obterNomeItem();
-                    size_t pos = nome.find(nomeArco);
-                    if (pos != std::string::npos) nome.replace(pos, 23, "Arco recurvo de madeira enfeiticada");
-                    int novoDanoMagico = armaEscolhida->obterDanoMagico() + (armaEscolhida->obterDanoFisico() / 2);
-                    auto novoArcoObj = std::make_unique<EquipamentoArma>(nome, armaEscolhida->obterDanoFisico(), novoDanoMagico, armaEscolhida->obterReqForca(), armaEscolhida->obterReqDestreza(), armaEscolhida->obterReqInteligencia(), armaEscolhida->obterReqSabedoria(), 0);
-                    EquipamentoArma* novoArco = novoArcoObj.get();
-                    if (armaEscolhida->possuiEfeitoSangramento()) novoArco->aplicarEfeitoSangramento();
-                    if (armaEscolhida->possuiEfeitoLentidao()) novoArco->aplicarEfeitoLentidao();
-                    if (armaEscolhida->temPropriedade(Propriedade::Penetrante)) novoArco->adicionarPropriedade(Propriedade::Penetrante);
-                    novoArco->adicionarPropriedade(Propriedade::Magica);
-
-                    bool estavaEquipado = (jogadorAtual->obterArma() == armaEscolhida);
-                    if (estavaEquipado) jogadorAtual->desequiparArma();
-                    jogadorAtual->obterInventario()->removerItem(armaEscolhida);
-                    jogadorAtual->obterInventario()->adicionarItem(std::move(novoArcoObj));
-                    if (estavaEquipado) jogadorAtual->equiparItem(novoArco);
-                    armaEscolhida = novoArco;
-                }
-                else if (isCipos) {
-                    std::string nome = armaEscolhida->obterNomeItem();
-                    size_t pos = nome.find(nomeCajado);
-                    if (pos != std::string::npos) nome.replace(pos, 24, "Cajado de cipos");
-                    armaEscolhida->alterarNome(nome);
-                    armaEscolhida->adicionarPropriedade(Propriedade::CipoPrisao);
-                }
-                else if (isRaizes) {
-                    std::string nome = armaEscolhida->obterNomeItem();
-                    size_t pos = nome.find(nomeViolao);
-                    if (pos != std::string::npos) nome.replace(pos, 16, "Violao enfeiticado");
-                    else nome += " enfeiticado";
-                    armaEscolhida->alterarNome(nome);
-                    armaEscolhida->adicionarPropriedade(Propriedade::ViolaoMagico);
-                }
+                std::string novoNome = op.aplicar(jogadorAtual, armaEscolhida);
                 
                 Aparencia::limparTela();
                 Aparencia::exibirCabecalho("ENCANTAMENTO SUCESSO", Cor::MAGENTA);
                 std::vector<std::string> arteCaldeirao = NPCMorganaLayouts::obterArteCaldeirao();
                 
-                std::string equacao = "[" + nomeAntigoArma + "] + " + std::to_string(qtdNecessaria) + "x [" + itemNecessario + "] = [" + armaEscolhida->obterNomeItem() + "]";
+                std::string equacao = "[" + nomeAntigoArma + "] + " + std::to_string(op.qtd) + "x [" + itemNecessario + "] = [" + novoNome + "]";
                 Aparencia::imprimirCentralizadoMultilinha({equacao, ""}, 0, Aparencia::cor(Cor::MAGENTA));
                 Aparencia::imprimirCentralizadoMultilinha(arteCaldeirao, 29, Aparencia::cor(Cor::MAGENTA));
                 
@@ -245,66 +265,16 @@ namespace {
     void processarPocoes(SistemaPersonagem* jogadorAtual, bool isBuff) {
         std::string titulo = isBuff ? "CABANA - POCOES DE BUFF" : "CABANA - FRASCOS DE DEBUFF";
         auto& estoqueAtual = isBuff ? estoquePocoesBuff : estoquePocoesDebuff;
-        std::string opcaoCompra;
-        do {
-            Aparencia::limparTela();
-            Aparencia::exibirCabecalho(titulo, Cor::MAGENTA);
+        
+        auto formatador = [](ItemID id) {
+            if (id == ItemID::PocaoFuria || id == ItemID::ElixirArcano) return std::string(" (Buff x1.5 Atributos | 2 Turnos)");
+            if (id == ItemID::FrascoGosma) return std::string(" (Debuff Lentidao | 3 Turnos)");
+            if (id == ItemID::FrascoFraqueza) return std::string(" (Debuff Fraqueza | 3 Turnos)");
+            return std::string("");
+        };
 
-            std::vector<std::string> linhas = { "Seu Ouro: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G", "" };
-
-            int maxId = 0;
-            for (auto const& [id, produto] : estoqueAtual) {
-                if (id > maxId) maxId = id;
-                std::string nomeItem = FabricaItens::obterNomeDeID(produto.idItem);
-                if (produto.idItem == ItemID::PocaoFuria || produto.idItem == ItemID::ElixirArcano) nomeItem += " (Buff x1.5 Atributos | 2 Turnos)";
-                else if (produto.idItem == ItemID::FrascoGosma) nomeItem += " (Debuff Lentidao | 3 Turnos)";
-                else if (produto.idItem == ItemID::FrascoFraqueza) nomeItem += " (Debuff Fraqueza | 3 Turnos)";
-                
-                std::string preco = std::to_string(produto.preco) + "G";
-                std::string estoqueInfo = (produto.quantidade == -1) ? "" : (produto.quantidade == 0 ? " (Esgotado)" : " (Estoque: " + std::to_string(produto.quantidade) + ")");
-                
-                linhas.push_back("[" + std::to_string(id) + "] " + nomeItem + " - " + preco + estoqueInfo);
-            }
-            linhas.push_back("");
-            linhas.push_back("[0] VOLTAR");
-
-            std::cout << "\n";
-            Aparencia::imprimirBlocoCentralizado(linhas);
-            std::cout << "\n";
-            int idCompra = ControleDeInput::lerInteiroComLimites("Escolha: ", 0, maxId, true);
-            opcaoCompra = std::to_string(idCompra);
-
-            if (opcaoCompra != "0" && estoqueAtual.find(idCompra) != estoqueAtual.end()) {
-                auto& produto = estoqueAtual[idCompra];
-                if (produto.quantidade == 0) {
-                    dialogoMorgana("Acabou, volte mais tarde!");
-                } else {
-                    int maxComprador = jogadorAtual->obterInventario()->obterOuro() / produto.preco;
-                    if (maxComprador == 0) {
-                        dialogoMorgana("Voce nao tem ouro suficiente para as minhas preparacoes!");
-                    } else {
-                        int maxPossivel = (produto.quantidade == -1) ? maxComprador : std::min(maxComprador, produto.quantidade);
-                        int qtdComprar = 1;
-                        if (maxPossivel > 1) {
-                            std::string msgQtd = "Quantidade para comprar (1 a " + std::to_string(maxPossivel) + ", ou 0 para cancelar): ";
-                            qtdComprar = ControleDeInput::lerInteiroComLimites(msgQtd, 0, maxPossivel, true);
-                        }
-                        
-                        if (qtdComprar > 0) {
-                            jogadorAtual->obterInventario()->adicionarOuro(-(produto.preco * qtdComprar));
-                            if (produto.quantidade != -1) produto.quantidade -= qtdComprar;
-                            
-                            std::string nomeNovo = FabricaItens::obterNomeDeID(produto.idItem);
-                            for (int i = 0; i < qtdComprar; ++i) {
-                                jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(produto.idItem));
-                            }
-                            dialogoMorgana("Heehee... Use com sabedoria! " + std::to_string(qtdComprar) + "x " + nomeNovo + " adicionado.");
-                        }
-                    }
-                }
-                Aparencia::aguardarEnter();
-            }
-        } while (opcaoCompra != "0");
+        GerenciadorLoja::processarCompra(jogadorAtual, titulo, Cor::MAGENTA, estoqueAtual, 
+            [](const std::string& msg) { dialogoMorgana(msg); }, formatador);
     }
 
     void processarMissaoLabirinto(SistemaPersonagem* jogadorAtual) {
