@@ -221,56 +221,56 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
 void TelaAtributos::gerenciarFichaDoJogador(SistemaPersonagem* jogadorAtual)
 {
     if (jogadorAtual == nullptr) return;
-    int larguraDoTerminal = Aparencia::obterLarguraTerminal();
-    std::string opcaoEscolhidaNoMenuJogador;
+    bool continuar = true;
     do 
     {
         TelaAtributos::exibir(jogadorAtual);
-        std::string mensagemDoPrompt = "[0] VOLTAR | [1] LIGAR/DESLIGAR PARRY";
-        if (jogadorAtual->podeSubirDeNivel()) mensagemDoPrompt += " | [2] SUBIR DE NIVEL";
-        mensagemDoPrompt += " | [3] SALVAR E SAIR | [4] DETALHES DE ATRIBUTOS: ";
-        Aparencia::exibirPrompt(mensagemDoPrompt);
-        opcaoEscolhidaNoMenuJogador = ControleDeInput::lerEntradaProtegida();
 
-        if (opcaoEscolhidaNoMenuJogador == "1") {
+        std::vector<std::string> opcoes = { "LIGAR/DESLIGAR PARRY" };
+        if (jogadorAtual->podeSubirDeNivel()) opcoes.push_back("SUBIR DE NIVEL");
+        opcoes.push_back("DETALHES DE ATRIBUTOS");
+        opcoes.push_back("SALVAR E SAIR");
+        opcoes.push_back("VOLTAR");
+
+        std::cout << "\n";
+        int selecao = ControleDeInput::lerSelecaoMenuComSetas(opcoes, true);
+        std::string op = opcoes[selecao];
+
+        if (op == "LIGAR/DESLIGAR PARRY") {
             jogadorAtual->definirParryAtivado(!jogadorAtual->obterParryAtivado());
-        } else if (opcaoEscolhidaNoMenuJogador == "2" && jogadorAtual->podeSubirDeNivel()) {
-            int opcaoAtributo;
-            std::vector<std::string> opcoes = {
-                "Escolha o atributo para melhorar:",
-                "",
-                "1. Vida", "2. Forca", "3. Destreza", "4. Resistencia", "5. Constituicao", "6. Inteligencia", "7. Sabedoria"
+        } else if (op == "SUBIR DE NIVEL") {
+            std::vector<std::string> opcoesAtr = {
+                "Vida", "Forca", "Destreza", "Resistencia", "Constituicao", "Inteligencia", "Sabedoria", "Cancelar"
             };
             std::cout << "\n";
-            Aparencia::imprimirBlocoCentralizado(opcoes);
+            Aparencia::imprimirCentralizado("Escolha o atributo para melhorar:");
             std::cout << "\n";
-            Aparencia::exibirPrompt("Opcao: ");
-
-            std::string entradaLvl = ControleDeInput::lerEntradaProtegida();
-            try {
-                opcaoAtributo = std::stoi(entradaLvl);
-                if (opcaoAtributo >= 1 && opcaoAtributo <= 7) {
-                    TipoAtributo atributo = static_cast<TipoAtributo>(opcaoAtributo);
-                    if (jogadorAtual->subirDeNivel(atributo)) {
-                        Aparencia::exibirPrompt("[SISTEMA]: Nivel subiu! Atributo melhorado.");
-                        Aparencia::aguardarEnter();
-                    }
+            int escolhaAtr = ControleDeInput::lerSelecaoMenuComSetas(opcoesAtr, true);
+            
+            if (escolhaAtr >= 0 && escolhaAtr <= 6) {
+                TipoAtributo atributo = static_cast<TipoAtributo>(escolhaAtr + 1);
+                if (jogadorAtual->subirDeNivel(atributo)) {
+                    Aparencia::exibirPrompt("[SISTEMA]: Nivel subiu! Atributo melhorado.");
+                    Aparencia::aguardarEnter();
                 }
-            } catch (...) {}
-        } else if (opcaoEscolhidaNoMenuJogador == "3") {
-            std::string confirmacao;
-            Aparencia::exibirPrompt("[AVISO]: Deseja salvar jogo e voltar para o menu principal? (S/N): ");
-            confirmacao = ControleDeInput::lerEntradaProtegida();
-            if (confirmacao == "S" || confirmacao == "s") {
-                Aparencia::exibirPrompt("[AVISO]: Tem certeza? (S/N): ");
-                confirmacao = ControleDeInput::lerEntradaProtegida();
-                if (confirmacao == "S" || confirmacao == "s") {
+            }
+        } else if (op == "SALVAR E SAIR") {
+            std::vector<std::string> opcoesSimNao = { "NAO", "SIM" };
+            std::cout << "\n";
+            Aparencia::imprimirCentralizado("[AVISO]: Deseja salvar jogo e voltar para o menu principal?");
+            std::cout << "\n";
+            if (ControleDeInput::lerSelecaoMenuComSetas(opcoesSimNao, true) == 1) {
+                Aparencia::imprimirCentralizado("[AVISO]: Tem certeza?");
+                std::cout << "\n";
+                if (ControleDeInput::lerSelecaoMenuComSetas(opcoesSimNao, true) == 1) {
                     jogadorAtual->definirVoltarProMenu(true);
                     return;
                 }
             }
-        } else if (opcaoEscolhidaNoMenuJogador == "4") {
+        } else if (op == "DETALHES DE ATRIBUTOS") {
             exibirDetalhesAtributos(jogadorAtual);
+        } else if (op == "VOLTAR") {
+            continuar = false;
         }
-    } while (opcaoEscolhidaNoMenuJogador != "0");
+    } while (continuar);
 }

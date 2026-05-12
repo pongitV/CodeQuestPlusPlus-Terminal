@@ -126,27 +126,66 @@ namespace {
         std::cout << "\033[H" << finalOutput << "\033[J" << std::flush;
     }
 
-    void renderizarCenaPadrao(const std::string& titulo, const std::vector<SistemaPersonagem*>& inimigos, SistemaPersonagem* alvoAnimacao, int frame, bool isCura, bool isMorte, Item* arma, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& aliados, SistemaPersonagem* alvoDanoJogador = nullptr, Cor corDanoJogador = Cor::RESET, int danoAnimacao = -1, const std::vector<std::string>& dropsAnimacao = {}) {
+    void renderizarCenaPadrao(const std::string& titulo, const std::vector<SistemaPersonagem*>& inimigos, SistemaPersonagem* alvoAnimacao, int frame, bool isCura, bool isMorte, Item* arma, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& aliados, SistemaPersonagem* alvoDanoJogador = nullptr, Cor corDanoJogador = Cor::RESET, int danoAnimacao = -1, const std::vector<std::string>& dropsAnimacao = {}, bool animarEntrada = false) {
         renderizarFrameBufferizado([&]() {
             (void)titulo; // Parametro nao e mais usado visualmente na interface limpa
             std::cout << Aparencia::cor(Cor::BRANCO);
             Aparencia::imprimirLinhaDivisoria('=');
             std::cout << Aparencia::cor(Cor::RESET) << "\n";
-            TelaCombate::exibirHordaDeInimigosLadoALado(inimigos, alvoAnimacao, frame, isCura, false, isMorte, arma, danoAnimacao, dropsAnimacao);
+            TelaCombate::exibirHordaDeInimigosLadoALado(inimigos, alvoAnimacao, frame, isCura, animarEntrada, isMorte, arma, danoAnimacao, dropsAnimacao);
             
+            for (const auto& msg : mensagensFixasCombate) {
+                std::cout << msg;
+            }
+            if (!mensagensFixasCombate.empty()) std::cout << "\n";
+            
+            int larguraTerminal = Aparencia::obterLarguraTerminal();
+            std::string textoDoTurno = " ╣ TURNO " + std::to_string(TelaCombate::turnoAtualVisivel) + " │ VEZ DE " + TelaCombate::nomeTurnoVisivel + " ╠ ";
+            int tracosEsq = (larguraTerminal - static_cast<int>(textoDoTurno.length())) / 2;
+            int tracosDir = larguraTerminal - tracosEsq - static_cast<int>(textoDoTurno.length());
+            
+            std::string linhaEsq = "";
+            for (int i = 0; i < tracosEsq; ++i) linhaEsq += "═";
+            std::string linhaDir = "";
+            for (int i = 0; i < tracosDir; ++i) linhaDir += "═";
+            
+            std::cout << Aparencia::cor(Cor::BRANCO) << linhaEsq << textoDoTurno << linhaDir << Aparencia::cor(Cor::RESET) << "\n";
+
             TelaCombate::exibirBarraDeStatusDoJogador(jogadorAtual, (alvoDanoJogador == jogadorAtual) ? corDanoJogador : Cor::RESET, (alvoDanoJogador == jogadorAtual) ? danoAnimacao : -1, (alvoDanoJogador == jogadorAtual) ? frame : 0);
             for (auto* aliado : aliados) {
                 TelaCombate::exibirBarraDeStatusDoJogador(aliado, (alvoDanoJogador == aliado) ? corDanoJogador : Cor::RESET, (alvoDanoJogador == aliado) ? danoAnimacao : -1, (alvoDanoJogador == aliado) ? frame : 0);
             }
-            
             Aparencia::imprimirLinhaDivisoria();
-            for (const auto& msg : mensagensFixasCombate) std::cout << msg;
+
+            if (TelaCombate::selecaoAcaoAtual != -1) {
+                std::vector<std::string> opcoes = { "Atacar", "Defender", "Habilidade", "Inventario", "Sua Ficha", "Bestiario", "Log de Batalha" };
+                std::cout << "\n" << Aparencia::margemCombate() << "═══ ESCOLHA UMA ACAO ═══\n\n";
+                for (int i = 0; i < static_cast<int>(opcoes.size()); ++i) {
+                    if (i == TelaCombate::selecaoAcaoAtual) {
+                        std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE) << " > " << opcoes[i] << Aparencia::cor(Cor::RESET) << "\n";
+                    } else {
+                        std::cout << Aparencia::margemCombate() << "   " << opcoes[i] << "\n";
+                    }
+                }
+            }
         });
     }
 }
 
+int TelaCombate::turnoAtualVisivel = 1;
+std::string TelaCombate::nomeTurnoVisivel = "";
+int TelaCombate::selecaoAcaoAtual = -1;
+
+void TelaCombate::definirTurnoVisivel(int turno, const std::string& nome) {
+    turnoAtualVisivel = turno;
+    nomeTurnoVisivel = nome;
+}
+
 void TelaCombate::adicionarMensagemFixa(const std::string& msg) {
     mensagensFixasCombate.push_back(msg);
+    if (mensagensFixasCombate.size() > 6) { // Limita o numero de logs para nao empurrar o HUD para baixo demais
+        mensagensFixasCombate.erase(mensagensFixasCombate.begin());
+    }
 }
 
 void TelaCombate::limparMensagensFixas() {
@@ -218,7 +257,6 @@ void TelaCombate::exibirBarraDeStatusDoJogador(SistemaPersonagem* jogadorAtual, 
         "║ " + arteDoCoracao[3] + " ║  STATUS: " + statusStr + emptyPad
     };
 
-    Aparencia::imprimirLinhaDivisoria();
     Aparencia::imprimirCentralizadoMultilinha(linhasParaImprimir, 95);
 }
 
@@ -465,19 +503,38 @@ void TelaCombate::animarDanoNoInimigo(const std::string& tituloCombate, const st
     renderizarCenaPadrao(tituloCombate, listaDeInimigos, alvoAnimacao, 0, false, false, nullptr, jogadorAtual, listaDeAliados);
 }
 
-void TelaCombate::exibirCabecalhoDoTurno(int turnoAtual, const std::string& nomePersonagem) {
-    std::string textoDoTurno = "═══ TURNO " + std::to_string(turnoAtual) + " ║ VEZ DE " + nomePersonagem + " ═══";
-    std::string msgTurno = "\n" + Aparencia::espacosParaCentralizar(textoDoTurno.length()) + textoDoTurno + "\n";
-    std::cout << msgTurno;
-    adicionarMensagemFixa(msgTurno);
-}
+int TelaCombate::obterAcaoDoJogador(int turnoAtual, const std::string& nomePersonagem, const std::vector<SistemaPersonagem*>& inimigos, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& aliados) {
+    definirTurnoVisivel(turnoAtual, nomePersonagem);
+    selecaoAcaoAtual = 0;
+    int totalOpcoes = 7;
 
-int TelaCombate::obterAcaoDoJogador() {
-    std::cout << "\n" << Aparencia::margemCombate() << "═══ ESCOLHA UMA ACAO ═══\n";
-    std::cout << Aparencia::margemCombate() << "[1] Atacar       [2] Defender      [3] Habilidade\n";
-    std::cout << Aparencia::margemCombate() << "[4] Inventario   [5] Sua Ficha     [6] Bestiario\n";
-    std::cout << Aparencia::margemCombate() << "[7] Registro de Batalha (Log)\n\n";
-    return ControleDeInput::lerInteiroComLimites("Escolha: ", 1, 7, false, Aparencia::margemCombate());
+    while (true) {
+        atualizarTelaEstatica("", inimigos, jogadorAtual, aliados);
+        
+        unsigned char tecla = static_cast<unsigned char>(ControleDeInput::lerTecla());
+        
+        if (tecla == 224 || tecla == 0 || tecla == '\033') {
+            unsigned char proxTecla = static_cast<unsigned char>(ControleDeInput::lerTecla());
+            if (proxTecla == '[') proxTecla = static_cast<unsigned char>(ControleDeInput::lerTecla());
+            if (proxTecla == 72 || proxTecla == 'A') tecla = 'w';
+            else if (proxTecla == 80 || proxTecla == 'B') tecla = 's';
+        }
+
+        if (tecla == 'w' || tecla == 'W') { 
+            selecaoAcaoAtual--; 
+            if (selecaoAcaoAtual < 0) selecaoAcaoAtual = totalOpcoes - 1; 
+        }
+        else if (tecla == 's' || tecla == 'S') { 
+            selecaoAcaoAtual++; 
+            if (selecaoAcaoAtual >= totalOpcoes) selecaoAcaoAtual = 0; 
+        }
+        else if (tecla == '\r' || tecla == '\n') { 
+            int escolha = selecaoAcaoAtual;
+            selecaoAcaoAtual = -1; // Remove cursor para as animacoes manterem a tela limpa
+            atualizarTelaEstatica("", inimigos, jogadorAtual, aliados);
+            return escolha + 1; 
+        }
+    }
 }
 
 int TelaCombate::obterAlvoAtaque(int maxIndice) {
@@ -558,9 +615,9 @@ void TelaCombate::notificarRequisitoNaoAtendido(const std::string& mensagemRequi
     Aparencia::aguardarEnter();
 }
 
-void TelaCombate::atualizarTelaEstatica(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados)
+void TelaCombate::atualizarTelaEstatica(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados, bool animarEntrada)
 {
-    renderizarCenaPadrao(tituloCombate, listaDeInimigos, nullptr, 0, false, false, nullptr, jogadorAtual, listaDeAliados);
+    renderizarCenaPadrao(tituloCombate, listaDeInimigos, nullptr, 0, false, false, nullptr, jogadorAtual, listaDeAliados, nullptr, Cor::RESET, -1, {}, animarEntrada);
 }
 
 void TelaCombate::animarMorteInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* inimigoMorto, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados, const std::vector<std::string>& drops)

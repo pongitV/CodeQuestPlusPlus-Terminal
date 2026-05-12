@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 enum class ComandoMapa {
     Cima,
@@ -24,4 +25,5 @@ public:
     static std::string lerEntradaProtegida(const std::string& promptMensagem = "");
     
     static int lerInteiroComLimites(const std::string& promptMensagem, int minimo, int maximo, bool centralizarPrompt = false, const std::string& margemPersonalizada = "");
+    static int lerSelecaoMenuComSetas(const std::vector<std::string>& opcoes, bool centralizar = true, const std::string& margemPersonalizada = "", const std::vector<std::string>& painelDireito = {});
 };

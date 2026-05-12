@@ -97,18 +97,7 @@ std::vector<SistemaPersonagem*> GerenciadorCombate::obterInimigosRaw() const
 
 void GerenciadorCombate::exibirTelaDeCombate(bool animarEntrada) const
 {
-    Aparencia::limparTela();
-    std::cout << Aparencia::cor(Cor::BRANCO);
-    Aparencia::imprimirLinhaDivisoria('=');
-    std::cout << Aparencia::cor(Cor::RESET) << "\n";
-    TelaCombate::exibirHordaDeInimigosLadoALado(obterInimigosRaw(), nullptr, 0, false, animarEntrada);
-    TelaCombate::exibirBarraDeStatusDoJogador(jogadorAtual);
-    for (const auto& aliado : listaDeAliados) {
-        if (aliado->obterVida() > 0) {
-            TelaCombate::exibirBarraDeStatusDoJogador(aliado.get());
-        }
-    }
-    Aparencia::imprimirLinhaDivisoria();
+    TelaCombate::atualizarTelaEstatica(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual, obterAliadosVivosRaw(), animarEntrada);
 }
 
 std::vector<SistemaPersonagem*> GerenciadorCombate::obterAliadosVivosRaw() const {
@@ -122,6 +111,7 @@ std::vector<SistemaPersonagem*> GerenciadorCombate::obterAliadosVivosRaw() const
 void GerenciadorCombate::prepararTurnoPersonagem(SistemaPersonagem* personagem) {
     Aparencia::registrarLogBatalha("");
     Aparencia::registrarLogBatalha("═══ TURNO " + std::to_string(contadorDoTurnoAtual) + " ║ VEZ DE " + personagem->obterNome() + " ═══");
+    TelaCombate::definirTurnoVisivel(contadorDoTurnoAtual, personagem->obterNome());
     personagem->reduzirCooldowns();
     personagem->processarEfeitosInicioTurno();
 }
@@ -151,6 +141,7 @@ void GerenciadorCombate::iniciarCombate()
 {
     jogadorAtual->prepararParaNovaBatalha();
     Aparencia::limparLogBatalha();
+    TelaCombate::limparMensagensFixas();
 
     for (auto& aliado : listaDeAliados) {
         aliado->prepararParaNovaBatalha();
@@ -211,10 +202,7 @@ void GerenciadorCombate::iniciarCombate()
 
 void GerenciadorCombate::processarMenuDeAcoesDoJogador(SistemaPersonagem* personagemAgindo, bool& turnoFoiConsumido, bool& usouInventarioNoTurno)
 {
-    TelaCombate::limparMensagensFixas();
-    TelaCombate::exibirCabecalhoDoTurno(contadorDoTurnoAtual, personagemAgindo->obterNome());
-
-    int acaoEscolhida = TelaCombate::obterAcaoDoJogador();
+    int acaoEscolhida = TelaCombate::obterAcaoDoJogador(contadorDoTurnoAtual, personagemAgindo->obterNome(), obterInimigosRaw(), jogadorAtual, obterAliadosVivosRaw());
 
     switch (acaoEscolhida) 
     {
@@ -393,10 +381,10 @@ void GerenciadorCombate::executarTurnoDeTodosOsInimigos()
     else
     {
         std::string textoTurnoInimigos = "═══ TURNO " + std::to_string(contadorDoTurnoAtual) + " ║ VEZ DOS INIMIGOS ═══";
-        std::string msgTurno = "\n" + Aparencia::espacosParaCentralizar(textoTurnoInimigos.length()) + textoTurnoInimigos + "\n";
-        TelaCombate::adicionarMensagemFixa(msgTurno);
         Aparencia::registrarLogBatalha("");
         Aparencia::registrarLogBatalha(textoTurnoInimigos);
+            TelaCombate::definirTurnoVisivel(contadorDoTurnoAtual, "INIMIGOS");
+            exibirTelaDeCombate(false); // Forca o HUD a atualizar o nome do Turno para os inimigos antes do ataque iniciar
         for (auto& inimigoAtualPtr : listaDeInimigos) 
         {
             if (jogadorAtual->obterVida() <= 0) break; // Interrompe se o jogador morrer

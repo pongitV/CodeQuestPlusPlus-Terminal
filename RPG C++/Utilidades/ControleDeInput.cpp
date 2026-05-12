@@ -1,6 +1,7 @@
 #include "ControleDeInput.h"
 #include <iostream>
 #include <string>
+#include <vector>
 
 #ifdef _WIN32
     #include <conio.h>
@@ -84,4 +85,68 @@ int ControleDeInput::lerInteiroComLimites(const std::string& promptMensagem, int
         std::cout << "\033[u\033[J"; // Apenas limpa a entrada invalida
     }
     return valor;
+}
+
+int ControleDeInput::lerSelecaoMenuComSetas(const std::vector<std::string>& opcoes, bool centralizar, const std::string& margemPersonalizada, const std::vector<std::string>& painelDireito) {
+    if (opcoes.empty()) return -1;
+    
+    int selecaoAtual = 0;
+    int totalOpcoes = static_cast<int>(opcoes.size());
+    int totalDir = static_cast<int>(painelDireito.size());
+    int maxLinhas = std::max(totalOpcoes, totalDir);
+    std::string margem = margemPersonalizada;
+    
+    int maxLargura = 0;
+    for (const std::string& op : opcoes) {
+        int comp = static_cast<int>(Aparencia::removerCoresANSI(op).length());
+        if (comp > maxLargura) maxLargura = comp;
+    }
+    int larguraMenuEsq = maxLargura + 15; // 3 para " > " + 12 de espacamento
+
+    if (centralizar) {
+        margem = Aparencia::espacosParaCentralizar(larguraMenuEsq + (totalDir > 0 ? 40 : 0));
+    }
+
+    // Oculta o cursor do console temporariamente para evitar piscadas visuais na atualização
+    std::cout << "\033[?25l";
+
+    while (true) {
+        for (int i = 0; i < maxLinhas; ++i) {
+            std::string linhaEsq = "";
+            int lenEsqReal = 0;
+            if (i < totalOpcoes) {
+                if (i == selecaoAtual) {
+                    linhaEsq = Aparencia::cor(Cor::VERDE) + " > " + opcoes[i] + Aparencia::cor(Cor::RESET);
+                } else {
+                    linhaEsq = "   " + opcoes[i];
+                }
+                lenEsqReal = static_cast<int>(Aparencia::removerCoresANSI(opcoes[i]).length()) + 3;
+            }
+            
+            std::string linhaDir = (i < totalDir) ? painelDireito[i] : "";
+            
+            int padding = larguraMenuEsq - lenEsqReal;
+            if (padding < 0) padding = 0;
+            
+            std::cout << margem << linhaEsq << std::string(padding, ' ') << linhaDir << "\033[K\n";
+        }
+
+        std::cout << std::flush; // Garante que a tela sempre atualize antes de esperar a tecla
+
+        unsigned char tecla = static_cast<unsigned char>(lerTecla());
+        
+        if (tecla == 224 || tecla == 0 || tecla == '\033') {
+            unsigned char proxTecla = static_cast<unsigned char>(lerTecla());
+            if (proxTecla == '[') proxTecla = static_cast<unsigned char>(lerTecla()); // Para lidar com sequências de escape POSIX (\033[A)
+            
+            if (proxTecla == 72 || proxTecla == 'A') tecla = 'w';
+            else if (proxTecla == 80 || proxTecla == 'B') tecla = 's';
+        }
+
+        if (tecla == 'w' || tecla == 'W') { selecaoAtual--; if (selecaoAtual < 0) selecaoAtual = totalOpcoes - 1; }
+        else if (tecla == 's' || tecla == 'S') { selecaoAtual++; if (selecaoAtual >= totalOpcoes) selecaoAtual = 0; }
+        else if (tecla == '\r' || tecla == '\n') { std::cout << "\033[?25h"; return selecaoAtual; } // Restaura o cursor
+
+        std::cout << "\r\033[" << maxLinhas << "A"; // Retorna o cursor para cima a fim de reescrever o texto
+    }
 }

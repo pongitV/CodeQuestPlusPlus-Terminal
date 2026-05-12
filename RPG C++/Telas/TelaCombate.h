@@ -18,14 +18,18 @@ public:
     static void animarCuraNoInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados = {});
     static void animarDanoNoJogador(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados = {}, bool isParry = false, int danoAnimacao = -1);
     static void animarMorteInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* inimigoMorto, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados, const std::vector<std::string>& drops = {});
-    static void atualizarTelaEstatica(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados);
+    static void atualizarTelaEstatica(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados, bool animarEntrada = false);
 
     static void adicionarMensagemFixa(const std::string& msg);
     static void limparMensagensFixas();
 
+    static int turnoAtualVisivel;
+    static std::string nomeTurnoVisivel;
+    static int selecaoAcaoAtual;
+    static void definirTurnoVisivel(int turno, const std::string& nome);
+
     // Menus e interacoes de texto do combate
-    static void exibirCabecalhoDoTurno(int turnoAtual, const std::string& nomePersonagem);
-    static int obterAcaoDoJogador();
+    static int obterAcaoDoJogador(int turnoAtual, const std::string& nomePersonagem, const std::vector<SistemaPersonagem*>& inimigos, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& aliados);
     static int obterAlvoAtaque(int maxIndice);
     static int obterAlvoItem(const std::vector<SistemaPersonagem*>& listaDeInimigos);
     static int obterEscolhaDeEscudo(const std::string& nomePersonagem, const std::vector<Item*>& listaDeEscudos);

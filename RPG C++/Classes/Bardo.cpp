@@ -8,6 +8,7 @@
 #include "../Inventario/FabricaItens.h"
 #include "../Utilidades/Constantes.h"
 #include "../Utilidades/Aparencia.h"
+#include "../Utilidades/ControleDeInput.h"
 
 // --- INFORMACOES DA CLASSE ---
 std::string Bardo::obterNomeClasse() const 
@@ -154,33 +155,24 @@ void Bardo::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::vect
         }}
     }};
 
-    std::cout << "\n" << Aparencia::margemCombate() << "--- SINFONIA DO BARDO ---\n";
+    std::cout << "\n" << Aparencia::margemCombate() << "--- SINFONIA DO BARDO ---\n\n";
+    std::vector<std::string> opcoesHabilidades;
     for (size_t i = 0; i < habilidades.size(); ++i) {
         int cd = personagemUsuario->obterCooldown(habilidades[i].id);
-        std::cout << Aparencia::margemCombate() << "[" << i + 1 << "] " << habilidades[i].nome 
-                  << " (" << habilidades[i].descricao << " | Recarga: " << cd << ")\n";
+        opcoesHabilidades.push_back(habilidades[i].nome + " (" + habilidades[i].descricao + " | Recarga: " + std::to_string(cd) + ")");
     }
-    std::cout << Aparencia::margemCombate() << "[0] CANCELAR\n";
-    std::cout << Aparencia::margemCombate() << "Escolha: ";
+    opcoesHabilidades.push_back("CANCELAR");
 
-    int escolha;
-    while (!(std::cin >> escolha)) { std::cin.clear(); std::cin.ignore(1000, '\n'); std::cout << Aparencia::margemCombate() << "Escolha: "; }
+    int escolha = ControleDeInput::lerSelecaoMenuComSetas(opcoesHabilidades, false, Aparencia::margemCombate());
 
-    if (escolha == 0) {
+    if (escolha == static_cast<int>(habilidades.size())) {
         personagemUsuario->definirHabilidadeCancelada(true);
         return;
     }
     
-    if (escolha > 0 && escolha <= static_cast<int>(habilidades.size())) {
-        const auto& hab = habilidades[escolha - 1];
-        int cd = personagemUsuario->obterCooldown(hab.id);
-        if (verificarEReportarRecarga(personagemUsuario, cd, hab.nome)) return;
+    const auto& hab = habilidades[escolha];
+    int cd = personagemUsuario->obterCooldown(hab.id);
+    if (verificarEReportarRecarga(personagemUsuario, cd, hab.nome)) return;
 
-        hab.acao(personagemUsuario);
-        return;
-    }
-
-    std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << "[SISTEMA]: Opcao invalida!" << Aparencia::cor(Cor::RESET) << "\n";
-    Aparencia::aguardarEnter();
-    personagemUsuario->definirHabilidadeCancelada(true);
+    hab.acao(personagemUsuario);
 }

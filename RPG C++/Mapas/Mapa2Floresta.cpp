@@ -93,11 +93,12 @@ namespace {
                 Aparencia::exibirCabecalho("TESOURO ESCONDIDO", Cor::VERDE);
                 int mE = (ctx.larguraDoTerminal - 40) / 2;
                 std::string margem(mE > 0 ? mE : 0, ' ');
-                std::cout << "\n" << margem << "[!] Voce encontrou um Baú ancestral!\n";
-                std::cout << margem << "[0] Nao | [1] Abrir!\n" << margem << "Escolha: ";
+                std::cout << "\n" << margem << "[!] Voce encontrou um Baú ancestral!\n\n";
+                
+                std::vector<std::string> opcoesBau = { "Nao", "Abrir!" };
+                int opcao = ControleDeInput::lerSelecaoMenuComSetas(opcoesBau, false, margem);
 
-                int opcao;
-                if (std::cin >> opcao && opcao == 1) {
+                if (opcao == 1) {
                     if (GeradorAleatorio::rolarChance(25)) { // 25% de chance de ser um Mímico
                         std::cout << "\n" << margem << Aparencia::cor(Cor::VERMELHO) << "[!] O bau se revela uma criatura viva! E UM MIMICO!" << Aparencia::cor(Cor::RESET) << "\n";
                         Aparencia::aguardarEnter();
@@ -132,7 +133,7 @@ namespace {
                     ctx.self->posicaoYDoJogador = ctx.proximaPosicaoY;
                     Aparencia::aguardarEnter();
                     }
-                } else { std::cin.clear(); std::cin.ignore(1000, '\n'); }
+                }
 
                 if (ctx.self->exploracaoEstaAtiva) ctx.restaurarTela();
             } else {
@@ -227,17 +228,11 @@ namespace {
                 std::cout << "\n" << margem << "[SISTEMA]: Voce encontrou a saida do labirinto!\n";
                 std::cout << margem << "[SISTEMA]: A sua frente, uma escadaria desce para uma caverna escura.\n";
                 std::cout << margem << "[SISTEMA]: No fundo, parece haver um mar de liquido preto raso...\n\n";
-                std::cout << margem << "[1] Descer a escadaria\n";
-                std::cout << margem << "[2] Voltar para a Cabana da Bruxa\n\n";
-                std::cout << margem << "Escolha: ";
 
-                int escolha;
-                while (!(std::cin >> escolha) || (escolha != 1 && escolha != 2)) {
-                    std::cin.clear(); std::cin.ignore(1000, '\n');
-                    std::cout << margem << "Opcao invalida. Escolha (1 ou 2): ";
-                }
+                std::vector<std::string> opcoesCaminho = { "Descer a escadaria", "Voltar para a Cabana da Bruxa" };
+                int escolha = ControleDeInput::lerSelecaoMenuComSetas(opcoesCaminho, false, margem);
 
-                if (escolha == 1) {
+                if (escolha == 0) {
                     Aparencia::limparTela();
                     std::vector<std::string> arteSimbolo = Mapa2FlorestaLayouts::obterArteSimboloChefe();
                     
@@ -249,17 +244,14 @@ namespace {
                     std::cout << margem << "[SISTEMA]: Tudo e escuridao, exceto pelo brilho pulsante da\n";
                     std::cout << margem << "[SISTEMA]: enorme runa magica desenhada no fundo da caverna\n\n";
                     
-                    std::cout << margem << Aparencia::cor(Cor::VERMELHO) << "[1] Seguir em frente" << Aparencia::cor(Cor::RESET) << "\n";
-                    std::cout << margem << Aparencia::cor(Cor::BRANCO) << "[2] Voltar para a seguranca da Cabana" << Aparencia::cor(Cor::RESET) << "\n\n";
-                    std::cout << margem << "Escolha: ";
+                    std::vector<std::string> opcoesBoss = {
+                        Aparencia::cor(Cor::VERMELHO) + "Seguir em frente" + Aparencia::cor(Cor::RESET),
+                        Aparencia::cor(Cor::BRANCO) + "Voltar para a seguranca da Cabana" + Aparencia::cor(Cor::RESET)
+                    };
+                    int escolhaBoss = ControleDeInput::lerSelecaoMenuComSetas(opcoesBoss, false, margem);
                     
-                    int escolhaBoss;
-                    while (!(std::cin >> escolhaBoss) || (escolhaBoss != 1 && escolhaBoss != 2)) {
-                        std::cin.clear(); std::cin.ignore(1000, '\n');
-                        std::cout << margem << "Opcao invalida. Escolha (1 ou 2): ";
-                    }
                     
-                    if (escolhaBoss == 1) {
+                    if (escolhaBoss == 0) {
                         ctx.self->matrizDoMapaDoLabirintoSalva = ctx.self->matrizDoMapaAtual;
                         if (!ctx.self->salaDoChefeJaFoiVisitada) {
                             ctx.self->matrizDoMapaAtual = Mapa2FlorestaLayouts::obterLayoutSalaDoChefe();

@@ -140,8 +140,10 @@ void ControleMapa::processarCombate(
     Aparencia::exibirCabecalho(tituloDoCombate, Cor::VERMELHO);
     int espacosParaCentralizarMensagem = std::max(0, (larguraDoTerminal - static_cast<int>(mensagemDeAviso.length())) / 2);
     std::string margemEsquerdaMensagem(espacosParaCentralizarMensagem, ' ');
-    std::cout << "\n" << margemEsquerdaMensagem << Aparencia::cor(Cor::AMARELO) << "[!] " << mensagemDeAviso << Aparencia::cor(Cor::RESET) << "\n";
-    int opcaoEscolhidaPeloJogador = ControleDeInput::lerInteiroComLimites("[0] Nao, recuar | [1] Sim, batalha!\n" + margemEsquerdaMensagem + "Escolha: ", 0, 1, false, margemEsquerdaMensagem);
+    std::cout << "\n" << margemEsquerdaMensagem << Aparencia::cor(Cor::AMARELO) << "[!] " << mensagemDeAviso << Aparencia::cor(Cor::RESET) << "\n\n";
+    
+    std::vector<std::string> opcoesCombate = { "Nao, recuar", "Sim, batalha!" };
+    int opcaoEscolhidaPeloJogador = ControleDeInput::lerSelecaoMenuComSetas(opcoesCombate, false, margemEsquerdaMensagem);
 
     if (opcaoEscolhidaPeloJogador == 1) {
         GerenciadorCombate combate(jogadorAtual, std::move(inimigosParaBatalha));
