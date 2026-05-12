@@ -45,7 +45,7 @@ void TelaVitoria::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroOb
         std::vector<std::string> caixaEst = Aparencia::criarCaixa(estLinhas, "ESTATISTICAS DA BATALHA", 35, Cor::VERDE);
 
         std::vector<std::string> lootLinhas;
-        lootLinhas.push_back(frame == frames ? "Seus achados:" : "Calculando recompensas...");
+        lootLinhas.push_back(frame == frames ? "Recompensas:" : "Calculando recompensas...");
         lootLinhas.push_back("");
         lootLinhas.push_back(" + " + std::to_string(curXp) + " XP");
         lootLinhas.push_back(" + " + std::to_string(curOuro) + " G");
