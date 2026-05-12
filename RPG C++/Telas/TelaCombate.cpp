@@ -212,10 +212,10 @@ void TelaCombate::exibirBarraDeStatusDoJogador(SistemaPersonagem* jogadorAtual, 
     // Aplicando a cor dinâmica ao HP na linha do status
     std::vector<std::string> linhasParaImprimir = 
     {
-        "| " + arteDoCoracao[0] + " |  " + playerTag + " (" + jogadorAtual->obterRaca()->obterNomeRaca() + " / " + jogadorAtual->obterNomeClasse() + ") | NIVEL: " + std::to_string(jogadorAtual->obterNivel()) + " | HP: " + corVida + std::to_string(jogadorAtual->obterVida()) + corReset + "/" + std::to_string(jogadorAtual->obterVidaMaxima()) + fctPrint,
-        "| " + arteDoCoracao[1] + " |  XP: " + arteDeBarraDeXp + " | OURO: " + corLaranja + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G" + corReset + emptyPad,
-        "| " + arteDoCoracao[2] + " |  EQUIP: " + nomeDaArma + " | " + nomeDoEscudo + " | " + nomeDaArmadura + emptyPad,
-        "| " + arteDoCoracao[3] + " |  STATUS: " + statusStr + emptyPad
+        "║ " + arteDoCoracao[0] + " ║  " + playerTag + " (" + jogadorAtual->obterRaca()->obterNomeRaca() + " / " + jogadorAtual->obterNomeClasse() + ") ║ NIVEL: " + std::to_string(jogadorAtual->obterNivel()) + " ║ HP: " + corVida + std::to_string(jogadorAtual->obterVida()) + corReset + "/" + std::to_string(jogadorAtual->obterVidaMaxima()) + fctPrint,
+        "║ " + arteDoCoracao[1] + " ║  XP: " + arteDeBarraDeXp + " ║ OURO: " + corLaranja + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G" + corReset + emptyPad,
+        "║ " + arteDoCoracao[2] + " ║  EQUIP: " + nomeDaArma + " ║ " + nomeDoEscudo + " ║ " + nomeDaArmadura + emptyPad,
+        "║ " + arteDoCoracao[3] + " ║  STATUS: " + statusStr + emptyPad
     };
 
     Aparencia::imprimirLinhaDivisoria();
@@ -466,23 +466,26 @@ void TelaCombate::animarDanoNoInimigo(const std::string& tituloCombate, const st
 }
 
 void TelaCombate::exibirCabecalhoDoTurno(int turnoAtual, const std::string& nomePersonagem) {
-    std::string textoDoTurno = "--- TURNO " + std::to_string(turnoAtual) + " | VEZ DE " + nomePersonagem + " ---";
+    std::string textoDoTurno = "═══ TURNO " + std::to_string(turnoAtual) + " ║ VEZ DE " + nomePersonagem + " ═══";
     std::string msgTurno = "\n" + Aparencia::espacosParaCentralizar(textoDoTurno.length()) + textoDoTurno + "\n";
     std::cout << msgTurno;
     adicionarMensagemFixa(msgTurno);
 }
 
 int TelaCombate::obterAcaoDoJogador() {
-    std::string textoAcoes = "1. Atacar | 2. Defender | 3. Habilidade | 4. Inventario | 5. Jogador | 6. Bestiario | 7. Log | Escolha: ";
-    return ControleDeInput::lerInteiroComLimites(textoAcoes, 1, 7, true);
+    std::cout << "\n" << Aparencia::margemCombate() << "═══ ESCOLHA UMA ACAO ═══\n";
+    std::cout << Aparencia::margemCombate() << "[1] Atacar       [2] Defender      [3] Habilidade\n";
+    std::cout << Aparencia::margemCombate() << "[4] Inventario   [5] Sua Ficha     [6] Bestiario\n";
+    std::cout << Aparencia::margemCombate() << "[7] Registro de Batalha (Log)\n\n";
+    return ControleDeInput::lerInteiroComLimites("Escolha: ", 1, 7, false, Aparencia::margemCombate());
 }
 
 int TelaCombate::obterAlvoAtaque(int maxIndice) {
-    return ControleDeInput::lerInteiroComLimites("Escolha o alvo (0 a " + std::to_string(maxIndice) + "): ", 0, maxIndice, false, Aparencia::margemCombate());
+    return ControleDeInput::lerInteiroComLimites("Escolha o alvo (0 a " + std::to_string(maxIndice) + "): ", 0, maxIndice, false, "\n" + Aparencia::margemCombate());
 }
 
 int TelaCombate::obterAlvoItem(const std::vector<SistemaPersonagem*>& listaDeInimigos) {
-    std::cout << "\n" << Aparencia::margemCombate() << "--- ESCOLHA UM ALVO ---\n";
+    std::cout << "\n" << Aparencia::margemCombate() << "═══ ESCOLHA UM ALVO ═══\n";
     for (size_t i = 0; i < listaDeInimigos.size(); ++i) {
         std::cout << Aparencia::margemCombate() << "[" << i << "] " << listaDeInimigos[i]->obterNome() << " (HP: " << listaDeInimigos[i]->obterVida() << ")\n";
     }
@@ -491,7 +494,7 @@ int TelaCombate::obterAlvoItem(const std::vector<SistemaPersonagem*>& listaDeIni
 }
 
 int TelaCombate::obterEscolhaDeEscudo(const std::string& nomePersonagem, const std::vector<Item*>& listaDeEscudos) {
-    std::cout << "\n" << Aparencia::margemCombate() << "=== SELECIONE UM ESCUDO PARA " << nomePersonagem << " ===\n";
+    std::cout << "\n" << Aparencia::margemCombate() << "═══ SELECIONE UM ESCUDO PARA " << nomePersonagem << " ═══\n";
     for (size_t indice = 0; indice < listaDeEscudos.size(); indice++) {
         std::cout << Aparencia::margemCombate() << " [" << indice + 1 << "] " << listaDeEscudos[indice]->obterNomeItem() << listaDeEscudos[indice]->obterInfoStatus() << "\n";
     }

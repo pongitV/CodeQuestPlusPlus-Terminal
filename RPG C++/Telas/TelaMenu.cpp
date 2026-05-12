@@ -15,11 +15,21 @@ namespace {
         TelaMenu::exibirLogoDoJogo(titulo);
         
         if (!infoBox.empty()) {
-            std::string borda = "+" + std::string(infoBox.length() - 2, '-') + "+";
-            Aparencia::imprimirCentralizado(borda);
-            Aparencia::imprimirCentralizado(infoBox);
-            Aparencia::imprimirCentralizado(borda);
-            std::cout << "\n";
+            std::string cleanInfoBox = infoBox;
+            size_t pos = 0;
+            while ((pos = cleanInfoBox.find('|', pos)) != std::string::npos) {
+                cleanInfoBox.replace(pos, 1, "║");
+                pos += 3; // Avança 3 bytes (tamanho de "║" em UTF-8)
+            }
+            
+            int infoLength = Aparencia::removerCoresANSI(infoBox).length();
+            std::string tracos = "";
+            for (int i = 0; i < infoLength - 2; ++i) tracos += "═";
+            
+            std::string margem = Aparencia::espacosParaCentralizar(infoLength);
+            std::cout << margem << "╔" << tracos << "╗\n";
+            std::cout << margem << cleanInfoBox << "\n";
+            std::cout << margem << "╚" << tracos << "╝\n\n";
         }
         
         Aparencia::imprimirBlocoCentralizadoDigitando(narracao);
@@ -72,7 +82,9 @@ void TelaMenu::exibirLogoDoJogo(const std::string& tituloDaTela)
        "                          "               
     };
 
-    std::cout << "\n" << std::string(larguraConsole, '=') << "\n\n";
+    std::string linhaDupla = "";
+    for(int i = 0; i < larguraConsole; ++i) linhaDupla += "═";
+    std::cout << "\n" << linhaDupla << "\n\n";
 
     int larguraLinhaCompleta = 140; 
 

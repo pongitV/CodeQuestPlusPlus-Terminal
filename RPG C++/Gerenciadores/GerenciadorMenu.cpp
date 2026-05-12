@@ -46,7 +46,7 @@ namespace {
         TelaMenu::exibirLogoDoJogo("TUTORIAL DE PARRY");
 
         std::vector<std::string> explicacao = {
-            "--- COMO FUNCIONA O PARRY ---",
+            "═══ COMO FUNCIONA O PARRY ═══",
             "Quando um inimigo atacar, voce deve estar pronto para reagir.",
             "Uma sequencia de numeros aparecera na tela com um limite de tempo.",
             "Digite os numeros rapidamente na sequencia correta e pressione ENTER.",
@@ -224,7 +224,7 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::iniciarCriacaoDeSistemaPerso
     Aparencia::limparTela();
     TelaMenu::exibirLogoDoJogo("SISTEMA DE SAVE");
     std::vector<std::string> avisoSave = {
-        "--- AVISO IMPORTANTE ---",
+        "═══ AVISO IMPORTANTE ═══",
         "O jogo NAO possui salvamento automatico (auto-save).",
         "Para salvar o seu progresso, abra a sua Ficha de Jogador",
         "durante a exploracao ou durante uma batalha,",

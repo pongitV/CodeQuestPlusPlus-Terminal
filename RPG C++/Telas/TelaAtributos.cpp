@@ -36,7 +36,7 @@ namespace {
 
         std::vector<std::string> linhas;
         linhas.push_back("");
-        linhas.push_back("--- EFEITOS DE CADA ATRIBUTO ---");
+        linhas.push_back("═══ EFEITOS DE CADA ATRIBUTO ═══");
         linhas.push_back(" Vida         : Pontos de vida (HP) maximos do personagem.");
         linhas.push_back(" Forca        : Aumenta o dano base de ataques fisicos.");
         linhas.push_back(" Destreza     : Aumenta o dano fisico final e define a ordem de turno.");
@@ -46,7 +46,7 @@ namespace {
         linhas.push_back(" Sabedoria    : Aumenta o dano magico final e a potencia de curas.");
         linhas.push_back("");
         
-        linhas.push_back("--- ATRIBUTOS DE DANO RECOMENDADOS PARA A CLASSE " + jogadorAtual->obterNomeClasse() + " ---");
+        linhas.push_back("═══ ATRIBUTOS DE DANO RECOMENDADOS PARA A CLASSE " + jogadorAtual->obterNomeClasse() + " ═══");
         
         TipoClasse tipo = jogadorAtual->obterTipoClasse();
         if (tipo == TipoClasse::Guerreiro) {
@@ -140,14 +140,14 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
     Atributos racaAttr = jogadorAtual->obterRaca()->obterAtributosRaca();
     Atributos classeAttr = jogadorAtual->obterClasse()->obterAtributosClasse();
 
-    linhasFicha.push_back("--- ATRIBUTOS TOTAIS ---");
+    linhasFicha.push_back("═══ ATRIBUTOS TOTAIS ═══");
     
     std::string hpStr = " > Vida           : " + std::to_string(jogadorAtual->obterVida()) + "/" + std::to_string(jogadorAtual->obterVidaMaxima());
     int padHp = 45 - static_cast<int>(hpStr.length());
     std::ostringstream linhaHp;
     linhaHp << hpStr << std::string(padHp > 0 ? padHp : 0, ' ') 
-            << "| Raca: +" << std::left << std::setw(3) << racaAttr.vida 
-            << " | Classe: +" << classeAttr.vida;
+            << "║ Raca: +" << std::left << std::setw(3) << racaAttr.vida 
+            << " ║ Classe: +" << classeAttr.vida;
     linhasFicha.push_back(linhaHp.str());
 
     auto formatarAtributo = [temBuff, multiplicadorDeAtributosAtual](std::string nomeDoAtributo, int valorBaseDoAtributo, int valorPerdidoPorDebuff, int atrRaca, int atrClasse) -> std::string
@@ -176,8 +176,8 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
         std::ostringstream finalLine;
         finalLine << leftStr << " " << extraColor << extraText << (extraColor.empty() ? "" : Aparencia::cor(Cor::RESET))
                   << std::string(padding > 0 ? padding : 0, ' ')
-                  << "| Raca: +" << std::left << std::setw(3) << atrRaca
-                  << " | Classe: +" << atrClasse;
+                  << "║ Raca: +" << std::left << std::setw(3) << atrRaca
+                  << " ║ Classe: +" << atrClasse;
         return finalLine.str();
     };
 
@@ -197,7 +197,7 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
     };
 
     linhasFicha.push_back("");
-    linhasFicha.push_back("--- STATUS ATUAIS ---");
+    linhasFicha.push_back("═══ STATUS ATUAIS ═══");
     bool temStatus = false;
     for (const auto& info : efeitosParaExibir) {
         if (jogadorAtual->possuiEfeito(info.efeitoId)) {

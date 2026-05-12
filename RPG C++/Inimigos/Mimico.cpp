@@ -84,8 +84,9 @@ void Mimico::aoCausarDano(SistemaPersonagem* atacante, SistemaPersonagem* alvo, 
     alvo->obterInventario()->adicionarOuro(-roubo);
     ouroRoubadoTotal += roubo;
     
-    std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::AMARELO) + ">> [MIMICO]: Com uma lingua grotesca, o Mimico roubou " + std::to_string(roubo) + "G do seu bolso!" + Aparencia::cor(Cor::RESET) + "\n";
-    TelaCombate::adicionarMensagemFixa(msg);
+    // A mensagem na UI foi removida para priorizar o combate limpo
+    // std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::AMARELO) + ">> [MIMICO]: Com uma lingua grotesca, o Mimico roubou " + std::to_string(roubo) + "G do seu bolso!" + Aparencia::cor(Cor::RESET) + "\n";
+    // TelaCombate::adicionarMensagemFixa(msg);
     Aparencia::registrarLogBatalha(Aparencia::cor(Cor::AMARELO) + ">> [MIMICO]: Com uma lingua grotesca, o Mimico roubou " + std::to_string(roubo) + "G do seu bolso!" + Aparencia::cor(Cor::RESET));
 }
 

@@ -58,9 +58,10 @@ public:
 
 protected:
     void notificarMensagemCombate(const std::string& msgComCor, const std::string& msgSemCor) const {
-        std::string msgFinal = Aparencia::margemCombate() + msgComCor + "\n";
-        TelaCombate::adicionarMensagemFixa(msgFinal);
-        Aparencia::registrarLogBatalha(msgSemCor);
+        // A mensagem na UI foi removida para priorizar o combate limpo
+        // std::string msgFinal = Aparencia::margemCombate() + msgComCor + "\n";
+        // TelaCombate::adicionarMensagemFixa(msgFinal);
+        Aparencia::registrarLogBatalha(msgComCor);
     }
 
     bool verificarEReportarRecarga(SistemaPersonagem* personagemUsuario, int turnosRestantes, const std::string& nomeHabilidade) const {
@@ -99,7 +100,8 @@ public:
 protected:
     virtual void executarAtaqueArea(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, int danoPerfurante, std::vector<std::unique_ptr<SistemaPersonagem>>& inimigos, const std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)>& aplicarDano, bool isAtacanteJogador) {
         std::string msgInfo = atacante->obterNome() + " desfere um ataque em area!";
-        notificarMensagemCombate(msgInfo, msgInfo);
+        // A mensagem foi removida da UI para manter o combate limpo com Textos Flutuantes
+        Aparencia::registrarLogBatalha(msgInfo);
         int danoDividido = std::max(1, danoBase / static_cast<int>(inimigos.size()));
         int perfuranteDividido = danoPerfurante / static_cast<int>(inimigos.size());
 
@@ -113,7 +115,8 @@ protected:
     virtual void executarAtaqueUnico(SistemaPersonagem* atacante, SistemaPersonagem* defensor, int danoBase, int danoPerfurante, std::vector<std::unique_ptr<SistemaPersonagem>>& inimigos, const std::function<void(SistemaPersonagem*, SistemaPersonagem*, int, int)>& aplicarDano, bool isAtacanteJogador) {
         if (defensor != nullptr) {
             std::string msgInfo = atacante->obterNome() + " ataca " + defensor->obterNome() + "!";
-            notificarMensagemCombate(msgInfo, msgInfo);
+            // A mensagem foi removida da UI para manter o combate limpo com Textos Flutuantes
+            Aparencia::registrarLogBatalha(msgInfo);
             aplicarDano(atacante, defensor, danoBase, danoPerfurante);
         }
 

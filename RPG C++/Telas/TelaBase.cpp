@@ -14,7 +14,7 @@ std::vector<std::string> TelaBase::comporEstatisticasBatalha(SistemaPersonagem* 
         "OURO TOTAL:     " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G",
         "NIVEL:          " + std::to_string(jogadorAtual->obterNivel()) + " (XP: " + std::to_string(jogadorAtual->obterXpAtual()) + "/" + std::to_string(jogadorAtual->obterXpParaSubir()) + ")",
         "",
-        "--- ESTATISTICAS DA BATALHA ---",
+        "═══ ESTATISTICAS DA BATALHA ═══",
         "OURO OBTIDO:   +" + std::to_string(quantidadeDeOuroObtido) + "G",
         "XP OBTIDO:     +" + std::to_string(quantidadeDeXpObtido) + " XP",
         "DANO TOTAL CAUSADO:   " + std::to_string(totalDeDanoCausado),

@@ -60,14 +60,14 @@ void TelaInventario::exibir(SistemaPersonagem* jogadorAtual, bool mostrarPrecos)
     linhasParaImprimir.push_back("DINHEIRO: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + " moedas");
     linhasParaImprimir.push_back("");  
 
-    linhasParaImprimir.push_back("[ EQUIPAMENTO ]");
+    linhasParaImprimir.push_back("═══ EQUIPAMENTO ═══");
     if (armaEquipada) linhasParaImprimir.push_back(" [1E] ARMA:     " + armaEquipada->obterNomeItem());
     if (escudoEquipado) linhasParaImprimir.push_back(" [2E] ESCUDO:   " + escudoEquipado->obterNomeItem());
     if (armaduraEquipada) linhasParaImprimir.push_back(" [3E] ARMADURA: " + armaduraEquipada->obterNomeItem());
     linhasParaImprimir.push_back(""); 
 
     auto formatarAgrupamento = [&](const std::string& titulo, const std::map<std::string, std::vector<Item*>>& grupo, char letra, const std::string& sufixoVenda) {
-        linhasParaImprimir.push_back(titulo);
+        linhasParaImprimir.push_back("═══ " + titulo + " ═══");
         if (grupo.empty()) {
             linhasParaImprimir.push_back(" (Vazio)");
         } else {
@@ -82,10 +82,10 @@ void TelaInventario::exibir(SistemaPersonagem* jogadorAtual, bool mostrarPrecos)
         linhasParaImprimir.push_back("");
     };
 
-    formatarAgrupamento("[ ARSENAL ]", equipamentosAgrupados, 'A', "G");
-    formatarAgrupamento("[ CONSUMIVEIS ]", consumiveisAgrupados, 'C', "G / un");
-    formatarAgrupamento("[ ESTOQUE ]", materiaisAgrupados, 'S', "G / un");
-    formatarAgrupamento("[ ITENS DE MISSAO ]", missoesAgrupadas, 'M', "");
+    formatarAgrupamento("ARSENAL", equipamentosAgrupados, 'A', "G");
+    formatarAgrupamento("CONSUMIVEIS", consumiveisAgrupados, 'C', "G / un");
+    formatarAgrupamento("ESTOQUE", materiaisAgrupados, 'S', "G / un");
+    formatarAgrupamento("ITENS DE MISSAO", missoesAgrupadas, 'M', "");
 
     Aparencia::imprimirBlocoCentralizado(linhasParaImprimir, "", atrasoMs);
     
@@ -132,7 +132,7 @@ void TelaInventario::exibirInspecaoItem(Item* item)
     if (!item) return;
     
     std::vector<std::string> linhas;
-    linhas.push_back(Aparencia::cor(Cor::CIANO) + " === " + item->obterNomeItem() + " ===" + Aparencia::cor(Cor::RESET));
+    linhas.push_back(Aparencia::cor(Cor::CIANO) + " ═══ " + item->obterNomeItem() + " ═══" + Aparencia::cor(Cor::RESET));
     
     std::vector<std::string> detalhes = item->obterDetalhesInspecao();
     linhas.insert(linhas.end(), detalhes.begin(), detalhes.end());

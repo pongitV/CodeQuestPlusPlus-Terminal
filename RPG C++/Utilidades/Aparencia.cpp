@@ -171,7 +171,16 @@ std::string Aparencia::centralizarTexto(const std::string& texto) {
 }
 
 void Aparencia::imprimirLinhaDivisoria(char caractere) {
-    std::cout << std::string(obterLarguraTerminal(), caractere) << "\n";
+    std::string linha = "";
+    int largura = obterLarguraTerminal();
+    if (caractere == '=') {
+        for (int i = 0; i < largura; ++i) linha += "═";
+    } else if (caractere == '-') {
+        for (int i = 0; i < largura; ++i) linha += "─";
+    } else {
+        linha = std::string(largura, caractere);
+    }
+    std::cout << linha << "\n";
 }
 
 void Aparencia::imprimirCentralizado(const std::string& texto, const std::string& corAnsi) {
@@ -263,9 +272,12 @@ void Aparencia::exibirCabecalho(const std::string& titulo, Cor corDoCabecalho) {
     std::transform(tituloUpper.begin(), tituloUpper.end(), tituloUpper.begin(), [](unsigned char c){ return std::toupper(c); });
     
     int largura = obterLarguraTerminal();
-    std::cout << cor(corDoCabecalho) << std::string(largura, '=') << cor(Cor::RESET) << "\n\n";
+    std::string linha = "";
+    for(int i = 0; i < largura; ++i) linha += "═";
+    
+    std::cout << cor(corDoCabecalho) << linha << cor(Cor::RESET) << "\n\n";
     imprimirCentralizado(tituloUpper, cor(corDoCabecalho));
-    std::cout << "\n" << cor(corDoCabecalho) << std::string(largura, '=') << cor(Cor::RESET) << "\n";
+    std::cout << "\n" << cor(corDoCabecalho) << linha << cor(Cor::RESET) << "\n";
 }
 
 int Aparencia::imprimirLadoALado(const std::vector<std::string>& colunaEsquerda, const std::vector<std::string>& colunaDireita, int minLarguraEsquerda, int espacamento, Cor corEsquerda, Cor corDireita, int atrasoLinhaMs) {

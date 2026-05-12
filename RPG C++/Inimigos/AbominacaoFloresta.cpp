@@ -59,8 +59,9 @@ int AbominacaoFloresta::processarDanoOfensivo(int danoBase, SistemaPersonagem* a
             if (cura > 0)
             {
                 atacante->modificarVida(cura);
-                std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::VERDE) + "[PASSIVA]: Raizes Parasitas! A Abominacao absorveu " + std::to_string(cura) + " de HP!" + Aparencia::cor(Cor::RESET) + "\n";
-                TelaCombate::adicionarMensagemFixa(msg);
+                // A mensagem na UI foi removida para priorizar o combate limpo
+                // std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::VERDE) + "[PASSIVA]: Raizes Parasitas! A Abominacao absorveu " + std::to_string(cura) + " de HP!" + Aparencia::cor(Cor::RESET) + "\n";
+                // TelaCombate::adicionarMensagemFixa(msg);
                 Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERDE) + "[PASSIVA]: Raizes Parasitas! A Abominacao absorveu " + std::to_string(cura) + " de HP!" + Aparencia::cor(Cor::RESET));
             }
         }

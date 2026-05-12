@@ -121,7 +121,7 @@ std::vector<SistemaPersonagem*> GerenciadorCombate::obterAliadosVivosRaw() const
 
 void GerenciadorCombate::prepararTurnoPersonagem(SistemaPersonagem* personagem) {
     Aparencia::registrarLogBatalha("");
-    Aparencia::registrarLogBatalha("--- TURNO " + std::to_string(contadorDoTurnoAtual) + " | VEZ DE " + personagem->obterNome() + " ---");
+    Aparencia::registrarLogBatalha("═══ TURNO " + std::to_string(contadorDoTurnoAtual) + " ║ VEZ DE " + personagem->obterNome() + " ═══");
     personagem->reduzirCooldowns();
     personagem->processarEfeitosInicioTurno();
 }
@@ -384,14 +384,15 @@ void GerenciadorCombate::executarTurnoDeTodosOsInimigos()
 {
     if (jogadorAtual->obterPularTurnoInimigo()) 
     {
-        std::string msg = "\n" + Aparencia::margemCombate() + Aparencia::cor(Cor::VERDE) + "[EFEITO]: Os inimigos estao atordoados e nao podem agir!" + Aparencia::cor(Cor::RESET) + "\n";
-        TelaCombate::adicionarMensagemFixa(msg);
-        Aparencia::registrarLogBatalha("[EFEITO]: Os inimigos estao atordoados e nao podem agir!");
+        // A mensagem na UI foi removida para priorizar o combate limpo
+        // std::string msg = "\n" + Aparencia::margemCombate() + Aparencia::cor(Cor::VERDE) + "[EFEITO]: Os inimigos estao atordoados e nao podem agir!" + Aparencia::cor(Cor::RESET) + "\n";
+        // TelaCombate::adicionarMensagemFixa(msg);
+        Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERDE) + "[EFEITO]: Os inimigos estao atordoados e nao podem agir!" + Aparencia::cor(Cor::RESET));
         jogadorAtual->definirPularTurnoInimigo(false); 
     }
     else
     {
-        std::string textoTurnoInimigos = "--- TURNO " + std::to_string(contadorDoTurnoAtual) + " | VEZ DOS INIMIGOS ---";
+        std::string textoTurnoInimigos = "═══ TURNO " + std::to_string(contadorDoTurnoAtual) + " ║ VEZ DOS INIMIGOS ═══";
         std::string msgTurno = "\n" + Aparencia::espacosParaCentralizar(textoTurnoInimigos.length()) + textoTurnoInimigos + "\n";
         TelaCombate::adicionarMensagemFixa(msgTurno);
         Aparencia::registrarLogBatalha("");
@@ -422,9 +423,10 @@ void GerenciadorCombate::executarTurnoDeTodosOsInimigos()
             }
             else
             {
-                std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::VERDE) + ">> [EFEITO]: " + inimigoAtual->obterNome() + " esta sob efeito de " + motivoIncapacidade + " e nao pode agir neste turno!" + Aparencia::cor(Cor::RESET) + "\n";
-                TelaCombate::adicionarMensagemFixa(msg);
-                Aparencia::registrarLogBatalha("[EFEITO]: " + inimigoAtual->obterNome() + " esta sob efeito de " + motivoIncapacidade + " e nao pode agir!");
+                // A mensagem na UI foi removida para priorizar o combate limpo
+                // std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::VERDE) + ">> [EFEITO]: " + inimigoAtual->obterNome() + " esta sob efeito de " + motivoIncapacidade + " e nao pode agir neste turno!" + Aparencia::cor(Cor::RESET) + "\n";
+                // TelaCombate::adicionarMensagemFixa(msg);
+                Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERDE) + "[EFEITO]: " + inimigoAtual->obterNome() + " esta sob efeito de " + motivoIncapacidade + " e nao pode agir!" + Aparencia::cor(Cor::RESET));
             }
         }
     }
@@ -536,9 +538,10 @@ void GerenciadorCombate::aplicarDanoAoAlvo(SistemaPersonagem* personagemAtacante
     if (personagemAlvo->possuiEfeito(EfeitoID::Inviolavel))
     {
         std::string msgSemCor = "[COMBATE]: O alvo esta Inviolavel e desviou do ataque perfeitamente!";
-        std::string msg = "\n" + Aparencia::margemCombate() + msgSemCor + "\n";
-        TelaCombate::adicionarMensagemFixa(msg);
-        Aparencia::registrarLogBatalha(msgSemCor);
+        // A mensagem na UI foi removida para priorizar o combate limpo
+        // std::string msg = "\n" + Aparencia::margemCombate() + msgSemCor + "\n";
+        // TelaCombate::adicionarMensagemFixa(msg);
+        Aparencia::registrarLogBatalha(Aparencia::cor(Cor::CIANO) + msgSemCor + Aparencia::cor(Cor::RESET));
         return;
     }
 
@@ -640,7 +643,7 @@ void GerenciadorCombate::processarMorteDeInimigo(SistemaPersonagem* inimigo)
 
     SistemaBestiario::instancia().registrarDerrota(inimigo->obterNome());
 
-    Aparencia::registrarLogBatalha(Aparencia::cor(Cor::AMARELO) + "=== DROPS ===" + Aparencia::cor(Cor::RESET));
+    Aparencia::registrarLogBatalha(Aparencia::cor(Cor::AMARELO) + "═══ DROPS ═══" + Aparencia::cor(Cor::RESET));
 
     size_t itensAntes = itensObtidos.size();
     inimigo->executarDrops(jogadorAtual, itensObtidos, quantidadeDeOuroObtido, quantidadeDeXpObtido);

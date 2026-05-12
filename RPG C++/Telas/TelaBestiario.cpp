@@ -63,7 +63,7 @@ void TelaBestiario::exibirLista(SistemaPersonagem* jogadorAtual) {
         int indiceInicial = paginaAtual * quantidadeMaximaPorPagina;
         int indiceFinal = std::min(indiceInicial + quantidadeMaximaPorPagina, totalDescobertos);
 
-        Aparencia::imprimirCentralizado("--- INIMIGOS ---");
+        Aparencia::imprimirCentralizado("═══ INIMIGOS ═══");
         std::cout << "\n";
 
         for (int i = indiceInicial; i < indiceFinal; ++i) {
@@ -117,7 +117,7 @@ void TelaBestiario::exibirFicha(SistemaPersonagem* jogadorAtual, const std::stri
     bool derrotado = bestiario.jaDerrotado(nomeSelecionado);
 
     auto imprimirSecaoBase = [largura](const std::string& tituloDaSecao, bool deveExibirConteudo, const std::function<void()>& funcaoParaExibirConteudo, const std::string& textoCasoOculto) {
-        Aparencia::imprimirCentralizado("=== " + tituloDaSecao + " ===");
+        Aparencia::imprimirCentralizado("═══ " + tituloDaSecao + " ═══");
         std::cout << "\n";
         if (deveExibirConteudo) {
             funcaoParaExibirConteudo();
@@ -146,11 +146,19 @@ void TelaBestiario::exibirFicha(SistemaPersonagem* jogadorAtual, const std::stri
 
         // Atributos
         imprimirSecaoBase("ATRIBUTOS", derrotado, [&]() {
-            Aparencia::imprimirBlocoCentralizado(info->atributosTexto);
+            std::vector<std::string> atributosLimpos = info->atributosTexto;
+            for (auto& linha : atributosLimpos) {
+                size_t pos = 0;
+                while ((pos = linha.find('|', pos)) != std::string::npos) {
+                    linha.replace(pos, 1, "║");
+                    pos += 3;
+                }
+            }
+            Aparencia::imprimirBlocoCentralizado(atributosLimpos);
         }, "(Derrote o inimigo para descobrir os atributos)");
 
         // Habilidades
-        Aparencia::imprimirCentralizado("=== HABILIDADES ===");
+        Aparencia::imprimirCentralizado("═══ HABILIDADES ═══");
         std::cout << "\n";
         
         std::vector<std::string> blocoHabilidades;
@@ -160,7 +168,13 @@ void TelaBestiario::exibirFicha(SistemaPersonagem* jogadorAtual, const std::stri
             std::string nomeHab = (pos != std::string::npos) ? hab.substr(0, pos) : hab;
 
             if (!checarDescoberta || bestiario.jaViuHabilidade(nomeSelecionado, nomeHab)) {
-                blocoHabilidades.push_back("  - " + hab);
+                std::string habLimpa = hab;
+                size_t posPipe = 0;
+                while ((posPipe = habLimpa.find('|', posPipe)) != std::string::npos) {
+                    habLimpa.replace(posPipe, 1, "║");
+                    posPipe += 3;
+                }
+                blocoHabilidades.push_back("  - " + habLimpa);
                 return true;
             }
             return false;

@@ -9,8 +9,9 @@
 
 namespace {
     void notificarEfeito(Cor cor, const std::string& texto) {
-        std::string msg = Aparencia::margemCombate() + Aparencia::cor(cor) + texto + Aparencia::cor(Cor::RESET) + "\n";
-        TelaCombate::adicionarMensagemFixa(msg);
+        // A mensagem na UI foi removida para priorizar o combate limpo
+        // std::string msg = Aparencia::margemCombate() + Aparencia::cor(cor) + texto + Aparencia::cor(Cor::RESET) + "\n";
+        // TelaCombate::adicionarMensagemFixa(msg);
         Aparencia::registrarLogBatalha(Aparencia::cor(cor) + texto + Aparencia::cor(Cor::RESET));
     }
 }
@@ -90,7 +91,8 @@ void EfeitoBuffAtributos::aoSair(SistemaPersonagem* alvo) {
     if (alvo->obterMultiplicador() != 1.0) {
         alvo->definirMultiplicador(1.0);
     }
-    std::string msg = "\n" + Aparencia::margemCombate() + Aparencia::cor(Cor::VERDE_CLARO) + "[SISTEMA]: O efeito da habilidade expirou!" + Aparencia::cor(Cor::RESET) + "\n";
-    TelaCombate::adicionarMensagemFixa(msg);
+    // A mensagem na UI foi removida para priorizar o combate limpo
+    // std::string msg = "\n" + Aparencia::margemCombate() + Aparencia::cor(Cor::VERDE_CLARO) + "[SISTEMA]: O efeito da habilidade expirou!" + Aparencia::cor(Cor::RESET) + "\n";
+    // TelaCombate::adicionarMensagemFixa(msg);
     Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERDE_CLARO) + "[SISTEMA]: O efeito da habilidade expirou!" + Aparencia::cor(Cor::RESET));
 }
