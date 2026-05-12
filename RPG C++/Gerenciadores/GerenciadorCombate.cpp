@@ -297,12 +297,19 @@ void GerenciadorCombate::processarAcaoHabilidade(SistemaPersonagem* personagemAg
 
 void GerenciadorCombate::processarAcaoInventario(SistemaPersonagem* personagemAgindo, bool& turnoFoiConsumido, bool& usouInventarioNoTurno)
 {
+    int vidaAntes = personagemAgindo->obterVida();
     bool inventarioConsumiu = false;
+    
     InventarioCombate::gerenciarInventario(personagemAgindo, &inventarioConsumiu);
     if (inventarioConsumiu) {
         turnoFoiConsumido = true;
         usouInventarioNoTurno = true;
     }
+    
+    if (personagemAgindo->obterVida() > vidaAntes) {
+        TelaCombate::animarCuraNoJogador(obterTituloDoCombate(), obterInimigosRaw(), personagemAgindo, jogadorAtual, obterAliadosVivosRaw(), personagemAgindo->obterVida() - vidaAntes);
+    }
+
     if (personagemAgindo->obterItemSelecionadoParaUso() != nullptr) 
     {
         Item* itemSelecionado = personagemAgindo->obterItemSelecionadoParaUso();
@@ -511,10 +518,21 @@ void GerenciadorCombate::processarPosDano(SistemaPersonagem* atacante, SistemaPe
         }
 
         // Aplicação dos efeitos no acerto
+        int vidaAtacanteAntes = atacante->obterVida();
+        
         if (atacante->obterArma()) {
             atacante->obterArma()->aoCausarDano(atacante, alvo, danoFinal);
         }
         atacante->obterRaca()->aoCausarDano(atacante, alvo, danoFinal);
+        
+        // Verifica se o atacante se curou (Ex: Passiva da Abominacao)
+        if (atacante->obterVida() > vidaAtacanteAntes) {
+            if (!isPersonagemJogadorOuAliado(atacante)) {
+                TelaCombate::animarCuraNoInimigo(obterTituloDoCombate(), obterInimigosRaw(), atacante, jogadorAtual, aliadosVivos, atacante->obterVida() - vidaAtacanteAntes);
+            } else {
+                TelaCombate::animarCuraNoJogador(obterTituloDoCombate(), obterInimigosRaw(), atacante, jogadorAtual, aliadosVivos, atacante->obterVida() - vidaAtacanteAntes);
+            }
+        }
     }
     else if (tentouParry && parrySucesso && isPersonagemJogadorOuAliado(alvo)) {
         TelaCombate::animarDanoNoJogador(obterTituloDoCombate(), obterInimigosRaw(), alvo, jogadorAtual, aliadosVivos, true, danoFinal);

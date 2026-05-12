@@ -29,7 +29,7 @@ std::string AbominacaoFloresta::obterDescricaoHabilidadeRaca() const
 }
 
 // --- PROCESSAMENTO DE DANO  ---
-int AbominacaoFloresta::processarDanoOfensivo(int danoBase, SistemaPersonagem* atacante) 
+void AbominacaoFloresta::aoCausarDano(SistemaPersonagem* atacante, SistemaPersonagem* alvo, int danoCausado) 
 {
     int vidaMax = atacante->obterVidaMaxima();
     int vidaAtual = atacante->obterVida();
@@ -45,7 +45,7 @@ int AbominacaoFloresta::processarDanoOfensivo(int danoBase, SistemaPersonagem* a
 
     if (curandoAtivamente)
     {
-        int cura = danoBase;
+        int cura = danoCausado;
         if (cura > 0)
         {
             int vidaFaltantePara60 = static_cast<int>(vidaMax * 0.60) - vidaAtual;
@@ -70,7 +70,6 @@ int AbominacaoFloresta::processarDanoOfensivo(int danoBase, SistemaPersonagem* a
             curandoAtivamente = false;
         }
     }
-    return danoBase;
 }
 
 // --- APARENCIA ---

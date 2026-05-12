@@ -134,11 +134,11 @@ namespace {
             std::cout << Aparencia::cor(Cor::RESET);
 
             std::vector<std::string> painelEsquerdo;
-            auto linhasJogador = TelaCombate::obterLinhasBarraDeStatusDoJogador(jogadorAtual, (alvoDanoJogador == jogadorAtual) ? corDanoJogador : Cor::RESET, (alvoDanoJogador == jogadorAtual) ? danoAnimacao : -1, (alvoDanoJogador == jogadorAtual) ? frame : 0);
+            auto linhasJogador = TelaCombate::obterLinhasBarraDeStatusDoJogador(jogadorAtual, (alvoDanoJogador == jogadorAtual) ? corDanoJogador : Cor::RESET, (alvoDanoJogador == jogadorAtual) ? danoAnimacao : -1, (alvoDanoJogador == jogadorAtual) ? frame : 0, (alvoDanoJogador == jogadorAtual) ? isCura : false);
             painelEsquerdo.insert(painelEsquerdo.end(), linhasJogador.begin(), linhasJogador.end());
 
             for (auto* aliado : aliados) {
-                auto linhasAliado = TelaCombate::obterLinhasBarraDeStatusDoJogador(aliado, (alvoDanoJogador == aliado) ? corDanoJogador : Cor::RESET, (alvoDanoJogador == aliado) ? danoAnimacao : -1, (alvoDanoJogador == aliado) ? frame : 0);
+                auto linhasAliado = TelaCombate::obterLinhasBarraDeStatusDoJogador(aliado, (alvoDanoJogador == aliado) ? corDanoJogador : Cor::RESET, (alvoDanoJogador == aliado) ? danoAnimacao : -1, (alvoDanoJogador == aliado) ? frame : 0, (alvoDanoJogador == aliado) ? isCura : false);
                 painelEsquerdo.insert(painelEsquerdo.end(), linhasAliado.begin(), linhasAliado.end());
             }
 
@@ -228,7 +228,7 @@ void TelaCombate::exibirLogoParaTelaDeCombate(const std::string& tituloDaTela)
     Aparencia::exibirLogoAscii(logo, 95, Cor::VERMELHO, tituloDaTela);
 }
 
-std::vector<std::string> TelaCombate::obterLinhasBarraDeStatusDoJogador(SistemaPersonagem* jogadorAtual, Cor corDestaque, int danoAnimacao, int frameAnimacao) 
+std::vector<std::string> TelaCombate::obterLinhasBarraDeStatusDoJogador(SistemaPersonagem* jogadorAtual, Cor corDestaque, int danoAnimacao, int frameAnimacao, bool isCura) 
 {
     if (jogadorAtual == nullptr) return {};
     std::string nomeDaArma = (jogadorAtual->obterArma()) ? jogadorAtual->obterArma()->obterNomeItem() + jogadorAtual->obterArma()->obterInfoStatus() : "Punhos";
@@ -255,11 +255,21 @@ std::vector<std::string> TelaCombate::obterLinhasBarraDeStatusDoJogador(SistemaP
     std::string fctPrint = "";
     if (danoAnimacao > 0 && frameAnimacao > 0) {
         std::string corFCT;
-        if (frameAnimacao <= 3) corFCT = "\033[1;38;2;255;200;0m";
-        else if (frameAnimacao <= 6) corFCT = "\033[1;38;2;255;100;0m";
-        else if (frameAnimacao <= 9) corFCT = "\033[1;38;2;255;0;0m";
-        else corFCT = "\033[1;38;2;150;0;0m";
-        fctPrint = "  " + corFCT + "-" + std::to_string(danoAnimacao) + "!" + "\033[0m";
+        std::string textoFlutuante;
+        if (isCura) {
+            textoFlutuante = "+" + std::to_string(danoAnimacao) + "!";
+            if (frameAnimacao <= 3) corFCT = "\033[1;38;2;150;255;150m";
+            else if (frameAnimacao <= 6) corFCT = "\033[1;38;2;50;255;50m";
+            else if (frameAnimacao <= 9) corFCT = "\033[1;38;2;0;200;0m";
+            else corFCT = "\033[1;38;2;0;150;0m";
+        } else {
+            textoFlutuante = "-" + std::to_string(danoAnimacao) + "!";
+            if (frameAnimacao <= 3) corFCT = "\033[1;38;2;255;200;0m";
+            else if (frameAnimacao <= 6) corFCT = "\033[1;38;2;255;100;0m";
+            else if (frameAnimacao <= 9) corFCT = "\033[1;38;2;255;0;0m";
+            else corFCT = "\033[1;38;2;150;0;0m";
+        }
+        fctPrint = "  " + corFCT + textoFlutuante + "\033[0m";
     }
     std::string emptyPad(10, ' ');
 
@@ -351,14 +361,22 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
             if (inimigo == alvoAnimacao && danoAnimacao > 0 && !isMorte && frameAnimacao > 0) {
                 int targetLine = (frameAnimacao < 4) ? 1 : 0;
                 if (fctLine == targetLine) {
-                    std::string textoDano = "-" + std::to_string(danoAnimacao) + "!";
                     std::string corFCT;
-                    if (frameAnimacao <= 2) corFCT = "\033[1;38;2;255;200;0m";
-                    else if (frameAnimacao <= 4) corFCT = "\033[1;38;2;255;100;0m";
-                    else if (frameAnimacao <= 6) corFCT = "\033[1;38;2;255;0;0m";
-                    else corFCT = "\033[1;38;2;150;0;0m";
-                    visualStr = textoDano;
-                    printStr = corFCT + textoDano + "\033[0m";
+                    std::string textoFlutuante;
+                    if (isCura) {
+                        textoFlutuante = "+" + std::to_string(danoAnimacao) + "!";
+                        if (frameAnimacao <= 2) corFCT = "\033[1;38;2;150;255;150m";
+                        else if (frameAnimacao <= 4) corFCT = "\033[1;38;2;50;255;50m";
+                        else corFCT = "\033[1;38;2;0;200;0m";
+                    } else {
+                        textoFlutuante = "-" + std::to_string(danoAnimacao) + "!";
+                        if (frameAnimacao <= 2) corFCT = "\033[1;38;2;255;200;0m";
+                        else if (frameAnimacao <= 4) corFCT = "\033[1;38;2;255;100;0m";
+                        else if (frameAnimacao <= 6) corFCT = "\033[1;38;2;255;0;0m";
+                        else corFCT = "\033[1;38;2;150;0;0m";
+                    }
+                    visualStr = textoFlutuante;
+                    printStr = corFCT + textoFlutuante + "\033[0m";
                 }
             }
             return std::make_pair(visualStr, printStr);
@@ -519,6 +537,17 @@ void TelaCombate::animarDanoNoInimigo(const std::string& tituloCombate, const st
     renderizarCenaPadrao(tituloCombate, listaDeInimigos, alvoAnimacao, 0, false, false, nullptr, jogadorAtual, listaDeAliados);
 }
 
+void TelaCombate::animarCuraNoJogador(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados, int curaAnimacao)
+{
+    for (int frame = 1; frame <= 12; ++frame) {
+        Cor corAplicada = (frame % 2 == 1 && frame <= 6) ? Cor::VERDE : Cor::RESET;
+        renderizarCenaPadrao(tituloCombate, listaDeInimigos, nullptr, frame, true, false, nullptr, jogadorAtual, listaDeAliados, alvoAnimacao, corAplicada, curaAnimacao);
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    
+    renderizarCenaPadrao(tituloCombate, listaDeInimigos, nullptr, 0, false, false, nullptr, jogadorAtual, listaDeAliados);
+}
+
 int TelaCombate::obterAcaoDoJogador(int turnoAtual, const std::string& nomePersonagem, const std::vector<SistemaPersonagem*>& inimigos, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& aliados) {
     definirTurnoVisivel(turnoAtual, nomePersonagem);
     selecaoAcaoAtual = 0;
@@ -651,10 +680,10 @@ void TelaCombate::animarMorteInimigo(const std::string& tituloCombate, const std
     renderizarCenaPadrao(tituloCombate, listaDeInimigos, inimigoMorto, totalLinhas, false, true, nullptr, jogadorAtual, listaDeAliados, nullptr, Cor::RESET, -1, drops);
 }
 
-void TelaCombate::animarCuraNoInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados)
+void TelaCombate::animarCuraNoInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados, int curaAnimacao)
 {
     for (int frame = 1; frame <= 4; ++frame) {
-        renderizarCenaPadrao(tituloCombate, listaDeInimigos, alvoAnimacao, frame, true, false, nullptr, jogadorAtual, listaDeAliados);
+        renderizarCenaPadrao(tituloCombate, listaDeInimigos, alvoAnimacao, frame, true, false, nullptr, jogadorAtual, listaDeAliados, nullptr, Cor::RESET, curaAnimacao);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     

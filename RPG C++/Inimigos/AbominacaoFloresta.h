@@ -20,7 +20,7 @@ public:
 
     InfoBestiario obterInfoBestiario() const override;
 
-    int processarDanoOfensivo(int danoBase, SistemaPersonagem* atacante) override;
+    void aoCausarDano(SistemaPersonagem* atacante, SistemaPersonagem* alvo, int danoCausado) override;
 
     void realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal) override;
 };
