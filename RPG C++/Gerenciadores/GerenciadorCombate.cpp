@@ -109,6 +109,7 @@ std::vector<SistemaPersonagem*> GerenciadorCombate::obterAliadosVivosRaw() const
 }
 
 void GerenciadorCombate::prepararTurnoPersonagem(SistemaPersonagem* personagem) {
+    TelaCombate::limparMensagensFixas();
     Aparencia::registrarLogBatalha("");
     Aparencia::registrarLogBatalha("═══ TURNO " + std::to_string(contadorDoTurnoAtual) + " ║ VEZ DE " + personagem->obterNome() + " ═══");
     TelaCombate::definirTurnoVisivel(contadorDoTurnoAtual, personagem->obterNome());
@@ -324,6 +325,7 @@ void GerenciadorCombate::processarAcaoInventario(SistemaPersonagem* personagemAg
             turnoFoiConsumido = true;
             usouInventarioNoTurno = true;
         }
+        exibirTelaDeCombate();
         Aparencia::aguardarEnter();
     }
 }
@@ -370,6 +372,7 @@ void GerenciadorCombate::limparInimigosMortos()
 
 void GerenciadorCombate::executarTurnoDeTodosOsInimigos() 
 {
+    TelaCombate::limparMensagensFixas();
     if (jogadorAtual->obterPularTurnoInimigo()) 
     {
         // A mensagem na UI foi removida para priorizar o combate limpo

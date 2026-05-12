@@ -103,97 +103,68 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
     int resPerdida       = jogadorAtual->possuiEfeito(EfeitoID::QuebraResistencia) ? jogadorAtual->obterResistencia() : 0;
     int constPerdida     = jogadorAtual->possuiEfeito(EfeitoID::QuebraResistencia) ? (jogadorAtual->obterConstituicao() / 2) : 0;
 
-    std::vector<std::string> linhasFicha;
-    linhasFicha.push_back("NOME:           " + jogadorAtual->obterNome());
-    linhasFicha.push_back("RACA:           " + jogadorAtual->obterRaca()->obterNomeRaca());
-    linhasFicha.push_back("CLASSE:         " + jogadorAtual->obterNomeClasse());
-    
+    std::vector<std::string> infoGeral;
+    infoGeral.push_back("NOME: " + jogadorAtual->obterNome() + "   RACA: " + jogadorAtual->obterRaca()->obterNomeRaca() + "   CLASSE: " + jogadorAtual->obterNomeClasse());
     double porcentagemXp = static_cast<double>(jogadorAtual->obterXpAtual()) / std::max(1, jogadorAtual->obterXpParaSubir());
     std::string barraXp = Aparencia::gerarBarraSuave(porcentagemXp, 10, Aparencia::cor(Cor::CIANO), Aparencia::cor(Cor::CINZA));
-    linhasFicha.push_back("NIVEL:          " + std::to_string(jogadorAtual->obterNivel()) + " [" + barraXp + Aparencia::cor(Cor::RESET) + "] (XP: " + Aparencia::cor(Cor::CIANO) + std::to_string(jogadorAtual->obterXpAtual()) + " / " + std::to_string(jogadorAtual->obterXpParaSubir()) + Aparencia::cor(Cor::RESET) + ")");
-    
-    std::string difStr = "DIFICULDADE:    " + Aparencia::cor(Cor::VERMELHO);
+    double pctVida = static_cast<double>(jogadorAtual->obterVida()) / std::max(1, jogadorAtual->obterVidaMaxima());
+    std::string corVida = (pctVida > 0.7) ? Aparencia::cor(Cor::VERDE) : (pctVida > 0.3) ? Aparencia::cor(Cor::AMARELO) : Aparencia::cor(Cor::VERMELHO);
+    std::string barraVida = Aparencia::gerarBarraSuave(pctVida, 10, corVida, Aparencia::cor(Cor::CINZA));
+
+    infoGeral.push_back("NIVEL: " + std::to_string(jogadorAtual->obterNivel()) + " [" + barraXp + Aparencia::cor(Cor::RESET) + "]   HP: [" + barraVida + Aparencia::cor(Cor::RESET) + "] " + std::to_string(jogadorAtual->obterVida()) + "/" + std::to_string(jogadorAtual->obterVidaMaxima()) + "   OURO: " + Aparencia::cor(Cor::AMARELO) + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G" + Aparencia::cor(Cor::RESET));
+
+    std::string difStr = "DIFICULDADE: " + Aparencia::cor(Cor::VERMELHO);
     switch (jogadorAtual->obterDificuldade()) {
         case DificuldadeJogo::Facil: difStr += "Facil"; break;
         case DificuldadeJogo::Normal: difStr += "Normal"; break;
         case DificuldadeJogo::Dificil: difStr += "Dificil"; break;
     }
-    difStr += Aparencia::cor(Cor::RESET);
-    linhasFicha.push_back(difStr);
+    difStr += Aparencia::cor(Cor::RESET) + "   [PARRY]: ";
+    difStr += jogadorAtual->obterParryAtivado() ? (Aparencia::cor(Cor::VERDE) + "Ligado" + Aparencia::cor(Cor::RESET)) : (Aparencia::cor(Cor::VERMELHO) + "Desligado" + Aparencia::cor(Cor::RESET));
+    infoGeral.push_back(difStr);
 
-    std::string parryStr = "[PARRY]:        ";
-    parryStr += jogadorAtual->obterParryAtivado() ? (Aparencia::cor(Cor::VERDE) + "Ligado" + Aparencia::cor(Cor::RESET)) : (Aparencia::cor(Cor::VERMELHO) + "Desligado" + Aparencia::cor(Cor::RESET));
-    linhasFicha.push_back(parryStr);
-    
-    linhasFicha.push_back("OURO:           " + Aparencia::cor(Cor::AMARELO) + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G" + Aparencia::cor(Cor::RESET));
-    linhasFicha.push_back("");
+    std::vector<std::string> caixaGeral = Aparencia::criarCaixa(infoGeral, "", 72, Cor::MAGENTA);
 
-    linhasFicha.push_back("PASSIVA RACA:   " + jogadorAtual->obterRaca()->obterNomeHabilidadeRaca());
-    linhasFicha.push_back("-> " + jogadorAtual->obterRaca()->obterDescricaoHabilidadeRaca());
-    linhasFicha.push_back("");
-
-    linhasFicha.push_back("PASSIVA CLASSE: " + jogadorAtual->obterClasse()->obterNomePassivaClasse());
-    linhasFicha.push_back("-> " + jogadorAtual->obterClasse()->obterDescricaoPassivaClasse());
-    linhasFicha.push_back("");
-
-    linhasFicha.push_back("ATIVA CLASSE:   " + jogadorAtual->obterClasse()->obterNomeHabilidadeClasse() + " (" + jogadorAtual->obterClasse()->obterRecargaHabilidadeClasse() + ")");
-    linhasFicha.push_back("-> " + jogadorAtual->obterClasse()->obterDescricaoHabilidadeClasse());
-    linhasFicha.push_back("");
-
-    Atributos racaAttr = jogadorAtual->obterRaca()->obterAtributosRaca();
-    Atributos classeAttr = jogadorAtual->obterClasse()->obterAtributosClasse();
-
-    linhasFicha.push_back("═══ ATRIBUTOS TOTAIS ═══");
-    
-    double pctVida = static_cast<double>(jogadorAtual->obterVida()) / std::max(1, jogadorAtual->obterVidaMaxima());
-    std::string corVida = (pctVida > 0.7) ? Aparencia::cor(Cor::VERDE) : (pctVida > 0.3) ? Aparencia::cor(Cor::AMARELO) : Aparencia::cor(Cor::VERMELHO);
-    std::string barraVida = Aparencia::gerarBarraSuave(pctVida, 10, corVida, Aparencia::cor(Cor::CINZA));
-    
-    std::string hpStr = " > Vida           : [" + barraVida + Aparencia::cor(Cor::RESET) + "] " + std::to_string(jogadorAtual->obterVida()) + "/" + std::to_string(jogadorAtual->obterVidaMaxima());
-    int padHp = 45 - Aparencia::obterComprimentoVisual(hpStr);
-    std::ostringstream linhaHp;
-    linhaHp << hpStr << std::string(padHp > 0 ? padHp : 0, ' ') 
-            << "║ Raca: +" << std::left << std::setw(3) << racaAttr.vida 
-            << " ║ Classe: +" << classeAttr.vida;
-    linhasFicha.push_back(linhaHp.str());
-
-    auto formatarAtributo = [temBuff, multiplicadorDeAtributosAtual](std::string nomeDoAtributo, int valorBaseDoAtributo, int valorPerdidoPorDebuff, int atrRaca, int atrClasse) -> std::string
+    auto formatarAtr = [temBuff, multiplicadorDeAtributosAtual](std::string nomeDoAtributo, int valorBaseDoAtributo, int valorPerdidoPorDebuff, Cor corBase) -> std::string
     {
         int bonusBuff = temBuff ? static_cast<int>(valorBaseDoAtributo * multiplicadorDeAtributosAtual) - valorBaseDoAtributo : 0;
+        double pct = std::min(1.0, valorBaseDoAtributo / 50.0);
+        std::string barra = Aparencia::gerarBarraSuave(pct, 10, Aparencia::cor(corBase), Aparencia::cor(Cor::CINZA));
 
-        std::ostringstream leftPart;
-        leftPart << " > " << std::left << std::setw(15) << nomeDoAtributo << ": " << valorBaseDoAtributo;
-        std::string leftStr = leftPart.str();
+        std::ostringstream ss;
+        ss << std::left << std::setw(13) << nomeDoAtributo << ": " << std::setw(3) << valorBaseDoAtributo << " [" << barra << Aparencia::cor(Cor::RESET) << "]";
 
-        std::string extraText;
-        std::string extraColor;
         if (temBuff && bonusBuff > 0) {
-            extraColor = Aparencia::cor(Cor::VERDE_CLARO);
-            extraText = "(+" + std::to_string(bonusBuff) + " Buff)";
+            ss << " " << Aparencia::cor(Cor::VERDE_CLARO) << "(+" << bonusBuff << ")" << Aparencia::cor(Cor::RESET);
         } else if (valorPerdidoPorDebuff > 0) {
-            extraColor = Aparencia::cor(Cor::VERMELHO);
-            extraText = "(-" + std::to_string(valorPerdidoPorDebuff) + " Debuff)";
-        } else {
-            extraText = "(0)";
+            ss << " " << Aparencia::cor(Cor::VERMELHO) << "(-" << valorPerdidoPorDebuff << ")" << Aparencia::cor(Cor::RESET);
         }
-
-        int visualLen = Aparencia::obterComprimentoVisual(leftStr) + 1 + Aparencia::obterComprimentoVisual(extraText);
-        int padding = 45 - visualLen;
-
-        std::ostringstream finalLine;
-        finalLine << leftStr << " " << extraColor << extraText << (extraColor.empty() ? "" : Aparencia::cor(Cor::RESET))
-                  << std::string(padding > 0 ? padding : 0, ' ')
-                  << "║ Raca: +" << std::left << std::setw(3) << atrRaca
-                  << " ║ Classe: +" << atrClasse;
-        return finalLine.str();
+        return ss.str();
     };
 
-    linhasFicha.push_back(formatarAtributo("Forca",     jogadorAtual->obterForca(),     forcaPerdida,     racaAttr.forca, classeAttr.forca));
-    linhasFicha.push_back(formatarAtributo("Destreza",  jogadorAtual->obterDestreza(),  destrezaPerdida,  racaAttr.destreza, classeAttr.destreza));
-    linhasFicha.push_back(formatarAtributo("Resistencia", jogadorAtual->obterResistencia(), resPerdida, racaAttr.resistencia, classeAttr.resistencia));
-    linhasFicha.push_back(formatarAtributo("Constituicao", jogadorAtual->obterConstituicao(), constPerdida, racaAttr.constituicao, classeAttr.constituicao));
-    linhasFicha.push_back(formatarAtributo("Inteligencia", jogadorAtual->obterInteligencia(), 0, racaAttr.inteligencia, classeAttr.inteligencia));
-    linhasFicha.push_back(formatarAtributo("Sabedoria",  jogadorAtual->obterSabedoria(), 0, racaAttr.sabedoria, classeAttr.sabedoria));
+    std::vector<std::string> atrLinhas;
+    atrLinhas.push_back(formatarAtr("Forca", jogadorAtual->obterForca(), forcaPerdida, Cor::VERMELHO_CLARO));
+    atrLinhas.push_back(formatarAtr("Destreza", jogadorAtual->obterDestreza(), destrezaPerdida, Cor::VERDE_CLARO));
+    atrLinhas.push_back(formatarAtr("Resistencia", jogadorAtual->obterResistencia(), resPerdida, Cor::AMARELO));
+    atrLinhas.push_back(formatarAtr("Constituicao", jogadorAtual->obterConstituicao(), constPerdida, Cor::AMARELO));
+    atrLinhas.push_back(formatarAtr("Inteligencia", jogadorAtual->obterInteligencia(), 0, Cor::AZUL));
+    atrLinhas.push_back(formatarAtr("Sabedoria", jogadorAtual->obterSabedoria(), 0, Cor::CIANO));
+
+    std::vector<std::string> caixaAtributos = Aparencia::criarCaixa(atrLinhas, "ATRIBUTOS", 35, Cor::MAGENTA);
+
+    std::vector<std::string> habLinhas;
+    habLinhas.push_back("[PASSIVA]: " + jogadorAtual->obterClasse()->obterNomePassivaClasse());
+    habLinhas.push_back("[ATIVA]  : " + jogadorAtual->obterClasse()->obterNomeHabilidadeClasse());
+    habLinhas.push_back("");
+    habLinhas.push_back("EQUIPAMENTOS:");
+    std::string arma = jogadorAtual->obterArma() ? jogadorAtual->obterArma()->obterNomeItem() + jogadorAtual->obterArma()->obterInfoStatus() : "Punhos";
+    std::string escudo = jogadorAtual->obterEscudo() ? jogadorAtual->obterEscudo()->obterNomeItem() + jogadorAtual->obterEscudo()->obterInfoStatus() : "Nenhum";
+    std::string armadura = jogadorAtual->obterArmadura() ? jogadorAtual->obterArmadura()->obterNomeItem() + jogadorAtual->obterArmadura()->obterInfoStatus() : "Trapos";
+    habLinhas.push_back(" > Arma    : " + arma);
+    habLinhas.push_back(" > Escudo  : " + escudo);
+    habLinhas.push_back(" > Armadura: " + armadura);
+
+    std::vector<std::string> caixaHabilidades = Aparencia::criarCaixa(habLinhas, "HABILIDADES & EQUIPAMENTOS", 35, Cor::MAGENTA);
 
     static const EfeitoInfo efeitosParaExibir[] = {
         {EfeitoID::BuffAtributos,     Cor::VERDE_CLARO,   "Buff Atributos",   true},
@@ -203,8 +174,7 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
         {EfeitoID::QuebraResistencia, Cor::CIANO,   "Quebra de Resistencia", false},
     };
 
-    linhasFicha.push_back("");
-    linhasFicha.push_back("═══ STATUS ATUAIS ═══");
+    std::vector<std::string> statusLinhas;
     bool temStatus = false;
     for (const auto& info : efeitosParaExibir) {
         if (jogadorAtual->possuiEfeito(info.efeitoId)) {
@@ -213,13 +183,16 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
                 stStr += " (" + std::to_string(jogadorAtual->obterTurnosEfeito(info.efeitoId)) + " turnos)";
             }
             stStr += Aparencia::cor(Cor::RESET);
-            linhasFicha.push_back(stStr);
+            statusLinhas.push_back(stStr);
             temStatus = true;
         }
     }
-    if (!temStatus) linhasFicha.push_back("Nenhum status ativo.");
+    if (!temStatus) statusLinhas.push_back("Nenhum status ativo.");
+    std::vector<std::string> caixaStatus = Aparencia::criarCaixa(statusLinhas, "STATUS ATUAIS", 72, Cor::MAGENTA);
     
-    Aparencia::imprimirBlocoCentralizado(linhasFicha, "", atrasoMs);
+    Aparencia::imprimirBlocoCentralizado(caixaGeral, "", atrasoMs);
+    Aparencia::imprimirLadoALado(caixaAtributos, caixaHabilidades, 40, 2, Cor::RESET, Cor::RESET, atrasoMs);
+    Aparencia::imprimirBlocoCentralizado(caixaStatus, "", atrasoMs);
 
     std::cout << "\n";
     Aparencia::imprimirLinhaDivisoria();

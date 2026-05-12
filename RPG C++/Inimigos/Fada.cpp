@@ -34,7 +34,6 @@ const std::vector<std::string>& Fada::obterAparenciaRaca() const
 {
     static const std::vector<std::string> aparencia =
     {                    
-        "..         .                        .         . .   ",
         "   .*#.      :.                     ..      #**.     ",
         "   ***+#-..#**#                    .****..%****#     ",
         " ..*+*+*#******.                   .*++***#**+**.    ",

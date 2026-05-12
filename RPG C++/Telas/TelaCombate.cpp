@@ -70,10 +70,6 @@ namespace {
         
         std::string output = buffer.str();
         
-        int alturaTerminal = Aparencia::obterAlturaTerminal();
-        // Reserva um espaco de seguranca para evitar scroll acidental na ultima linha
-        int maxLinhas = (alturaTerminal > 2) ? alturaTerminal - 1 : 24; 
-        
         std::vector<std::string> linhas;
         size_t start = 0, end = output.find('\n');
         while (end != std::string::npos) {
@@ -83,8 +79,12 @@ namespace {
         }
         if (start < output.length()) linhas.push_back(output.substr(start));
 
-        // Para evitar que a Logo seja cortada (causando sobreposição grotesca) quando há muitas mensagens de drops/ataques,
-        // nós truncamos as mensagens antigas a partir da divisória do HUD, preservando a arte e as mensagens mais recentes.
+        int alturaTerminal = Aparencia::obterAlturaTerminal();
+        // Reserva um espaco de seguranca para evitar scroll acidental na ultima linha
+        int maxLinhas = (alturaTerminal > 2) ? alturaTerminal - 1 : 24; 
+        
+        // Para evitar que a Logo seja cortada (causando sobreposicao grotesca) quando ha muitas mensagens de drops/ataques,
+        // nos truncamos as mensagens antigas a partir da divisoria do HUD, preservando a arte e as mensagens mais recentes.
         if (static_cast<int>(linhas.size()) > maxLinhas) {
             int linhasParaRemover = static_cast<int>(linhas.size()) - maxLinhas;
             int indiceDivisoria = -1;
@@ -106,7 +106,7 @@ namespace {
                     linhasParaRemover -= disponivelParaRemover;
                 }
             } else {
-                // Fallback seguro caso não ache a divisória
+                // Fallback seguro caso nao ache a divisoria
                 linhas.erase(linhas.begin(), linhas.begin() + linhasParaRemover);
                 linhasParaRemover = 0;
             }
@@ -141,8 +141,9 @@ namespace {
             
             int larguraTerminal = Aparencia::obterLarguraTerminal();
             std::string textoDoTurno = " ╣ TURNO " + std::to_string(TelaCombate::turnoAtualVisivel) + " │ VEZ DE " + TelaCombate::nomeTurnoVisivel + " ╠ ";
-            int tracosEsq = (larguraTerminal - static_cast<int>(textoDoTurno.length())) / 2;
-            int tracosDir = larguraTerminal - tracosEsq - static_cast<int>(textoDoTurno.length());
+            int comprimentoVisual = Aparencia::obterComprimentoVisual(textoDoTurno);
+            int tracosEsq = (larguraTerminal - comprimentoVisual) / 2;
+            int tracosDir = larguraTerminal - tracosEsq - comprimentoVisual;
             
             std::string linhaEsq = "";
             for (int i = 0; i < tracosEsq; ++i) linhaEsq += "═";

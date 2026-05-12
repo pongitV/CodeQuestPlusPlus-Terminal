@@ -35,10 +35,6 @@ const std::vector<std::string>& Slime::obterAparenciaRaca() const
 {
     static const std::vector<std::string> aparencia =
     {
-        "                                                                  ",
-        "                                                                  ",
-        "                                                                  ",
-        "                                                                  ",
         "                       .:::.::--=.                                ",
         "                      .: .:.----=+++:                             ",
         "                       .-:-  +**=*#+**=                           ",
@@ -69,9 +65,6 @@ const std::vector<std::string>& Slime::obterAparenciaRaca() const
         "           -=----=====--=--=-----------------=------::=           ",
         "           :=*+**==+*++*=--==------::::-+*=--.**+++=:             ",
         "                         -+==-.:+==:.                             ",
-        "                                                                  ",
-        "                                                                  ",
-        "                                                                  "
     };
     return aparencia;
 }

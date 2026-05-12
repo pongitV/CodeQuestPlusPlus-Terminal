@@ -86,8 +86,9 @@ int Humano::processarDanoDefensivo(int danoFinal, SistemaPersonagem* defensor)
         defensor->consumirRessurreicao();
         int curaReviver = defensor->obterVidaMaxima() / 2;
         defensor->modificarVida(curaReviver);
-        std::string msg = Aparencia::margemCombate() + "[PASSIVA]: Espirito indomavel! O humano reviveu com metade de sua vida maxima!\n";
+        std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::MAGENTA) + "[PASSIVA]: Espirito indomavel! O humano reviveu com metade de sua vida maxima!" + Aparencia::cor(Cor::RESET) + "\n";
         TelaCombate::adicionarMensagemFixa(msg);
+        Aparencia::registrarLogBatalha(Aparencia::cor(Cor::MAGENTA) + "[PASSIVA]: Espirito indomavel! O humano reviveu com metade de sua vida maxima!" + Aparencia::cor(Cor::RESET));
         return 0; // O dano atual e anulado pois a vida foi resetada
     }
     return danoFinal;

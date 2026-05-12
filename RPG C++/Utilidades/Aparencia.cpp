@@ -204,6 +204,50 @@ std::string Aparencia::centralizarTexto(const std::string& texto) {
     return espacosParaCentralizar(obterComprimentoVisual(texto)) + texto;
 }
 
+std::vector<std::string> Aparencia::criarCaixa(const std::vector<std::string>& linhas, const std::string& titulo, int larguraMinima, Cor corCaixa) {
+    int maxLargura = larguraMinima;
+    for (const auto& linha : linhas) {
+        int comp = obterComprimentoVisual(linha);
+        if (comp > maxLargura) maxLargura = comp;
+    }
+    
+    std::vector<std::string> caixa;
+    std::string corStr = cor(corCaixa);
+    std::string resetStr = cor(Cor::RESET);
+
+    std::string top = "╔";
+    int tituloLen = obterComprimentoVisual(titulo);
+    if (tituloLen > 0) {
+        top += "══ " + titulo + " ";
+        int restantes = maxLargura + 2 - (tituloLen + 4);
+        if (restantes < 0) restantes = 0;
+        for (int i = 0; i < restantes; ++i) {
+            top += "═";
+        }
+    } else {
+        for (int i = 0; i < maxLargura + 2; ++i) {
+            top += "═";
+        }
+    }
+    top += "╗";
+    caixa.push_back(corStr + top + resetStr);
+
+    for (const auto& linha : linhas) {
+        int comp = obterComprimentoVisual(linha);
+        int padding = maxLargura - comp;
+        caixa.push_back(corStr + "║ " + resetStr + linha + std::string(padding > 0 ? padding : 0, ' ') + corStr + " ║" + resetStr);
+    }
+
+    std::string bottom = "╚";
+    for (int i = 0; i < maxLargura + 2; ++i) {
+        bottom += "═";
+    }
+    bottom += "╝";
+    caixa.push_back(corStr + bottom + resetStr);
+
+    return caixa;
+}
+
 void Aparencia::imprimirLinhaDivisoria(char caractere) {
     std::string linha = "";
     int largura = obterLarguraTerminal();
