@@ -35,13 +35,34 @@ void Aparencia::inicializarConsole() {
 
 std::string Aparencia::cor(Cor codigo) {
     if (codigo == Cor::RESET) return "\033[0m";
-    if (codigo == Cor::LARANJA) return "\033[38;5;208m";
-    return "\033[" + std::to_string(static_cast<int>(codigo)) + "m";
+    if (codigo == Cor::NEGRITO) return "\033[1m";
+
+    uint32_t val = static_cast<uint32_t>(codigo);
+    bool isBg = (val & 0x80000000) != 0;
+    uint8_t r = (val >> 16) & 0xFF;
+    uint8_t g = (val >> 8) & 0xFF;
+    uint8_t b = val & 0xFF;
+
+    std::string prefix = isBg ? "\033[48;2;" : "\033[38;2;";
+    return prefix + std::to_string(r) + ";" + std::to_string(g) + ";" + std::to_string(b) + "m";
 }
 
 std::string Aparencia::cor(Cor estilo, Cor codigo) {
-    if (codigo == Cor::LARANJA) return "\033[" + std::to_string(static_cast<int>(estilo)) + ";38;5;208m";
-    return "\033[" + std::to_string(static_cast<int>(estilo)) + ";" + std::to_string(static_cast<int>(codigo)) + "m";
+    std::string estiloStr = "";
+    if (estilo == Cor::NEGRITO) estiloStr = "1;";
+    else if (estilo == Cor::RESET) estiloStr = "0;";
+
+    if (codigo == Cor::RESET) return "\033[" + estiloStr + "0m";
+    if (codigo == Cor::NEGRITO) return "\033[" + estiloStr + "1m";
+
+    uint32_t val = static_cast<uint32_t>(codigo);
+    bool isBg = (val & 0x80000000) != 0;
+    uint8_t r = (val >> 16) & 0xFF;
+    uint8_t g = (val >> 8) & 0xFF;
+    uint8_t b = val & 0xFF;
+
+    std::string type = isBg ? "48;2;" : "38;2;";
+    return "\033[" + estiloStr + type + std::to_string(r) + ";" + std::to_string(g) + ";" + std::to_string(b) + "m";
 }
 
 void Aparencia::maximizarJanelaTerminal() {

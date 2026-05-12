@@ -2,28 +2,29 @@
 
 #include <string>
 #include <vector>
+#include <cstdint>
 
-enum class Cor {
-    RESET = 0,
-    NEGRITO = 1,
-    VERMELHO = 31,
-    VERDE = 32,
-    AMARELO = 33,
-    AZUL = 34,
-    MAGENTA = 35,
-    CIANO = 36,
-    BRANCO = 37,
-    CINZA = 90,
-    VERMELHO_CLARO = 91,
-    VERDE_CLARO = 92,
-    LARANJA = 208,
-    FUNDO_VERMELHO = 41,
-    FUNDO_VERDE = 42,
-    FUNDO_AMARELO = 43,
-    FUNDO_AZUL = 44,
-    FUNDO_MAGENTA = 45,
-    FUNDO_CIANO = 46,
-    FUNDO_BRANCO = 47
+enum class Cor : uint32_t {
+    RESET = 0xFFFFFFFF,
+    NEGRITO = 0xFFFFFFFE,
+    VERMELHO = 0xFF0000,
+    VERDE = 0x00FF00,
+    AMARELO = 0xFFFF00,
+    AZUL = 0x0000FF,
+    MAGENTA = 0xFF00FF,
+    CIANO = 0x00FFFF,
+    BRANCO = 0xFFFFFF,
+    CINZA = 0x808080,
+    VERMELHO_CLARO = 0xFF5555,
+    VERDE_CLARO = 0x55FF55,
+    LARANJA = 0xFFA500,
+    FUNDO_VERMELHO = 0x80FF0000,
+    FUNDO_VERDE = 0x8000FF00,
+    FUNDO_AMARELO = 0x80FFFF00,
+    FUNDO_AZUL = 0x800000FF,
+    FUNDO_MAGENTA = 0x80FF00FF,
+    FUNDO_CIANO = 0x8000FFFF,
+    FUNDO_BRANCO = 0x80FFFFFF
 };
 
 class Aparencia {
