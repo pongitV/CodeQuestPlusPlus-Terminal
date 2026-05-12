@@ -26,11 +26,11 @@ namespace {
         return arte;
     }
 
-    std::string gerarBarraDeXp(SistemaPersonagem* jogadorAtual, const std::string& corMagenta, const std::string& corReset) {
+    std::string gerarBarraDeXp(SistemaPersonagem* jogadorAtual, const std::string& corXp, const std::string& corReset) {
         int tamanho = 10;
         int preenchido = std::min(tamanho, (jogadorAtual->obterXpAtual() * tamanho) / std::max(1, jogadorAtual->obterXpParaSubir()));
-        std::string barra = "[" + corMagenta + std::string(preenchido, '#') + corReset + std::string(tamanho - preenchido, '-') + "] ";
-        return barra + corMagenta + std::to_string(jogadorAtual->obterXpAtual()) + corReset + "/" + std::to_string(jogadorAtual->obterXpParaSubir());
+        std::string barra = "[" + corXp + std::string(preenchido, '#') + corReset + std::string(tamanho - preenchido, '-') + "] ";
+        return barra + corXp + std::to_string(jogadorAtual->obterXpAtual()) + corReset + "/" + std::to_string(jogadorAtual->obterXpParaSubir());
     }
 
     struct DisplayEfeito { std::string nome; Cor cor; };
@@ -126,17 +126,17 @@ namespace {
         std::cout << "\033[H" << finalOutput << "\033[J" << std::flush;
     }
 
-    void renderizarCenaPadrao(const std::string& titulo, const std::vector<SistemaPersonagem*>& inimigos, SistemaPersonagem* alvoAnimacao, int frame, bool isCura, bool isMorte, Item* arma, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& aliados, SistemaPersonagem* alvoDanoJogador = nullptr, Cor corDanoJogador = Cor::RESET) {
+    void renderizarCenaPadrao(const std::string& titulo, const std::vector<SistemaPersonagem*>& inimigos, SistemaPersonagem* alvoAnimacao, int frame, bool isCura, bool isMorte, Item* arma, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& aliados, SistemaPersonagem* alvoDanoJogador = nullptr, Cor corDanoJogador = Cor::RESET, int danoAnimacao = -1, const std::vector<std::string>& dropsAnimacao = {}) {
         renderizarFrameBufferizado([&]() {
             (void)titulo; // Parametro nao e mais usado visualmente na interface limpa
             std::cout << Aparencia::cor(Cor::BRANCO);
             Aparencia::imprimirLinhaDivisoria('=');
             std::cout << Aparencia::cor(Cor::RESET) << "\n";
-            TelaCombate::exibirHordaDeInimigosLadoALado(inimigos, alvoAnimacao, frame, isCura, false, isMorte, arma);
+            TelaCombate::exibirHordaDeInimigosLadoALado(inimigos, alvoAnimacao, frame, isCura, false, isMorte, arma, danoAnimacao, dropsAnimacao);
             
-            TelaCombate::exibirBarraDeStatusDoJogador(jogadorAtual, (alvoDanoJogador == jogadorAtual) ? corDanoJogador : Cor::RESET);
+            TelaCombate::exibirBarraDeStatusDoJogador(jogadorAtual, (alvoDanoJogador == jogadorAtual) ? corDanoJogador : Cor::RESET, (alvoDanoJogador == jogadorAtual) ? danoAnimacao : -1, (alvoDanoJogador == jogadorAtual) ? frame : 0);
             for (auto* aliado : aliados) {
-                TelaCombate::exibirBarraDeStatusDoJogador(aliado, (alvoDanoJogador == aliado) ? corDanoJogador : Cor::RESET);
+                TelaCombate::exibirBarraDeStatusDoJogador(aliado, (alvoDanoJogador == aliado) ? corDanoJogador : Cor::RESET, (alvoDanoJogador == aliado) ? danoAnimacao : -1, (alvoDanoJogador == aliado) ? frame : 0);
             }
             
             Aparencia::imprimirLinhaDivisoria();
@@ -172,7 +172,7 @@ void TelaCombate::exibirLogoParaTelaDeCombate(const std::string& tituloDaTela)
     Aparencia::exibirLogoAscii(logo, 95, Cor::VERMELHO, tituloDaTela);
 }
 
-void TelaCombate::exibirBarraDeStatusDoJogador(SistemaPersonagem* jogadorAtual, Cor corDestaque) 
+void TelaCombate::exibirBarraDeStatusDoJogador(SistemaPersonagem* jogadorAtual, Cor corDestaque, int danoAnimacao, int frameAnimacao) 
 {
     if (jogadorAtual == nullptr) return;
     std::string nomeDaArma = (jogadorAtual->obterArma()) ? jogadorAtual->obterArma()->obterNomeItem() + jogadorAtual->obterArma()->obterInfoStatus() : "Punhos";
@@ -183,28 +183,46 @@ void TelaCombate::exibirBarraDeStatusDoJogador(SistemaPersonagem* jogadorAtual, 
     std::string corVerde = Aparencia::cor(Cor::VERDE);
     std::string corLaranja = Aparencia::cor(Cor::AMARELO);
     std::string corVermelho = Aparencia::cor(Cor::VERMELHO);
-    std::string corMagenta = Aparencia::cor(Cor::MAGENTA);
+    std::string corCiano = Aparencia::cor(Cor::CIANO);
     std::string corReset = Aparencia::cor(Cor::RESET);
     
     std::string corVida = (porcentagemDeVida > 0.70) ? corVerde : (porcentagemDeVida > 0.30) ? corLaranja : corVermelho;
     auto arteDoCoracao = gerarArteCoracao(porcentagemDeVida, corVerde, corLaranja, corVermelho, corReset);
-    std::string arteDeBarraDeXp = gerarBarraDeXp(jogadorAtual, corMagenta, corReset);
+    std::string arteDeBarraDeXp = gerarBarraDeXp(jogadorAtual, corCiano, corReset);
     std::string statusStr = gerarStringDeStatus(jogadorAtual);
+
+    std::string fctVisual = "";
+    std::string fctPrint = "";
+    if (danoAnimacao > 0 && frameAnimacao > 0) {
+        fctVisual = "  -" + std::to_string(danoAnimacao) + "!";
+        std::string corFCT;
+        if (frameAnimacao <= 3) corFCT = "\033[1;38;2;255;200;0m";
+        else if (frameAnimacao <= 6) corFCT = "\033[1;38;2;255;100;0m";
+        else if (frameAnimacao <= 9) corFCT = "\033[1;38;2;255;0;0m";
+        else corFCT = "\033[1;38;2;150;0;0m";
+        fctPrint = "  " + corFCT + "-" + std::to_string(danoAnimacao) + "!" + "\033[0m";
+    }
+    int extraPad = 10 - static_cast<int>(fctVisual.length());
+    std::string paddingRight = std::string(extraPad > 0 ? extraPad : 0, ' ');
+    fctPrint += paddingRight;
+    std::string emptyPad(10, ' ');
+
+    std::string playerTag = (corDestaque != Cor::RESET) ? Aparencia::cor(corDestaque) + "JOGADOR: " + jogadorAtual->obterNome() + Aparencia::cor(Cor::RESET) : "JOGADOR: " + jogadorAtual->obterNome();
 
     // Aplicando a cor dinâmica ao HP na linha do status
     std::vector<std::string> linhasParaImprimir = 
     {
-        "| " + arteDoCoracao[0] + " |  JOGADOR: " + jogadorAtual->obterNome() + " (" + jogadorAtual->obterRaca()->obterNomeRaca() + " / " + jogadorAtual->obterNomeClasse() + ") | NIVEL: " + std::to_string(jogadorAtual->obterNivel()) + " | HP: " + corVida + std::to_string(jogadorAtual->obterVida()) + corReset + "/" + std::to_string(jogadorAtual->obterVidaMaxima()),
-        "| " + arteDoCoracao[1] + " |  XP: " + arteDeBarraDeXp + " | OURO: " + corLaranja + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G" + corReset,
-        "| " + arteDoCoracao[2] + " |  EQUIP: " + nomeDaArma + " | " + nomeDoEscudo + " | " + nomeDaArmadura,
-        "| " + arteDoCoracao[3] + " |  STATUS: " + statusStr
+        "| " + arteDoCoracao[0] + " |  " + playerTag + " (" + jogadorAtual->obterRaca()->obterNomeRaca() + " / " + jogadorAtual->obterNomeClasse() + ") | NIVEL: " + std::to_string(jogadorAtual->obterNivel()) + " | HP: " + corVida + std::to_string(jogadorAtual->obterVida()) + corReset + "/" + std::to_string(jogadorAtual->obterVidaMaxima()) + fctPrint,
+        "| " + arteDoCoracao[1] + " |  XP: " + arteDeBarraDeXp + " | OURO: " + corLaranja + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G" + corReset + emptyPad,
+        "| " + arteDoCoracao[2] + " |  EQUIP: " + nomeDaArma + " | " + nomeDoEscudo + " | " + nomeDaArmadura + emptyPad,
+        "| " + arteDoCoracao[3] + " |  STATUS: " + statusStr + emptyPad
     };
 
     Aparencia::imprimirLinhaDivisoria();
     Aparencia::imprimirCentralizadoMultilinha(linhasParaImprimir, 95);
 }
 
-void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, int frameAnimacao, bool isCura, bool animarSurgimento, bool isMorte, Item* armaAtacante) 
+void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, int frameAnimacao, bool isCura, bool animarSurgimento, bool isMorte, Item* armaAtacante, int danoAnimacao, const std::vector<std::string>& dropsAnimacao) 
 {
     if (listaDeInimigos.empty()) return;
     int larguraTerminal = Aparencia::obterLarguraTerminal();
@@ -272,7 +290,26 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
             return std::make_pair(visualStr, printStr);
         });
     }
-    std::cout << "\n";
+    
+    for (int fctLine = 0; fctLine < 2; ++fctLine) {
+        imprimirLinhaHorda([&](SistemaPersonagem* inimigo, size_t i) {
+            std::string visualStr = "", printStr = "";
+            if (inimigo == alvoAnimacao && danoAnimacao > 0 && !isMorte && frameAnimacao > 0) {
+                int targetLine = (frameAnimacao < 4) ? 1 : 0;
+                if (fctLine == targetLine) {
+                    std::string textoDano = "-" + std::to_string(danoAnimacao) + "!";
+                    std::string corFCT;
+                    if (frameAnimacao <= 2) corFCT = "\033[1;38;2;255;200;0m";
+                    else if (frameAnimacao <= 4) corFCT = "\033[1;38;2;255;100;0m";
+                    else if (frameAnimacao <= 6) corFCT = "\033[1;38;2;255;0;0m";
+                    else corFCT = "\033[1;38;2;150;0;0m";
+                    visualStr = textoDano;
+                    printStr = corFCT + textoDano + "\033[0m";
+                }
+            }
+            return std::make_pair(visualStr, printStr);
+        });
+    }
         
     std::vector<std::string> linhasDaArte;
     for (size_t indiceDaLinhaDaArte = 0; indiceDaLinhaDaArte < arteDoInimigo.size(); indiceDaLinhaDaArte++) 
@@ -291,6 +328,29 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
                 int totalLinhasArte = static_cast<int>(arteDoInimigo.size());
                 if (static_cast<int>(indiceDaLinhaDaArte) >= totalLinhasArte - frameAnimacao) {
                     linhaArte = std::string(visivelLen, ' ');
+                    
+                    if (frameAnimacao >= totalLinhasArte) {
+                        int totalDrops = static_cast<int>(dropsAnimacao.size()) + 1; // +1 para exibir "DERROTADO!"
+                        int startDropLine = (totalLinhasArte - totalDrops) / 2;
+                        if (startDropLine < 0) startDropLine = 0;
+                        
+                        int currentDropIndex = static_cast<int>(indiceDaLinhaDaArte) - startDropLine;
+                        if (currentDropIndex >= 0 && currentDropIndex < totalDrops) {
+                            std::string txt = (currentDropIndex == 0) ? "DERROTADO!" : dropsAnimacao[currentDropIndex - 1];
+                            std::string corDrop = Aparencia::cor(Cor::BRANCO);
+                            if (currentDropIndex == 0) corDrop = Aparencia::cor(Cor::VERMELHO);
+                            else if (txt.find("XP") != std::string::npos) corDrop = Aparencia::cor(Cor::CIANO);
+                            else if (txt.find("G") != std::string::npos) corDrop = Aparencia::cor(Cor::AMARELO);
+                            
+                            int txtLen = static_cast<int>(txt.length());
+                            if (txtLen > visivelLen) txt = txt.substr(0, visivelLen);
+                            txtLen = static_cast<int>(txt.length());
+                            
+                            int esp = (visivelLen - txtLen) / 2;
+                            int rem = visivelLen - esp - txtLen;
+                            linhaArte = std::string(esp > 0 ? esp : 0, ' ') + corDrop + txt + Aparencia::cor(Cor::RESET) + std::string(rem > 0 ? rem : 0, ' ');
+                        }
+                    }
                 }
             }
 
@@ -300,7 +360,10 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
                 std::string baseLinha;
                 std::string corDestaque = isCura ? Aparencia::cor(Cor::VERDE) : Aparencia::cor(Cor::VERMELHO);
                 
-                if (frameAnimacao % 2 == 1) {
+                bool isPiscarColorido = (frameAnimacao <= 4 && frameAnimacao % 2 == 1);
+                bool isInvisivel = (frameAnimacao <= 4 && frameAnimacao % 2 == 0);
+
+                if (!isInvisivel) {
                     baseLinha = linhaArte;
                 } else {
                     baseLinha = std::string(visivelLen, ' ');
@@ -338,14 +401,14 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
                     int startX = centroX - static_cast<int>(impChars.size()) / 2;
                     if (startX < 0) startX = 0;
                     
-                    std::string linhaConstruida = (frameAnimacao % 2 == 1) ? corDestaque : "";
+                    std::string linhaConstruida = isPiscarColorido ? corDestaque : "";
                     bool inWhite = false;
                     for (int i = 0; i < static_cast<int>(baseChars.size()); ++i) {
                         if (i >= startX && i < startX + static_cast<int>(impChars.size())) {
                             std::string cImpacto = impChars[i - startX];
                             if (cImpacto == " ") {
                                 if (inWhite) { 
-                                    linhaConstruida += (frameAnimacao % 2 == 1) ? corDestaque : Aparencia::cor(Cor::RESET); 
+                                    linhaConstruida += isPiscarColorido ? corDestaque : Aparencia::cor(Cor::RESET); 
                                     inWhite = false; 
                                 }
                                 linhaConstruida += baseChars[i];
@@ -355,7 +418,7 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
                             }
                         } else {
                             if (inWhite) { 
-                                linhaConstruida += (frameAnimacao % 2 == 1) ? corDestaque : Aparencia::cor(Cor::RESET); 
+                                linhaConstruida += isPiscarColorido ? corDestaque : Aparencia::cor(Cor::RESET); 
                                 inWhite = false; 
                             }
                             linhaConstruida += baseChars[i];
@@ -364,7 +427,7 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
                     linhaConstruida += Aparencia::cor(Cor::RESET);
                     linhaAtual += linhaConstruida;
                 } else {
-                    if (frameAnimacao % 2 == 1) {
+                    if (isPiscarColorido) {
                         linhaAtual += corDestaque + baseLinha + Aparencia::cor(Cor::RESET);
                     } else {
                         linhaAtual += baseLinha;
@@ -390,12 +453,12 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
     std::cout << "\n";
 }
 
-void TelaCombate::animarDanoNoInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* atacante, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados)
+void TelaCombate::animarDanoNoInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* atacante, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados, int danoAnimacao)
 {
     Item* armaAtacante = (atacante != nullptr) ? atacante->obterArma() : nullptr;
     
     for (int frame = 1; frame <= 8; ++frame) {
-        renderizarCenaPadrao(tituloCombate, listaDeInimigos, alvoAnimacao, frame, false, false, armaAtacante, jogadorAtual, listaDeAliados);
+        renderizarCenaPadrao(tituloCombate, listaDeInimigos, alvoAnimacao, frame, false, false, armaAtacante, jogadorAtual, listaDeAliados, nullptr, Cor::RESET, danoAnimacao);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     
@@ -497,7 +560,7 @@ void TelaCombate::atualizarTelaEstatica(const std::string& tituloCombate, const 
     renderizarCenaPadrao(tituloCombate, listaDeInimigos, nullptr, 0, false, false, nullptr, jogadorAtual, listaDeAliados);
 }
 
-void TelaCombate::animarMorteInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* inimigoMorto, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados)
+void TelaCombate::animarMorteInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* inimigoMorto, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados, const std::vector<std::string>& drops)
 {
     if (listaDeInimigos.empty()) return;
     
@@ -508,8 +571,8 @@ void TelaCombate::animarMorteInimigo(const std::string& tituloCombate, const std
         std::this_thread::sleep_for(std::chrono::milliseconds(25));
     }
     
-    // Frame final para garantir que toda a arte seja apagada (corrige a falha quando totalLinhas for par)
-    renderizarCenaPadrao(tituloCombate, listaDeInimigos, inimigoMorto, totalLinhas, false, true, nullptr, jogadorAtual, listaDeAliados);
+    // Frame final para garantir que toda a arte seja apagada e os DROPS apareçam centralizados no fantasma da imagem!
+    renderizarCenaPadrao(tituloCombate, listaDeInimigos, inimigoMorto, totalLinhas, false, true, nullptr, jogadorAtual, listaDeAliados, nullptr, Cor::RESET, -1, drops);
 }
 
 void TelaCombate::animarCuraNoInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados)
@@ -522,13 +585,13 @@ void TelaCombate::animarCuraNoInimigo(const std::string& tituloCombate, const st
     renderizarCenaPadrao(tituloCombate, listaDeInimigos, alvoAnimacao, 0, true, false, nullptr, jogadorAtual, listaDeAliados);
 }
 
-void TelaCombate::animarDanoNoJogador(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados, bool isParry)
+void TelaCombate::animarDanoNoJogador(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados, bool isParry, int danoAnimacao)
 {
     Cor corDestaque = isParry ? Cor::CIANO : Cor::VERMELHO;
 
-    for (int frame = 1; frame <= 4; ++frame) {
-        Cor corAplicada = (frame % 2 == 1) ? corDestaque : Cor::RESET;
-        renderizarCenaPadrao(tituloCombate, listaDeInimigos, nullptr, 0, false, false, nullptr, jogadorAtual, listaDeAliados, alvoAnimacao, corAplicada);
+    for (int frame = 1; frame <= 12; ++frame) {
+        Cor corAplicada = (frame % 2 == 1 && frame <= 6) ? corDestaque : Cor::RESET;
+        renderizarCenaPadrao(tituloCombate, listaDeInimigos, nullptr, frame, false, false, nullptr, jogadorAtual, listaDeAliados, alvoAnimacao, corAplicada, danoAnimacao);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
     

@@ -12,17 +12,13 @@ void GerenciadorDrops::relatarEProcessarXpOuro(SistemaPersonagem* jogador, int x
     xpTotal += xpDrop;
     ouroTotal += ouroDrop;
 
-    std::string msgOuro = Aparencia::margemCombate() + Aparencia::cor(Cor::FUNDO_AMARELO) + "+" + std::to_string(ouroDrop) + "G" + Aparencia::cor(Cor::RESET) + "\n";
-    std::string msgXp = Aparencia::margemCombate() + Aparencia::cor(Cor::FUNDO_AZUL) + "+" + std::to_string(xpDrop) + " XP" + Aparencia::cor(Cor::RESET) + "\n";
-    
-    TelaCombate::adicionarMensagemFixa(msgOuro);
-    TelaCombate::adicionarMensagemFixa(msgXp);
+    Aparencia::registrarLogBatalha(Aparencia::cor(Cor::AMARELO) + "+" + std::to_string(ouroDrop) + "G" + Aparencia::cor(Cor::RESET));
+    Aparencia::registrarLogBatalha(Aparencia::cor(Cor::CIANO) + "+" + std::to_string(xpDrop) + " XP" + Aparencia::cor(Cor::RESET));
 }
 
 void GerenciadorDrops::relatarDropItem(const std::string& nomeItem, int quantidade) 
 {
-    std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::BRANCO) + "+" + std::to_string(quantidade) + "x " + nomeItem + Aparencia::cor(Cor::RESET) + "\n";
-    TelaCombate::adicionarMensagemFixa(msg);
+    Aparencia::registrarLogBatalha(Aparencia::cor(Cor::BRANCO) + "+" + std::to_string(quantidade) + "x " + nomeItem + Aparencia::cor(Cor::RESET));
 }
 
 void GerenciadorDrops::darEProcessarItem(SistemaPersonagem* jogador, ItemID idItem, int quantidade, std::vector<std::string>& itensObtidos, int chanceDeDrop)

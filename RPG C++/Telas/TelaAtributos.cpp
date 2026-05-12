@@ -107,7 +107,7 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
     linhasFicha.push_back("NOME:           " + jogadorAtual->obterNome());
     linhasFicha.push_back("RACA:           " + jogadorAtual->obterRaca()->obterNomeRaca());
     linhasFicha.push_back("CLASSE:         " + jogadorAtual->obterNomeClasse());
-    linhasFicha.push_back("NIVEL:          " + std::to_string(jogadorAtual->obterNivel()) + " (XP: " + Aparencia::cor(Cor::MAGENTA) + std::to_string(jogadorAtual->obterXpAtual()) + " / " + std::to_string(jogadorAtual->obterXpParaSubir()) + Aparencia::cor(Cor::RESET) + ")");
+    linhasFicha.push_back("NIVEL:          " + std::to_string(jogadorAtual->obterNivel()) + " (XP: " + Aparencia::cor(Cor::CIANO) + std::to_string(jogadorAtual->obterXpAtual()) + " / " + std::to_string(jogadorAtual->obterXpParaSubir()) + Aparencia::cor(Cor::RESET) + ")");
     
     std::string difStr = "DIFICULDADE:    " + Aparencia::cor(Cor::VERMELHO);
     switch (jogadorAtual->obterDificuldade()) {

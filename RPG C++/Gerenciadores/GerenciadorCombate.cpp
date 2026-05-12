@@ -5,6 +5,7 @@
 #include <limits>
 #include <vector>
 #include <thread>
+#include <map>
 #include <chrono>
 
 #include "../Classes/ClasseBase.h"
@@ -345,10 +346,29 @@ void GerenciadorCombate::limparInimigosMortos()
     {
         if (inimigoPtr->obterVida() <= 0) 
         {
+                int xpAntes = quantidadeDeXpObtido;
+                int ouroAntes = quantidadeDeOuroObtido;
+                size_t itensAntes = itensObtidos.size();
+
                 processarMorteDeInimigo(inimigoPtr.get());
 
+                int xpDrop = quantidadeDeXpObtido - xpAntes;
+                int ouroDrop = quantidadeDeOuroObtido - ouroAntes;
+                
+                std::vector<std::string> dropsDaMorte;
+                if (xpDrop > 0) dropsDaMorte.push_back("+" + std::to_string(xpDrop) + " XP");
+                if (ouroDrop > 0) dropsDaMorte.push_back("+" + std::to_string(ouroDrop) + "G");
+                
+                std::map<std::string, int> contagemItens;
+                for (size_t i = itensAntes; i < itensObtidos.size(); ++i) {
+                    contagemItens[itensObtidos[i]]++;
+                }
+                for (auto const& [nome, qtd] : contagemItens) {
+                    dropsDaMorte.push_back("+" + std::to_string(qtd) + "x " + nome);
+                }
+
                 std::vector<SistemaPersonagem*> aliadosVivos = obterAliadosVivosRaw();
-                TelaCombate::animarMorteInimigo(obterTituloDoCombate(), obterInimigosRaw(), inimigoPtr.get(), jogadorAtual, aliadosVivos);
+                TelaCombate::animarMorteInimigo(obterTituloDoCombate(), obterInimigosRaw(), inimigoPtr.get(), jogadorAtual, aliadosVivos, dropsDaMorte);
             Aparencia::aguardarEnter();
         }
     }
@@ -491,10 +511,10 @@ void GerenciadorCombate::processarPosDano(SistemaPersonagem* atacante, SistemaPe
     {
         // ANIMACAO DO DANO NO INIMIGO (Piscar Vermelho + Flicker)
         if (!isPersonagemJogadorOuAliado(alvo)) {
-            TelaCombate::animarDanoNoInimigo(obterTituloDoCombate(), obterInimigosRaw(), alvo, atacante, jogadorAtual, aliadosVivos);
+            TelaCombate::animarDanoNoInimigo(obterTituloDoCombate(), obterInimigosRaw(), alvo, atacante, jogadorAtual, aliadosVivos, danoFinal);
         }
         else {
-            TelaCombate::animarDanoNoJogador(obterTituloDoCombate(), obterInimigosRaw(), alvo, jogadorAtual, aliadosVivos, false);
+            TelaCombate::animarDanoNoJogador(obterTituloDoCombate(), obterInimigosRaw(), alvo, jogadorAtual, aliadosVivos, false, danoFinal);
         }
 
         // Aplicação dos efeitos no acerto
@@ -504,7 +524,7 @@ void GerenciadorCombate::processarPosDano(SistemaPersonagem* atacante, SistemaPe
         atacante->obterRaca()->aoCausarDano(atacante, alvo, danoFinal);
     }
     else if (tentouParry && parrySucesso && isPersonagemJogadorOuAliado(alvo)) {
-        TelaCombate::animarDanoNoJogador(obterTituloDoCombate(), obterInimigosRaw(), alvo, jogadorAtual, aliadosVivos, true);
+        TelaCombate::animarDanoNoJogador(obterTituloDoCombate(), obterInimigosRaw(), alvo, jogadorAtual, aliadosVivos, true, danoFinal);
     } else {
         TelaCombate::atualizarTelaEstatica(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual, aliadosVivos);
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
@@ -566,17 +586,17 @@ void GerenciadorCombate::exibirResultadoDoAtaque(SistemaPersonagem* alvo, int da
         if (tentouParry) 
         {
             std::string mensagemParry = parrySucesso ? (danoFinal <= 1 ? "parry efetivo! Ataque anulado!" : "parry efetivo! Mas o ataque e muito forte!") : "parry falhou!";
-            msg += Aparencia::margemCombate() + Aparencia::cor(Cor::VERMELHO_CLARO) + ">> [PARRY]: " + mensagemParry + " Inimigo causou " + std::to_string(danoFinal) + " de dano em " + alvo->obterNome() + Aparencia::cor(Cor::RESET) + "\n";
+            // A mensagem estatica na UI de dano ao jogador foi comentada para priorizar o Texto de Dano Flutuante
             Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERMELHO_CLARO) + "[PARRY]: " + mensagemParry + " Inimigo causou " + std::to_string(danoFinal) + " de dano em " + alvo->obterNome() + Aparencia::cor(Cor::RESET));
         }
         else if (danoFinal > 0) 
         {
-            msg += Aparencia::margemCombate() + Aparencia::cor(Cor::VERMELHO_CLARO) + ">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano" + Aparencia::cor(Cor::RESET) + "\n";
+            // A mensagem estatica na UI de dano ao jogador foi comentada para priorizar o Texto de Dano Flutuante
             Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERMELHO_CLARO) + ">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano" + Aparencia::cor(Cor::RESET));
         }
         else if (danoFinal == 0 && alvo->obterDefendendo()) 
         {
-            msg += Aparencia::margemCombate() + ">> O dano foi totalmente absorvido pela defesa de " + alvo->obterNome() + "!\n";
+            // A mensagem estatica na UI de dano ao jogador foi comentada para priorizar o Texto de Dano Flutuante
             Aparencia::registrarLogBatalha(Aparencia::cor(Cor::CIANO) + ">> O dano foi totalmente absorvido pela defesa de " + alvo->obterNome() + "!" + Aparencia::cor(Cor::RESET));
         }
         
@@ -585,7 +605,8 @@ void GerenciadorCombate::exibirResultadoDoAtaque(SistemaPersonagem* alvo, int da
     else if (danoFinal > 0) 
     {
         if (alvo != jogadorAtual) totalDeDanoCausado += danoFinal;
-        msg += Aparencia::margemCombate() + Aparencia::cor(Cor::VERMELHO) + ">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano" + Aparencia::cor(Cor::RESET) + "\n";
+        // A mensagem estatica na UI de dano aos inimigos foi comentada para priorizar o Texto de Dano Flutuante
+        // msg += Aparencia::margemCombate() + Aparencia::cor(Cor::VERMELHO) + ">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano" + Aparencia::cor(Cor::RESET) + "\n";
         Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERMELHO) + ">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano" + Aparencia::cor(Cor::RESET));
     }
 
@@ -615,12 +636,11 @@ bool GerenciadorCombate::verificarCondicaoDeVitoriaOuDerrota()
 
 void GerenciadorCombate::processarMorteDeInimigo(SistemaPersonagem* inimigo)
 {
-    registrarMensagemELog("[!] " + inimigo->obterNome() + " derrotado!", Cor::AMARELO, true);
+    Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERMELHO) + "[!] " + inimigo->obterNome() + " derrotado!" + Aparencia::cor(Cor::RESET));
 
     SistemaBestiario::instancia().registrarDerrota(inimigo->obterNome());
 
-    std::string msgDrops = Aparencia::margemCombate() + Aparencia::cor(Cor::AMARELO) + "=== DROPS ===" + Aparencia::cor(Cor::RESET) + "\n";
-    TelaCombate::adicionarMensagemFixa(msgDrops);
+    Aparencia::registrarLogBatalha(Aparencia::cor(Cor::AMARELO) + "=== DROPS ===" + Aparencia::cor(Cor::RESET));
 
     size_t itensAntes = itensObtidos.size();
     inimigo->executarDrops(jogadorAtual, itensObtidos, quantidadeDeOuroObtido, quantidadeDeXpObtido);

@@ -106,8 +106,7 @@ void Mimico::realizarDrops(SistemaPersonagem* inimigo, SistemaPersonagem* jogado
     GerenciadorDrops::relatarEProcessarXpOuro(jogadorAtual, 150, 120 + ouroRoubadoTotal, ouroTotal, xpTotal);
 
     if (ouroRoubadoTotal > 0) {
-         std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::AMARELO) + ">> Voce recuperou " + std::to_string(ouroRoubadoTotal) + "G que haviam sido roubados!" + Aparencia::cor(Cor::RESET) + "\n";
-         TelaCombate::adicionarMensagemFixa(msg);
+         Aparencia::registrarLogBatalha(Aparencia::cor(Cor::AMARELO) + ">> Voce recuperou " + std::to_string(ouroRoubadoTotal) + "G que haviam sido roubados!" + Aparencia::cor(Cor::RESET));
          SistemaBestiario::instancia().registrarDrop(inimigo->obterNome(), "Ouro Extra (Ouro roubado retornado)");
     }
 
