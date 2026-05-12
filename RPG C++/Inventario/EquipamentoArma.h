@@ -40,7 +40,7 @@ public:
 
     bool podeSerEquipadoPor(SistemaPersonagem* personagem) const override;
     bool isEquipavel() const override { return true; }
-    std::vector<std::string> obterDetalhesInspecao() const override;
+    std::vector<std::string> obterDetalhesInspecao(SistemaPersonagem* personagem = nullptr) const override;
 
     void aplicarEfeitoSangramento() override;
     void aplicarEfeitoLentidao() override;

@@ -39,10 +39,16 @@ bool EquipamentoEscudo::podeSerEquipadoPor(SistemaPersonagem* personagem) const 
     return secVal >= reqSecundario;
 }
 
-std::vector<std::string> EquipamentoEscudo::obterDetalhesInspecao() const {
+std::vector<std::string> EquipamentoEscudo::obterDetalhesInspecao(SistemaPersonagem* personagem) const {
     std::vector<std::string> linhas;
     linhas.push_back(" > Tipo: Escudo");
-    linhas.push_back(" > Poder de Bloqueio: " + std::to_string(reducaoFixa) + " (Dano bloqueado na acao 'Defender')");
+
+    std::string bloqueioStr = std::to_string(reducaoFixa) + " (Dano bloqueado na acao 'Defender')";
+    if (personagem) {
+        int defTotal = reducaoFixa + personagem->obterResistencia();
+        bloqueioStr += " " + Aparencia::cor(Cor::CINZA) + "-> " + Aparencia::cor(Cor::RESET) + "C/ Seus Atributos: " + Aparencia::cor(Cor::AMARELO) + std::to_string(defTotal) + Aparencia::cor(Cor::RESET);
+    }
+    linhas.push_back(" > Poder de Bloqueio: " + bloqueioStr);
     linhas.push_back(" > Durabilidade Maxima: " + std::to_string(durabilidade) + " usos");
     linhas.push_back(" > Requisitos:");
     bool hasReq = false;

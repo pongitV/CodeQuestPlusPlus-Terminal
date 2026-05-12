@@ -91,7 +91,7 @@ public:
     virtual bool isEquipavel() const { return false; }
     virtual std::string obterMensagemRequisito() const { return "\n[SISTEMA]: Atributos insuficientes para equipar " + obterNomeItem() + "!\n"; }
     
-    virtual std::vector<std::string> obterDetalhesInspecao() const {
+    virtual std::vector<std::string> obterDetalhesInspecao(SistemaPersonagem* personagem = nullptr) const {
         std::vector<std::string> detalhes;
         detalhes.push_back(" > Tipo: Desconhecido");
         detalhes.push_back(" > Descricao: Nenhuma informacao disponivel.");

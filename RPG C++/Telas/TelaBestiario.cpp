@@ -115,6 +115,7 @@ void TelaBestiario::exibirFicha(SistemaPersonagem* jogadorAtual, const std::stri
 
     bool visto = bestiario.estaDescoberto(nomeSelecionado);
     bool derrotado = bestiario.jaDerrotado(nomeSelecionado);
+    int vezesDerrotado = bestiario.obterQuantidadeDerrotas(nomeSelecionado); // Voce precisara implementar este metodo em SistemaBestiario!
 
     auto imprimirSecaoBase = [largura](const std::string& tituloDaSecao, bool deveExibirConteudo, const std::function<void()>& funcaoParaExibirConteudo, const std::string& textoCasoOculto) {
         Aparencia::imprimirCentralizado("═══ " + tituloDaSecao + " ═══");
@@ -136,6 +137,9 @@ void TelaBestiario::exibirFicha(SistemaPersonagem* jogadorAtual, const std::stri
         // Aparencia
         imprimirSecaoBase("APARENCIA", visto, [&]() {
             Aparencia::imprimirCentralizado(info->nome);
+            if (vezesDerrotado > 0) {
+                Aparencia::imprimirCentralizado("Derrotado: " + std::to_string(vezesDerrotado) + " vezes", Aparencia::cor(Cor::AMARELO));
+            }
             std::cout << "\n";
             Aparencia::imprimirCentralizadoMultilinha(info->aparencia);
             std::cout << "\n";

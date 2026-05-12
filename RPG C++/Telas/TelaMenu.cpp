@@ -189,9 +189,9 @@ int TelaMenu::exibirPromptDificuldade(const std::string& nome, const std::string
     return exibirPromptGenerico("DIFICULDADE DO MUNDO", "| JOGADOR: " + nome + " | RACA: " + nomeRaca + " | CLASSE: " + nomeClasse + " |", 
         {"[SISTEMA]: Escolha o nivel de desafio da sua jornada:"}, 
         {
-            "FACIL   (Inimigos com 1x Atributos, sem habilidades adicionais)",
-            "NORMAL  (Inimigos com 1.5x Atributos, com habilidades de raca)",
-            "DIFICIL (Inimigos com 2x Atributos, com habilidades de raca e classe)",
+            Aparencia::cor(Cor::VERDE) + "FACIL   (Inimigos com 1x Atributos, sem habilidades adicionais)" + Aparencia::cor(Cor::RESET),
+            Aparencia::cor(Cor::AMARELO) + "NORMAL  (Inimigos com 1.5x Atributos, com habilidades de raca)" + Aparencia::cor(Cor::RESET),
+            Aparencia::cor(Cor::VERMELHO) + "DIFICIL (Inimigos com 2x Atributos, com habilidades de raca e classe)" + Aparencia::cor(Cor::RESET),
             "VOLTAR (selecao de classe)"
         });
 }

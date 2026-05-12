@@ -71,6 +71,7 @@ void SistemaBestiario::registrarDerrota(const std::string& nomeInimigo) {
     if (inimigosBase.count(nomeInimigo)) {
         vistos.insert(nomeInimigo);
         derrotados.insert(nomeInimigo);
+        quantidadeDerrotas[nomeInimigo]++;
     }
 }
 
@@ -92,6 +93,15 @@ bool SistemaBestiario::estaDescoberto(const std::string& nomeInimigo) const {
 bool SistemaBestiario::jaDerrotado(const std::string& nomeInimigo) const {
     std::lock_guard<std::mutex> lock(mtx);
     return derrotados.count(nomeInimigo) > 0;
+}
+
+int SistemaBestiario::obterQuantidadeDerrotas(const std::string& nomeInimigo) const {
+    std::lock_guard<std::mutex> lock(mtx);
+    auto it = quantidadeDerrotas.find(nomeInimigo);
+    if (it != quantidadeDerrotas.end()) {
+        return it->second;
+    }
+    return 0;
 }
 
 bool SistemaBestiario::jaViuHabilidade(const std::string& nomeInimigo, const std::string& habilidade) const {
@@ -136,6 +146,9 @@ void SistemaBestiario::salvar(std::ofstream& out) const {
     out << derrotados.size() << "\n";
     for (const auto& inimigoDerrotado : derrotados) out << inimigoDerrotado << "\n";
 
+    out << quantidadeDerrotas.size() << "\n";
+    for (const auto& [nome, qtd] : quantidadeDerrotas) out << nome << "\n" << qtd << "\n";
+
     out << habilidadesVistas.size() << "\n";
     for (const auto& [nomeInimigo, conjuntoHabilidades] : habilidadesVistas) {
         out << nomeInimigo << "\n" << conjuntoHabilidades.size() << "\n";
@@ -153,6 +166,7 @@ void SistemaBestiario::carregar(std::ifstream& in) {
     std::lock_guard<std::mutex> lock(mtx);
     vistos.clear();
     derrotados.clear();
+    quantidadeDerrotas.clear();
     habilidadesVistas.clear();
     dropsColetados.clear();
 
@@ -169,6 +183,16 @@ void SistemaBestiario::carregar(std::ifstream& in) {
     
     if (!lerConjunto(vistos)) return; // Failsafe para saves antigos
     lerConjunto(derrotados);
+    
+    size_t qtdDerrotasSize;
+    if (in >> qtdDerrotasSize) {
+        std::string linha; std::getline(in, linha);
+        for (size_t i = 0; i < qtdDerrotasSize; ++i) {
+            std::string nome; std::getline(in, nome);
+            int qtd; in >> qtd; std::getline(in, linha);
+            quantidadeDerrotas[nome] = qtd;
+        }
+    }
 
     auto lerMapa = [&](auto& mapa) {
         size_t size;

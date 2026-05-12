@@ -12,7 +12,7 @@ ItemMaterial::ItemMaterial(std::string nome, int preco) : Item(preco), nome(nome
 std::string ItemMaterial::obterNomeItem() const { return nome; }
 TipoEquipamento ItemMaterial::obterTipo() const { return TipoEquipamento::MATERIAL; }
 
-std::vector<std::string> ItemMaterial::obterDetalhesInspecao() const {
+std::vector<std::string> ItemMaterial::obterDetalhesInspecao(SistemaPersonagem* personagem) const {
     std::vector<std::string> linhas;
     linhas.push_back(" > Tipo: Material");
     

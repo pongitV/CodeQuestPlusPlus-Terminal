@@ -34,6 +34,7 @@ public:
 
     bool estaDescoberto(const std::string& nomeInimigo) const;
     bool jaDerrotado(const std::string& nomeInimigo) const;
+    int obterQuantidadeDerrotas(const std::string& nomeInimigo) const;
     bool jaViuHabilidade(const std::string& nomeInimigo, const std::string& habilidade) const;
     bool jaColetouDrop(const std::string& nomeInimigo, const std::string& drop) const;
 
@@ -49,6 +50,7 @@ private:
     
     std::set<std::string> vistos;
     std::set<std::string> derrotados;
+    std::map<std::string, int> quantidadeDerrotas;
     std::map<std::string, std::set<std::string>> habilidadesVistas;
     std::map<std::string, std::set<std::string>> dropsColetados;
     

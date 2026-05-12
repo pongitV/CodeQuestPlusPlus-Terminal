@@ -127,14 +127,14 @@ void TelaInventario::exibirMenuInteracaoItem(Item* itemEncontrado)
     Aparencia::exibirPrompt("Escolha: \033[s");
 }
 
-void TelaInventario::exibirInspecaoItem(Item* item)
+void TelaInventario::exibirInspecaoItem(Item* item, SistemaPersonagem* jogadorAtual)
 {
     if (!item) return;
     
     std::vector<std::string> linhas;
     linhas.push_back(Aparencia::cor(Cor::CIANO) + " ═══ " + item->obterNomeItem() + " ═══" + Aparencia::cor(Cor::RESET));
     
-    std::vector<std::string> detalhes = item->obterDetalhesInspecao();
+    std::vector<std::string> detalhes = item->obterDetalhesInspecao(jogadorAtual);
     linhas.insert(linhas.end(), detalhes.begin(), detalhes.end());
     
     linhas.push_back(" > Preco de Venda: " + std::to_string(item->obterPrecoVenda()) + "G");

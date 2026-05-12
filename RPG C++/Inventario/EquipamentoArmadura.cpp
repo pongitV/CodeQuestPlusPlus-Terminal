@@ -24,10 +24,16 @@ bool EquipamentoArmadura::podeSerEquipadoPor(SistemaPersonagem* personagem) cons
            personagem->obterConstituicao() >= reqConstituicao;
 }
 
-std::vector<std::string> EquipamentoArmadura::obterDetalhesInspecao() const {
+std::vector<std::string> EquipamentoArmadura::obterDetalhesInspecao(SistemaPersonagem* personagem) const {
     std::vector<std::string> linhas;
     linhas.push_back(" > Tipo: Armadura");
-    linhas.push_back(" > Defesa Fixa: " + std::to_string(reducaoFixa) + " (Reduz dano recebido permanentemente)");
+    
+    std::string defFixaStr = std::to_string(reducaoFixa) + " (Reduz dano recebido permanentemente)";
+    if (personagem) {
+        int defTotal = reducaoFixa + personagem->obterResistencia();
+        defFixaStr += " " + Aparencia::cor(Cor::CINZA) + "-> " + Aparencia::cor(Cor::RESET) + "C/ Seus Atributos: " + Aparencia::cor(Cor::AMARELO) + std::to_string(defTotal) + Aparencia::cor(Cor::RESET);
+    }
+    linhas.push_back(" > Defesa Fixa: " + defFixaStr);
     linhas.push_back(" > Requisitos:");
     bool hasReq = false;
     if (reqResistencia > 0) { linhas.push_back("   - Resistencia: " + std::to_string(reqResistencia)); hasReq = true; }

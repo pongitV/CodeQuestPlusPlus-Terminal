@@ -8,7 +8,7 @@ ItemMissao::ItemMissao(std::string nome, int preco) : Item(preco), nome(nome) {}
 std::string ItemMissao::obterNomeItem() const { return nome; }
 TipoEquipamento ItemMissao::obterTipo() const { return TipoEquipamento::MISSAO; }
 
-std::vector<std::string> ItemMissao::obterDetalhesInspecao() const {
+std::vector<std::string> ItemMissao::obterDetalhesInspecao(SistemaPersonagem* personagem) const {
     std::vector<std::string> detalhes;
     detalhes.push_back(" > Tipo: Item de Missao");
     if (!descricaoInspecao.empty()) {

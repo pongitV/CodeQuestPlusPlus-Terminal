@@ -15,7 +15,7 @@ std::string ItemConsumivel::obterNomeItem() const { return nome; }
 
 TipoEquipamento ItemConsumivel::obterTipo() const { return TipoEquipamento::CONSUMIVEL; }
 
-std::vector<std::string> ItemConsumivel::obterDetalhesInspecao() const {
+std::vector<std::string> ItemConsumivel::obterDetalhesInspecao(SistemaPersonagem* personagem) const {
     std::vector<std::string> detalhes;
     detalhes.push_back(" > Tipo: Consumivel");
     if (!descricaoInspecao.empty()) {

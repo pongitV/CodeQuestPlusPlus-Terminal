@@ -39,11 +39,31 @@ bool EquipamentoArma::podeSerEquipadoPor(SistemaPersonagem* personagem) const {
            personagem->obterSabedoria() >= reqSabedoria;
 }
 
-std::vector<std::string> EquipamentoArma::obterDetalhesInspecao() const {
+std::vector<std::string> EquipamentoArma::obterDetalhesInspecao(SistemaPersonagem* personagem) const {
     std::vector<std::string> linhas;
     linhas.push_back(" > Tipo: Arma");
-    linhas.push_back(" > Dano Fisico: " + std::to_string(danoFisico));
-    linhas.push_back(" > Dano Magico: " + std::to_string(danoMagico));
+
+    std::string fisStr = std::to_string(danoFisico);
+    std::string magStr = std::to_string(danoMagico);
+
+    if (personagem) {
+        int forca = personagem->obterForca();
+        int destreza = personagem->obterDestreza();
+        int inteli = personagem->obterInteligencia();
+        int sabedoria = personagem->obterSabedoria();
+        
+        if (danoFisico == 0 && danoMagico > 0) { forca /= 10; destreza /= 10; }
+        else if (danoFisico > 0 && danoMagico == 0) { inteli /= 10; sabedoria /= 10; }
+        
+        int danoFisEst = std::max(0, static_cast<int>((danoFisico + forca) * (1.0 + (destreza / 100.0)) * personagem->obterMultiplicador()));
+        int danoMagEst = std::max(0, static_cast<int>((danoMagico + inteli) * (1.0 + (sabedoria / 100.0)) * personagem->obterMultiplicador()));
+        
+        fisStr += " " + Aparencia::cor(Cor::CINZA) + "-> " + Aparencia::cor(Cor::RESET) + "C/ Seus Atributos: " + Aparencia::cor(Cor::VERMELHO_CLARO) + std::to_string(danoFisEst) + Aparencia::cor(Cor::RESET);
+        magStr += " " + Aparencia::cor(Cor::CINZA) + "-> " + Aparencia::cor(Cor::RESET) + "C/ Seus Atributos: " + Aparencia::cor(Cor::AZUL) + std::to_string(danoMagEst) + Aparencia::cor(Cor::RESET);
+    }
+
+    linhas.push_back(" > Dano Fisico: " + fisStr);
+    linhas.push_back(" > Dano Magico: " + magStr);
     linhas.push_back(" > Requisitos:");
     bool hasReq = false;
     if (reqForca > 0) { linhas.push_back("   - Forca: " + std::to_string(reqForca)); hasReq = true; }

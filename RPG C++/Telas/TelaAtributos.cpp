@@ -35,32 +35,33 @@ namespace {
         Aparencia::imprimirLinhaDivisoria();
 
         std::vector<std::string> linhas;
+        std::string cB = Aparencia::cor(Cor::BRANCO);
         linhas.push_back("");
         linhas.push_back("═══ EFEITOS DE CADA ATRIBUTO ═══");
-        linhas.push_back(" Vida         : Pontos de vida (HP) maximos do personagem.");
-        linhas.push_back(" Forca        : Aumenta o dano base de ataques fisicos.");
-        linhas.push_back(" Destreza     : Aumenta o dano fisico final e define a ordem de turno.");
-        linhas.push_back(" Resistencia  : Reduz o dano fisico recebido de forma fixa.");
-        linhas.push_back(" Constituicao : Reduz o dano fisico recebido em porcentagem.");
-        linhas.push_back(" Inteligencia : Aumenta o dano base de ataques magicos.");
-        linhas.push_back(" Sabedoria    : Aumenta o dano magico final e a potencia de curas.");
+        linhas.push_back(" " + Aparencia::cor(Cor::VERDE)          + "Vida         " + cB + ": Pontos de vida (HP) maximos do personagem.");
+        linhas.push_back(" " + Aparencia::cor(Cor::VERMELHO_CLARO) + "Forca        " + cB + ": Aumenta o dano base de ataques fisicos.");
+        linhas.push_back(" " + Aparencia::cor(Cor::VERDE_CLARO)    + "Destreza     " + cB + ": Aumenta o dano fisico final em porcentagem e define a ordem de turno.");
+        linhas.push_back(" " + Aparencia::cor(Cor::AMARELO)        + "Resistencia  " + cB + ": Reduz o dano recebido de forma fixa.");
+        linhas.push_back(" " + Aparencia::cor(Cor::AMARELO)        + "Constituicao " + cB + ": Reduz o dano recebido em porcentagem.");
+        linhas.push_back(" " + Aparencia::cor(Cor::AZUL)           + "Inteligencia " + cB + ": Aumenta o dano base de ataques magicos.");
+        linhas.push_back(" " + Aparencia::cor(Cor::CIANO)          + "Sabedoria    " + cB + ": Aumenta o dano magico final em porcentagem e aumenta a potencia de curas.");
         linhas.push_back("");
         
         linhas.push_back("═══ ATRIBUTOS DE DANO RECOMENDADOS PARA A CLASSE " + jogadorAtual->obterNomeClasse() + " ═══");
         
         TipoClasse tipo = jogadorAtual->obterTipoClasse();
         if (tipo == TipoClasse::Guerreiro) {
-            linhas.push_back(" 1. Forca    : Aumenta o dano base, essencial para armas pesadas.");
-            linhas.push_back(" 2. Destreza : Multiplica o dano final, util para qualquer build fisica.");
+            linhas.push_back(" 1. " + Aparencia::cor(Cor::VERMELHO_CLARO) + "Forca    " + cB + ": Aumenta o dano base, essencial para armas pesadas.");
+            linhas.push_back(" 2. " + Aparencia::cor(Cor::VERDE_CLARO)    + "Destreza " + cB + ": Multiplica o dano final, util para qualquer build fisica.");
         } else if (tipo == TipoClasse::Arqueiro) {
-            linhas.push_back(" 1. Destreza : Atributo principal, aumenta o dano e define a ordem de turno.");
-            linhas.push_back(" 2. Forca    : Aumenta o dano base, fortalecendo o dano fisico geral.");
+            linhas.push_back(" 1. " + Aparencia::cor(Cor::VERDE_CLARO)    + "Destreza " + cB + ": Atributo principal, aumenta o dano e define a ordem de turno.");
+            linhas.push_back(" 2. " + Aparencia::cor(Cor::VERMELHO_CLARO) + "Forca    " + cB + ": Aumenta o dano base, fortalecendo o dano fisico geral.");
         } else if (tipo == TipoClasse::Mago) {
-            linhas.push_back(" 1. Inteligencia : Essencial, aumenta drasticamente o dano base de magias.");
-            linhas.push_back(" 2. Sabedoria    : Multiplica o dano magico final e fortalece habilidades.");
+            linhas.push_back(" 1. " + Aparencia::cor(Cor::AZUL)           + "Inteligencia " + cB + ": Essencial, aumenta drasticamente o dano base de magias.");
+            linhas.push_back(" 2. " + Aparencia::cor(Cor::CIANO)          + "Sabedoria    " + cB + ": Multiplica o dano magico final e fortalece habilidades.");
         } else if (tipo == TipoClasse::Bardo) {
-            linhas.push_back(" 1. Sabedoria    : Fortalece intensamente os efeitos das curas e utilidade do Bardo.");
-            linhas.push_back(" 2. Inteligencia : Melhora o dano magico, permitindo que o Bardo lute efetivamente.");
+            linhas.push_back(" 1. " + Aparencia::cor(Cor::CIANO)          + "Sabedoria    " + cB + ": Fortalece intensamente os efeitos das curas e utilidade do Bardo.");
+            linhas.push_back(" 2. " + Aparencia::cor(Cor::AZUL)           + "Inteligencia " + cB + ": Melhora o dano magico, permitindo que o Bardo lute efetivamente.");
         } else {
             linhas.push_back(" Nenhum atributo de dano especifico definido para esta classe.");
         }
@@ -113,19 +114,19 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
 
     infoGeral.push_back("NIVEL: " + std::to_string(jogadorAtual->obterNivel()) + " [" + barraXp + Aparencia::cor(Cor::RESET) + "]   HP: [" + barraVida + Aparencia::cor(Cor::RESET) + "] " + std::to_string(jogadorAtual->obterVida()) + "/" + std::to_string(jogadorAtual->obterVidaMaxima()) + "   OURO: " + Aparencia::cor(Cor::AMARELO) + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G" + Aparencia::cor(Cor::RESET));
 
-    std::string difStr = "DIFICULDADE: " + Aparencia::cor(Cor::VERMELHO);
+    std::string difStr = "DIFICULDADE: ";
     switch (jogadorAtual->obterDificuldade()) {
-        case DificuldadeJogo::Facil: difStr += "Facil"; break;
-        case DificuldadeJogo::Normal: difStr += "Normal"; break;
-        case DificuldadeJogo::Dificil: difStr += "Dificil"; break;
+        case DificuldadeJogo::Facil: difStr += Aparencia::cor(Cor::VERDE) + "Facil"; break;
+        case DificuldadeJogo::Normal: difStr += Aparencia::cor(Cor::AMARELO) + "Normal"; break;
+        case DificuldadeJogo::Dificil: difStr += Aparencia::cor(Cor::VERMELHO) + "Dificil"; break;
     }
     difStr += Aparencia::cor(Cor::RESET) + "   [PARRY]: ";
-    difStr += jogadorAtual->obterParryAtivado() ? (Aparencia::cor(Cor::VERDE) + "Ligado" + Aparencia::cor(Cor::RESET)) : (Aparencia::cor(Cor::VERMELHO) + "Desligado" + Aparencia::cor(Cor::RESET));
+    difStr += jogadorAtual->obterParryAtivado() ? (Aparencia::cor(Cor::VERDE) + "Ligado" + Aparencia::cor(Cor::RESET)) : (Aparencia::cor(Cor::CINZA) + "Desligado" + Aparencia::cor(Cor::RESET));
     infoGeral.push_back(difStr);
 
     std::vector<std::string> caixaGeral = Aparencia::criarCaixa(infoGeral, "", 72, Cor::MAGENTA);
 
-    auto formatarAtr = [temBuff, multiplicadorDeAtributosAtual](std::string nomeDoAtributo, int valorBaseDoAtributo, int valorPerdidoPorDebuff, Cor corBase) -> std::string
+    auto formatarAtr = [temBuff, multiplicadorDeAtributosAtual](std::string nomeDoAtributo, int valorBaseDoAtributo, int valorPerdidoPorDebuff, Cor corBase, int atrRaca, int atrClasse) -> std::string
     {
         int bonusBuff = temBuff ? static_cast<int>(valorBaseDoAtributo * multiplicadorDeAtributosAtual) - valorBaseDoAtributo : 0;
         double pct = std::min(1.0, valorBaseDoAtributo / 50.0);
@@ -139,22 +140,32 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
         } else if (valorPerdidoPorDebuff > 0) {
             ss << " " << Aparencia::cor(Cor::VERMELHO) << "(-" << valorPerdidoPorDebuff << ")" << Aparencia::cor(Cor::RESET);
         }
+        
+        ss << "  " << Aparencia::cor(Cor::CINZA) << "[R: " << atrRaca << " | C: " << atrClasse << "]" << Aparencia::cor(Cor::RESET);
+
         return ss.str();
     };
 
+    Atributos atrRaca = jogadorAtual->obterRaca()->obterAtributosRaca();
+    Atributos atrClasse = jogadorAtual->obterClasse()->obterAtributosClasse();
+
     std::vector<std::string> atrLinhas;
-    atrLinhas.push_back(formatarAtr("Forca", jogadorAtual->obterForca(), forcaPerdida, Cor::VERMELHO_CLARO));
-    atrLinhas.push_back(formatarAtr("Destreza", jogadorAtual->obterDestreza(), destrezaPerdida, Cor::VERDE_CLARO));
-    atrLinhas.push_back(formatarAtr("Resistencia", jogadorAtual->obterResistencia(), resPerdida, Cor::AMARELO));
-    atrLinhas.push_back(formatarAtr("Constituicao", jogadorAtual->obterConstituicao(), constPerdida, Cor::AMARELO));
-    atrLinhas.push_back(formatarAtr("Inteligencia", jogadorAtual->obterInteligencia(), 0, Cor::AZUL));
-    atrLinhas.push_back(formatarAtr("Sabedoria", jogadorAtual->obterSabedoria(), 0, Cor::CIANO));
+    atrLinhas.push_back(formatarAtr("Forca", jogadorAtual->obterForca(), forcaPerdida, Cor::VERMELHO_CLARO, atrRaca.forca, atrClasse.forca));
+    atrLinhas.push_back(formatarAtr("Destreza", jogadorAtual->obterDestreza(), destrezaPerdida, Cor::VERDE_CLARO, atrRaca.destreza, atrClasse.destreza));
+    atrLinhas.push_back(formatarAtr("Resistencia", jogadorAtual->obterResistencia(), resPerdida, Cor::AMARELO, atrRaca.resistencia, atrClasse.resistencia));
+    atrLinhas.push_back(formatarAtr("Constituicao", jogadorAtual->obterConstituicao(), constPerdida, Cor::AMARELO, atrRaca.constituicao, atrClasse.constituicao));
+    atrLinhas.push_back(formatarAtr("Inteligencia", jogadorAtual->obterInteligencia(), 0, Cor::AZUL, atrRaca.inteligencia, atrClasse.inteligencia));
+    atrLinhas.push_back(formatarAtr("Sabedoria", jogadorAtual->obterSabedoria(), 0, Cor::CIANO, atrRaca.sabedoria, atrClasse.sabedoria));
 
     std::vector<std::string> caixaAtributos = Aparencia::criarCaixa(atrLinhas, "ATRIBUTOS", 35, Cor::MAGENTA);
 
     std::vector<std::string> habLinhas;
-    habLinhas.push_back("[PASSIVA]: " + jogadorAtual->obterClasse()->obterNomePassivaClasse());
-    habLinhas.push_back("[ATIVA]  : " + jogadorAtual->obterClasse()->obterNomeHabilidadeClasse());
+    habLinhas.push_back("[HAB. RACA]: " + jogadorAtual->obterRaca()->obterNomeHabilidadeRaca());
+    habLinhas.push_back(" - " + Aparencia::cor(Cor::CINZA) + jogadorAtual->obterRaca()->obterDescricaoHabilidadeRaca() + Aparencia::cor(Cor::RESET));
+    habLinhas.push_back("[PASSIVA]  : " + jogadorAtual->obterClasse()->obterNomePassivaClasse());
+    habLinhas.push_back(" - " + Aparencia::cor(Cor::CINZA) + jogadorAtual->obterClasse()->obterDescricaoPassivaClasse() + Aparencia::cor(Cor::RESET));
+    habLinhas.push_back("[ATIVA]    : " + jogadorAtual->obterClasse()->obterNomeHabilidadeClasse());
+    habLinhas.push_back(" - " + Aparencia::cor(Cor::CINZA) + jogadorAtual->obterClasse()->obterDescricaoHabilidadeClasse() + Aparencia::cor(Cor::RESET));
     habLinhas.push_back("");
     habLinhas.push_back("EQUIPAMENTOS:");
     std::string arma = jogadorAtual->obterArma() ? jogadorAtual->obterArma()->obterNomeItem() + jogadorAtual->obterArma()->obterInfoStatus() : "Punhos";
@@ -165,6 +176,38 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
     habLinhas.push_back(" > Armadura: " + armadura);
 
     std::vector<std::string> caixaHabilidades = Aparencia::criarCaixa(habLinhas, "HABILIDADES & EQUIPAMENTOS", 35, Cor::MAGENTA);
+
+    // --- PODER DE COMBATE (Derivados) ---
+    int danoFis = 1, danoMag = 0;
+    if (jogadorAtual->obterArma()) {
+        danoFis = jogadorAtual->obterArma()->obterDanoFisico();
+        danoMag = jogadorAtual->obterArma()->obterDanoMagico();
+    }
+    int forca = jogadorAtual->obterForca();
+    int destreza = jogadorAtual->obterDestreza();
+    int inteli = jogadorAtual->obterInteligencia();
+    int sabedoria = jogadorAtual->obterSabedoria();
+    
+    if (danoFis == 0 && danoMag > 0) { forca /= 10; destreza /= 10; }
+    else if (danoFis > 0 && danoMag == 0) { inteli /= 10; sabedoria /= 10; }
+
+    int danoFisEst = std::max(0, static_cast<int>((danoFis + forca) * (1.0 + (destreza / 100.0)) * multiplicadorDeAtributosAtual));
+    int danoMagEst = std::max(0, static_cast<int>((danoMag + inteli) * (1.0 + (sabedoria / 100.0)) * multiplicadorDeAtributosAtual));
+    int defFixa = jogadorAtual->obterResistencia();
+    double mitigacao = std::min(50.0, jogadorAtual->obterConstituicao() / 2.0);
+
+    std::string sFis = Aparencia::cor(Cor::VERMELHO_CLARO) + std::to_string(danoFisEst) + Aparencia::cor(Cor::RESET);
+    std::string sMag = Aparencia::cor(Cor::AZUL) + std::to_string(danoMagEst) + Aparencia::cor(Cor::RESET);
+    std::string sDef = Aparencia::cor(Cor::AMARELO) + std::to_string(defFixa) + Aparencia::cor(Cor::RESET);
+    
+    std::ostringstream ssMit;
+    ssMit << std::fixed << std::setprecision(1) << mitigacao;
+    std::string sMit = Aparencia::cor(Cor::AMARELO) + ssMit.str() + "%" + Aparencia::cor(Cor::RESET);
+
+    std::vector<std::string> poderLinhas = {
+        " Dano Fisico  : " + sFis, " Dano Magico  : " + sMag, " Defesa Fixa  : " + sDef, " Mitigacao (%) : " + sMit
+    };
+    std::vector<std::string> caixaPoder = Aparencia::criarCaixa(poderLinhas, "PODER DE COMBATE", 35, Cor::MAGENTA);
 
     static const EfeitoInfo efeitosParaExibir[] = {
         {EfeitoID::BuffAtributos,     Cor::VERDE_CLARO,   "Buff Atributos",   true},
@@ -188,11 +231,11 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
         }
     }
     if (!temStatus) statusLinhas.push_back("Nenhum status ativo.");
-    std::vector<std::string> caixaStatus = Aparencia::criarCaixa(statusLinhas, "STATUS ATUAIS", 72, Cor::MAGENTA);
+    std::vector<std::string> caixaStatus = Aparencia::criarCaixa(statusLinhas, "STATUS ATUAIS", 35, Cor::MAGENTA);
     
     Aparencia::imprimirBlocoCentralizado(caixaGeral, "", atrasoMs);
     Aparencia::imprimirLadoALado(caixaAtributos, caixaHabilidades, 40, 2, Cor::RESET, Cor::RESET, atrasoMs);
-    Aparencia::imprimirBlocoCentralizado(caixaStatus, "", atrasoMs);
+    Aparencia::imprimirLadoALado(caixaPoder, caixaStatus, 40, 2, Cor::RESET, Cor::RESET, atrasoMs);
 
     std::cout << "\n";
     Aparencia::imprimirLinhaDivisoria();
@@ -207,7 +250,7 @@ void TelaAtributos::gerenciarFichaDoJogador(SistemaPersonagem* jogadorAtual)
         TelaAtributos::exibir(jogadorAtual);
 
         std::vector<std::string> opcoes = { "LIGAR/DESLIGAR PARRY" };
-        if (jogadorAtual->podeSubirDeNivel()) opcoes.push_back("SUBIR DE NIVEL");
+        opcoes.push_back("SUBIR DE NIVEL");
         opcoes.push_back("DETALHES DE ATRIBUTOS");
         opcoes.push_back("SALVAR E SAIR");
         opcoes.push_back("VOLTAR");
@@ -219,19 +262,24 @@ void TelaAtributos::gerenciarFichaDoJogador(SistemaPersonagem* jogadorAtual)
         if (op == "LIGAR/DESLIGAR PARRY") {
             jogadorAtual->definirParryAtivado(!jogadorAtual->obterParryAtivado());
         } else if (op == "SUBIR DE NIVEL") {
-            std::vector<std::string> opcoesAtr = {
-                "Vida", "Forca", "Destreza", "Resistencia", "Constituicao", "Inteligencia", "Sabedoria", "Cancelar"
-            };
-            std::cout << "\n";
-            Aparencia::imprimirCentralizado("Escolha o atributo para melhorar:");
-            std::cout << "\n";
-            int escolhaAtr = ControleDeInput::lerSelecaoMenuComSetas(opcoesAtr, true);
-            
-            if (escolhaAtr >= 0 && escolhaAtr <= 6) {
-                TipoAtributo atributo = static_cast<TipoAtributo>(escolhaAtr + 1);
-                if (jogadorAtual->subirDeNivel(atributo)) {
-                    Aparencia::exibirPrompt("[SISTEMA]: Nivel subiu! Atributo melhorado.");
-                    Aparencia::aguardarEnter();
+            if (!jogadorAtual->podeSubirDeNivel()) {
+                Aparencia::exibirPrompt(Aparencia::cor(Cor::AMARELO) + "[SISTEMA]: Voce nao tem XP suficiente para subir de nivel!" + Aparencia::cor(Cor::RESET));
+                Aparencia::aguardarEnter();
+            } else {
+                std::vector<std::string> opcoesAtr = {
+                    "Vida", "Forca", "Destreza", "Resistencia", "Constituicao", "Inteligencia", "Sabedoria", "Cancelar"
+                };
+                std::cout << "\n";
+                Aparencia::imprimirCentralizado("Escolha o atributo para melhorar:");
+                std::cout << "\n";
+                int escolhaAtr = ControleDeInput::lerSelecaoMenuComSetas(opcoesAtr, true);
+                
+                if (escolhaAtr >= 0 && escolhaAtr <= 6) {
+                    TipoAtributo atributo = static_cast<TipoAtributo>(escolhaAtr + 1);
+                    if (jogadorAtual->subirDeNivel(atributo)) {
+                        Aparencia::exibirPrompt("[SISTEMA]: Nivel subiu! Atributo melhorado.");
+                        Aparencia::aguardarEnter();
+                    }
                 }
             }
         } else if (op == "SALVAR E SAIR") {

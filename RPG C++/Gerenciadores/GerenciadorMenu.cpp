@@ -322,9 +322,9 @@ void GerenciadorMenu::etapaEscolherClasse(const std::string& nome, RacaBase* rac
 
 void GerenciadorMenu::etapaConfigurarParry(const std::string& nome, RacaBase* raca, ClasseBase* classe, int dificuldade, bool& parry, EtapaCriacao& etapaAtual)
 {
-    std::string nomeDificuldade = "Normal";
-    if (dificuldade == 1) nomeDificuldade = "Facil";
-    else if (dificuldade == 3) nomeDificuldade = "Dificil";
+    std::string nomeDificuldade = Aparencia::cor(Cor::AMARELO) + "Normal" + Aparencia::cor(Cor::RESET);
+    if (dificuldade == 1) nomeDificuldade = Aparencia::cor(Cor::VERDE) + "Facil" + Aparencia::cor(Cor::RESET);
+    else if (dificuldade == 3) nomeDificuldade = Aparencia::cor(Cor::VERMELHO) + "Dificil" + Aparencia::cor(Cor::RESET);
 
     int escolha = TelaMenu::exibirPromptParry(nome, raca->obterNomeRaca(), classe->obterNomeClasse() + " | DIFICULDADE: " + nomeDificuldade);
     if (escolha == 2) { etapaAtual = EtapaCriacao::Dificuldade; return; }
