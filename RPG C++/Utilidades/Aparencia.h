@@ -43,6 +43,8 @@ public:
     static int obterPosicaoCursorY();
     
     static std::string removerCoresANSI(const std::string& texto);
+    static int obterComprimentoVisual(const std::string& texto);
+    static std::string gerarBarraSuave(double porcentagem, int tamanhoVisual, const std::string& corCheia, const std::string& corVazia);
     static std::string espacosParaCentralizar(int comprimentoTexto);
     static std::string centralizarTexto(const std::string& texto);
     static void imprimirLinhaDivisoria(char caractere = '=');

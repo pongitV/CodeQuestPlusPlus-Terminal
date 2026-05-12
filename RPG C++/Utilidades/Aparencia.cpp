@@ -89,7 +89,7 @@ void Aparencia::limparTela() {
 }
 
 void Aparencia::aguardarEnter(const std::string& mensagem) {
-    std::cout << "\n" << espacosParaCentralizar(removerCoresANSI(mensagem).length()) << mensagem << "\n";
+    std::cout << "\n" << espacosParaCentralizar(obterComprimentoVisual(mensagem)) << mensagem << "\n";
     ControleDeInput::limparBuffer();
     while (true) {
         char c = ControleDeInput::lerTecla();
@@ -160,6 +160,40 @@ std::string Aparencia::removerCoresANSI(const std::string& texto) {
     return resultado;
 }
 
+int Aparencia::obterComprimentoVisual(const std::string& texto) {
+    std::string semCores = removerCoresANSI(texto);
+    int comprimento = 0;
+    for (size_t i = 0; i < semCores.length(); ) {
+        unsigned char c = static_cast<unsigned char>(semCores[i]);
+        if ((c & 0x80) == 0) i += 1;
+        else if ((c & 0xE0) == 0xC0) i += 2;
+        else if ((c & 0xF0) == 0xE0) i += 3;
+        else if ((c & 0xF8) == 0xF0) i += 4;
+        else i += 1;
+        comprimento++;
+    }
+    return comprimento;
+}
+
+std::string Aparencia::gerarBarraSuave(double porcentagem, int tamanhoVisual, const std::string& corCheia, const std::string& corVazia) {
+    const std::vector<std::string> fracoes = {" ", "▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"};
+    if (porcentagem < 0.0) porcentagem = 0.0;
+    if (porcentagem > 1.0) porcentagem = 1.0;
+
+    double totalBlocos = porcentagem * tamanhoVisual;
+    int blocosInteiros = static_cast<int>(totalBlocos);
+    int indiceFracao = static_cast<int>((totalBlocos - blocosInteiros) * 8);
+
+    std::string barra = corCheia;
+    for (int i = 0; i < blocosInteiros; ++i) barra += "█";
+    if (blocosInteiros < tamanhoVisual) barra += fracoes[indiceFracao];
+    
+    barra += corVazia;
+    for (int i = blocosInteiros + 1; i < tamanhoVisual; ++i) barra += " ";
+    barra += "\033[0m";
+    return barra;
+}
+
 std::string Aparencia::espacosParaCentralizar(int comprimentoTexto) {
     int espacos = (obterLarguraTerminal() - comprimentoTexto) / 2;
     if (espacos < 0) espacos = 0;
@@ -167,7 +201,7 @@ std::string Aparencia::espacosParaCentralizar(int comprimentoTexto) {
 }
 
 std::string Aparencia::centralizarTexto(const std::string& texto) {
-    return espacosParaCentralizar(removerCoresANSI(texto).length()) + texto;
+    return espacosParaCentralizar(obterComprimentoVisual(texto)) + texto;
 }
 
 void Aparencia::imprimirLinhaDivisoria(char caractere) {
@@ -184,7 +218,7 @@ void Aparencia::imprimirLinhaDivisoria(char caractere) {
 }
 
 void Aparencia::imprimirCentralizado(const std::string& texto, const std::string& corAnsi) {
-    std::cout << espacosParaCentralizar(removerCoresANSI(texto).length()) << corAnsi << texto << (corAnsi.empty() ? "" : cor(Cor::RESET)) << "\n";
+    std::cout << espacosParaCentralizar(obterComprimentoVisual(texto)) << corAnsi << texto << (corAnsi.empty() ? "" : cor(Cor::RESET)) << "\n";
 }
 
 void Aparencia::imprimirCentralizadoMultilinha(const std::vector<std::string>& linhas, int larguraVisual, const std::string& corAnsi, int atrasoLinhaMs) {
@@ -204,7 +238,7 @@ void Aparencia::imprimirCentralizadoMultilinha(const std::vector<std::string>& l
 void Aparencia::imprimirBlocoCentralizado(const std::vector<std::string>& linhas, const std::string& corAnsi, int atrasoLinhaMs) {
     int tamanhoDaLinhaMaisLonga = 0;
     for (const std::string& linha : linhas) {
-        tamanhoDaLinhaMaisLonga = std::max(tamanhoDaLinhaMaisLonga, static_cast<int>(removerCoresANSI(linha).length()));
+        tamanhoDaLinhaMaisLonga = std::max(tamanhoDaLinhaMaisLonga, obterComprimentoVisual(linha));
     }
     imprimirCentralizadoMultilinha(linhas, tamanhoDaLinhaMaisLonga, corAnsi, atrasoLinhaMs);
 }
@@ -212,7 +246,7 @@ void Aparencia::imprimirBlocoCentralizado(const std::vector<std::string>& linhas
 void Aparencia::imprimirBlocoCentralizadoDigitando(const std::vector<std::string>& linhas, int atrasoMs) {
     int tamanhoDaLinhaMaisLonga = 0;
     for (const std::string& linha : linhas) {
-        tamanhoDaLinhaMaisLonga = std::max(tamanhoDaLinhaMaisLonga, static_cast<int>(removerCoresANSI(linha).length()));
+        tamanhoDaLinhaMaisLonga = std::max(tamanhoDaLinhaMaisLonga, obterComprimentoVisual(linha));
     }
     std::string margem = espacosParaCentralizar(tamanhoDaLinhaMaisLonga);
     for (const std::string& linha : linhas) {
@@ -221,7 +255,7 @@ void Aparencia::imprimirBlocoCentralizadoDigitando(const std::vector<std::string
 }
 
 void Aparencia::imprimirCentralizadoDigitando(const std::string& texto, int atrasoMs) {
-    std::string margem = espacosParaCentralizar(removerCoresANSI(texto).length());
+    std::string margem = espacosParaCentralizar(obterComprimentoVisual(texto));
     imprimirDigitando(margem + texto, atrasoMs, true);
 }
 
@@ -283,15 +317,15 @@ void Aparencia::exibirCabecalho(const std::string& titulo, Cor corDoCabecalho) {
 int Aparencia::imprimirLadoALado(const std::vector<std::string>& colunaEsquerda, const std::vector<std::string>& colunaDireita, int minLarguraEsquerda, int espacamento, Cor corEsquerda, Cor corDireita, int atrasoLinhaMs) {
     int larguraEsq = minLarguraEsquerda;
     for (const auto& s : colunaEsquerda) {
-        if (static_cast<int>(removerCoresANSI(s).length()) > larguraEsq) {
-            larguraEsq = removerCoresANSI(s).length();
+        if (obterComprimentoVisual(s) > larguraEsq) {
+            larguraEsq = obterComprimentoVisual(s);
         }
     }
     
     int larguraDir = 0;
     for (const auto& s : colunaDireita) {
-        if (static_cast<int>(removerCoresANSI(s).length()) > larguraDir) {
-            larguraDir = removerCoresANSI(s).length();
+        if (obterComprimentoVisual(s) > larguraDir) {
+            larguraDir = obterComprimentoVisual(s);
         }
     }
 
@@ -305,7 +339,7 @@ int Aparencia::imprimirLadoALado(const std::vector<std::string>& colunaEsquerda,
         
         if (i < colunaEsquerda.size()) {
             std::string textoEsq = colunaEsquerda[i];
-            int padding = larguraEsq - removerCoresANSI(textoEsq).length();
+            int padding = larguraEsq - obterComprimentoVisual(textoEsq);
             std::cout << cor(corEsquerda) << textoEsq << std::string(padding > 0 ? padding : 0, ' ') << cor(Cor::RESET);
         } else {
             std::cout << std::string(larguraEsq, ' ');
@@ -328,7 +362,7 @@ int Aparencia::imprimirLadoALado(const std::vector<std::string>& colunaEsquerda,
 }
 
 void Aparencia::exibirPrompt(const std::string& mensagem) {
-    std::cout << "\n" << espacosParaCentralizar(removerCoresANSI(mensagem).length()) << mensagem;
+    std::cout << "\n" << espacosParaCentralizar(obterComprimentoVisual(mensagem)) << mensagem;
 }
 
 void Aparencia::exibirLogoAscii(const std::vector<std::string>& arteAscii, int larguraVisual, Cor corDaArte, const std::string& tituloSecundario, int atrasoLinhaMs) {

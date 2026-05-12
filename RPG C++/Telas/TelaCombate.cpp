@@ -28,9 +28,9 @@ namespace {
 
     std::string gerarBarraDeXp(SistemaPersonagem* jogadorAtual, const std::string& corXp, const std::string& corReset) {
         int tamanho = 10;
-        int preenchido = std::min(tamanho, (jogadorAtual->obterXpAtual() * tamanho) / std::max(1, jogadorAtual->obterXpParaSubir()));
-        std::string barra = "[" + corXp + std::string(preenchido, '#') + corReset + std::string(tamanho - preenchido, '-') + "] ";
-        return barra + corXp + std::to_string(jogadorAtual->obterXpAtual()) + corReset + "/" + std::to_string(jogadorAtual->obterXpParaSubir());
+        double porcentagem = static_cast<double>(jogadorAtual->obterXpAtual()) / std::max(1, jogadorAtual->obterXpParaSubir());
+        std::string barra = Aparencia::gerarBarraSuave(porcentagem, tamanho, corXp, Aparencia::cor(Cor::CINZA));
+        return "[" + barra + corReset + "] " + corXp + std::to_string(jogadorAtual->obterXpAtual()) + corReset + "/" + std::to_string(jogadorAtual->obterXpParaSubir());
     }
 
     struct DisplayEfeito { std::string nome; Cor cor; };
@@ -149,13 +149,15 @@ namespace {
             std::string linhaDir = "";
             for (int i = 0; i < tracosDir; ++i) linhaDir += "═";
             
-            std::cout << Aparencia::cor(Cor::BRANCO) << linhaEsq << textoDoTurno << linhaDir << Aparencia::cor(Cor::RESET) << "\n";
+            std::cout << Aparencia::cor(Cor::BRANCO);
+            Aparencia::imprimirLinhaDivisoria('=');
+            std::cout << Aparencia::cor(Cor::RESET);
 
             TelaCombate::exibirBarraDeStatusDoJogador(jogadorAtual, (alvoDanoJogador == jogadorAtual) ? corDanoJogador : Cor::RESET, (alvoDanoJogador == jogadorAtual) ? danoAnimacao : -1, (alvoDanoJogador == jogadorAtual) ? frame : 0);
             for (auto* aliado : aliados) {
                 TelaCombate::exibirBarraDeStatusDoJogador(aliado, (alvoDanoJogador == aliado) ? corDanoJogador : Cor::RESET, (alvoDanoJogador == aliado) ? danoAnimacao : -1, (alvoDanoJogador == aliado) ? frame : 0);
             }
-            Aparencia::imprimirLinhaDivisoria();
+            std::cout << Aparencia::cor(Cor::BRANCO) << linhaEsq << textoDoTurno << linhaDir << Aparencia::cor(Cor::RESET) << "\n";
 
             if (TelaCombate::selecaoAcaoAtual != -1) {
                 std::vector<std::string> opcoes = { "Atacar", "Defender", "Habilidade", "Inventario", "Sua Ficha", "Bestiario", "Log de Batalha" };
@@ -251,8 +253,8 @@ void TelaCombate::exibirBarraDeStatusDoJogador(SistemaPersonagem* jogadorAtual, 
     // Aplicando a cor dinâmica ao HP na linha do status
     std::vector<std::string> linhasParaImprimir = 
     {
-        "║ " + arteDoCoracao[0] + " ║  " + playerTag + " (" + jogadorAtual->obterRaca()->obterNomeRaca() + " / " + jogadorAtual->obterNomeClasse() + ") ║ NIVEL: " + std::to_string(jogadorAtual->obterNivel()) + " ║ HP: " + corVida + std::to_string(jogadorAtual->obterVida()) + corReset + "/" + std::to_string(jogadorAtual->obterVidaMaxima()) + fctPrint,
-        "║ " + arteDoCoracao[1] + " ║  XP: " + arteDeBarraDeXp + " ║ OURO: " + corLaranja + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G" + corReset + emptyPad,
+        "║ " + arteDoCoracao[0] + " ║  " + playerTag + " (" + jogadorAtual->obterRaca()->obterNomeRaca() + " / " + jogadorAtual->obterNomeClasse() + ") ║ HP: " + corVida + std::to_string(jogadorAtual->obterVida()) + corReset + "/" + std::to_string(jogadorAtual->obterVidaMaxima()) + fctPrint,
+        "║ " + arteDoCoracao[1] + " ║  NIVEL: " + std::to_string(jogadorAtual->obterNivel()) + " ║ XP: " + arteDeBarraDeXp + " ║ OURO: " + corLaranja + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G" + corReset + emptyPad,
         "║ " + arteDoCoracao[2] + " ║  EQUIP: " + nomeDaArma + " ║ " + nomeDoEscudo + " ║ " + nomeDaArmadura + emptyPad,
         "║ " + arteDoCoracao[3] + " ║  STATUS: " + statusStr + emptyPad
     };

@@ -41,9 +41,9 @@ void TelaVitoria::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroOb
 
     if (jogadorAtual->podeSubirDeNivel())
     {
-        std::cout << "\n" << Aparencia::cor(Cor::MAGENTA) 
-                  << "  *** VOCE PODE SUBIR DE NIVEL! ***\n"
-                  << Aparencia::cor(Cor::RESET) << "\n";
+        std::cout << "\n";
+        Aparencia::imprimirCentralizado("*** VOCE PODE SUBIR DE NIVEL! ***", Aparencia::cor(Cor::MAGENTA));
+        std::cout << "\n";
     }
 
     Aparencia::aguardarEnter();

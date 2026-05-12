@@ -98,7 +98,7 @@ int ControleDeInput::lerSelecaoMenuComSetas(const std::vector<std::string>& opco
     
     int maxLargura = 0;
     for (const std::string& op : opcoes) {
-        int comp = static_cast<int>(Aparencia::removerCoresANSI(op).length());
+        int comp = Aparencia::obterComprimentoVisual(op);
         if (comp > maxLargura) maxLargura = comp;
     }
     int larguraMenuEsq = maxLargura + 15; // 3 para " > " + 12 de espacamento
@@ -120,7 +120,7 @@ int ControleDeInput::lerSelecaoMenuComSetas(const std::vector<std::string>& opco
                 } else {
                     linhaEsq = "   " + opcoes[i];
                 }
-                lenEsqReal = static_cast<int>(Aparencia::removerCoresANSI(opcoes[i]).length()) + 3;
+                lenEsqReal = Aparencia::obterComprimentoVisual(opcoes[i]) + 3;
             }
             
             std::string linhaDir = (i < totalDir) ? painelDireito[i] : "";

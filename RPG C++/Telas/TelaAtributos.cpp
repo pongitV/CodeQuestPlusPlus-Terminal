@@ -107,7 +107,10 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
     linhasFicha.push_back("NOME:           " + jogadorAtual->obterNome());
     linhasFicha.push_back("RACA:           " + jogadorAtual->obterRaca()->obterNomeRaca());
     linhasFicha.push_back("CLASSE:         " + jogadorAtual->obterNomeClasse());
-    linhasFicha.push_back("NIVEL:          " + std::to_string(jogadorAtual->obterNivel()) + " (XP: " + Aparencia::cor(Cor::CIANO) + std::to_string(jogadorAtual->obterXpAtual()) + " / " + std::to_string(jogadorAtual->obterXpParaSubir()) + Aparencia::cor(Cor::RESET) + ")");
+    
+    double porcentagemXp = static_cast<double>(jogadorAtual->obterXpAtual()) / std::max(1, jogadorAtual->obterXpParaSubir());
+    std::string barraXp = Aparencia::gerarBarraSuave(porcentagemXp, 10, Aparencia::cor(Cor::CIANO), Aparencia::cor(Cor::CINZA));
+    linhasFicha.push_back("NIVEL:          " + std::to_string(jogadorAtual->obterNivel()) + " [" + barraXp + Aparencia::cor(Cor::RESET) + "] (XP: " + Aparencia::cor(Cor::CIANO) + std::to_string(jogadorAtual->obterXpAtual()) + " / " + std::to_string(jogadorAtual->obterXpParaSubir()) + Aparencia::cor(Cor::RESET) + ")");
     
     std::string difStr = "DIFICULDADE:    " + Aparencia::cor(Cor::VERMELHO);
     switch (jogadorAtual->obterDificuldade()) {
@@ -142,8 +145,12 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
 
     linhasFicha.push_back("═══ ATRIBUTOS TOTAIS ═══");
     
-    std::string hpStr = " > Vida           : " + std::to_string(jogadorAtual->obterVida()) + "/" + std::to_string(jogadorAtual->obterVidaMaxima());
-    int padHp = 45 - static_cast<int>(hpStr.length());
+    double pctVida = static_cast<double>(jogadorAtual->obterVida()) / std::max(1, jogadorAtual->obterVidaMaxima());
+    std::string corVida = (pctVida > 0.7) ? Aparencia::cor(Cor::VERDE) : (pctVida > 0.3) ? Aparencia::cor(Cor::AMARELO) : Aparencia::cor(Cor::VERMELHO);
+    std::string barraVida = Aparencia::gerarBarraSuave(pctVida, 10, corVida, Aparencia::cor(Cor::CINZA));
+    
+    std::string hpStr = " > Vida           : [" + barraVida + Aparencia::cor(Cor::RESET) + "] " + std::to_string(jogadorAtual->obterVida()) + "/" + std::to_string(jogadorAtual->obterVidaMaxima());
+    int padHp = 45 - Aparencia::obterComprimentoVisual(hpStr);
     std::ostringstream linhaHp;
     linhaHp << hpStr << std::string(padHp > 0 ? padHp : 0, ' ') 
             << "║ Raca: +" << std::left << std::setw(3) << racaAttr.vida 
@@ -170,7 +177,7 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
             extraText = "(0)";
         }
 
-        int visualLen = leftStr.length() + 1 + extraText.length();
+        int visualLen = Aparencia::obterComprimentoVisual(leftStr) + 1 + Aparencia::obterComprimentoVisual(extraText);
         int padding = 45 - visualLen;
 
         std::ostringstream finalLine;

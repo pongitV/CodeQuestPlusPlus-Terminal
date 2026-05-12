@@ -22,7 +22,7 @@ namespace {
                 pos += 3; // Avança 3 bytes (tamanho de "║" em UTF-8)
             }
             
-            int infoLength = Aparencia::removerCoresANSI(infoBox).length();
+            int infoLength = Aparencia::obterComprimentoVisual(infoBox);
             std::string tracos = "";
             for (int i = 0; i < infoLength - 2; ++i) tracos += "═";
             
@@ -200,8 +200,8 @@ int TelaMenu::exibirPromptParry(const std::string& nome, const std::string& nome
     return exibirPromptGenerico("CONFIGURACOES DO JOGO", "| JOGADOR: " + nome + " | RACA: " + nomeRaca + " | CLASSE: " + nomeClasse + " |", 
         {
             "[SISTEMA]: Deseja ativar o sistema de PARRY?",
-            "(Permite reduzir danos ao digitar uma sequencia de numeros num tempo limite)"
+            "(Permite reduzir danos ao digitar uma sequencia de numeros num tempo limite)",
             "(O tutorial esta disponivel apenas neste momento, mas voce pode ligar/desligar depois)"
         }, 
-        {"Parry LIGADO (Inicia o Tutorial)", "Parry DESLIGADO (Pula tutorial)", "VOLTAR (selecao de dificuldade)"});
+        {"Parry LIGADO (Inicia o Tutorial)", "Parry DESLIGADO (Pula o tutorial)", "VOLTAR (selecao de dificuldade)"});
 }
