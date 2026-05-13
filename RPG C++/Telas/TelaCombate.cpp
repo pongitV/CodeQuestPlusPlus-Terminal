@@ -167,6 +167,11 @@ namespace {
                     }
                     painelDireito.push_back(linhaDir);
                 }
+            } else if (TelaCombate::selecaoAlvoAtual != -1) {
+                painelDireito.push_back("═══ ESCOLHA UM ALVO ═══");
+                painelDireito.push_back("   < / > : Selecionar");
+                painelDireito.push_back("   ENTER : Confirmar");
+                painelDireito.push_back("   ESC   : Cancelar");
             } else {
                 for (int i = 0; i < 4; ++i) painelDireito.push_back(std::string(37, ' '));
             }
@@ -192,6 +197,7 @@ namespace {
 int TelaCombate::turnoAtualVisivel = 1;
 std::string TelaCombate::nomeTurnoVisivel = "";
 int TelaCombate::selecaoAcaoAtual = -1;
+int TelaCombate::selecaoAlvoAtual = -1;
 
 void TelaCombate::definirTurnoVisivel(int turno, const std::string& nome) {
     turnoAtualVisivel = turno;
@@ -323,7 +329,10 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
     };
 
     imprimirLinhaHorda([](SistemaPersonagem* inimigo, size_t i) {
-        std::string tag = inimigo->obterNome() + " [" + std::to_string(i) + "]";
+        std::string tag = inimigo->obterNome();
+        if (TelaCombate::selecaoAlvoAtual == static_cast<int>(i)) {
+            return std::make_pair("> " + tag + " <", "\033[5m" + Aparencia::cor(Cor::CINZA) + "> " + tag + " <\033[0m");
+        }
         return std::make_pair(tag, tag);
     });
 
@@ -501,12 +510,18 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
                 } else {
                     if (isPiscarColorido) {
                         linhaAtual += corDestaque + baseLinha + Aparencia::cor(Cor::RESET);
+                    } else if (TelaCombate::selecaoAlvoAtual == static_cast<int>(indiceDoInimigoParaDesenhar)) {
+                        linhaAtual += "\033[5m" + Aparencia::cor(Cor::CINZA) + baseLinha + "\033[0m";
                     } else {
                         linhaAtual += baseLinha;
                     }
                 }
             } else {
-                linhaAtual += linhaArte;
+                if (TelaCombate::selecaoAlvoAtual == static_cast<int>(indiceDoInimigoParaDesenhar)) {
+                    linhaAtual += "\033[5m" + Aparencia::cor(Cor::CINZA) + linhaArte + "\033[0m";
+                } else {
+                    linhaAtual += linhaArte;
+                }
             }
             
             int espacosDireita = larguraSeparadaParaCadaColuna - espacosParaCentralizarAArte - visivelLen;
@@ -582,26 +597,63 @@ int TelaCombate::obterAcaoDoJogador(int turnoAtual, const std::string& nomePerso
     }
 }
 
-int TelaCombate::obterAlvoAtaque(int maxIndice) {
-    return ControleDeInput::lerInteiroComLimites("Escolha o alvo (0 a " + std::to_string(maxIndice) + "): ", 0, maxIndice, false, "\n" + Aparencia::margemCombate());
+int TelaCombate::obterAlvoAtaque(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& inimigos, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& aliados) {
+    selecaoAlvoAtual = 0;
+    int totalInimigos = static_cast<int>(inimigos.size());
+    int oldAcao = selecaoAcaoAtual;
+    selecaoAcaoAtual = -1; // Esconde o cursor do menu de acoes
+
+    while (true) {
+        atualizarTelaEstatica(tituloCombate, inimigos, jogadorAtual, aliados);
+        
+        unsigned char tecla = static_cast<unsigned char>(ControleDeInput::lerTecla());
+        
+        if (tecla == 224 || tecla == 0 || tecla == '\033') {
+            unsigned char proxTecla = static_cast<unsigned char>(ControleDeInput::lerTecla());
+            if (proxTecla == '[') proxTecla = static_cast<unsigned char>(ControleDeInput::lerTecla());
+            if (proxTecla == 75 || proxTecla == 'D') tecla = 'a'; // Seta Esquerda
+            else if (proxTecla == 77 || proxTecla == 'C') tecla = 'd'; // Seta Direita
+            else if (proxTecla == 27) tecla = '\033'; // Esc
+        }
+
+        if (tecla == 'a' || tecla == 'A') { 
+            selecaoAlvoAtual--; 
+            if (selecaoAlvoAtual < 0) selecaoAlvoAtual = totalInimigos - 1; 
+        }
+        else if (tecla == 'd' || tecla == 'D') { 
+            selecaoAlvoAtual++; 
+            if (selecaoAlvoAtual >= totalInimigos) selecaoAlvoAtual = 0; 
+        }
+        else if (tecla == '\r' || tecla == '\n') { 
+            int escolha = selecaoAlvoAtual;
+            selecaoAlvoAtual = -1; 
+            selecaoAcaoAtual = oldAcao;
+            atualizarTelaEstatica(tituloCombate, inimigos, jogadorAtual, aliados);
+            return escolha; 
+        }
+        else if (tecla == '\033' || tecla == 'x' || tecla == 'X' || tecla == '0' || tecla == '\b') {
+            selecaoAlvoAtual = -1;
+            selecaoAcaoAtual = oldAcao;
+            atualizarTelaEstatica(tituloCombate, inimigos, jogadorAtual, aliados);
+            return -1;
+        }
+    }
 }
 
-int TelaCombate::obterAlvoItem(const std::vector<SistemaPersonagem*>& listaDeInimigos) {
-    std::cout << "\n" << Aparencia::margemCombate() << "═══ ESCOLHA UM ALVO ═══\n";
-    for (size_t i = 0; i < listaDeInimigos.size(); ++i) {
-        std::cout << Aparencia::margemCombate() << "[" << i << "] " << listaDeInimigos[i]->obterNome() << " (HP: " << listaDeInimigos[i]->obterVida() << ")\n";
-    }
-    int maxIndice = static_cast<int>(listaDeInimigos.size()) - 1;
-    return ControleDeInput::lerInteiroComLimites("Escolha (ou -1 para CANCELAR): ", -1, maxIndice, false, Aparencia::margemCombate());
+int TelaCombate::obterAlvoItem(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& inimigos, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& aliados) {
+    return obterAlvoAtaque(tituloCombate, inimigos, jogadorAtual, aliados);
 }
 
 int TelaCombate::obterEscolhaDeEscudo(const std::string& nomePersonagem, const std::vector<Item*>& listaDeEscudos) {
     std::cout << "\n" << Aparencia::margemCombate() << "═══ SELECIONE UM ESCUDO PARA " << nomePersonagem << " ═══\n";
+    std::vector<std::string> opcoes;
     for (size_t indice = 0; indice < listaDeEscudos.size(); indice++) {
-        std::cout << Aparencia::margemCombate() << " [" << indice + 1 << "] " << listaDeEscudos[indice]->obterNomeItem() << listaDeEscudos[indice]->obterInfoStatus() << "\n";
+        opcoes.push_back(listaDeEscudos[indice]->obterNomeItem() + listaDeEscudos[indice]->obterInfoStatus());
     }
-    std::cout << Aparencia::margemCombate() << " [0] Cancelar\n\n";
-    return ControleDeInput::lerInteiroComLimites("Escolha: ", 0, static_cast<int>(listaDeEscudos.size()), false, Aparencia::margemCombate());
+    opcoes.push_back("Cancelar");
+    int escolha = ControleDeInput::lerSelecaoMenuComSetas(opcoes, false, Aparencia::margemCombate());
+    if (escolha == static_cast<int>(opcoes.size()) - 1) return 0;
+    return escolha + 1;
 }
 
 void TelaCombate::notificarInimigosMaisAgeis() {

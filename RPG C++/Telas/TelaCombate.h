@@ -27,12 +27,13 @@ public:
     static int turnoAtualVisivel;
     static std::string nomeTurnoVisivel;
     static int selecaoAcaoAtual;
+    static int selecaoAlvoAtual;
     static void definirTurnoVisivel(int turno, const std::string& nome);
 
     // Menus e interacoes de texto do combate
     static int obterAcaoDoJogador(int turnoAtual, const std::string& nomePersonagem, const std::vector<SistemaPersonagem*>& inimigos, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& aliados);
-    static int obterAlvoAtaque(int maxIndice);
-    static int obterAlvoItem(const std::vector<SistemaPersonagem*>& listaDeInimigos);
+    static int obterAlvoAtaque(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& inimigos, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& aliados);
+    static int obterAlvoItem(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& inimigos, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& aliados);
     static int obterEscolhaDeEscudo(const std::string& nomePersonagem, const std::vector<Item*>& listaDeEscudos);
     static void notificarInimigosMaisAgeis();
     static void notificarTurnoExtra(int destrezaJogador, int maxDestrezaInimigos);

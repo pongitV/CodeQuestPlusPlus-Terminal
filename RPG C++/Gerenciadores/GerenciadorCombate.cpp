@@ -229,8 +229,8 @@ void GerenciadorCombate::processarAcaoAtacar(SistemaPersonagem* personagemAgindo
     }
     else 
     {
-        int maxIndice = static_cast<int>(listaDeInimigos.size()) - 1;
-        int indiceDoAlvoEscolhido = TelaCombate::obterAlvoAtaque(maxIndice);
+        int indiceDoAlvoEscolhido = TelaCombate::obterAlvoAtaque(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual, obterAliadosVivosRaw());
+        if (indiceDoAlvoEscolhido == -1) return;
 
         realizarAtaqueFisico(personagemAgindo, listaDeInimigos[indiceDoAlvoEscolhido].get(), contadorDoTurnoAtual);
         turnoFoiConsumido = true;
@@ -314,7 +314,7 @@ void GerenciadorCombate::processarAcaoInventario(SistemaPersonagem* personagemAg
     {
         Item* itemSelecionado = personagemAgindo->obterItemSelecionadoParaUso();
         
-        int indiceDoAlvoEscolhido = TelaCombate::obterAlvoItem(obterInimigosRaw());
+        int indiceDoAlvoEscolhido = TelaCombate::obterAlvoItem(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual, obterAliadosVivosRaw());
 
         if (indiceDoAlvoEscolhido == -1) 
         {
