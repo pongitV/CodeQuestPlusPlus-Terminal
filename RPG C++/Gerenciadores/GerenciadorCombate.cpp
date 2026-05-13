@@ -157,6 +157,8 @@ void GerenciadorCombate::iniciarCombate()
     std::cout << "\n";
     Aparencia::aguardarEnter();
 
+    Aparencia::limparTela();
+
     int maxDestrezaInimigos = 0;
     for (const auto& inimigoPtr : listaDeInimigos) {
         SistemaBestiario::instancia().registrarPrimeiraVista(inimigoPtr->obterNome());

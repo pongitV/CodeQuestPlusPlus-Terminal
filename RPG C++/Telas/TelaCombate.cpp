@@ -70,13 +70,12 @@ namespace {
         if (start < output.length()) linhas.push_back(output.substr(start));
 
         int alturaTerminal = Aparencia::obterAlturaTerminal();
-        // Reserva um espaco de seguranca para evitar scroll acidental na ultima linha
         int maxLinhas = (alturaTerminal > 2) ? alturaTerminal - 1 : 24; 
         
-        // Para evitar que a Logo seja cortada (causando sobreposicao grotesca) quando ha muitas mensagens de drops/ataques,
-        // nos truncamos as mensagens antigas a partir da divisoria do HUD, preservando a arte e as mensagens mais recentes.
         if (static_cast<int>(linhas.size()) > maxLinhas) {
             int linhasParaRemover = static_cast<int>(linhas.size()) - maxLinhas;
+            
+            // Encontra a linha divisoria do HUD ("=====")
             int indiceDivisoria = -1;
             for (int i = static_cast<int>(linhas.size()) - 1; i >= 0; --i) {
                 if (linhas[i].find("=====") != std::string::npos) {
@@ -85,24 +84,34 @@ namespace {
                 }
             }
 
-            if (indiceDivisoria != -1 && indiceDivisoria + 1 < static_cast<int>(linhas.size())) {
-                int inicioRemocao = indiceDivisoria + 1;
-                int disponivelParaRemover = static_cast<int>(linhas.size()) - inicioRemocao;
-                if (linhasParaRemover <= disponivelParaRemover) {
-                    linhas.erase(linhas.begin() + inicioRemocao, linhas.begin() + inicioRemocao + linhasParaRemover);
-                    linhasParaRemover = 0;
-                } else {
-                    linhas.erase(linhas.begin() + inicioRemocao, linhas.end());
-                    linhasParaRemover -= disponivelParaRemover;
+            if (indiceDivisoria != -1) {
+                // Calcula quantas linhas as mensagens e espacamentos ocupam antes da divisoria
+                int nL = 1; // Para o \n vazio que exibirHordaDeInimigosLadoALado sempre deixa no final
+                for (const auto& msg : mensagensFixasCombate) {
+                    for (char c : msg) {
+                        if (c == '\n') nL++;
+                    }
+                }
+                if (!mensagensFixasCombate.empty()) nL++; // Do if (!mensagensFixasCombate.empty()) std::cout << "\n";
+                
+                int indiceFimCorte = indiceDivisoria - nL; 
+                int indiceInicioCorte = indiceFimCorte - linhasParaRemover;
+                
+                // Protege o Cabecalho (Nomes, HP, FCTs) + O Topo da arte do inimigo
+                int linhasProtegidas = 8; 
+                if (indiceInicioCorte < linhasProtegidas) {
+                    indiceInicioCorte = linhasProtegidas;
+                    linhasParaRemover = indiceFimCorte - linhasProtegidas;
+                }
+                
+                if (linhasParaRemover > 0 && indiceInicioCorte >= 0 && indiceInicioCorte + linhasParaRemover <= static_cast<int>(linhas.size())) {
+                    // Remove do fundo da arte para manter o cabecalho (nome/vida) e o topo do monstro intactos
+                    linhas.erase(linhas.begin() + indiceInicioCorte, linhas.begin() + indiceInicioCorte + linhasParaRemover);
+                } else if (linhasParaRemover > 0) {
+                    // Fallback de seguranca
+                    linhas.erase(linhas.begin(), linhas.begin() + linhasParaRemover);
                 }
             } else {
-                // Fallback seguro caso nao ache a divisoria
-                linhas.erase(linhas.begin(), linhas.begin() + linhasParaRemover);
-                linhasParaRemover = 0;
-            }
-            
-            // Se ainda precisar remover (ex: arte gigantesca e as msg nao bastarem), removemos do topo da Logo
-            if (linhasParaRemover > 0) {
                 linhas.erase(linhas.begin(), linhas.begin() + linhasParaRemover);
             }
         }
@@ -118,10 +127,9 @@ namespace {
 
     void renderizarCenaPadrao(const std::string& titulo, const std::vector<SistemaPersonagem*>& inimigos, SistemaPersonagem* alvoAnimacao, int frame, bool isCura, bool isMorte, Item* arma, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& aliados, SistemaPersonagem* alvoDanoJogador = nullptr, Cor corDanoJogador = Cor::RESET, int danoAnimacao = -1, const std::vector<std::string>& dropsAnimacao = {}, bool animarEntrada = false) {
         renderizarFrameBufferizado([&]() {
-            (void)titulo; // Parametro nao e mais usado visualmente na interface limpa
-            std::cout << Aparencia::cor(Cor::BRANCO);
-            Aparencia::imprimirLinhaDivisoria('=');
-            std::cout << Aparencia::cor(Cor::RESET) << "\n";
+            (void)titulo;
+            std::cout << "\n";
+
             TelaCombate::exibirHordaDeInimigosLadoALado(inimigos, alvoAnimacao, frame, isCura, animarEntrada, isMorte, arma, danoAnimacao, dropsAnimacao);
             
             for (const auto& msg : mensagensFixasCombate) {
@@ -328,17 +336,36 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
         std::cout << "\n";
     };
 
-    imprimirLinhaHorda([](SistemaPersonagem* inimigo, size_t i) {
-        std::string tag = inimigo->obterNome();
-        if (TelaCombate::selecaoAlvoAtual == static_cast<int>(i)) {
-            return std::make_pair("> " + tag + " <", "\033[5m" + Aparencia::cor(Cor::CINZA) + "> " + tag + " <\033[0m");
+    auto formatarFadeOut = [&](SistemaPersonagem* inimigo, const std::string& textoVisual, const std::string& textoPrint) -> std::pair<std::string, std::string> {
+        if (isMorte && inimigo == alvoAnimacao && frameAnimacao > 0) {
+            int maxFrames = static_cast<int>(inimigo->obterRaca()->obterAparenciaRaca().size());
+            double progresso = std::min(1.0, static_cast<double>(frameAnimacao) / maxFrames);
+            int intensidade = std::max(0, 255 - static_cast<int>(255.0 * progresso));
+            
+            if (intensidade < 30) {
+                return std::make_pair(std::string(textoVisual.length(), ' '), std::string(textoVisual.length(), ' '));
+            } else {
+                // Retira as cores internas originais e aplica a escala de cinza de forma agressiva!
+                std::string corFade = "\033[38;2;" + std::to_string(intensidade) + ";" + std::to_string(intensidade) + ";" + std::to_string(intensidade) + "m";
+                return std::make_pair(textoVisual, corFade + textoVisual + "\033[0m");
+            }
         }
-        return std::make_pair(tag, tag);
+        return std::make_pair(textoVisual, textoPrint);
+    };
+
+    imprimirLinhaHorda([&](SistemaPersonagem* inimigo, size_t i) {
+        std::string tag = inimigo->obterNome();
+        std::string printTag = tag;
+        if (TelaCombate::selecaoAlvoAtual == static_cast<int>(i)) {
+            tag = "> " + tag + " <";
+            printTag = "\033[5m" + Aparencia::cor(Cor::CINZA) + tag + "\033[0m";
+        }
+        return formatarFadeOut(inimigo, tag, printTag);
     });
 
-    imprimirLinhaHorda([](SistemaPersonagem* inimigo, size_t i) {
+    imprimirLinhaHorda([&](SistemaPersonagem* inimigo, size_t i) {
         std::string hp = "HP: " + std::to_string(inimigo->obterVida()) + "/" + std::to_string(inimigo->obterVidaMaxima());
-        return std::make_pair(hp, hp);
+        return formatarFadeOut(inimigo, hp, hp);
     });
 
     bool hordaTemDebuffs = false;
@@ -360,7 +387,7 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
                     if (e < efeitosAtivos.size() - 1) { visualStr += " "; printStr += " "; }
                 }
             }
-            return std::make_pair(visualStr, printStr);
+            return formatarFadeOut(inimigo, visualStr, printStr);
         });
     }
     

@@ -77,7 +77,7 @@ const std::vector<std::string>& Troll::obterAparenciaRaca() const
         "                      -++* +=#***                 .:*=++**-                ",
         "                        --%=*%%.                  #-**=*=#*#-              ",
         "                         %#%                      =-=#--#-*#:              ",
-        "                                                   +#* *%:<"
+        "                                                   +#* *%:<                "
     };
     return aparencia;
 }
