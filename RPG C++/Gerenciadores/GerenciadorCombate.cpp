@@ -35,6 +35,9 @@ namespace {
     }
 }
 
+SistemaPersonagem* g_inimigoAtacanteParry = nullptr;
+int g_parryStatus = 0;
+
 GerenciadorCombate::GerenciadorCombate(SistemaPersonagem* jogadorParaOCombate, std::vector<std::unique_ptr<SistemaPersonagem>>&& inimigosParaOCombate) 
     : jogadorAtual(jogadorParaOCombate), listaDeInimigos(std::move(inimigosParaOCombate)), contadorDoTurnoAtual(1), quantidadeDeOuroObtido(0), quantidadeDeXpObtido(0), totalDeDanoCausado(0), totalDeDanoRecebido(0)
 {
@@ -166,9 +169,24 @@ void GerenciadorCombate::iniciarCombate()
     if (maxDestrezaInimigos > jogadorAtual->obterDestreza()) {
         exibirTelaDeCombate(primeiraRenderizacao);
         primeiraRenderizacao = false;
-        TelaCombate::notificarInimigosMaisAgeis();
-        executarTurnoDeTodosOsInimigos();
-        if (verificarCondicaoDeVitoriaOuDerrota()) return;
+        
+        if (maxDestrezaInimigos > (jogadorAtual->obterDestreza() * 2)) {
+            std::string msg = "[SISTEMA]: A agilidade extrema dos inimigos (" + std::to_string(maxDestrezaInimigos) + " VS " + std::to_string(jogadorAtual->obterDestreza()) + ") permite que eles ataquem duas vezes seguidas!";
+            std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << msg << Aparencia::cor(Cor::RESET) << "\n";
+            Aparencia::registrarLogBatalha(msg);
+            Aparencia::aguardarEnter();
+
+            executarTurnoDeTodosOsInimigos();
+            if (verificarCondicaoDeVitoriaOuDerrota()) return;
+            executarTurnoDeTodosOsInimigos();
+            if (verificarCondicaoDeVitoriaOuDerrota()) return;
+            
+            contadorDoTurnoAtual++; // Jogador comeca no Turno 2
+        } else {
+            TelaCombate::notificarInimigosMaisAgeis();
+            executarTurnoDeTodosOsInimigos();
+            if (verificarCondicaoDeVitoriaOuDerrota()) return;
+        }
     }
 
     while (jogadorAtual->obterVida() > 0 && !listaDeInimigos.empty()) {
@@ -500,6 +518,17 @@ std::pair<int, int> GerenciadorCombate::calcularDanoBase(SistemaPersonagem* atac
 void GerenciadorCombate::processarPosDano(SistemaPersonagem* atacante, SistemaPersonagem* alvo, int danoFinal, bool tentouParry, bool parrySucesso) {
     std::vector<SistemaPersonagem*> aliadosVivos = obterAliadosVivosRaw();
 
+    g_inimigoAtacanteParry = atacante;
+    g_parryStatus = 0;
+    if (tentouParry) {
+        if (parrySucesso) {
+            if (danoFinal <= 0) g_parryStatus = 1;
+            else g_parryStatus = 2;
+        } else {
+            g_parryStatus = 3;
+        }
+    }
+
     if (danoFinal > 0) 
     {
         // ANIMACAO DO DANO NO INIMIGO (Piscar Vermelho + Flicker)
@@ -533,6 +562,9 @@ void GerenciadorCombate::processarPosDano(SistemaPersonagem* atacante, SistemaPe
         TelaCombate::atualizarTelaEstatica(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual, aliadosVivos);
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
     }
+
+    g_inimigoAtacanteParry = nullptr;
+    g_parryStatus = 0;
 }
 
 void GerenciadorCombate::aplicarDanoAoAlvo(SistemaPersonagem* personagemAtacante, SistemaPersonagem* personagemAlvo, int quantidadeDeDanoBruto, int danoPerfurante, int turnoAtualDoCombate) 
@@ -587,9 +619,18 @@ void GerenciadorCombate::exibirResultadoDoAtaque(SistemaPersonagem* alvo, int da
     {
         if (tentouParry) 
         {
-            std::string mensagemParry = parrySucesso ? (danoFinal <= 1 ? "parry efetivo! Ataque anulado!" : "parry efetivo! Mas o ataque e muito forte!") : "parry falhou!";
-            // A mensagem estatica na UI de dano ao jogador foi comentada para priorizar o Texto de Dano Flutuante
-            registrarLog("[PARRY]: " + mensagemParry + " Inimigo causou " + std::to_string(danoFinal) + " de dano em " + alvo->obterNome(), Cor::VERMELHO_CLARO);
+            std::string mensagemParryLog;
+            if (parrySucesso) {
+                if (danoFinal <= 0) {
+                    mensagemParryLog = "parry perfeito! Ataque anulado!";
+                } else {
+                    mensagemParryLog = "parry efetivo! Mas o ataque e muito forte!";
+                }
+            } else {
+                mensagemParryLog = "parry falhou!";
+            }
+            
+            registrarLog("[PARRY]: " + mensagemParryLog + " Inimigo causou " + std::to_string(danoFinal) + " de dano em " + alvo->obterNome(), Cor::VERMELHO_CLARO);
         }
         else if (danoFinal > 0) 
         {

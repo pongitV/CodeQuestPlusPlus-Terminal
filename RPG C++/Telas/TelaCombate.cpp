@@ -15,6 +15,9 @@
 #include "../Inventario/Item.h"
 #include "../Utilidades/ControleDeInput.h"
 
+extern SistemaPersonagem* g_inimigoAtacanteParry;
+extern int g_parryStatus;
+
 namespace {
     std::string gerarBarraDeXp(SistemaPersonagem* jogadorAtual, const std::string& corXp, const std::string& corReset) {
         int tamanho = 8;
@@ -75,24 +78,18 @@ namespace {
         if (static_cast<int>(linhas.size()) > maxLinhas) {
             int linhasParaRemover = static_cast<int>(linhas.size()) - maxLinhas;
             
-            // Encontra a linha divisoria do HUD ("=====")
+            // Encontra a linha divisoria do HUD ("═════")
             int indiceDivisoria = -1;
             for (int i = static_cast<int>(linhas.size()) - 1; i >= 0; --i) {
-                if (linhas[i].find("=====") != std::string::npos) {
+                if (linhas[i].find("═════") != std::string::npos) {
                     indiceDivisoria = i;
                     break;
                 }
             }
 
             if (indiceDivisoria != -1) {
-                // Calcula quantas linhas as mensagens e espacamentos ocupam antes da divisoria
+                // Calcula quantas linhas os espacamentos ocupam antes da divisoria
                 int nL = 1; // Para o \n vazio que exibirHordaDeInimigosLadoALado sempre deixa no final
-                for (const auto& msg : mensagensFixasCombate) {
-                    for (char c : msg) {
-                        if (c == '\n') nL++;
-                    }
-                }
-                if (!mensagensFixasCombate.empty()) nL++; // Do if (!mensagensFixasCombate.empty()) std::cout << "\n";
                 
                 int indiceFimCorte = indiceDivisoria - nL; 
                 int indiceInicioCorte = indiceFimCorte - linhasParaRemover;
@@ -131,11 +128,6 @@ namespace {
             std::cout << "\n";
 
             TelaCombate::exibirHordaDeInimigosLadoALado(inimigos, alvoAnimacao, frame, isCura, animarEntrada, isMorte, arma, danoAnimacao, dropsAnimacao);
-            
-            for (const auto& msg : mensagensFixasCombate) {
-                std::cout << msg;
-            }
-            if (!mensagensFixasCombate.empty()) std::cout << "\n";
             
             std::cout << Aparencia::cor(Cor::BRANCO);
             Aparencia::imprimirLinhaDivisoria('=');
@@ -197,7 +189,15 @@ namespace {
             std::string linhaDir = "";
             for (int i = 0; i < tracosDir; ++i) linhaDir += "═";
             
-            std::cout << "\n" << Aparencia::cor(Cor::BRANCO) << linhaEsq << textoDoTurno << linhaDir << Aparencia::cor(Cor::RESET) << "\n";
+            Cor corDoTurno = (TelaCombate::nomeTurnoVisivel == "INIMIGOS") ? Cor::VERMELHO : Cor::VERDE;
+            std::cout << "\n" << Aparencia::cor(Cor::BRANCO) << linhaEsq << Aparencia::cor(corDoTurno) << textoDoTurno << Aparencia::cor(Cor::BRANCO) << linhaDir << Aparencia::cor(Cor::RESET) << "\n";
+
+            if (!mensagensFixasCombate.empty()) {
+                std::cout << "\n";
+                for (const auto& msg : mensagensFixasCombate) {
+                    std::cout << msg;
+                }
+            }
         });
     }
 }
@@ -564,7 +564,28 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
     } else {
         for (const auto& linha : linhasDaArte) std::cout << linha << "\n";
     }
-    std::cout << "\n";
+
+    if (g_inimigoAtacanteParry != nullptr && g_parryStatus > 0 && frameAnimacao > 0 && frameAnimacao <= 12) {
+        imprimirLinhaHorda([&](SistemaPersonagem* inimigo, size_t i) {
+            std::string visualStr = "";
+            std::string printStr = "";
+            if (inimigo == g_inimigoAtacanteParry) {
+                if (g_parryStatus == 1) {
+                    visualStr = "Parry Perfeito!";
+                    printStr = Aparencia::cor(Cor::VERDE) + visualStr + Aparencia::cor(Cor::RESET);
+                } else if (g_parryStatus == 2) {
+                    visualStr = "Parry Efetivo!";
+                    printStr = Aparencia::cor(Cor::AMARELO) + visualStr + Aparencia::cor(Cor::RESET);
+                } else if (g_parryStatus == 3) {
+                    visualStr = "Parry Falhou!";
+                    printStr = Aparencia::cor(Cor::VERMELHO) + visualStr + Aparencia::cor(Cor::RESET);
+                }
+            }
+            return std::make_pair(visualStr, printStr);
+        });
+    } else {
+        std::cout << "\n";
+    }
 }
 
 void TelaCombate::animarDanoNoInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* atacante, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados, int danoAnimacao)
