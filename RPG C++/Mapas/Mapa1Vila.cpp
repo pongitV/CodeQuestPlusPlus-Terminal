@@ -109,9 +109,15 @@ namespace {
                 ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaCavernaSalva, ctx.self->cavernaJaFoiVisitada, Mapa1VilaLayouts::obterLayoutCaverna(ctx.self->bjornResgatado), 16, 2, "CAVERNA DO ORK", ctx.restaurarTela);
             }
             else if (nextCell == 'S' && ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                if (ctx.self->tituloDoMapaAtual == "CAVERNA DO ORK") ctx.self->matrizDoMapaDaCavernaSalva = ctx.self->matrizDoMapaAtual;
-                else if (ctx.self->tituloDoMapaAtual == "LOJA DA VILA") ctx.self->matrizDoMapaDaLojaSalva = ctx.self->matrizDoMapaAtual;
-                else if (ctx.self->tituloDoMapaAtual == "FORJA DA VILA") ctx.self->matrizDoMapaDaForjaSalva = ctx.self->matrizDoMapaAtual;
+                if (ctx.self->tituloDoMapaAtual == "CAVERNA DO ORK") {
+                    ctx.self->cavernaJaFoiVisitada = false;
+                }
+                else if (ctx.self->tituloDoMapaAtual == "LOJA DA VILA") {
+                    ctx.self->matrizDoMapaDaLojaSalva = ctx.self->matrizDoMapaAtual;
+                }
+                else if (ctx.self->tituloDoMapaAtual == "FORJA DA VILA") {
+                    ctx.self->matrizDoMapaDaForjaSalva = ctx.self->matrizDoMapaAtual;
+                }
 
                 ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaPrincipalSalva;
                 ctx.self->posicaoXDoJogador = ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa;

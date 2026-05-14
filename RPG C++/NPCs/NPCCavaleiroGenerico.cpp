@@ -12,6 +12,7 @@
 #include "../Gerenciadores/GerenciadorInimigos.h"
 #include "../Telas/TelaMenu.h"
 #include "../Utilidades/Aparencia.h"
+#include "../Utilidades/ControleDeInput.h"
 #include "NPCCavaleiroGenericoLayouts.h"
 
 namespace {
@@ -49,6 +50,32 @@ namespace {
     void dialogoCavaleiro(const std::vector<std::string>& linhas) {
         Aparencia::imprimirDialogoNPC("Cavaleiro Real", Cor::CINZA, linhas);
     }
+
+    bool buscarTrollProximo(const std::vector<std::string>& mapa, int startX, int startY, int& outX, int& outY) {
+        for (int dy = -2; dy <= 2; ++dy) {
+            for (int dx = -5; dx <= 5; ++dx) {
+                int y = startY + dy;
+                int x = startX + dx;
+                if (y >= 0 && y < static_cast<int>(mapa.size()) && x >= 0 && x < static_cast<int>(mapa[y].size())) {
+                    if (mapa[y][x] == 'T') {
+                        outX = x;
+                        outY = y;
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    void exibirTelaCavaleiro(const std::string& tituloCabecalho, const std::vector<std::string>& falas) {
+        Aparencia::limparTela();
+        Aparencia::exibirCabecalho(tituloCabecalho, Cor::CINZA);
+        Aparencia::imprimirBlocoCentralizado(NPCCavaleiroGenericoLayouts::obterArteCavaleiro());
+        std::cout << "\n";
+        dialogoCavaleiro(falas);
+        std::cout << "\n";
+    }
 }
 
 // --- CRIACAO DO NPC ---
@@ -73,54 +100,33 @@ void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trol
             posicaoTrollX = proximaPosicaoX;
             posicaoTrollY = proximaPosicaoY;
         } else if (celulaDestino == 'C') {
-            for (int deslocamentoY = -2; deslocamentoY <= 2; ++deslocamentoY) {
-                for (int deslocamentoX = -5; deslocamentoX <= 5; ++deslocamentoX) {
-                    int coordenadaYAvaliada = proximaPosicaoY + deslocamentoY;
-                    int coordenadaXAvaliada = proximaPosicaoX + deslocamentoX;
-                    if (coordenadaYAvaliada >= 0 && coordenadaYAvaliada < static_cast<int>(matrizDoMapaAtual.size()) && coordenadaXAvaliada >= 0 && coordenadaXAvaliada < static_cast<int>(matrizDoMapaAtual[coordenadaYAvaliada].size())) {
-                        if (matrizDoMapaAtual[coordenadaYAvaliada][coordenadaXAvaliada] == 'T') {
-                            posicaoTrollX = coordenadaXAvaliada;
-                            posicaoTrollY = coordenadaYAvaliada;
-                            break;
-                        }
-                    }
-                }
-                if (posicaoTrollX != -1) break;
-            }
+            buscarTrollProximo(matrizDoMapaAtual, proximaPosicaoX, proximaPosicaoY, posicaoTrollX, posicaoTrollY);
         }
 
         if (posicaoTrollX == -1) {
-            Aparencia::limparTela();
-            Aparencia::exibirCabecalho("CAVALEIROS REAIS", Cor::CINZA);
-            dialogoCavaleiro(std::vector<std::string>{
+            exibirTelaCavaleiro("CAVALEIROS REAIS", {
                 "Ainda temos invasores no reino!,",
                 "voce precisa de permissao se nao quiser ser",
                 "tratado como invasor tambem...",
                 "Nos ajude a derrotar todos e podemos",
                 "garantir sua entrar no reino!"
             });
-            std::cout << "\n";
             
-            Aparencia::imprimirLadoALado({""}, NPCCavaleiroGenericoLayouts::obterArteCavaleiro(), 45, 0, Cor::RESET, Cor::CINZA);
             Aparencia::aguardarEnter();
             if (exploracaoEstaAtiva) restaurarTela();
             return;
         }
 
-        Aparencia::limparTela();
-        Aparencia::exibirCabecalho("PEDIDO DE AJUDA", Cor::CINZA);
-        dialogoCavaleiro(std::vector<std::string>{
+        exibirTelaCavaleiro("PEDIDO DE AJUDA", {
             "Viajante! Este Troll bloqueia a passagem.",
             "Nossas forcas estao se esgotando!",
             "Nos ajude a derrota-lo e o recompensaremos!"
         });
         
-        std::vector<std::string> menuEsquerda = { "[1] Ajudar os Cavaleiros", "[0] Recuar" };
-        int recuo = Aparencia::imprimirLadoALado(menuEsquerda, NPCCavaleiroGenericoLayouts::obterArteCavaleiro(), 45, 0, Cor::RESET, Cor::CINZA);
-        std::cout << "\n" << std::string(recuo, ' ') << "Escolha: ";
+        std::vector<std::string> opcoes = { "Ajudar os Cavaleiros", "Recuar" };
         
-        int escolha;
-        if (std::cin >> escolha && escolha == 1) {
+        int escolha = ControleDeInput::lerSelecaoMenuComSetas(opcoes);
+        if (escolha == 0) {
             std::vector<std::unique_ptr<SistemaPersonagem>> aliados;
             aliados.push_back(criarCavaleiro("Cavaleiro Real 1"));
             aliados.push_back(criarCavaleiro("Cavaleiro Real 2"));
@@ -144,31 +150,24 @@ void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trol
                     trollDerrotado = true;
                 }
             }
-        } else {
-            std::cin.clear(); std::cin.ignore(1000, '\n');
         }
         if (exploracaoEstaAtiva) restaurarTela();
     } else if (celulaDestino == 'C') {
         if (!conviteRecebido) {
-            Aparencia::limparTela();
-            Aparencia::exibirCabecalho("RECOMPENSA", Cor::CINZA);
-            dialogoCavaleiro(std::vector<std::string>{
+            exibirTelaCavaleiro("RECOMPENSA", {
                 "Voce lutou bravamente e limpou o reino dos Trolls!",
                 "Como prometido, aqui esta a sua recompensa."
             });
             
-            std::vector<std::string> menuEsquerda = { Aparencia::cor(Cor::AMARELO) + "[SISTEMA]: Voce recebeu o [Convite Real]!" + Aparencia::cor(Cor::RESET) };
-            Aparencia::imprimirLadoALado(menuEsquerda, NPCCavaleiroGenericoLayouts::obterArteCavaleiro(), 45, 0, Cor::RESET, Cor::CINZA);
+            std::vector<std::string> info = { Aparencia::cor(Cor::AMARELO) + "[SISTEMA]: Voce recebeu o [Convite Real]!" + Aparencia::cor(Cor::RESET) };
+            Aparencia::imprimirBlocoCentralizado(info);
             
             jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::ConviteReal));
             conviteRecebido = true;
             Aparencia::aguardarEnter();
             restaurarTela();
         } else {
-            Aparencia::limparTela();
-            Aparencia::exibirCabecalho("CAVALEIRO REAL", Cor::CINZA);
-            dialogoCavaleiro("O Rei o aguarda no castelo. Siga em frente!");
-            Aparencia::imprimirLadoALado({""}, NPCCavaleiroGenericoLayouts::obterArteCavaleiro(), 45, 0, Cor::RESET, Cor::CINZA);
+            exibirTelaCavaleiro("CAVALEIRO REAL", { "O Rei o aguarda no castelo. Siga em frente!" });
             Aparencia::aguardarEnter();
             restaurarTela();
         }

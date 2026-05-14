@@ -195,10 +195,18 @@ namespace {
                 ctx.restaurarTela();
             }
             else if (nextCell == 'S' && ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                if (ctx.self->tituloDoMapaAtual == "CORACAO DA ARVORE") ctx.self->matrizDoMapaDoCoracaoDaArvoreSalva = ctx.self->matrizDoMapaAtual;
-                else if (ctx.self->tituloDoMapaAtual == "CABANA DA BRUXA") ctx.self->matrizDoMapaDaCabanaSalva = ctx.self->matrizDoMapaAtual;
-                else if (ctx.self->tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") ctx.self->matrizDoMapaDoLabirintoSalva = ctx.self->matrizDoMapaAtual;
-                else if (ctx.self->tituloDoMapaAtual == "SALA DO CHEFE") ctx.self->matrizDoMapaSalaDoChefeSalva = ctx.self->matrizDoMapaAtual;
+                if (ctx.self->tituloDoMapaAtual == "CORACAO DA ARVORE") {
+                    ctx.self->coracaoDaArvoreJaFoiVisitado = false; 
+                }
+                else if (ctx.self->tituloDoMapaAtual == "CABANA DA BRUXA") {
+                    ctx.self->matrizDoMapaDaCabanaSalva = ctx.self->matrizDoMapaAtual;
+                }
+                else if (ctx.self->tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") {
+                    ctx.self->matrizDoMapaDoLabirintoSalva = ctx.self->matrizDoMapaAtual;
+                }
+                else if (ctx.self->tituloDoMapaAtual == "SALA DO CHEFE") {
+                    ctx.self->matrizDoMapaSalaDoChefeSalva = ctx.self->matrizDoMapaAtual;
+                }
 
                 if (ctx.self->tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") {
                     ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaDaCabanaSalva;

@@ -33,9 +33,9 @@ namespace {
 
     // --- APARENCIA E DIALOGOS ---
     void processarCompraPocoes(SistemaPersonagem* jogadorAtual);
-    void processarCompraTalismas(SistemaPersonagem* jogadorAtual, int larguraDoTerminal);
-    void processarCompraIguarias(SistemaPersonagem* jogadorAtual, int larguraDoTerminal);
-    void processarVendaDeItens(SistemaPersonagem* jogadorAtual, int larguraDoTerminal);
+    void processarCompraTalismas(SistemaPersonagem* jogadorAtual);
+    void processarCompraIguarias(SistemaPersonagem* jogadorAtual);
+    void processarVendaDeItens(SistemaPersonagem* jogadorAtual);
 
     void dialogoFranchesco(const std::string& texto, bool novaLinhaAntes = true, bool novaLinhaDepois = true) {
         Aparencia::imprimirDialogoNPC("Franchesco", Cor::AMARELO, texto, novaLinhaAntes, novaLinhaDepois);
@@ -74,79 +74,69 @@ void NPCFranchesco::exibirDialogo(SistemaPersonagem* jogador) {
 
 std::vector<std::string> NPCFranchesco::obterOpcoesMenu(SistemaPersonagem* jogador, int larguraDoTerminal) {
     return {
-        "Seu Ouro: " + std::to_string(jogador->obterInventario()->obterOuro()) + "G",
-        "",
-        "[1] COMPRAR Pocoes",
-        "[2] COMPRAR Talismas",
-        "[3] COMPRAR Iguarias",
-        "[4] VENDER Itens do Inventario",
-        "[0] VOLTAR",
-        ""
+        "COMPRAR Pocoes",
+        "COMPRAR Talismas",
+        "COMPRAR Iguarias",
+        "VENDER Itens do Inventario",
+        "Missoes de Franchesco",
+        "VOLTAR"
     };
 }
 
 void NPCFranchesco::processarOpcao(SistemaPersonagem* jogador, const std::string& opcao, int larguraDoTerminal) {
-    if (opcao == "1") {
+    if (opcao == "COMPRAR Pocoes") {
         processarCompraPocoes(jogador);
     }
-    else if (opcao == "2") {
-        processarCompraTalismas(jogador, larguraDoTerminal);
+    else if (opcao == "COMPRAR Talismas") {
+        processarCompraTalismas(jogador);
     }
-    else if (opcao == "3") {
-        processarCompraIguarias(jogador, larguraDoTerminal);
+    else if (opcao == "COMPRAR Iguarias") {
+        processarCompraIguarias(jogador);
     }
-    else if (opcao == "4") {
-        processarVendaDeItens(jogador, larguraDoTerminal);
+    else if (opcao == "VENDER Itens do Inventario") {
+        processarVendaDeItens(jogador);
+    }
+    else if (opcao == "Missoes de Franchesco") {
+        InteracaoNPC::processarMenuMissoesVazio(jogador, "MISSOES DE FRANCHESCO", Cor::AMARELO, "Franchesco", "Ah, meu amigo! Nao tenho nenhum pedido especial para voce agora.");
     }
 }
 
 namespace {
     // --- PROCESSAMENTO DE OPCOES ---
     void processarCompraPocoes(SistemaPersonagem* jogadorAtual) {
-        auto formatador = [](ItemID id) {
-            if (id == ItemID::PocaoCura30) return std::string(" (30%VM)");
-            return std::string("");
-        };
         GerenciadorLoja::processarCompra(jogadorAtual, "LOJA - POCOES", Cor::AMARELO, estoquePocoes, 
-            [](const std::string& msg) { dialogoFranchesco(msg); }, formatador);
+            [](const std::string& msg) { dialogoFranchesco(msg); }, InteracaoNPC::obterFormatadorStatusItem);
     }
 
-    void processarCompraTalismas(SistemaPersonagem* jogadorAtual, int larguraDoTerminal) {
-        auto formatador = [](ItemID id) {
-            if (id == ItemID::TalismaUrso) return std::string(" (+5 Forca | -5 Int)");
-            if (id == ItemID::TalismaCorvo) return std::string(" (+5 Int | -5 Forca)");
-            if (id == ItemID::TalismaLeopardo) return std::string(" (+5 Dest | -5 Sab)");
-            if (id == ItemID::TalismaCoruja) return std::string(" (+5 Sab | -5 Dest)");
-            return std::string("");
-        };
+    void processarCompraTalismas(SistemaPersonagem* jogadorAtual) {
         GerenciadorLoja::processarCompra(jogadorAtual, "LOJA - TALISMAS", Cor::AMARELO, estoqueTalismas, 
-            [](const std::string& msg) { dialogoFranchesco(msg); }, formatador);
+            [](const std::string& msg) { dialogoFranchesco(msg); }, InteracaoNPC::obterFormatadorStatusItem);
     }
 
-    void processarCompraIguarias(SistemaPersonagem* jogadorAtual, int larguraDoTerminal) {
+    void processarCompraIguarias(SistemaPersonagem* jogadorAtual) {
         GerenciadorLoja::processarCompra(jogadorAtual, "LOJA - IGUARIAS", Cor::AMARELO, estoqueIguarias, 
-            [](const std::string& msg) { dialogoFranchesco(msg); });
+            [](const std::string& msg) { dialogoFranchesco(msg); }, InteracaoNPC::obterFormatadorStatusItem);
     }
 
-    void processarVendaDeItens(SistemaPersonagem* jogadorAtual, int larguraDoTerminal) {
+    void processarVendaDeItens(SistemaPersonagem* jogadorAtual) {
         std::string codigoVenda;
         do {
-            TelaInventario::exibir(jogadorAtual, true);
-            dialogoFranchesco("Digite o codigo do item para vender ou [0] VOLTAR: ", false, false);
-            std::cout << "\033[s";
-            
-            Item* itemParaVenda = TelaInventario::lerSelecaoDeItem(jogadorAtual, codigoVenda);
+            Item* itemParaVenda = InteracaoNPC::lerItemDoInventario(jogadorAtual, "Digite o codigo do item para vender ou [0] VOLTAR: ", "Franchesco", Cor::AMARELO, codigoVenda, true);
 
-            if (codigoVenda != "0") {
-                if (jogadorAtual->isItemEquipado(itemParaVenda)) {
-                    dialogoFranchesco("Nao e possivel vender itens que estao equipados!"); Aparencia::aguardarEnter(); continue;
-                }
-                std::string nomeItemVenda = itemParaVenda->obterNomeItem();
-                int precoVenda = itemParaVenda->obterPrecoVenda();
-                jogadorAtual->obterInventario()->adicionarOuro(precoVenda);
-                jogadorAtual->obterInventario()->removerItem(itemParaVenda);
-                dialogoFranchesco("Voce vendeu " + nomeItemVenda + " por " + std::to_string(precoVenda) + "G!"); Aparencia::aguardarEnter();
+            if (codigoVenda == "0") break;
+            if (!itemParaVenda) continue;
+
+            if (itemParaVenda->obterTipo() == TipoEquipamento::MISSAO) {
+                dialogoFranchesco("Eu nao compro esse tipo de item especial!");
+                Aparencia::aguardarEnter();
+                continue;
             }
+            if (!InteracaoNPC::verificarItemNaoEquipado(jogadorAtual, itemParaVenda, "Franchesco", Cor::AMARELO, "Nao e possivel vender itens que estao equipados!")) continue;
+            std::string nomeItemVenda = itemParaVenda->obterNomeItem();
+            int precoVenda = itemParaVenda->obterPrecoVenda();
+            jogadorAtual->obterInventario()->adicionarOuro(precoVenda);
+            jogadorAtual->obterInventario()->removerItem(itemParaVenda);
+            dialogoFranchesco("Voce vendeu " + nomeItemVenda + " por " + std::to_string(precoVenda) + "G!"); Aparencia::aguardarEnter();
         } while (codigoVenda != "0");
     }
 }
