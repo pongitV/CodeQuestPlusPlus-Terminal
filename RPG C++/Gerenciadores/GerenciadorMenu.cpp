@@ -126,8 +126,9 @@ namespace {
 
 std::vector<std::string> GerenciadorMenu::lerInformacoesDosSaves(const std::vector<std::string>& saves) {
     std::vector<std::string> informacoesSaves;
-    for (size_t i = 0; i < saves.size(); ++i) {
-        std::ifstream arquivoSave(saves[i]);
+    informacoesSaves.reserve(saves.size());
+    for (const auto& save : saves) {
+        std::ifstream arquivoSave(save);
         if (arquivoSave.is_open()) {
             std::string nome, racaStr, classeStr;
             std::getline(arquivoSave, nome);
@@ -137,7 +138,7 @@ std::vector<std::string> GerenciadorMenu::lerInformacoesDosSaves(const std::vect
             arquivoSave >> nivel;
             informacoesSaves.push_back(nome + " | Nv " + std::to_string(nivel) + " | " + classeStr + " | " + racaStr);
         } else {
-            std::string nomeExibicao = saves[i].substr(5, saves[i].size() - 9);
+            std::string nomeExibicao = save.substr(5, save.size() - 9);
             informacoesSaves.push_back(nomeExibicao);
         }
     }

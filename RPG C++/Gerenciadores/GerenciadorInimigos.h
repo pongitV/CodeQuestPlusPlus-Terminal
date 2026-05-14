@@ -19,5 +19,5 @@ public:
 
 private:
     template<typename RacaType, typename ClasseType>
-    static std::vector<std::unique_ptr<SistemaPersonagem>> criarInimigosGenericos(int quantidade);
+    static std::vector<std::unique_ptr<SistemaPersonagem>> criarInimigosGenericos(int quantidade, int variacaoMaxima = 10);
 };

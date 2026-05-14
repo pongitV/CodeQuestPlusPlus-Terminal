@@ -8,6 +8,23 @@
 #include "../Gerenciadores/GerenciadorDebug.h"
 #include "../Utilidades/ControleDeInput.h"
 #include <iostream>
+#include <algorithm>
+
+namespace {
+    void calcularCameraAxis(int maxVisivel, int posicaoJogador, int tamanhoMapa, int& start, int& end) {
+        start = 0;
+        end = tamanhoMapa;
+
+        if (end > maxVisivel) {
+            start = std::max(0, posicaoJogador - (maxVisivel / 2));
+            end = start + maxVisivel;
+            if (end > tamanhoMapa) {
+                end = tamanhoMapa;
+                start = std::max(0, end - maxVisivel);
+            }
+        }
+    }
+}
 
 bool ControleMapa::processarInputEComandos(char tecla, SistemaPersonagem* jogador, int& proximaPosicaoX, int& proximaPosicaoY, const std::function<void()>& restaurarTela)
 {
@@ -107,39 +124,13 @@ void ControleMapa::entrarSubMapa(
 }
 
 void ControleMapa::calcularCameraVertical(int alturaDoTerminal, int posicaoYDoJogador, int tamanhoDoMapa, int& startY, int& endY) {
-    int maxLinhasVisiveis = alturaDoTerminal - 7;
-    if (maxLinhasVisiveis < 5) maxLinhasVisiveis = 5;
-    startY = 0;
-    endY = tamanhoDoMapa;
-
-    if (endY > maxLinhasVisiveis) {
-        startY = posicaoYDoJogador - (maxLinhasVisiveis / 2);
-        if (startY < 0) startY = 0;
-        endY = startY + maxLinhasVisiveis;
-        if (endY > tamanhoDoMapa) {
-            endY = tamanhoDoMapa;
-            startY = endY - maxLinhasVisiveis;
-            if (startY < 0) startY = 0;
-        }
-    }
+    int maxLinhasVisiveis = std::max(5, alturaDoTerminal - 7);
+    calcularCameraAxis(maxLinhasVisiveis, posicaoYDoJogador, tamanhoDoMapa, startY, endY);
 }
 
 void ControleMapa::calcularCameraHorizontal(int larguraDoTerminal, int posicaoXDoJogador, int larguraDoMapa, int& startX, int& endX) {
-    int maxColunasVisiveis = larguraDoTerminal - 1; // -1 para evitar quebras de linha acidentais
-    if (maxColunasVisiveis < 10) maxColunasVisiveis = 10;
-    startX = 0;
-    endX = larguraDoMapa;
-
-    if (endX > maxColunasVisiveis) {
-        startX = posicaoXDoJogador - (maxColunasVisiveis / 2);
-        if (startX < 0) startX = 0;
-        endX = startX + maxColunasVisiveis;
-        if (endX > larguraDoMapa) {
-            endX = larguraDoMapa;
-            startX = endX - maxColunasVisiveis;
-            if (startX < 0) startX = 0;
-        }
-    }
+    int maxColunasVisiveis = std::max(10, larguraDoTerminal - 1); // -1 para evitar quebras de linha acidentais
+    calcularCameraAxis(maxColunasVisiveis, posicaoXDoJogador, larguraDoMapa, startX, endX);
 }
 
 std::string ControleMapa::calcularMargemCentralizada(int larguraDoTerminal, int larguraDoTexto) {

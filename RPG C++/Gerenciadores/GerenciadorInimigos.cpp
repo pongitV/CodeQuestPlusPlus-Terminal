@@ -16,15 +16,10 @@
 #include "../Utilidades/GeradorAleatorio.h"
 
 template<typename RacaType, typename ClasseType>
-std::vector<std::unique_ptr<SistemaPersonagem>> GerenciadorInimigos::criarInimigosGenericos(int quantidade)
+std::vector<std::unique_ptr<SistemaPersonagem>> GerenciadorInimigos::criarInimigosGenericos(int quantidade, int variacaoMaxima)
 {
     std::vector<std::unique_ptr<SistemaPersonagem>> horda;
     horda.reserve(quantidade); 
-
-    int variacaoMaxima = 10;
-    if (std::is_same<RacaType, OrkExilado>::value || std::is_same<RacaType, AbominacaoFloresta>::value || std::is_same<RacaType, Troll>::value) {
-        variacaoMaxima = 5;
-    }
 
     for (auto i{0}; i < quantidade; ++i) 
     {
@@ -54,35 +49,35 @@ std::vector<std::unique_ptr<SistemaPersonagem>> GerenciadorInimigos::criarInimig
 
 std::vector<std::unique_ptr<SistemaPersonagem>> GerenciadorInimigos::criarInimigoGoblin(int quantidade)
 {
-    return criarInimigosGenericos<Goblin, ClasseBaseInimigo>(quantidade);
+    return criarInimigosGenericos<Goblin, ClasseBaseInimigo>(quantidade, 10);
 }
 
 std::vector<std::unique_ptr<SistemaPersonagem>> GerenciadorInimigos::criarInimigoSlime(int quantidade)
 {
-    return criarInimigosGenericos<Slime, ClasseBaseInimigo>(quantidade);
+    return criarInimigosGenericos<Slime, ClasseBaseInimigo>(quantidade, 10);
 }
 
 std::vector<std::unique_ptr<SistemaPersonagem>> GerenciadorInimigos::criarInimigoFada(int quantidade)
 {
-    return criarInimigosGenericos<Fada, ClasseBaseInimigo>(quantidade);
+    return criarInimigosGenericos<Fada, ClasseBaseInimigo>(quantidade, 10);
 }
 
 std::vector<std::unique_ptr<SistemaPersonagem>> GerenciadorInimigos::criarInimigoOrkExilado(int quantidade)
 {
-    return criarInimigosGenericos<OrkExilado, ClasseBaseInimigo>(quantidade);
+    return criarInimigosGenericos<OrkExilado, ClasseBaseInimigo>(quantidade, 5);
 }
 
 std::vector<std::unique_ptr<SistemaPersonagem>> GerenciadorInimigos::criarInimigoAbominacaoFloresta(int quantidade)
 {
-    return criarInimigosGenericos<AbominacaoFloresta, ClasseBaseInimigo>(quantidade);
+    return criarInimigosGenericos<AbominacaoFloresta, ClasseBaseInimigo>(quantidade, 5);
 }
 
 std::vector<std::unique_ptr<SistemaPersonagem>> GerenciadorInimigos::criarInimigoTroll(int quantidade)
 {
-    return criarInimigosGenericos<Troll, ClasseBaseInimigo>(quantidade);
+    return criarInimigosGenericos<Troll, ClasseBaseInimigo>(quantidade, 5);
 }
 
 std::vector<std::unique_ptr<SistemaPersonagem>> GerenciadorInimigos::criarInimigoMimico(int quantidade)
 {
-    return criarInimigosGenericos<Mimico, ClasseBaseInimigo>(quantidade);
+    return criarInimigosGenericos<Mimico, ClasseBaseInimigo>(quantidade, 10);
 }

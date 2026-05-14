@@ -26,17 +26,12 @@
 #include "../Utilidades/ControleDeInput.h"
 
 namespace {
-    void registrarMensagemELog(const std::string& textoPuro, Cor cor = Cor::RESET, bool quebraLinhaAntes = false) {
-        std::string msgFormatada = (quebraLinhaAntes ? "\n" : "") + Aparencia::margemCombate();
+    void registrarLog(const std::string& texto, Cor cor = Cor::RESET) {
         if (cor != Cor::RESET) {
-            msgFormatada += Aparencia::cor(cor) + textoPuro + Aparencia::cor(Cor::RESET);
-                Aparencia::registrarLogBatalha(Aparencia::cor(cor) + textoPuro + Aparencia::cor(Cor::RESET));
+            Aparencia::registrarLogBatalha(Aparencia::cor(cor) + texto + Aparencia::cor(Cor::RESET));
         } else {
-            msgFormatada += textoPuro;
-                Aparencia::registrarLogBatalha(textoPuro);
+            Aparencia::registrarLogBatalha(texto);
         }
-        msgFormatada += "\n";
-        TelaCombate::adicionarMensagemFixa(msgFormatada);
     }
 }
 
@@ -110,8 +105,8 @@ std::vector<SistemaPersonagem*> GerenciadorCombate::obterAliadosVivosRaw() const
 
 void GerenciadorCombate::prepararTurnoPersonagem(SistemaPersonagem* personagem) {
     TelaCombate::limparMensagensFixas();
-    Aparencia::registrarLogBatalha("");
-    Aparencia::registrarLogBatalha("═══ TURNO " + std::to_string(contadorDoTurnoAtual) + " ║ VEZ DE " + personagem->obterNome() + " ═══");
+    registrarLog("");
+    registrarLog("═══ TURNO " + std::to_string(contadorDoTurnoAtual) + " ║ VEZ DE " + personagem->obterNome() + " ═══");
     TelaCombate::definirTurnoVisivel(contadorDoTurnoAtual, personagem->obterNome());
     personagem->reduzirCooldowns();
     personagem->processarEfeitosInicioTurno();
@@ -385,16 +380,14 @@ void GerenciadorCombate::executarTurnoDeTodosOsInimigos()
     if (jogadorAtual->obterPularTurnoInimigo()) 
     {
         // A mensagem na UI foi removida para priorizar o combate limpo
-        // std::string msg = "\n" + Aparencia::margemCombate() + Aparencia::cor(Cor::VERDE) + "[EFEITO]: Os inimigos estao atordoados e nao podem agir!" + Aparencia::cor(Cor::RESET) + "\n";
-        // TelaCombate::adicionarMensagemFixa(msg);
-        Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERDE) + "[EFEITO]: Os inimigos estao atordoados e nao podem agir!" + Aparencia::cor(Cor::RESET));
+        registrarLog("[EFEITO]: Os inimigos estao atordoados e nao podem agir!", Cor::VERDE);
         jogadorAtual->definirPularTurnoInimigo(false); 
     }
     else
     {
         std::string textoTurnoInimigos = "═══ TURNO " + std::to_string(contadorDoTurnoAtual) + " ║ VEZ DOS INIMIGOS ═══";
-        Aparencia::registrarLogBatalha("");
-        Aparencia::registrarLogBatalha(textoTurnoInimigos);
+        registrarLog("");
+        registrarLog(textoTurnoInimigos);
             TelaCombate::definirTurnoVisivel(contadorDoTurnoAtual, "INIMIGOS");
             exibirTelaDeCombate(false); // Forca o HUD a atualizar o nome do Turno para os inimigos antes do ataque iniciar
         for (auto& inimigoAtualPtr : listaDeInimigos) 
@@ -424,9 +417,7 @@ void GerenciadorCombate::executarTurnoDeTodosOsInimigos()
             else
             {
                 // A mensagem na UI foi removida para priorizar o combate limpo
-                // std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::VERDE) + ">> [EFEITO]: " + inimigoAtual->obterNome() + " esta sob efeito de " + motivoIncapacidade + " e nao pode agir neste turno!" + Aparencia::cor(Cor::RESET) + "\n";
-                // TelaCombate::adicionarMensagemFixa(msg);
-                Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERDE) + "[EFEITO]: " + inimigoAtual->obterNome() + " esta sob efeito de " + motivoIncapacidade + " e nao pode agir!" + Aparencia::cor(Cor::RESET));
+                registrarLog("[EFEITO]: " + inimigoAtual->obterNome() + " esta sob efeito de " + motivoIncapacidade + " e nao pode agir!", Cor::VERDE);
             }
         }
     }
@@ -549,10 +540,7 @@ void GerenciadorCombate::aplicarDanoAoAlvo(SistemaPersonagem* personagemAtacante
     if (personagemAlvo->possuiEfeito(EfeitoID::Inviolavel))
     {
         std::string msgSemCor = "[COMBATE]: O alvo esta Inviolavel e desviou do ataque perfeitamente!";
-        // A mensagem na UI foi removida para priorizar o combate limpo
-        // std::string msg = "\n" + Aparencia::margemCombate() + msgSemCor + "\n";
-        // TelaCombate::adicionarMensagemFixa(msg);
-        Aparencia::registrarLogBatalha(Aparencia::cor(Cor::CIANO) + msgSemCor + Aparencia::cor(Cor::RESET));
+        registrarLog(msgSemCor, Cor::CIANO);
         return;
     }
 
@@ -587,11 +575,11 @@ void GerenciadorCombate::exibirResultadoDoAtaque(SistemaPersonagem* alvo, int da
 
     if (danoBloqueado > 0) {
         msg += Aparencia::margemCombate() + Aparencia::cor(Cor::CIANO) + ">> [DEFESA]: O escudo bloqueou " + std::to_string(danoBloqueado) + " de dano!" + Aparencia::cor(Cor::RESET) + "\n";
-        Aparencia::registrarLogBatalha(Aparencia::cor(Cor::CIANO) + ">> [DEFESA]: O escudo bloqueou " + std::to_string(danoBloqueado) + " de dano!" + Aparencia::cor(Cor::RESET));
+        registrarLog(">> [DEFESA]: O escudo bloqueou " + std::to_string(danoBloqueado) + " de dano!", Cor::CIANO);
         
         if (escudoQuebrou) {
             msg += Aparencia::margemCombate() + Aparencia::cor(Cor::FUNDO_VERMELHO) + "[!] ALERTA: O escudo " + nomeEscudoQuebrado + " foi DESTRUIDO em pedacos!" + Aparencia::cor(Cor::RESET) + "\n";
-            Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERMELHO) + "[!] ALERTA: O escudo " + nomeEscudoQuebrado + " foi DESTRUIDO em pedacos!" + Aparencia::cor(Cor::RESET));
+            registrarLog("[!] ALERTA: O escudo " + nomeEscudoQuebrado + " foi DESTRUIDO em pedacos!", Cor::VERMELHO);
         }
     }
 
@@ -601,17 +589,17 @@ void GerenciadorCombate::exibirResultadoDoAtaque(SistemaPersonagem* alvo, int da
         {
             std::string mensagemParry = parrySucesso ? (danoFinal <= 1 ? "parry efetivo! Ataque anulado!" : "parry efetivo! Mas o ataque e muito forte!") : "parry falhou!";
             // A mensagem estatica na UI de dano ao jogador foi comentada para priorizar o Texto de Dano Flutuante
-            Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERMELHO_CLARO) + "[PARRY]: " + mensagemParry + " Inimigo causou " + std::to_string(danoFinal) + " de dano em " + alvo->obterNome() + Aparencia::cor(Cor::RESET));
+            registrarLog("[PARRY]: " + mensagemParry + " Inimigo causou " + std::to_string(danoFinal) + " de dano em " + alvo->obterNome(), Cor::VERMELHO_CLARO);
         }
         else if (danoFinal > 0) 
         {
             // A mensagem estatica na UI de dano ao jogador foi comentada para priorizar o Texto de Dano Flutuante
-            Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERMELHO_CLARO) + ">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano" + Aparencia::cor(Cor::RESET));
+            registrarLog(">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano", Cor::VERMELHO_CLARO);
         }
         else if (danoFinal == 0 && alvo->obterDefendendo()) 
         {
             // A mensagem estatica na UI de dano ao jogador foi comentada para priorizar o Texto de Dano Flutuante
-            Aparencia::registrarLogBatalha(Aparencia::cor(Cor::CIANO) + ">> O dano foi totalmente absorvido pela defesa de " + alvo->obterNome() + "!" + Aparencia::cor(Cor::RESET));
+            registrarLog(">> O dano foi totalmente absorvido pela defesa de " + alvo->obterNome() + "!", Cor::CIANO);
         }
         
         if (danoFinal > 0 && alvo == jogadorAtual) totalDeDanoRecebido += danoFinal;
@@ -620,8 +608,7 @@ void GerenciadorCombate::exibirResultadoDoAtaque(SistemaPersonagem* alvo, int da
     {
         if (alvo != jogadorAtual) totalDeDanoCausado += danoFinal;
         // A mensagem estatica na UI de dano aos inimigos foi comentada para priorizar o Texto de Dano Flutuante
-        // msg += Aparencia::margemCombate() + Aparencia::cor(Cor::VERMELHO) + ">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano" + Aparencia::cor(Cor::RESET) + "\n";
-        Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERMELHO) + ">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano" + Aparencia::cor(Cor::RESET));
+        registrarLog(">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano", Cor::VERMELHO);
     }
 
     if (!msg.empty()) {
@@ -631,17 +618,17 @@ void GerenciadorCombate::exibirResultadoDoAtaque(SistemaPersonagem* alvo, int da
 
 bool GerenciadorCombate::verificarCondicaoDeVitoriaOuDerrota() 
 {
-    if (listaDeInimigos.empty()) 
+    bool isVitoria = listaDeInimigos.empty();
+    bool isDerrota = jogadorAtual->obterVida() <= 0;
+
+    if (isVitoria || isDerrota) 
     { 
-        jogadorAtual->limparEfeitos(); // Remove buffs e debuffs antes de voltar ao mapa
-        TelaVitoria::exibir(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, jogadorAtual->obterCuraTotalRecebida(), contadorDoTurnoAtual, itensObtidos);
-        jogadorAtual->finalizarBatalha();
-        return true; 
-    }
-    if (jogadorAtual->obterVida() <= 0) 
-    { 
-        jogadorAtual->limparEfeitos(); // Remove buffs e debuffs na morte
-        TelaDerrota::exibir(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, jogadorAtual->obterCuraTotalRecebida(), contadorDoTurnoAtual); 
+        jogadorAtual->limparEfeitos(); // Remove buffs e debuffs ao final da batalha
+        if (isVitoria) {
+            TelaVitoria::exibir(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, jogadorAtual->obterCuraTotalRecebida(), contadorDoTurnoAtual, itensObtidos);
+        } else {
+            TelaDerrota::exibir(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, jogadorAtual->obterCuraTotalRecebida(), contadorDoTurnoAtual); 
+        }
         jogadorAtual->finalizarBatalha();
         return true; 
     }
@@ -650,11 +637,11 @@ bool GerenciadorCombate::verificarCondicaoDeVitoriaOuDerrota()
 
 void GerenciadorCombate::processarMorteDeInimigo(SistemaPersonagem* inimigo)
 {
-    Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERMELHO) + "[!] " + inimigo->obterNome() + " derrotado!" + Aparencia::cor(Cor::RESET));
+    registrarLog("[!] " + inimigo->obterNome() + " derrotado!", Cor::VERMELHO);
 
     SistemaBestiario::instancia().registrarDerrota(inimigo->obterNome());
 
-    Aparencia::registrarLogBatalha(Aparencia::cor(Cor::AMARELO) + "═══ DROPS ═══" + Aparencia::cor(Cor::RESET));
+    registrarLog("═══ DROPS ═══", Cor::AMARELO);
 
     size_t itensAntes = itensObtidos.size();
     inimigo->executarDrops(jogadorAtual, itensObtidos, quantidadeDeOuroObtido, quantidadeDeXpObtido);
