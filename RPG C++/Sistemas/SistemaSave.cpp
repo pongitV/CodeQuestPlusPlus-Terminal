@@ -10,6 +10,8 @@
 #include "../Classes/Bardo.h"
 #include "../Classes/Guerreiro.h"
 #include "../Classes/Mago.h"
+#include "../Inventario/EquipamentoArma.h"
+#include "../Inventario/EquipamentoArmadura.h"
 #include "../Inventario/FabricaItens.h"
 #include "../Inventario/Item.h"
 #include "../Racas/Dwarf.h"
@@ -70,6 +72,8 @@ void SistemaSave::salvarJogo(SistemaPersonagem* jogador) {
 
     SistemaBestiario::instancia().salvar(arquivo);
     arquivo << (jogador->possuiRegeneracaoTroll() ? 1 : 0) << "\n";
+    arquivo << (jogador->obterParryAtivado() ? 1 : 0) << "\n";
+    arquivo << (jogador->podeUsarRessurreicao() ? 1 : 0) << "\n";
     arquivo.close();
 }
 
@@ -132,8 +136,83 @@ std::unique_ptr<SistemaPersonagem> SistemaSave::carregarJogo(const std::string& 
         int equipSlot; arquivo >> equipSlot;
         arquivo.ignore(); // Consome o espaco entre o numero do slot e o nome do item
         std::string nomeItem; std::getline(arquivo, nomeItem);
-        auto novoItem = FabricaItens::criarItem(nomeItem);
+        
+        std::string cleanName = nomeItem;
+        bool isSangrenta = false, isViscosa = false, isQuebraDefesas = false, isImbuida = false;
+        bool isArcoMagico = false, isCajadoCipos = false, isViolaoMagico = false;
+        
+        if (cleanName.find(" (Sangrenta)") != std::string::npos) { isSangrenta = true; cleanName.erase(cleanName.find(" (Sangrenta)"), 12); }
+        if (cleanName.find(" (Viscosa)") != std::string::npos) { isViscosa = true; cleanName.erase(cleanName.find(" (Viscosa)"), 10); }
+        if (cleanName.find(" (Quebra-Defesas)") != std::string::npos) { isQuebraDefesas = true; cleanName.erase(cleanName.find(" (Quebra-Defesas)"), 17); }
+        if (cleanName.find(" (Imbuida)") != std::string::npos) { isImbuida = true; cleanName.erase(cleanName.find(" (Imbuida)"), 10); }
+
+        int nivelMelhoria = 0;
+        size_t posPlus = cleanName.find_last_of('+');
+        if (posPlus != std::string::npos && posPlus > 0 && cleanName[posPlus-1] == ' ') {
+            try {
+                nivelMelhoria = std::stoi(cleanName.substr(posPlus + 1));
+                cleanName.erase(posPlus - 1);
+            } catch (...) {}
+        }
+
+        if (cleanName.find("Arco recurvo de madeira enfeiticada") != std::string::npos) { isArcoMagico = true; cleanName.replace(cleanName.find("Arco recurvo de madeira enfeiticada"), 35, "Arco recurvo de madeira"); }
+        else if (cleanName.find("Cajado de cipos") != std::string::npos) { isCajadoCipos = true; cleanName.replace(cleanName.find("Cajado de cipos"), 15, "Cajado de cristal magico"); }
+        else if (cleanName.find("Violao enfeiticado") != std::string::npos) { isViolaoMagico = true; cleanName.replace(cleanName.find("Violao enfeiticado"), 18, "Violao encantado"); }
+
+        auto novoItem = FabricaItens::criarItem(cleanName);
         if (novoItem) {
+            for (int lvl = 0; lvl < nivelMelhoria; ++lvl) {
+                if (auto copia = novoItem->gerarCopiaMelhorada()) {
+                    novoItem = std::move(copia);
+                }
+            }
+
+            if (auto arma = dynamic_cast<EquipamentoArma*>(novoItem.get())) {
+                if (isSangrenta) arma->aplicarEfeitoSangramento();
+                if (isViscosa) arma->aplicarEfeitoLentidao();
+                if (isQuebraDefesas) arma->adicionarPropriedade(Propriedade::Penetrante);
+                
+                if (isArcoMagico) {
+                    int novoDanoMagico = arma->obterDanoMagico() + (arma->obterDanoFisico() / 2);
+                    auto novoArcoObj = std::make_unique<EquipamentoArma>(
+                        nomeItem, arma->obterDanoFisico(), novoDanoMagico, 
+                        arma->obterReqForca(), arma->obterReqDestreza(), 
+                        arma->obterReqInteligencia(), arma->obterReqSabedoria(), 0);
+                    if (isSangrenta) novoArcoObj->aplicarEfeitoSangramento();
+                    if (isViscosa) novoArcoObj->aplicarEfeitoLentidao();
+                    if (isQuebraDefesas) novoArcoObj->adicionarPropriedade(Propriedade::Penetrante);
+                    for (Propriedade prop : arma->obterPropriedades()) novoArcoObj->adicionarPropriedade(prop);
+                    novoArcoObj->adicionarPropriedade(Propriedade::Magica);
+                    novoItem = std::move(novoArcoObj);
+                } 
+                else if (isCajadoCipos) {
+                    arma->adicionarPropriedade(Propriedade::CipoPrisao);
+                    arma->alterarNome(nomeItem);
+                }
+                else if (isViolaoMagico) {
+                    arma->adicionarPropriedade(Propriedade::ViolaoMagico);
+                    arma->alterarNome(nomeItem);
+                } 
+                else {
+                    arma->alterarNome(nomeItem);
+                }
+            }
+            
+            if (isImbuida) {
+                if (auto armadura = dynamic_cast<EquipamentoArmadura*>(novoItem.get())) {
+                    auto novaArmadura = std::make_unique<EquipamentoArmadura>(
+                        nomeItem, 
+                        armadura->obterReducaoFixa() + 3, 
+                        armadura->obterReqResistencia(), 
+                        armadura->obterReqConstituicao(), 
+                        armadura->obterPrecoVenda() + 200
+                    );
+                    for (Propriedade prop : armadura->obterPropriedades()) novaArmadura->adicionarPropriedade(prop);
+                    novaArmadura->adicionarPropriedade(Propriedade::MelhoradoMaterial);
+                    novoItem = std::move(novaArmadura);
+                }
+            }
+
             Item* ptr = novoItem.get();
             jogador->obterInventario()->adicionarItem(std::move(novoItem));
             if (equipSlot != 0) jogador->equiparItem(ptr);
@@ -145,6 +224,25 @@ std::unique_ptr<SistemaPersonagem> SistemaSave::carregarJogo(const std::string& 
     if (arquivo >> regTroll && regTroll == 1) {
         jogador->desbloquearRegeneracaoTroll();
     }
+    
+    int parryAtivado = 0;
+    if (arquivo >> parryAtivado) {
+        jogador->definirParryAtivado(parryAtivado == 1);
+    }
+
+    int podeReviver = 1;
+    if (arquivo >> podeReviver && podeReviver == 0) {
+        jogador->consumirRessurreicao();
+    }
+
     arquivo.close();
     return jogador;
+}
+
+void SistemaSave::deletarSave(const std::string& nomeArquivo) {
+    try {
+        std::filesystem::remove(nomeArquivo);
+    } catch (const std::exception& e) {
+        std::cerr << "[SISTEMA]: Erro ao deletar save: " << e.what() << "\n";
+    }
 }

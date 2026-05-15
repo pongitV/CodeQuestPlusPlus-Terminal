@@ -216,6 +216,7 @@ int TelaMenu::exibirOpcoesMenuPrincipal(bool temSave) {
     
     std::vector<std::string> opcoes = { "Novo Jogo" };
     if (temSave) opcoes.push_back("Continuar Jogo");
+    opcoes.push_back("Opcoes");
     opcoes.push_back("Sair");
 
     std::cout << "\n";
