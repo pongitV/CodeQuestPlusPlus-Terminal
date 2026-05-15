@@ -3,11 +3,15 @@
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
+#include <thread>
+#include <chrono>
+#include <sstream>
 
 #include "../Utilidades/Aparencia.h"
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Utilidades/ControleDeInput.h"
 #include "../Racas/RacaBase.h"
+#include "TelaMenuLayouts.h"
 
 namespace {
     int exibirPromptGenerico(const std::string& titulo, const std::string& infoBox, const std::vector<std::string>& narracao, const std::vector<std::string>& opcoes) {
@@ -59,44 +63,20 @@ void TelaMenu::exibirLogoDoJogo(const std::string& tituloDaTela)
 {
     int larguraConsole = Aparencia::obterLarguraTerminal();
     
-    std::vector<std::string> logoTexto = 
-    {
-        "   █████████     ███████    ██████████   ██████████       ██████    █████  █████ ██████████  █████████  ███████████  ",
-        "  ███░░░░░███  ███░░░░░███ ░░███░░░░███ ░░███░░░░░█     ███░░░░███ ░░███  ░░███ ░░███░░░░░█ ███░░░░░███░█░░░███░░░█  ",
-        " ███     ░░░  ███     ░░███ ░███   ░░███ ░███  █ ░     ███    ░░███ ░███   ░███  ░███  █ ░ ░███    ░░░ ░   ░███  ░   ",
-        "░███         ░███      ░███ ░███    ░███ ░██████      ░███     ░███ ░███   ░███  ░██████   ░░█████████     ░███      ",
-        "░███         ░███      ░███ ░███    ░███ ░███░░█      ░███   ██░███ ░███   ░███  ░███░░█    ░░░░░░░░███    ░███      ",
-        "░░███     ███░░███     ███  ░███    ███  ░███ ░   █   ░░███ ░░████  ░███   ░███  ░███ ░   █ ███    ░███    ░███      ",
-        " ░░█████████  ░░░███████░   ██████████   ██████████    ░░░██████░██ ░░████████   ██████████░░█████████     █████     ",
-        "  ░░░░░░░░░     ░░░░░░░    ░░░░░░░░░░   ░░░░░░░░░░      ░░░░░░ ░░   ░░░░░░░░   ░░░░░░░░░░  ░░░░░░░░░     ░░░░░       "
-    };
-
-    std::vector<std::string> logoPlus = 
-    {
-       "                          ",
-       "     ███         ███      ",
-       "    ░███        ░███      ",
-       " ███████████ ███████████  ",
-       "░░░░░███░░░ ░░░░░███░░░   ",
-       "    ░███        ░███      ",
-       "    ░░░         ░░░       ",
-       "                          "               
-    };
-
     std::string linhaDupla = "";
     for(int i = 0; i < larguraConsole; ++i) linhaDupla += "═";
     std::cout << "\n" << linhaDupla << "\n\n";
 
     int larguraLinhaCompleta = 140; 
 
-    for (size_t i = 0; i < logoTexto.size(); ++i) 
+    for (size_t i = 0; i < ArtesMenu::logoTexto.size(); ++i) 
     {
         int recuo = (larguraConsole - larguraLinhaCompleta) / 2;
         if (recuo < 0) recuo = 0;
         std::cout << std::string(recuo, ' ');
 
-        std::cout << logoTexto[i];
-        std::cout << Aparencia::cor(Cor::LARANJA) << logoPlus[i] << Aparencia::cor(Cor::RESET);
+        std::cout << ArtesMenu::logoTexto[i];
+        std::cout << Aparencia::cor(Cor::LARANJA) << ArtesMenu::logoPlus[i] << Aparencia::cor(Cor::RESET);
         std::cout << "\n";
     }
 
@@ -136,6 +116,101 @@ std::vector<std::string> TelaMenu::comporQuadroDeAtributos(const Atributos& stat
 }
 
 int TelaMenu::exibirOpcoesMenuPrincipal(bool temSave) {
+    static bool animacaoAberturaConcluida = false;
+
+    if (!animacaoAberturaConcluida) {
+        Aparencia::limparTela();
+        int larguraConsole = Aparencia::obterLarguraTerminal();
+        int alturaConsole = Aparencia::obterAlturaTerminal();
+        
+        int larguraLinhaCompleta = 140; 
+        int recuo = std::max(0, (larguraConsole - larguraLinhaCompleta) / 2);
+        std::string margem(recuo, ' ');
+
+        for (int intensidade = 0; intensidade <= 255; intensidade += 8) {
+            std::ostringstream buffer;
+            std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
+            
+            std::string corRGB = "\033[38;2;" + std::to_string(intensidade) + ";" + std::to_string(intensidade) + ";" + std::to_string(intensidade) + "m";
+            int intensidadeLaranjaG = static_cast<int>(intensidade * 0.65);
+            std::string corRGBPlus = "\033[38;2;" + std::to_string(intensidade) + ";" + std::to_string(intensidadeLaranjaG) + ";0m";
+
+            buffer << "\n\n\n\n\n\n";
+            for (size_t i = 0; i < ArtesMenu::logoTexto.size(); ++i) {
+                buffer << margem << corRGB << ArtesMenu::logoTexto[i] << corRGBPlus << ArtesMenu::logoPlus[i] << "\033[0m\n";
+            }
+            
+            buffer << "\n\n\n";
+            std::string corOpcao = "\033[38;2;" + std::to_string(intensidade) + ";" + std::to_string(intensidade) + ";" + std::to_string(intensidade) + "m";
+            std::string textoOpcao = "-> PRESSIONE QUALQUER TECLA PARA INICIAR <-";
+            int espacosMenu = std::max(0, (larguraConsole - static_cast<int>(textoOpcao.length())) / 2);
+            buffer << std::string(espacosMenu, ' ') << corOpcao << textoOpcao << "\033[0m\n";
+
+            buffer << "\033[J"; // Limpa o restante da tela abaixo
+            std::string versao = "Versao 0.1";
+            int colVersao = std::max(1, larguraConsole - static_cast<int>(versao.length()) - 1);
+            buffer << "\033[" << alturaConsole << ";" << colVersao << "H" << corOpcao << versao << "\033[0m";
+
+            std::cout.rdbuf(oldCout);
+            std::cout << "\033[H" << buffer.str() << std::flush;
+            std::this_thread::sleep_for(std::chrono::milliseconds(30));
+        }
+        
+        int frame = 0;
+        ControleDeInput::limparBuffer();
+        while (!ControleDeInput::teclaPressionada()) {
+            std::ostringstream buffer;
+            std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
+            
+            std::string corBranco = "\033[38;2;255;255;255m";
+            std::string corLaranja = "\033[38;2;255;165;0m";
+            std::string corAmarelo = "\033[38;2;255;255;0m";
+            
+            buffer << "\n\n\n\n\n\n";
+            for (size_t i = 0; i < ArtesMenu::logoTexto.size(); ++i) {
+                buffer << margem << corBranco << ArtesMenu::logoTexto[i] << corLaranja << ArtesMenu::logoPlus[i] << "\033[0m\n";
+            }
+            
+            buffer << "\n\n\n";
+            // Alterna a cor entre branco e cinza escuro para fazer o texto piscar
+            std::string corOpcao = (frame % 4 < 2) ? "\033[38;2;255;255;255m" : "\033[38;2;120;120;120m";
+            std::string textoOpcao = "-> PRESSIONE QUALQUER TECLA PARA INICIAR <-";
+            int espacosMenu = std::max(0, (larguraConsole - static_cast<int>(textoOpcao.length())) / 2);
+            buffer << std::string(espacosMenu, ' ') << corOpcao << textoOpcao << "\033[0m\n\n\n";
+
+            // Desenha a animacao de RPG lado a lado centralizada
+            int step = frame % 4; // 4 frames de animacao por classe
+            int larguraAnimacaoTotal = 18 * 4; // 4 classes com 18 caracteres de largura cada
+            int espacosAnim = std::max(0, (larguraConsole - larguraAnimacaoTotal) / 2);
+
+            for (size_t i = 0; i < 5; ++i) { // Cada arte tem 5 linhas de altura
+                std::string corBranca = "\033[38;2;255;255;255m";
+                
+                buffer << std::string(espacosAnim, ' ') 
+                       << corBranca << ArtesMenu::animacaoRpg[0 + step][i] 
+                       << ArtesMenu::animacaoRpg[4 + step][i] 
+                       << ArtesMenu::animacaoRpg[8 + step][i] 
+                       << ArtesMenu::animacaoRpg[12 + step][i] << "\033[0m\n";
+            }
+
+            buffer << "\033[J"; // Limpa o restante da tela abaixo
+            std::string versao = "Versao 0.1";
+            int colVersao = std::max(1, larguraConsole - static_cast<int>(versao.length()) - 1);
+            buffer << "\033[" << alturaConsole << ";" << colVersao << "H\033[38;2;100;100;100m" << versao << "\033[0m";
+
+            std::cout.rdbuf(oldCout);
+            std::cout << "\033[H" << buffer.str() << std::flush;
+            
+            std::this_thread::sleep_for(std::chrono::milliseconds(250));
+            frame++;
+        }
+        
+        ControleDeInput::lerTecla();      // Consome a tecla que o usuário apertou
+        ControleDeInput::limparBuffer(); // Garante que a entrada não vazou para o próximo menu
+        
+        animacaoAberturaConcluida = true;
+    }
+
     Aparencia::limparTela();
     exibirLogoDoJogo("MENU PRINCIPAL");
     

@@ -40,7 +40,7 @@ void GerenciadorDebug::exibirMenuDebug(SistemaPersonagem* jogador) {
             std::cout << "\n";
             Aparencia::imprimirCentralizado("[SISTEMA] God Mode ativado! Voce agora e um deus intocavel.", Aparencia::cor(Cor::AMARELO));
             std::cout << "\n";
-            Aparencia::aguardarEnter();
+            ControleDeInput::aguardarEnter();
             
         } else if (escolhaDebug == 1) {
             static const std::vector<ItemID> todosItens = {
@@ -82,7 +82,7 @@ void GerenciadorDebug::exibirMenuDebug(SistemaPersonagem* jogador) {
                 }
                 
                 std::cout << "\n  " << Aparencia::cor(Cor::AMARELO) << "[SISTEMA] " << quantidade << "x '" << FabricaItens::obterNomeDeID(idEscolhido) << "' adicionado(s) ao inventario!" << Aparencia::cor(Cor::RESET) << "\n";
-                Aparencia::aguardarEnter();
+                ControleDeInput::aguardarEnter();
             }
             
         } else if (escolhaDebug == 2) {
@@ -91,7 +91,7 @@ void GerenciadorDebug::exibirMenuDebug(SistemaPersonagem* jogador) {
             std::cout << "\n";
             Aparencia::imprimirCentralizado("[SISTEMA] +10000 Ouro e +10000 XP adicionados!", Aparencia::cor(Cor::AMARELO));
             std::cout << "\n";
-            Aparencia::aguardarEnter();
+            ControleDeInput::aguardarEnter();
             
         } else if (escolhaDebug == 3) {
             jogador->alternarNoclip();

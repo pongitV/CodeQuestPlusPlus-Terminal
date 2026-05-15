@@ -60,8 +60,7 @@ Cor NPCFranchesco::obterCorDaArte() const {
 }
 
 const std::vector<std::string>& NPCFranchesco::obterArteASCII() const {
-    static std::vector<std::string> arte = NPCFranchescoLayouts::obterArteFranchesco();
-    return arte;
+    return NPCFranchescoLayouts::arteFranchesco;
 }
 
 // --- INTERACAO E MENU ---
@@ -128,7 +127,7 @@ namespace {
 
             if (itemParaVenda->obterTipo() == TipoEquipamento::MISSAO) {
                 dialogoFranchesco("Eu nao compro esse tipo de item especial!");
-                Aparencia::aguardarEnter();
+                ControleDeInput::aguardarEnter();
                 continue;
             }
             if (!InteracaoNPC::verificarItemNaoEquipado(jogadorAtual, itemParaVenda, "Franchesco", Cor::AMARELO, "Nao e possivel vender itens que estao equipados!")) continue;
@@ -136,7 +135,7 @@ namespace {
             int precoVenda = itemParaVenda->obterPrecoVenda();
             jogadorAtual->obterInventario()->adicionarOuro(precoVenda);
             jogadorAtual->obterInventario()->removerItem(itemParaVenda);
-            dialogoFranchesco("Voce vendeu " + nomeItemVenda + " por " + std::to_string(precoVenda) + "G!"); Aparencia::aguardarEnter();
+            dialogoFranchesco("Voce vendeu " + nomeItemVenda + " por " + std::to_string(precoVenda) + "G!"); ControleDeInput::aguardarEnter();
         } while (codigoVenda != "0");
     }
 }

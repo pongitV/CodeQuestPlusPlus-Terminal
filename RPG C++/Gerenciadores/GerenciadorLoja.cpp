@@ -58,7 +58,7 @@ void GerenciadorLoja::processarCompra(SistemaPersonagem* jogadorAtual, const std
                     }
                 }
             }
-            Aparencia::aguardarEnter();
+            ControleDeInput::aguardarEnter();
         }
     } while (opcaoCompra != "0");
 }

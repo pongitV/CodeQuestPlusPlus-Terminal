@@ -56,7 +56,7 @@ void InteracaoNPC::processarMenuMissoesVazio(SistemaPersonagem* jogadorAtual, co
 
         if (opcaoMissao == "(Nenhuma missao disponivel)") {
             Aparencia::imprimirDialogoNPC(nomeNPC, corCabecalho, falaVazia);
-            Aparencia::aguardarEnter();
+            ControleDeInput::aguardarEnter();
         }
     } while (opcaoMissao != "VOLTAR");
 }
@@ -68,7 +68,7 @@ bool InteracaoNPC::verificarMaterialNoInventario(SistemaPersonagem* jogadorAtual
             ? "Voce nao tem " + nomeMaterial + " suficiente! (Possui: " + std::to_string(qtdAtual) + "/" + std::to_string(quantidadeNecessaria) + ")"
             : mensagemPersonalizada;
         Aparencia::imprimirDialogoNPC(nomeNPC, corNPC, msg);
-        Aparencia::aguardarEnter();
+        ControleDeInput::aguardarEnter();
         return false;
     }
     return true;
@@ -89,7 +89,7 @@ void InteracaoNPC::exibirTelaDeSucesso(const std::string& tituloCabecalho, Cor c
         Aparencia::imprimirCentralizadoMultilinha(arteAscii, 29, Aparencia::cor(corCabecalho));
     }
     Aparencia::imprimirDialogoNPC(nomeNPC, corCabecalho, falaNPC);
-    Aparencia::aguardarEnter();
+    ControleDeInput::aguardarEnter();
 }
 
 std::string InteracaoNPC::obterFormatadorStatusItem(ItemID id) {
@@ -100,7 +100,7 @@ std::string InteracaoNPC::obterFormatadorStatusItem(ItemID id) {
 bool InteracaoNPC::verificarItemNaoEquipado(SistemaPersonagem* jogadorAtual, Item* itemAvaliado, const std::string& nomeNPC, Cor corNPC, const std::string& msgErro) {
     if (jogadorAtual->isItemEquipado(itemAvaliado)) {
         Aparencia::imprimirDialogoNPC(nomeNPC, corNPC, msgErro);
-        Aparencia::aguardarEnter();
+        ControleDeInput::aguardarEnter();
         return false;
     }
     return true;

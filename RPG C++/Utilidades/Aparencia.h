@@ -36,7 +36,6 @@ public:
     static void maximizarJanelaTerminal();
     static void ocultarCursor();
     static void limparTela();
-    static void aguardarEnter(const std::string& mensagem = "Pressione ENTER para continuar...");
     static int obterLarguraTerminal();
     static int obterAlturaTerminal();
     static void moverCursor(int x, int y);

@@ -8,23 +8,13 @@
 #include <sstream>
 #include <thread>
 #include <chrono>
+#include "TelaVitoriaLayouts.h"
+#include "../Utilidades/ControleDeInput.h"
 
 void TelaVitoria::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido, int curaTotalRecebida, int turnosCombate, const std::vector<std::string>& itensObtidos)
 {
     Aparencia::limparTela();
     int frames = 20;
-
-    std::vector<std::string> logoVitoria = 
-    {
-       " █████   █████ █████ ███████████    ███████    ███████████   █████   █████████   ███ ",
-       "░░███   ░░███ ░░███ ░█░░░███░░░█  ███░░░░░███ ░░███░░░░░███ ░░███   ███░░░░░███ ░███ ",
-       " ░███    ░███  ░███ ░   ░███  ░  ███     ░░███ ░███    ░███  ░███  ░███    ░███ ░███ ",
-       " ░███    ░███  ░███     ░███    ░███      ░███ ░██████████   ░███  ░███████████ ░███ ",
-       " ░░███   ███   ░███     ░███    ░███      ░███ ░███░░░░░███  ░███  ░███░░░░░███ ░███ ",
-       "  ░░░█████░    ░███     ░███    ░░███     ███  ░███    ░███  ░███  ░███    ░███ ░░░  ",
-       "    ░░███      █████    █████    ░░░███████░   █████   █████ █████ █████   █████ ███ ",
-       "     ░░░      ░░░░░    ░░░░░       ░░░░░░░    ░░░░░   ░░░░░ ░░░░░ ░░░░░   ░░░░░ ░░░  "
-    };
 
     for (int frame = 0; frame <= frames; ++frame) {
         int curOuro = (quantidadeDeOuroObtido * frame) / frames;
@@ -33,7 +23,7 @@ void TelaVitoria::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroOb
         std::ostringstream buffer;
         std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
 
-        Aparencia::exibirLogoAscii(logoVitoria, 85, Cor::VERDE, "", 0);
+        Aparencia::exibirLogoAscii(ArtesVitoria::logoVitoria, 85, Cor::VERDE, "", 0);
 
         std::vector<std::string> estLinhas;
         estLinhas.push_back("");
@@ -82,5 +72,5 @@ void TelaVitoria::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroOb
         }
     }
 
-    Aparencia::aguardarEnter();
+    ControleDeInput::aguardarEnter();
 }

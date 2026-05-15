@@ -76,7 +76,7 @@ namespace {
                 ctx.self->bjornResgatado = true;
 
                 ctx.self->matrizDoMapaAtual[ctx.proximaPosicaoY][ctx.proximaPosicaoX] = '.';
-                Aparencia::aguardarEnter();
+                ControleDeInput::aguardarEnter();
             } else {
                 ctx.self->posicaoXDoJogador = ctx.proximaPosicaoX;
                 ctx.self->posicaoYDoJogador = ctx.proximaPosicaoY;
@@ -132,7 +132,7 @@ namespace {
                     exibirTituloDoMapaVila(ctx.self->tituloDoMapaAtual);
                     int espacosM = std::max(0, (ctx.larguraDoTerminal - 60) / 2);
                     std::cout << "\n" << std::string(espacosM, ' ') << "[SISTEMA]: A Forja esta trancada. O ferreiro sumiu...\n";
-                    Aparencia::aguardarEnter();
+                    ControleDeInput::aguardarEnter();
                     ctx.restaurarTela();
                     return;
                 }

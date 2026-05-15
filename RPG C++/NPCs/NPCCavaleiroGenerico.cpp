@@ -71,7 +71,7 @@ namespace {
     void exibirTelaCavaleiro(const std::string& tituloCabecalho, const std::vector<std::string>& falas) {
         Aparencia::limparTela();
         Aparencia::exibirCabecalho(tituloCabecalho, Cor::CINZA);
-        Aparencia::imprimirBlocoCentralizado(NPCCavaleiroGenericoLayouts::obterArteCavaleiro());
+        Aparencia::imprimirBlocoCentralizado(NPCCavaleiroGenericoLayouts::arteCavaleiro);
         std::cout << "\n";
         dialogoCavaleiro(falas);
         std::cout << "\n";
@@ -112,7 +112,7 @@ void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trol
                 "garantir sua entrar no reino!"
             });
             
-            Aparencia::aguardarEnter();
+            ControleDeInput::aguardarEnter();
             if (exploracaoEstaAtiva) restaurarTela();
             return;
         }
@@ -164,11 +164,11 @@ void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trol
             
             jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::ConviteReal));
             conviteRecebido = true;
-            Aparencia::aguardarEnter();
+            ControleDeInput::aguardarEnter();
             restaurarTela();
         } else {
             exibirTelaCavaleiro("CAVALEIRO REAL", { "O Rei o aguarda no castelo. Siga em frente!" });
-            Aparencia::aguardarEnter();
+            ControleDeInput::aguardarEnter();
             restaurarTela();
         }
     }

@@ -367,6 +367,6 @@ void SistemaPersonagem::finalizarBatalha() {
     if (sistema.possuiRegeneracaoTroll && vidaAtual > 0 && vidaAtual < obterVidaMaxima()) {
         modificarVida(obterVidaMaxima());
         std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE) << "[SISTEMA]: Seu Orgao regenerador curou completamente suas feridas apos a batalha!" << Aparencia::cor(Cor::RESET) << "\n";
-        Aparencia::aguardarEnter();
+        ControleDeInput::aguardarEnter();
     }
 }

@@ -74,7 +74,7 @@ void InventarioCombate::gerenciarInventario(SistemaPersonagem* jogadorAtual, boo
                                     if (jogadorAtual->obterItemSelecionadoParaUso() != nullptr) {
                                         if (quantidadeParaUsar > 1) {
                                             std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Este item requer selecao de alvo e sera usado apenas uma vez.\n";
-                                            Aparencia::aguardarEnter();
+                                            ControleDeInput::aguardarEnter();
                                         }
                                         break;
                                     }
@@ -95,7 +95,7 @@ void InventarioCombate::gerenciarInventario(SistemaPersonagem* jogadorAtual, boo
                             Aparencia::exibirCabecalho("INSPECAO DE ITEM", Cor::AMARELO);
                             TelaInventario::exibirInspecaoItem(itemEncontrado, jogadorAtual);
                             std::cout << "\n";
-                            Aparencia::aguardarEnter();
+                            ControleDeInput::aguardarEnter();
                         } else if (subOpcao == "0") {
                             acaoConcluida = true;
                         }
@@ -113,7 +113,7 @@ void InventarioCombate::processarUsoDeItem(SistemaPersonagem* jogadorAtual, Item
     if (turnoFoiConsumido && *turnoFoiConsumido) 
     {
         std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Voce ja usou um item neste turno!\n";
-        Aparencia::aguardarEnter();
+        ControleDeInput::aguardarEnter();
         return;
     }
 
@@ -138,7 +138,7 @@ void InventarioCombate::processarUsoDeItem(SistemaPersonagem* jogadorAtual, Item
                 std::string msg = itemEncontrado->obterMensagemRequisito();
                 if (msg.substr(0, 1) == "\n") std::cout << "\n" << Aparencia::margemCombate() << msg.substr(1);
                 else std::cout << Aparencia::margemCombate() << msg;
-                if (turnoFoiConsumido && !jogadorAtual->obterItemSelecionadoParaUso()) Aparencia::aguardarEnter();
+                if (turnoFoiConsumido && !jogadorAtual->obterItemSelecionadoParaUso()) ControleDeInput::aguardarEnter();
                 return;
             }
             jogadorAtual->equiparItem(itemEncontrado);
@@ -149,7 +149,7 @@ void InventarioCombate::processarUsoDeItem(SistemaPersonagem* jogadorAtual, Item
             *turnoFoiConsumido = true;
             std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Turno gasto alterando um equipamento...\n";
         }
-        Aparencia::aguardarEnter();
+        ControleDeInput::aguardarEnter();
         return;
     }
     
@@ -157,11 +157,11 @@ void InventarioCombate::processarUsoDeItem(SistemaPersonagem* jogadorAtual, Item
     {
         // Se o item for Debuff (que seta o ponteiro para pedir alvo), ignorar enter
         if (!jogadorAtual->obterItemSelecionadoParaUso()) {
-            Aparencia::aguardarEnter();
+            ControleDeInput::aguardarEnter();
         }
         return;
     }
 
     std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Este item nao pode ser usado " << (turnoFoiConsumido ? "em combate!" : "fora de combate!") << "\n";
-    Aparencia::aguardarEnter();
+    ControleDeInput::aguardarEnter();
 }

@@ -101,7 +101,7 @@ namespace {
                 if (opcao == 1) {
                     if (GeradorAleatorio::rolarChance(25)) { // 25% de chance de ser um Mímico
                         std::cout << "\n" << margem << Aparencia::cor(Cor::VERMELHO) << "[!] O bau se revela uma criatura viva! E UM MIMICO!" << Aparencia::cor(Cor::RESET) << "\n";
-                        Aparencia::aguardarEnter();
+                        ControleDeInput::aguardarEnter();
                         ControleMapa::processarCombate(ctx.self->jogadorAtual, ctx.self->matrizDoMapaAtual, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->exploracaoEstaAtiva, "CILADA!", "O Bau era um Mimico!", GerenciadorInimigos::criarInimigoMimico(1), ctx.proximaPosicaoX, ctx.proximaPosicaoY, ctx.proximaPosicaoX, 1, ctx.larguraDoTerminal, ctx.restaurarTela);
                     } else {
                     std::cout << "\n" << margem << "[SISTEMA]: O baú se abre rangendo... Voce obteve itens valiosos!\n";
@@ -131,7 +131,7 @@ namespace {
                     ctx.self->matrizDoMapaAtual[ctx.proximaPosicaoY][ctx.proximaPosicaoX] = ' ';
                     ctx.self->posicaoXDoJogador = ctx.proximaPosicaoX;
                     ctx.self->posicaoYDoJogador = ctx.proximaPosicaoY;
-                    Aparencia::aguardarEnter();
+                    ControleDeInput::aguardarEnter();
                     }
                 }
 
@@ -174,7 +174,7 @@ namespace {
                     Aparencia::exibirCabecalho("PASSAGEM BLOQUEADA", Cor::VERDE);
                     int espacosM = (ctx.larguraDoTerminal - 60) / 2;
                     std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: A passagem esta selada por magia. Fale com Morgana.\n";
-                    Aparencia::aguardarEnter();
+                    ControleDeInput::aguardarEnter();
                     ctx.restaurarTela();
                     return;
                 }
@@ -330,7 +330,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
         
         if (tituloDoMapaAtual == "SALA DO CHEFE" && (celulaDestinoDoMapa == 'M' || celulaDestinoDoMapa == 'A' || celulaDestinoDoMapa == 'H' || celulaDestinoDoMapa == 'O')) {
             std::cout << "\n[SISTEMA]: A batalha contra MAHO estara disponivel em breve!\n";
-            Aparencia::aguardarEnter();
+            ControleDeInput::aguardarEnter();
             if (exploracaoEstaAtiva) restaurarTela();
             return;
         }

@@ -127,8 +127,7 @@ Cor NPCMorgana::obterCorDaArte() const {
 }
 
 const std::vector<std::string>& NPCMorgana::obterArteASCII() const {
-    static std::vector<std::string> arte = NPCMorganaLayouts::obterArteMorgana();
-    return arte;
+    return NPCMorganaLayouts::arteMorgana;
 }
 
 // --- INTERACAO E MENU ---
@@ -207,20 +206,20 @@ namespace {
                 if (!itemEscolhido) continue;
                 
                 EquipamentoArma* armaEscolhida = dynamic_cast<EquipamentoArma*>(itemEscolhido);
-                if (!armaEscolhida) { dialogoMorgana("Eu so posso encantar ARMAS com isso!"); Aparencia::aguardarEnter(); continue; }
+                if (!armaEscolhida) { dialogoMorgana("Eu so posso encantar ARMAS com isso!"); ControleDeInput::aguardarEnter(); continue; }
                 
                 if (op.armaRestritaId != ItemID::Nenhum) {
                     std::string nomeRestrito = FabricaItens::obterNomeDeID(op.armaRestritaId);
                     if (armaEscolhida->obterNomeItem().find(nomeRestrito) == std::string::npos) {
                         dialogoMorgana("Este encantamento so funciona no " + nomeRestrito + "!");
-                        Aparencia::aguardarEnter();
+                        ControleDeInput::aguardarEnter();
                         continue;
                     }
                 }
                 
                 if (op.checarConflito(armaEscolhida)) {
                     dialogoMorgana(op.msgConflito);
-                    Aparencia::aguardarEnter();
+                    ControleDeInput::aguardarEnter();
                     continue;
                 }
                 
@@ -230,7 +229,7 @@ namespace {
                 std::string novoNome = op.aplicar(jogadorAtual, armaEscolhida);
                 
                 std::string equacao = "[" + nomeAntigoArma + "] + " + std::to_string(op.qtd) + "x [" + itemNecessario + "] = [" + novoNome + "]";
-                InteracaoNPC::exibirTelaDeSucesso("ENCANTAMENTO SUCESSO", Cor::MAGENTA, equacao, NPCMorganaLayouts::obterArteCaldeirao(), "Morgana", "Feito! A magia flui pela sua arma...");
+                InteracaoNPC::exibirTelaDeSucesso("ENCANTAMENTO SUCESSO", Cor::MAGENTA, equacao, NPCMorganaLayouts::arteCaldeirao, "Morgana", "Feito! A magia flui pela sua arma...");
             }
         } while (opcaoEncantar != "0");
     }
@@ -263,7 +262,7 @@ namespace {
             "Use a entrada [^L] para explorar o meu Labirinto Subterraneo.",
             "E um lugar perigoso, mergulhado em uma nevoa de cor roxa, mas guarda grandes tesouros."
         });
-        Aparencia::aguardarEnter();
+        ControleDeInput::aguardarEnter();
     }
 
     void processarMenuMissoes(SistemaPersonagem* jogadorAtual) {
@@ -291,7 +290,7 @@ namespace {
                 processarMissaoLabirinto(jogadorAtual);
             } else if (opcaoMissao == "(Nenhuma missao disponivel)") {
                 dialogoMorgana("Nao busco mais nada de voce no momento...");
-                Aparencia::aguardarEnter();
+                ControleDeInput::aguardarEnter();
             }
         } while (opcaoMissao != "VOLTAR");
     }

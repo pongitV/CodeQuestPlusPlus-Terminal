@@ -14,7 +14,7 @@ std::string Goblin::obterNomeRaca() const
 
 Atributos Goblin::obterAtributosRaca() const 
 { 
-    return { 60, 10, 15, 5, 5, 0, 0 }; 
+    return { 60, 6, 8, 5, 5, 0, 0 }; 
 }
 
 std::vector<std::unique_ptr<Item>> Goblin::obterEquipamentoRaca() const 

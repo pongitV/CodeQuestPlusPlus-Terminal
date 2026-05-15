@@ -11,21 +11,11 @@
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Utilidades/Aparencia.h"
 #include "../Utilidades/ControleDeInput.h"
-
-static const std::vector<std::string> logoBestiario = {
-    " ███████████  ██████████  █████████  ███████████ █████   █████████   ███████████   █████    ███████   ",
-    "░░███░░░░░███░░███░░░░░█ ███░░░░░███░█░░░███░░░█░░███   ███░░░░░███ ░░███░░░░░███ ░░███   ███░░░░░███ ",
-    " ░███    ░███ ░███  █ ░ ░███    ░░░ ░   ░███  ░  ░███  ░███    ░███  ░███    ░███  ░███  ███     ░░███",
-    " ░██████████  ░██████   ░░█████████     ░███     ░███  ░███████████  ░██████████   ░███ ░███      ░███",
-    " ░███░░░░░███ ░███░░█    ░░░░░░░░███    ░███     ░███  ░███░░░░░███  ░███░░░░░███  ░███ ░███      ░███",
-    " ░███    ░███ ░███ ░   █ ███    ░███    ░███     ░███  ░███    ░███  ░███    ░███  ░███ ░░███     ███ ",
-    " ███████████  ██████████░░█████████     █████    █████ █████   █████ █████   █████ █████ ░░░███████░  ",
-    "░░░░░░░░░░░  ░░░░░░░░░░  ░░░░░░░░░     ░░░░░    ░░░░░ ░░░░░   ░░░░░ ░░░░░   ░░░░░ ░░░░░    ░░░░░░░   "
-};
+#include "TelaBestiarioLayouts.h"
 
 static void exibirCabecalho(int largura, const std::string& tituloSecundario = "") {
     Aparencia::limparTela();
-    Aparencia::exibirLogoAscii(logoBestiario, 101, Cor::VERDE, tituloSecundario);
+    Aparencia::exibirLogoAscii(ArtesBestiario::logoBestiario, 101, Cor::VERDE, tituloSecundario);
 }
 
 void TelaBestiario::exibirLista(SistemaPersonagem* jogadorAtual) {

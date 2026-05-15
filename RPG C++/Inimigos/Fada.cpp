@@ -15,7 +15,7 @@ std::string Fada::obterNomeRaca() const
 
 Atributos Fada::obterAtributosRaca() const 
 { 
-    return { 40, 0, 30, 2, 5, 5, 5 }; 
+    return { 40, 0, 20, 2, 5, 5, 5 }; 
 }
 
 std::vector<std::unique_ptr<Item>> Fada::obterEquipamentoRaca() const 

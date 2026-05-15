@@ -78,7 +78,7 @@ namespace {
             std::cout << "\n";
             Aparencia::imprimirCentralizado("Inimigo: " + niveis[i].nomeInimigo);
             Aparencia::imprimirCentralizado("Sequencia: " + std::to_string(niveis[i].digitos) + " digitos | Tempo limite: " + std::to_string(niveis[i].tempoLimiteMs / 1000.0) + "s");
-            Aparencia::aguardarEnter();
+            ControleDeInput::aguardarEnter();
 
             int acertos = 0;
             for (int teste = 1; teste <= 5; ++teste) {
@@ -114,13 +114,13 @@ namespace {
 
             std::cout << "\n";
             Aparencia::imprimirCentralizado("Resultado do nivel: " + std::to_string(acertos) + "/5 acertos.");
-            Aparencia::aguardarEnter();
+            ControleDeInput::aguardarEnter();
         }
 
         Aparencia::limparTela();
         TelaMenu::exibirLogoDoJogo("TUTORIAL CONCLUIDO");
         Aparencia::imprimirCentralizado("Voce completou o tutorial de Parry!");
-        Aparencia::aguardarEnter();
+        ControleDeInput::aguardarEnter();
     }
 }
 
@@ -165,12 +165,12 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::menuPrincipal()
                 if (jogador) {
                     std::cout << "\n";
                     Aparencia::imprimirCentralizado("[SISTEMA]: Jogo carregado com sucesso!");
-                    Aparencia::aguardarEnter();
+                    ControleDeInput::aguardarEnter();
                     return jogador;
                 } else {
                     std::cout << "\n";
                     Aparencia::imprimirCentralizado("[ERRO]: Falha ao carregar o save!");
-                    Aparencia::aguardarEnter();
+                    ControleDeInput::aguardarEnter();
                 }
             }
         } else {
@@ -205,7 +205,7 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::iniciarCriacaoDeSistemaPerso
     std::cout << "\n";
     std::string textoFinal = "[SISTEMA]: Personagem criado com sucesso!";
     Aparencia::imprimirCentralizadoDigitando(textoFinal);
-    Aparencia::aguardarEnter();
+    ControleDeInput::aguardarEnter();
 
     Aparencia::limparTela();
     TelaMenu::exibirLogoDoJogo("SISTEMA DE SAVE");
@@ -217,7 +217,7 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::iniciarCriacaoDeSistemaPerso
         "e escolha a opcao de Voltar ao Menu Principal."
     };
     Aparencia::imprimirBlocoCentralizado(avisoSave);
-    Aparencia::aguardarEnter();
+    ControleDeInput::aguardarEnter();
 
     Aparencia::limparTela();
     TelaMenu::exibirLogoDoJogo("INICIO DA JORNADA");
@@ -228,7 +228,7 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::iniciarCriacaoDeSistemaPerso
         "[NARRACAO]: Um novo capitulo se inicia agora."
     };
     Aparencia::imprimirBlocoCentralizadoDigitando(dialogoInicio);
-    Aparencia::aguardarEnter("Pressione ENTER para iniciar...");
+    ControleDeInput::aguardarEnter("Pressione ENTER para iniciar...");
 
     return personagemCriado;
 }

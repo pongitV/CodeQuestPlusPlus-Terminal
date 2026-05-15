@@ -61,7 +61,7 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
                 Aparencia::exibirCabecalho("ACESSO NEGADO", Cor::CIANO);
                 int espacosM = (larg - 60) / 2;
                 std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: Os portoes estao trancados. Voce precisa de uma permissao real.\n";
-                Aparencia::aguardarEnter();
+                ControleDeInput::aguardarEnter();
                 restaurarTela();
             } else {
                 Aparencia::limparTela();
@@ -69,7 +69,7 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
                 int espacosM = (larg - 60) / 2;
                 std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: Voce apresentou o Convite Real e os portoes se abriram!\n";
                 std::cout << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: A historia continua em breve...\n";
-                Aparencia::aguardarEnter();
+                ControleDeInput::aguardarEnter();
                 exploracaoEstaAtiva = false;
             }
         }
@@ -85,7 +85,7 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
         int espacosM = (larg - 60) / 2;
         std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[Guarda]: Alto la! Somente o Rei pode conceder passagem.\n";
         std::cout << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[Guarda]: (O castelo ainda esta em construcao pelos deuses/devs)\n";
-        Aparencia::aguardarEnter();
+        ControleDeInput::aguardarEnter();
         restaurarTela();
     };
 

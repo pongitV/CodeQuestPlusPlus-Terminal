@@ -708,14 +708,14 @@ void TelaCombate::notificarInimigosMaisAgeis() {
     std::string msg = "[SISTEMA]: Os inimigos sao mais ageis e atacam primeiro!";
     std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << msg << Aparencia::cor(Cor::RESET) << "\n";
     Aparencia::registrarLogBatalha(msg);
-    Aparencia::aguardarEnter();
+    ControleDeInput::aguardarEnter();
 }
 
 void TelaCombate::notificarTurnoExtra(int destrezaJogador, int maxDestrezaInimigos) {
     std::string msg = "[SISTEMA]: Sua agilidade extrema (" + std::to_string(destrezaJogador) + " VS " + std::to_string(maxDestrezaInimigos) + ") permite que voce aja novamente!";
     std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::CIANO) << msg << Aparencia::cor(Cor::RESET) << "\n";
     Aparencia::registrarLogBatalha(msg);
-    Aparencia::aguardarEnter();
+    ControleDeInput::aguardarEnter();
 }
 
 void TelaCombate::notificarDesprevencaoInventario() {
@@ -732,19 +732,19 @@ void TelaCombate::notificarDesequilibrioDefesa(const std::string& nomePersonagem
     std::string msg = "[ERRO]: " + nomePersonagem + " se desequilibrou e precisa de 1 turno para poder defender novamente!";
     std::cout << "\n" << Aparencia::margemCombate() << msg << "\n";
     Aparencia::registrarLogBatalha(msg);
-    Aparencia::aguardarEnter();
+    ControleDeInput::aguardarEnter();
 }
 
 void TelaCombate::notificarPosturaDefensiva(const std::string& nomePersonagem, const std::string& nomeEscudo) {
     std::string msg = "[SISTEMA]: " + nomePersonagem + " assumiu uma postura defensiva com " + nomeEscudo + "!";
     std::cout << "\n" << Aparencia::margemCombate() << msg << "\n";
     Aparencia::registrarLogBatalha(msg);
-    Aparencia::aguardarEnter();
+    ControleDeInput::aguardarEnter();
 }
 
 void TelaCombate::notificarAcaoInvalida() {
     std::cout << "\n" << Aparencia::margemCombate() << "[ERRO] Acao invalida!\n";
-    Aparencia::aguardarEnter();
+    ControleDeInput::aguardarEnter();
 }
 
 void TelaCombate::notificarCancelamentoItem() {
@@ -757,7 +757,7 @@ void TelaCombate::notificarRequisitoNaoAtendido(const std::string& mensagemRequi
     } else {
         std::cout << Aparencia::margemCombate() << mensagemRequisito;
     }
-    Aparencia::aguardarEnter();
+    ControleDeInput::aguardarEnter();
 }
 
 void TelaCombate::atualizarTelaEstatica(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados, bool animarEntrada)

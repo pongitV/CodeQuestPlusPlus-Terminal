@@ -26,4 +26,5 @@ public:
     
     static int lerInteiroComLimites(const std::string& promptMensagem, int minimo, int maximo, bool centralizarPrompt = false, const std::string& margemPersonalizada = "");
     static int lerSelecaoMenuComSetas(const std::vector<std::string>& opcoes, bool centralizar = true, const std::string& margemPersonalizada = "", const std::vector<std::string>& painelDireito = {});
+    static void aguardarEnter(const std::string& mensagem = "Pressione ENTER para continuar...");
 };

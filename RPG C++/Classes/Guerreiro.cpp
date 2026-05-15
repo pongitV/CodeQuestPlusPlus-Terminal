@@ -115,7 +115,7 @@ void Guerreiro::usarHabilidadeClasse(SistemaPersonagem* personagemUsuario, std::
     if (personagemUsuario->possuiEfeito(EfeitoID::GritoDeGuerra)) {
         std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: A habilidade " << obterNomeHabilidadeClasse() << " ja esta ativa!\n";
         Aparencia::registrarLogBatalha("[SISTEMA]: A habilidade " + obterNomeHabilidadeClasse() + " ja esta ativa!");
-        Aparencia::aguardarEnter();
+        ControleDeInput::aguardarEnter();
         personagemUsuario->definirHabilidadeCancelada(true);
         return;
     }

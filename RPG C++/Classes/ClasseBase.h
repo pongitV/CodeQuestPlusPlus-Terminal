@@ -5,6 +5,7 @@
 #include "../Inventario/Item.h"
 #include "../Inventario/FabricaItens.h"
 #include "../Utilidades/Aparencia.h"
+#include "../Utilidades/ControleDeInput.h"
 #include "../Telas/TelaCombate.h"
 #include <memory>
 #include <functional>
@@ -68,7 +69,7 @@ protected:
         if (turnosRestantes > 0) {
             std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << "[SISTEMA]: A habilidade " << nomeHabilidade << " esta em recarga (" << turnosRestantes << " turnos)!" << Aparencia::cor(Cor::RESET) << "\n";
             Aparencia::registrarLogBatalha("[SISTEMA]: A habilidade " + nomeHabilidade + " esta em recarga (" + std::to_string(turnosRestantes) + " turnos)!");
-            Aparencia::aguardarEnter();
+            ControleDeInput::aguardarEnter();
             personagemUsuario->definirHabilidadeCancelada(true);
             return true;
         }

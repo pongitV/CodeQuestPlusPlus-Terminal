@@ -88,15 +88,6 @@ void Aparencia::limparTela() {
     std::cout << "\033[2J\033[3J\033[H" << std::flush;
 }
 
-void Aparencia::aguardarEnter(const std::string& mensagem) {
-    std::cout << "\n" << espacosParaCentralizar(obterComprimentoVisual(mensagem)) << mensagem << "\n";
-    ControleDeInput::limparBuffer();
-    while (true) {
-        char c = ControleDeInput::lerTecla();
-        if (c == '\r' || c == '\n') break;
-    }
-}
-
 int Aparencia::obterLarguraTerminal() {
 #ifdef _WIN32
     CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -454,7 +445,7 @@ void Aparencia::exibirHistoricoCompleto() {
         imprimirCentralizado("O historico esta vazio.", cor(Cor::CINZA));
         std::cout << "\n";
         imprimirLinhaDivisoria();
-        aguardarEnter();
+        ControleDeInput::aguardarEnter();
         return;
     }
 
@@ -476,15 +467,13 @@ void Aparencia::exibirHistoricoCompleto() {
         imprimirCentralizado("Pagina " + std::to_string(paginaAtual + 1) + " de " + std::to_string(totalPaginas), cor(Cor::CIANO));
         
         if (totalPaginas > 1) {
-            exibirPrompt("[A] Pagina Anterior | [D] Proxima Pagina | [0] Sair\n\nEscolha: ");
-            std::string escolha;
-            std::cin >> escolha;
+            std::string escolha = ControleDeInput::lerEntradaProtegida("[A] Pagina Anterior | [D] Proxima Pagina | [0] Sair\n\nEscolha: ");
             if (escolha == "0") break;
             if ((escolha == "a" || escolha == "A") && paginaAtual > 0) paginaAtual--;
             if ((escolha == "d" || escolha == "D") && paginaAtual < totalPaginas - 1) paginaAtual++;
         } else {
             std::cout << "\n";
-            aguardarEnter();
+            ControleDeInput::aguardarEnter();
             break;
         }
     }

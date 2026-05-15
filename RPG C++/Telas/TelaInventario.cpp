@@ -8,6 +8,7 @@
 #include "TelaMenu.h"
 #include "../Utilidades/ControleDeInput.h"
 #include "../Utilidades/Aparencia.h"
+#include "TelaInventarioLayouts.h"
 
 void TelaInventario::exibir(SistemaPersonagem* jogadorAtual, bool mostrarPrecos) 
 {
@@ -19,19 +20,7 @@ void TelaInventario::exibir(SistemaPersonagem* jogadorAtual, bool mostrarPrecos)
     int atrasoMs = TelaBase::deveAnimarEntradaDaTela(ultimoAcesso, 300) ? 10 : 0;
 
     int largura = Aparencia::obterLarguraTerminal();
-    std::vector<std::string> logoInventario = 
-    {
-      "  █████ ██████   █████ █████   █████ ██████████ ██████   █████ ███████████   █████████   ███████████   █████    ███████    ",
-      " ░░███ ░░██████ ░░███ ░░███   ░░███ ░░███░░░░░█░░██████ ░░███ ░█░░░███░░░█  ███░░░░░███ ░░███░░░░░███ ░░███   ███░░░░░███  ",
-      "  ░███  ░███░███ ░███  ░███    ░███  ░███  █ ░  ░███░███ ░███ ░   ░███  ░  ░███    ░███  ░███    ░███  ░███  ███     ░░███ ",
-      "  ░███  ░███░░███░███  ░███    ░███  ░██████    ░███░░███░███     ░███     ░███████████  ░██████████   ░███ ░███      ░███ ",
-      "  ░███  ░███ ░░██████  ░░███   ███   ░███░░█    ░███ ░░██████     ░███     ░███░░░░░███  ░███░░░░░███  ░███ ░███      ░███ ",
-      "  ░███  ░███  ░░█████   ░░░█████░    ░███ ░   █ ░███  ░░█████     ░███     ░███    ░███  ░███    ░███  ░███ ░░███     ███  ",
-      "  █████ █████  ░░█████    ░░███      ██████████ █████  ░░█████    █████    █████   █████ █████   █████ █████ ░░░███████░   ",
-      " ░░░░░ ░░░░░    ░░░░░      ░░░      ░░░░░░░░░░ ░░░░░    ░░░░░    ░░░░░    ░░░░░   ░░░░░ ░░░░░   ░░░░░ ░░░░░    ░░░░░░░     "
-    };
-
-    Aparencia::exibirLogoAscii(logoInventario, 121, Cor::AMARELO, "", atrasoMs);
+    Aparencia::exibirLogoAscii(ArtesInventario::logoInventario, 121, Cor::AMARELO, "", atrasoMs);
 
     int larguraDoTerminal = Aparencia::obterLarguraTerminal();
 

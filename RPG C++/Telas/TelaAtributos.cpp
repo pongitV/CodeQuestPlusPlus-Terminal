@@ -11,6 +11,7 @@
 #include "../Classes/ClasseBase.h"
 #include "../Utilidades/Aparencia.h"
 #include "../Utilidades/ControleDeInput.h"
+#include "TelaAtributosLayouts.h"
 
 struct EfeitoInfo {
     EfeitoID efeitoId;
@@ -67,7 +68,7 @@ namespace {
         }
 
         Aparencia::imprimirBlocoCentralizado(linhas, Aparencia::cor(Cor::BRANCO), 10);
-        Aparencia::aguardarEnter();
+        ControleDeInput::aguardarEnter();
     }
 }
 
@@ -81,19 +82,7 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
 
     int largura = Aparencia::obterLarguraTerminal();
 
-    static const std::vector<std::string> logoFicha =
-    {
-       "███████████  █████   █████████  █████   █████   █████████   ",
-       "░░███░░░░░█ ░░███   ███░░░░░███░░███   ░░███   ███░░░░░███  ",
-       " ░███   █ ░  ░███  ███     ░░░  ░███    ░███  ░███    ░███  ",
-       " ░███████    ░███ ░███          ░███████████  ░███████████  ",
-       " ░███░░░█    ░███ ░███          ░███░░░░░███  ░███░░░░░███  ",
-       " ░███  ░     ░███ ░░███     ███ ░███    ░███  ░███    ░███  ",
-       " █████       █████ ░░█████████  █████   █████ █████   █████ ",
-       " ░░░░░       ░░░░░   ░░░░░░░░░  ░░░░░   ░░░░░ ░░░░░   ░░░░░ "
-    };
-
-    Aparencia::exibirLogoAscii(logoFicha, 59, Cor::MAGENTA, "", atrasoMs);
+    Aparencia::exibirLogoAscii(ArtesAtributos::logoFicha, 59, Cor::MAGENTA, "", atrasoMs);
 
     double multiplicadorDeAtributosAtual = jogadorAtual->obterMultiplicador();
     int turnosBuff = jogadorAtual->obterTurnosEfeito(EfeitoID::BuffAtributos);
@@ -264,7 +253,7 @@ void TelaAtributos::gerenciarFichaDoJogador(SistemaPersonagem* jogadorAtual)
         } else if (op == "SUBIR DE NIVEL") {
             if (!jogadorAtual->podeSubirDeNivel()) {
                 Aparencia::exibirPrompt(Aparencia::cor(Cor::AMARELO) + "[SISTEMA]: Voce nao tem XP suficiente para subir de nivel!" + Aparencia::cor(Cor::RESET));
-                Aparencia::aguardarEnter();
+                ControleDeInput::aguardarEnter();
             } else {
                 std::vector<std::string> opcoesAtr = {
                     "Vida", "Forca", "Destreza", "Resistencia", "Constituicao", "Inteligencia", "Sabedoria", "Cancelar"
@@ -278,7 +267,7 @@ void TelaAtributos::gerenciarFichaDoJogador(SistemaPersonagem* jogadorAtual)
                     TipoAtributo atributo = static_cast<TipoAtributo>(escolhaAtr + 1);
                     if (jogadorAtual->subirDeNivel(atributo)) {
                         Aparencia::exibirPrompt("[SISTEMA]: Nivel subiu! Atributo melhorado.");
-                        Aparencia::aguardarEnter();
+                        ControleDeInput::aguardarEnter();
                     }
                 }
             }

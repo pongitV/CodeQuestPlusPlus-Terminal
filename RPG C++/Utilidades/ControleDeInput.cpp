@@ -150,3 +150,12 @@ int ControleDeInput::lerSelecaoMenuComSetas(const std::vector<std::string>& opco
         std::cout << "\r\033[" << maxLinhas << "A"; // Retorna o cursor para cima a fim de reescrever o texto
     }
 }
+
+void ControleDeInput::aguardarEnter(const std::string& mensagem) {
+    std::cout << "\n" << Aparencia::espacosParaCentralizar(Aparencia::obterComprimentoVisual(mensagem)) << mensagem << "\n";
+    ControleDeInput::limparBuffer();
+    while (true) {
+        char c = ControleDeInput::lerTecla();
+        if (c == '\r' || c == '\n') break;
+    }
+}

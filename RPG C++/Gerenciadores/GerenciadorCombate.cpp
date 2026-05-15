@@ -153,7 +153,7 @@ void GerenciadorCombate::iniciarCombate()
     std::cout << "\n";
     Aparencia::imprimirCentralizado("Prepare-se! O combate esta prestes a comecar...", Aparencia::cor(Cor::VERMELHO));
     std::cout << "\n";
-    Aparencia::aguardarEnter();
+    ControleDeInput::aguardarEnter();
 
     Aparencia::limparTela();
 
@@ -174,7 +174,7 @@ void GerenciadorCombate::iniciarCombate()
             std::string msg = "[SISTEMA]: A agilidade extrema dos inimigos (" + std::to_string(maxDestrezaInimigos) + " VS " + std::to_string(jogadorAtual->obterDestreza()) + ") permite que eles ataquem duas vezes seguidas!";
             std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << msg << Aparencia::cor(Cor::RESET) << "\n";
             Aparencia::registrarLogBatalha(msg);
-            Aparencia::aguardarEnter();
+            ControleDeInput::aguardarEnter();
 
             executarTurnoDeTodosOsInimigos();
             if (verificarCondicaoDeVitoriaOuDerrota()) return;
@@ -307,7 +307,7 @@ void GerenciadorCombate::processarAcaoHabilidade(SistemaPersonagem* personagemAg
     if (personagemAgindo->obterHabilidadeCancelada()) return;
 
     if (personagemAgindo->habilidadeDaClasseConsomeTurno()) turnoFoiConsumido = true;
-    else Aparencia::aguardarEnter();
+    else ControleDeInput::aguardarEnter();
 }
 
 void GerenciadorCombate::processarAcaoInventario(SistemaPersonagem* personagemAgindo, bool& turnoFoiConsumido, bool& usouInventarioNoTurno)
@@ -348,7 +348,7 @@ void GerenciadorCombate::processarAcaoInventario(SistemaPersonagem* personagemAg
             usouInventarioNoTurno = true;
         }
         exibirTelaDeCombate();
-        Aparencia::aguardarEnter();
+        ControleDeInput::aguardarEnter();
     }
 }
 
@@ -381,7 +381,7 @@ void GerenciadorCombate::limparInimigosMortos()
 
                 std::vector<SistemaPersonagem*> aliadosVivos = obterAliadosVivosRaw();
                 TelaCombate::animarMorteInimigo(obterTituloDoCombate(), obterInimigosRaw(), inimigoPtr.get(), jogadorAtual, aliadosVivos, dropsDaMorte);
-            Aparencia::aguardarEnter();
+            ControleDeInput::aguardarEnter();
         }
     }
 
@@ -453,7 +453,7 @@ void GerenciadorCombate::executarTurnoDeTodosOsInimigos()
 
 
     if (jogadorAtual->obterRecarga()) jogadorAtual->definirRecarga(false);
-    Aparencia::aguardarEnter();
+    ControleDeInput::aguardarEnter();
 }
 
 void GerenciadorCombate::realizarAtaqueFisico(SistemaPersonagem* personagemAtacante, SistemaPersonagem* personagemDefensor, int turnoAtualDoCombate) 
