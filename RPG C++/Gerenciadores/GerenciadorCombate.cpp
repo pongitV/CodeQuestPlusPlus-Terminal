@@ -218,7 +218,9 @@ void GerenciadorCombate::iniciarCombate()
 
 void GerenciadorCombate::processarMenuDeAcoesDoJogador(SistemaPersonagem* personagemAgindo, bool& turnoFoiConsumido, bool& usouInventarioNoTurno)
 {
-    int acaoEscolhida = TelaCombate::obterAcaoDoJogador(contadorDoTurnoAtual, personagemAgindo->obterNome(), obterInimigosRaw(), jogadorAtual, obterAliadosVivosRaw());
+    int acaoEscolhida = TelaCombate::obterAcaoDoJogador(contadorDoTurnoAtual, personagemAgindo, obterInimigosRaw(), jogadorAtual, obterAliadosVivosRaw());
+    
+    TelaCombate::personagemHUD = nullptr; // Forca reset visual ao retornar para evitar bugs de persistencia de interface
 
     switch (acaoEscolhida) 
     {

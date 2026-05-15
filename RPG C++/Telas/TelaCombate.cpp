@@ -119,7 +119,7 @@ namespace {
             if (i < linhas.size() - 1) finalOutput += "\n";
         }
         
-        std::cout << "\033[H" << finalOutput << "\033[J" << std::flush;
+        std::cout << "\033[?25l\033[H" << finalOutput << "\033[J" << std::flush;
     }
 
     void renderizarCenaPadrao(const std::string& titulo, const std::vector<SistemaPersonagem*>& inimigos, SistemaPersonagem* alvoAnimacao, int frame, bool isCura, bool isMorte, Item* arma, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& aliados, SistemaPersonagem* alvoDanoJogador = nullptr, Cor corDanoJogador = Cor::RESET, int danoAnimacao = -1, const std::vector<std::string>& dropsAnimacao = {}, bool animarEntrada = false) {
@@ -134,28 +134,35 @@ namespace {
             std::cout << Aparencia::cor(Cor::RESET);
 
             std::vector<std::string> painelEsquerdo;
-            auto linhasJogador = TelaCombate::obterLinhasBarraDeStatusDoJogador(jogadorAtual, (alvoDanoJogador == jogadorAtual) ? corDanoJogador : Cor::RESET, (alvoDanoJogador == jogadorAtual) ? danoAnimacao : -1, (alvoDanoJogador == jogadorAtual) ? frame : 0, (alvoDanoJogador == jogadorAtual) ? isCura : false);
-            painelEsquerdo.insert(painelEsquerdo.end(), linhasJogador.begin(), linhasJogador.end());
-
-            for (auto* aliado : aliados) {
-                auto linhasAliado = TelaCombate::obterLinhasBarraDeStatusDoJogador(aliado, (alvoDanoJogador == aliado) ? corDanoJogador : Cor::RESET, (alvoDanoJogador == aliado) ? danoAnimacao : -1, (alvoDanoJogador == aliado) ? frame : 0, (alvoDanoJogador == aliado) ? isCura : false);
-                painelEsquerdo.insert(painelEsquerdo.end(), linhasAliado.begin(), linhasAliado.end());
+            
+            SistemaPersonagem* destaque = jogadorAtual;
+            if (alvoDanoJogador != nullptr) {
+                destaque = alvoDanoJogador;
+            } else if (TelaCombate::personagemHUD != nullptr) {
+                destaque = TelaCombate::personagemHUD;
+            } else if (TelaCombate::nomeTurnoVisivel != "" && TelaCombate::nomeTurnoVisivel != "INIMIGOS") {
+                if (jogadorAtual->obterNome() == TelaCombate::nomeTurnoVisivel) destaque = jogadorAtual;
+                for (auto* aliado : aliados) {
+                    if (aliado->obterNome() == TelaCombate::nomeTurnoVisivel) destaque = aliado;
+                }
             }
+
+            auto linhasDestaque = TelaCombate::obterLinhasBarraDeStatusDoJogador(destaque, (alvoDanoJogador == destaque) ? corDanoJogador : Cor::RESET, (alvoDanoJogador == destaque) ? danoAnimacao : -1, (alvoDanoJogador == destaque) ? frame : 0, (alvoDanoJogador == destaque) ? isCura : false);
+            painelEsquerdo.insert(painelEsquerdo.end(), linhasDestaque.begin(), linhasDestaque.end());
 
             std::vector<std::string> painelDireito;
             if (TelaCombate::selecaoAcaoAtual != -1) {
-                std::vector<std::string> opcoes = { "Atacar", "Defender", "Habilidade", "Inventario", "Sua Ficha", "Bestiario", "Log de Batalha" };
                 painelDireito.push_back("═══ ESCOLHA UMA ACAO ═══");
                 for (size_t i = 0; i < 3; ++i) {
                     std::string linhaDir = "";
                     for (size_t col = 0; col < 3; ++col) {
                         size_t idx = i + col * 3;
-                        if (idx < opcoes.size()) {
+                        if (idx < TelaCombate::opcoesMenuAtual.size()) {
                             std::string op = "";
                             if (static_cast<int>(idx) == TelaCombate::selecaoAcaoAtual) {
-                                op = Aparencia::cor(Cor::VERDE) + " > " + opcoes[idx] + Aparencia::cor(Cor::RESET);
+                                op = Aparencia::cor(Cor::VERDE) + " > " + TelaCombate::opcoesMenuAtual[idx] + Aparencia::cor(Cor::RESET);
                             } else {
-                                op = "   " + opcoes[idx];
+                                op = "   " + TelaCombate::opcoesMenuAtual[idx];
                             }
                             if (col < 2) {
                                 int pad = 18 - Aparencia::obterComprimentoVisual(op);
@@ -206,6 +213,8 @@ int TelaCombate::turnoAtualVisivel = 1;
 std::string TelaCombate::nomeTurnoVisivel = "";
 int TelaCombate::selecaoAcaoAtual = -1;
 int TelaCombate::selecaoAlvoAtual = -1;
+std::vector<std::string> TelaCombate::opcoesMenuAtual = {};
+SistemaPersonagem* TelaCombate::personagemHUD = nullptr;
 
 void TelaCombate::definirTurnoVisivel(int turno, const std::string& nome) {
     turnoAtualVisivel = turno;
@@ -225,6 +234,7 @@ void TelaCombate::limparMensagensFixas() {
 
 void TelaCombate::exibirLogoParaTelaDeCombate(const std::string& tituloDaTela) 
 {
+    std::cout << "\033[?25l"; // Esconde o cursor
     int larguraConsole = Aparencia::obterLarguraTerminal();
     
     std::vector<std::string> logo = 
@@ -611,12 +621,37 @@ void TelaCombate::animarCuraNoJogador(const std::string& tituloCombate, const st
     renderizarCenaPadrao(tituloCombate, listaDeInimigos, nullptr, 0, false, false, nullptr, jogadorAtual, listaDeAliados);
 }
 
-int TelaCombate::obterAcaoDoJogador(int turnoAtual, const std::string& nomePersonagem, const std::vector<SistemaPersonagem*>& inimigos, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& aliados) {
-    definirTurnoVisivel(turnoAtual, nomePersonagem);
+int TelaCombate::obterAcaoDoJogador(int turnoAtual, SistemaPersonagem* personagemAgindo, const std::vector<SistemaPersonagem*>& inimigos, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& aliados) {
+    definirTurnoVisivel(turnoAtual, personagemAgindo->obterNome());
+    personagemHUD = personagemAgindo;
     selecaoAcaoAtual = 0;
-    int totalOpcoes = 7;
+    
 
     while (true) {
+        opcoesMenuAtual.clear();
+        
+        // Se o HUD estiver focado em alguem que NAO e o dono do turno, restringe as acoes
+        if (personagemHUD != nullptr && personagemHUD != personagemAgindo) {
+            opcoesMenuAtual.push_back("Voltar a Acao");
+            opcoesMenuAtual.push_back("Ver Aliados");
+        } else {
+            opcoesMenuAtual.push_back("Atacar");
+            opcoesMenuAtual.push_back("Defender");
+            opcoesMenuAtual.push_back("Habilidade");
+            
+            bool temInventario = (personagemAgindo->obterInventario() != nullptr && personagemAgindo->obterInventario()->obterTodosOsItens().size() > 0);
+            if (temInventario || personagemAgindo == jogadorAtual) {
+                opcoesMenuAtual.push_back("Inventario");
+            }
+            
+            opcoesMenuAtual.push_back("Ficha");
+            if (!aliados.empty()) opcoesMenuAtual.push_back("Ver Aliados");
+            opcoesMenuAtual.push_back("Bestiario");
+            opcoesMenuAtual.push_back("Log Batalha");
+        }
+
+        int totalOpcoes = static_cast<int>(opcoesMenuAtual.size());
+
         atualizarTelaEstatica("", inimigos, jogadorAtual, aliados);
         
         unsigned char tecla = static_cast<unsigned char>(ControleDeInput::lerTecla());
@@ -637,10 +672,31 @@ int TelaCombate::obterAcaoDoJogador(int turnoAtual, const std::string& nomePerso
             if (selecaoAcaoAtual >= totalOpcoes) selecaoAcaoAtual = 0; 
         }
         else if (tecla == '\r' || tecla == '\n') { 
+            std::string op = opcoesMenuAtual[selecaoAcaoAtual];
+            if (op == "Ver Aliados") {
+                selecionarHUDDeAliado(jogadorAtual, aliados);
+                selecaoAcaoAtual = 0; // Reseta selecao para evitar falhas ao recarregar a lista
+                continue;
+            }
+            if (op == "Voltar a Acao") {
+                personagemHUD = personagemAgindo;
+                selecaoAcaoAtual = 0;
+                continue;
+            }
+
             int escolha = selecaoAcaoAtual;
             selecaoAcaoAtual = -1; // Remove cursor para as animacoes manterem a tela limpa
+            personagemHUD = nullptr; // Garante que o HUD volte a mostrar o personagem agindo de fato nas proximas animacoes
             atualizarTelaEstatica("", inimigos, jogadorAtual, aliados);
-            return escolha + 1; 
+            
+            if (op == "Atacar") return 1;
+            if (op == "Defender") return 2;
+            if (op == "Habilidade") return 3;
+            if (op == "Inventario") return 4;
+            if (op == "Ficha") return 5;
+            if (op == "Bestiario") return 6;
+            if (op == "Log Batalha") return 7;
+            return 0;
         }
     }
 }
@@ -685,6 +741,23 @@ int TelaCombate::obterAlvoAtaque(const std::string& tituloCombate, const std::ve
             atualizarTelaEstatica(tituloCombate, inimigos, jogadorAtual, aliados);
             return -1;
         }
+    }
+}
+
+void TelaCombate::selecionarHUDDeAliado(SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& aliados) {
+    std::vector<std::string> opcoesHUD;
+    opcoesHUD.push_back(jogadorAtual->obterNome());
+    for (auto* aliado : aliados) {
+        opcoesHUD.push_back(aliado->obterNome());
+    }
+    opcoesHUD.push_back("Voltar");
+
+    std::cout << "\n" << Aparencia::margemCombate() << "═══ SELECIONE O PERSONAGEM PARA VER INFO ═══\n";
+    int escolha = ControleDeInput::lerSelecaoMenuComSetas(opcoesHUD, false, Aparencia::margemCombate());
+    
+    if (escolha >= 0 && escolha < static_cast<int>(opcoesHUD.size()) - 1) {
+        if (escolha == 0) personagemHUD = jogadorAtual;
+        else personagemHUD = aliados[escolha - 1];
     }
 }
 

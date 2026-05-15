@@ -119,6 +119,7 @@ int TelaMenu::exibirOpcoesMenuPrincipal(bool temSave) {
     static bool animacaoAberturaConcluida = false;
 
     if (!animacaoAberturaConcluida) {
+        std::cout << "\033[?25l"; // Esconde o cursor durante a animacao de fade in
         Aparencia::limparTela();
         int larguraConsole = Aparencia::obterLarguraTerminal();
         int alturaConsole = Aparencia::obterAlturaTerminal();
@@ -238,6 +239,7 @@ int TelaMenu::exibirMenuCarregarJogo(const std::vector<std::string>& informacoes
 }
 
 void TelaMenu::exibirPromptNome() {
+    std::cout << "\033[?25l"; // Esconde o cursor durante a animacao de digitacao do texto
     Aparencia::limparTela();
     exibirLogoDoJogo("INTRODUCAO AO RPG");
     

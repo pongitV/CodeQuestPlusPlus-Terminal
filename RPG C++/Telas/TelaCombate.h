@@ -29,9 +29,12 @@ public:
     static int selecaoAcaoAtual;
     static int selecaoAlvoAtual;
     static void definirTurnoVisivel(int turno, const std::string& nome);
+    static std::vector<std::string> opcoesMenuAtual;
+    static SistemaPersonagem* personagemHUD;
+    static void selecionarHUDDeAliado(SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& aliados);
 
     // Menus e interacoes de texto do combate
-    static int obterAcaoDoJogador(int turnoAtual, const std::string& nomePersonagem, const std::vector<SistemaPersonagem*>& inimigos, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& aliados);
+    static int obterAcaoDoJogador(int turnoAtual, SistemaPersonagem* personagemAgindo, const std::vector<SistemaPersonagem*>& inimigos, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& aliados);
     static int obterAlvoAtaque(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& inimigos, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& aliados);
     static int obterAlvoItem(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& inimigos, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& aliados);
     static int obterEscolhaDeEscudo(const std::string& nomePersonagem, const std::vector<Item*>& listaDeEscudos);
