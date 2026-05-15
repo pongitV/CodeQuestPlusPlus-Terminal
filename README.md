@@ -29,4 +29,4 @@ Para garantir a consistência e a legibilidade do código, adotei o seguinte pad
 ## Status Atual do Projeto
 
 O repositório está em **manutenção e evolução constante**. Novas funcionalidades, refatorações e melhorias são aplicadas frequentemente de acordo com o histórico de commits.
-O progresso e histótia do jogo estão inacabados com utilização de placeholders para futuras implementações.
+O progresso e história do jogo estão inacabados com utilização de placeholders para futuras implementações.
