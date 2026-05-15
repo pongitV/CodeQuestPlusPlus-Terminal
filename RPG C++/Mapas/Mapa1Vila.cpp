@@ -4,6 +4,8 @@
 #include <vector>
 #include <memory>
 #include <utility>
+#include <chrono>
+#include <thread>
 
 #include "Mapa2Floresta.h"
 #include "../Telas/TelaMenu.h"
@@ -159,6 +161,13 @@ namespace {
             }
         }
     };
+
+    std::vector<std::string> obterLayoutOriginalVila(const std::string& titulo, bool bjornResgatado) {
+        if (titulo == "CAVERNA DO ORK") return Mapa1VilaLayouts::obterLayoutCaverna(bjornResgatado);
+        if (titulo == "FORJA DA VILA") return Mapa1VilaLayouts::obterLayoutForja();
+        if (titulo == "LOJA DA VILA") return Mapa1VilaLayouts::obterLayoutLoja();
+        return Mapa1VilaLayouts::obterLayoutVilaInicial();
+    }
 }
 
 void Mapa1Vila::inicializarInteracoes() {
@@ -184,11 +193,14 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
 
     int linhaInicialParaDesenharOMapa = Aparencia::obterPosicaoCursorY();
 
+    bool precisaRenderizar = true;
+
     // Lambda para restaurar a tela apos eventos sem piscar
     auto restaurarTela = [&]() {
         Aparencia::limparTela();
         exibirTituloDoMapaVila(tituloDoMapaAtual);
         linhaInicialParaDesenharOMapa = Aparencia::obterPosicaoCursorY();
+        precisaRenderizar = true;
     };
 
     // Mapa base da vila — reutilizado no respawn apos a floresta
@@ -210,32 +222,52 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
         }
     };
 
+    auto ultimoMovimentoInimigos = std::chrono::steady_clock::now();
+
     while (exploracaoEstaAtiva && jogadorAtual->obterVida() > 0)
     {
+        auto agora = std::chrono::steady_clock::now();
+        bool tempoDeMoverInimigos = std::chrono::duration_cast<std::chrono::milliseconds>(agora - ultimoMovimentoInimigos).count() >= 800;
+
+        if (tempoDeMoverInimigos) {
+            ControleMapa::moverInimigosAleatoriamente(matrizDoMapaAtual, obterLayoutOriginalVila(tituloDoMapaAtual, bjornResgatado), "GO", posicaoXDoJogador, posicaoYDoJogador);
+            ultimoMovimentoInimigos = std::chrono::steady_clock::now();
+            precisaRenderizar = true;
+        }
+
         int larguraDoTerminal = Aparencia::obterLarguraTerminal();
-        int alturaDoTerminal = Aparencia::obterAlturaTerminal();
-
-        auto formatador = [&](char celula, int x, int y) -> std::string {
-            if (x == posicaoXDoJogador && y == posicaoYDoJogador) return Aparencia::cor(Cor::NEGRITO, Cor::VERDE) + "@" + Aparencia::cor(Cor::RESET);
-            if (celula == 'G' || celula == 'O') return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
-            if (celula == 'B') return Aparencia::cor(Cor::NEGRITO, Cor::CIANO) + "B" + Aparencia::cor(Cor::RESET);
-            if (celula == 'F' && x > 0 && matrizDoMapaAtual[y][x-1] == '.') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "F" + Aparencia::cor(Cor::RESET);
-            return std::string(1, celula);
-        };
-        ControleMapa::renderizarMapa(matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, larguraDoTerminal, alturaDoTerminal, linhaInicialParaDesenharOMapa, formatador);
-
-        char teclaPressionadaPeloJogador = ControleDeInput::lerTecla();
-
-        int proximaPosicaoX = posicaoXDoJogador;
-        int proximaPosicaoY = posicaoYDoJogador;
-
-        bool abriuMenu = ControleMapa::processarInputEComandos(teclaPressionadaPeloJogador, jogadorAtual, proximaPosicaoX, proximaPosicaoY, restaurarTela);
         
-        if (jogadorAtual->obterVoltarProMenu()) break;
-        if (abriuMenu) continue;
+        if (precisaRenderizar) {
+            int alturaDoTerminal = Aparencia::obterAlturaTerminal();
 
-        ControleMapa::aplicarLimitesDeMapa(proximaPosicaoX, proximaPosicaoY, matrizDoMapaAtual);
+            auto formatador = [&](char celula, int x, int y) -> std::string {
+                if (x == posicaoXDoJogador && y == posicaoYDoJogador) return Aparencia::cor(Cor::NEGRITO, Cor::VERDE) + "@" + Aparencia::cor(Cor::RESET);
+                if (celula == 'G' || celula == 'O') return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
+                if (celula == 'B') return Aparencia::cor(Cor::NEGRITO, Cor::CIANO) + "B" + Aparencia::cor(Cor::RESET);
+                if (celula == 'F' && x > 0 && matrizDoMapaAtual[y][x-1] == '.') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "F" + Aparencia::cor(Cor::RESET);
+                return std::string(1, celula);
+            };
+            ControleMapa::renderizarMapa(matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, larguraDoTerminal, alturaDoTerminal, linhaInicialParaDesenharOMapa, formatador);
+            precisaRenderizar = false;
+        }
 
-        processarInteracao(proximaPosicaoX, proximaPosicaoY, larguraDoTerminal);
+        if (ControleDeInput::teclaPressionada()) {
+            char teclaPressionadaPeloJogador = ControleDeInput::lerTecla();
+
+            int proximaPosicaoX = posicaoXDoJogador;
+            int proximaPosicaoY = posicaoYDoJogador;
+
+            bool abriuMenu = ControleMapa::processarInputEComandos(teclaPressionadaPeloJogador, jogadorAtual, proximaPosicaoX, proximaPosicaoY, restaurarTela);
+            
+            if (jogadorAtual->obterVoltarProMenu()) break;
+            if (abriuMenu) continue;
+
+            ControleMapa::aplicarLimitesDeMapa(proximaPosicaoX, proximaPosicaoY, matrizDoMapaAtual);
+            processarInteracao(proximaPosicaoX, proximaPosicaoY, larguraDoTerminal);
+            
+            precisaRenderizar = true;
+        } else {
+            std::this_thread::sleep_for(std::chrono::milliseconds(30));
+        }
     }
 }
