@@ -22,6 +22,88 @@
 #include "../Utilidades/Aparencia.h"
 #include "SistemaPersonagem.h"
 
+namespace {
+    std::unique_ptr<Item> recriarItemComModificadores(const std::string& nomeSalvo) {
+        std::string cleanName = nomeSalvo;
+        bool isSangrenta = false, isViscosa = false, isQuebraDefesas = false, isImbuida = false;
+        bool isArcoMagico = false, isCajadoCipos = false, isViolaoMagico = false;
+        
+        if (cleanName.find(" (Sangrenta)") != std::string::npos) { isSangrenta = true; cleanName.erase(cleanName.find(" (Sangrenta)"), 12); }
+        if (cleanName.find(" (Viscosa)") != std::string::npos) { isViscosa = true; cleanName.erase(cleanName.find(" (Viscosa)"), 10); }
+        if (cleanName.find(" (Quebra-Defesas)") != std::string::npos) { isQuebraDefesas = true; cleanName.erase(cleanName.find(" (Quebra-Defesas)"), 17); }
+        if (cleanName.find(" (Imbuida)") != std::string::npos) { isImbuida = true; cleanName.erase(cleanName.find(" (Imbuida)"), 10); }
+
+        int nivelMelhoria = 0;
+        size_t posPlus = cleanName.find_last_of('+');
+        if (posPlus != std::string::npos && posPlus > 0 && cleanName[posPlus-1] == ' ') {
+            try {
+                nivelMelhoria = std::stoi(cleanName.substr(posPlus + 1));
+                cleanName.erase(posPlus - 1);
+            } catch (...) {}
+        }
+
+        if (cleanName.find("Arco recurvo de madeira enfeiticada") != std::string::npos) { isArcoMagico = true; cleanName.replace(cleanName.find("Arco recurvo de madeira enfeiticada"), 35, "Arco recurvo de madeira"); }
+        else if (cleanName.find("Cajado de cipos") != std::string::npos) { isCajadoCipos = true; cleanName.replace(cleanName.find("Cajado de cipos"), 15, "Cajado de cristal magico"); }
+        else if (cleanName.find("Violao enfeiticado") != std::string::npos) { isViolaoMagico = true; cleanName.replace(cleanName.find("Violao enfeiticado"), 18, "Violao encantado"); }
+
+        auto novoItem = FabricaItens::criarItem(cleanName);
+        if (novoItem) {
+            for (int lvl = 0; lvl < nivelMelhoria; ++lvl) {
+                if (auto copia = novoItem->gerarCopiaMelhorada()) {
+                    novoItem = std::move(copia);
+                }
+            }
+
+            if (auto arma = dynamic_cast<EquipamentoArma*>(novoItem.get())) {
+                if (isSangrenta) arma->aplicarEfeitoSangramento();
+                if (isViscosa) arma->aplicarEfeitoLentidao();
+                if (isQuebraDefesas) arma->adicionarPropriedade(Propriedade::Penetrante);
+                
+                if (isArcoMagico) {
+                    int novoDanoMagico = arma->obterDanoMagico() + (arma->obterDanoFisico() / 2);
+                    auto novoArcoObj = std::make_unique<EquipamentoArma>(
+                        nomeSalvo, arma->obterDanoFisico(), novoDanoMagico, 
+                        arma->obterReqForca(), arma->obterReqDestreza(), 
+                        arma->obterReqInteligencia(), arma->obterReqSabedoria(), 0);
+                    if (isSangrenta) novoArcoObj->aplicarEfeitoSangramento();
+                    if (isViscosa) novoArcoObj->aplicarEfeitoLentidao();
+                    if (isQuebraDefesas) novoArcoObj->adicionarPropriedade(Propriedade::Penetrante);
+                    for (Propriedade prop : arma->obterPropriedades()) novoArcoObj->adicionarPropriedade(prop);
+                    novoArcoObj->adicionarPropriedade(Propriedade::Magica);
+                    novoItem = std::move(novoArcoObj);
+                } 
+                else if (isCajadoCipos) {
+                    arma->adicionarPropriedade(Propriedade::CipoPrisao);
+                    arma->alterarNome(nomeSalvo);
+                }
+                else if (isViolaoMagico) {
+                    arma->adicionarPropriedade(Propriedade::ViolaoMagico);
+                    arma->alterarNome(nomeSalvo);
+                } 
+                else {
+                    arma->alterarNome(nomeSalvo);
+                }
+            }
+            
+            if (isImbuida) {
+                if (auto armadura = dynamic_cast<EquipamentoArmadura*>(novoItem.get())) {
+                    auto novaArmadura = std::make_unique<EquipamentoArmadura>(
+                        nomeSalvo, 
+                        armadura->obterReducaoFixa() + 3, 
+                        armadura->obterReqResistencia(), 
+                        armadura->obterReqConstituicao(), 
+                        armadura->obterPrecoVenda() + 200
+                    );
+                    for (Propriedade prop : armadura->obterPropriedades()) novaArmadura->adicionarPropriedade(prop);
+                    novaArmadura->adicionarPropriedade(Propriedade::MelhoradoMaterial);
+                    novoItem = std::move(novaArmadura);
+                }
+            }
+        }
+        return novoItem;
+    }
+}
+
 bool SistemaSave::saveExiste() {
     return !listarSaves().empty();
 }
@@ -137,82 +219,8 @@ std::unique_ptr<SistemaPersonagem> SistemaSave::carregarJogo(const std::string& 
         arquivo.ignore(); // Consome o espaco entre o numero do slot e o nome do item
         std::string nomeItem; std::getline(arquivo, nomeItem);
         
-        std::string cleanName = nomeItem;
-        bool isSangrenta = false, isViscosa = false, isQuebraDefesas = false, isImbuida = false;
-        bool isArcoMagico = false, isCajadoCipos = false, isViolaoMagico = false;
-        
-        if (cleanName.find(" (Sangrenta)") != std::string::npos) { isSangrenta = true; cleanName.erase(cleanName.find(" (Sangrenta)"), 12); }
-        if (cleanName.find(" (Viscosa)") != std::string::npos) { isViscosa = true; cleanName.erase(cleanName.find(" (Viscosa)"), 10); }
-        if (cleanName.find(" (Quebra-Defesas)") != std::string::npos) { isQuebraDefesas = true; cleanName.erase(cleanName.find(" (Quebra-Defesas)"), 17); }
-        if (cleanName.find(" (Imbuida)") != std::string::npos) { isImbuida = true; cleanName.erase(cleanName.find(" (Imbuida)"), 10); }
-
-        int nivelMelhoria = 0;
-        size_t posPlus = cleanName.find_last_of('+');
-        if (posPlus != std::string::npos && posPlus > 0 && cleanName[posPlus-1] == ' ') {
-            try {
-                nivelMelhoria = std::stoi(cleanName.substr(posPlus + 1));
-                cleanName.erase(posPlus - 1);
-            } catch (...) {}
-        }
-
-        if (cleanName.find("Arco recurvo de madeira enfeiticada") != std::string::npos) { isArcoMagico = true; cleanName.replace(cleanName.find("Arco recurvo de madeira enfeiticada"), 35, "Arco recurvo de madeira"); }
-        else if (cleanName.find("Cajado de cipos") != std::string::npos) { isCajadoCipos = true; cleanName.replace(cleanName.find("Cajado de cipos"), 15, "Cajado de cristal magico"); }
-        else if (cleanName.find("Violao enfeiticado") != std::string::npos) { isViolaoMagico = true; cleanName.replace(cleanName.find("Violao enfeiticado"), 18, "Violao encantado"); }
-
-        auto novoItem = FabricaItens::criarItem(cleanName);
+        auto novoItem = recriarItemComModificadores(nomeItem);
         if (novoItem) {
-            for (int lvl = 0; lvl < nivelMelhoria; ++lvl) {
-                if (auto copia = novoItem->gerarCopiaMelhorada()) {
-                    novoItem = std::move(copia);
-                }
-            }
-
-            if (auto arma = dynamic_cast<EquipamentoArma*>(novoItem.get())) {
-                if (isSangrenta) arma->aplicarEfeitoSangramento();
-                if (isViscosa) arma->aplicarEfeitoLentidao();
-                if (isQuebraDefesas) arma->adicionarPropriedade(Propriedade::Penetrante);
-                
-                if (isArcoMagico) {
-                    int novoDanoMagico = arma->obterDanoMagico() + (arma->obterDanoFisico() / 2);
-                    auto novoArcoObj = std::make_unique<EquipamentoArma>(
-                        nomeItem, arma->obterDanoFisico(), novoDanoMagico, 
-                        arma->obterReqForca(), arma->obterReqDestreza(), 
-                        arma->obterReqInteligencia(), arma->obterReqSabedoria(), 0);
-                    if (isSangrenta) novoArcoObj->aplicarEfeitoSangramento();
-                    if (isViscosa) novoArcoObj->aplicarEfeitoLentidao();
-                    if (isQuebraDefesas) novoArcoObj->adicionarPropriedade(Propriedade::Penetrante);
-                    for (Propriedade prop : arma->obterPropriedades()) novoArcoObj->adicionarPropriedade(prop);
-                    novoArcoObj->adicionarPropriedade(Propriedade::Magica);
-                    novoItem = std::move(novoArcoObj);
-                } 
-                else if (isCajadoCipos) {
-                    arma->adicionarPropriedade(Propriedade::CipoPrisao);
-                    arma->alterarNome(nomeItem);
-                }
-                else if (isViolaoMagico) {
-                    arma->adicionarPropriedade(Propriedade::ViolaoMagico);
-                    arma->alterarNome(nomeItem);
-                } 
-                else {
-                    arma->alterarNome(nomeItem);
-                }
-            }
-            
-            if (isImbuida) {
-                if (auto armadura = dynamic_cast<EquipamentoArmadura*>(novoItem.get())) {
-                    auto novaArmadura = std::make_unique<EquipamentoArmadura>(
-                        nomeItem, 
-                        armadura->obterReducaoFixa() + 3, 
-                        armadura->obterReqResistencia(), 
-                        armadura->obterReqConstituicao(), 
-                        armadura->obterPrecoVenda() + 200
-                    );
-                    for (Propriedade prop : armadura->obterPropriedades()) novaArmadura->adicionarPropriedade(prop);
-                    novaArmadura->adicionarPropriedade(Propriedade::MelhoradoMaterial);
-                    novoItem = std::move(novaArmadura);
-                }
-            }
-
             Item* ptr = novoItem.get();
             jogador->obterInventario()->adicionarItem(std::move(novoItem));
             if (equipSlot != 0) jogador->equiparItem(ptr);

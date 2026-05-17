@@ -25,6 +25,9 @@
 #include "../Classes/Guerreiro.h"
 #include "../Classes/Mago.h"
 #include "../Gerenciadores/GerenciadorInimigos.h"
+#include "../Inventario/EquipamentoArma.h"
+#include "../Inventario/EquipamentoArmadura.h"
+#include "../Inventario/EquipamentoEscudo.h"
 #include "../Inventario/Item.h"
 #include "../Inventario/ItemConsumivel.h"
 #include "../Racas/Dwarf.h"
@@ -41,27 +44,160 @@
 #include "../Utilidades/GeradorAleatorio.h"
 
 namespace {
+    std::vector<std::string> lerInfoSavesLocal(const std::vector<std::string>& saves) {
+        std::vector<std::string> informacoesSaves;
+        informacoesSaves.reserve(saves.size());
+        for (const auto& save : saves) {
+            std::ifstream arquivoSave(save);
+            if (arquivoSave.is_open()) {
+                std::string nome, racaStr, classeStr;
+                std::getline(arquivoSave, nome);
+                std::getline(arquivoSave, racaStr);
+                std::getline(arquivoSave, classeStr);
+                int nivel;
+                arquivoSave >> nivel;
+                informacoesSaves.push_back(nome + " | Nv " + std::to_string(nivel) + " | " + classeStr + " | " + racaStr);
+            } else {
+                std::string nomeExibicao = save.substr(5, save.size() - 9);
+                informacoesSaves.push_back(nomeExibicao);
+            }
+        }
+        return informacoesSaves;
+    }
 }
 
 std::vector<std::string> GerenciadorMenu::lerInformacoesDosSaves(const std::vector<std::string>& saves) {
-    std::vector<std::string> informacoesSaves;
-    informacoesSaves.reserve(saves.size());
-    for (const auto& save : saves) {
-        std::ifstream arquivoSave(save);
-        if (arquivoSave.is_open()) {
-            std::string nome, racaStr, classeStr;
-            std::getline(arquivoSave, nome);
-            std::getline(arquivoSave, racaStr);
-            std::getline(arquivoSave, classeStr);
-            int nivel;
-            arquivoSave >> nivel;
-            informacoesSaves.push_back(nome + " | Nv " + std::to_string(nivel) + " | " + classeStr + " | " + racaStr);
-        } else {
-            std::string nomeExibicao = save.substr(5, save.size() - 9);
-            informacoesSaves.push_back(nomeExibicao);
+    return lerInfoSavesLocal(saves);
+}
+
+namespace {
+    std::unique_ptr<SistemaPersonagem> lidarOpcoesDoSave(const std::string& saveSelecionado, const std::string& infoSave, bool& saveFoiDeletado) {
+        while (true) {
+            Aparencia::limparTela();
+            TelaMenu::exibirLogoDoJogo("OPCOES DO SAVE");
+            std::cout << "\n";
+            Aparencia::imprimirCentralizado("Save selecionado: " + infoSave, Aparencia::cor(Cor::CIANO));
+            std::cout << "\n";
+            
+            std::vector<std::string> acoesSave = {"Ver Informacoes", "Carregar", "Deletar", "Voltar"};
+            int escAcao = ControleDeInput::lerSelecaoMenuComSetas(acoesSave, true);
+            
+            if (escAcao == 0) {
+                Aparencia::limparTela();
+                TelaMenu::exibirLogoDoJogo("INFORMACOES DO SAVE");
+                
+                std::ifstream arquivoSave(saveSelecionado);
+                if (arquivoSave.is_open()) {
+                    std::string nome, raca, classe;
+                    std::getline(arquivoSave, nome);
+                    std::getline(arquivoSave, raca);
+                    std::getline(arquivoSave, classe);
+                    int nivel, xp, xpMax, vida, ouro, dif, lab;
+                    arquivoSave >> nivel >> xp >> xpMax >> vida >> ouro >> dif >> lab;
+                    
+                    std::vector<std::string> painelInfo = {
+                        "NOME:       " + nome, "RACA:       " + raca, "CLASSE:     " + classe,
+                        "NIVEL:      " + std::to_string(nivel), "XP:         " + std::to_string(xp) + " / " + std::to_string(xpMax),
+                        "VIDA SALVA: " + std::to_string(vida), "OURO:       " + std::to_string(ouro) + "G",
+                        "DIFICULDADE:" + std::string(dif == 1 ? " Facil" : (dif == 2 ? " Normal" : " Dificil"))
+                    };
+                    std::cout << "\n";
+                    Aparencia::imprimirBlocoCentralizado(Aparencia::criarCaixa(painelInfo, "DADOS DO PERSONAGEM", 40, Cor::CIANO));
+                } else {
+                    std::cout << "\n";
+                    Aparencia::imprimirCentralizado("Nao foi possivel ler os dados.", Aparencia::cor(Cor::VERMELHO));
+                }
+                ControleDeInput::aguardarEnter();
+            }
+            else if (escAcao == 1) {
+                auto jogador = SistemaSave::carregarJogo(saveSelecionado);
+                if (jogador) {
+                    std::cout << "\n";
+                    Aparencia::imprimirCentralizado("[SISTEMA]: Jogo carregado com sucesso!");
+                    ControleDeInput::aguardarEnter();
+                    return jogador;
+                } else {
+                    std::cout << "\n";
+                    Aparencia::imprimirCentralizado("[ERRO]: Falha ao carregar o save!", Aparencia::cor(Cor::VERMELHO));
+                    ControleDeInput::aguardarEnter();
+                }
+            }
+            else if (escAcao == 2) {
+                Aparencia::limparTela();
+                TelaMenu::exibirLogoDoJogo("DELETAR SAVE");
+                std::string nomeCorreto = "";
+                std::ifstream arquivoSave(saveSelecionado);
+                if (arquivoSave.is_open()) { std::getline(arquivoSave, nomeCorreto); arquivoSave.close(); }
+                
+                std::cout << "\n";
+                Aparencia::imprimirCentralizado("ATENCAO: Esta acao e irreversivel!", Aparencia::cor(Cor::VERMELHO));
+                Aparencia::imprimirCentralizado("Para confirmar a exclusao, digite exatamente o nome do personagem:");
+                std::cout << "\n" << Aparencia::espacosParaCentralizar(nomeCorreto.length() + 2) << "[" << Aparencia::cor(Cor::AMARELO) << nomeCorreto << Aparencia::cor(Cor::RESET) << "]\n";
+                
+                std::string digitado = ControleDeInput::lerEntradaProtegida("> ");
+                if (digitado == nomeCorreto) {
+                    SistemaSave::deletarSave(saveSelecionado);
+                    std::cout << "\n";
+                    Aparencia::imprimirCentralizado("[SISTEMA]: Save deletado com sucesso!", Aparencia::cor(Cor::VERDE));
+                    ControleDeInput::aguardarEnter();
+                    saveFoiDeletado = true;
+                    break; 
+                } else {
+                    std::cout << "\n";
+                    Aparencia::imprimirCentralizado("[SISTEMA]: Nome incorreto. Exclusao cancelada.", Aparencia::cor(Cor::VERMELHO));
+                    ControleDeInput::aguardarEnter();
+                }
+            }
+            else if (escAcao == 3) { break; }
         }
+        return nullptr;
     }
-    return informacoesSaves;
+
+    std::unique_ptr<SistemaPersonagem> lidarGerenciamentoDeSaves() {
+        while (true) {
+            auto saves = SistemaSave::listarSaves();
+            if (saves.empty()) {
+                Aparencia::limparTela();
+                TelaMenu::exibirLogoDoJogo("GERENCIAR SAVES");
+                std::cout << "\n";
+                Aparencia::imprimirCentralizado("Nenhum save encontrado.", Aparencia::cor(Cor::AMARELO));
+                ControleDeInput::aguardarEnter();
+                break; 
+            }
+            
+            std::vector<std::string> infoSaves = lerInfoSavesLocal(saves);
+            
+            Aparencia::limparTela();
+            TelaMenu::exibirLogoDoJogo("GERENCIAR SAVES");
+            std::cout << "\n";
+            Aparencia::imprimirCentralizado("Selecione um save para gerenciar:\n");
+            
+            std::vector<std::string> opcoesSave = infoSaves;
+            opcoesSave.push_back("Voltar");
+            int escSave = ControleDeInput::lerSelecaoMenuComSetas(opcoesSave, true);
+            
+            if (escSave >= 0 && escSave < static_cast<int>(saves.size())) {
+                bool saveDeletado = false;
+                auto jogador = lidarOpcoesDoSave(saves[escSave], infoSaves[escSave], saveDeletado);
+                if (jogador) return jogador;
+            } else { break; }
+        }
+        return nullptr;
+    }
+
+    std::unique_ptr<SistemaPersonagem> lidarMenuDeOpcoes() {
+        while (true) {
+            Aparencia::limparTela();
+            TelaMenu::exibirLogoDoJogo("OPCOES");
+            std::cout << "\n";
+            int esc = ControleDeInput::lerSelecaoMenuComSetas({"Gerenciar Saves", "Voltar"}, true);
+            if (esc == 0) {
+                auto jogador = lidarGerenciamentoDeSaves();
+                if (jogador) return jogador;
+            } else if (esc == 1) { break; }
+        }
+        return nullptr;
+    }
 }
 
 std::unique_ptr<SistemaPersonagem> GerenciadorMenu::menuPrincipal() 
@@ -99,137 +235,8 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::menuPrincipal()
                 }
             }
         } else if (opcaoSelecionada == "Opcoes") {
-            while (true) {
-                Aparencia::limparTela();
-                TelaMenu::exibirLogoDoJogo("OPCOES");
-                std::cout << "\n";
-                std::vector<std::string> ops = {"Gerenciar Saves", "Voltar"};
-                int esc = ControleDeInput::lerSelecaoMenuComSetas(ops, true);
-                
-                if (esc == 0) { // Gerenciar Saves
-                    while (true) {
-                        auto saves = SistemaSave::listarSaves();
-                        if (saves.empty()) {
-                            Aparencia::limparTela();
-                            TelaMenu::exibirLogoDoJogo("GERENCIAR SAVES");
-                            std::cout << "\n";
-                            Aparencia::imprimirCentralizado("Nenhum save encontrado.", Aparencia::cor(Cor::AMARELO));
-                            ControleDeInput::aguardarEnter();
-                            break; 
-                        }
-                        
-                        std::vector<std::string> infoSaves = lerInformacoesDosSaves(saves);
-                        
-                        Aparencia::limparTela();
-                        TelaMenu::exibirLogoDoJogo("GERENCIAR SAVES");
-                        std::cout << "\n";
-                        Aparencia::imprimirCentralizado("Selecione um save para gerenciar:");
-                        std::cout << "\n";
-                        
-                        std::vector<std::string> opcoesSave = infoSaves;
-                        opcoesSave.push_back("Voltar");
-                        int escSave = ControleDeInput::lerSelecaoMenuComSetas(opcoesSave, true);
-                        
-                        if (escSave >= 0 && escSave < static_cast<int>(saves.size())) {
-                            std::string saveSelecionado = saves[escSave];
-                            
-                            while (true) {
-                                Aparencia::limparTela();
-                                TelaMenu::exibirLogoDoJogo("OPCOES DO SAVE");
-                                std::cout << "\n";
-                                Aparencia::imprimirCentralizado("Save selecionado: " + infoSaves[escSave], Aparencia::cor(Cor::CIANO));
-                                std::cout << "\n";
-                                
-                                std::vector<std::string> acoesSave = {"Ver Informacoes", "Carregar", "Deletar", "Voltar"};
-                                int escAcao = ControleDeInput::lerSelecaoMenuComSetas(acoesSave, true);
-                                
-                                if (escAcao == 0) { // Ver Info
-                                    Aparencia::limparTela();
-                                    TelaMenu::exibirLogoDoJogo("INFORMACOES DO SAVE");
-                                    
-                                    std::ifstream arquivoSave(saveSelecionado);
-                                    if (arquivoSave.is_open()) {
-                                        std::string nome, raca, classe;
-                                        std::getline(arquivoSave, nome);
-                                        std::getline(arquivoSave, raca);
-                                        std::getline(arquivoSave, classe);
-                                        int nivel, xp, xpMax, vida, ouro, dif, lab;
-                                        arquivoSave >> nivel >> xp >> xpMax >> vida >> ouro >> dif >> lab;
-                                        
-                                        std::vector<std::string> painelInfo = {
-                                            "NOME:       " + nome,
-                                            "RACA:       " + raca,
-                                            "CLASSE:     " + classe,
-                                            "NIVEL:      " + std::to_string(nivel),
-                                            "XP:         " + std::to_string(xp) + " / " + std::to_string(xpMax),
-                                            "VIDA SALVA: " + std::to_string(vida),
-                                            "OURO:       " + std::to_string(ouro) + "G",
-                                            "DIFICULDADE:" + std::string(dif == 1 ? " Facil" : (dif == 2 ? " Normal" : " Dificil"))
-                                        };
-                                        std::cout << "\n";
-                                        Aparencia::imprimirBlocoCentralizado(Aparencia::criarCaixa(painelInfo, "DADOS DO PERSONAGEM", 40, Cor::CIANO));
-                                    } else {
-                                        std::cout << "\n";
-                                        Aparencia::imprimirCentralizado("Nao foi possivel ler os dados.", Aparencia::cor(Cor::VERMELHO));
-                                    }
-                                    ControleDeInput::aguardarEnter();
-                                }
-                                else if (escAcao == 1) { // Carregar
-                                    auto jogador = SistemaSave::carregarJogo(saveSelecionado);
-                                    if (jogador) {
-                                        std::cout << "\n";
-                                        Aparencia::imprimirCentralizado("[SISTEMA]: Jogo carregado com sucesso!");
-                                        ControleDeInput::aguardarEnter();
-                                        return jogador;
-                                    } else {
-                                        std::cout << "\n";
-                                        Aparencia::imprimirCentralizado("[ERRO]: Falha ao carregar o save!", Aparencia::cor(Cor::VERMELHO));
-                                        ControleDeInput::aguardarEnter();
-                                    }
-                                }
-                                else if (escAcao == 2) { // Deletar
-                                    Aparencia::limparTela();
-                                    TelaMenu::exibirLogoDoJogo("DELETAR SAVE");
-                                    
-                                    std::string nomeCorreto = "";
-                                    std::ifstream arquivoSave(saveSelecionado);
-                                    if (arquivoSave.is_open()) {
-                                        std::getline(arquivoSave, nomeCorreto);
-                                        arquivoSave.close();
-                                    }
-                                    
-                                    std::cout << "\n";
-                                    Aparencia::imprimirCentralizado("ATENCAO: Esta acao e irreversivel!", Aparencia::cor(Cor::VERMELHO));
-                                    Aparencia::imprimirCentralizado("Para confirmar a exclusao, digite exatamente o nome do personagem:");
-                                    std::cout << "\n";
-                                    Aparencia::imprimirCentralizado("[" + nomeCorreto + "]", Aparencia::cor(Cor::AMARELO));
-                                    std::cout << "\n";
-                                    
-                                    std::string digitado = ControleDeInput::lerEntradaProtegida("> ");
-                                    if (digitado == nomeCorreto) {
-                                        SistemaSave::deletarSave(saveSelecionado);
-                                        std::cout << "\n";
-                                        Aparencia::imprimirCentralizado("[SISTEMA]: Save deletado com sucesso!", Aparencia::cor(Cor::VERDE));
-                                        ControleDeInput::aguardarEnter();
-                                        break; // Retorna para a lista de saves (Onde ele nao aparecera mais)
-                                    } else {
-                                        std::cout << "\n";
-                                        Aparencia::imprimirCentralizado("[SISTEMA]: Nome incorreto. Exclusao cancelada.", Aparencia::cor(Cor::VERMELHO));
-                                        ControleDeInput::aguardarEnter();
-                                    }
-                                }
-                                else if (escAcao == 3) {
-                                    break;
-                                }
-                            }
-                        } else {
-                            break; 
-                        }
-                    }
-                } else if (esc == 1) { // Voltar
-                    break;
-                }
-            }
+            auto jogador = lidarMenuDeOpcoes();
+            if (jogador) return jogador;
         } else {
             return nullptr;
         }
@@ -260,7 +267,14 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::iniciarCriacaoDeSistemaPerso
     personagemCriado->definirParryAtivado(sistemaDeParryAtivado);
     personagemCriado->definirDificuldade(static_cast<DificuldadeJogo>(nivelDeDificuldadeEscolhido));
     
-    TelaMenu::exibirIntroducaoJornada();
+    std::string nomeDificuldade = Aparencia::cor(Cor::AMARELO) + "Normal" + Aparencia::cor(Cor::RESET);
+    if (nivelDeDificuldadeEscolhido == 1) nomeDificuldade = Aparencia::cor(Cor::VERDE) + "Facil" + Aparencia::cor(Cor::RESET);
+    else if (nivelDeDificuldadeEscolhido == 3) nomeDificuldade = Aparencia::cor(Cor::VERMELHO) + "Dificil" + Aparencia::cor(Cor::RESET);
+
+    std::string statusParry = sistemaDeParryAtivado ? (Aparencia::cor(Cor::VERDE) + "Ligado" + Aparencia::cor(Cor::RESET)) : (Aparencia::cor(Cor::CINZA) + "Desligado" + Aparencia::cor(Cor::RESET));
+    std::string infoBox = "| JOGADOR: " + personagemCriado->obterNome() + " | RACA: " + personagemCriado->obterRaca()->obterNomeRaca() + " | CLASSE: " + personagemCriado->obterNomeClasse() + " | DIFICULDADE: " + nomeDificuldade + " | PARRY: " + statusParry + " |";
+
+    TelaMenu::exibirIntroducaoJornada(infoBox);
 
     return personagemCriado;
 }
@@ -317,31 +331,64 @@ void GerenciadorMenu::etapaEscolherClasse(const std::string& nome, RacaBase* rac
 
     if (classeTemporaria) 
     {
-        std::vector<std::string> info = TelaMenu::comporQuadroDeAtributos(classeTemporaria->obterAtributosClasse(), "[ ATRIBUTOS BONUS DA CLASSE ]", "[ HABILIDADE PASSIVA DA CLASSE ]", classeTemporaria->obterNomePassivaClasse(), classeTemporaria->obterDescricaoPassivaClasse());
+        std::vector<std::string> atrDestaque;
+        TipoClasse tipo = classeTemporaria->obterTipoClasse();
+        if (tipo == TipoClasse::Guerreiro || tipo == TipoClasse::Arqueiro) atrDestaque = {"Forca", "Destreza"};
+        else if (tipo == TipoClasse::Mago || tipo == TipoClasse::Bardo) atrDestaque = {"Inteligencia", "Sabedoria"};
+
+        std::vector<std::string> info = TelaMenu::comporQuadroDeAtributos(classeTemporaria->obterAtributosClasse(), "[ ATRIBUTOS BONUS DA CLASSE ]", "[ HABILIDADE PASSIVA DA CLASSE ]", classeTemporaria->obterNomePassivaClasse(), classeTemporaria->obterDescricaoPassivaClasse(), atrDestaque);
         
         info.push_back("");
         info.insert(info.end(), {
-            "[ HABILIDADE ATIVA DA CLASSE ]",
-            " " + classeTemporaria->obterNomeHabilidadeClasse(),
-            " - " + classeTemporaria->obterDescricaoHabilidadeClasse(),
-            " - " + classeTemporaria->obterRecargaHabilidadeClasse(),
+            Aparencia::cor(Cor::AMARELO) + "[ HABILIDADE ATIVA DA CLASSE ]" + Aparencia::cor(Cor::RESET),
+            " " + Aparencia::cor(Cor::CIANO) + classeTemporaria->obterNomeHabilidadeClasse() + Aparencia::cor(Cor::RESET),
+            " - " + Aparencia::cor(Cor::CINZA) + classeTemporaria->obterDescricaoHabilidadeClasse() + Aparencia::cor(Cor::RESET),
+            " - " + Aparencia::cor(Cor::CINZA) + classeTemporaria->obterRecargaHabilidadeClasse() + Aparencia::cor(Cor::RESET),
             "",
-            "[ EQUIPAMENTO INICIAL DA CLASSE ]" 
+            Aparencia::cor(Cor::AMARELO) + "[ EQUIPAMENTO INICIAL DA CLASSE ]" + Aparencia::cor(Cor::RESET)
         });
         
         auto kit = classeTemporaria->obterEquipamentoClasse();
         std::map<std::string, std::pair<int, TipoEquipamento>> contagem;
         for (const auto& itemDoKit : kit) {
             if (itemDoKit) {
-                contagem[itemDoKit->obterNomeItem() + itemDoKit->obterInfoStatus()].first++;
-                contagem[itemDoKit->obterNomeItem() + itemDoKit->obterInfoStatus()].second = itemDoKit->obterTipo();
+                std::string nomeCompleto = itemDoKit->obterNomeItem() + itemDoKit->obterInfoStatus();
+                
+                if (itemDoKit->obterTipo() == TipoEquipamento::ARMA) {
+                    if (auto* arma = dynamic_cast<EquipamentoArma*>(itemDoKit.get())) {
+                        int dFis = arma->obterDanoFisico();
+                        int dMag = arma->obterDanoMagico();
+                        if (dFis > 0 && dMag > 0) nomeCompleto += Aparencia::cor(Cor::CINZA) + " [" + std::to_string(dFis) + " Fis | " + std::to_string(dMag) + " Mag]" + Aparencia::cor(Cor::RESET);
+                        else if (dFis > 0) nomeCompleto += Aparencia::cor(Cor::CINZA) + " [" + std::to_string(dFis) + " Dano Fis]" + Aparencia::cor(Cor::RESET);
+                        else if (dMag > 0) nomeCompleto += Aparencia::cor(Cor::CINZA) + " [" + std::to_string(dMag) + " Dano Mag]" + Aparencia::cor(Cor::RESET);
+                    }
+                } else if (itemDoKit->obterTipo() == TipoEquipamento::ARMADURA) {
+                    if (auto* armadura = dynamic_cast<EquipamentoArmadura*>(itemDoKit.get())) {
+                        nomeCompleto += Aparencia::cor(Cor::CINZA) + " [" + std::to_string(armadura->obterReducaoFixa()) + " Defesa]" + Aparencia::cor(Cor::RESET);
+                    }
+                } else if (itemDoKit->obterTipo() == TipoEquipamento::ESCUDO) {
+                    if (auto* escudo = dynamic_cast<EquipamentoEscudo*>(itemDoKit.get())) {
+                        nomeCompleto += Aparencia::cor(Cor::CINZA) + " [" + std::to_string(escudo->obterReducaoDanoFixaEscudo()) + " Bloqueio]" + Aparencia::cor(Cor::RESET);
+                    }
+                }
+
+                contagem[nomeCompleto].first++;
+                contagem[nomeCompleto].second = itemDoKit->obterTipo();
             }
         }
         
         std::vector<TipoEquipamento> ordemPrioridade = { TipoEquipamento::ARMA, TipoEquipamento::ESCUDO, TipoEquipamento::ARMADURA, TipoEquipamento::CONSUMIVEL };
         for (TipoEquipamento tipo : ordemPrioridade) {
             for (auto const& [nomeDoItem, dadosDoItem] : contagem) {
-                if (dadosDoItem.second == tipo) info.push_back(" - " + std::to_string(dadosDoItem.first) + "x " + nomeDoItem);
+                if (dadosDoItem.second == tipo) {
+                    std::string corBullet = Aparencia::cor(Cor::BRANCO);
+                    if (tipo == TipoEquipamento::ARMA) corBullet = Aparencia::cor(Cor::VERMELHO_CLARO);
+                    else if (tipo == TipoEquipamento::ESCUDO) corBullet = Aparencia::cor(Cor::CIANO);
+                    else if (tipo == TipoEquipamento::ARMADURA) corBullet = Aparencia::cor(Cor::AMARELO);
+                    else if (tipo == TipoEquipamento::CONSUMIVEL) corBullet = Aparencia::cor(Cor::VERDE_CLARO);
+                    
+                    info.push_back(" " + corBullet + "-" + Aparencia::cor(Cor::RESET) + " " + std::to_string(dadosDoItem.first) + "x " + nomeDoItem);
+                }
             }
         }
 
@@ -364,7 +411,9 @@ void GerenciadorMenu::etapaConfigurarParry(const std::string& nome, RacaBase* ra
 
     if (escolha == 0) {
         parry = true;
-        TelaMenu::exibirTutorialDeParry();
+        std::string statusParry = Aparencia::cor(Cor::VERDE) + "Ligado" + Aparencia::cor(Cor::RESET);
+        std::string infoBox = "| JOGADOR: " + nome + " | RACA: " + raca->obterNomeRaca() + " | CLASSE: " + classe->obterNomeClasse() + " | DIFICULDADE: " + nomeDificuldade + " | PARRY: " + statusParry + " |";
+        TelaMenu::exibirTutorialDeParry(infoBox);
         etapaAtual = EtapaCriacao::Concluido;
     } else if (escolha == 1) {
         parry = false;

@@ -208,6 +208,14 @@ namespace {
             }
         });
     }
+
+    void executarAnimacao(int framesTotais, int intervaloMs, int step, const std::function<void(int)>& renderFrame, const std::function<void()>& renderFim) {
+        for (int frame = 1; frame <= framesTotais; frame += step) {
+            renderFrame(frame);
+            std::this_thread::sleep_for(std::chrono::milliseconds(intervaloMs));
+        }
+        renderFim();
+    }
 }
 
 int TelaCombate::turnoAtualVisivel = 1;
@@ -467,25 +475,54 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
                     linhaArte = std::string(visivelLen, ' ');
                     
                     if (frameAnimacao >= totalLinhasArte) {
-                        int totalDrops = static_cast<int>(dropsAnimacao.size()) + 1; // +1 para exibir "DERROTADO!"
-                        int startDropLine = (totalLinhasArte - totalDrops) / 2;
+                        int maxTextLen = 10; // Tamanho de "DERROTADO!"
+                        for (const auto& d : dropsAnimacao) {
+                            if (static_cast<int>(d.length()) > maxTextLen) maxTextLen = static_cast<int>(d.length());
+                        }
+                        if (maxTextLen > visivelLen - 4) maxTextLen = visivelLen - 4;
+                        if (maxTextLen < 0) maxTextLen = 0;
+
+                        int totalBoxLines = static_cast<int>(dropsAnimacao.size()) + 3; // +1 texto base, +2 bordas
+                        int startDropLine = (totalLinhasArte - totalBoxLines) / 2;
                         if (startDropLine < 0) startDropLine = 0;
                         
-                        int currentDropIndex = static_cast<int>(indiceDaLinhaDaArte) - startDropLine;
-                        if (currentDropIndex >= 0 && currentDropIndex < totalDrops) {
-                            std::string txt = (currentDropIndex == 0) ? "DERROTADO!" : dropsAnimacao[currentDropIndex - 1];
-                            std::string corDrop = Aparencia::cor(Cor::BRANCO);
-                            if (currentDropIndex == 0) corDrop = Aparencia::cor(Cor::VERMELHO);
-                            else if (txt.find("XP") != std::string::npos) corDrop = Aparencia::cor(Cor::CIANO);
-                            else if (txt.find("G") != std::string::npos) corDrop = Aparencia::cor(Cor::AMARELO);
+                        int currentLineIndex = static_cast<int>(indiceDaLinhaDaArte) - startDropLine;
+                        if (currentLineIndex >= 0 && currentLineIndex < totalBoxLines) {
+                            std::string corBorda = Aparencia::cor(Cor::CINZA);
+                            std::string corReset = Aparencia::cor(Cor::RESET);
                             
-                            int txtLen = static_cast<int>(txt.length());
-                            if (txtLen > visivelLen) txt = txt.substr(0, visivelLen);
-                            txtLen = static_cast<int>(txt.length());
+                            int esp = (visivelLen - (maxTextLen + 4)) / 2;
+                            if (esp < 0) esp = 0;
+                            int rem = visivelLen - esp - (maxTextLen + 4);
+                            if (rem < 0) rem = 0;
                             
-                            int esp = (visivelLen - txtLen) / 2;
-                            int rem = visivelLen - esp - txtLen;
-                            linhaArte = std::string(esp > 0 ? esp : 0, ' ') + corDrop + txt + Aparencia::cor(Cor::RESET) + std::string(rem > 0 ? rem : 0, ' ');
+                            if (currentLineIndex == 0) {
+                                std::string b = "╔"; for(int k=0; k<maxTextLen+2; ++k) b += "═"; b += "╗";
+                                linhaArte = std::string(esp, ' ') + corBorda + b + corReset + std::string(rem, ' ');
+                            } else if (currentLineIndex == totalBoxLines - 1) {
+                                std::string b = "╚"; for(int k=0; k<maxTextLen+2; ++k) b += "═"; b += "╝";
+                                linhaArte = std::string(esp, ' ') + corBorda + b + corReset + std::string(rem, ' ');
+                            } else {
+                                int textIdx = currentLineIndex - 1;
+                                std::string innerTxt = (textIdx == 0) ? "DERROTADO!" : dropsAnimacao[textIdx - 1];
+                                
+                                std::string corDrop = Aparencia::cor(Cor::BRANCO);
+                                if (textIdx == 0) corDrop = "\033[5m" + Aparencia::cor(Cor::VERMELHO); // Piscar Vermelho
+                                else if (innerTxt.find("XP") != std::string::npos) corDrop = Aparencia::cor(Cor::CIANO);
+                                else if (innerTxt.find("G") != std::string::npos) corDrop = Aparencia::cor(Cor::AMARELO);
+                                
+                                int txtLen = static_cast<int>(innerTxt.length());
+                                if (txtLen > maxTextLen) {
+                                    innerTxt = innerTxt.substr(0, maxTextLen);
+                                    txtLen = maxTextLen;
+                                }
+                                
+                                int pEsq = (maxTextLen - txtLen) / 2;
+                                int pDir = maxTextLen - txtLen - pEsq;
+                                
+                                std::string middle = corBorda + "║ " + std::string(pEsq, ' ') + corDrop + innerTxt + corReset + corBorda + std::string(pDir, ' ') + " ║" + corReset;
+                                linhaArte = std::string(esp, ' ') + middle + std::string(rem, ' ');
+                            }
                         }
                     }
                 }
@@ -601,23 +638,21 @@ void TelaCombate::animarDanoNoInimigo(const std::string& tituloCombate, const st
 {
     Item* armaAtacante = (atacante != nullptr) ? atacante->obterArma() : nullptr;
     
-    for (int frame = 1; frame <= 8; ++frame) {
+    executarAnimacao(8, 100, 1, [&](int frame) {
         renderizarCenaPadrao(tituloCombate, listaDeInimigos, alvoAnimacao, frame, false, false, armaAtacante, jogadorAtual, listaDeAliados, nullptr, Cor::RESET, danoAnimacao);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-    
-    renderizarCenaPadrao(tituloCombate, listaDeInimigos, alvoAnimacao, 0, false, false, nullptr, jogadorAtual, listaDeAliados);
+    }, [&]() {
+        renderizarCenaPadrao(tituloCombate, listaDeInimigos, alvoAnimacao, 0, false, false, nullptr, jogadorAtual, listaDeAliados);
+    });
 }
 
 void TelaCombate::animarCuraNoJogador(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados, int curaAnimacao)
 {
-    for (int frame = 1; frame <= 12; ++frame) {
+    executarAnimacao(12, 100, 1, [&](int frame) {
         Cor corAplicada = (frame % 2 == 1 && frame <= 6) ? Cor::VERDE : Cor::RESET;
         renderizarCenaPadrao(tituloCombate, listaDeInimigos, nullptr, frame, true, false, nullptr, jogadorAtual, listaDeAliados, alvoAnimacao, corAplicada, curaAnimacao);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-    
-    renderizarCenaPadrao(tituloCombate, listaDeInimigos, nullptr, 0, false, false, nullptr, jogadorAtual, listaDeAliados);
+    }, [&]() {
+        renderizarCenaPadrao(tituloCombate, listaDeInimigos, nullptr, 0, false, false, nullptr, jogadorAtual, listaDeAliados);
+    });
 }
 
 int TelaCombate::obterAcaoDoJogador(int turnoAtual, SistemaPersonagem* personagemAgindo, const std::vector<SistemaPersonagem*>& inimigos, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& aliados) {
@@ -864,34 +899,31 @@ void TelaCombate::animarMorteInimigo(const std::string& tituloCombate, const std
     
     int totalLinhas = static_cast<int>(listaDeInimigos[0]->obterRaca()->obterAparenciaCombate().size());
 
-    for (int frame = 1; frame <= totalLinhas; frame += 2) { // += 2 Para dar um efeito acelerado satisfatório
+    executarAnimacao(totalLinhas, 25, 2, [&](int frame) { // step = 2 Para dar um efeito acelerado satisfatório
         renderizarCenaPadrao(tituloCombate, listaDeInimigos, inimigoMorto, frame, false, true, nullptr, jogadorAtual, listaDeAliados);
-        std::this_thread::sleep_for(std::chrono::milliseconds(25));
-    }
-    
-    // Frame final para garantir que toda a arte seja apagada e os DROPS apareçam centralizados no fantasma da imagem!
-    renderizarCenaPadrao(tituloCombate, listaDeInimigos, inimigoMorto, totalLinhas, false, true, nullptr, jogadorAtual, listaDeAliados, nullptr, Cor::RESET, -1, drops);
+    }, [&]() {
+        // Frame final para garantir que toda a arte seja apagada e os DROPS apareçam centralizados no fantasma da imagem!
+        renderizarCenaPadrao(tituloCombate, listaDeInimigos, inimigoMorto, totalLinhas, false, true, nullptr, jogadorAtual, listaDeAliados, nullptr, Cor::RESET, -1, drops);
+    });
 }
 
 void TelaCombate::animarCuraNoInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados, int curaAnimacao)
 {
-    for (int frame = 1; frame <= 4; ++frame) {
+    executarAnimacao(4, 100, 1, [&](int frame) {
         renderizarCenaPadrao(tituloCombate, listaDeInimigos, alvoAnimacao, frame, true, false, nullptr, jogadorAtual, listaDeAliados, nullptr, Cor::RESET, curaAnimacao);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-    
-    renderizarCenaPadrao(tituloCombate, listaDeInimigos, alvoAnimacao, 0, true, false, nullptr, jogadorAtual, listaDeAliados);
+    }, [&]() {
+        renderizarCenaPadrao(tituloCombate, listaDeInimigos, alvoAnimacao, 0, true, false, nullptr, jogadorAtual, listaDeAliados);
+    });
 }
 
 void TelaCombate::animarDanoNoJogador(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados, bool isParry, int danoAnimacao)
 {
     Cor corDestaque = isParry ? Cor::CIANO : Cor::VERMELHO;
 
-    for (int frame = 1; frame <= 12; ++frame) {
+    executarAnimacao(12, 100, 1, [&](int frame) {
         Cor corAplicada = (frame % 2 == 1 && frame <= 6) ? corDestaque : Cor::RESET;
         renderizarCenaPadrao(tituloCombate, listaDeInimigos, nullptr, frame, false, false, nullptr, jogadorAtual, listaDeAliados, alvoAnimacao, corAplicada, danoAnimacao);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-    
-    renderizarCenaPadrao(tituloCombate, listaDeInimigos, nullptr, 0, false, false, nullptr, jogadorAtual, listaDeAliados);
+    }, [&]() {
+        renderizarCenaPadrao(tituloCombate, listaDeInimigos, nullptr, 0, false, false, nullptr, jogadorAtual, listaDeAliados);
+    });
 }

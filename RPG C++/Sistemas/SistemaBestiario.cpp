@@ -142,26 +142,28 @@ std::vector<std::string> SistemaBestiario::obterInimigosOrdenadosPorDificuldade(
 
 void SistemaBestiario::salvar(std::ofstream& out) const {
     std::lock_guard<std::mutex> lock(mtx);
-    out << vistos.size() << "\n";
-    for (const auto& inimigoVisto : vistos) out << inimigoVisto << "\n";
+    
+    auto escreverConjunto = [&](const auto& conjunto) {
+        out << conjunto.size() << "\n";
+        for (const auto& item : conjunto) out << item << "\n";
+    };
 
-    out << derrotados.size() << "\n";
-    for (const auto& inimigoDerrotado : derrotados) out << inimigoDerrotado << "\n";
+    escreverConjunto(vistos);
+    escreverConjunto(derrotados);
 
     out << quantidadeDerrotas.size() << "\n";
     for (const auto& [nome, qtd] : quantidadeDerrotas) out << nome << "\n" << qtd << "\n";
 
-    out << habilidadesVistas.size() << "\n";
-    for (const auto& [nomeInimigo, conjuntoHabilidades] : habilidadesVistas) {
-        out << nomeInimigo << "\n" << conjuntoHabilidades.size() << "\n";
-        for (const auto& habilidade : conjuntoHabilidades) out << habilidade << "\n";
-    }
+    auto escreverMapaConjuntos = [&](const auto& mapa) {
+        out << mapa.size() << "\n";
+        for (const auto& [nome, conjunto] : mapa) {
+            out << nome << "\n";
+            escreverConjunto(conjunto);
+        }
+    };
 
-    out << dropsColetados.size() << "\n";
-    for (const auto& [nomeInimigo, conjuntoDrops] : dropsColetados) {
-        out << nomeInimigo << "\n" << conjuntoDrops.size() << "\n";
-        for (const auto& drop : conjuntoDrops) out << drop << "\n";
-    }
+    escreverMapaConjuntos(habilidadesVistas);
+    escreverMapaConjuntos(dropsColetados);
 }
 
 void SistemaBestiario::carregar(std::ifstream& in) {

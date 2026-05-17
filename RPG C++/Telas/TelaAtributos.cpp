@@ -40,29 +40,29 @@ namespace {
         linhas.push_back("");
         linhas.push_back("═══ EFEITOS DE CADA ATRIBUTO ═══");
         linhas.push_back(" " + Aparencia::cor(Cor::VERDE)          + "Vida         " + cB + ": Pontos de vida (HP) maximos do personagem.");
-        linhas.push_back(" " + Aparencia::cor(Cor::VERMELHO_CLARO) + "Forca        " + cB + ": Aumenta o dano base de ataques fisicos.");
-        linhas.push_back(" " + Aparencia::cor(Cor::VERDE_CLARO)    + "Destreza     " + cB + ": Aumenta o dano fisico final em porcentagem e define a ordem de turno.");
-        linhas.push_back(" " + Aparencia::cor(Cor::AMARELO)        + "Resistencia  " + cB + ": Reduz o dano recebido de forma fixa.");
-        linhas.push_back(" " + Aparencia::cor(Cor::AMARELO)        + "Constituicao " + cB + ": Reduz o dano recebido em porcentagem.");
-        linhas.push_back(" " + Aparencia::cor(Cor::AZUL)           + "Inteligencia " + cB + ": Aumenta o dano base de ataques magicos.");
-        linhas.push_back(" " + Aparencia::cor(Cor::CIANO)          + "Sabedoria    " + cB + ": Aumenta o dano magico final em porcentagem e aumenta a potencia de curas.");
+        linhas.push_back(" " + Aparencia::cor(Cor::VERMELHO)       + "Forca        " + cB + ": Aumenta o dano base de ataques fisicos.");
+        linhas.push_back(" " + Aparencia::cor(Cor::LARANJA)        + "Destreza     " + cB + ": Aumenta o dano fisico final em porcentagem e define a ordem de turno.");
+        linhas.push_back(" " + Aparencia::cor(Cor::AZUL)           + "Resistencia  " + cB + ": Reduz o dano recebido de forma fixa.");
+        linhas.push_back(" " + Aparencia::cor(Cor::CIANO)          + "Constituicao " + cB + ": Reduz o dano recebido em porcentagem.");
+        linhas.push_back(" " + Aparencia::cor(Cor::ROXO)           + "Inteligencia " + cB + ": Aumenta o dano base de ataques magicos.");
+        linhas.push_back(" " + Aparencia::cor(Cor::LILAS)          + "Sabedoria    " + cB + ": Aumenta o dano magico final em porcentagem e aumenta a potencia de curas.");
         linhas.push_back("");
         
         linhas.push_back("═══ ATRIBUTOS DE DANO RECOMENDADOS PARA A CLASSE " + jogadorAtual->obterNomeClasse() + " ═══");
         
         TipoClasse tipo = jogadorAtual->obterTipoClasse();
         if (tipo == TipoClasse::Guerreiro) {
-            linhas.push_back(" 1. " + Aparencia::cor(Cor::VERMELHO_CLARO) + "Forca    " + cB + ": Aumenta o dano base, essencial para armas pesadas.");
-            linhas.push_back(" 2. " + Aparencia::cor(Cor::VERDE_CLARO)    + "Destreza " + cB + ": Multiplica o dano final, util para qualquer build fisica.");
+            linhas.push_back(" 1. " + Aparencia::cor(Cor::VERMELHO)    + "Forca    " + cB + ": Aumenta o dano base, essencial para armas pesadas.");
+            linhas.push_back(" 2. " + Aparencia::cor(Cor::LARANJA)     + "Destreza " + cB + ": Multiplica o dano final, util para qualquer build fisica.");
         } else if (tipo == TipoClasse::Arqueiro) {
-            linhas.push_back(" 1. " + Aparencia::cor(Cor::VERDE_CLARO)    + "Destreza " + cB + ": Atributo principal, aumenta o dano e define a ordem de turno.");
-            linhas.push_back(" 2. " + Aparencia::cor(Cor::VERMELHO_CLARO) + "Forca    " + cB + ": Aumenta o dano base, fortalecendo o dano fisico geral.");
+            linhas.push_back(" 1. " + Aparencia::cor(Cor::LARANJA)     + "Destreza " + cB + ": Atributo principal, aumenta o dano e define a ordem de turno.");
+            linhas.push_back(" 2. " + Aparencia::cor(Cor::VERMELHO)    + "Forca    " + cB + ": Aumenta o dano base, fortalecendo o dano fisico geral.");
         } else if (tipo == TipoClasse::Mago) {
-            linhas.push_back(" 1. " + Aparencia::cor(Cor::AZUL)           + "Inteligencia " + cB + ": Essencial, aumenta drasticamente o dano base de magias.");
-            linhas.push_back(" 2. " + Aparencia::cor(Cor::CIANO)          + "Sabedoria    " + cB + ": Multiplica o dano magico final e fortalece habilidades.");
+            linhas.push_back(" 1. " + Aparencia::cor(Cor::ROXO)        + "Inteligencia " + cB + ": Essencial, aumenta drasticamente o dano base de magias.");
+            linhas.push_back(" 2. " + Aparencia::cor(Cor::LILAS)       + "Sabedoria    " + cB + ": Multiplica o dano magico final e fortalece habilidades.");
         } else if (tipo == TipoClasse::Bardo) {
-            linhas.push_back(" 1. " + Aparencia::cor(Cor::CIANO)          + "Sabedoria    " + cB + ": Fortalece intensamente os efeitos das curas e utilidade do Bardo.");
-            linhas.push_back(" 2. " + Aparencia::cor(Cor::AZUL)           + "Inteligencia " + cB + ": Melhora o dano magico, permitindo que o Bardo lute efetivamente.");
+            linhas.push_back(" 1. " + Aparencia::cor(Cor::LILAS)       + "Sabedoria    " + cB + ": Fortalece intensamente os efeitos das curas e utilidade do Bardo.");
+            linhas.push_back(" 2. " + Aparencia::cor(Cor::ROXO)        + "Inteligencia " + cB + ": Melhora o dano magico, permitindo que o Bardo lute efetivamente.");
         } else {
             linhas.push_back(" Nenhum atributo de dano especifico definido para esta classe.");
         }
@@ -139,12 +139,12 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
     Atributos atrClasse = jogadorAtual->obterClasse()->obterAtributosClasse();
 
     std::vector<std::string> atrLinhas;
-    atrLinhas.push_back(formatarAtr("Forca", jogadorAtual->obterForca(), forcaPerdida, Cor::VERMELHO_CLARO, atrRaca.forca, atrClasse.forca));
-    atrLinhas.push_back(formatarAtr("Destreza", jogadorAtual->obterDestreza(), destrezaPerdida, Cor::VERDE_CLARO, atrRaca.destreza, atrClasse.destreza));
-    atrLinhas.push_back(formatarAtr("Resistencia", jogadorAtual->obterResistencia(), resPerdida, Cor::AMARELO, atrRaca.resistencia, atrClasse.resistencia));
-    atrLinhas.push_back(formatarAtr("Constituicao", jogadorAtual->obterConstituicao(), constPerdida, Cor::AMARELO, atrRaca.constituicao, atrClasse.constituicao));
-    atrLinhas.push_back(formatarAtr("Inteligencia", jogadorAtual->obterInteligencia(), 0, Cor::AZUL, atrRaca.inteligencia, atrClasse.inteligencia));
-    atrLinhas.push_back(formatarAtr("Sabedoria", jogadorAtual->obterSabedoria(), 0, Cor::CIANO, atrRaca.sabedoria, atrClasse.sabedoria));
+    atrLinhas.push_back(formatarAtr("Forca", jogadorAtual->obterForca(), forcaPerdida, Cor::VERMELHO, atrRaca.forca, atrClasse.forca));
+    atrLinhas.push_back(formatarAtr("Destreza", jogadorAtual->obterDestreza(), destrezaPerdida, Cor::LARANJA, atrRaca.destreza, atrClasse.destreza));
+    atrLinhas.push_back(formatarAtr("Resistencia", jogadorAtual->obterResistencia(), resPerdida, Cor::AZUL, atrRaca.resistencia, atrClasse.resistencia));
+    atrLinhas.push_back(formatarAtr("Constituicao", jogadorAtual->obterConstituicao(), constPerdida, Cor::CIANO, atrRaca.constituicao, atrClasse.constituicao));
+    atrLinhas.push_back(formatarAtr("Inteligencia", jogadorAtual->obterInteligencia(), 0, Cor::ROXO, atrRaca.inteligencia, atrClasse.inteligencia));
+    atrLinhas.push_back(formatarAtr("Sabedoria", jogadorAtual->obterSabedoria(), 0, Cor::LILAS, atrRaca.sabedoria, atrClasse.sabedoria));
 
     std::vector<std::string> caixaAtributos = Aparencia::criarCaixa(atrLinhas, "ATRIBUTOS", 35, Cor::MAGENTA);
 
@@ -185,16 +185,16 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
     int defFixa = jogadorAtual->obterResistencia();
     double mitigacao = std::min(50.0, jogadorAtual->obterConstituicao() / 2.0);
 
-    std::string sFis = Aparencia::cor(Cor::VERMELHO_CLARO) + std::to_string(danoFisEst) + Aparencia::cor(Cor::RESET);
-    std::string sMag = Aparencia::cor(Cor::AZUL) + std::to_string(danoMagEst) + Aparencia::cor(Cor::RESET);
-    std::string sDef = Aparencia::cor(Cor::AMARELO) + std::to_string(defFixa) + Aparencia::cor(Cor::RESET);
+    std::string sFis = Aparencia::cor(Cor::VERMELHO) + std::to_string(danoFisEst) + Aparencia::cor(Cor::RESET);
+    std::string sMag = Aparencia::cor(Cor::VERMELHO) + std::to_string(danoMagEst) + Aparencia::cor(Cor::RESET);
+    std::string sDef = Aparencia::cor(Cor::AZUL) + std::to_string(defFixa) + Aparencia::cor(Cor::RESET);
     
     std::ostringstream ssMit;
     ssMit << std::fixed << std::setprecision(1) << mitigacao;
-    std::string sMit = Aparencia::cor(Cor::AMARELO) + ssMit.str() + "%" + Aparencia::cor(Cor::RESET);
+    std::string sMit = Aparencia::cor(Cor::CIANO) + ssMit.str() + "%" + Aparencia::cor(Cor::RESET);
 
     std::vector<std::string> poderLinhas = {
-        " Dano Fisico  : " + sFis, " Dano Magico  : " + sMag, " Defesa Fixa  : " + sDef, " Mitigacao (%) : " + sMit
+        " Dano Fisico  : " + sFis, " Dano Magico  : " + sMag, " Defesa Fixa  : " + sDef, " Mitigacao (%): " + sMit
     };
     std::vector<std::string> caixaPoder = Aparencia::criarCaixa(poderLinhas, "PODER DE COMBATE", 35, Cor::MAGENTA);
 
