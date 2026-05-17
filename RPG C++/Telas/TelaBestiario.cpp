@@ -11,11 +11,12 @@
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Utilidades/Aparencia.h"
 #include "../Utilidades/ControleDeInput.h"
+#include "TelaBase.h"
 #include "TelaBestiarioLayouts.h"
 
-static void exibirCabecalho(int largura, const std::string& tituloSecundario = "") {
+static void exibirCabecalho(int largura, const std::string& tituloSecundario = "", bool animar = false) {
     Aparencia::limparTela();
-    Aparencia::exibirLogoAscii(ArtesBestiario::logoBestiario, 101, Cor::VERDE, tituloSecundario);
+    Aparencia::exibirLogoAscii(ArtesBestiario::logoBestiario, 101, Cor::VERDE, tituloSecundario, animar);
 }
 
 void TelaBestiario::exibirLista(SistemaPersonagem* jogadorAtual) {
@@ -29,8 +30,11 @@ void TelaBestiario::exibirLista(SistemaPersonagem* jogadorAtual) {
     std::copy_if(inimigos.begin(), inimigos.end(), std::back_inserter(descobertos),
                  [&](const std::string& nome) { return bestiario.estaDescoberto(nome); });
 
+    static auto ultimoAcesso = std::chrono::steady_clock::now() - std::chrono::hours(1);
+    bool animarEntrada = TelaBase::deveAnimarEntradaDaTela(ultimoAcesso, 300);
+
     if (descobertos.empty()) {
-        exibirCabecalho(largura);
+        exibirCabecalho(largura, "", animarEntrada);
         Aparencia::imprimirCentralizado("Nenhum inimigo descoberto ainda.");
         Aparencia::imprimirCentralizado("Explore e combata para desbloquear entries.");
         std::cout << "\n";
@@ -45,7 +49,8 @@ void TelaBestiario::exibirLista(SistemaPersonagem* jogadorAtual) {
     int paginaAtual = 0;
 
     while (true) {
-        exibirCabecalho(largura);
+        exibirCabecalho(largura, "", animarEntrada);
+        animarEntrada = false;
 
         Aparencia::imprimirCentralizado("Encontrados: " + std::to_string(totalDescobertos) + "/" + std::to_string(inimigos.size()));
         std::cout << "\n";

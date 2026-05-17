@@ -42,13 +42,21 @@ bool SistemaParry::executarMinigame(int quantidadeDeNumerosParaDigitar, int temp
         quantidadeDeDanoReduzido += numeroAleatorio;
     }
 
-    std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::AMARELO) << "[PARRY] O inimigo ataca! Digite a sequencia rapidamente para defender!" << Aparencia::cor(Cor::RESET) << "\n";
-    std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::CIANO) << "[PARRY] Sequencia: " << sequenciaGeradaPeloSistema << Aparencia::cor(Cor::RESET) << "\n";
-    std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::AMARELO) << "[PARRY] Tempo Limite: " << tempoLimiteEmSegundos << " segundos!" << Aparencia::cor(Cor::RESET) << "\n";
-    std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::CIANO) << "[PARRY] Digite: " << Aparencia::cor(Cor::RESET);
+    std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << "[PARRY] O inimigo ataca! Digite a sequencia rapidamente para defender!" << Aparencia::cor(Cor::RESET) << "\n";
+    
+    std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << "[PARRY] Sequencia: " << Aparencia::cor(Cor::AMARELO) << std::flush;
+    for (char c : sequenciaGeradaPeloSistema) {
+        std::cout << c << std::flush;
+        std::this_thread::sleep_for(std::chrono::milliseconds(150));
+    }
+    std::cout << Aparencia::cor(Cor::RESET) << "\n";
+
+    std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << "[PARRY] Tempo Limite: " << Aparencia::cor(Cor::BRANCO) << tempoLimiteEmSegundos << Aparencia::cor(Cor::VERMELHO) << " segundos!" << Aparencia::cor(Cor::RESET) << "\n";
+    std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << "[PARRY] Digite: " << Aparencia::cor(Cor::BRANCO) << std::flush;
 
     std::string entradaDigitadaPeloJogador = "";
     
+    ControleDeInput::limparBuffer(); // Evita que o jogador trapaceie digitando antes da animacao terminar
     auto tempoInicial = std::chrono::steady_clock::now();
     while (true) {
         auto tempoAtual = std::chrono::steady_clock::now();

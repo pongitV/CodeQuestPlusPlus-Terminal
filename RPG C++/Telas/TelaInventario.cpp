@@ -17,10 +17,10 @@ void TelaInventario::exibir(SistemaPersonagem* jogadorAtual, bool mostrarPrecos)
     Aparencia::limparTela();
     
     static auto ultimoAcesso = std::chrono::steady_clock::now() - std::chrono::hours(1);
-    int atrasoMs = TelaBase::deveAnimarEntradaDaTela(ultimoAcesso, 300) ? 10 : 0;
+    bool animar = TelaBase::deveAnimarEntradaDaTela(ultimoAcesso, 300);
 
     int largura = Aparencia::obterLarguraTerminal();
-    Aparencia::exibirLogoAscii(ArtesInventario::logoInventario, 121, Cor::AMARELO, "", atrasoMs);
+    Aparencia::exibirLogoAscii(ArtesInventario::logoInventario, 121, Cor::AMARELO, "", animar);
 
     int larguraDoTerminal = Aparencia::obterLarguraTerminal();
 
@@ -76,7 +76,7 @@ void TelaInventario::exibir(SistemaPersonagem* jogadorAtual, bool mostrarPrecos)
     formatarAgrupamento("ESTOQUE", materiaisAgrupados, 'S', "G / un");
     formatarAgrupamento("ITENS DE MISSAO", missoesAgrupadas, 'M', "");
 
-    Aparencia::imprimirBlocoCentralizado(linhasParaImprimir, "", atrasoMs);
+    Aparencia::imprimirBlocoCentralizado(linhasParaImprimir, "");
     
     std::cout << "\n";
     Aparencia::imprimirLinhaDivisoria();

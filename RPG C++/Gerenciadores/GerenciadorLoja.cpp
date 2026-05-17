@@ -10,9 +10,11 @@ void GerenciadorLoja::processarCompra(SistemaPersonagem* jogadorAtual, const std
                                       const std::function<void(const std::string&)>& exibirDialogoNPC, 
                                       const std::function<std::string(ItemID)>& formatadorNomeExtra) {
     std::string opcaoCompra;
+    bool primeiraVez = true;
     do {
         Aparencia::limparTela();
-        Aparencia::exibirCabecalho(tituloLoja, corLoja);
+        Aparencia::exibirCabecalho(tituloLoja, corLoja, primeiraVez);
+        primeiraVez = false;
         
         std::vector<std::string> linhas = {
             "Seu Ouro: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G", ""

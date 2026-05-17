@@ -34,6 +34,14 @@ private:
     int contadorDoTurnoAtual;
     std::vector<std::string> itensObtidos;
     
+    // Estatisticas Avancadas da Sessao
+    static int stats_parriesTentados;
+    static int stats_parriesEfetivos;
+    static int stats_maiorDanoCausado;
+    static int stats_itensConsumidos;
+    static std::vector<std::string> stats_novasDescobertas;
+    static void resetarEstatisticasAvancadas();
+
     void aplicarDanoAoAlvo(SistemaPersonagem* personagemAtacante, SistemaPersonagem* personagemAlvo, int quantidadeDeDanoBruto, int danoPerfurante, int turnoAtualDoCombate);
     void processarMorteDeInimigo(SistemaPersonagem* inimigo);
     void exibirResultadoDoAtaque(SistemaPersonagem* alvo, int danoFinal, bool tentouParry, bool parrySucesso, int danoBloqueado, bool escudoQuebrou, const std::string& nomeEscudoQuebrado);
@@ -66,4 +74,11 @@ public:
     void executarTurnoDeTodosOsInimigos();
     bool verificarCondicaoDeVitoriaOuDerrota();
     void realizarAtaqueFisico(SistemaPersonagem* personagemAtacante, SistemaPersonagem* personagemDefensor, int turnoAtualDoCombate);
+
+    // Getters para Estatisticas Avancadas
+    static int obterParriesTentados() { return stats_parriesTentados; }
+    static int obterParriesEfetivos() { return stats_parriesEfetivos; }
+    static int obterMaiorDanoCausado() { return stats_maiorDanoCausado; }
+    static int obterItensConsumidos() { return stats_itensConsumidos; }
+    static const std::vector<std::string>& obterNovasDescobertas() { return stats_novasDescobertas; }
 };

@@ -37,7 +37,7 @@ namespace {
 
     int exibirPromptGenerico(const std::string& titulo, const std::string& infoBox, const std::vector<std::string>& narracao, const std::vector<std::string>& opcoes) {
         Aparencia::limparTela();
-        TelaMenu::exibirLogoDoJogo(titulo);
+        TelaMenu::exibirLogoDoJogo(titulo, false);
         
         if (infoBox.empty()) std::cout << "\n";
         else exibirInfoBox(infoBox);
@@ -131,38 +131,65 @@ bool TelaMenu::exibirConfirmacaoDeEscolhaComArteLadoALado(const std::string& tip
     return opcaoDeConfirmacao == 1;
 }
 
-void TelaMenu::exibirLogoDoJogo(const std::string& tituloDaTela) 
+void TelaMenu::exibirLogoDoJogo(const std::string& tituloDaTela, bool animarFadeIn) 
 {
     int larguraConsole = Aparencia::obterLarguraTerminal();
-    
     std::string linhaDupla = "";
     for(int i = 0; i < larguraConsole; ++i) linhaDupla += "═";
-    std::cout << "\n" << linhaDupla << "\n\n";
-
-    int larguraLinhaCompleta = 140; 
-
-    for (size_t i = 0; i < ArtesMenu::logoTexto.size(); ++i) 
-    {
-        int recuo = (larguraConsole - larguraLinhaCompleta) / 2;
-        if (recuo < 0) recuo = 0;
-        std::cout << std::string(recuo, ' ');
-
-        std::cout << ArtesMenu::logoTexto[i];
-        std::cout << Aparencia::cor(Cor::LARANJA) << ArtesMenu::logoPlus[i] << Aparencia::cor(Cor::RESET);
-        std::cout << "\n";
-    }
-
-    std::cout << "\n";
     
-    if (tituloDaTela.empty()) 
-    {
-        Aparencia::imprimirLinhaDivisoria();
-    } 
-    else 
-    {
-        Aparencia::imprimirLinhaDivisoria();
-        Aparencia::imprimirCentralizado(tituloDaTela);
-        Aparencia::imprimirLinhaDivisoria();
+    if (animarFadeIn) {
+        int passos = 4;
+        for (int step = 1; step <= passos; ++step) {
+            double pct = static_cast<double>(step) / passos;
+            int rBranco = 255 * pct, gBranco = 255 * pct, bBranco = 255 * pct;
+            int rLaranja = 255 * pct, gLaranja = 165 * pct, bLaranja = 0;
+            
+            std::string corB = "\033[38;2;" + std::to_string(rBranco) + ";" + std::to_string(gBranco) + ";" + std::to_string(bBranco) + "m";
+            std::string corL = "\033[38;2;" + std::to_string(rLaranja) + ";" + std::to_string(gLaranja) + ";" + std::to_string(bLaranja) + "m";
+
+            std::ostringstream buffer;
+            buffer << "\n" << corB << linhaDupla << "\n\n";
+
+            int larguraLinhaCompleta = 140; 
+            int recuo = std::max(0, (larguraConsole - larguraLinhaCompleta) / 2);
+            std::string margem(recuo, ' ');
+
+            for (size_t i = 0; i < ArtesMenu::logoTexto.size(); ++i) {
+                buffer << margem << corB << ArtesMenu::logoTexto[i] << corL << ArtesMenu::logoPlus[i] << "\n";
+            }
+            buffer << "\n";
+            
+            if (tituloDaTela.empty()) {
+                buffer << corB << linhaDupla << "\n";
+            } else {
+                buffer << corB << linhaDupla << "\n";
+                buffer << Aparencia::espacosParaCentralizar(Aparencia::obterComprimentoVisual(tituloDaTela)) << corB << tituloDaTela << "\n";
+                buffer << corB << linhaDupla << "\n";
+            }
+            buffer << "\033[0m";
+            
+            std::cout << "\033[?25l\033[H" << buffer.str() << std::flush;
+            if (step < passos) std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        }
+    } else {
+        std::cout << "\n" << linhaDupla << "\n\n";
+
+        int larguraLinhaCompleta = 140; 
+        int recuo = std::max(0, (larguraConsole - larguraLinhaCompleta) / 2);
+        std::string margem(recuo, ' ');
+
+        for (size_t i = 0; i < ArtesMenu::logoTexto.size(); ++i) {
+            std::cout << margem << ArtesMenu::logoTexto[i] << Aparencia::cor(Cor::LARANJA) << ArtesMenu::logoPlus[i] << Aparencia::cor(Cor::RESET) << "\n";
+        }
+        std::cout << "\n";
+        
+        if (tituloDaTela.empty()) {
+            Aparencia::imprimirLinhaDivisoria();
+        } else {
+            Aparencia::imprimirLinhaDivisoria();
+            Aparencia::imprimirCentralizado(tituloDaTela);
+            Aparencia::imprimirLinhaDivisoria();
+        }
     }
 }
 
@@ -311,7 +338,7 @@ int TelaMenu::exibirOpcoesMenuPrincipal(bool temSave) {
 
 int TelaMenu::exibirMenuCarregarJogo(const std::vector<std::string>& informacoesSaves) {
     Aparencia::limparTela();
-    exibirLogoDoJogo("CARREGAR JOGO");
+    exibirLogoDoJogo("CARREGAR JOGO", true);
     
     std::vector<std::string> opcoes = informacoesSaves;
     opcoes.push_back("Voltar");
@@ -326,7 +353,7 @@ int TelaMenu::exibirMenuCarregarJogo(const std::vector<std::string>& informacoes
 void TelaMenu::exibirPromptNome() {
     std::cout << "\033[?25l"; // Esconde o cursor durante a animacao de digitacao do texto
     Aparencia::limparTela();
-    exibirLogoDoJogo("INTRODUCAO AO RPG");
+    exibirLogoDoJogo("INTRODUCAO AO RPG", true);
     std::cout << "\n";
     
     std::vector<std::string> narracao = {
@@ -375,7 +402,7 @@ int TelaMenu::exibirPromptParry(const std::string& nome, const std::string& nome
 void TelaMenu::exibirTutorialDeParry(const std::string& infoBox) {
     std::cout << "\033[?25l";
     Aparencia::limparTela();
-    exibirLogoDoJogo("TUTORIAL DE PARRY");
+    exibirLogoDoJogo("TUTORIAL DE PARRY", false);
     if (infoBox.empty()) std::cout << "\n";
     else exibirInfoBox(infoBox);
 
@@ -470,7 +497,7 @@ void TelaMenu::exibirTutorialDeParry(const std::string& infoBox) {
 void TelaMenu::exibirIntroducaoJornada(const std::string& infoBox) {
     std::cout << "\033[?25l";
     Aparencia::limparTela();
-    exibirLogoDoJogo("SISTEMA DE SAVE");
+    exibirLogoDoJogo("SISTEMA DE SAVE", false);
         if (infoBox.empty()) std::cout << "\n";
         else exibirInfoBox(infoBox);
         std::vector<std::string> avisoSave = {

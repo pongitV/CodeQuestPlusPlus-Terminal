@@ -72,9 +72,11 @@ std::vector<std::string> GerenciadorMenu::lerInformacoesDosSaves(const std::vect
 
 namespace {
     std::unique_ptr<SistemaPersonagem> lidarOpcoesDoSave(const std::string& saveSelecionado, const std::string& infoSave, bool& saveFoiDeletado) {
+        bool animar = true;
         while (true) {
             Aparencia::limparTela();
-            TelaMenu::exibirLogoDoJogo("OPCOES DO SAVE");
+            TelaMenu::exibirLogoDoJogo("OPCOES DO SAVE", animar);
+            animar = false;
             std::cout << "\n";
             Aparencia::imprimirCentralizado("Save selecionado: " + infoSave, Aparencia::cor(Cor::CIANO));
             std::cout << "\n";
@@ -84,7 +86,7 @@ namespace {
             
             if (escAcao == 0) {
                 Aparencia::limparTela();
-                TelaMenu::exibirLogoDoJogo("INFORMACOES DO SAVE");
+                TelaMenu::exibirLogoDoJogo("INFORMACOES DO SAVE", true);
                 
                 std::ifstream arquivoSave(saveSelecionado);
                 if (arquivoSave.is_open()) {
@@ -124,7 +126,7 @@ namespace {
             }
             else if (escAcao == 2) {
                 Aparencia::limparTela();
-                TelaMenu::exibirLogoDoJogo("DELETAR SAVE");
+                TelaMenu::exibirLogoDoJogo("DELETAR SAVE", true);
                 std::string nomeCorreto = "";
                 std::ifstream arquivoSave(saveSelecionado);
                 if (arquivoSave.is_open()) { std::getline(arquivoSave, nomeCorreto); arquivoSave.close(); }
@@ -154,11 +156,12 @@ namespace {
     }
 
     std::unique_ptr<SistemaPersonagem> lidarGerenciamentoDeSaves() {
+        bool animar = true;
         while (true) {
             auto saves = SistemaSave::listarSaves();
             if (saves.empty()) {
                 Aparencia::limparTela();
-                TelaMenu::exibirLogoDoJogo("GERENCIAR SAVES");
+                TelaMenu::exibirLogoDoJogo("GERENCIAR SAVES", animar);
                 std::cout << "\n";
                 Aparencia::imprimirCentralizado("Nenhum save encontrado.", Aparencia::cor(Cor::AMARELO));
                 ControleDeInput::aguardarEnter();
@@ -168,7 +171,8 @@ namespace {
             std::vector<std::string> infoSaves = lerInfoSavesLocal(saves);
             
             Aparencia::limparTela();
-            TelaMenu::exibirLogoDoJogo("GERENCIAR SAVES");
+            TelaMenu::exibirLogoDoJogo("GERENCIAR SAVES", animar);
+            animar = false;
             std::cout << "\n";
             Aparencia::imprimirCentralizado("Selecione um save para gerenciar:\n");
             
@@ -186,9 +190,11 @@ namespace {
     }
 
     std::unique_ptr<SistemaPersonagem> lidarMenuDeOpcoes() {
+        bool animar = true;
         while (true) {
             Aparencia::limparTela();
-            TelaMenu::exibirLogoDoJogo("OPCOES");
+            TelaMenu::exibirLogoDoJogo("OPCOES", animar);
+            animar = false;
             std::cout << "\n";
             int esc = ControleDeInput::lerSelecaoMenuComSetas({"Gerenciar Saves", "Voltar"}, true);
             if (esc == 0) {
@@ -381,13 +387,7 @@ void GerenciadorMenu::etapaEscolherClasse(const std::string& nome, RacaBase* rac
         for (TipoEquipamento tipo : ordemPrioridade) {
             for (auto const& [nomeDoItem, dadosDoItem] : contagem) {
                 if (dadosDoItem.second == tipo) {
-                    std::string corBullet = Aparencia::cor(Cor::BRANCO);
-                    if (tipo == TipoEquipamento::ARMA) corBullet = Aparencia::cor(Cor::VERMELHO_CLARO);
-                    else if (tipo == TipoEquipamento::ESCUDO) corBullet = Aparencia::cor(Cor::CIANO);
-                    else if (tipo == TipoEquipamento::ARMADURA) corBullet = Aparencia::cor(Cor::AMARELO);
-                    else if (tipo == TipoEquipamento::CONSUMIVEL) corBullet = Aparencia::cor(Cor::VERDE_CLARO);
-                    
-                    info.push_back(" " + corBullet + "-" + Aparencia::cor(Cor::RESET) + " " + std::to_string(dadosDoItem.first) + "x " + nomeDoItem);
+                    info.push_back(" - " + std::to_string(dadosDoItem.first) + "x " + nomeDoItem);
                 }
             }
         }

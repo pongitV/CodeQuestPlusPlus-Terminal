@@ -78,11 +78,11 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
     Aparencia::limparTela();
 
     static auto ultimoAcessoFicha = std::chrono::steady_clock::now() - std::chrono::hours(1);
-    int atrasoMs = TelaBase::deveAnimarEntradaDaTela(ultimoAcessoFicha, 300) ? 10 : 0;
+    bool animar = TelaBase::deveAnimarEntradaDaTela(ultimoAcessoFicha, 300);
 
     int largura = Aparencia::obterLarguraTerminal();
 
-    Aparencia::exibirLogoAscii(ArtesAtributos::logoFicha, 59, Cor::MAGENTA, "", atrasoMs);
+    Aparencia::exibirLogoAscii(ArtesAtributos::logoFicha, 59, Cor::MAGENTA, "", animar);
 
     double multiplicadorDeAtributosAtual = jogadorAtual->obterMultiplicador();
     int turnosBuff = jogadorAtual->obterTurnosEfeito(EfeitoID::BuffAtributos);
@@ -223,9 +223,9 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
     if (!temStatus) statusLinhas.push_back("Nenhum status ativo.");
     std::vector<std::string> caixaStatus = Aparencia::criarCaixa(statusLinhas, "STATUS ATUAIS", 35, Cor::MAGENTA);
     
-    Aparencia::imprimirBlocoCentralizado(caixaGeral, "", atrasoMs);
-    Aparencia::imprimirLadoALado(caixaAtributos, caixaHabilidades, 40, 2, Cor::RESET, Cor::RESET, atrasoMs);
-    Aparencia::imprimirLadoALado(caixaPoder, caixaStatus, 40, 2, Cor::RESET, Cor::RESET, atrasoMs);
+    Aparencia::imprimirBlocoCentralizado(caixaGeral, "");
+    Aparencia::imprimirLadoALado(caixaAtributos, caixaHabilidades, 40, 2, Cor::RESET, Cor::RESET, 0);
+    Aparencia::imprimirLadoALado(caixaPoder, caixaStatus, 40, 2, Cor::RESET, Cor::RESET, 0);
 
     std::cout << "\n";
     Aparencia::imprimirLinhaDivisoria();

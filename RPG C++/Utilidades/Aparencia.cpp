@@ -5,6 +5,7 @@
 #include <thread>
 #include <algorithm>
 #include <cctype>
+#include <sstream>
 
 #ifdef _WIN32
     #include <windows.h>
@@ -336,17 +337,36 @@ void Aparencia::imprimirVetorAnimado(const std::vector<std::string>& linhas, int
     }
 }
 
-void Aparencia::exibirCabecalho(const std::string& titulo, Cor corDoCabecalho) {
+void Aparencia::exibirCabecalho(const std::string& titulo, Cor corDoCabecalho, bool animarFadeIn) {
     std::string tituloUpper = titulo;
     std::transform(tituloUpper.begin(), tituloUpper.end(), tituloUpper.begin(), [](unsigned char c){ return std::toupper(c); });
     
     int largura = obterLarguraTerminal();
     std::string linha = "";
     for(int i = 0; i < largura; ++i) linha += "═";
-    
-    std::cout << cor(corDoCabecalho) << linha << cor(Cor::RESET) << "\n\n";
-    imprimirCentralizado(tituloUpper, cor(corDoCabecalho));
-    std::cout << "\n" << cor(corDoCabecalho) << linha << cor(Cor::RESET) << "\n";
+
+    if (animarFadeIn) {
+        uint32_t val = static_cast<uint32_t>(corDoCabecalho);
+        uint8_t rBase = (val >> 16) & 0xFF, gBase = (val >> 8) & 0xFF, bBase = val & 0xFF;
+
+        int passos = 4;
+        for (int step = 1; step <= passos; ++step) {
+            double pct = static_cast<double>(step) / passos;
+            std::string corRGB = "\033[38;2;" + std::to_string(static_cast<int>(rBase * pct)) + ";" + std::to_string(static_cast<int>(gBase * pct)) + ";" + std::to_string(static_cast<int>(bBase * pct)) + "m";
+            
+            std::ostringstream buffer;
+            buffer << corRGB << linha << "\n\n";
+            buffer << espacosParaCentralizar(obterComprimentoVisual(tituloUpper)) << corRGB << tituloUpper << "\n\n";
+            buffer << corRGB << linha << "\033[0m\n";
+            
+            std::cout << "\033[?25l\033[H" << buffer.str() << std::flush;
+            if (step < passos) std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        }
+    } else {
+        std::cout << cor(corDoCabecalho) << linha << cor(Cor::RESET) << "\n\n";
+        imprimirCentralizado(tituloUpper, cor(corDoCabecalho));
+        std::cout << "\n" << cor(corDoCabecalho) << linha << cor(Cor::RESET) << "\n";
+    }
 }
 
 int Aparencia::imprimirLadoALado(const std::vector<std::string>& colunaEsquerda, const std::vector<std::string>& colunaDireita, int minLarguraEsquerda, int espacamento, Cor corEsquerda, Cor corDireita, int atrasoLinhaMs) {
@@ -400,19 +420,55 @@ void Aparencia::exibirPrompt(const std::string& mensagem) {
     std::cout << "\n" << espacosParaCentralizar(obterComprimentoVisual(mensagem)) << mensagem;
 }
 
-void Aparencia::exibirLogoAscii(const std::vector<std::string>& arteAscii, int larguraVisual, Cor corDaArte, const std::string& tituloSecundario, int atrasoLinhaMs) {
-    std::cout << "\n";
-    imprimirLinhaDivisoria();
-    std::cout << "\n";
-    imprimirCentralizadoMultilinha(arteAscii, larguraVisual, cor(corDaArte), atrasoLinhaMs);
-    std::cout << "\n";
-    imprimirLinhaDivisoria();
-    
-    if (!tituloSecundario.empty()) {
-        imprimirCentralizado(tituloSecundario);
+void Aparencia::exibirLogoAscii(const std::vector<std::string>& arteAscii, int larguraVisual, Cor corDaArte, const std::string& tituloSecundario, bool animarFadeIn) {
+    int larguraTerminal = obterLarguraTerminal();
+    std::string linhaDivisoria = "";
+    for (int i = 0; i < larguraTerminal; ++i) linhaDivisoria += "═";
+
+    if (animarFadeIn) {
+        uint32_t val = static_cast<uint32_t>(corDaArte);
+        uint8_t rBase = (val >> 16) & 0xFF;
+        uint8_t gBase = (val >> 8) & 0xFF;
+        uint8_t bBase = val & 0xFF;
+
+        int passos = 4;
+        for (int step = 1; step <= passos; ++step) {
+            double pct = static_cast<double>(step) / passos;
+            int r = static_cast<int>(rBase * pct);
+            int g = static_cast<int>(gBase * pct);
+            int b = static_cast<int>(bBase * pct);
+            
+            std::string corRGB = "\033[38;2;" + std::to_string(r) + ";" + std::to_string(g) + ";" + std::to_string(b) + "m";
+            
+            std::ostringstream buffer;
+            buffer << "\n" << corRGB << linhaDivisoria << "\n\n";
+            for (const std::string& linha : arteAscii) {
+                buffer << espacosParaCentralizar(larguraVisual) << corRGB << linha << "\n";
+            }
+            buffer << "\n" << corRGB << linhaDivisoria << "\n";
+            if (!tituloSecundario.empty()) {
+                buffer << espacosParaCentralizar(obterComprimentoVisual(tituloSecundario)) << corRGB << tituloSecundario << "\n";
+                buffer << corRGB << linhaDivisoria << "\n";
+            }
+            buffer << "\033[0m";
+            
+            std::cout << "\033[?25l\033[H" << buffer.str() << std::flush;
+            if (step < passos) std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        }
+    } else {
+        std::cout << "\n";
         imprimirLinhaDivisoria();
+        std::cout << "\n";
+        imprimirCentralizadoMultilinha(arteAscii, larguraVisual, cor(corDaArte), 0);
+        std::cout << "\n";
+        imprimirLinhaDivisoria();
+        
+        if (!tituloSecundario.empty()) {
+            imprimirCentralizado(tituloSecundario);
+            imprimirLinhaDivisoria();
+        }
+        std::cout << "\n";
     }
-    std::cout << "\n";
 }
 
 std::vector<std::string> Aparencia::reduzirEscalaAscii(const std::vector<std::string>& arteOriginal, int fatorX, int fatorY) {

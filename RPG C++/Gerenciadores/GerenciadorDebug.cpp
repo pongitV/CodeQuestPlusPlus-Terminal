@@ -102,9 +102,11 @@ namespace {
 }
 
 void GerenciadorDebug::exibirMenuDebug(SistemaPersonagem* jogador) {
+    bool primeiraVez = true;
     while (true) {
         Aparencia::limparTela();
-        Aparencia::exibirCabecalho("MENU DE DEBUG (CHEAT)", Cor::AMARELO);
+        Aparencia::exibirCabecalho("MENU DE DEBUG (CHEAT)", Cor::AMARELO, primeiraVez);
+        primeiraVez = false;
         
         std::vector<std::string> opcoesDebug = {
             "God Mode (Max Atributos - Instakill/Imortal)",

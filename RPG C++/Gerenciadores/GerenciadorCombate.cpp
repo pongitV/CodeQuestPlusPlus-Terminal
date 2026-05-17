@@ -38,6 +38,20 @@ namespace {
 SistemaPersonagem* g_inimigoAtacanteParry = nullptr;
 int g_parryStatus = 0;
 
+int GerenciadorCombate::stats_parriesTentados = 0;
+int GerenciadorCombate::stats_parriesEfetivos = 0;
+int GerenciadorCombate::stats_maiorDanoCausado = 0;
+int GerenciadorCombate::stats_itensConsumidos = 0;
+std::vector<std::string> GerenciadorCombate::stats_novasDescobertas;
+
+void GerenciadorCombate::resetarEstatisticasAvancadas() {
+    stats_parriesTentados = 0;
+    stats_parriesEfetivos = 0;
+    stats_maiorDanoCausado = 0;
+    stats_itensConsumidos = 0;
+    stats_novasDescobertas.clear();
+}
+
 GerenciadorCombate::GerenciadorCombate(SistemaPersonagem* jogadorParaOCombate, std::vector<std::unique_ptr<SistemaPersonagem>>&& inimigosParaOCombate) 
     : jogadorAtual(jogadorParaOCombate), listaDeInimigos(std::move(inimigosParaOCombate)), contadorDoTurnoAtual(1), quantidadeDeOuroObtido(0), quantidadeDeXpObtido(0), totalDeDanoCausado(0), totalDeDanoRecebido(0)
 {
@@ -138,6 +152,7 @@ bool GerenciadorCombate::executarTurnoJogadorOuAliado(SistemaPersonagem* persona
 
 void GerenciadorCombate::iniciarCombate() 
 {
+    resetarEstatisticasAvancadas();
     jogadorAtual->prepararParaNovaBatalha();
     Aparencia::limparLogBatalha();
     TelaCombate::limparMensagensFixas();
@@ -352,6 +367,7 @@ void GerenciadorCombate::processarAcaoInventario(SistemaPersonagem* personagemAg
             personagemAgindo->definirItemSelecionadoParaUso(nullptr);
             turnoFoiConsumido = true;
             usouInventarioNoTurno = true;
+            stats_itensConsumidos++;
         }
         exibirTelaDeCombate();
         ControleDeInput::aguardarEnter();
@@ -617,6 +633,8 @@ void GerenciadorCombate::aplicarDanoAoAlvo(SistemaPersonagem* personagemAtacante
         } else {
             tentouParry = true;
             parryFoiBemSucedido = SistemaParry::tentarParry(personagemAtacante, danoBaseMitigado, quantidadeDeDanoReduzidoPeloParry);
+            stats_parriesTentados++;
+            if (parryFoiBemSucedido) stats_parriesEfetivos++;
         }
     }
 
@@ -695,6 +713,7 @@ void GerenciadorCombate::exibirResultadoDoAtaque(SistemaPersonagem* alvo, int da
     }
     else if (danoFinal > 0) 
     {
+        if (danoFinal > stats_maiorDanoCausado) stats_maiorDanoCausado = danoFinal;
         if (alvo != jogadorAtual) totalDeDanoCausado += danoFinal;
         // A mensagem estatica na UI de dano aos inimigos foi comentada para priorizar o Texto de Dano Flutuante
         registrarLog(">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano", Cor::VERMELHO);
@@ -728,6 +747,11 @@ void GerenciadorCombate::processarMorteDeInimigo(SistemaPersonagem* inimigo)
 {
     registrarLog("[!] " + inimigo->obterNome() + " derrotado!", Cor::VERMELHO);
 
+    std::string nomeRaca = inimigo->obterRaca()->obterNomeRaca();
+    if (!SistemaBestiario::instancia().jaDerrotado(nomeRaca)) {
+        stats_novasDescobertas.push_back("Novo monstro catalogado: " + nomeRaca);
+    }
+
     SistemaBestiario::instancia().registrarDerrota(inimigo->obterRaca()->obterNomeRaca());
 
     registrarLog("═══ DROPS ═══", Cor::AMARELO);
@@ -735,6 +759,9 @@ void GerenciadorCombate::processarMorteDeInimigo(SistemaPersonagem* inimigo)
     size_t itensAntes = itensObtidos.size();
     inimigo->executarDrops(jogadorAtual, itensObtidos, quantidadeDeOuroObtido, quantidadeDeXpObtido);
     for (size_t i = itensAntes; i < itensObtidos.size(); ++i) {
+        if (!SistemaBestiario::instancia().jaColetouDrop(nomeRaca, itensObtidos[i])) {
+            stats_novasDescobertas.push_back("Novo drop descoberto: " + itensObtidos[i]);
+        }
         SistemaBestiario::instancia().registrarDrop(inimigo->obterRaca()->obterNomeRaca(), itensObtidos[i]);
     }
 }
