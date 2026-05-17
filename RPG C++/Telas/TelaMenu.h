@@ -17,4 +17,6 @@ public:
     static int exibirPromptClasse(const std::string& nome, const std::string& nomeRaca);
     static int exibirPromptParry(const std::string& nome, const std::string& nomeRaca, const std::string& nomeClasse);
     static int exibirPromptDificuldade(const std::string& nome, const std::string& nomeRaca, const std::string& nomeClasse);
+    static void exibirTutorialDeParry();
+    static void exibirIntroducaoJornada();
 };

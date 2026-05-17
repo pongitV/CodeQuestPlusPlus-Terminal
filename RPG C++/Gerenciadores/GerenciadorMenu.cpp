@@ -41,87 +41,6 @@
 #include "../Utilidades/GeradorAleatorio.h"
 
 namespace {
-    void executarTutorialDeParry() {
-        Aparencia::limparTela();
-        TelaMenu::exibirLogoDoJogo("TUTORIAL DE PARRY");
-
-        std::vector<std::string> explicacao = {
-            "═══ COMO FUNCIONA O PARRY ═══",
-            "Quando um inimigo atacar, voce deve estar pronto para reagir.",
-            "Uma sequencia de numeros aparecera na tela com um limite de tempo.",
-            "Digite os numeros rapidamente na sequencia correta e pressione ENTER.",
-            "Se for rapido o suficiente e nao errar, o dano sera reduzido ou totalmente anulado!",
-        };
-        Aparencia::imprimirBlocoCentralizado(explicacao);
-        std::cout << "\n";
-        std::vector<std::string> opcoesTutorial = {"INICIAR TESTE", "PULAR"};
-        int escolha = ControleDeInput::lerSelecaoMenuComSetas(opcoesTutorial, true);
-        if (escolha == 1) return;
-
-        struct NivelTutorial {
-            std::string nomeInimigo;
-            int digitos;
-            int tempoLimiteMs;
-        };
-
-        std::vector<NivelTutorial> niveis = {
-            {"(Nivel 1)", 3, 3000},
-            {"(Nivel 2)", 4, 2500},
-            {"(Nivel 3)", 5, 2000},
-            {"(Nivel Extra)", 6, 1500}
-        };
-
-        for (size_t i = 0; i < niveis.size(); ++i) {
-            Aparencia::limparTela();
-            TelaMenu::exibirLogoDoJogo("TUTORIAL DE PARRY - " + niveis[i].nomeInimigo);
-            
-            std::cout << "\n";
-            Aparencia::imprimirCentralizado("Inimigo: " + niveis[i].nomeInimigo);
-            Aparencia::imprimirCentralizado("Sequencia: " + std::to_string(niveis[i].digitos) + " digitos | Tempo limite: " + std::to_string(niveis[i].tempoLimiteMs / 1000.0) + "s");
-            ControleDeInput::aguardarEnter();
-
-            int acertos = 0;
-            for (int teste = 1; teste <= 5; ++teste) {
-                std::cout << "\n";
-                Aparencia::imprimirCentralizado("[ Teste " + std::to_string(teste) + "/5 ] Prepare-se...");
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-                std::string sequencia = "";
-                for(int d = 0; d < niveis[i].digitos; d++){
-                    sequencia += std::to_string(GeradorAleatorio::obterInteiro(0, 9));
-                }
-
-                Aparencia::imprimirCentralizado("O " + niveis[i].nomeInimigo + " ataca! DIGITE: " + Aparencia::cor(Cor::CIANO) + sequencia + Aparencia::cor(Cor::RESET));
-                
-                auto inicio = std::chrono::steady_clock::now();
-                std::string entrada = ControleDeInput::lerEntradaProtegida("> ");
-                auto fim = std::chrono::steady_clock::now();
-                
-                int tempoGastoMs = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(fim - inicio).count());
-
-                if (entrada == sequencia) {
-                    if (tempoGastoMs <= niveis[i].tempoLimiteMs) {
-                        Aparencia::imprimirCentralizado(Aparencia::cor(Cor::VERDE) + "Parry Perfeito! (" + std::to_string(tempoGastoMs) + "ms)" + Aparencia::cor(Cor::RESET));
-                        acertos++;
-                    } else {
-                        Aparencia::imprimirCentralizado(Aparencia::cor(Cor::AMARELO) + "Muito lento! (" + std::to_string(tempoGastoMs) + "ms / " + std::to_string(niveis[i].tempoLimiteMs) + "ms)" + Aparencia::cor(Cor::RESET));
-                    }
-                } else {
-                    Aparencia::imprimirCentralizado(Aparencia::cor(Cor::VERMELHO) + "Errou a sequencia! (Voce digitou: " + entrada + ")" + Aparencia::cor(Cor::RESET));
-                }
-                std::this_thread::sleep_for(std::chrono::milliseconds(800));
-            }
-
-            std::cout << "\n";
-            Aparencia::imprimirCentralizado("Resultado do nivel: " + std::to_string(acertos) + "/5 acertos.");
-            ControleDeInput::aguardarEnter();
-        }
-
-        Aparencia::limparTela();
-        TelaMenu::exibirLogoDoJogo("TUTORIAL CONCLUIDO");
-        Aparencia::imprimirCentralizado("Voce completou o tutorial de Parry!");
-        ControleDeInput::aguardarEnter();
-    }
 }
 
 std::vector<std::string> GerenciadorMenu::lerInformacoesDosSaves(const std::vector<std::string>& saves) {
@@ -340,33 +259,8 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::iniciarCriacaoDeSistemaPerso
     auto personagemCriado = std::make_unique<SistemaPersonagem>(nomeDoPersonagem, std::move(racaEscolhida), std::move(classeEscolhida));
     personagemCriado->definirParryAtivado(sistemaDeParryAtivado);
     personagemCriado->definirDificuldade(static_cast<DificuldadeJogo>(nivelDeDificuldadeEscolhido));
-    std::cout << "\n";
-    std::string textoFinal = "[SISTEMA]: Personagem criado com sucesso!";
-    Aparencia::imprimirCentralizadoDigitando(textoFinal);
-    ControleDeInput::aguardarEnter();
-
-    Aparencia::limparTela();
-    TelaMenu::exibirLogoDoJogo("SISTEMA DE SAVE");
-    std::vector<std::string> avisoSave = {
-        "═══ AVISO IMPORTANTE ═══",
-        "O jogo NAO possui salvamento automatico (auto-save).",
-        "Para salvar o seu progresso, abra a sua Ficha de Jogador",
-        "durante a exploracao ou durante uma batalha,",
-        "e escolha a opcao de Voltar ao Menu Principal."
-    };
-    Aparencia::imprimirBlocoCentralizado(avisoSave);
-    ControleDeInput::aguardarEnter();
-
-    Aparencia::limparTela();
-    TelaMenu::exibirLogoDoJogo("INICIO DA JORNADA");
-    std::vector<std::string> dialogoInicio = {
-        "[NARRACAO]: Voce desperta nos arredores de um lugar desconhecido...",
-        "[NARRACAO]: Na sua vista, uma pequena vila sendo atacada por monstros.",
-        "[NARRACAO]: Empunhando seu equipamento, voce sente que seu destino o aguarda.",
-        "[NARRACAO]: Um novo capitulo se inicia agora."
-    };
-    Aparencia::imprimirBlocoCentralizadoDigitando(dialogoInicio);
-    ControleDeInput::aguardarEnter("Pressione ENTER para iniciar...");
+    
+    TelaMenu::exibirIntroducaoJornada();
 
     return personagemCriado;
 }
@@ -470,7 +364,7 @@ void GerenciadorMenu::etapaConfigurarParry(const std::string& nome, RacaBase* ra
 
     if (escolha == 0) {
         parry = true;
-        executarTutorialDeParry();
+        TelaMenu::exibirTutorialDeParry();
         etapaAtual = EtapaCriacao::Concluido;
     } else if (escolha == 1) {
         parry = false;
