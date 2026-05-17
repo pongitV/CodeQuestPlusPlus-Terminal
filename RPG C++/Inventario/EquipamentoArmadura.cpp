@@ -45,6 +45,11 @@ std::vector<std::string> EquipamentoArmadura::obterDetalhesInspecao(SistemaPerso
     } else {
         linhas.push_back(" > Penalidade: Nenhuma");
     }
+    
+    if (temPropriedade(Propriedade::ArmaduraAdaptacao)) {
+        linhas.push_back(" > Efeitos Ocultos: A Roda gira a cada turno regenerando 5% do HP e adapta a");
+        linhas.push_back("                    sua defesa ao inimigo e seu ataque a sua arma (+2 status)!");
+    }
     return linhas;
 }
 
@@ -86,6 +91,21 @@ std::unique_ptr<Item> fabricarEquipamentoArmadura(ItemID id) {
         {ItemID::ArmaduraBau, [criarArmadura]() { 
             auto armadura = criarArmadura(ItemID::ArmaduraBau, 20, 0, 0, 150); 
             armadura->definirPenalidadeDestreza(10);
+            return armadura; 
+        }},
+        {ItemID::RodaAdaptacao, []() { 
+            std::string nome = "Roda da Adaptacao";
+            std::string degrade = "";
+            for (size_t i = 0; i < nome.length(); ++i) {
+                int r = 255;
+                int g = 255 * i / (nome.length() - 1);
+                int b = 255 * (nome.length() - 1 - i) / (nome.length() - 1);
+                degrade += "\033[38;2;" + std::to_string(r) + ";" + std::to_string(g) + ";" + std::to_string(b) + "m" + std::string(1, nome[i]);
+            }
+            degrade += "\033[0m";
+            auto armadura = std::make_unique<EquipamentoArmadura>(degrade, 40, 0, 0, 5000); 
+            armadura->definirPenalidadeDestreza(0);
+            armadura->adicionarPropriedade(Propriedade::ArmaduraAdaptacao);
             return armadura; 
         }}
     };

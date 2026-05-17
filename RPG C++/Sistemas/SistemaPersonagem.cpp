@@ -112,6 +112,10 @@ void SistemaPersonagem::prepararParaNovaBatalha()
     combate.resetar();
     combate.vidaMaximaFixa = obterVidaMaxima();
     limparEfeitos();
+    
+    if (armadura && armadura->temPropriedade(Propriedade::ArmaduraAdaptacao)) {
+        adicionarEfeito(std::make_unique<EfeitoRodaAdaptacao>());
+    }
 }
 
 void SistemaPersonagem::calcularAtributos()
@@ -230,6 +234,11 @@ void SistemaPersonagem::equiparItem(Item* item)
     else if (item->obterTipo() == TipoEquipamento::ARMADURA)
     {
         this->armadura = item;
+        if (combate.vidaMaximaFixa > 0 && item->temPropriedade(Propriedade::ArmaduraAdaptacao)) {
+            if (!possuiEfeito(EfeitoID::RodaAdaptacao)) {
+                adicionarEfeito(std::make_unique<EfeitoRodaAdaptacao>());
+            }
+        }
     }
     cache_.sujo = true;
 }

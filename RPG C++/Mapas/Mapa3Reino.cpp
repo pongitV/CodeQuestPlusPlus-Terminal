@@ -46,6 +46,7 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
     int linhaInicialParaDesenharOMapa = Aparencia::obterPosicaoCursorY();
 
     auto restaurarTela = [&]() {
+        Aparencia::ocultarCursor();
         Aparencia::limparTela();
         exibirTituloDoMapaReino(tituloDoMapaAtual);
         linhaInicialParaDesenharOMapa = Aparencia::obterPosicaoCursorY();
@@ -107,6 +108,7 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
             if (celula == '=' || celula == '|') return Aparencia::cor(Cor::CINZA) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
             return std::string(1, celula);
         };
+
         ControleMapa::renderizarMapa(matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, larguraDoTerminal, alturaDoTerminal, linhaInicialParaDesenharOMapa, formatador);
 
         char teclaPressionadaPeloJogador = ControleDeInput::lerTecla();

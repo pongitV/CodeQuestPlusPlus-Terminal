@@ -177,14 +177,17 @@ void GerenciadorCombate::iniciarCombate()
             ControleDeInput::aguardarEnter();
 
             executarTurnoDeTodosOsInimigos();
+            limparInimigosMortos();
             if (verificarCondicaoDeVitoriaOuDerrota()) return;
             executarTurnoDeTodosOsInimigos();
+            limparInimigosMortos();
             if (verificarCondicaoDeVitoriaOuDerrota()) return;
             
             contadorDoTurnoAtual++; // Jogador comeca no Turno 2
         } else {
             TelaCombate::notificarInimigosMaisAgeis();
             executarTurnoDeTodosOsInimigos();
+            limparInimigosMortos();
             if (verificarCondicaoDeVitoriaOuDerrota()) return;
         }
     }
@@ -210,6 +213,7 @@ void GerenciadorCombate::iniciarCombate()
         }
         
         executarTurnoDeTodosOsInimigos();
+        limparInimigosMortos();
         if (verificarCondicaoDeVitoriaOuDerrota()) return;
 
         contadorDoTurnoAtual++;
@@ -514,7 +518,14 @@ std::pair<int, int> GerenciadorCombate::calcularDanoBase(SistemaPersonagem* atac
     int danoMagicoCalculado = std::max(0, static_cast<int>((danoMagicoDaArma + inteligenciaEfetiva) * (1.0 + (sabedoriaEfetiva / 100.0))));
     int total = std::max(1, danoFisicoCalculado + danoMagicoCalculado);
 
-    return { static_cast<int>(total * multiplicadorDeAtributos), perfuranteAtual };
+    int totalFinal = static_cast<int>(total * multiplicadorDeAtributos);
+    int perfuranteFinal = perfuranteAtual;
+
+    if (atacante->obterArma() && atacante->obterArma()->temPropriedade(Propriedade::IgnoraDefesa)) {
+        perfuranteFinal = totalFinal;
+    }
+
+    return { totalFinal, perfuranteFinal };
 }
 
 void GerenciadorCombate::processarPosDano(SistemaPersonagem* atacante, SistemaPersonagem* alvo, int danoFinal, bool tentouParry, bool parrySucesso) {
@@ -557,6 +568,14 @@ void GerenciadorCombate::processarPosDano(SistemaPersonagem* atacante, SistemaPe
                 TelaCombate::animarCuraNoJogador(obterTituloDoCombate(), obterInimigosRaw(), atacante, jogadorAtual, aliadosVivos, atacante->obterVida() - vidaAtacanteAntes);
             }
         }
+        
+        if (alvo->obterArmadura() && alvo->obterArmadura()->temPropriedade(Propriedade::ArmaduraAdaptacao)) {
+            auto* ef = const_cast<EfeitoStatus*>(alvo->encontrarEfeito(EfeitoID::RodaAdaptacao));
+            if (ef) {
+                auto* efRoda = dynamic_cast<EfeitoRodaAdaptacao*>(ef);
+                if (efRoda) efRoda->adaptar(alvo, atacante);
+            }
+        }
     }
     else if (tentouParry && parrySucesso && isPersonagemJogadorOuAliado(alvo)) {
         TelaCombate::animarDanoNoJogador(obterTituloDoCombate(), obterInimigosRaw(), alvo, jogadorAtual, aliadosVivos, true, danoFinal);
@@ -585,12 +604,20 @@ void GerenciadorCombate::aplicarDanoAoAlvo(SistemaPersonagem* personagemAtacante
     int quantidadeDeDanoReduzidoPeloParry = 0;
     bool tentouParry = false;
     bool parryFoiBemSucedido = false;
+    
+    bool ataqueImparavel = personagemAtacante && personagemAtacante->obterRaca()->ignoraParry();
 
     // Logica do Parry
     if (personagemAlvo->obterParryAtivado()) 
     {
-        tentouParry = true;
-        parryFoiBemSucedido = SistemaParry::tentarParry(personagemAtacante, danoBaseMitigado, quantidadeDeDanoReduzidoPeloParry);
+        if (ataqueImparavel) {
+            std::string msgImparavel = "[!] " + personagemAtacante->obterNome() + " desfere um ATAQUE IMPARAVEL! O Parry foi ignorado!";
+            registrarLog(msgImparavel, Cor::FUNDO_VERMELHO);
+            TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + Aparencia::cor(Cor::FUNDO_VERMELHO) + msgImparavel + Aparencia::cor(Cor::RESET) + "\n");
+        } else {
+            tentouParry = true;
+            parryFoiBemSucedido = SistemaParry::tentarParry(personagemAtacante, danoBaseMitigado, quantidadeDeDanoReduzidoPeloParry);
+        }
     }
 
     bool aplicarPassivas = (isPersonagemJogadorOuAliado(personagemAlvo) || static_cast<int>(jogadorAtual->obterDificuldade()) >= 2);
@@ -600,6 +627,25 @@ void GerenciadorCombate::aplicarDanoAoAlvo(SistemaPersonagem* personagemAtacante
     exibirResultadoDoAtaque(personagemAlvo, res.danoFinal, tentouParry, parryFoiBemSucedido, res.danoBloqueado, res.escudoQuebrou, res.nomeEscudoQuebrado);
 
     processarPosDano(personagemAtacante, personagemAlvo, res.danoFinal, tentouParry, parryFoiBemSucedido);
+
+    if (tentouParry && parryFoiBemSucedido && res.danoFinal <= 0 && isPersonagemJogadorOuAliado(personagemAlvo) && personagemAtacante) {
+        personagemAtacante->obterRaca()->aoSofrerParryPerfeito();
+
+        int danoRefletido = std::max(1, (quantidadeDeDanoBruto + danoPerfurante) / 4);
+        personagemAtacante->modificarVida(-danoRefletido);
+        
+        std::string msgReflexao = ">> [PARRY PERFEITO]: Reflexao! " + personagemAtacante->obterNome() + " sofreu " + std::to_string(danoRefletido) + " de dano de volta!";
+        registrarLog(msgReflexao, Cor::AMARELO);
+        TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + Aparencia::cor(Cor::AMARELO) + msgReflexao + Aparencia::cor(Cor::RESET) + "\n");
+        
+        std::vector<SistemaPersonagem*> aliadosVivos = obterAliadosVivosRaw();
+        if (!isPersonagemJogadorOuAliado(personagemAtacante)) {
+            TelaCombate::animarDanoNoInimigo(obterTituloDoCombate(), obterInimigosRaw(), personagemAtacante, personagemAlvo, jogadorAtual, aliadosVivos, danoRefletido);
+            totalDeDanoCausado += danoRefletido;
+        } else {
+            TelaCombate::animarDanoNoJogador(obterTituloDoCombate(), obterInimigosRaw(), personagemAtacante, jogadorAtual, aliadosVivos, false, danoRefletido);
+        }
+    }
 }
 
 void GerenciadorCombate::exibirResultadoDoAtaque(SistemaPersonagem* alvo, int danoFinal, bool tentouParry, bool parrySucesso, int danoBloqueado, bool escudoQuebrou, const std::string& nomeEscudoQuebrado)

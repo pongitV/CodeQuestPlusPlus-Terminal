@@ -22,6 +22,7 @@
 #include "../Inimigos/ClasseBaseInimigo.h"
 #include "../NPCs/NPCMorgana.h"
 #include "../Inimigos/AbominacaoFloresta.h"
+#include "../Inimigos/Maho.h"
 #include "TransicaoDeMapa.h"
 #include "../Utilidades/Aparencia.h"
 #include "ControleMapa.h"
@@ -331,6 +332,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
 
     // Lambda para restaurar a tela apos eventos
     auto restaurarTela = [&]() {
+        Aparencia::ocultarCursor();
         Aparencia::limparTela();
         exibirTituloDoMapaFloresta(tituloDoMapaAtual);
         linhaInicialParaDesenharOMapa = Aparencia::obterPosicaoCursorY();
@@ -342,9 +344,16 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
         char celulaDestinoDoMapa = matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX];
         
         if (tituloDoMapaAtual == "SALA DO CHEFE" && (celulaDestinoDoMapa == 'M' || celulaDestinoDoMapa == 'A' || celulaDestinoDoMapa == 'H' || celulaDestinoDoMapa == 'O')) {
-            std::cout << "\n[SISTEMA]: A batalha contra MAHO estara disponivel em breve!\n";
-            ControleDeInput::aguardarEnter();
-            if (exploracaoEstaAtiva) restaurarTela();
+            std::vector<std::unique_ptr<SistemaPersonagem>> bossMaho;
+            auto maho = std::make_unique<SistemaPersonagem>("MAHO", std::make_unique<Maho>(), std::make_unique<ClasseBaseInimigo>());
+            maho->calcularAtributos();
+            maho->modificarVida(maho->obterVidaMaxima());
+            bossMaho.push_back(std::move(maho));
+
+            int startX = proximaPosicaoX;
+            while (startX > 0 && (matrizDoMapaAtual[proximaPosicaoY][startX-1] == 'M' || matrizDoMapaAtual[proximaPosicaoY][startX-1] == 'A' || matrizDoMapaAtual[proximaPosicaoY][startX-1] == 'H' || matrizDoMapaAtual[proximaPosicaoY][startX-1] == 'O')) startX--;
+
+            ControleMapa::processarCombate(jogadorAtual, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, exploracaoEstaAtiva, "O GENERAL DIVINO", "A Roda comeca a girar... MAHO despertou!", std::move(bossMaho), proximaPosicaoX, proximaPosicaoY, startX, 4, larguraDoTerminal, restaurarTela);
             return;
         }
         
@@ -395,9 +404,62 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
                 if (celula == 'B') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "B" + Aparencia::cor(Cor::RESET);
                 if (tituloDoMapaAtual == "SALA DO CHEFE" && (celula == 'M' || celula == 'A' || celula == 'H' || celula == 'O')) return Aparencia::cor(Cor::NEGRITO, Cor::MAGENTA) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
                 if (tituloDoMapaAtual == "SALA DO CHEFE" && celula == '.') return Aparencia::cor(Cor::CINZA) + "." + Aparencia::cor(Cor::RESET);
+                
+                if (tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") {
+                    auto isHWall = [](char c) { return c == '=' || c == '.' || c == '\''; };
+                    auto isVWall = [](char c) { return c == '|' || c == '+' || c == 'S' || c == 'E'; };
+
+                    if (celula == '=') return Aparencia::cor(Cor::CINZA) + "═" + Aparencia::cor(Cor::RESET);
+                    if (celula == '|') {
+                        bool right = (x + 1 < static_cast<int>(matrizDoMapaAtual[y].length()) && isHWall(matrizDoMapaAtual[y][x+1]));
+                        bool left = (x > 0 && isHWall(matrizDoMapaAtual[y][x-1]));
+                        if (right && left) return Aparencia::cor(Cor::CINZA) + "╬" + Aparencia::cor(Cor::RESET);
+                        if (right) return Aparencia::cor(Cor::CINZA) + "╠" + Aparencia::cor(Cor::RESET);
+                        if (left) return Aparencia::cor(Cor::CINZA) + "╣" + Aparencia::cor(Cor::RESET);
+                        return Aparencia::cor(Cor::CINZA) + "║" + Aparencia::cor(Cor::RESET);
+                    }
+                    if (celula == '.') {
+                        bool right = (x + 1 < static_cast<int>(matrizDoMapaAtual[y].length()) && isHWall(matrizDoMapaAtual[y][x+1]));
+                        bool left = (x > 0 && isHWall(matrizDoMapaAtual[y][x-1]));
+                        bool down = (y + 1 < static_cast<int>(matrizDoMapaAtual.size()) && isVWall(matrizDoMapaAtual[y+1][x]));
+                        
+                        if (left && right && down) return Aparencia::cor(Cor::CINZA) + "╦" + Aparencia::cor(Cor::RESET);
+                        if (right && down) return Aparencia::cor(Cor::CINZA) + "╔" + Aparencia::cor(Cor::RESET);
+                        if (left && down) return Aparencia::cor(Cor::CINZA) + "╗" + Aparencia::cor(Cor::RESET);
+                        if (left && right) return Aparencia::cor(Cor::CINZA) + "═" + Aparencia::cor(Cor::RESET);
+                        return Aparencia::cor(Cor::CINZA) + "█" + Aparencia::cor(Cor::RESET);
+                    }
+                    if (celula == '\'') {
+                        bool right = (x + 1 < static_cast<int>(matrizDoMapaAtual[y].length()) && isHWall(matrizDoMapaAtual[y][x+1]));
+                        bool left = (x > 0 && isHWall(matrizDoMapaAtual[y][x-1]));
+                        bool up = (y > 0 && isVWall(matrizDoMapaAtual[y-1][x]));
+                        
+                        if (left && right && up) return Aparencia::cor(Cor::CINZA) + "╩" + Aparencia::cor(Cor::RESET);
+                        if (right && up) return Aparencia::cor(Cor::CINZA) + "╚" + Aparencia::cor(Cor::RESET);
+                        if (left && up) return Aparencia::cor(Cor::CINZA) + "╝" + Aparencia::cor(Cor::RESET);
+                        if (left && right) return Aparencia::cor(Cor::CINZA) + "═" + Aparencia::cor(Cor::RESET);
+                        return Aparencia::cor(Cor::CINZA) + "█" + Aparencia::cor(Cor::RESET);
+                    }
+                    if (celula == '+') {
+                        bool right = (x + 1 < static_cast<int>(matrizDoMapaAtual[y].length()) && isHWall(matrizDoMapaAtual[y][x+1]));
+                        bool left = (x > 0 && isHWall(matrizDoMapaAtual[y][x-1]));
+                        bool down = (y + 1 < static_cast<int>(matrizDoMapaAtual.size()) && isVWall(matrizDoMapaAtual[y+1][x]));
+                        bool up = (y > 0 && isVWall(matrizDoMapaAtual[y-1][x]));
+                        
+                        if (left && right && down && up) return Aparencia::cor(Cor::CINZA) + "╬" + Aparencia::cor(Cor::RESET);
+                        if (left && right && down) return Aparencia::cor(Cor::CINZA) + "╦" + Aparencia::cor(Cor::RESET);
+                        if (left && right && up) return Aparencia::cor(Cor::CINZA) + "╩" + Aparencia::cor(Cor::RESET);
+                        if (up && down && left) return Aparencia::cor(Cor::CINZA) + "╣" + Aparencia::cor(Cor::RESET);
+                        if (up && down && right) return Aparencia::cor(Cor::CINZA) + "╠" + Aparencia::cor(Cor::RESET);
+                        return Aparencia::cor(Cor::CINZA) + "╬" + Aparencia::cor(Cor::RESET);
+                    }
+                }
+                
                 return std::string(1, celula);
             };
+
             ControleMapa::renderizarMapa(matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, larguraDoTerminal, alturaDoTerminal, linhaInicialParaDesenharOMapa, formatador);
+
             precisaRenderizar = false;
         }
 

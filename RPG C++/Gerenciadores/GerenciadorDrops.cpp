@@ -27,8 +27,14 @@ void GerenciadorDrops::darEProcessarItem(SistemaPersonagem* jogador, ItemID idIt
     if (chanceDeDrop < 100 && !GeradorAleatorio::rolarChance(chanceDeDrop)) return;
 
     std::string nomeItem = FabricaItens::obterNomeDeID(idItem);
+    if (nomeItem.empty() || nomeItem == "Desconhecido") {
+        auto temp = FabricaItens::criarItem(idItem);
+        if (temp) nomeItem = temp->obterNomeItem();
+    }
     for (int i = 0; i < quantidade; ++i) {
-        jogador->obterInventario()->adicionarItem(FabricaItens::criarItem(idItem));
+        auto itemCriado = FabricaItens::criarItem(idItem);
+        if (itemCriado && i == 0) nomeItem = itemCriado->obterNomeItem(); // Pega nome com cores/degrade caso tenha
+        jogador->obterInventario()->adicionarItem(std::move(itemCriado));
         itensObtidos.push_back(nomeItem);
     }
     relatarDropItem(nomeItem, quantidade);

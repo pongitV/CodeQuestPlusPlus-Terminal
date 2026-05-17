@@ -17,6 +17,7 @@ void GerenciadorDebug::exibirMenuDebug(SistemaPersonagem* jogador) {
         
         std::vector<std::string> opcoesDebug = {
             "God Mode (Max Atributos - Instakill/Imortal)",
+            "Definir Atributos Livres",
             "Obter Qualquer Item",
             "Adicionar Ouro e XP (+10000)",
             std::string("Noclip (Atravessar paredes): ") + (jogador->isNoclip() ? Aparencia::cor(Cor::VERDE) + "LIGADO" + Aparencia::cor(Cor::RESET) : Aparencia::cor(Cor::VERMELHO) + "DESLIGADO" + Aparencia::cor(Cor::RESET)),
@@ -43,11 +44,48 @@ void GerenciadorDebug::exibirMenuDebug(SistemaPersonagem* jogador) {
             ControleDeInput::aguardarEnter();
             
         } else if (escolhaDebug == 1) {
+            while (true) {
+                Aparencia::limparTela();
+                Aparencia::exibirCabecalho("DEFINIR ATRIBUTOS (CHEAT)", Cor::AMARELO);
+                
+                auto& attrs = jogador->obterAtributosFinais();
+                
+                std::vector<std::string> opcoesAtr = {
+                    "Vida Maxima  : " + std::to_string(attrs.vida),
+                    "Forca        : " + std::to_string(attrs.forca),
+                    "Destreza     : " + std::to_string(attrs.destreza),
+                    "Resistencia  : " + std::to_string(attrs.resistencia),
+                    "Constituicao : " + std::to_string(attrs.constituicao),
+                    "Inteligencia : " + std::to_string(attrs.inteligencia),
+                    "Sabedoria    : " + std::to_string(attrs.sabedoria),
+                    "Voltar"
+                };
+                
+                int escolhaAtr = ControleDeInput::lerSelecaoMenuComSetas(opcoesAtr, true);
+                if (escolhaAtr == 7 || escolhaAtr == -1) break;
+                
+                std::string nomeAtr;
+                int* ptrAtr = nullptr;
+                if (escolhaAtr == 0) { nomeAtr = "Vida Maxima"; ptrAtr = &attrs.vida; }
+                else if (escolhaAtr == 1) { nomeAtr = "Forca"; ptrAtr = &attrs.forca; }
+                else if (escolhaAtr == 2) { nomeAtr = "Destreza"; ptrAtr = &attrs.destreza; }
+                else if (escolhaAtr == 3) { nomeAtr = "Resistencia"; ptrAtr = &attrs.resistencia; }
+                else if (escolhaAtr == 4) { nomeAtr = "Constituicao"; ptrAtr = &attrs.constituicao; }
+                else if (escolhaAtr == 5) { nomeAtr = "Inteligencia"; ptrAtr = &attrs.inteligencia; }
+                else if (escolhaAtr == 6) { nomeAtr = "Sabedoria"; ptrAtr = &attrs.sabedoria; }
+                
+                std::cout << "\n";
+                int novoValor = ControleDeInput::lerInteiroComLimites("Defina o novo valor para " + nomeAtr + ": ", 0, 999999, true);
+                *ptrAtr = novoValor;
+                jogador->forcarRecalculoCache();
+                if (escolhaAtr == 0) jogador->definirVida(jogador->obterVidaMaxima());
+            }
+        } else if (escolhaDebug == 2) {
             static const std::vector<ItemID> todosItens = {
                 ItemID::AdagaPedra, ItemID::ArcoMadeira, ItemID::CajadoCristal, ItemID::VarinhaCorroida, ItemID::ViolaoEncantado,
-                ItemID::EspadaFerro, ItemID::MachadoGuerra, ItemID::GosmaAcidaArma, ItemID::TroncoAmarrotado,
+                ItemID::EspadaFerro, ItemID::MachadoGuerra, ItemID::GosmaAcidaArma, ItemID::TroncoAmarrotado, ItemID::EspadaExterminio,
                 ItemID::EscudoMetal, ItemID::BarreiraMagica, ItemID::CapaMagica, ItemID::BracedeirasPrata,
-                ItemID::ArmaduraMalha, ItemID::ArmaduraCouro, ItemID::Tunica, ItemID::TrajeNobre, ItemID::ArmaduraTrapos,
+                ItemID::ArmaduraMalha, ItemID::ArmaduraCouro, ItemID::Tunica, ItemID::TrajeNobre, ItemID::ArmaduraTrapos, ItemID::ArmaduraCavaleiro, ItemID::ArmaduraBau, ItemID::RodaAdaptacao,
                 ItemID::PocaoCura30, ItemID::PocaoFuria, ItemID::ElixirArcano, ItemID::FrascoGosma, ItemID::FrascoFraqueza, ItemID::OrgaoRegenerador,
                 ItemID::TalismaUrso, ItemID::TalismaCorvo, ItemID::TalismaLeopardo, ItemID::TalismaCoruja,
                 ItemID::GosmaAcida, ItemID::DenteGoblin, ItemID::NucleoPegajoso, ItemID::PoMagico, ItemID::MadeiraEnfeiticada, ItemID::CoracaoFloresta, ItemID::PedraUpgrade, ItemID::ConviteReal,
@@ -85,7 +123,7 @@ void GerenciadorDebug::exibirMenuDebug(SistemaPersonagem* jogador) {
                 ControleDeInput::aguardarEnter();
             }
             
-        } else if (escolhaDebug == 2) {
+        } else if (escolhaDebug == 3) {
             jogador->ganharOuro(10000);
             jogador->ganharXp(10000);
             std::cout << "\n";
@@ -93,9 +131,9 @@ void GerenciadorDebug::exibirMenuDebug(SistemaPersonagem* jogador) {
             std::cout << "\n";
             ControleDeInput::aguardarEnter();
             
-        } else if (escolhaDebug == 3) {
+        } else if (escolhaDebug == 4) {
             jogador->alternarNoclip();
-        } else if (escolhaDebug == 4 || escolhaDebug == -1) { 
+        } else if (escolhaDebug == 5 || escolhaDebug == -1) { 
             break; 
         }
     }

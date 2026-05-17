@@ -78,6 +78,7 @@ std::vector<std::string> EquipamentoArma::obterDetalhesInspecao(SistemaPersonage
     if (efeitoLentidao) { linhas.push_back("   - Lentidao (Reduz destreza do alvo)"); hasEfeito = true; }
     if (temPropriedade(Propriedade::Penetrante)) { linhas.push_back("   - Penetrante (Reduz resistencia do alvo)"); hasEfeito = true; }
     if (temPropriedade(Propriedade::Magica)) { linhas.push_back("   - Magica (Parte do dano ignora defesa)"); hasEfeito = true; }
+    if (temPropriedade(Propriedade::IgnoraDefesa)) { linhas.push_back("   - Exterminio (Ignora 100% da Resistencia e Constituicao do alvo)"); hasEfeito = true; }
     if (temPropriedade(Propriedade::ViolaoMagico)) { linhas.push_back("   - Raizes Drenantes (Causa dano e cura o usuario)"); hasEfeito = true; }
     if (temPropriedade(Propriedade::CipoPrisao)) { linhas.push_back("   - Prisao de Cipos (Chance de atordoar alvo)"); hasEfeito = true; }
     if (!hasEfeito) linhas.push_back("   - Nenhuma propriedade extra.");
@@ -177,7 +178,22 @@ std::unique_ptr<Item> fabricarEquipamentoArma(ItemID id) {
         {ItemID::MachadoGuerra, [criarArma]() { return criarArma(ItemID::MachadoGuerra, 15, 0, 10, 0, 0, 0, 3); }},
         {ItemID::GosmaAcidaArma, [criarArma]() { return criarArma(ItemID::GosmaAcidaArma, 2, 7, 0, 0, 0, 0, 3); }},
         {ItemID::TroncoAmarrotado, [criarArma]() { return criarArma(ItemID::TroncoAmarrotado, 40, 0, 25, 0, 0, 0, 30); }},
-        {ItemID::EspadaCavaleiro, [criarArma]() { return criarArma(ItemID::EspadaCavaleiro, 12, 0, 0, 0, 0, 0, 0); }}
+        {ItemID::EspadaCavaleiro, [criarArma]() { return criarArma(ItemID::EspadaCavaleiro, 12, 0, 0, 0, 0, 0, 0); }},
+        {ItemID::EspadaExterminio, []() { 
+            std::string nome = "Espada de Exterminio";
+            std::string degrade = "";
+            for (size_t i = 0; i < nome.length(); ++i) {
+                int r = 255 * (nome.length() - 1 - i) / (nome.length() - 1);
+                int g = r;
+                int b = 255 * i / (nome.length() - 1);
+                degrade += "\033[38;2;" + std::to_string(r) + ";" + std::to_string(g) + ";" + std::to_string(b) + "m" + std::string(1, nome[i]);
+            }
+            degrade += "\033[0m";
+            auto arma = std::make_unique<EquipamentoArma>(degrade, 65, 65, 40, 40, 0, 0, 5000);
+            arma->adicionarPropriedade(Propriedade::Magica);
+            arma->adicionarPropriedade(Propriedade::IgnoraDefesa);
+            return arma;
+        }}
     };
     auto it = construtores.find(id);
     if (it != construtores.end()) return it->second();

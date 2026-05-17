@@ -24,6 +24,7 @@ enum class Propriedade
     Nenhuma,
     Magica,
     Penetrante,
+    IgnoraDefesa,
     ViolaoBase,
     ViolaoMagico,
     CipoPrisao,
@@ -37,19 +38,20 @@ enum class Propriedade
     TalismaInteligencia,
     TalismaDestreza,
     TalismaSabedoria,
-    ConsumivelPoderTroll
+    ConsumivelPoderTroll,
+    ArmaduraAdaptacao
 };
 
 enum class ItemID {
     Nenhum = 0,
     // Armas
-    AdagaPedra, ArcoMadeira, CajadoCristal, VarinhaCorroida, ViolaoEncantado, EspadaFerro, MachadoGuerra, GosmaAcidaArma, TroncoAmarrotado, EspadaCavaleiro,
+    AdagaPedra, ArcoMadeira, CajadoCristal, VarinhaCorroida, ViolaoEncantado, EspadaFerro, MachadoGuerra, GosmaAcidaArma, TroncoAmarrotado, EspadaCavaleiro, EspadaExterminio,
     
     // Escudos
     EscudoMetal, BarreiraMagica, CapaMagica, BracedeirasPrata,
     
     // Armaduras
-    ArmaduraMalha, ArmaduraCouro, Tunica, TrajeNobre, ArmaduraTrapos, ArmaduraCavaleiro, ArmaduraBau,
+    ArmaduraMalha, ArmaduraCouro, Tunica, TrajeNobre, ArmaduraTrapos, ArmaduraCavaleiro, ArmaduraBau, RodaAdaptacao,
     
     // Consumiveis
     PocaoCura30, PocaoFuria, ElixirArcano, FrascoGosma, FrascoFraqueza, OrgaoRegenerador,

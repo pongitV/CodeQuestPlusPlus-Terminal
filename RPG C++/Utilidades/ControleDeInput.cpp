@@ -152,7 +152,8 @@ int ControleDeInput::lerSelecaoMenuComSetas(const std::vector<std::string>& opco
 }
 
 void ControleDeInput::aguardarEnter(const std::string& mensagem) {
-    std::cout << "\n" << Aparencia::espacosParaCentralizar(Aparencia::obterComprimentoVisual(mensagem)) << mensagem << "\n";
+    Aparencia::ocultarCursor();
+    std::cout << "\n" << Aparencia::espacosParaCentralizar(Aparencia::obterComprimentoVisual(mensagem)) << "\033[5m" << mensagem << "\033[0m\n";
     ControleDeInput::limparBuffer();
     while (true) {
         char c = ControleDeInput::lerTecla();

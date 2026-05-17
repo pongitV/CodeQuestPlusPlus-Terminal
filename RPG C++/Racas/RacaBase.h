@@ -20,7 +20,8 @@ enum class TipoRaca
     Slime,
     AbominacaoFloresta,
     Mimico,
-    Troll
+    Troll,
+    Maho
 };
 
 struct InfoBestiario {
@@ -55,6 +56,9 @@ public:
     virtual int processarDanoDefensivo(int danoFinal, SistemaPersonagem* /*defensor*/) {
         return danoFinal;
     }
+    
+    virtual void aoSofrerParryPerfeito() {}
+    virtual bool ignoraParry() const { return false; }
 
     virtual void realizarDrops(SistemaPersonagem* /*inimigo*/, SistemaPersonagem* /*jogadorAtual*/, std::vector<std::string>& /*itensObtidos*/, int& /*ouroTotal*/, int& /*xpTotal*/) {
         // Implementação padrão vazia (sem drops)

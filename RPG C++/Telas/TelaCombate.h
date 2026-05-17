@@ -28,6 +28,7 @@ public:
     static std::string nomeTurnoVisivel;
     static int selecaoAcaoAtual;
     static int selecaoAlvoAtual;
+    static bool piscarSelecao;
     static void definirTurnoVisivel(int turno, const std::string& nome);
     static std::vector<std::string> opcoesMenuAtual;
     static SistemaPersonagem* personagemHUD;

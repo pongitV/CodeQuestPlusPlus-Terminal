@@ -197,6 +197,7 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
 
     // Lambda para restaurar a tela apos eventos sem piscar
     auto restaurarTela = [&]() {
+        Aparencia::ocultarCursor();
         Aparencia::limparTela();
         exibirTituloDoMapaVila(tituloDoMapaAtual);
         linhaInicialParaDesenharOMapa = Aparencia::obterPosicaoCursorY();
@@ -247,7 +248,9 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
                 if (celula == 'F' && x > 0 && matrizDoMapaAtual[y][x-1] == '.') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "F" + Aparencia::cor(Cor::RESET);
                 return std::string(1, celula);
             };
+
             ControleMapa::renderizarMapa(matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, larguraDoTerminal, alturaDoTerminal, linhaInicialParaDesenharOMapa, formatador);
+
             precisaRenderizar = false;
         }
 

@@ -204,6 +204,7 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
         {EfeitoID::Sangramento,        Cor::VERMELHO,"Sangramento",      true},
         {EfeitoID::Fraqueza,           Cor::VERMELHO,"Fraqueza",         true},
         {EfeitoID::QuebraResistencia, Cor::CIANO,   "Quebra de Resistencia", false},
+        {EfeitoID::RodaAdaptacao,     Cor::AMARELO, "Adaptacao Divina",  false},
     };
 
     std::vector<std::string> statusLinhas;

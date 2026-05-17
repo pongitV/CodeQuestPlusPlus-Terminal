@@ -415,6 +415,18 @@ void Aparencia::exibirLogoAscii(const std::vector<std::string>& arteAscii, int l
     std::cout << "\n";
 }
 
+std::vector<std::string> Aparencia::reduzirEscalaAscii(const std::vector<std::string>& arteOriginal) {
+    std::vector<std::string> arteReduzida;
+    for (size_t i = 0; i < arteOriginal.size(); i += 2) {
+        std::string novaLinha = "";
+        for (size_t j = 0; j < arteOriginal[i].length(); j += 2) {
+            novaLinha += arteOriginal[i][j];
+        }
+        arteReduzida.push_back(novaLinha);
+    }
+    return arteReduzida;
+}
+
 std::string Aparencia::margemCombate() {
     return espacosParaCentralizar(91); // Centraliza a partir do interior da HUD
 }

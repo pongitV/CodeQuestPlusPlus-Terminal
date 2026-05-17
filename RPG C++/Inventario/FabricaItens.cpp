@@ -38,6 +38,7 @@ namespace {
         {"Armadura de trapos e sucata", ItemID::ArmaduraTrapos},
         {"Armadura de Cavaleiro", ItemID::ArmaduraCavaleiro},
         {"Armadura de bau", ItemID::ArmaduraBau},
+        {"Roda da Adaptacao", ItemID::RodaAdaptacao},
         
         {"Pocao de Cura (30%VM)", ItemID::PocaoCura30},
         {"Pocao de Furia (Buff)", ItemID::PocaoFuria},

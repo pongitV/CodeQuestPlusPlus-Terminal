@@ -63,6 +63,7 @@ public:
     static void exibirPrompt(const std::string& mensagem);
     static std::string margemCombate();
     static void exibirLogoAscii(const std::vector<std::string>& arteAscii, int larguraVisual, Cor corDaArte, const std::string& tituloSecundario = "", int atrasoLinhaMs = 0);
+    static std::vector<std::string> reduzirEscalaAscii(const std::vector<std::string>& arteOriginal);
 
     static void registrarLogBatalha(const std::string& texto);
     static void limparLogBatalha();

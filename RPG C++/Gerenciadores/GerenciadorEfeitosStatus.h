@@ -8,6 +8,7 @@ enum class EfeitoID {
     Lentidao,
     Fraqueza,
     QuebraResistencia,
+    RodaAdaptacao,
     Inviolavel,
     MetadeDano,
     SugaSangue,
@@ -115,4 +116,20 @@ public:
     EfeitoGritoGuerra(int turnosDuracao, int forcaBonus, int destrezaBonus) : EfeitoStatus(EfeitoID::GritoDeGuerra, "GritoDeGuerra", turnosDuracao), bonusForca(forcaBonus), bonusDestreza(destrezaBonus) {}
     void aoEntrar(SistemaPersonagem* alvo) override;
     void aoSair(SistemaPersonagem* alvo) override;
+};
+
+class EfeitoRodaAdaptacao : public EfeitoStatus {
+private:
+    int bForca = 0;
+    int bDestreza = 0;
+    int bResistencia = 0;
+    int bConstituicao = 0;
+    int bInteligencia = 0;
+    int bSabedoria = 0;
+public:
+    EfeitoRodaAdaptacao() : EfeitoStatus(EfeitoID::RodaAdaptacao, "Adaptacao Divina", 9999) {}
+    bool impedeAcao() const override { return false; }
+    void aplicarInicioTurno(SistemaPersonagem* alvo) override;
+    void aoSair(SistemaPersonagem* alvo) override;
+    void adaptar(SistemaPersonagem* alvo, SistemaPersonagem* inimigo);
 };
