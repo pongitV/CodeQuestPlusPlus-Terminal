@@ -8,6 +8,7 @@
 #include "../Inimigos/AbominacaoFloresta.h"
 #include "../Inimigos/Troll.h"
 #include "../Inimigos/Mimico.h"
+#include "../Inimigos/Mahoraga.h"
 #include "../Inimigos/ClasseBaseInimigo.h"
 
 SistemaBestiario& SistemaBestiario::instancia() {
@@ -59,6 +60,7 @@ void SistemaBestiario::inicializarInimigos() {
     registrarNoBestiario<AbominacaoFloresta>(inimigosBase);
     registrarNoBestiario<Troll>(inimigosBase);
     registrarNoBestiario<Mimico>(inimigosBase);
+    registrarNoBestiario<Mahoraga>(inimigosBase);
 }
 
 void SistemaBestiario::registrarPrimeiraVista(const std::string& nomeInimigo) {

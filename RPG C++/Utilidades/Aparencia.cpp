@@ -415,11 +415,14 @@ void Aparencia::exibirLogoAscii(const std::vector<std::string>& arteAscii, int l
     std::cout << "\n";
 }
 
-std::vector<std::string> Aparencia::reduzirEscalaAscii(const std::vector<std::string>& arteOriginal) {
+std::vector<std::string> Aparencia::reduzirEscalaAscii(const std::vector<std::string>& arteOriginal, int fatorX, int fatorY) {
     std::vector<std::string> arteReduzida;
-    for (size_t i = 0; i < arteOriginal.size(); i += 2) {
+    if (fatorX <= 0) fatorX = 1;
+    if (fatorY <= 0) fatorY = 1;
+
+    for (size_t i = 0; i < arteOriginal.size(); i += fatorY) {
         std::string novaLinha = "";
-        for (size_t j = 0; j < arteOriginal[i].length(); j += 2) {
+        for (size_t j = 0; j < arteOriginal[i].length(); j += fatorX) {
             novaLinha += arteOriginal[i][j];
         }
         arteReduzida.push_back(novaLinha);

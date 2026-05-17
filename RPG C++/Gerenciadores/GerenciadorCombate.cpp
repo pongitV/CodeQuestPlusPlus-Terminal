@@ -159,7 +159,7 @@ void GerenciadorCombate::iniciarCombate()
 
     int maxDestrezaInimigos = 0;
     for (const auto& inimigoPtr : listaDeInimigos) {
-        SistemaBestiario::instancia().registrarPrimeiraVista(inimigoPtr->obterNome());
+        SistemaBestiario::instancia().registrarPrimeiraVista(inimigoPtr->obterRaca()->obterNomeRaca());
         if (inimigoPtr->obterDestreza() > maxDestrezaInimigos) maxDestrezaInimigos = inimigoPtr->obterDestreza();
     }
     
@@ -728,13 +728,13 @@ void GerenciadorCombate::processarMorteDeInimigo(SistemaPersonagem* inimigo)
 {
     registrarLog("[!] " + inimigo->obterNome() + " derrotado!", Cor::VERMELHO);
 
-    SistemaBestiario::instancia().registrarDerrota(inimigo->obterNome());
+    SistemaBestiario::instancia().registrarDerrota(inimigo->obterRaca()->obterNomeRaca());
 
     registrarLog("═══ DROPS ═══", Cor::AMARELO);
 
     size_t itensAntes = itensObtidos.size();
     inimigo->executarDrops(jogadorAtual, itensObtidos, quantidadeDeOuroObtido, quantidadeDeXpObtido);
     for (size_t i = itensAntes; i < itensObtidos.size(); ++i) {
-        SistemaBestiario::instancia().registrarDrop(inimigo->obterNome(), itensObtidos[i]);
+        SistemaBestiario::instancia().registrarDrop(inimigo->obterRaca()->obterNomeRaca(), itensObtidos[i]);
     }
 }

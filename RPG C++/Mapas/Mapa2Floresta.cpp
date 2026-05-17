@@ -22,7 +22,7 @@
 #include "../Inimigos/ClasseBaseInimigo.h"
 #include "../NPCs/NPCMorgana.h"
 #include "../Inimigos/AbominacaoFloresta.h"
-#include "../Inimigos/Maho.h"
+#include "../Inimigos/Mahoraga.h"
 #include "TransicaoDeMapa.h"
 #include "../Utilidades/Aparencia.h"
 #include "ControleMapa.h"
@@ -343,17 +343,17 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
     {
         char celulaDestinoDoMapa = matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX];
         
-        if (tituloDoMapaAtual == "SALA DO CHEFE" && (celulaDestinoDoMapa == 'M' || celulaDestinoDoMapa == 'A' || celulaDestinoDoMapa == 'H' || celulaDestinoDoMapa == 'O')) {
+        if (tituloDoMapaAtual == "SALA DO CHEFE" && (celulaDestinoDoMapa == 'M' || celulaDestinoDoMapa == 'A' || celulaDestinoDoMapa == 'H' || celulaDestinoDoMapa == 'O' || celulaDestinoDoMapa == 'R' || celulaDestinoDoMapa == 'G')) {
             std::vector<std::unique_ptr<SistemaPersonagem>> bossMaho;
-            auto maho = std::make_unique<SistemaPersonagem>("MAHO", std::make_unique<Maho>(), std::make_unique<ClasseBaseInimigo>());
-            maho->calcularAtributos();
-            maho->modificarVida(maho->obterVidaMaxima());
-            bossMaho.push_back(std::move(maho));
+            auto bossMahoraga = std::make_unique<SistemaPersonagem>("Mahoraga", std::make_unique<Mahoraga>(), std::make_unique<ClasseBaseInimigo>());
+            bossMahoraga->calcularAtributos();
+            bossMahoraga->modificarVida(bossMahoraga->obterVidaMaxima());
+            bossMaho.push_back(std::move(bossMahoraga));
 
             int startX = proximaPosicaoX;
-            while (startX > 0 && (matrizDoMapaAtual[proximaPosicaoY][startX-1] == 'M' || matrizDoMapaAtual[proximaPosicaoY][startX-1] == 'A' || matrizDoMapaAtual[proximaPosicaoY][startX-1] == 'H' || matrizDoMapaAtual[proximaPosicaoY][startX-1] == 'O')) startX--;
+            while (startX > 0 && (matrizDoMapaAtual[proximaPosicaoY][startX-1] == 'M' || matrizDoMapaAtual[proximaPosicaoY][startX-1] == 'A' || matrizDoMapaAtual[proximaPosicaoY][startX-1] == 'H' || matrizDoMapaAtual[proximaPosicaoY][startX-1] == 'O' || matrizDoMapaAtual[proximaPosicaoY][startX-1] == 'R' || matrizDoMapaAtual[proximaPosicaoY][startX-1] == 'G')) startX--;
 
-            ControleMapa::processarCombate(jogadorAtual, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, exploracaoEstaAtiva, "O GENERAL DIVINO", "A Roda comeca a girar... MAHO despertou!", std::move(bossMaho), proximaPosicaoX, proximaPosicaoY, startX, 4, larguraDoTerminal, restaurarTela);
+            ControleMapa::processarCombate(jogadorAtual, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, exploracaoEstaAtiva, "O GENERAL DIVINO", "A Roda comeca a girar... Mahoraga despertou!", std::move(bossMaho), proximaPosicaoX, proximaPosicaoY, startX, 8, larguraDoTerminal, restaurarTela);
             return;
         }
         
@@ -402,7 +402,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
                 if (celula == 'F' || celula == 'A') return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
                 if (celula == 'M') return Aparencia::cor(Cor::NEGRITO, Cor::MAGENTA) + "M" + Aparencia::cor(Cor::RESET);
                 if (celula == 'B') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "B" + Aparencia::cor(Cor::RESET);
-                if (tituloDoMapaAtual == "SALA DO CHEFE" && (celula == 'M' || celula == 'A' || celula == 'H' || celula == 'O')) return Aparencia::cor(Cor::NEGRITO, Cor::MAGENTA) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
+                if (tituloDoMapaAtual == "SALA DO CHEFE" && (celula == 'M' || celula == 'A' || celula == 'H' || celula == 'O' || celula == 'R' || celula == 'G')) return Aparencia::cor(Cor::NEGRITO, Cor::MAGENTA) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
                 if (tituloDoMapaAtual == "SALA DO CHEFE" && celula == '.') return Aparencia::cor(Cor::CINZA) + "." + Aparencia::cor(Cor::RESET);
                 
                 if (tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") {

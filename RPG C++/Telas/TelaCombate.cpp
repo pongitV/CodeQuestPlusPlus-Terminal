@@ -329,7 +329,7 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
 {
     if (listaDeInimigos.empty()) return;
     int larguraTerminal = Aparencia::obterLarguraTerminal();
-    const std::vector<std::string>& arteDoInimigo = listaDeInimigos[0]->obterRaca()->obterAparenciaRaca();
+    const std::vector<std::string>& arteDoInimigo = listaDeInimigos[0]->obterRaca()->obterAparenciaCombate();
     int quantidadeTotalDeInimigosNaHorda = static_cast<int>(listaDeInimigos.size());
     int larguraSeparadaParaCadaColuna = larguraTerminal / quantidadeTotalDeInimigosNaHorda; 
 
@@ -363,7 +363,7 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<SistemaPerson
 
     auto formatarFadeOut = [&](SistemaPersonagem* inimigo, const std::string& textoVisual, const std::string& textoPrint) -> std::pair<std::string, std::string> {
         if (isMorte && inimigo == alvoAnimacao && frameAnimacao > 0) {
-            int maxFrames = static_cast<int>(inimigo->obterRaca()->obterAparenciaRaca().size());
+            int maxFrames = static_cast<int>(inimigo->obterRaca()->obterAparenciaCombate().size());
             double progresso = std::min(1.0, static_cast<double>(frameAnimacao) / maxFrames);
             int intensidade = std::max(0, 255 - static_cast<int>(255.0 * progresso));
             
@@ -862,7 +862,7 @@ void TelaCombate::animarMorteInimigo(const std::string& tituloCombate, const std
 {
     if (listaDeInimigos.empty()) return;
     
-    int totalLinhas = static_cast<int>(listaDeInimigos[0]->obterRaca()->obterAparenciaRaca().size());
+    int totalLinhas = static_cast<int>(listaDeInimigos[0]->obterRaca()->obterAparenciaCombate().size());
 
     for (int frame = 1; frame <= totalLinhas; frame += 2) { // += 2 Para dar um efeito acelerado satisfatório
         renderizarCenaPadrao(tituloCombate, listaDeInimigos, inimigoMorto, frame, false, true, nullptr, jogadorAtual, listaDeAliados);

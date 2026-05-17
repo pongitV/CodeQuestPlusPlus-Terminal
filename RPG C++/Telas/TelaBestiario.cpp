@@ -157,34 +157,22 @@ void TelaBestiario::exibirFicha(SistemaPersonagem* jogadorAtual, const std::stri
         
         std::vector<std::string> blocoHabilidades;
 
-        auto processarHabilidade = [&](const std::string& hab, bool checarDescoberta) {
-            size_t pos = hab.find(" |");
-            std::string nomeHab = (pos != std::string::npos) ? hab.substr(0, pos) : hab;
-
-            if (!checarDescoberta || bestiario.jaViuHabilidade(nomeSelecionado, nomeHab)) {
-                std::string habLimpa = hab;
-                size_t posPipe = 0;
-                while ((posPipe = habLimpa.find('|', posPipe)) != std::string::npos) {
-                    habLimpa.replace(posPipe, 1, "║");
-                    posPipe += 3;
-                }
-                blocoHabilidades.push_back("  - " + habLimpa);
-                return true;
+        auto processarHabilidade = [&](const std::string& hab) {
+            std::string habLimpa = hab;
+            size_t posPipe = 0;
+            while ((posPipe = habLimpa.find('|', posPipe)) != std::string::npos) {
+                habLimpa.replace(posPipe, 1, "║");
+                posPipe += 3;
             }
-            return false;
+            blocoHabilidades.push_back("  - " + habLimpa);
         };
 
         blocoHabilidades.push_back("Ativas:");
         if (info->habilidadesAtivas.empty() || info->habilidadesAtivas[0].find("Nenhuma") != std::string::npos) {
             blocoHabilidades.push_back(Aparencia::cor(Cor::CINZA) + "  Nenhuma" + Aparencia::cor(Cor::RESET));
         } else {
-            bool temAtivas = false;
             for (const auto& hab : info->habilidadesAtivas) {
-                if (processarHabilidade(hab, true)) temAtivas = true;
-            }
-            if (!temAtivas) {
-                blocoHabilidades.push_back(Aparencia::cor(Cor::CINZA) + "  ???" + Aparencia::cor(Cor::RESET));
-                blocoHabilidades.push_back(Aparencia::cor(Cor::CINZA) + "  (Deixe uma habilidade ativa te acertar)" + Aparencia::cor(Cor::RESET));
+                processarHabilidade(hab);
             }
         }
         blocoHabilidades.push_back("");
@@ -193,11 +181,7 @@ void TelaBestiario::exibirFicha(SistemaPersonagem* jogadorAtual, const std::stri
         if (info->habilidadePassiva.empty() || info->habilidadePassiva.find("Nenhuma") != std::string::npos) {
             blocoHabilidades.push_back(Aparencia::cor(Cor::CINZA) + "  Nenhuma" + Aparencia::cor(Cor::RESET));
         } else {
-            bool temPassivas = derrotado && processarHabilidade(info->habilidadePassiva, false);
-            if (!temPassivas) {
-                blocoHabilidades.push_back(Aparencia::cor(Cor::CINZA) + "  ???" + Aparencia::cor(Cor::RESET));
-                blocoHabilidades.push_back(Aparencia::cor(Cor::CINZA) + "  (Derrote o inimigo para descobrir as passivas)" + Aparencia::cor(Cor::RESET));
-            }
+            processarHabilidade(info->habilidadePassiva);
         }
         
         Aparencia::imprimirBlocoCentralizado(blocoHabilidades);
