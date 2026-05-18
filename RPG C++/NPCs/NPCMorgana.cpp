@@ -170,7 +170,7 @@ namespace {
         std::string opcaoEncantar;
         do {
             Aparencia::limparTela();
-            Aparencia::exibirCabecalho(isUniversal ? "CABANA - ENCANTOS UNIVERSAIS" : "CABANA - ENCANTOS ESPECIFICOS", Cor::MAGENTA);
+            Aparencia::exibirPainelTexto(isUniversal ? "CABANA - ENCANTOS UNIVERSAIS" : "CABANA - ENCANTOS ESPECIFICOS", Cor::MAGENTA);
             
             std::vector<std::string> linhas;
             if (isUniversal) {
@@ -255,7 +255,7 @@ namespace {
         jogadorAtual->desbloquearLabirinto();
         
         Aparencia::limparTela();
-        Aparencia::exibirCabecalho("MISSAO CONCLUIDA", Cor::VERDE);
+        Aparencia::exibirPainelTexto("MISSAO CONCLUIDA", Cor::VERDE);
         dialogoMorgana(std::vector<std::string>{
             "Ah, perfeitos! Estes coracoes pulsam com uma magia ancestral.",
             "Como recompensa, revelarei um segredo... Atras de mim, ha uma passagem secreta.",
@@ -269,7 +269,7 @@ namespace {
         std::string opcaoMissao;
         do {
             Aparencia::limparTela();
-            Aparencia::exibirCabecalho("MISSOES DE MORGANA", Cor::MAGENTA);
+            Aparencia::exibirPainelTexto("MISSOES DE MORGANA", Cor::MAGENTA);
             
             std::vector<std::string> missoes;
             if (!jogadorAtual->obterLabirintoDesbloqueado()) {

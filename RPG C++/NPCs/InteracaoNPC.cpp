@@ -10,7 +10,7 @@ void InteracaoNPC::interagir(SistemaPersonagem* jogadorAtual) {
     
     do {
         Aparencia::limparTela();
-        Aparencia::exibirCabecalho(obterNomeDoLugar(), obterCorDoCabecalho());
+        Aparencia::exibirPainelTexto(obterNomeDoLugar(), obterCorDoCabecalho());
 
         int larguraDoTerminal = Aparencia::obterLarguraTerminal();
         
@@ -41,7 +41,7 @@ void InteracaoNPC::processarMenuMissoesVazio(SistemaPersonagem* jogadorAtual, co
     std::string opcaoMissao;
     do {
         Aparencia::limparTela();
-        Aparencia::exibirCabecalho(tituloMenu, corCabecalho);
+        Aparencia::exibirPainelTexto(tituloMenu, corCabecalho);
         std::vector<std::string> missoes = {
             "(Nenhuma missao disponivel)",
             "VOLTAR"
@@ -83,7 +83,7 @@ Item* InteracaoNPC::lerItemDoInventario(SistemaPersonagem* jogadorAtual, const s
 
 void InteracaoNPC::exibirTelaDeSucesso(const std::string& tituloCabecalho, Cor corCabecalho, const std::string& equacao, const std::vector<std::string>& arteAscii, const std::string& nomeNPC, const std::string& falaNPC) {
     Aparencia::limparTela();
-    Aparencia::exibirCabecalho(tituloCabecalho, corCabecalho);
+    Aparencia::exibirPainelTexto(tituloCabecalho, corCabecalho);
     Aparencia::imprimirCentralizadoMultilinha({equacao, ""}, 0, Aparencia::cor(corCabecalho));
     if (!arteAscii.empty()) {
         Aparencia::imprimirCentralizadoMultilinha(arteAscii, 29, Aparencia::cor(corCabecalho));

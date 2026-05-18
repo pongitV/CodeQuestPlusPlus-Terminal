@@ -20,7 +20,7 @@ void TelaInventario::exibir(SistemaPersonagem* jogadorAtual, bool mostrarPrecos)
     bool animar = TelaBase::deveAnimarEntradaDaTela(ultimoAcesso, 300);
 
     int largura = Aparencia::obterLarguraTerminal();
-    Aparencia::exibirLogoAscii(ArtesInventario::logoInventario, 121, Cor::AMARELO, "", animar);
+    Aparencia::exibirPainelArte(ArtesInventario::logoInventario, 121, Cor::AMARELO, "", animar);
 
     int larguraDoTerminal = Aparencia::obterLarguraTerminal();
 
@@ -85,7 +85,7 @@ void TelaInventario::exibir(SistemaPersonagem* jogadorAtual, bool mostrarPrecos)
 void TelaInventario::exibirMenuInteracaoItem(Item* itemEncontrado)
 {
     Aparencia::limparTela();
-    TelaMenu::exibirLogoDoJogo("OPCOES DE ITEM");
+    TelaMenu::exibirPainelLogoJogo("OPCOES DE ITEM");
     
     TipoEquipamento tipo = itemEncontrado->obterTipo();
     std::string opcao1 = "[1] Usar";

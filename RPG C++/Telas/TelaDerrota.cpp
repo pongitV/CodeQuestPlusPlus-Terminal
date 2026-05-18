@@ -13,7 +13,7 @@ void TelaDerrota::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroOb
     Aparencia::limparTela();
     int largura = Aparencia::obterLarguraTerminal();
 
-    Aparencia::exibirLogoAscii(ArtesDerrota::logoDerrota, 101, Cor::VERMELHO, "", true);
+    Aparencia::exibirPainelArte(ArtesDerrota::logoDerrota, 101, Cor::VERMELHO, "", true);
 
     Aparencia::imprimirBlocoCentralizado(ArtesDerrota::arteDerrota, Aparencia::cor(Cor::CINZA));
     std::cout << "\n";

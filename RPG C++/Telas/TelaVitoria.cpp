@@ -46,7 +46,7 @@ void TelaVitoria::exibir(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroOb
         std::ostringstream buffer;
         std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
 
-        Aparencia::exibirLogoAscii(ArtesVitoria::logoVitoria, 85, Cor::VERDE, "", frame == 0);
+        Aparencia::exibirPainelArte(ArtesVitoria::logoVitoria, 85, Cor::VERDE, "", frame == 0);
 
         std::vector<std::string> estLinhas;
         estLinhas.push_back("");

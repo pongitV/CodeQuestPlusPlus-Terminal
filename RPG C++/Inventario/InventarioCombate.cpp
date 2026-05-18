@@ -92,7 +92,7 @@ void InventarioCombate::gerenciarInventario(SistemaPersonagem* jogadorAtual, boo
                             acaoConcluida = true;
                         } else if (subOpcao == "2") {
                             Aparencia::limparTela();
-                            Aparencia::exibirCabecalho("INSPECAO DE ITEM", Cor::AMARELO);
+                            Aparencia::exibirPainelTexto("INSPECAO DE ITEM", Cor::AMARELO);
                             TelaInventario::exibirInspecaoItem(itemEncontrado, jogadorAtual);
                             std::cout << "\n";
                             ControleDeInput::aguardarEnter();

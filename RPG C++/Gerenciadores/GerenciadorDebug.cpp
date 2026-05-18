@@ -31,7 +31,7 @@ namespace {
     void menuDefinirAtributos(SistemaPersonagem* jogador) {
         while (true) {
             Aparencia::limparTela();
-            Aparencia::exibirCabecalho("DEFINIR ATRIBUTOS (CHEAT)", Cor::AMARELO);
+            Aparencia::exibirPainelTexto("DEFINIR ATRIBUTOS (CHEAT)", Cor::AMARELO);
             
             auto& attrs = jogador->obterAtributosFinais();
             std::vector<std::string> opcoesAtr = {
@@ -75,7 +75,7 @@ namespace {
         
         while (true) {
             Aparencia::limparTela();
-            Aparencia::exibirCabecalho("OBTER ITEM", Cor::AMARELO);
+            Aparencia::exibirPainelTexto("OBTER ITEM", Cor::AMARELO);
             
             int limit = (todosItens.size() + 1) / 2;
             std::cout << "\n";
@@ -105,7 +105,7 @@ void GerenciadorDebug::exibirMenuDebug(SistemaPersonagem* jogador) {
     bool primeiraVez = true;
     while (true) {
         Aparencia::limparTela();
-        Aparencia::exibirCabecalho("MENU DE DEBUG (CHEAT)", Cor::AMARELO, primeiraVez);
+        Aparencia::exibirPainelTexto("MENU DE DEBUG (CHEAT)", Cor::AMARELO, primeiraVez);
         primeiraVez = false;
         
         std::vector<std::string> opcoesDebug = {

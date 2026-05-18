@@ -72,10 +72,10 @@ std::vector<std::string> GerenciadorMenu::lerInformacoesDosSaves(const std::vect
 
 namespace {
     std::unique_ptr<SistemaPersonagem> lidarOpcoesDoSave(const std::string& saveSelecionado, const std::string& infoSave, bool& saveFoiDeletado) {
-        bool animar = true;
+        bool animar = false;
         while (true) {
             Aparencia::limparTela();
-            TelaMenu::exibirLogoDoJogo("OPCOES DO SAVE", animar);
+            TelaMenu::exibirPainelLogoJogo("OPCOES DO SAVE", animar);
             animar = false;
             std::cout << "\n";
             Aparencia::imprimirCentralizado("Save selecionado: " + infoSave, Aparencia::cor(Cor::CIANO));
@@ -86,7 +86,7 @@ namespace {
             
             if (escAcao == 0) {
                 Aparencia::limparTela();
-                TelaMenu::exibirLogoDoJogo("INFORMACOES DO SAVE", true);
+                TelaMenu::exibirPainelLogoJogo("INFORMACOES DO SAVE", true);
                 
                 std::ifstream arquivoSave(saveSelecionado);
                 if (arquivoSave.is_open()) {
@@ -126,7 +126,7 @@ namespace {
             }
             else if (escAcao == 2) {
                 Aparencia::limparTela();
-                TelaMenu::exibirLogoDoJogo("DELETAR SAVE", true);
+                TelaMenu::exibirPainelLogoJogo("DELETAR SAVE", true);
                 std::string nomeCorreto = "";
                 std::ifstream arquivoSave(saveSelecionado);
                 if (arquivoSave.is_open()) { std::getline(arquivoSave, nomeCorreto); arquivoSave.close(); }
@@ -156,12 +156,12 @@ namespace {
     }
 
     std::unique_ptr<SistemaPersonagem> lidarGerenciamentoDeSaves() {
-        bool animar = true;
+        bool animar = false;
         while (true) {
             auto saves = SistemaSave::listarSaves();
             if (saves.empty()) {
                 Aparencia::limparTela();
-                TelaMenu::exibirLogoDoJogo("GERENCIAR SAVES", animar);
+                TelaMenu::exibirPainelLogoJogo("GERENCIAR SAVES", animar);
                 std::cout << "\n";
                 Aparencia::imprimirCentralizado("Nenhum save encontrado.", Aparencia::cor(Cor::AMARELO));
                 ControleDeInput::aguardarEnter();
@@ -171,7 +171,7 @@ namespace {
             std::vector<std::string> infoSaves = lerInfoSavesLocal(saves);
             
             Aparencia::limparTela();
-            TelaMenu::exibirLogoDoJogo("GERENCIAR SAVES", animar);
+            TelaMenu::exibirPainelLogoJogo("GERENCIAR SAVES", animar);
             animar = false;
             std::cout << "\n";
             Aparencia::imprimirCentralizado("Selecione um save para gerenciar:\n");
@@ -190,10 +190,10 @@ namespace {
     }
 
     std::unique_ptr<SistemaPersonagem> lidarMenuDeOpcoes() {
-        bool animar = true;
+        bool animar = false;
         while (true) {
             Aparencia::limparTela();
-            TelaMenu::exibirLogoDoJogo("OPCOES", animar);
+            TelaMenu::exibirPainelLogoJogo("OPCOES", animar);
             animar = false;
             std::cout << "\n";
             int esc = ControleDeInput::lerSelecaoMenuComSetas({"Gerenciar Saves", "Voltar"}, true);
@@ -219,7 +219,8 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::menuPrincipal()
         else opcaoSelecionada = "Sair";
         
         if (opcaoSelecionada == "Novo Jogo") {
-            return iniciarCriacaoDeSistemaPersonagem();
+            auto novoJogador = iniciarCriacaoDeSistemaPersonagem();
+            if (novoJogador) return novoJogador;
         } else if (opcaoSelecionada == "Continuar Jogo") {
             auto saves = SistemaSave::listarSaves();
             if (saves.empty()) continue;
@@ -244,7 +245,13 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::menuPrincipal()
             auto jogador = lidarMenuDeOpcoes();
             if (jogador) return jogador;
         } else {
-            return nullptr;
+            std::vector<std::string> opcoesSimNao = { "NAO", "SIM" };
+            std::cout << "\n";
+            Aparencia::imprimirCentralizado("[SISTEMA]: Deseja realmente sair do jogo?", Aparencia::cor(Cor::AMARELO));
+            std::cout << "\n";
+            if (ControleDeInput::lerSelecaoMenuComSetas(opcoesSimNao, true) == 1) {
+                return nullptr;
+            }
         }
     }
 }
@@ -262,7 +269,10 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::iniciarCriacaoDeSistemaPerso
     {
         switch (etapaDeCriacaoAtual) 
         {
-            case EtapaCriacao::Nome: etapaEscolherNome(nomeDoPersonagem, etapaDeCriacaoAtual); break;
+            case EtapaCriacao::Nome: 
+                etapaEscolherNome(nomeDoPersonagem, etapaDeCriacaoAtual); 
+                if (nomeDoPersonagem == "0") return nullptr;
+                break;
             case EtapaCriacao::Raca: etapaEscolherRaca(nomeDoPersonagem, racaEscolhida, etapaDeCriacaoAtual); break;
             case EtapaCriacao::Classe: etapaEscolherClasse(nomeDoPersonagem, racaEscolhida.get(), classeEscolhida, etapaDeCriacaoAtual); break;
             case EtapaCriacao::Dificuldade: etapaEscolherDificuldade(nomeDoPersonagem, racaEscolhida.get(), classeEscolhida.get(), nivelDeDificuldadeEscolhido, etapaDeCriacaoAtual); break;
@@ -291,7 +301,10 @@ void GerenciadorMenu::etapaEscolherNome(std::string& nomeDoPersonagem, EtapaCria
     
     std::string entrada = ControleDeInput::lerEntradaProtegida();
 
-    if (entrada == "0") exit(0);
+    if (entrada == "0") {
+        nomeDoPersonagem = "0";
+        return;
+    }
     nomeDoPersonagem = entrada;
     if (!nomeDoPersonagem.empty()) etapaAtual = EtapaCriacao::Raca;
 }
@@ -338,20 +351,29 @@ void GerenciadorMenu::etapaEscolherClasse(const std::string& nome, RacaBase* rac
     if (classeTemporaria) 
     {
         std::vector<std::string> atrDestaque;
+        std::string descCombatStyle = "";
         TipoClasse tipo = classeTemporaria->obterTipoClasse();
         if (tipo == TipoClasse::Guerreiro || tipo == TipoClasse::Arqueiro) atrDestaque = {"Forca", "Destreza"};
         else if (tipo == TipoClasse::Mago || tipo == TipoClasse::Bardo) atrDestaque = {"Inteligencia", "Sabedoria"};
 
+        if (tipo == TipoClasse::Guerreiro) descCombatStyle = "Estilo de combate: Equilibrado em dano e resistencia.";
+        else if (tipo == TipoClasse::Bardo) descCombatStyle = "Estilo de combate: Focado em buffs e curas.";
+        else if (tipo == TipoClasse::Mago) descCombatStyle = "Estilo de combate: Estilo Glass Cannon.";
+        else if (tipo == TipoClasse::Arqueiro) descCombatStyle = "Estilo de combate: Focado em dano critico e desvios.";
+
         std::vector<std::string> info = TelaMenu::comporQuadroDeAtributos(classeTemporaria->obterAtributosClasse(), "[ ATRIBUTOS BONUS DA CLASSE ]", "[ HABILIDADE PASSIVA DA CLASSE ]", classeTemporaria->obterNomePassivaClasse(), classeTemporaria->obterDescricaoPassivaClasse(), atrDestaque);
         
+        info.insert(info.begin(), "");
+        info.insert(info.begin(), Aparencia::cor(Cor::CINZA) + descCombatStyle + Aparencia::cor(Cor::RESET));
+
         info.push_back("");
         info.insert(info.end(), {
-            Aparencia::cor(Cor::AMARELO) + "[ HABILIDADE ATIVA DA CLASSE ]" + Aparencia::cor(Cor::RESET),
+            Aparencia::cor(Cor::BRANCO) + "[ HABILIDADE ATIVA DA CLASSE ]" + Aparencia::cor(Cor::RESET),
             " " + Aparencia::cor(Cor::CIANO) + classeTemporaria->obterNomeHabilidadeClasse() + Aparencia::cor(Cor::RESET),
             " - " + Aparencia::cor(Cor::CINZA) + classeTemporaria->obterDescricaoHabilidadeClasse() + Aparencia::cor(Cor::RESET),
             " - " + Aparencia::cor(Cor::CINZA) + classeTemporaria->obterRecargaHabilidadeClasse() + Aparencia::cor(Cor::RESET),
             "",
-            Aparencia::cor(Cor::AMARELO) + "[ EQUIPAMENTO INICIAL DA CLASSE ]" + Aparencia::cor(Cor::RESET)
+            Aparencia::cor(Cor::BRANCO) + "[ EQUIPAMENTO INICIAL DA CLASSE ]" + Aparencia::cor(Cor::RESET)
         });
         
         auto kit = classeTemporaria->obterEquipamentoClasse();

@@ -3,6 +3,7 @@
 #include "../Telas/TelaAtributos.h"
 #include "../Telas/TelaBestiario.h"
 #include "../Telas/TelaMenu.h"
+#include "../Telas/TelaPause.h"
 #include "../Utilidades/Aparencia.h"
 #include "../Gerenciadores/GerenciadorCombate.h"
 #include "../Gerenciadores/GerenciadorDebug.h"
@@ -29,6 +30,14 @@ namespace {
 
 bool ControleMapa::processarInputEComandos(char tecla, SistemaPersonagem* jogador, int& proximaPosicaoX, int& proximaPosicaoY, const std::function<void()>& restaurarTela)
 {
+    // --- TELA DE PAUSE ---
+    if (tecla == 27 || tecla == '\033') // Códigos ASCII para a tecla ESC
+    {
+        TelaPause::exibir(jogador);
+        restaurarTela();
+        return true; // Retorna true para o mapa não processar movimento neste frame
+    }
+
     // --- MENU DE DEBUG (ISOLADO PARA FACIL REMOCAO FUTURA) ---
     if (tecla == '\\' || tecla == '`' || tecla == '=')
     {
@@ -80,7 +89,7 @@ void ControleMapa::processarCombate(
     int posicaoXAposCombate, int posicaoYAposCombate, int posicaoXInicialDoInimigo, int quantidadeDeCelulasOcupadas, int larguraDoTerminal, const std::function<void()>& restaurarTela)
 {
     Aparencia::limparTela();
-    Aparencia::exibirCabecalho(tituloDoCombate, Cor::VERMELHO);
+    Aparencia::exibirPainelTexto(tituloDoCombate, Cor::VERMELHO);
     int espacosParaCentralizarMensagem = std::max(0, (larguraDoTerminal - static_cast<int>(mensagemDeAviso.length())) / 2);
     std::string margemEsquerdaMensagem(espacosParaCentralizarMensagem, ' ');
     std::cout << "\n" << margemEsquerdaMensagem << Aparencia::cor(Cor::AMARELO) << "[!] " << mensagemDeAviso << Aparencia::cor(Cor::RESET) << "\n\n";

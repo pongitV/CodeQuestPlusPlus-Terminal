@@ -60,11 +60,12 @@ public:
     static void imprimirDialogoNPC(const std::string& npcNome, Cor npcCor, const std::string& texto, bool novaLinhaAntes = true, bool novaLinhaDepois = true);
     static void imprimirDialogoNPC(const std::string& npcNome, Cor npcCor, const std::vector<std::string>& linhas);
     static void imprimirVetorAnimado(const std::vector<std::string>& linhas, int atrasoMs = 30);
-    static void exibirCabecalho(const std::string& titulo, Cor corDoCabecalho = Cor::BRANCO, bool animarFadeIn = false);
+    static void exibirPainel(const std::string& titulo, Cor corPrincipal = Cor::BRANCO, const std::vector<std::string>& artePrincipal = {}, int larguraArte = 0, const std::vector<std::string>& arteSecundaria = {}, Cor corSecundaria = Cor::RESET, bool animarFadeIn = false);
+    static void exibirPainelTexto(const std::string& titulo, Cor corDoCabecalho = Cor::BRANCO, bool animarFadeIn = false);
     static int imprimirLadoALado(const std::vector<std::string>& colunaEsquerda, const std::vector<std::string>& colunaDireita, int minLarguraEsquerda = 0, int espacamento = 0, Cor corEsquerda = Cor::RESET, Cor corDireita = Cor::RESET, int atrasoLinhaMs = 0);
     static void exibirPrompt(const std::string& mensagem);
     static std::string margemCombate();
-    static void exibirLogoAscii(const std::vector<std::string>& arteAscii, int larguraVisual, Cor corDaArte, const std::string& tituloSecundario = "", bool animarFadeIn = false);
+    static void exibirPainelArte(const std::vector<std::string>& arteAscii, int larguraVisual, Cor corDaArte, const std::string& tituloSecundario = "", bool animarFadeIn = false);
     static std::vector<std::string> reduzirEscalaAscii(const std::vector<std::string>& arteOriginal, int fatorX = 2, int fatorY = 2);
 
     static void registrarLogBatalha(const std::string& texto);

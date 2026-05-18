@@ -259,7 +259,7 @@ void TelaCombate::exibirLogoParaTelaDeCombate(const std::string& tituloDaTela)
         "  ░░░░░░░░░     ░░░░░░░    ░░░░░     ░░░░░ ░░░░░░░░░░░  ░░░░░   ░░░░░    ░░░░░    ░░░░░░░░░░  "
     };
 
-    Aparencia::exibirLogoAscii(logo, 95, Cor::VERMELHO, tituloDaTela, true);
+    Aparencia::exibirPainelArte(logo, 95, Cor::VERMELHO, tituloDaTela, true);
 }
 
 std::vector<std::string> TelaCombate::obterLinhasBarraDeStatusDoJogador(SistemaPersonagem* jogadorAtual, Cor corDestaque, int danoAnimacao, int frameAnimacao, bool isCura) 

@@ -45,8 +45,6 @@ Mapa1Vila::Mapa1Vila(SistemaPersonagem* personagemJogador) :
 
 Mapa1Vila::~Mapa1Vila() = default;
 
-extern void exibirTituloDoMapaVila(const std::string& tituloDoMapa);
-
 namespace {
     class InteracaoCombateGoblin : public InteracaoVila {
     public:
@@ -70,7 +68,7 @@ namespace {
                 interacaoBjorn.interagir(ctx.self->jogadorAtual);
             } else if (ctx.self->tituloDoMapaAtual == "CAVERNA DO ORK") {
                 Aparencia::limparTela();
-                Aparencia::exibirCabecalho("RESGATE NA CAVERNA", Cor::AMARELO);
+            Aparencia::exibirPainelTexto("RESGATE NA CAVERNA", Cor::AMARELO);
                 int espacosM = std::max(0, (ctx.larguraDoTerminal - 50) / 2);
                 std::string mE(espacosM, ' ');
                 std::cout << "\n" << mE << "[Bjorn]: Pelos deuses, muito obrigado por me salvar!\n";
@@ -242,7 +240,7 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
             int alturaDoTerminal = Aparencia::obterAlturaTerminal();
 
             auto formatador = [&](char celula, int x, int y) -> std::string {
-                if (x == posicaoXDoJogador && y == posicaoYDoJogador) return Aparencia::cor(Cor::NEGRITO, Cor::VERDE) + "@" + Aparencia::cor(Cor::RESET);
+                if (x == posicaoXDoJogador && y == posicaoYDoJogador) return Aparencia::cor(Cor::NEGRITO, jogadorAtual->obterCorJogador()) + std::string(1, jogadorAtual->obterIconeJogador()) + Aparencia::cor(Cor::RESET);
                 if (celula == 'G' || celula == 'O') return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
                 if (celula == 'B') return Aparencia::cor(Cor::NEGRITO, Cor::CIANO) + "B" + Aparencia::cor(Cor::RESET);
                 if (celula == 'F' && x > 0 && matrizDoMapaAtual[y][x-1] == '.') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "F" + Aparencia::cor(Cor::RESET);

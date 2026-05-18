@@ -50,8 +50,6 @@ Mapa2Floresta::Mapa2Floresta(SistemaPersonagem* personagemJogador) :
 
 Mapa2Floresta::~Mapa2Floresta() = default;
 
-extern void exibirTituloDoMapaFloresta(const std::string& tituloDoMapa);
-
 namespace {
     class InteracaoSlime : public InteracaoFloresta {
     public:
@@ -93,7 +91,7 @@ namespace {
         void processar(ContextoInteracaoFloresta& ctx) override {
             if (ctx.self->tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") {
                 Aparencia::limparTela();
-                Aparencia::exibirCabecalho("TESOURO ESCONDIDO", Cor::VERDE);
+                Aparencia::exibirPainelTexto("TESOURO ESCONDIDO", Cor::VERDE);
                 int mE = (ctx.larguraDoTerminal - 40) / 2;
                 std::string margem(mE > 0 ? mE : 0, ' ');
                 std::cout << "\n" << margem << "[!] Voce encontrou um Baú ancestral!\n\n";
@@ -174,7 +172,7 @@ namespace {
             else if (nextCell == 'L' && ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 if (!ctx.self->jogadorAtual->obterLabirintoDesbloqueado()) {
                     Aparencia::limparTela();
-                    Aparencia::exibirCabecalho("PASSAGEM BLOQUEADA", Cor::VERDE);
+                Aparencia::exibirPainelTexto("PASSAGEM BLOQUEADA", Cor::VERDE);
                     int espacosM = (ctx.larguraDoTerminal - 60) / 2;
                     std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: A passagem esta selada por magia. Fale com Morgana.\n";
                     ControleDeInput::aguardarEnter();
@@ -232,7 +230,7 @@ namespace {
             }
             else if (nextCell == 'E' && ctx.self->tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") {
                 Aparencia::limparTela();
-                Aparencia::exibirCabecalho("FIM DO LABIRINTO", Cor::VERDE);
+            Aparencia::exibirPainelTexto("FIM DO LABIRINTO", Cor::VERDE);
                 int espacosM = (ctx.larguraDoTerminal - 60) / 2;
                 std::string margem(espacosM > 0 ? espacosM : 0, ' ');
                 
@@ -397,7 +395,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
             int alturaDoTerminal = Aparencia::obterAlturaTerminal();
 
             auto formatador = [&](char celula, int x, int y) -> std::string {
-                if (x == posicaoXDoJogador && y == posicaoYDoJogador) return Aparencia::cor(Cor::NEGRITO, Cor::VERDE) + "@" + Aparencia::cor(Cor::RESET);
+                if (x == posicaoXDoJogador && y == posicaoYDoJogador) return Aparencia::cor(Cor::NEGRITO, jogadorAtual->obterCorJogador()) + std::string(1, jogadorAtual->obterIconeJogador()) + Aparencia::cor(Cor::RESET);
                 if (celula == 'S' && (x == 0 || matrizDoMapaAtual[y][x-1] != '^')) return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + "S" + Aparencia::cor(Cor::RESET);
                 if (celula == 'F' || celula == 'A') return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
                 if (celula == 'M') return Aparencia::cor(Cor::NEGRITO, Cor::MAGENTA) + "M" + Aparencia::cor(Cor::RESET);

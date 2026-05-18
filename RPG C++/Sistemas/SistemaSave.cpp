@@ -156,6 +156,8 @@ void SistemaSave::salvarJogo(SistemaPersonagem* jogador) {
     arquivo << (jogador->possuiRegeneracaoTroll() ? 1 : 0) << "\n";
     arquivo << (jogador->obterParryAtivado() ? 1 : 0) << "\n";
     arquivo << (jogador->podeUsarRessurreicao() ? 1 : 0) << "\n";
+    arquivo << jogador->obterIconeJogador() << "\n";
+    arquivo << static_cast<uint32_t>(jogador->obterCorJogador()) << "\n";
     arquivo.close();
 }
 
@@ -241,6 +243,16 @@ std::unique_ptr<SistemaPersonagem> SistemaSave::carregarJogo(const std::string& 
     int podeReviver = 1;
     if (arquivo >> podeReviver && podeReviver == 0) {
         jogador->consumirRessurreicao();
+    }
+
+    char icone = '@';
+    if (arquivo >> icone) {
+        jogador->definirIconeJogador(icone);
+    }
+    
+    uint32_t cor = static_cast<uint32_t>(Cor::VERDE);
+    if (arquivo >> cor) {
+        jogador->definirCorJogador(static_cast<Cor>(cor));
     }
 
     arquivo.close();

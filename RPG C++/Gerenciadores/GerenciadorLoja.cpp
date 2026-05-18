@@ -13,7 +13,7 @@ void GerenciadorLoja::processarCompra(SistemaPersonagem* jogadorAtual, const std
     bool primeiraVez = true;
     do {
         Aparencia::limparTela();
-        Aparencia::exibirCabecalho(tituloLoja, corLoja, primeiraVez);
+        Aparencia::exibirPainelTexto(tituloLoja, corLoja, primeiraVez);
         primeiraVez = false;
         
         std::vector<std::string> linhas = {

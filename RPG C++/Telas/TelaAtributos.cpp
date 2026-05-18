@@ -23,7 +23,7 @@ struct EfeitoInfo {
 namespace {
     void exibirDetalhesAtributos(SistemaPersonagem* jogadorAtual) {
         Aparencia::limparTela();
-        Aparencia::exibirCabecalho("DETALHES DOS ATRIBUTOS", Cor::MAGENTA);
+        Aparencia::exibirPainelTexto("DETALHES DOS ATRIBUTOS", Cor::MAGENTA);
         
         std::vector<std::string> painelRaca = {"[ RACA: " + jogadorAtual->obterRaca()->obterNomeRaca() + " ]", ""};
         for (const auto& linha : jogadorAtual->obterRaca()->obterAparenciaRaca()) painelRaca.push_back(linha);
@@ -82,7 +82,7 @@ void TelaAtributos::exibir(SistemaPersonagem* jogadorAtual)
 
     int largura = Aparencia::obterLarguraTerminal();
 
-    Aparencia::exibirLogoAscii(ArtesAtributos::logoFicha, 59, Cor::MAGENTA, "", animar);
+    Aparencia::exibirPainelArte(ArtesAtributos::logoFicha, 59, Cor::MAGENTA, "", animar);
 
     double multiplicadorDeAtributosAtual = jogadorAtual->obterMultiplicador();
     int turnosBuff = jogadorAtual->obterTurnosEfeito(EfeitoID::BuffAtributos);
@@ -239,19 +239,15 @@ void TelaAtributos::gerenciarFichaDoJogador(SistemaPersonagem* jogadorAtual)
     {
         TelaAtributos::exibir(jogadorAtual);
 
-        std::vector<std::string> opcoes = { "LIGAR/DESLIGAR PARRY" };
-        opcoes.push_back("SUBIR DE NIVEL");
+        std::vector<std::string> opcoes = { "SUBIR DE NIVEL" };
         opcoes.push_back("DETALHES DE ATRIBUTOS");
-        opcoes.push_back("SALVAR E SAIR");
         opcoes.push_back("VOLTAR");
 
         std::cout << "\n";
         int selecao = ControleDeInput::lerSelecaoMenuComSetas(opcoes, true);
         std::string op = opcoes[selecao];
 
-        if (op == "LIGAR/DESLIGAR PARRY") {
-            jogadorAtual->definirParryAtivado(!jogadorAtual->obterParryAtivado());
-        } else if (op == "SUBIR DE NIVEL") {
+        if (op == "SUBIR DE NIVEL") {
             if (!jogadorAtual->podeSubirDeNivel()) {
                 Aparencia::exibirPrompt(Aparencia::cor(Cor::AMARELO) + "[SISTEMA]: Voce nao tem XP suficiente para subir de nivel!" + Aparencia::cor(Cor::RESET));
                 ControleDeInput::aguardarEnter();
@@ -270,19 +266,6 @@ void TelaAtributos::gerenciarFichaDoJogador(SistemaPersonagem* jogadorAtual)
                         Aparencia::exibirPrompt("[SISTEMA]: Nivel subiu! Atributo melhorado.");
                         ControleDeInput::aguardarEnter();
                     }
-                }
-            }
-        } else if (op == "SALVAR E SAIR") {
-            std::vector<std::string> opcoesSimNao = { "NAO", "SIM" };
-            std::cout << "\n";
-            Aparencia::imprimirCentralizado("[AVISO]: Deseja salvar jogo e voltar para o menu principal?");
-            std::cout << "\n";
-            if (ControleDeInput::lerSelecaoMenuComSetas(opcoesSimNao, true) == 1) {
-                Aparencia::imprimirCentralizado("[AVISO]: Tem certeza?");
-                std::cout << "\n";
-                if (ControleDeInput::lerSelecaoMenuComSetas(opcoesSimNao, true) == 1) {
-                    jogadorAtual->definirVoltarProMenu(true);
-                    return;
                 }
             }
         } else if (op == "DETALHES DE ATRIBUTOS") {

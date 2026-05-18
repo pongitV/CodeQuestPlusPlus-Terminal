@@ -16,7 +16,7 @@
 
 static void exibirCabecalho(int largura, const std::string& tituloSecundario = "", bool animar = false) {
     Aparencia::limparTela();
-    Aparencia::exibirLogoAscii(ArtesBestiario::logoBestiario, 101, Cor::VERDE, tituloSecundario, animar);
+    Aparencia::exibirPainelArte(ArtesBestiario::logoBestiario, 101, Cor::VERDE, tituloSecundario, animar);
 }
 
 void TelaBestiario::exibirLista(SistemaPersonagem* jogadorAtual) {

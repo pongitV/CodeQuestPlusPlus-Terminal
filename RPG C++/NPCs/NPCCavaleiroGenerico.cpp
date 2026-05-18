@@ -70,7 +70,7 @@ namespace {
 
     void exibirTelaCavaleiro(const std::string& tituloCabecalho, const std::vector<std::string>& falas) {
         Aparencia::limparTela();
-        Aparencia::exibirCabecalho(tituloCabecalho, Cor::CINZA);
+        Aparencia::exibirPainelTexto(tituloCabecalho, Cor::CINZA);
         Aparencia::imprimirBlocoCentralizado(NPCCavaleiroGenericoLayouts::arteCavaleiro);
         std::cout << "\n";
         dialogoCavaleiro(falas);

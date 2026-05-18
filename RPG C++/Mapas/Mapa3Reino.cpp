@@ -29,8 +29,6 @@ Mapa3Reino::Mapa3Reino(SistemaPersonagem* personagemJogador) :
 
 Mapa3Reino::~Mapa3Reino() = default;
 
-extern void exibirTituloDoMapaReino(const std::string& tituloDoMapa);
-
 void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
 {
     bool trollDerrotado = false;
@@ -59,14 +57,14 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
         if (nextCell == 'C') {
             if (!conviteRecebido) {
                 Aparencia::limparTela();
-                Aparencia::exibirCabecalho("ACESSO NEGADO", Cor::CIANO);
+                Aparencia::exibirPainelTexto("ACESSO NEGADO", Cor::CIANO);
                 int espacosM = (larg - 60) / 2;
                 std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: Os portoes estao trancados. Voce precisa de uma permissao real.\n";
                 ControleDeInput::aguardarEnter();
                 restaurarTela();
             } else {
                 Aparencia::limparTela();
-                Aparencia::exibirCabecalho("FIM DA DEMO", Cor::CIANO);
+                Aparencia::exibirPainelTexto("FIM DA DEMO", Cor::CIANO);
                 int espacosM = (larg - 60) / 2;
                 std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: Voce apresentou o Convite Real e os portoes se abriram!\n";
                 std::cout << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: A historia continua em breve...\n";
@@ -82,7 +80,7 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
 
     interacoes['G'] = [&](int px, int py, int larg) {
         Aparencia::limparTela();
-        Aparencia::exibirCabecalho("GUARDA REAL", Cor::CIANO);
+        Aparencia::exibirPainelTexto("GUARDA REAL", Cor::CIANO);
         int espacosM = (larg - 60) / 2;
         std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[Guarda]: Alto la! Somente o Rei pode conceder passagem.\n";
         std::cout << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[Guarda]: (O castelo ainda esta em construcao pelos deuses/devs)\n";
@@ -102,7 +100,7 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
         int alturaDoTerminal = Aparencia::obterAlturaTerminal();
 
         auto formatador = [&](char celula, int x, int y) -> std::string {
-            if (x == posicaoXDoJogador && y == posicaoYDoJogador) return Aparencia::cor(Cor::NEGRITO, Cor::VERDE) + "@" + Aparencia::cor(Cor::RESET);
+            if (x == posicaoXDoJogador && y == posicaoYDoJogador) return Aparencia::cor(Cor::NEGRITO, jogadorAtual->obterCorJogador()) + std::string(1, jogadorAtual->obterIconeJogador()) + Aparencia::cor(Cor::RESET);
             if (celula == 'T') return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + "T" + Aparencia::cor(Cor::RESET);
             if (celula == 'G') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "G" + Aparencia::cor(Cor::RESET);
             if (celula == '=' || celula == '|') return Aparencia::cor(Cor::CINZA) + std::string(1, celula) + Aparencia::cor(Cor::RESET);

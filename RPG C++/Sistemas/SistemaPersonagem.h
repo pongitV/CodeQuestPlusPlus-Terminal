@@ -10,6 +10,7 @@
 
 #include "../Gerenciadores/GerenciadorEfeitosStatus.h"
 #include "../Inventario/Inventario.h"
+#include "../Utilidades/Aparencia.h"
 
 struct Atributos 
 {
@@ -107,6 +108,8 @@ private:
         bool noclipAtivo = false;
         DificuldadeJogo dificuldadeAtual = DificuldadeJogo::Normal;
         double dificuldadeMultiplicador = 1.0;
+        char iconeJogador = '@';
+        Cor corJogador = Cor::VERDE;
     };
 
     static std::unordered_set<SistemaPersonagem*> personagensAtivos;
@@ -279,6 +282,12 @@ public:
     void definirDificuldade(DificuldadeJogo d) { sistema.dificuldadeAtual = d; }
     DificuldadeJogo obterDificuldade() const { return sistema.dificuldadeAtual; }
     void aplicarMultiplicadorDificuldade(double mult);
+
+    void definirIconeJogador(char icone) { sistema.iconeJogador = icone; }
+    char obterIconeJogador() const { return sistema.iconeJogador; }
+
+    void definirCorJogador(Cor cor) { sistema.corJogador = cor; }
+    Cor obterCorJogador() const { return sistema.corJogador; }
 
     TipoAtaque obterTipoAtaque() const;
     bool habilidadeDaClasseConsomeTurno() const;
