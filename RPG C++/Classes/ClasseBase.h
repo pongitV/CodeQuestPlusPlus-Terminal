@@ -1,12 +1,12 @@
 #pragma once
 
 #include "../Sistemas/SistemaPersonagem.h"
-#include "../Inventario/Inventario.h"
+#include "../Inventario/TiposInventarios/Inventario.h"
 #include "../Inventario/Item.h"
 #include "../Inventario/FabricaItens.h"
 #include "../Utilidades/Aparencia.h"
 #include "../Utilidades/ControleDeInput.h"
-#include "../Telas/TelaCombate.h"
+#include "../Telas/TelasCombate/TelaCombate.h"
 #include <memory>
 #include <functional>
 #include <iostream>

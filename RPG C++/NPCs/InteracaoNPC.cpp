@@ -1,7 +1,7 @@
 #include "InteracaoNPC.h"
 #include <iostream>
 #include "../Utilidades/ControleDeInput.h"
-#include "../Telas/TelaInventario.h"
+#include "../Telas/TelasInteracao/TelaInventario.h"
 #include "../Inventario/FabricaItens.h"
 
 // --- INTERACAO PRINCIPAL ---

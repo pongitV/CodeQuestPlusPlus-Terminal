@@ -5,7 +5,7 @@
 
 #include "../Inventario/FabricaItens.h"
 #include "../Utilidades/Aparencia.h"
-#include "../Telas/TelaCombate.h"
+#include "../Telas/TelasCombate/TelaCombate.h"
 
 // --- INFORMACOES DA CLASSE ---
 std::string Mago::obterNomeClasse() const 

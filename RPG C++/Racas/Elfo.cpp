@@ -4,7 +4,7 @@
 
 #include "../Utilidades/GeradorAleatorio.h"
 #include "../Utilidades/Aparencia.h"
-#include "../Telas/TelaCombate.h"
+#include "../Telas/TelasCombate/TelaCombate.h"
 
 // --- INFORMACOES DA RACA ---
 std::string Elfo::obterNomeRaca() const 
