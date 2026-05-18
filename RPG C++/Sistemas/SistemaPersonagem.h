@@ -8,8 +8,8 @@
 #include <vector>
 #include <mutex>
 
-#include "../Gerenciadores/GerenciadoresCombate/GerenciadorEfeitosStatus.h"
-#include "../Inventario/TiposInventarios/Inventario.h"
+#include "../Gerenciadores/GerenciadorEfeitosStatus.h"
+#include "../Inventario/Inventario.h"
 
 struct Atributos 
 {
@@ -116,7 +116,6 @@ private:
 
 protected:
     std::string nomePersonagem;
-    Cor corIconeMapa;
     int vidaAtual;
     std::unique_ptr<RacaBase> raca;
     std::unique_ptr<ClasseBase> classe;
@@ -169,9 +168,6 @@ public:
 
     // Getters e Setters em camelCase
     std::string obterNome() const { return nomePersonagem; }
-    void definirNome(const std::string& novoNome) { nomePersonagem = novoNome; }
-    Cor obterCorIconeMapa() const { return corIconeMapa; }
-    void definirCorIconeMapa(Cor cor) { corIconeMapa = cor; }
     int obterVida() const { return vidaAtual; }
     int obterVidaMaxima() const {
         if (combate.vidaMaximaFixa > 0) return combate.vidaMaximaFixa;

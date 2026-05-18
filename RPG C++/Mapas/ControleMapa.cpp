@@ -1,15 +1,13 @@
 #include "ControleMapa.h"
-#include "../Inventario/TiposInventarios/InventarioCombate.h"
-#include "../Telas/TelasInteracao/TelaAtributos.h"
-#include "../Telas/TelasIndex/TelaIndex.h"
-#include "../Telas/TelasSistema/TelaMenu.h"
-#include "../Telas/TelasSistema/TelaPause.h"
+#include "../Inventario/InventarioCombate.h"
+#include "../Telas/TelaAtributos.h"
+#include "../Telas/TelaBestiario.h"
+#include "../Telas/TelaMenu.h"
 #include "../Utilidades/Aparencia.h"
-#include "../Gerenciadores/GerenciadoresCombate/GerenciadorCombate.h"
-#include "../Gerenciadores/GerenciadoresSistema/GerenciadorDebug.h"
+#include "../Gerenciadores/GerenciadorCombate.h"
+#include "../Gerenciadores/GerenciadorDebug.h"
 #include "../Utilidades/ControleDeInput.h"
 #include "../Utilidades/GeradorAleatorio.h"
-#include "../Sistemas/SistemaSave.h"
 #include <iostream>
 #include <algorithm>
 
@@ -40,13 +38,6 @@ bool ControleMapa::processarInputEComandos(char tecla, SistemaPersonagem* jogado
     }
     // --- FIM DO MENU DE DEBUG ---
 
-    if (tecla == '\033') // Tecla ESC
-    {
-        TelaPause::exibirMenuDePausa(jogador);
-        restaurarTela();
-        return true;
-    }
-
     ComandoMapa comando = ControleDeInput::traduzirTeclaParaComando(tecla);
 
     // Movimentação (Não abre menus, portanto retorna falso)
@@ -70,7 +61,7 @@ bool ControleMapa::processarInputEComandos(char tecla, SistemaPersonagem* jogado
     }
     if (comando == ComandoMapa::Bestiario)
     {
-        TelaIndex::exibirMenuPrincipal(jogador);
+        TelaBestiario::exibirLista(jogador);
         restaurarTela();
         return true;
     }
@@ -233,7 +224,7 @@ void ControleMapa::renderizarMapa(const std::vector<std::string>& matrizDoMapa, 
 
     std::string margemEsquerdaDoMapa = calcularMargemCentralizada(larguraDoTerminal, endX - startX);
 
-    std::string textoDeControles = "W,A,S,D: Mover | I: Inventario | C: Ficha | B: Index | ESC: Pausa";
+    std::string textoDeControles = "W,A,S,D: Mover | I: Inventario | C: Ficha | B: Bestiario";
     std::string margemEsquerdaControles = calcularMargemCentralizada(larguraDoTerminal, textoDeControles.length());
 
     Aparencia::moverCursor(0, linhaInicial);

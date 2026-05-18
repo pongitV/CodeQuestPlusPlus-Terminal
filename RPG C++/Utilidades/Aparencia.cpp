@@ -503,8 +503,8 @@ void Aparencia::exibirUltimosLogs(int quantidade) {
     int inicio = std::max(0, static_cast<int>(historicoBatalha.size()) - quantidade);
     int total = static_cast<int>(historicoBatalha.size()) - inicio;
     for (int i = 0; i < total; ++i) {
-        int Index = inicio + i;
-        imprimirCentralizado(removerCoresANSI(historicoBatalha[Index]), cor(Cor::CINZA));
+        int index = inicio + i;
+        imprimirCentralizado(removerCoresANSI(historicoBatalha[index]), cor(Cor::CINZA));
     }
     std::cout << "\n";
 }

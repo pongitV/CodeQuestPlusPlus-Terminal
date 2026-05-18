@@ -10,8 +10,8 @@
 #include "../Classes/Bardo.h"
 #include "../Classes/Guerreiro.h"
 #include "../Classes/Mago.h"
-#include "../Inventario/InventarioEquipamentos/EquipamentoArma.h"
-#include "../Inventario/InventarioEquipamentos/EquipamentoArmadura.h"
+#include "../Inventario/EquipamentoArma.h"
+#include "../Inventario/EquipamentoArmadura.h"
 #include "../Inventario/FabricaItens.h"
 #include "../Inventario/Item.h"
 #include "../Racas/Dwarf.h"
@@ -19,7 +19,6 @@
 #include "../Racas/Humano.h"
 #include "../Racas/Ork.h"
 #include "../Sistemas/SistemaBestiario.h"
-#include "../Sistemas/SistemaIndex.h"
 #include "../Utilidades/Aparencia.h"
 #include "SistemaPersonagem.h"
 
@@ -154,11 +153,9 @@ void SistemaSave::salvarJogo(SistemaPersonagem* jogador) {
     }
 
     SistemaBestiario::instancia().salvar(arquivo);
-    SistemaIndex::instancia().salvar(arquivo);
     arquivo << (jogador->possuiRegeneracaoTroll() ? 1 : 0) << "\n";
     arquivo << (jogador->obterParryAtivado() ? 1 : 0) << "\n";
     arquivo << (jogador->podeUsarRessurreicao() ? 1 : 0) << "\n";
-    arquivo << static_cast<uint32_t>(jogador->obterCorIconeMapa()) << "\n";
     arquivo.close();
 }
 
@@ -231,7 +228,6 @@ std::unique_ptr<SistemaPersonagem> SistemaSave::carregarJogo(const std::string& 
     }
 
     SistemaBestiario::instancia().carregar(arquivo);
-    SistemaIndex::instancia().carregar(arquivo);
     int regTroll = 0;
     if (arquivo >> regTroll && regTroll == 1) {
         jogador->desbloquearRegeneracaoTroll();
@@ -245,11 +241,6 @@ std::unique_ptr<SistemaPersonagem> SistemaSave::carregarJogo(const std::string& 
     int podeReviver = 1;
     if (arquivo >> podeReviver && podeReviver == 0) {
         jogador->consumirRessurreicao();
-    }
-
-    uint32_t corIconeSalva;
-    if (arquivo >> corIconeSalva) {
-        jogador->definirCorIconeMapa(static_cast<Cor>(corIconeSalva));
     }
 
     arquivo.close();

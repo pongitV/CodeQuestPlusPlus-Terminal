@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include "../Utilidades/Aparencia.h"
-#include "../Telas/TelasCombate/TelaCombate.h"
+#include "../Telas/TelaCombate.h"
 
 // --- INFORMACOES DA RACA ---
 std::string Ork::obterNomeRaca() const 

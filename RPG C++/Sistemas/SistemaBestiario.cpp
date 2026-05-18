@@ -1,14 +1,14 @@
 #include "SistemaBestiario.h"
 #include <algorithm>
 #include "../Sistemas/SistemaPersonagem.h"
-#include "../Inimigos/Mapa1Vila/Goblin.h"
-#include "../Inimigos/Mapa2Floresta/Slime.h"
-#include "../Inimigos/Mapa2Floresta/Fada.h"
-#include "../Inimigos/Mapa1Vila/OrkExilado.h"
-#include "../Inimigos/Mapa2Floresta/AbominacaoFloresta.h"
-#include "../Inimigos/Mapa3Reino/Troll.h"
-#include "../Inimigos/Mapa2Floresta/Mimico.h"
-#include "../Inimigos/Mapa2Floresta/Mahoraga.h"
+#include "../Inimigos/Goblin.h"
+#include "../Inimigos/Slime.h"
+#include "../Inimigos/Fada.h"
+#include "../Inimigos/OrkExilado.h"
+#include "../Inimigos/AbominacaoFloresta.h"
+#include "../Inimigos/Troll.h"
+#include "../Inimigos/Mimico.h"
+#include "../Inimigos/Mahoraga.h"
 #include "../Inimigos/ClasseBaseInimigo.h"
 
 SistemaBestiario& SistemaBestiario::instancia() {

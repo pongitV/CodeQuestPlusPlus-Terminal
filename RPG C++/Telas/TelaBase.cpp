@@ -2,7 +2,7 @@
 #include "../Sistemas/SistemaPersonagem.h"
 #include "../Racas/RacaBase.h"
 #include "../Classes/ClasseBase.h"
-#include "../Inventario/TiposInventarios/Inventario.h"
+#include "../Inventario/Inventario.h"
 
 std::vector<std::string> TelaBase::comporEstatisticasBatalha(SistemaPersonagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido, int curaTotalRecebida, int turnosCombate) 
 {

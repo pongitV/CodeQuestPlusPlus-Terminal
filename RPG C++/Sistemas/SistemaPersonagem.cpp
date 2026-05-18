@@ -11,18 +11,15 @@
 #include "../Utilidades/Constantes.h"
 #include "../Utilidades/Aparencia.h"
 
-// --- GERENCIAMENTO ESTÁTICO ---
 std::unordered_set<SistemaPersonagem*> SistemaPersonagem::personagensAtivos;
 
 bool SistemaPersonagem::isValido(SistemaPersonagem* p) {
     return personagensAtivos.find(p) != personagensAtivos.end();
 }
 
-// --- CONSTRUTORES E DESTRUTOR ---
 SistemaPersonagem::SistemaPersonagem(std::string nome, std::unique_ptr<RacaBase> racaEscolhida, std::unique_ptr<ClasseBase> classeEscolhida) 
 {
     this->nomePersonagem = nome;
-    this->corIconeMapa = Cor::VERDE;
     this->raca = std::move(racaEscolhida);
     this->classe = std::move(classeEscolhida);
     this->mochila = std::make_unique<Inventario>();
@@ -59,7 +56,6 @@ SistemaPersonagem::~SistemaPersonagem()
     personagensAtivos.erase(this);
 }  
 
-// --- ATRIBUTOS ---
 int* SistemaPersonagem::obterPonteiroAtributoEstatico(TipoAtributo atributo) {
     switch (atributo) {
         case TipoAtributo::Forca: return &statsFinais.forca;
@@ -72,11 +68,53 @@ int* SistemaPersonagem::obterPonteiroAtributoEstatico(TipoAtributo atributo) {
     }
 }
 
+bool SistemaPersonagem::subirDeNivel(TipoAtributo atributo)
+{
+    if (xpAtual < xpParaSubir) return false;
+
+    if (atributo == TipoAtributo::Vida) {
+        statsFinais.vida += Constantes::GANHO_VIDA_POR_NIVEL;
+        vidaAtual += Constantes::GANHO_VIDA_POR_NIVEL;
+    } else if (int* attr = obterPonteiroAtributoEstatico(atributo)) {
+        *attr += Constantes::GANHO_ATRIBUTO_POR_NIVEL;
+    } else {
+        return false;
+    }
+
+    xpAtual -= xpParaSubir;
+    xpParaSubir = static_cast<int>(std::min(xpParaSubir * Constantes::MULTIPLICADOR_XP_POR_NIVEL, Constantes::MAX_XP));
+    nivel++;
+    cache_.sujo = true;
+    return true;
+}
+
 void SistemaPersonagem::alterarAtributoEstatico(TipoAtributo atributo, int valor)
 {
     if (int* attr = obterPonteiroAtributoEstatico(atributo)) {
         *attr = std::max(0, *attr + valor);
         cache_.sujo = true;
+    }
+}
+
+void SistemaPersonagem::reduzirCooldowns()
+{
+    if (combate.recargaDefesa) combate.recargaDefesa = false;
+    if (combate.recargaHabilidade) combate.recargaHabilidade = false;
+    if (combate.cooldownsAtivos.empty()) return;
+    for (auto& par : combate.cooldownsAtivos)
+    {
+        if (par.second > 0) par.second--;
+    }
+}
+
+void SistemaPersonagem::prepararParaNovaBatalha()
+{
+    combate.resetar();
+    combate.vidaMaximaFixa = obterVidaMaxima();
+    limparEfeitos();
+    
+    if (armadura && armadura->temPropriedade(Propriedade::ArmaduraAdaptacao)) {
+        adicionarEfeito(std::make_unique<EfeitoRodaAdaptacao>());
     }
 }
 
@@ -119,36 +157,75 @@ void SistemaPersonagem::atualizarCacheSeNecessario() const {
     cache_.sujo = false;
 }
 
-// --- PROGRESSÃO ---
-bool SistemaPersonagem::subirDeNivel(TipoAtributo atributo)
-{
-    if (xpAtual < xpParaSubir) return false;
-
-    if (atributo == TipoAtributo::Vida) {
-        statsFinais.vida += Constantes::GANHO_VIDA_POR_NIVEL;
-        vidaAtual += Constantes::GANHO_VIDA_POR_NIVEL;
-    } else if (int* attr = obterPonteiroAtributoEstatico(atributo)) {
-        *attr += Constantes::GANHO_ATRIBUTO_POR_NIVEL;
+void SistemaPersonagem::definirMultiplicador(double novoMultiplicador) 
+{ 
+    if (classe) {
+        combate.multiplicadorAtual = classe->processarMultiplicadorBuffPassivaBardo(novoMultiplicador);
     } else {
-        return false;
+        combate.multiplicadorAtual = novoMultiplicador;
     }
-
-    xpAtual -= xpParaSubir;
-    xpParaSubir = static_cast<int>(std::min(xpParaSubir * Constantes::MULTIPLICADOR_XP_POR_NIVEL, Constantes::MAX_XP));
-    nivel++;
-    cache_.sujo = true;
-    return true;
 }
 
-void SistemaPersonagem::executarDrops(SistemaPersonagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)
+void SistemaPersonagem::aplicarMultiplicadorDificuldade(double mult)
 {
-    if (this->raca) 
+    if (mult <= 1.0) return;
+    sistema.dificuldadeMultiplicador = mult;
+    cache_.sujo = true;
+    this->vidaAtual = obterVidaMaxima();
+}
+
+void SistemaPersonagem::modificarVida(int valor) 
+{
+    assert(this->classe != nullptr && "Erro de Integridade: A classe do personagem nao deve ser nula ao modificar a vida!");
+    if (valor > 0 && classe) valor = classe->processarCuraPassivaBardo(valor);
+
+    int vidaAntes = this->vidaAtual;
+    this->vidaAtual = std::clamp(this->vidaAtual + valor, 0, obterVidaMaxima());
+
+    if (this->vidaAtual > vidaAntes) 
     {
-        this->raca->realizarDrops(this, jogadorAtual, itensObtidos, ouroTotal, xpTotal);
+        combate.curaTotalRecebida += (this->vidaAtual - vidaAntes);
     }
 }
 
-// --- EQUIPAMENTOS ---
+const EfeitoStatus* SistemaPersonagem::encontrarEfeito(EfeitoID id) const {
+    for (const auto& ef : efeitosAtivos) {
+        if (ef->obterID() == id) return ef.get();
+    }
+    return nullptr;
+}
+
+bool SistemaPersonagem::possuiEfeito(EfeitoID id) const {
+    return encontrarEfeito(id) != nullptr;
+}
+
+int SistemaPersonagem::obterTurnosEfeito(EfeitoID id) const {
+    const EfeitoStatus* ef = encontrarEfeito(id);
+    return ef ? ef->obterTurnosRestantes() : 0;
+}
+
+void SistemaPersonagem::mostrarStatus() const 
+{
+    std::cout << "[" << nomePersonagem << "] HP: " << vidaAtual << "/" << obterVidaMaxima() << std::endl;
+}
+
+std::string SistemaPersonagem::obterNomeClasse() const 
+{
+    return this->classe->obterNomeClasse();
+}
+
+TipoClasse SistemaPersonagem::obterTipoClasse() const 
+{
+    if (this->classe) return this->classe->obterTipoClasse();
+    return TipoClasse::Nenhum;
+}
+
+TipoRaca SistemaPersonagem::obterTipoRaca() const 
+{
+    if (this->raca) return this->raca->obterTipoRaca();
+    return TipoRaca::Nenhum;
+}
+
 void SistemaPersonagem::equiparItem(Item* item)
 {
     if (item == nullptr) return;
@@ -166,27 +243,26 @@ void SistemaPersonagem::equiparItem(Item* item)
     cache_.sujo = true;
 }
 
-// --- COMBATE ---
-void SistemaPersonagem::prepararParaNovaBatalha()
+RacaBase* SistemaPersonagem::obterRaca() const 
 {
-    combate.resetar();
-    combate.vidaMaximaFixa = obterVidaMaxima();
-    limparEfeitos();
-    
-    if (armadura && armadura->temPropriedade(Propriedade::ArmaduraAdaptacao)) {
-        adicionarEfeito(std::make_unique<EfeitoRodaAdaptacao>());
-    }
+    return this->raca.get();
 }
 
-void SistemaPersonagem::reduzirCooldowns()
+ClasseBase* SistemaPersonagem::obterClasse() const 
 {
-    if (combate.recargaDefesa) combate.recargaDefesa = false;
-    if (combate.recargaHabilidade) combate.recargaHabilidade = false;
-    if (combate.cooldownsAtivos.empty()) return;
-    for (auto& par : combate.cooldownsAtivos)
-    {
-        if (par.second > 0) par.second--;
-    }
+    return this->classe.get();
+}
+
+TipoAtaque SistemaPersonagem::obterTipoAtaque() const 
+{
+    if (this->classe) return this->classe->obterTipoAtaque();
+    return TipoAtaque::UNICO;
+}
+
+bool SistemaPersonagem::habilidadeDaClasseConsomeTurno() const 
+{
+    if (this->classe) return this->classe->habilidadeConsomeTurno();
+    return true;
 }
 
 int SistemaPersonagem::calcularDefesaBase(int danoBruto, int danoPerfurante) const {
@@ -235,67 +311,10 @@ ResultadoDano SistemaPersonagem::receberDano(int danoBruto, int danoPerfurante, 
     return resultado;
 }
 
-void SistemaPersonagem::modificarVida(int valor) 
-{
-    assert(this->classe != nullptr && "Erro de Integridade: A classe do personagem nao deve ser nula ao modificar a vida!");
-    if (valor > 0 && classe) valor = classe->processarCuraPassivaBardo(valor);
-
-    int vidaAntes = this->vidaAtual;
-    this->vidaAtual = std::clamp(this->vidaAtual + valor, 0, obterVidaMaxima());
-
-    if (this->vidaAtual > vidaAntes) 
-    {
-        combate.curaTotalRecebida += (this->vidaAtual - vidaAntes);
-    }
-}
-
-void SistemaPersonagem::definirMultiplicador(double novoMultiplicador) 
-{ 
-    if (classe) {
-        combate.multiplicadorAtual = classe->processarMultiplicadorBuffPassivaBardo(novoMultiplicador);
-    } else {
-        combate.multiplicadorAtual = novoMultiplicador;
-    }
-}
-
-void SistemaPersonagem::aplicarMultiplicadorDificuldade(double mult)
-{
-    if (mult <= 1.0) return;
-    sistema.dificuldadeMultiplicador = mult;
-    cache_.sujo = true;
-    this->vidaAtual = obterVidaMaxima();
-}
-
-void SistemaPersonagem::finalizarBatalha() { 
-    combate.vidaMaximaFixa = 0; 
-    if (sistema.possuiRegeneracaoTroll && vidaAtual > 0 && vidaAtual < obterVidaMaxima()) {
-        modificarVida(obterVidaMaxima());
-        std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE) << "[SISTEMA]: Seu Orgao regenerador curou completamente suas feridas apos a batalha!" << Aparencia::cor(Cor::RESET) << "\n";
-        ControleDeInput::aguardarEnter();
-    }
-}
-
-// --- EFEITOS DE STATUS ---
 void SistemaPersonagem::adicionarEfeito(std::unique_ptr<EfeitoStatus> efeito) {
     efeito->aoEntrar(this);
     efeitosAtivos.push_back(std::move(efeito));
     cache_.sujo = true;
-}
-
-const EfeitoStatus* SistemaPersonagem::encontrarEfeito(EfeitoID id) const {
-    for (const auto& ef : efeitosAtivos) {
-        if (ef->obterID() == id) return ef.get();
-    }
-    return nullptr;
-}
-
-bool SistemaPersonagem::possuiEfeito(EfeitoID id) const {
-    return encontrarEfeito(id) != nullptr;
-}
-
-int SistemaPersonagem::obterTurnosEfeito(EfeitoID id) const {
-    const EfeitoStatus* ef = encontrarEfeito(id);
-    return ef ? ef->obterTurnosRestantes() : 0;
 }
 
 void SistemaPersonagem::processarEfeitosInicioTurno() {
@@ -344,47 +363,19 @@ void SistemaPersonagem::obterIDsEfeitosAtivos(std::vector<EfeitoID>& outIDs) con
     }
 }
 
-// --- INFORMAÇÕES E UTILIDADES ---
-void SistemaPersonagem::mostrarStatus() const 
+void SistemaPersonagem::executarDrops(SistemaPersonagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)
 {
-    std::cout << "[" << nomePersonagem << "] HP: " << vidaAtual << "/" << obterVidaMaxima() << std::endl;
+    if (this->raca) 
+    {
+        this->raca->realizarDrops(this, jogadorAtual, itensObtidos, ouroTotal, xpTotal);
+    }
 }
 
-std::string SistemaPersonagem::obterNomeClasse() const 
-{
-    return this->classe->obterNomeClasse();
-}
-
-TipoClasse SistemaPersonagem::obterTipoClasse() const 
-{
-    if (this->classe) return this->classe->obterTipoClasse();
-    return TipoClasse::Nenhum;
-}
-
-TipoRaca SistemaPersonagem::obterTipoRaca() const 
-{
-    if (this->raca) return this->raca->obterTipoRaca();
-    return TipoRaca::Nenhum;
-}
-
-RacaBase* SistemaPersonagem::obterRaca() const 
-{
-    return this->raca.get();
-}
-
-ClasseBase* SistemaPersonagem::obterClasse() const 
-{
-    return this->classe.get();
-}
-
-TipoAtaque SistemaPersonagem::obterTipoAtaque() const 
-{
-    if (this->classe) return this->classe->obterTipoAtaque();
-    return TipoAtaque::UNICO;
-}
-
-bool SistemaPersonagem::habilidadeDaClasseConsomeTurno() const 
-{
-    if (this->classe) return this->classe->habilidadeConsomeTurno();
-    return true;
+void SistemaPersonagem::finalizarBatalha() { 
+    combate.vidaMaximaFixa = 0; 
+    if (sistema.possuiRegeneracaoTroll && vidaAtual > 0 && vidaAtual < obterVidaMaxima()) {
+        modificarVida(obterVidaMaxima());
+        std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE) << "[SISTEMA]: Seu Orgao regenerador curou completamente suas feridas apos a batalha!" << Aparencia::cor(Cor::RESET) << "\n";
+        ControleDeInput::aguardarEnter();
+    }
 }
