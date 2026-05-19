@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "../Inventario/FabricaItens.h"
 #include "../Utilidades/ControleDeInput.h"
+#include "../Sistemas/SistemaDiario.h"
 
 void GerenciadorLoja::processarCompra(SistemaPersonagem* jogadorAtual, const std::string& tituloLoja, Cor corLoja, 
                                       std::map<int, ProdutoLoja>& estoqueAtual, 
@@ -56,6 +57,7 @@ void GerenciadorLoja::processarCompra(SistemaPersonagem* jogadorAtual, const std
                         if (produto.quantidade != -1) produto.quantidade -= qtdComprar;
                         std::string nomeNovo = FabricaItens::obterNomeDeID(produto.idItem);
                         for (int i = 0; i < qtdComprar; ++i) jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(produto.idItem));
+                        SistemaDiario::instancia().registrarItem(Aparencia::removerCoresANSI(nomeNovo));
                         exibirDialogoNPC(std::to_string(qtdComprar) + "x " + nomeNovo + " comprado(s)!");
                     }
                 }

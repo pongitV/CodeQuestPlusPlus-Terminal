@@ -19,6 +19,7 @@
 #include "../Racas/Humano.h"
 #include "../Racas/Ork.h"
 #include "../Sistemas/SistemaBestiario.h"
+#include "../Sistemas/SistemaDiario.h"
 #include "../Utilidades/Aparencia.h"
 #include "SistemaPersonagem.h"
 
@@ -153,6 +154,7 @@ void SistemaSave::salvarJogo(SistemaPersonagem* jogador) {
     }
 
     SistemaBestiario::instancia().salvar(arquivo);
+    SistemaDiario::instancia().salvar(arquivo);
     arquivo << (jogador->possuiRegeneracaoTroll() ? 1 : 0) << "\n";
     arquivo << (jogador->obterParryAtivado() ? 1 : 0) << "\n";
     arquivo << (jogador->podeUsarRessurreicao() ? 1 : 0) << "\n";
@@ -230,6 +232,8 @@ std::unique_ptr<SistemaPersonagem> SistemaSave::carregarJogo(const std::string& 
     }
 
     SistemaBestiario::instancia().carregar(arquivo);
+    SistemaDiario::instancia().carregar(arquivo);
+    
     int regTroll = 0;
     if (arquivo >> regTroll && regTroll == 1) {
         jogador->desbloquearRegeneracaoTroll();

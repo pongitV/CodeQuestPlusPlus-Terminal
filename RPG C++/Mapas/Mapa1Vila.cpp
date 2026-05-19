@@ -24,6 +24,7 @@
 #include "../Utilidades/ControleDeInput.h"
 #include "../Utilidades/GeradorAleatorio.h"
 #include "MapaInteracao.h"
+#include "../Sistemas/SistemaDiario.h"
 #include "Mapa1VilaLayouts.h"
 
 Mapa1Vila::Mapa1Vila(SistemaPersonagem* personagemJogador) :
@@ -66,6 +67,7 @@ namespace {
             if (ctx.self->tituloDoMapaAtual == "FORJA DA VILA" && ctx.celula == 'B') {
                 NPCBjorn interacaoBjorn;
                 interacaoBjorn.interagir(ctx.self->jogadorAtual);
+                SistemaDiario::instancia().registrarNPC("Bjorn (Ferreiro)");
             } else if (ctx.self->tituloDoMapaAtual == "CAVERNA DO ORK") {
                 Aparencia::limparTela();
             Aparencia::exibirPainelTexto("RESGATE NA CAVERNA", Cor::AMARELO);
@@ -91,6 +93,7 @@ namespace {
             if (ctx.self->tituloDoMapaAtual == "LOJA DA VILA") { // This check is redundant now, as interagir() handles the loop
                 NPCFranchesco interacaoFranchesco;
                 interacaoFranchesco.interagir(ctx.self->jogadorAtual);
+                SistemaDiario::instancia().registrarNPC("Franchesco (Mercador)");
                 if (ctx.self->exploracaoEstaAtiva) ctx.restaurarTela();
             } else {
                 ctx.self->posicaoXDoJogador = ctx.proximaPosicaoX;

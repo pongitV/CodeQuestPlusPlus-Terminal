@@ -48,7 +48,7 @@ namespace {
 
 // --- INFORMACOES DO LUGAR ---
 std::string NPCFranchesco::obterNomeDoLugar() const {
-    return "VENDEDOR AMBULANTE";
+    return "MERCADOR AMBULANTE";
 }
 
 Cor NPCFranchesco::obterCorDoCabecalho() const {

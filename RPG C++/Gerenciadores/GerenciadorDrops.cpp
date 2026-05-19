@@ -4,6 +4,7 @@
 #include "../Utilidades/Aparencia.h"
 #include "../Telas/TelaCombate.h"
 #include "../Utilidades/GeradorAleatorio.h"
+#include "../Sistemas/SistemaDiario.h"
 
 void GerenciadorDrops::relatarEProcessarXpOuro(SistemaPersonagem* jogador, int xpDrop, int ouroDrop, int& ouroTotal, int& xpTotal) 
 {
@@ -37,5 +38,6 @@ void GerenciadorDrops::darEProcessarItem(SistemaPersonagem* jogador, ItemID idIt
         jogador->obterInventario()->adicionarItem(std::move(itemCriado));
         itensObtidos.push_back(nomeItem);
     }
+    SistemaDiario::instancia().registrarItem(Aparencia::removerCoresANSI(nomeItem));
     relatarDropItem(nomeItem, quantidade);
 }

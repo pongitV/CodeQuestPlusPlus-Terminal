@@ -9,6 +9,7 @@
 #include "../Inventario/FabricaItens.h"
 #include "../Utilidades/Aparencia.h"
 #include "../Utilidades/ControleDeInput.h"
+#include "../Sistemas/SistemaDiario.h"
 
 namespace {
     void ativarGodMode(SistemaPersonagem* jogador) {
@@ -94,6 +95,7 @@ namespace {
             ItemID idEscolhido = todosItens[escolhaID - 1];
             
             for (int q = 0; q < quantidade; ++q) jogador->obterInventario()->adicionarItem(FabricaItens::criarItem(idEscolhido));
+            SistemaDiario::instancia().registrarItem(Aparencia::removerCoresANSI(FabricaItens::obterNomeDeID(idEscolhido)));
             
             std::cout << "\n  " << Aparencia::cor(Cor::AMARELO) << "[SISTEMA] " << quantidade << "x '" << FabricaItens::obterNomeDeID(idEscolhido) << "' adicionado(s) ao inventario!" << Aparencia::cor(Cor::RESET) << "\n";
             ControleDeInput::aguardarEnter();

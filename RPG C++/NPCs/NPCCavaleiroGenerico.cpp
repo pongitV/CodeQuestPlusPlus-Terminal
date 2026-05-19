@@ -12,6 +12,7 @@
 #include "../Gerenciadores/GerenciadorInimigos.h"
 #include "../Telas/TelaMenu.h"
 #include "../Utilidades/Aparencia.h"
+#include "../Sistemas/SistemaDiario.h"
 #include "../Utilidades/ControleDeInput.h"
 #include "NPCCavaleiroGenericoLayouts.h"
 
@@ -93,6 +94,7 @@ std::unique_ptr<SistemaPersonagem> NPCCavaleiroGenerico::criarCavaleiro(const st
 
 // --- INTERACAO ---
 void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trollDerrotado, bool& conviteRecebido, int larguraDoTerminal, std::vector<std::string>& matrizDoMapaAtual, bool exploracaoEstaAtiva, const std::function<void()>& restaurarTela, char celulaDestino, int proximaPosicaoX, int proximaPosicaoY) {
+    SistemaDiario::instancia().registrarNPC("Cavaleiro Real");
     if (!trollDerrotado && (celulaDestino == 'T' || celulaDestino == 'C')) {
         int posicaoTrollX = -1, posicaoTrollY = -1;
         
@@ -163,6 +165,7 @@ void NPCCavaleiroGenerico::interagir(SistemaPersonagem* jogadorAtual, bool& trol
             Aparencia::imprimirBlocoCentralizado(info);
             
             jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::ConviteReal));
+            SistemaDiario::instancia().registrarItem("Convite Real");
             conviteRecebido = true;
             ControleDeInput::aguardarEnter();
             restaurarTela();

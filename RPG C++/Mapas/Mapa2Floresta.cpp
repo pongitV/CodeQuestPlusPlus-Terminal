@@ -25,6 +25,7 @@
 #include "../Inimigos/Mahoraga.h"
 #include "TransicaoDeMapa.h"
 #include "../Utilidades/Aparencia.h"
+#include "../Sistemas/SistemaDiario.h"
 #include "ControleMapa.h"
 #include "../Utilidades/ControleDeInput.h"
 #include "../Utilidades/GeradorAleatorio.h"
@@ -82,6 +83,7 @@ namespace {
         void processar(ContextoInteracaoFloresta& ctx) override {
             NPCMorgana interacaoMorgana;
             interacaoMorgana.interagir(ctx.self->jogadorAtual);
+            SistemaDiario::instancia().registrarNPC("Morgana (Bruxa)");
             if (ctx.self->exploracaoEstaAtiva) ctx.restaurarTela();
         }
     };

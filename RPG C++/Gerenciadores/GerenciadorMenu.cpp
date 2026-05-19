@@ -35,6 +35,7 @@
 #include "../Racas/Humano.h"
 #include "../Racas/Ork.h"
 #include "../Racas/RacaBase.h"
+#include "../Sistemas/SistemaDiario.h"
 #include "../Sistemas/SistemaSave.h"
 #include "../Telas/TelaAtributos.h"
 #include "../Telas/TelaInventario.h"
@@ -283,6 +284,13 @@ std::unique_ptr<SistemaPersonagem> GerenciadorMenu::iniciarCriacaoDeSistemaPerso
     personagemCriado->definirParryAtivado(sistemaDeParryAtivado);
     personagemCriado->definirDificuldade(static_cast<DificuldadeJogo>(nivelDeDificuldadeEscolhido));
     
+    SistemaDiario::instancia().registrarRaca(personagemCriado->obterRaca()->obterNomeRaca());
+    SistemaDiario::instancia().registrarClasse(personagemCriado->obterNomeClasse());
+    
+    for (Item* item : personagemCriado->obterInventario()->obterTodosOsItens()) {
+        SistemaDiario::instancia().registrarItem(Aparencia::removerCoresANSI(item->obterNomeItem()));
+    }
+
     std::string nomeDificuldade = Aparencia::cor(Cor::AMARELO) + "Normal" + Aparencia::cor(Cor::RESET);
     if (nivelDeDificuldadeEscolhido == 1) nomeDificuldade = Aparencia::cor(Cor::VERDE) + "Facil" + Aparencia::cor(Cor::RESET);
     else if (nivelDeDificuldadeEscolhido == 3) nomeDificuldade = Aparencia::cor(Cor::VERMELHO) + "Dificil" + Aparencia::cor(Cor::RESET);

@@ -14,8 +14,10 @@
 #include "../Inventario/EquipamentoEscudo.h"
 #include "../Racas/RacaBase.h"
 #include "../Sistemas/SistemaBestiario.h"
+#include "../Sistemas/SistemaDiario.h"
 #include "../Sistemas/SistemaParry.h"
 #include "../Telas/TelaBestiario.h"
+#include "../Telas/TelaDiario.h"
 #include "../Telas/TelaAtributos.h"
 #include "../Telas/TelaCombate.h"
 #include "../Telas/TelaDerrota.h"
@@ -175,6 +177,10 @@ void GerenciadorCombate::iniciarCombate()
     int maxDestrezaInimigos = 0;
     for (const auto& inimigoPtr : listaDeInimigos) {
         SistemaBestiario::instancia().registrarPrimeiraVista(inimigoPtr->obterRaca()->obterNomeRaca());
+        SistemaDiario::instancia().registrarRaca(inimigoPtr->obterRaca()->obterNomeRaca());
+        if (inimigoPtr->obterNomeClasse() != "Monstro") {
+            SistemaDiario::instancia().registrarClasse(inimigoPtr->obterNomeClasse());
+        }
         if (inimigoPtr->obterDestreza() > maxDestrezaInimigos) maxDestrezaInimigos = inimigoPtr->obterDestreza();
     }
     
@@ -248,7 +254,7 @@ void GerenciadorCombate::processarMenuDeAcoesDoJogador(SistemaPersonagem* person
         case 3: processarAcaoHabilidade(personagemAgindo, turnoFoiConsumido); break;
         case 4: processarAcaoInventario(personagemAgindo, turnoFoiConsumido, usouInventarioNoTurno); break;
         case 5: TelaAtributos::gerenciarFichaDoJogador(personagemAgindo); break;
-        case 6: TelaBestiario::exibirLista(personagemAgindo); break;
+        case 6: TelaDiario::exibir(personagemAgindo); break;
         case 7: Aparencia::exibirHistoricoCompleto(); break;
         default: 
             TelaCombate::notificarAcaoInvalida();

@@ -680,7 +680,7 @@ int TelaCombate::obterAcaoDoJogador(int turnoAtual, SistemaPersonagem* personage
             
             opcoesMenuAtual.push_back("Ficha");
             if (!aliados.empty()) opcoesMenuAtual.push_back("Ver Aliados");
-            opcoesMenuAtual.push_back("Bestiario");
+            opcoesMenuAtual.push_back("Diario");
             opcoesMenuAtual.push_back("Log Batalha");
         }
 
@@ -728,7 +728,7 @@ int TelaCombate::obterAcaoDoJogador(int turnoAtual, SistemaPersonagem* personage
             if (op == "Habilidade") return 3;
             if (op == "Inventario") return 4;
             if (op == "Ficha") return 5;
-            if (op == "Bestiario") return 6;
+            if (op == "Diario") return 6;
             if (op == "Log Batalha") return 7;
             return 0;
         }

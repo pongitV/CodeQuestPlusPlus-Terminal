@@ -1,7 +1,7 @@
 #include "ControleMapa.h"
 #include "../Inventario/InventarioCombate.h"
 #include "../Telas/TelaAtributos.h"
-#include "../Telas/TelaBestiario.h"
+#include "../Telas/TelaDiario.h"
 #include "../Telas/TelaMenu.h"
 #include "../Telas/TelaPause.h"
 #include "../Utilidades/Aparencia.h"
@@ -70,7 +70,7 @@ bool ControleMapa::processarInputEComandos(char tecla, SistemaPersonagem* jogado
     }
     if (comando == ComandoMapa::Bestiario)
     {
-        TelaBestiario::exibirLista(jogador);
+        TelaDiario::exibir(jogador);
         restaurarTela();
         return true;
     }
@@ -233,7 +233,7 @@ void ControleMapa::renderizarMapa(const std::vector<std::string>& matrizDoMapa, 
 
     std::string margemEsquerdaDoMapa = calcularMargemCentralizada(larguraDoTerminal, endX - startX);
 
-    std::string textoDeControles = "W,A,S,D: Mover | I: Inventario | C: Ficha | B: Bestiario";
+    std::string textoDeControles = "W,A,S,D: Mover | I: Inventario | C: Ficha | B: Diario";
     std::string margemEsquerdaControles = calcularMargemCentralizada(larguraDoTerminal, textoDeControles.length());
 
     Aparencia::moverCursor(0, linhaInicial);
