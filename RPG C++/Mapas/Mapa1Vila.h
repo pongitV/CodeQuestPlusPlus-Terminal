@@ -29,6 +29,7 @@ public:
     std::vector<std::string> matrizDoMapaDaCavernaSalva;
     std::vector<std::string> matrizDoMapaDaLojaSalva;
     std::vector<std::string> matrizDoMapaDaForjaSalva;
+    std::vector<std::string> matrizDoMapaDoSpawnSalva;
     std::vector<std::string> mapaBaseDaVila;
 
     // State moved from loop function
@@ -36,6 +37,7 @@ public:
     bool forjaJaFoiVisitada;
     bool lojaJaFoiVisitada;
     bool cavernaJaFoiVisitada;
+    bool spawnJaFoiVisitado;
 
 public:
     Mapa1Vila(SistemaPersonagem* personagemJogador);

@@ -23,7 +23,6 @@
 #include "../NPCs/NPCMorgana.h"
 #include "../Inimigos/AbominacaoFloresta.h"
 #include "../Inimigos/Mahoraga.h"
-#include "TransicaoDeMapa.h"
 #include "../Utilidades/Aparencia.h"
 #include "../Sistemas/SistemaDiario.h"
 #include "ControleMapa.h"
@@ -155,21 +154,19 @@ namespace {
                 ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaCabanaSalva, ctx.self->cabanaJaFoiVisitada, Mapa2FlorestaLayouts::obterLayoutCabana(), 8, 2, "CABANA DA BRUXA", ctx.restaurarTela);
             }
             else if (nextCell == 'V') {
-                TransicaoDeMapa::exibirTransicaoParaVila();
                 ctx.self->exploracaoEstaAtiva = false;
             }
             else if (nextCell == 'T' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDoCoracaoDaArvoreSalva, ctx.self->coracaoDaArvoreJaFoiVisitado, Mapa2FlorestaLayouts::obterLayoutCoracaoDaArvore(), 10, 3, "CORACAO DA ARVORE", ctx.restaurarTela);
             }
             else if (nextCell == 'R' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                TransicaoDeMapa::exibirTransicaoParaReino();
                 Mapa3Reino mapaReino(ctx.self->jogadorAtual);
                 mapaReino.iniciarLoopDeExploracaoDoMapa();
                 if (ctx.self->jogadorAtual->obterVoltarProMenu()) {
                     ctx.self->exploracaoEstaAtiva = false;
                     return;
                 }
-                ctx.restaurarTela();
+                ctx.animarTela();
             }
             else if (nextCell == 'L' && ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 if (!ctx.self->jogadorAtual->obterLabirintoDesbloqueado()) {
@@ -323,21 +320,95 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
 
     Aparencia::ocultarCursor();
 
-    Aparencia::limparTela();
-    exibirTituloDoMapaFloresta(tituloDoMapaAtual);
+    auto formatador = [&](char celula, int x, int y) -> std::string {
+        if (x == posicaoXDoJogador && y == posicaoYDoJogador) return Aparencia::cor(Cor::NEGRITO, jogadorAtual->obterCorJogador()) + std::string(1, jogadorAtual->obterIconeJogador()) + Aparencia::cor(Cor::RESET);
+        if (celula == 'S' && (x == 0 || matrizDoMapaAtual[y][x-1] != '^')) return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + "S" + Aparencia::cor(Cor::RESET);
+        if (celula == 'F' || celula == 'A') return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
+        if (celula == 'M') return Aparencia::cor(Cor::NEGRITO, Cor::MAGENTA) + "M" + Aparencia::cor(Cor::RESET);
+        if (celula == 'B') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "B" + Aparencia::cor(Cor::RESET);
+        if (tituloDoMapaAtual == "SALA DO CHEFE" && (celula == 'M' || celula == 'A' || celula == 'H' || celula == 'O' || celula == 'R' || celula == 'G')) return Aparencia::cor(Cor::NEGRITO, Cor::MAGENTA) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
+        if (tituloDoMapaAtual == "SALA DO CHEFE" && celula == '.') return Aparencia::cor(Cor::CINZA) + "." + Aparencia::cor(Cor::RESET);
+        
+        if (tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") {
+            auto isHWall = [](char c) { return c == '=' || c == '.' || c == '\''; };
+            auto isVWall = [](char c) { return c == '|' || c == '+' || c == 'S' || c == 'E'; };
 
-    int linhaInicialParaDesenharOMapa = Aparencia::obterPosicaoCursorY();
+            if (celula == '=') return Aparencia::cor(Cor::CINZA) + "═" + Aparencia::cor(Cor::RESET);
+            if (celula == '|') {
+                bool right = (x + 1 < static_cast<int>(matrizDoMapaAtual[y].length()) && isHWall(matrizDoMapaAtual[y][x+1]));
+                bool left = (x > 0 && isHWall(matrizDoMapaAtual[y][x-1]));
+                if (right && left) return Aparencia::cor(Cor::CINZA) + "╬" + Aparencia::cor(Cor::RESET);
+                if (right) return Aparencia::cor(Cor::CINZA) + "╠" + Aparencia::cor(Cor::RESET);
+                if (left) return Aparencia::cor(Cor::CINZA) + "╣" + Aparencia::cor(Cor::RESET);
+                return Aparencia::cor(Cor::CINZA) + "║" + Aparencia::cor(Cor::RESET);
+            }
+            if (celula == '.') {
+                bool right = (x + 1 < static_cast<int>(matrizDoMapaAtual[y].length()) && isHWall(matrizDoMapaAtual[y][x+1]));
+                bool left = (x > 0 && isHWall(matrizDoMapaAtual[y][x-1]));
+                bool down = (y + 1 < static_cast<int>(matrizDoMapaAtual.size()) && isVWall(matrizDoMapaAtual[y+1][x]));
+                
+                if (left && right && down) return Aparencia::cor(Cor::CINZA) + "╦" + Aparencia::cor(Cor::RESET);
+                if (right && down) return Aparencia::cor(Cor::CINZA) + "╔" + Aparencia::cor(Cor::RESET);
+                if (left && down) return Aparencia::cor(Cor::CINZA) + "╗" + Aparencia::cor(Cor::RESET);
+                if (left && right) return Aparencia::cor(Cor::CINZA) + "═" + Aparencia::cor(Cor::RESET);
+                return Aparencia::cor(Cor::CINZA) + "█" + Aparencia::cor(Cor::RESET);
+            }
+            if (celula == '\'') {
+                bool right = (x + 1 < static_cast<int>(matrizDoMapaAtual[y].length()) && isHWall(matrizDoMapaAtual[y][x+1]));
+                bool left = (x > 0 && isHWall(matrizDoMapaAtual[y][x-1]));
+                bool up = (y > 0 && isVWall(matrizDoMapaAtual[y-1][x]));
+                
+                if (left && right && up) return Aparencia::cor(Cor::CINZA) + "╩" + Aparencia::cor(Cor::RESET);
+                if (right && up) return Aparencia::cor(Cor::CINZA) + "╚" + Aparencia::cor(Cor::RESET);
+                if (left && up) return Aparencia::cor(Cor::CINZA) + "╝" + Aparencia::cor(Cor::RESET);
+                if (left && right) return Aparencia::cor(Cor::CINZA) + "═" + Aparencia::cor(Cor::RESET);
+                return Aparencia::cor(Cor::CINZA) + "█" + Aparencia::cor(Cor::RESET);
+            }
+            if (celula == '+') {
+                bool right = (x + 1 < static_cast<int>(matrizDoMapaAtual[y].length()) && isHWall(matrizDoMapaAtual[y][x+1]));
+                bool left = (x > 0 && isHWall(matrizDoMapaAtual[y][x-1]));
+                bool down = (y + 1 < static_cast<int>(matrizDoMapaAtual.size()) && isVWall(matrizDoMapaAtual[y+1][x]));
+                bool up = (y > 0 && isVWall(matrizDoMapaAtual[y-1][x]));
+                
+                if (left && right && down && up) return Aparencia::cor(Cor::CINZA) + "╬" + Aparencia::cor(Cor::RESET);
+                if (left && right && down) return Aparencia::cor(Cor::CINZA) + "╦" + Aparencia::cor(Cor::RESET);
+                if (left && right && up) return Aparencia::cor(Cor::CINZA) + "╩" + Aparencia::cor(Cor::RESET);
+                if (up && down && left) return Aparencia::cor(Cor::CINZA) + "╣" + Aparencia::cor(Cor::RESET);
+                if (up && down && right) return Aparencia::cor(Cor::CINZA) + "╠" + Aparencia::cor(Cor::RESET);
+                return Aparencia::cor(Cor::CINZA) + "╬" + Aparencia::cor(Cor::RESET);
+            }
+        }
+        
+        return std::string(1, celula);
+    };
 
-    bool precisaRenderizar = true;
+    bool precisaRenderizar = false;
+    int linhaInicialParaDesenharOMapa = 0;
 
     // Lambda para restaurar a tela apos eventos
     auto restaurarTela = [&]() {
-        Aparencia::ocultarCursor();
-        Aparencia::limparTela();
-        exibirTituloDoMapaFloresta(tituloDoMapaAtual);
-        linhaInicialParaDesenharOMapa = Aparencia::obterPosicaoCursorY();
+        linhaInicialParaDesenharOMapa = ControleMapa::animarIntroducaoMapa(tituloDoMapaAtual, {}, 0, {}, 0, Cor::VERDE, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, false);
         precisaRenderizar = true;
     };
+
+    auto animarTela = [&]() {
+        std::vector<std::string> arteTitulo;
+        int larguraArte = 0;
+        std::vector<std::string> arteTrans;
+        int larguraTrans = 0;
+
+        if (tituloDoMapaAtual == "FLORESTA") {
+            arteTitulo = Mapa2FlorestaLayouts::obterLogoFloresta();
+            larguraArte = 100;
+            arteTrans = Mapa2FlorestaLayouts::obterArteTransicaoFloresta();
+            larguraTrans = 87;
+        }
+
+        linhaInicialParaDesenharOMapa = ControleMapa::animarIntroducaoMapa(tituloDoMapaAtual, arteTitulo, larguraArte, arteTrans, larguraTrans, Cor::VERDE, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, true);
+        precisaRenderizar = false;
+    };
+
+    animarTela();
 
     auto processarInteracao = [&](int proximaPosicaoX, int proximaPosicaoY, int larguraDoTerminal)
     {
@@ -359,7 +430,7 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
         
         auto it = interacoes.find(celulaDestinoDoMapa);
         if (it != interacoes.end()) {
-            ContextoInteracaoFloresta ctx = {this, proximaPosicaoX, proximaPosicaoY, larguraDoTerminal, restaurarTela, celulaDestinoDoMapa};
+            ContextoInteracaoFloresta ctx = {this, proximaPosicaoX, proximaPosicaoY, larguraDoTerminal, restaurarTela, celulaDestinoDoMapa, animarTela};
             it->second->processar(ctx);
         } else {
             bool ehParede = false;
@@ -396,67 +467,6 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
         if (precisaRenderizar) {
             int alturaDoTerminal = Aparencia::obterAlturaTerminal();
 
-            auto formatador = [&](char celula, int x, int y) -> std::string {
-                if (x == posicaoXDoJogador && y == posicaoYDoJogador) return Aparencia::cor(Cor::NEGRITO, jogadorAtual->obterCorJogador()) + std::string(1, jogadorAtual->obterIconeJogador()) + Aparencia::cor(Cor::RESET);
-                if (celula == 'S' && (x == 0 || matrizDoMapaAtual[y][x-1] != '^')) return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + "S" + Aparencia::cor(Cor::RESET);
-                if (celula == 'F' || celula == 'A') return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
-                if (celula == 'M') return Aparencia::cor(Cor::NEGRITO, Cor::MAGENTA) + "M" + Aparencia::cor(Cor::RESET);
-                if (celula == 'B') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "B" + Aparencia::cor(Cor::RESET);
-                if (tituloDoMapaAtual == "SALA DO CHEFE" && (celula == 'M' || celula == 'A' || celula == 'H' || celula == 'O' || celula == 'R' || celula == 'G')) return Aparencia::cor(Cor::NEGRITO, Cor::MAGENTA) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
-                if (tituloDoMapaAtual == "SALA DO CHEFE" && celula == '.') return Aparencia::cor(Cor::CINZA) + "." + Aparencia::cor(Cor::RESET);
-                
-                if (tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") {
-                    auto isHWall = [](char c) { return c == '=' || c == '.' || c == '\''; };
-                    auto isVWall = [](char c) { return c == '|' || c == '+' || c == 'S' || c == 'E'; };
-
-                    if (celula == '=') return Aparencia::cor(Cor::CINZA) + "═" + Aparencia::cor(Cor::RESET);
-                    if (celula == '|') {
-                        bool right = (x + 1 < static_cast<int>(matrizDoMapaAtual[y].length()) && isHWall(matrizDoMapaAtual[y][x+1]));
-                        bool left = (x > 0 && isHWall(matrizDoMapaAtual[y][x-1]));
-                        if (right && left) return Aparencia::cor(Cor::CINZA) + "╬" + Aparencia::cor(Cor::RESET);
-                        if (right) return Aparencia::cor(Cor::CINZA) + "╠" + Aparencia::cor(Cor::RESET);
-                        if (left) return Aparencia::cor(Cor::CINZA) + "╣" + Aparencia::cor(Cor::RESET);
-                        return Aparencia::cor(Cor::CINZA) + "║" + Aparencia::cor(Cor::RESET);
-                    }
-                    if (celula == '.') {
-                        bool right = (x + 1 < static_cast<int>(matrizDoMapaAtual[y].length()) && isHWall(matrizDoMapaAtual[y][x+1]));
-                        bool left = (x > 0 && isHWall(matrizDoMapaAtual[y][x-1]));
-                        bool down = (y + 1 < static_cast<int>(matrizDoMapaAtual.size()) && isVWall(matrizDoMapaAtual[y+1][x]));
-                        
-                        if (left && right && down) return Aparencia::cor(Cor::CINZA) + "╦" + Aparencia::cor(Cor::RESET);
-                        if (right && down) return Aparencia::cor(Cor::CINZA) + "╔" + Aparencia::cor(Cor::RESET);
-                        if (left && down) return Aparencia::cor(Cor::CINZA) + "╗" + Aparencia::cor(Cor::RESET);
-                        if (left && right) return Aparencia::cor(Cor::CINZA) + "═" + Aparencia::cor(Cor::RESET);
-                        return Aparencia::cor(Cor::CINZA) + "█" + Aparencia::cor(Cor::RESET);
-                    }
-                    if (celula == '\'') {
-                        bool right = (x + 1 < static_cast<int>(matrizDoMapaAtual[y].length()) && isHWall(matrizDoMapaAtual[y][x+1]));
-                        bool left = (x > 0 && isHWall(matrizDoMapaAtual[y][x-1]));
-                        bool up = (y > 0 && isVWall(matrizDoMapaAtual[y-1][x]));
-                        
-                        if (left && right && up) return Aparencia::cor(Cor::CINZA) + "╩" + Aparencia::cor(Cor::RESET);
-                        if (right && up) return Aparencia::cor(Cor::CINZA) + "╚" + Aparencia::cor(Cor::RESET);
-                        if (left && up) return Aparencia::cor(Cor::CINZA) + "╝" + Aparencia::cor(Cor::RESET);
-                        if (left && right) return Aparencia::cor(Cor::CINZA) + "═" + Aparencia::cor(Cor::RESET);
-                        return Aparencia::cor(Cor::CINZA) + "█" + Aparencia::cor(Cor::RESET);
-                    }
-                    if (celula == '+') {
-                        bool right = (x + 1 < static_cast<int>(matrizDoMapaAtual[y].length()) && isHWall(matrizDoMapaAtual[y][x+1]));
-                        bool left = (x > 0 && isHWall(matrizDoMapaAtual[y][x-1]));
-                        bool down = (y + 1 < static_cast<int>(matrizDoMapaAtual.size()) && isVWall(matrizDoMapaAtual[y+1][x]));
-                        bool up = (y > 0 && isVWall(matrizDoMapaAtual[y-1][x]));
-                        
-                        if (left && right && down && up) return Aparencia::cor(Cor::CINZA) + "╬" + Aparencia::cor(Cor::RESET);
-                        if (left && right && down) return Aparencia::cor(Cor::CINZA) + "╦" + Aparencia::cor(Cor::RESET);
-                        if (left && right && up) return Aparencia::cor(Cor::CINZA) + "╩" + Aparencia::cor(Cor::RESET);
-                        if (up && down && left) return Aparencia::cor(Cor::CINZA) + "╣" + Aparencia::cor(Cor::RESET);
-                        if (up && down && right) return Aparencia::cor(Cor::CINZA) + "╠" + Aparencia::cor(Cor::RESET);
-                        return Aparencia::cor(Cor::CINZA) + "╬" + Aparencia::cor(Cor::RESET);
-                    }
-                }
-                
-                return std::string(1, celula);
-            };
 
             ControleMapa::renderizarMapa(matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, larguraDoTerminal, alturaDoTerminal, linhaInicialParaDesenharOMapa, formatador);
 

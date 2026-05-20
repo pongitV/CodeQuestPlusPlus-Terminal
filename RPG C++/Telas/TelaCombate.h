@@ -11,7 +11,8 @@ class Item;
 class TelaCombate 
 {
 public:
-    static void exibirLogoParaTelaDeCombate(const std::string& tituloDaTela = "");
+    static void exibirLogoParaTelaDeCombate(const std::string& tituloDaTela = "", bool animar = true);
+    static void animarIntroducaoCombate(const std::string& titulo, const std::vector<SistemaPersonagem*>& inimigos);
     static std::vector<std::string> obterLinhasBarraDeStatusDoJogador(SistemaPersonagem* jogadorAtual, Cor corDestaque = Cor::RESET, int danoAnimacao = -1, int frameAnimacao = 0, bool isCura = false);
     static void exibirHordaDeInimigosLadoALado(const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao = nullptr, int frameAnimacao = 0, bool isCura = false, bool animarSurgimento = false, bool isMorte = false, Item* armaAtacante = nullptr, int danoAnimacao = -1, const std::vector<std::string>& dropsAnimacao = {});
     static void animarDanoNoInimigo(const std::string& tituloCombate, const std::vector<SistemaPersonagem*>& listaDeInimigos, SistemaPersonagem* alvoAnimacao, SistemaPersonagem* atacante, SistemaPersonagem* jogadorAtual, const std::vector<SistemaPersonagem*>& listaDeAliados, int danoAnimacao = -1);

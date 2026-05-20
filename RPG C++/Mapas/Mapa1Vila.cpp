@@ -18,7 +18,6 @@
 #include "../NPCs/NPCBjorn.h"
 #include "../NPCs/NPCFranchesco.h"
 #include "../Inimigos/OrkExilado.h"
-#include "TransicaoDeMapa.h"
 #include "../Utilidades/Aparencia.h"
 #include "ControleMapa.h"
 #include "../Utilidades/ControleDeInput.h"
@@ -28,20 +27,22 @@
 #include "Mapa1VilaLayouts.h"
 
 Mapa1Vila::Mapa1Vila(SistemaPersonagem* personagemJogador) :
-    posicaoXDoJogador(2), 
-    posicaoYDoJogador(2), 
+    posicaoXDoJogador(4), 
+    posicaoYDoJogador(5), 
     jogadorAtual(personagemJogador), 
     exploracaoEstaAtiva(true),
-    tituloDoMapaAtual("VILA INICIAL"),
-    posicaoXSalvaAntesDeEntrarNoSubMapa(0), 
-    posicaoYSalvaAntesDeEntrarNoSubMapa(0),
-    jogadorEstaDentroDeUmSubMapa(false),
+    tituloDoMapaAtual("CAMINHO DO INICIO"),
+    posicaoXSalvaAntesDeEntrarNoSubMapa(2), 
+    posicaoYSalvaAntesDeEntrarNoSubMapa(2),
+    jogadorEstaDentroDeUmSubMapa(true),
     bjornResgatado(false), 
     forjaJaFoiVisitada(false), 
     lojaJaFoiVisitada(false), 
-    cavernaJaFoiVisitada(false)
+    cavernaJaFoiVisitada(false),
+    spawnJaFoiVisitado(true)
 {
-    matrizDoMapaAtual = Mapa1VilaLayouts::obterLayoutVilaInicial();
+    matrizDoMapaPrincipalSalva = Mapa1VilaLayouts::obterLayoutVilaInicial();
+    matrizDoMapaAtual = Mapa1VilaLayouts::obterLayoutSpawn();
 }
 
 Mapa1Vila::~Mapa1Vila() = default;
@@ -111,6 +112,17 @@ namespace {
             if (nextCell == 'C' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaCavernaSalva, ctx.self->cavernaJaFoiVisitada, Mapa1VilaLayouts::obterLayoutCaverna(ctx.self->bjornResgatado), 16, 2, "CAVERNA DO ORK", ctx.restaurarTela);
             }
+            else if (nextCell == 'V' && nextNextCell == 'i') {
+                if (ctx.self->tituloDoMapaAtual == "CAMINHO DO INICIO") {
+                    ctx.self->matrizDoMapaDoSpawnSalva = ctx.self->matrizDoMapaAtual;
+                    ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaPrincipalSalva;
+                    ctx.self->posicaoXDoJogador = 2;
+                    ctx.self->posicaoYDoJogador = 2;
+                    ctx.self->jogadorEstaDentroDeUmSubMapa = false;
+                    ctx.self->tituloDoMapaAtual = "VILA INICIAL";
+                    ctx.animarTela();
+                }
+            }
             else if (nextCell == 'S' && ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 if (ctx.self->tituloDoMapaAtual == "CAVERNA DO ORK") {
                     ctx.self->cavernaJaFoiVisitada = false;
@@ -129,6 +141,9 @@ namespace {
                 ctx.self->tituloDoMapaAtual = "VILA INICIAL";
                 ctx.restaurarTela();
             }
+            else if (nextCell == 'S' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
+                ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDoSpawnSalva, ctx.self->spawnJaFoiVisitado, Mapa1VilaLayouts::obterLayoutSpawn(), 51, 5, "CAMINHO DO INICIO", ctx.restaurarTela);
+            }
             else if (nextCell == 'F' && nextNextCell == 'o' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 if (!ctx.self->bjornResgatado) {
                     Aparencia::limparTela();
@@ -145,7 +160,6 @@ namespace {
                 ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaLojaSalva, ctx.self->lojaJaFoiVisitada, Mapa1VilaLayouts::obterLayoutLoja(), 8, 2, "LOJA DA VILA", ctx.restaurarTela);
             }
             else if (nextCell == 'F' && nextNextCell == 'l' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                TransicaoDeMapa::exibirTransicaoParaFloresta();
                 Mapa2Floresta mapaFloresta(ctx.self->jogadorAtual);
                 mapaFloresta.iniciarLoopDeExploracaoDoMapa();
                 if (ctx.self->jogadorAtual->obterVoltarProMenu()) {
@@ -154,7 +168,7 @@ namespace {
                 }
                 ctx.self->matrizDoMapaAtual = ctx.self->mapaBaseDaVila;
                 ctx.self->cavernaJaFoiVisitada = false;
-                ctx.restaurarTela();
+                ctx.animarTela();
             }
             else {
                 ctx.self->posicaoXDoJogador = ctx.proximaPosicaoX;
@@ -167,6 +181,7 @@ namespace {
         if (titulo == "CAVERNA DO ORK") return Mapa1VilaLayouts::obterLayoutCaverna(bjornResgatado);
         if (titulo == "FORJA DA VILA") return Mapa1VilaLayouts::obterLayoutForja();
         if (titulo == "LOJA DA VILA") return Mapa1VilaLayouts::obterLayoutLoja();
+        if (titulo == "CAMINHO DO INICIO") return Mapa1VilaLayouts::obterLayoutSpawn();
         return Mapa1VilaLayouts::obterLayoutVilaInicial();
     }
 }
@@ -181,39 +196,60 @@ void Mapa1Vila::inicializarInteracoes() {
 
 void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
 {
-    exploracaoEstaAtiva = true;
-    tituloDoMapaAtual = "VILA INICIAL";
     inicializarInteracoes();
 
     ControleMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
 
     Aparencia::ocultarCursor();
 
-    Aparencia::limparTela();
-    exibirTituloDoMapaVila(tituloDoMapaAtual);
+    auto formatador = [&](char celula, int x, int y) -> std::string {
+        if (x == posicaoXDoJogador && y == posicaoYDoJogador) return Aparencia::cor(Cor::NEGRITO, jogadorAtual->obterCorJogador()) + std::string(1, jogadorAtual->obterIconeJogador()) + Aparencia::cor(Cor::RESET);
+        if (celula == 'G' || celula == 'O') return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
+        if (celula == 'B') return Aparencia::cor(Cor::NEGRITO, Cor::CIANO) + "B" + Aparencia::cor(Cor::RESET);
+        if (celula == 'F' && x > 0 && matrizDoMapaAtual[y][x-1] == '.') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "F" + Aparencia::cor(Cor::RESET);
+        return std::string(1, celula);
+    };
 
-    int linhaInicialParaDesenharOMapa = Aparencia::obterPosicaoCursorY();
-
-    bool precisaRenderizar = true;
+    bool precisaRenderizar = false;
+    int linhaInicialParaDesenharOMapa = 0;
 
     // Lambda para restaurar a tela apos eventos sem piscar
     auto restaurarTela = [&]() {
-        Aparencia::ocultarCursor();
-        Aparencia::limparTela();
-        exibirTituloDoMapaVila(tituloDoMapaAtual);
-        linhaInicialParaDesenharOMapa = Aparencia::obterPosicaoCursorY();
+        linhaInicialParaDesenharOMapa = ControleMapa::animarIntroducaoMapa(tituloDoMapaAtual, {}, 0, {}, 0, Cor::AMARELO, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, false);
         precisaRenderizar = true;
     };
 
+    auto animarTela = [&]() {
+        std::vector<std::string> arteTitulo;
+        int larguraArte = 0;
+        std::vector<std::string> arteTrans;
+        int larguraTrans = 0;
+
+        if (tituloDoMapaAtual == "VILA INICIAL") {
+            arteTitulo = Mapa1VilaLayouts::obterLogoVila();
+            larguraArte = 125;
+            arteTrans = Mapa1VilaLayouts::obterArteTransicaoVila();
+            larguraTrans = 75;
+        } else if (tituloDoMapaAtual == "CAMINHO DO INICIO") {
+            arteTitulo = Mapa1VilaLayouts::obterLogoSpawn();
+            larguraArte = 105;
+        }
+        
+        linhaInicialParaDesenharOMapa = ControleMapa::animarIntroducaoMapa(tituloDoMapaAtual, arteTitulo, larguraArte, arteTrans, larguraTrans, Cor::AMARELO, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, true);
+        precisaRenderizar = false;
+    };
+
+    animarTela();
+
     // Mapa base da vila — reutilizado no respawn apos a floresta
 
-    if (mapaBaseDaVila.empty()) mapaBaseDaVila = matrizDoMapaAtual; // Salva o estado inicial para respawn
+    if (mapaBaseDaVila.empty()) mapaBaseDaVila = matrizDoMapaPrincipalSalva; // Salva o estado inicial para respawn
 
     auto processarInteracao = [&](int proximaPosicaoX, int proximaPosicaoY, int larguraDoTerminal) {
         char celulaDestinoDoMapa = matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX];
         auto it = interacoes.find(celulaDestinoDoMapa);
         if (it != interacoes.end()) {
-            ContextoInteracaoVila ctx = {this, proximaPosicaoX, proximaPosicaoY, larguraDoTerminal, restaurarTela, celulaDestinoDoMapa};
+            ContextoInteracaoVila ctx = {this, proximaPosicaoX, proximaPosicaoY, larguraDoTerminal, restaurarTela, celulaDestinoDoMapa, animarTela};
             it->second->processar(ctx);
         } else {
             bool ehParede = (celulaDestinoDoMapa == '#');
@@ -241,14 +277,6 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
         
         if (precisaRenderizar) {
             int alturaDoTerminal = Aparencia::obterAlturaTerminal();
-
-            auto formatador = [&](char celula, int x, int y) -> std::string {
-                if (x == posicaoXDoJogador && y == posicaoYDoJogador) return Aparencia::cor(Cor::NEGRITO, jogadorAtual->obterCorJogador()) + std::string(1, jogadorAtual->obterIconeJogador()) + Aparencia::cor(Cor::RESET);
-                if (celula == 'G' || celula == 'O') return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
-                if (celula == 'B') return Aparencia::cor(Cor::NEGRITO, Cor::CIANO) + "B" + Aparencia::cor(Cor::RESET);
-                if (celula == 'F' && x > 0 && matrizDoMapaAtual[y][x-1] == '.') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "F" + Aparencia::cor(Cor::RESET);
-                return std::string(1, celula);
-            };
 
             ControleMapa::renderizarMapa(matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, larguraDoTerminal, alturaDoTerminal, linhaInicialParaDesenharOMapa, formatador);
 

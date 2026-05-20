@@ -4,9 +4,10 @@
 #include <string>
 #include "../Utilidades/Aparencia.h"
 
-inline void exibirTituloDoMapaReino(const std::string& tituloDoMapa) {
-    if (tituloDoMapa == "CAMINHO DO CASTELO") {
-        std::vector<std::string> logoReino = {
+class Mapa3ReinoLayouts {
+public:
+    static inline std::vector<std::string> obterLogoReino() {
+        return {
             " ███████████   ██████████ █████ ██████   █████    ███████   ",
             "░░███░░░░░███ ░░███░░░░░█░░███ ░░██████ ░░███   ███░░░░░███ ",
             " ░███    ░███  ░███  █ ░  ░███  ░███░███ ░███  ███     ░░███",
@@ -16,14 +17,8 @@ inline void exibirTituloDoMapaReino(const std::string& tituloDoMapa) {
             " █████   █████ ██████████ █████ █████  ░░█████ ░░░███████░  ",
             "░░░░░   ░░░░░ ░░░░░░░░░░ ░░░░░ ░░░░░    ░░░░░    ░░░░░░░    "
         };
-        Aparencia::exibirPainelArte(logoReino, 60, Cor::CIANO, "");
-    } else {
-        Aparencia::exibirPainelTexto(tituloDoMapa, Cor::CIANO);
     }
-}
 
-class Mapa3ReinoLayouts {
-public:
     static inline std::vector<std::string> obterLayoutReino() {
         return {
             "                                                                                                   ",
@@ -65,3 +60,11 @@ public:
         };
     }
 };
+
+inline void exibirTituloDoMapaReino(const std::string& tituloDoMapa) {
+    if (tituloDoMapa == "CAMINHO DO CASTELO") {
+        Aparencia::exibirPainelArte(Mapa3ReinoLayouts::obterLogoReino(), 60, Cor::CIANO, "");
+    } else {
+        Aparencia::exibirPainelTexto(tituloDoMapa, Cor::CIANO);
+    }
+}

@@ -81,13 +81,13 @@ bool TelaMenu::exibirConfirmacaoDeEscolhaComArteLadoALado(const std::string& tip
 
     size_t maxLinhas = std::max(infoTextOnly.size(), arteTextOnly.size());
 
-    for (int intensidade = 0; intensidade <= 255; intensidade += 15) {
+    Aparencia::animarFadeIn(17, 15, [&](int frame, int intensidade) {
         std::ostringstream buffer;
         std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
         
         exibirPainelLogoJogo("PREVIA DA " + tipoDeEscolha + ": " + nomeDaEscolha);
         
-        std::string corRGB = "\033[38;2;" + std::to_string(intensidade) + ";" + std::to_string(intensidade) + ";" + std::to_string(intensidade) + "m";
+        std::string corRGB = Aparencia::obterCorRGBFade(Cor::BRANCO, intensidade);
         
         buffer << "\n";
         for (size_t i = 0; i < maxLinhas; ++i) {
@@ -111,8 +111,7 @@ bool TelaMenu::exibirConfirmacaoDeEscolhaComArteLadoALado(const std::string& tip
         buffer << "\033[J";
         std::cout.rdbuf(oldCout);
         std::cout << "\033[H" << buffer.str() << std::flush;
-        std::this_thread::sleep_for(std::chrono::milliseconds(15));
-    }
+    });
     
     std::ostringstream bufferFinal;
     std::streambuf* oldCoutFinal = std::cout.rdbuf(bufferFinal.rdbuf());
@@ -184,11 +183,11 @@ int TelaMenu::exibirOpcoesMenuPrincipal(bool temSave) {
         int recuo = std::max(0, (larguraConsole - larguraLinhaCompleta) / 2);
         std::string margem(recuo, ' ');
 
-        for (int intensidade = 0; intensidade <= 255; intensidade += 8) {
+        Aparencia::animarFadeIn(32, 30, [&](int frame, int intensidade) {
             std::ostringstream buffer;
             std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
             
-            std::string corRGB = "\033[38;2;" + std::to_string(intensidade) + ";" + std::to_string(intensidade) + ";" + std::to_string(intensidade) + "m";
+            std::string corRGB = Aparencia::obterCorRGBFade(Cor::BRANCO, intensidade);
             int intensidadeLaranjaG = static_cast<int>(intensidade * 0.65);
             std::string corRGBPlus = "\033[38;2;" + std::to_string(intensidade) + ";" + std::to_string(intensidadeLaranjaG) + ";0m";
 
@@ -198,7 +197,7 @@ int TelaMenu::exibirOpcoesMenuPrincipal(bool temSave) {
             }
             
             buffer << "\n\n\n";
-            std::string corOpcao = "\033[38;2;" + std::to_string(intensidade) + ";" + std::to_string(intensidade) + ";" + std::to_string(intensidade) + "m";
+            std::string corOpcao = corRGB;
             std::string textoOpcao = "-> PRESSIONE QUALQUER TECLA PARA INICIAR <-";
             int espacosMenu = std::max(0, (larguraConsole - static_cast<int>(textoOpcao.length())) / 2);
             buffer << std::string(espacosMenu, ' ') << corOpcao << textoOpcao << "\033[0m\n";
@@ -210,8 +209,7 @@ int TelaMenu::exibirOpcoesMenuPrincipal(bool temSave) {
 
             std::cout.rdbuf(oldCout);
             std::cout << "\033[H" << buffer.str() << std::flush;
-            std::this_thread::sleep_for(std::chrono::milliseconds(30));
-        }
+        });
         
         int frame = 0;
         ControleDeInput::limparBuffer();

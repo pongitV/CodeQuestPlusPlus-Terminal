@@ -271,6 +271,31 @@ void Aparencia::imprimirCentralizadoMultilinha(const std::vector<std::string>& l
     }
 }
 
+std::string Aparencia::obterCorRGBFade(Cor corTema, int intensidade) {
+    int r = intensidade, g = intensidade, b = intensidade;
+    if (corTema == Cor::VERDE) { r = 0; g = intensidade; b = 0; }
+    else if (corTema == Cor::AMARELO) { r = intensidade; g = intensidade; b = 0; }
+    else if (corTema == Cor::CIANO) { r = 0; g = intensidade; b = intensidade; }
+    else if (corTema == Cor::MAGENTA) { r = intensidade; g = 0; b = intensidade; }
+    else if (corTema == Cor::VERMELHO) { r = intensidade; g = 0; b = 0; }
+    else if (corTema == Cor::AZUL) { r = 0; g = 0; b = intensidade; }
+    return "\033[38;2;" + std::to_string(r) + ";" + std::to_string(g) + ";" + std::to_string(b) + "m";
+}
+
+void Aparencia::animarFadeIn(int framesTotais, int tempoPorFrameMs, const std::function<void(int frame, int intensidade)>& renderFrame) {
+    for (int frame = 1; frame <= framesTotais; ++frame) {
+        auto inicioFrame = std::chrono::steady_clock::now();
+
+        int intensidade = (255 * frame) / framesTotais;
+        renderFrame(frame, intensidade);
+
+        auto fimFrame = std::chrono::steady_clock::now();
+        auto duracaoFrame = std::chrono::duration_cast<std::chrono::milliseconds>(fimFrame - inicioFrame).count();
+        int tempoEspera = std::max(0, tempoPorFrameMs - static_cast<int>(duracaoFrame));
+        std::this_thread::sleep_for(std::chrono::milliseconds(tempoEspera));
+    }
+}
+
 void Aparencia::imprimirBlocoCentralizado(const std::vector<std::string>& linhas, const std::string& corAnsi, int atrasoLinhaMs) {
     int tamanhoDaLinhaMaisLonga = 0;
     for (const std::string& linha : linhas) {

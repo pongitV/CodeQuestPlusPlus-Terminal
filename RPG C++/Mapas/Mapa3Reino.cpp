@@ -13,7 +13,6 @@
 #include "../Utilidades/ControleDeInput.h"
 #include "../Gerenciadores/GerenciadorInimigos.h"
 #include "Mapa3ReinoLayouts.h"
-#include "TransicaoDeMapa.h"
 #include "../NPCs/NPCCavaleiroGenerico.h"
 
 
@@ -29,6 +28,29 @@ Mapa3Reino::Mapa3Reino(SistemaPersonagem* personagemJogador) :
 
 Mapa3Reino::~Mapa3Reino() = default;
 
+namespace {
+    std::vector<std::string> obterArteTransicaoReino() {
+        return {
+            "                  |>>>                        |>>>",
+            "                    |                           |",
+            "                _  _|_  _                   _  _|_  _",
+            "               | |_| |_| |                 | |_| |_| |",
+            "               \\  .      /                 \\ .    .  /",
+            "                \\    ,  /                   \\    .  /",
+            "                 | .   |_   _   _   _   _   _| ,   |",
+            "                 |    .| |_| |_| |_| |_| |_| |  .  |",
+            "                 | ,   | .    .     .      . |    .|",
+            "                 |   . |  .     . .   .  ,   |.    |",
+            "     ___----_____| .   |.   ,  _______   .   |   , |---~_____",
+            "_---~            |     |  .   /+++++++\\    . | .   |         ~---_",
+            "                 |.    | .    |+++++++| .    |   . |              ~-_",
+            "              __ |   . |   ,  |+++++++|.  . _|__   |                 ~-_",
+            "     ____--`~    '--~~__ .    |++++ __|----~    ~`---,              ___^~-__",
+            "-~--~                   ~---__|,--~'                  ~~----_____-~'   `~----~"
+        };
+    }
+}
+
 void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
 {
     bool trollDerrotado = false;
@@ -38,17 +60,37 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
 
     Aparencia::ocultarCursor();
 
-    Aparencia::limparTela();
-    exibirTituloDoMapaReino(tituloDoMapaAtual);
+    auto formatador = [&](char celula, int x, int y) -> std::string {
+        if (x == posicaoXDoJogador && y == posicaoYDoJogador) return Aparencia::cor(Cor::NEGRITO, jogadorAtual->obterCorJogador()) + std::string(1, jogadorAtual->obterIconeJogador()) + Aparencia::cor(Cor::RESET);
+        if (celula == 'T') return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + "T" + Aparencia::cor(Cor::RESET);
+        if (celula == 'G') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "G" + Aparencia::cor(Cor::RESET);
+        if (celula == '=' || celula == '|') return Aparencia::cor(Cor::CINZA) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
+        return std::string(1, celula);
+    };
 
-    int linhaInicialParaDesenharOMapa = Aparencia::obterPosicaoCursorY();
+    int linhaInicialParaDesenharOMapa = 0;
 
     auto restaurarTela = [&]() {
-        Aparencia::ocultarCursor();
-        Aparencia::limparTela();
-        exibirTituloDoMapaReino(tituloDoMapaAtual);
-        linhaInicialParaDesenharOMapa = Aparencia::obterPosicaoCursorY();
+        linhaInicialParaDesenharOMapa = ControleMapa::animarIntroducaoMapa(tituloDoMapaAtual, {}, 0, {}, 0, Cor::CIANO, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, false);
     };
+
+    auto animarTela = [&]() {
+        std::vector<std::string> arteTitulo;
+        int larguraArte = 0;
+        std::vector<std::string> arteTrans;
+        int larguraTrans = 0;
+
+        if (tituloDoMapaAtual == "CAMINHO DO CASTELO") {
+            arteTitulo = Mapa3ReinoLayouts::obterLogoReino();
+            larguraArte = 60;
+            arteTrans = obterArteTransicaoReino();
+            larguraTrans = 75;
+        }
+
+        linhaInicialParaDesenharOMapa = ControleMapa::animarIntroducaoMapa(tituloDoMapaAtual, arteTitulo, larguraArte, arteTrans, larguraTrans, Cor::CIANO, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, true);
+    };
+
+    animarTela();
 
     std::unordered_map<char, std::function<void(int, int, int)>> interacoes;
 
@@ -73,7 +115,6 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
             }
         }
         else if (nextCell == 'F') {
-            TransicaoDeMapa::exibirTransicaoParaFloresta();
             exploracaoEstaAtiva = false;
         }
     };
@@ -99,13 +140,6 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
         int larguraDoTerminal = Aparencia::obterLarguraTerminal();
         int alturaDoTerminal = Aparencia::obterAlturaTerminal();
 
-        auto formatador = [&](char celula, int x, int y) -> std::string {
-            if (x == posicaoXDoJogador && y == posicaoYDoJogador) return Aparencia::cor(Cor::NEGRITO, jogadorAtual->obterCorJogador()) + std::string(1, jogadorAtual->obterIconeJogador()) + Aparencia::cor(Cor::RESET);
-            if (celula == 'T') return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + "T" + Aparencia::cor(Cor::RESET);
-            if (celula == 'G') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "G" + Aparencia::cor(Cor::RESET);
-            if (celula == '=' || celula == '|') return Aparencia::cor(Cor::CINZA) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
-            return std::string(1, celula);
-        };
 
         ControleMapa::renderizarMapa(matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, larguraDoTerminal, alturaDoTerminal, linhaInicialParaDesenharOMapa, formatador);
 

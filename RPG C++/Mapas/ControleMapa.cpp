@@ -11,6 +11,9 @@
 #include "../Utilidades/GeradorAleatorio.h"
 #include <iostream>
 #include <algorithm>
+#include <thread>
+#include <chrono>
+#include <sstream>
 
 namespace {
     void calcularCameraAxis(int maxVisivel, int posicaoJogador, int tamanhoMapa, int& start, int& end) {
@@ -202,8 +205,112 @@ void ControleMapa::moverInimigosAleatoriamente(std::vector<std::string>& matrizD
     }
 }
 
-void ControleMapa::calcularCameraVertical(int alturaDoTerminal, int posicaoYDoJogador, int tamanhoDoMapa, int& startY, int& endY) {
-    int maxLinhasVisiveis = std::max(5, alturaDoTerminal - 7);
+int ControleMapa::animarIntroducaoMapa(
+    const std::string& tituloDoMapa,
+    const std::vector<std::string>& arteDoMapa,
+    int larguraArte,
+    const std::vector<std::string>& arteTransicao,
+    int larguraTransicao,
+    Cor corTema,
+    const std::vector<std::string>& matrizDoMapa,
+    int posicaoXDoJogador,
+    int posicaoYDoJogador,
+    const std::function<std::string(char, int, int)>& formatadorCelula,
+    bool animar
+) {
+    Aparencia::limparTela();
+    Aparencia::ocultarCursor();
+
+    int larguraTerminal = Aparencia::obterLarguraTerminal();
+    int alturaTerminal = Aparencia::obterAlturaTerminal();
+
+    if (animar) {
+    // Calcula a largura real das artes para garantir a centralizacao perfeita sempre
+    int maxLarguraArte = 0;
+    for (const auto& linha : arteDoMapa) {
+        int w = Aparencia::obterComprimentoVisual(linha);
+        if (w > maxLarguraArte) maxLarguraArte = w;
+    }
+
+    int maxLarguraTrans = 0;
+    for (const auto& linha : arteTransicao) {
+        int w = Aparencia::obterComprimentoVisual(linha);
+        if (w > maxLarguraTrans) maxLarguraTrans = w;
+    }
+
+    // 1. Fade In do Titulo (1.5s = 15 frames x 100ms)
+    Aparencia::animarFadeIn(15, 100, [&](int frame, int intensidade) {
+        std::ostringstream buffer;
+        std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
+
+        std::string corRGB = Aparencia::obterCorRGBFade(corTema, intensidade);
+
+        buffer << "\033[H\033[J";
+
+        if (!arteDoMapa.empty()) {
+            int espacos = std::max(0, (larguraTerminal - maxLarguraArte) / 2);
+            std::string margem(espacos, ' ');
+            buffer << "\n";
+            for (const auto& linha : arteDoMapa) {
+                buffer << margem << corRGB << linha << "\033[0m\n";
+            }
+        } else {
+            int espacos = std::max(0, (larguraTerminal - (int)tituloDoMapa.length() - 10)) / 2;
+            std::string tracos(tituloDoMapa.length() + 2, '=');
+            buffer << "\n" << std::string(espacos, ' ') << corRGB << "  " << tracos << "  \n";
+            buffer << std::string(espacos, ' ') << corRGB << "|| " << tituloDoMapa << " ||\n";
+            buffer << std::string(espacos, ' ') << corRGB << "  " << tracos << "  \033[0m\n";
+        }
+
+        if (!arteTransicao.empty()) {
+            int espacosTrans = std::max(0, (larguraTerminal - maxLarguraTrans) / 2);
+            std::string margemTrans(espacosTrans, ' ');
+            buffer << "\n";
+            for (const auto& linha : arteTransicao) {
+                buffer << margemTrans << corRGB << linha << "\033[0m\n";
+            }
+        }
+
+        std::cout.rdbuf(oldCout);
+        std::cout << "\033[H" << buffer.str() << std::flush;
+    });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+
+    // 2. A tela desce (Scroll down)
+    int linhasParaDescer = 5;
+    if (!arteDoMapa.empty()) linhasParaDescer += arteDoMapa.size();
+    if (!arteTransicao.empty()) linhasParaDescer += arteTransicao.size();
+
+    for (int i = 0; i < linhasParaDescer / 2; ++i) {
+        std::cout << "\n\n" << std::flush;
+        std::this_thread::sleep_for(std::chrono::milliseconds(80));
+    }
+
+    // 3. Fade In do Mapa (1.5s = 15 frames x 100ms)
+    Aparencia::limparTela();
+    
+    Aparencia::exibirPainelTexto(tituloDoMapa, corTema);
+
+    int linhaInicialMapa = Aparencia::obterPosicaoCursorY();
+
+    Aparencia::animarFadeIn(15, 100, [&](int frame, int intensidade) {
+        auto formatadorFade = [&](char celula, int x, int y) -> std::string {
+            if (frame == 15) return formatadorCelula(celula, x, y);
+            std::string corRGB = Aparencia::obterCorRGBFade(Cor::BRANCO, intensidade);
+            return corRGB + std::string(1, celula) + "\033[0m";
+        };
+
+        renderizarMapa(matrizDoMapa, posicaoXDoJogador, posicaoYDoJogador, larguraTerminal, alturaTerminal, linhaInicialMapa, formatadorFade);
+    });
+
+    ControleDeInput::limparBuffer();
+    
+    return linhaInicialMapa;
+}
+
+void ControleMapa::calcularCameraVertical(int alturaDoTerminal, int linhaInicial, int posicaoYDoJogador, int tamanhoDoMapa, int& startY, int& endY) {
+    int maxLinhasVisiveis = std::max(5, alturaDoTerminal - linhaInicial - 4);
     calcularCameraAxis(maxLinhasVisiveis, posicaoYDoJogador, tamanhoDoMapa, startY, endY);
 }
 
@@ -239,7 +346,7 @@ void ControleMapa::renderizarMapa(const std::vector<std::string>& matrizDoMapa, 
     Aparencia::moverCursor(0, linhaInicial);
 
     int startY, endY;
-    calcularCameraVertical(alturaDoTerminal, posicaoYDoJogador, static_cast<int>(matrizDoMapa.size()), startY, endY);
+    calcularCameraVertical(alturaDoTerminal, linhaInicial, posicaoYDoJogador, static_cast<int>(matrizDoMapa.size()), startY, endY);
 
     for (int y = startY; y < endY; y++) {
         std::string linhaSendoRenderizada = margemEsquerdaDoMapa;

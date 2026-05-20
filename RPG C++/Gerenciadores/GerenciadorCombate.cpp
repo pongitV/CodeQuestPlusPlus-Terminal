@@ -163,14 +163,7 @@ void GerenciadorCombate::iniciarCombate()
         aliado->prepararParaNovaBatalha();
     }
 
-    // Introducao ao combate
-    Aparencia::limparTela();
-    TelaCombate::exibirLogoParaTelaDeCombate(obterTituloDoCombate());
-    TelaCombate::exibirHordaDeInimigosLadoALado(obterInimigosRaw(), nullptr, 0, false, true);
-    std::cout << "\n";
-    Aparencia::imprimirCentralizado("Prepare-se! O combate esta prestes a comecar...", Aparencia::cor(Cor::VERMELHO));
-    std::cout << "\n";
-    ControleDeInput::aguardarEnter();
+    TelaCombate::animarIntroducaoCombate(obterTituloDoCombate(), obterInimigosRaw());
 
     Aparencia::limparTela();
 

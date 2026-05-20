@@ -14,6 +14,7 @@
 #include "../Classes/ClasseBase.h"
 #include "../Inventario/Item.h"
 #include "../Utilidades/ControleDeInput.h"
+#include "TelaCombateLayouts.h"
 
 extern SistemaPersonagem* g_inimigoAtacanteParry;
 extern int g_parryStatus;
@@ -242,24 +243,67 @@ void TelaCombate::limparMensagensFixas() {
     mensagensFixasCombate.clear();
 }
 
-void TelaCombate::exibirLogoParaTelaDeCombate(const std::string& tituloDaTela) 
+void TelaCombate::exibirLogoParaTelaDeCombate(const std::string& tituloDaTela, bool animar) 
 {
     std::cout << "\033[?25l"; // Esconde o cursor
     int larguraConsole = Aparencia::obterLarguraTerminal();
     
-    std::vector<std::string> logo = 
-    {
-        "   █████████     ███████    ██████   ██████ ███████████    █████████   ███████████ ██████████",
-        "  ███░░░░░███  ███░░░░░███ ░░██████ ██████ ░░███░░░░░███  ███░░░░░███ ░█░░░███░░░█░░███░░░░░█ ",
-        " ███     ░░░  ███     ░░███ ░███░█████░███  ░███    ░███ ░███    ░███ ░   ░███  ░  ░███  █ ░  ",
-        "░███         ░███      ░███ ░███░░███ ░███  ░██████████  ░███████████     ░███     ░██████    ",
-        "░███         ░███      ░███ ░███ ░░░  ░███  ░███░░░░░███ ░███░░░░░███     ░███     ░███░░█    ",
-        "░░███     ███░░███     ███  ░███      ░███  ░███    ░███ ░███    ░███     ░███     ░███ ░   █ ",
-        " ░░█████████  ░░░███████░   █████     █████ ███████████  █████   █████    █████    ██████████ ",
-        "  ░░░░░░░░░     ░░░░░░░    ░░░░░     ░░░░░ ░░░░░░░░░░░  ░░░░░   ░░░░░    ░░░░░    ░░░░░░░░░░  "
-    };
+    Aparencia::exibirPainelArte(TelaCombateLayouts::obterLogoCombate(), 95, Cor::VERMELHO, tituloDaTela, animar);
+}
 
-    Aparencia::exibirPainelArte(logo, 95, Cor::VERMELHO, tituloDaTela, true);
+void TelaCombate::animarIntroducaoCombate(const std::string& titulo, const std::vector<SistemaPersonagem*>& inimigos) {
+    Aparencia::limparTela();
+    Aparencia::ocultarCursor();
+
+    // Captura o estado final do titulo
+    std::ostringstream bufferTitulo;
+    std::streambuf* oldCout = std::cout.rdbuf(bufferTitulo.rdbuf());
+    exibirLogoParaTelaDeCombate(titulo, false);
+    std::cout.rdbuf(oldCout);
+    std::string tituloFinalComCores = bufferTitulo.str();
+    std::string tituloFinalSemCores = Aparencia::removerCoresANSI(tituloFinalComCores);
+
+    // Captura o estado final dos inimigos
+    std::ostringstream bufferInimigos;
+    oldCout = std::cout.rdbuf(bufferInimigos.rdbuf());
+    exibirHordaDeInimigosLadoALado(inimigos, nullptr, 0, false, false);
+    std::cout.rdbuf(oldCout);
+    std::string inimigosFinalComCores = bufferInimigos.str();
+    std::string inimigosFinalSemCores = Aparencia::removerCoresANSI(inimigosFinalComCores);
+
+    // 1. Loop de animacao de Fade-in do Titulo
+    Aparencia::animarFadeIn(15, 100, [&](int frame, int intensidade) {
+        std::string conteudoFrame;
+        if (frame < 15) {
+            std::string corRGB = Aparencia::obterCorRGBFade(Cor::BRANCO, intensidade);
+            conteudoFrame = corRGB + tituloFinalSemCores + Aparencia::cor(Cor::RESET);
+        } else {
+            conteudoFrame = tituloFinalComCores;
+        }
+
+        renderizarFrameBufferizado([&](){
+            std::cout << conteudoFrame;
+        });
+    });
+
+    // 2. Loop de animacao de Fade-in dos Inimigos
+    Aparencia::animarFadeIn(15, 100, [&](int frame, int intensidade) {
+        std::string conteudoFrame = tituloFinalComCores;
+        if (frame < 15) {
+            std::string corRGB = Aparencia::obterCorRGBFade(Cor::BRANCO, intensidade);
+            conteudoFrame += corRGB + inimigosFinalSemCores + Aparencia::cor(Cor::RESET);
+        } else {
+            conteudoFrame += inimigosFinalComCores;
+        }
+
+        renderizarFrameBufferizado([&](){
+            std::cout << conteudoFrame;
+        });
+    });
+
+    std::cout << "\n";
+    Aparencia::imprimirCentralizado("Prepare-se! O combate esta prestes a comecar...", Aparencia::cor(Cor::VERMELHO));
+    ControleDeInput::aguardarEnter();
 }
 
 std::vector<std::string> TelaCombate::obterLinhasBarraDeStatusDoJogador(SistemaPersonagem* jogadorAtual, Cor corDestaque, int danoAnimacao, int frameAnimacao, bool isCura) 

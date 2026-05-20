@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <functional>
 
 enum class Cor : uint32_t {
     RESET = 0xFFFFFFFF,
@@ -52,6 +53,10 @@ public:
     static void imprimirLinhaDivisoria(char caractere = '=');
     static void imprimirCentralizado(const std::string& texto, const std::string& corAnsi = "");
     static void imprimirCentralizadoMultilinha(const std::vector<std::string>& linhas, int larguraVisual = 0, const std::string& corAnsi = "", int atrasoLinhaMs = 0);
+    
+    static std::string obterCorRGBFade(Cor corTema, int intensidade);
+    static void animarFadeIn(int framesTotais, int tempoPorFrameMs, const std::function<void(int frame, int intensidade)>& renderFrame);
+
     static void imprimirBlocoCentralizado(const std::vector<std::string>& linhas, const std::string& corAnsi = "", int atrasoLinhaMs = 0);
     static void imprimirBlocoCentralizadoDigitando(const std::vector<std::string>& linhas, int atrasoMs = atrasoDigitacaoMS);
     static void imprimirCentralizadoDigitando(const std::string& texto, int atrasoMs = atrasoDigitacaoMS);

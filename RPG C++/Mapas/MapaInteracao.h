@@ -10,6 +10,7 @@ struct ContextoInteracaoFloresta {
     int larguraDoTerminal;
     const std::function<void()>& restaurarTela;
     char celula;
+    const std::function<void()>& animarTela;
 };
 class InteracaoFloresta {
 public:
@@ -26,6 +27,7 @@ struct ContextoInteracaoVila {
     int larguraDoTerminal;
     const std::function<void()>& restaurarTela;
     char celula;
+    const std::function<void()>& animarTela;
 };
 class InteracaoVila {
 public:
