@@ -80,6 +80,7 @@ private:
         bool recargaHabilidade = false;
         bool pularTurnoInimigo = false;
         bool habilidadeCancelada = false;
+        bool morteAnimada = false;
         double multiplicadorAtual = 1.0;
         int curaTotalRecebida = 0;
         int vidaMaximaFixa = 0;
@@ -91,6 +92,7 @@ private:
             recargaHabilidade = false;
             pularTurnoInimigo = false;
             habilidadeCancelada = false;
+            morteAnimada = false;
             multiplicadorAtual = 1.0;
             curaTotalRecebida = 0;
             vidaMaximaFixa = 0;
@@ -130,8 +132,8 @@ protected:
     Item* arma;
     Item* escudo;
     Item* armadura;
+    Item* consumivelRapido;
     Item* itemSelecionadoParaUso;
-    int ouroRecompensa;
 
     // Cache de getters calculados
     // ATENCAO: Esta estrutura usando 'mutable' nao e thread-safe.
@@ -154,7 +156,6 @@ protected:
     int nivel;
     int xpAtual;
     int xpParaSubir;
-    int xpRecompensa;
 
     int* obterPonteiroAtributoEstatico(TipoAtributo atributo);
 
@@ -209,16 +210,14 @@ public:
     Item* obterArma() const { return arma; }
     Item* obterEscudo() const { return escudo; }
     Item* obterArmadura() const { return armadura; }
+    Item* obterConsumivelRapido() const { return consumivelRapido; }
+    void desequiparConsumivel() { consumivelRapido = nullptr; cache_.sujo = true; }
     Inventario* obterInventario() const { return mochila.get(); }
     Item* obterItemSelecionadoParaUso() const { return itemSelecionadoParaUso; }
-    bool isItemEquipado(Item* item) const { return item != nullptr && (item == arma || item == escudo || item == armadura); }
+    bool isItemEquipado(Item* item) const { return item != nullptr && (item == arma || item == escudo || item == armadura || item == consumivelRapido); }
     void definirItemSelecionadoParaUso(Item* item) { itemSelecionadoParaUso = item; }
 
-    void definirOuroRecompensa(int valor) { ouroRecompensa = valor; }
-    int obterOuroRecompensa() const { return ouroRecompensa; }
     void ganharOuro(int valor) { mochila->adicionarOuro(valor); }
-    void definirXpRecompensa(int valor) { xpRecompensa = valor; }
-    int obterXpRecompensa() const { return xpRecompensa; }
 
     void definirMultiplicador(double novoMultiplicador);
     double obterMultiplicador() const { return combate.multiplicadorAtual; }
@@ -275,6 +274,9 @@ public:
     void desequiparEscudo() { escudo = nullptr; cache_.sujo = true; }
     void desequiparArma() { arma = nullptr; cache_.sujo = true; }
     void desequiparArmadura() { armadura = nullptr; cache_.sujo = true; }
+
+    void definirMorteAnimada(bool m) { combate.morteAnimada = m; }
+    bool obterMorteAnimada() const { return combate.morteAnimada; }
 
     void definirParryAtivado(bool p) { sistema.parryAtivado = p; }
     bool obterParryAtivado() const { return sistema.parryAtivado; }

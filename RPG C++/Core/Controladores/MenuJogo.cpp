@@ -44,6 +44,7 @@
 #include "../Utilidades/FuncoesDialogo.h"
 #include "../Utilidades/ControleDeInput.h"
 #include "../Utilidades/GeradorAleatorio.h"
+#include "../../Interface/Telas/TelaBase.h"
 
 namespace {
     std::vector<std::string> lerInfoSavesLocal(const std::vector<std::string>& saves) {
@@ -74,137 +75,134 @@ std::vector<std::string> MenuJogo::lerInformacoesDosSaves(const std::vector<std:
 
 namespace {
     std::unique_ptr<Personagem> lidarOpcoesDoSave(const std::string& saveSelecionado, const std::string& infoSave, bool& saveFoiDeletado) {
-        bool animar = false;
-        while (true) {
-            Aparencia::limparTela();
-            TelaMenu::exibirPainelLogoJogo("OPCOES DO SAVE", animar);
-            animar = false;
-            std::cout << "\n";
-            Aparencia::imprimirCentralizado("Save selecionado: " + infoSave, Aparencia::cor(Cor::CIANO));
-            std::cout << "\n";
-            
-            std::vector<std::string> acoesSave = {"Ver Informacoes", "Carregar", "Deletar", "Voltar"};
-            int escAcao = ControleDeInput::lerSelecaoMenuComSetas(acoesSave, true);
-            
-            if (escAcao == 0) {
-                Aparencia::limparTela();
-                TelaMenu::exibirPainelLogoJogo("INFORMACOES DO SAVE", true);
-                
-                std::ifstream arquivoSave(saveSelecionado);
-                if (arquivoSave.is_open()) {
-                    std::string nome, raca, classe;
-                    std::getline(arquivoSave, nome);
-                    std::getline(arquivoSave, raca);
-                    std::getline(arquivoSave, classe);
-                    int nivel, xp, xpMax, vida, ouro, dif, lab;
-                    arquivoSave >> nivel >> xp >> xpMax >> vida >> ouro >> dif >> lab;
-                    
-                    std::vector<std::string> painelInfo = {
-                        "NOME:       " + nome, "RACA:       " + raca, "CLASSE:     " + classe,
-                        "NIVEL:      " + std::to_string(nivel), "XP:         " + std::to_string(xp) + " / " + std::to_string(xpMax),
-                        "VIDA SALVA: " + std::to_string(vida), "OURO:       " + std::to_string(ouro) + "G",
-                        "DIFICULDADE:" + std::string(dif == 1 ? " Facil" : (dif == 2 ? " Normal" : " Dificil"))
-                    };
-                    std::cout << "\n";
-                    Aparencia::imprimirBlocoCentralizado(Aparencia::criarCaixa(painelInfo, "DADOS DO PERSONAGEM", 40, Cor::CIANO));
-                } else {
-                    std::cout << "\n";
-                    Aparencia::imprimirCentralizado("Nao foi possivel ler os dados.", Aparencia::cor(Cor::VERMELHO));
-                }
-                ControleDeInput::aguardarEnter();
-            }
-            else if (escAcao == 1) {
-                auto jogador = Salvamento::carregarJogo(saveSelecionado);
-                if (jogador) {
-                    std::cout << "\n";
-                    Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("Jogo carregado com sucesso!", Cor::AMARELO));
-                    ControleDeInput::aguardarEnter();
-                    return jogador;
-                } else {
-                    std::cout << "\n";
-                    Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("Falha ao carregar o save!", Cor::VERMELHO));
-                    ControleDeInput::aguardarEnter();
-                }
-            }
-            else if (escAcao == 2) {
-                Aparencia::limparTela();
-                TelaMenu::exibirPainelLogoJogo("DELETAR SAVE", true);
-                std::string nomeCorreto = "";
-                std::ifstream arquivoSave(saveSelecionado);
-                if (arquivoSave.is_open()) { std::getline(arquivoSave, nomeCorreto); arquivoSave.close(); }
-                
+        std::unique_ptr<Personagem> charCarregado = nullptr;
+        TelaBase::executarLoop(
+            [](bool animar) { TelaMenu::exibirPainelLogoJogo("OPCOES DO SAVE", animar); },
+            [infoSave]() {
                 std::cout << "\n";
-                Aparencia::imprimirCentralizado("ATENCAO: Esta acao e irreversivel!", Aparencia::cor(Cor::VERMELHO));
-                Aparencia::imprimirCentralizado("Para confirmar a exclusao, digite exatamente o nome do personagem:");
-                std::cout << "\n" << Aparencia::espacosParaCentralizar(nomeCorreto.length() + 2) << "[" << Aparencia::cor(Cor::AMARELO) << nomeCorreto << Aparencia::cor(Cor::RESET) << "]\n";
-                
-                std::string digitado = ControleDeInput::lerEntradaProtegida("> ");
-                if (digitado == nomeCorreto) {
-                    Salvamento::deletarSave(saveSelecionado);
-                    std::cout << "\n";
-                    Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("Save deletado com sucesso!", Cor::VERDE));
-                    ControleDeInput::aguardarEnter();
-                    saveFoiDeletado = true;
-                    break; 
-                } else {
-                    std::cout << "\n";
-                    Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("Nome incorreto. Exclusao cancelada.", Cor::VERMELHO));
+                Aparencia::imprimirCentralizado("Save selecionado: " + infoSave, Aparencia::cor(Cor::CIANO));
+                std::cout << "\n";
+            },
+            []() { return std::vector<std::string>{"Ver Informacoes", "Carregar", "Deletar", "Voltar"}; },
+            [&](int escAcao) {
+                if (escAcao == 0) {
+                    Aparencia::limparTela();
+                    TelaMenu::exibirPainelLogoJogo("INFORMACOES DO SAVE", true);
+                    std::ifstream arquivoSave(saveSelecionado);
+                    if (arquivoSave.is_open()) {
+                        std::string nome, raca, classe;
+                        std::getline(arquivoSave, nome);
+                        std::getline(arquivoSave, raca);
+                        std::getline(arquivoSave, classe);
+                        int nivel, xp, xpMax, vida, ouro, dif, lab;
+                        arquivoSave >> nivel >> xp >> xpMax >> vida >> ouro >> dif >> lab;
+                        
+                        std::vector<std::string> painelInfo = {
+                            "NOME:       " + nome, "RACA:       " + raca, "CLASSE:     " + classe,
+                            "NIVEL:      " + std::to_string(nivel), "XP:         " + std::to_string(xp) + " / " + std::to_string(xpMax),
+                            "VIDA SALVA: " + std::to_string(vida), "OURO:       " + std::to_string(ouro) + "G",
+                            "DIFICULDADE:" + std::string(dif == 1 ? " Facil" : (dif == 2 ? " Normal" : " Dificil"))
+                        };
+                        std::cout << "\n";
+                        Aparencia::imprimirBlocoCentralizado(Aparencia::criarCaixa(painelInfo, "DADOS DO PERSONAGEM", 40, Cor::CIANO));
+                    } else {
+                        std::cout << "\n";
+                        Aparencia::imprimirCentralizado("Nao foi possivel ler os dados.", Aparencia::cor(Cor::VERMELHO));
+                    }
                     ControleDeInput::aguardarEnter();
                 }
+                else if (escAcao == 1) {
+                    charCarregado = Salvamento::carregarJogo(saveSelecionado);
+                    if (charCarregado) {
+                        std::cout << "\n";
+                        Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("Jogo carregado com sucesso!", Cor::AMARELO));
+                        ControleDeInput::aguardarEnter();
+                        return false; 
+                    } else {
+                        std::cout << "\n";
+                        Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("Falha ao carregar o save!", Cor::VERMELHO));
+                        ControleDeInput::aguardarEnter();
+                    }
+                }
+                else if (escAcao == 2) {
+                    Aparencia::limparTela();
+                    TelaMenu::exibirPainelLogoJogo("DELETAR SAVE", true);
+                    std::string nomeCorreto = "";
+                    std::ifstream arquivoSave(saveSelecionado);
+                    if (arquivoSave.is_open()) { std::getline(arquivoSave, nomeCorreto); arquivoSave.close(); }
+                    
+                    std::cout << "\n";
+                    Aparencia::imprimirCentralizado("ATENCAO: Esta acao e irreversivel!", Aparencia::cor(Cor::VERMELHO));
+                    Aparencia::imprimirCentralizado("Para confirmar a exclusao, digite exatamente o nome do personagem:");
+                    std::cout << "\n" << Aparencia::espacosParaCentralizar(nomeCorreto.length() + 2) << "[" << Aparencia::cor(Cor::AMARELO) << nomeCorreto << Aparencia::cor(Cor::RESET) << "]\n";
+                    
+                    std::string digitado = ControleDeInput::lerEntradaProtegida("> ");
+                    if (digitado == nomeCorreto) {
+                        Salvamento::deletarSave(saveSelecionado);
+                        std::cout << "\n";
+                        Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("Save deletado com sucesso!", Cor::VERDE));
+                        ControleDeInput::aguardarEnter();
+                        saveFoiDeletado = true;
+                        return false; 
+                    } else {
+                        std::cout << "\n";
+                        Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("Nome incorreto. Exclusao cancelada.", Cor::VERMELHO));
+                        ControleDeInput::aguardarEnter();
+                    }
+                }
+                else if (escAcao == 3 || escAcao == -1) { return false; }
+                return true;
             }
-            else if (escAcao == 3) { break; }
-        }
-        return nullptr;
+        );
+        return charCarregado;
     }
 
     std::unique_ptr<Personagem> lidarGerenciamentoDeSaves() {
-        bool animar = false;
-        while (true) {
-            auto saves = Salvamento::listarSaves();
-            if (saves.empty()) {
-                Aparencia::limparTela();
-                TelaMenu::exibirPainelLogoJogo("GERENCIAR SAVES", animar);
+        std::unique_ptr<Personagem> charCarregado = nullptr;
+        TelaBase::executarLoop(
+            [](bool animar) { TelaMenu::exibirPainelLogoJogo("GERENCIAR SAVES", animar); },
+            []() {
                 std::cout << "\n";
-                Aparencia::imprimirCentralizado("Nenhum save encontrado.", Aparencia::cor(Cor::AMARELO));
-                ControleDeInput::aguardarEnter();
-                break; 
-            }
-            
-            std::vector<std::string> infoSaves = lerInfoSavesLocal(saves);
-            
-            Aparencia::limparTela();
-            TelaMenu::exibirPainelLogoJogo("GERENCIAR SAVES", animar);
-            animar = false;
-            std::cout << "\n";
-            Aparencia::imprimirCentralizado("Selecione um save para gerenciar:\n");
-            
-            std::vector<std::string> opcoesSave = infoSaves;
-            opcoesSave.push_back("Voltar");
-            int escSave = ControleDeInput::lerSelecaoMenuComSetas(opcoesSave, true);
-            
-            if (escSave >= 0 && escSave < static_cast<int>(saves.size())) {
+                Aparencia::imprimirCentralizado("Selecione um save para gerenciar:\n");
+            },
+            []() {
+                auto saves = Salvamento::listarSaves();
+                std::vector<std::string> opcoesSave = lerInfoSavesLocal(saves);
+                if (opcoesSave.empty()) return std::vector<std::string>{"Nenhum save encontrado. Voltar"};
+                opcoesSave.push_back("Voltar");
+                return opcoesSave;
+            },
+            [&](int escSave) {
+                auto saves = Salvamento::listarSaves();
+                if (saves.empty() || escSave >= static_cast<int>(saves.size()) || escSave == -1) return false;
+                
+                std::vector<std::string> infoSaves = lerInfoSavesLocal(saves);
                 bool saveDeletado = false;
-                auto jogador = lidarOpcoesDoSave(saves[escSave], infoSaves[escSave], saveDeletado);
-                if (jogador) return jogador;
-            } else { break; }
-        }
-        return nullptr;
+                charCarregado = lidarOpcoesDoSave(saves[escSave], infoSaves[escSave], saveDeletado);
+                if (charCarregado) return false;
+                return true;
+            }
+        );
+        return charCarregado;
     }
 
     std::unique_ptr<Personagem> lidarMenuDeOpcoes() {
-        bool animar = false;
-        while (true) {
-            Aparencia::limparTela();
-            TelaMenu::exibirPainelLogoJogo("OPCOES", animar);
-            animar = false;
-            std::cout << "\n";
-            int esc = ControleDeInput::lerSelecaoMenuComSetas({"Gerenciar Saves", "Voltar"}, true);
-            if (esc == 0) {
-                auto jogador = lidarGerenciamentoDeSaves();
-                if (jogador) return jogador;
-            } else if (esc == 1) { break; }
-        }
-        return nullptr;
+        std::unique_ptr<Personagem> charCarregado = nullptr;
+        TelaBase::executarLoop(
+            [](bool animar) { TelaMenu::exibirPainelLogoJogo("OPCOES", animar); },
+            []() { std::cout << "\n"; },
+            []() { return std::vector<std::string>{"Gerenciar Saves", "Voltar"}; },
+            [&](int esc) {
+                if (esc == 0) {
+                    charCarregado = lidarGerenciamentoDeSaves();
+                    if (charCarregado) return false;
+                } else if (esc == 1 || esc == -1) {
+                    return false;
+                }
+                return true;
+            }
+        );
+        return charCarregado;
     }
 }
 
@@ -359,18 +357,15 @@ void MenuJogo::etapaEscolherClasse(const std::string& nome, RacaBase* raca, std:
 
     if (classeTemporaria) 
     {
-        std::vector<std::string> atrDestaque;
         std::string descCombatStyle = "";
         TipoClasse tipo = classeTemporaria->obterTipoClasse();
-        if (tipo == TipoClasse::Guerreiro || tipo == TipoClasse::Arqueiro) atrDestaque = {"Forca", "Destreza"};
-        else if (tipo == TipoClasse::Mago || tipo == TipoClasse::Bardo) atrDestaque = {"Inteligencia", "Sabedoria"};
 
         if (tipo == TipoClasse::Guerreiro) descCombatStyle = "Estilo de combate: Equilibrado em dano e resistencia.";
         else if (tipo == TipoClasse::Bardo) descCombatStyle = "Estilo de combate: Focado em buffs e curas.";
         else if (tipo == TipoClasse::Mago) descCombatStyle = "Estilo de combate: Estilo Glass Cannon.";
         else if (tipo == TipoClasse::Arqueiro) descCombatStyle = "Estilo de combate: Focado em dano critico e desvios.";
 
-        std::vector<std::string> info = TelaMenu::comporQuadroDeAtributos(classeTemporaria->obterAtributosClasse(), "[ ATRIBUTOS BONUS DA CLASSE ]", "[ HABILIDADE PASSIVA DA CLASSE ]", classeTemporaria->obterNomePassivaClasse(), classeTemporaria->obterDescricaoPassivaClasse(), atrDestaque);
+        std::vector<std::string> info = TelaMenu::comporQuadroDeAtributos(classeTemporaria->obterAtributosClasse(), "[ ATRIBUTOS BONUS DA CLASSE ]", "[ HABILIDADE PASSIVA DA CLASSE ]", classeTemporaria->obterNomePassivaClasse(), classeTemporaria->obterDescricaoPassivaClasse());
         
         info.insert(info.begin(), "");
         info.insert(info.begin(), Aparencia::cor(Cor::CINZA) + descCombatStyle + Aparencia::cor(Cor::RESET));

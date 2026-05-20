@@ -98,7 +98,9 @@ int ControleDeInput::lerSelecaoMenuComSetas(const std::vector<std::string>& opco
     
     int maxLargura = 0;
     for (const std::string& op : opcoes) {
-        int comp = Aparencia::obterComprimentoVisual(op);
+        std::string texto = op;
+        if (texto.find("#HEADER#") == 0) texto = texto.substr(8);
+        int comp = Aparencia::obterComprimentoVisual(texto);
         if (comp > maxLargura) maxLargura = comp;
     }
     int larguraMenuEsq = maxLargura + 15; // 3 para " > " + 12 de espacamento
@@ -115,12 +117,21 @@ int ControleDeInput::lerSelecaoMenuComSetas(const std::vector<std::string>& opco
             std::string linhaEsq = "";
             int lenEsqReal = 0;
             if (i < totalOpcoes) {
-                if (i == selecaoAtual) {
-                    linhaEsq = Aparencia::cor(Cor::VERDE) + " > " + opcoes[i] + Aparencia::cor(Cor::RESET);
-                } else {
-                    linhaEsq = "   " + opcoes[i];
+                std::string texto = opcoes[i];
+                bool isHeader = false;
+                if (texto.find("#HEADER#") == 0) {
+                    isHeader = true;
+                    texto = texto.substr(8);
                 }
-                lenEsqReal = Aparencia::obterComprimentoVisual(opcoes[i]) + 3;
+
+                if (isHeader) {
+                    linhaEsq = "   " + texto;
+                } else if (i == selecaoAtual) {
+                    linhaEsq = Aparencia::cor(Cor::VERDE) + " > " + texto + Aparencia::cor(Cor::RESET);
+                } else {
+                    linhaEsq = "   " + texto;
+                }
+                lenEsqReal = Aparencia::obterComprimentoVisual(texto) + 3;
             }
             
             std::string linhaDir = (i < totalDir) ? painelDireito[i] : "";
@@ -143,8 +154,20 @@ int ControleDeInput::lerSelecaoMenuComSetas(const std::vector<std::string>& opco
             else if (proxTecla == 80 || proxTecla == 'B') tecla = 's';
         }
 
-        if (tecla == 'w' || tecla == 'W') { selecaoAtual--; if (selecaoAtual < 0) selecaoAtual = totalOpcoes - 1; }
-        else if (tecla == 's' || tecla == 'S') { selecaoAtual++; if (selecaoAtual >= totalOpcoes) selecaoAtual = 0; }
+        if (tecla == 'w' || tecla == 'W') { 
+            int inicio = selecaoAtual;
+            do {
+                selecaoAtual--; 
+                if (selecaoAtual < 0) selecaoAtual = totalOpcoes - 1; 
+            } while (opcoes[selecaoAtual].find("#HEADER#") == 0 && selecaoAtual != inicio);
+        }
+        else if (tecla == 's' || tecla == 'S') { 
+            int inicio = selecaoAtual;
+            do {
+                selecaoAtual++; 
+                if (selecaoAtual >= totalOpcoes) selecaoAtual = 0; 
+            } while (opcoes[selecaoAtual].find("#HEADER#") == 0 && selecaoAtual != inicio);
+        }
         else if (tecla == '\r' || tecla == '\n') { std::cout << "\033[?25h"; return selecaoAtual; } // Restaura o cursor
 
         std::cout << "\r\033[" << maxLinhas << "A"; // Retorna o cursor para cima a fim de reescrever o texto
@@ -160,9 +183,3 @@ void ControleDeInput::aguardarEnter(const std::string& mensagem) {
         if (c == '\r' || c == '\n') break;
     }
 }
-
-
-
-
-
-

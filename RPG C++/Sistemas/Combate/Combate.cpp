@@ -404,6 +404,7 @@ void Combate::limparInimigosMortos()
                 std::vector<Personagem*> aliadosVivos = obterAliadosVivosRaw();
                 TelaCombate::animarMorteInimigo(obterTituloDoCombate(), obterInimigosRaw(), inimigoPtr.get(), jogadorAtual, aliadosVivos, dropsDaMorte);
             ControleDeInput::aguardarEnter();
+            inimigoPtr->definirMorteAnimada(true);
         }
     }
 

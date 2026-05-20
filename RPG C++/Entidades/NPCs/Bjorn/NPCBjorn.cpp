@@ -14,6 +14,7 @@
 #include "../../../Core/Utilidades/Aparencia.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"
 #include "../../../Core/Controladores/Loja.h"
+#include "../../../Core/Utilidades/FuncoesDialogo.h"
 #include "NPCBjornLayout.h"
 
 namespace {
@@ -38,11 +39,11 @@ namespace {
 
     // --- APARENCIA E DIALOGOS ---
     void dialogoBjorn(const std::string& texto, bool novaLinhaAntes = true, bool novaLinhaDepois = true) {
-        Aparencia::imprimirDialogoNPC("Bjorn", Cor::CIANO, texto, novaLinhaAntes, novaLinhaDepois);
+        FuncoesDialogo::imprimirDialogoNPC("Bjorn", Cor::CIANO, texto, novaLinhaAntes, novaLinhaDepois);
     }
 
     void dialogoBjorn(const std::vector<std::string>& linhas) {
-        Aparencia::imprimirDialogoNPC("Bjorn", Cor::CIANO, linhas);
+        FuncoesDialogo::imprimirDialogoNPC("Bjorn", Cor::CIANO, linhas);
     }
 }
 
@@ -192,9 +193,3 @@ namespace {
         } while (codigoDaArmadura != "0");
     }
 }
-
-
-
-
-
-

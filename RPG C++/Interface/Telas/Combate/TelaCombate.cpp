@@ -415,6 +415,10 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>&
     };
 
     auto formatarFadeOut = [&](Personagem* inimigo, const std::string& textoVisual, const std::string& textoPrint) -> std::pair<std::string, std::string> {
+        if (inimigo->obterMorteAnimada()) {
+            return std::make_pair(std::string(textoVisual.length(), ' '), std::string(textoVisual.length(), ' '));
+        }
+
         if (isMorte && inimigo == alvoAnimacao && frameAnimacao > 0) {
             int maxFrames = static_cast<int>(inimigo->obterRaca()->obterAparenciaCombate().size());
             double progresso = std::min(1.0, static_cast<double>(frameAnimacao) / maxFrames);
@@ -514,7 +518,9 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>&
             Personagem* inimigoAtual = listaDeInimigos[indiceDoInimigoParaDesenhar];
             std::string linhaArte = arteDoInimigo[indiceDaLinhaDaArte];
             
-            if (isMorte && inimigoAtual == alvoAnimacao) {
+            if (inimigoAtual->obterMorteAnimada()) {
+                linhaArte = std::string(visivelLen, ' ');
+            } else if (isMorte && inimigoAtual == alvoAnimacao) {
                 int totalLinhasArte = static_cast<int>(arteDoInimigo.size());
                 if (static_cast<int>(indiceDaLinhaDaArte) >= totalLinhasArte - frameAnimacao) {
                     linhaArte = std::string(visivelLen, ' ');
@@ -646,7 +652,9 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>&
                     linhaConstruida += Aparencia::cor(Cor::RESET);
                     linhaAtual += linhaConstruida;
                 } else {
-                    if (isPiscarColorido) {
+                    if (inimigoAtual->obterMorteAnimada()) {
+                        linhaAtual += linhaArte; // Adiciona espacos vazios
+                    } else if (isPiscarColorido) {
                         linhaAtual += corDestaque + baseLinha + Aparencia::cor(Cor::RESET);
                     } else if (TelaCombate::selecaoAlvoAtual == static_cast<int>(indiceDoInimigoParaDesenhar)) {
                         linhaAtual += (TelaCombate::piscarSelecao ? Aparencia::cor(Cor::AMARELO) : Aparencia::cor(Cor::CINZA)) + baseLinha + Aparencia::cor(Cor::RESET);
@@ -655,7 +663,9 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>&
                     }
                 }
             } else {
-                if (TelaCombate::selecaoAlvoAtual == static_cast<int>(indiceDoInimigoParaDesenhar)) {
+                if (inimigoAtual->obterMorteAnimada()) {
+                    linhaAtual += linhaArte; // Adiciona espacos vazios
+                } else if (TelaCombate::selecaoAlvoAtual == static_cast<int>(indiceDoInimigoParaDesenhar)) {
                     linhaAtual += (TelaCombate::piscarSelecao ? Aparencia::cor(Cor::AMARELO) : Aparencia::cor(Cor::CINZA)) + linhaArte + Aparencia::cor(Cor::RESET);
                 } else {
                     linhaAtual += linhaArte;

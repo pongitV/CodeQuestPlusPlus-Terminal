@@ -29,7 +29,6 @@ public:
     bool estaVazio() const;
     int obterOuro() const;
     int contarItem(const std::string& nomeDoItem) const;
-    bool possuiPocaoDeCura() const;
 
     // Manipulacao do Inventario
     void adicionarOuro(int quantidadeAdicional);

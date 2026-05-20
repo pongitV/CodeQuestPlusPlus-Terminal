@@ -136,8 +136,7 @@ void TelaMenu::exibirPainelLogoJogo(const std::string& tituloDaTela, bool animar
     Aparencia::exibirPainel(tituloDaTela, Cor::BRANCO, ArtesMenu::logoTexto, 140, ArtesMenu::logoPlus, Cor::LARANJA, animarFadeIn);
 }
 
-std::vector<std::string> TelaMenu::comporQuadroDeAtributos(const Atributos& stats, const std::string& tituloSecao, const std::string& tituloHabilidade, const std::string& nomeHab, const std::string& descHab, const std::vector<std::string>& atributosDestaque) {
-    (void)atributosDestaque; // Ignora os destaques anteriores
+std::vector<std::string> TelaMenu::comporQuadroDeAtributos(const Atributos& stats, const std::string& tituloSecao, const std::string& tituloHabilidade, const std::string& nomeHab, const std::string& descHab) {
     auto formatarAtributo = [](const std::string& nomeAtr, int valorAtr) { 
         std::string corVal = Aparencia::cor(Cor::BRANCO);
         

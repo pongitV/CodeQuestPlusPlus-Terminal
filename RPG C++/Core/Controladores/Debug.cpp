@@ -11,6 +11,7 @@
 #include "../Utilidades/ControleDeInput.h"
 #include "../../Sistemas/Progresso/Diario.h"
 #include "../Utilidades/FuncoesDialogo.h"
+#include "../../Interface/Telas/TelaBase.h"
 
 namespace {
     void ativarGodMode(Personagem* jogador) {
@@ -31,36 +32,39 @@ namespace {
     }
 
     void menuDefinirAtributos(Personagem* jogador) {
-        while (true) {
-            Aparencia::limparTela();
-            Aparencia::exibirPainelTexto("DEFINIR ATRIBUTOS (CHEAT)", Cor::AMARELO);
-            
-            auto& attrs = jogador->obterAtributosFinais();
-            std::vector<std::string> opcoesAtr = {
-                "Vida Maxima  : " + std::to_string(attrs.vida), "Forca        : " + std::to_string(attrs.forca),
-                "Destreza     : " + std::to_string(attrs.destreza), "Resistencia  : " + std::to_string(attrs.resistencia),
-                "Constituicao : " + std::to_string(attrs.constituicao), "Inteligencia : " + std::to_string(attrs.inteligencia),
-                "Sabedoria    : " + std::to_string(attrs.sabedoria), "Voltar"
-            };
-            
-            int escolhaAtr = ControleDeInput::lerSelecaoMenuComSetas(opcoesAtr, true);
-            if (escolhaAtr == 7 || escolhaAtr == -1) break;
-            
-            std::string nomeAtr; int* ptrAtr = nullptr;
-            if (escolhaAtr == 0) { nomeAtr = "Vida Maxima"; ptrAtr = &attrs.vida; }
-            else if (escolhaAtr == 1) { nomeAtr = "Forca"; ptrAtr = &attrs.forca; }
-            else if (escolhaAtr == 2) { nomeAtr = "Destreza"; ptrAtr = &attrs.destreza; }
-            else if (escolhaAtr == 3) { nomeAtr = "Resistencia"; ptrAtr = &attrs.resistencia; }
-            else if (escolhaAtr == 4) { nomeAtr = "Constituicao"; ptrAtr = &attrs.constituicao; }
-            else if (escolhaAtr == 5) { nomeAtr = "Inteligencia"; ptrAtr = &attrs.inteligencia; }
-            else if (escolhaAtr == 6) { nomeAtr = "Sabedoria"; ptrAtr = &attrs.sabedoria; }
-            
-            std::cout << "\n";
-            int novoValor = ControleDeInput::lerInteiroComLimites("Defina o novo valor para " + nomeAtr + ": ", 0, 999999, true);
-            *ptrAtr = novoValor;
-            jogador->forcarRecalculoCache();
-            if (escolhaAtr == 0) jogador->definirVida(jogador->obterVidaMaxima());
-        }
+        TelaBase::executarLoopPadrao(
+            "DEFINIR ATRIBUTOS (CHEAT)", Cor::AMARELO,
+            nullptr,
+            [jogador]() {
+                auto& attrs = jogador->obterAtributosFinais();
+                return std::vector<std::string>{
+                    "Vida Maxima  : " + std::to_string(attrs.vida), "Forca        : " + std::to_string(attrs.forca),
+                    "Destreza     : " + std::to_string(attrs.destreza), "Resistencia  : " + std::to_string(attrs.resistencia),
+                    "Constituicao : " + std::to_string(attrs.constituicao), "Inteligencia : " + std::to_string(attrs.inteligencia),
+                    "Sabedoria    : " + std::to_string(attrs.sabedoria), "Voltar"
+                };
+            },
+            [jogador](int escolhaAtr) {
+                if (escolhaAtr == 7 || escolhaAtr == -1) return false;
+                
+                auto& attrs = jogador->obterAtributosFinais();
+                std::string nomeAtr; int* ptrAtr = nullptr;
+                if (escolhaAtr == 0) { nomeAtr = "Vida Maxima"; ptrAtr = &attrs.vida; }
+                else if (escolhaAtr == 1) { nomeAtr = "Forca"; ptrAtr = &attrs.forca; }
+                else if (escolhaAtr == 2) { nomeAtr = "Destreza"; ptrAtr = &attrs.destreza; }
+                else if (escolhaAtr == 3) { nomeAtr = "Resistencia"; ptrAtr = &attrs.resistencia; }
+                else if (escolhaAtr == 4) { nomeAtr = "Constituicao"; ptrAtr = &attrs.constituicao; }
+                else if (escolhaAtr == 5) { nomeAtr = "Inteligencia"; ptrAtr = &attrs.inteligencia; }
+                else if (escolhaAtr == 6) { nomeAtr = "Sabedoria"; ptrAtr = &attrs.sabedoria; }
+                
+                std::cout << "\n";
+                int novoValor = ControleDeInput::lerInteiroComLimites("Defina o novo valor para " + nomeAtr + ": ", 0, 999999, true);
+                *ptrAtr = novoValor;
+                jogador->forcarRecalculoCache();
+                if (escolhaAtr == 0) jogador->definirVida(jogador->obterVidaMaxima());
+                return true;
+            }
+        );
     }
 
     void menuObterItem(Personagem* jogador) {
@@ -105,42 +109,39 @@ namespace {
 }
 
 void Debug::exibirMenuDebug(Personagem* jogador) {
-    bool primeiraVez = true;
-    while (true) {
-        Aparencia::limparTela();
-        Aparencia::exibirPainelTexto("MENU DE DEBUG (CHEAT)", Cor::AMARELO, primeiraVez);
-        primeiraVez = false;
-        
-        std::vector<std::string> opcoesDebug = {
-            "God Mode (Max Atributos - Instakill/Imortal)",
-            "Definir Atributos Livres",
-            "Obter Qualquer Item",
-            "Adicionar Ouro e XP (+10000)",
-            std::string("Noclip (Atravessar paredes): ") + (jogador->isNoclip() ? Aparencia::cor(Cor::VERDE) + "LIGADO" + Aparencia::cor(Cor::RESET) : Aparencia::cor(Cor::VERMELHO) + "DESLIGADO" + Aparencia::cor(Cor::RESET)),
-            "Fechar Debug Menu"
-        };
-
-        std::cout << "\n";
-        int escolhaDebug = ControleDeInput::lerSelecaoMenuComSetas(opcoesDebug, true);
-        
-        if (escolhaDebug == 0) {
-            ativarGodMode(jogador);
-        } else if (escolhaDebug == 1) {
-            menuDefinirAtributos(jogador);
-        } else if (escolhaDebug == 2) {
-            menuObterItem(jogador);
-        } else if (escolhaDebug == 3) {
-            jogador->ganharOuro(10000);
-            jogador->ganharXp(10000);
-            std::cout << "\n";
-            Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("+10000 Ouro e +10000 XP adicionados!", Cor::AMARELO));
-            std::cout << "\n";
-            ControleDeInput::aguardarEnter();
-            
-        } else if (escolhaDebug == 4) {
-            jogador->alternarNoclip();
-        } else if (escolhaDebug == 5 || escolhaDebug == -1) { 
-            break; 
+    TelaBase::executarLoopPadrao(
+        "MENU DE DEBUG (CHEAT)", Cor::AMARELO,
+        nullptr,
+        [jogador]() {
+            return std::vector<std::string>{
+                "God Mode (Max Atributos - Instakill/Imortal)",
+                "Definir Atributos Livres",
+                "Obter Qualquer Item",
+                "Adicionar Ouro e XP (+10000)",
+                std::string("Noclip (Atravessar paredes): ") + (jogador->isNoclip() ? Aparencia::cor(Cor::VERDE) + "LIGADO" + Aparencia::cor(Cor::RESET) : Aparencia::cor(Cor::VERMELHO) + "DESLIGADO" + Aparencia::cor(Cor::RESET)),
+                "Fechar Debug Menu"
+            };
+        },
+        [jogador](int escolhaDebug) {
+            if (escolhaDebug == 0) {
+                ativarGodMode(jogador);
+            } else if (escolhaDebug == 1) {
+                menuDefinirAtributos(jogador);
+            } else if (escolhaDebug == 2) {
+                menuObterItem(jogador);
+            } else if (escolhaDebug == 3) {
+                jogador->ganharOuro(10000);
+                jogador->ganharXp(10000);
+                std::cout << "\n";
+                Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("+10000 Ouro e +10000 XP adicionados!", Cor::AMARELO));
+                std::cout << "\n";
+                ControleDeInput::aguardarEnter();
+            } else if (escolhaDebug == 4) {
+                jogador->alternarNoclip();
+            } else if (escolhaDebug == 5 || escolhaDebug == -1) { 
+                return false; 
+            }
+            return true;
         }
-    }
+    );
 }

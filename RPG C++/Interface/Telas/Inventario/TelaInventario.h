@@ -1,14 +1,15 @@
 #pragma once
 
 #include "../../../Entidades/Personagem.h"
+#include <utility>
+#include <vector>
+#include <string>
 
 class TelaInventario 
 {
 public:
-    static void exibir(Personagem* jogadorAtual, bool mostrarPrecos = false);
-
-    static void exibirMenuInteracaoItem(Item* itemEncontrado);
+    static void exibirCaixaEquipados(Personagem* jogadorAtual);
+    static std::vector<std::pair<std::string, Item*>> obterListaCategoria(Personagem* jogadorAtual, int categoria, bool mostrarPrecos = false);
     static void exibirInspecaoItem(Item* item, Personagem* jogadorAtual = nullptr);
-    static void exibirPrompt(const std::string& mensagem);
-    static Item* lerSelecaoDeItem(Personagem* jogadorAtual, std::string& outCodigoDigitado);
+    static void exibirCabecalhoInventario(bool animar = false);
 };

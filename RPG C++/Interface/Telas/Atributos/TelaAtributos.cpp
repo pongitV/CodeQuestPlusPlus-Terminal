@@ -11,6 +11,7 @@
 #include "../../../Entidades/Classes/ClasseBase.h"
 #include "../../../Core/Utilidades/Aparencia.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"
+#include "../../../Core/Utilidades/FuncoesDialogo.h"
 #include "TelaAtributosLayout.h"
 
 struct EfeitoInfo {
@@ -234,50 +235,42 @@ void TelaAtributos::exibir(Personagem* jogadorAtual)
 void TelaAtributos::gerenciarFichaDoJogador(Personagem* jogadorAtual)
 {
     if (jogadorAtual == nullptr) return;
-    bool continuar = true;
-    do 
-    {
-        TelaAtributos::exibir(jogadorAtual);
-
-        std::vector<std::string> opcoes = { "SUBIR DE NIVEL" };
-        opcoes.push_back("DETALHES DE ATRIBUTOS");
-        opcoes.push_back("VOLTAR");
-
-        std::cout << "\n";
-        int selecao = ControleDeInput::lerSelecaoMenuComSetas(opcoes, true);
-        std::string op = opcoes[selecao];
-
-        if (op == "SUBIR DE NIVEL") {
-            if (!jogadorAtual->podeSubirDeNivel()) {
-                Aparencia::exibirPrompt(Aparencia::cor(Cor::AMARELO) + "[SISTEMA]: Voce nao tem XP suficiente para subir de nivel!" + Aparencia::cor(Cor::RESET));
-                ControleDeInput::aguardarEnter();
-            } else {
-                std::vector<std::string> opcoesAtr = {
-                    "Vida", "Forca", "Destreza", "Resistencia", "Constituicao", "Inteligencia", "Sabedoria", "Cancelar"
-                };
-                std::cout << "\n";
-                Aparencia::imprimirCentralizado("Escolha o atributo para melhorar:");
-                std::cout << "\n";
-                int escolhaAtr = ControleDeInput::lerSelecaoMenuComSetas(opcoesAtr, true);
-                
-                if (escolhaAtr >= 0 && escolhaAtr <= 6) {
-                    TipoAtributo atributo = static_cast<TipoAtributo>(escolhaAtr + 1);
-                    if (jogadorAtual->subirDeNivel(atributo)) {
-                        Aparencia::exibirPrompt("[SISTEMA]: Nivel subiu! Atributo melhorado.");
-                        ControleDeInput::aguardarEnter();
+    TelaBase::executarLoop(
+        nullptr,
+        [jogadorAtual]() {
+            TelaAtributos::exibir(jogadorAtual);
+        },
+        []() {
+            return std::vector<std::string>{ "SUBIR DE NIVEL", "DETALHES DE ATRIBUTOS", "VOLTAR" };
+        },
+        [jogadorAtual](int selecao) {
+            if (selecao == 0) {
+                if (!jogadorAtual->podeSubirDeNivel()) {
+                    Aparencia::exibirPrompt(FuncoesDialogo::formatarMsgSistema("Voce nao tem XP suficiente para subir de nivel!", Cor::AMARELO));
+                    ControleDeInput::aguardarEnter();
+                } else {
+                    std::vector<std::string> opcoesAtr = {
+                        "Vida", "Forca", "Destreza", "Resistencia", "Constituicao", "Inteligencia", "Sabedoria", "Cancelar"
+                    };
+                    std::cout << "\n";
+                    Aparencia::imprimirCentralizado("Escolha o atributo para melhorar:");
+                    std::cout << "\n";
+                    int escolhaAtr = ControleDeInput::lerSelecaoMenuComSetas(opcoesAtr, true);
+                    
+                    if (escolhaAtr >= 0 && escolhaAtr <= 6) {
+                        TipoAtributo atributo = static_cast<TipoAtributo>(escolhaAtr + 1);
+                        if (jogadorAtual->subirDeNivel(atributo)) {
+                            Aparencia::exibirPrompt(FuncoesDialogo::formatarMsgSistema("Nivel subiu! Atributo melhorado.", Cor::VERDE));
+                            ControleDeInput::aguardarEnter();
+                        }
                     }
                 }
+            } else if (selecao == 1) {
+                exibirDetalhesAtributos(jogadorAtual);
+            } else if (selecao == 2 || selecao == -1) {
+                return false;
             }
-        } else if (op == "DETALHES DE ATRIBUTOS") {
-            exibirDetalhesAtributos(jogadorAtual);
-        } else if (op == "VOLTAR") {
-            continuar = false;
+            return true;
         }
-    } while (continuar);
+    );
 }
-
-
-
-
-
-

@@ -1,27 +1,55 @@
 #include "TelaBase.h"
+#include "../../Core/Utilidades/ControleDeInput.h"
 #include "../../Entidades/Personagem.h"
 #include "../../Entidades/Racas/RacaBase.h"
 #include "../../Entidades/Classes/ClasseBase.h"
 #include "../../Sistemas/Inventario/Inventario.h"
+#include <iostream>
 
-std::vector<std::string> TelaBase::comporEstatisticasBatalha(Personagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido, int curaTotalRecebida, int turnosCombate) 
+void TelaBase::executarLoop(
+    const std::function<void(bool)>& renderCabecalho,
+    const std::function<void()>& renderConteudo,
+    const std::function<std::vector<std::string>()>& construtorOpcoesMenu,
+    const std::function<bool(int)>& processarEscolha,
+    bool centralizarMenu,
+    const std::string& margemMenu)
 {
-    return {
-        "NOME:           " + jogadorAtual->obterNome(),
-        "RACA:           " + jogadorAtual->obterRaca()->obterNomeRaca(),
-        "CLASSE:         " + jogadorAtual->obterNomeClasse(),
-        "HP RESTANTE:    " + std::to_string(jogadorAtual->obterVida()) + "/" + std::to_string(jogadorAtual->obterVidaMaxima()),
-        "OURO TOTAL:     " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G",
-        "NIVEL:          " + std::to_string(jogadorAtual->obterNivel()) + " (XP: " + std::to_string(jogadorAtual->obterXpAtual()) + "/" + std::to_string(jogadorAtual->obterXpParaSubir()) + ")",
-        "",
-        "═══ ESTATISTICAS DA BATALHA ═══",
-        "OURO OBTIDO:   +" + std::to_string(quantidadeDeOuroObtido) + "G",
-        "XP OBTIDO:     +" + std::to_string(quantidadeDeXpObtido) + " XP",
-        "DANO TOTAL CAUSADO:   " + std::to_string(totalDeDanoCausado),
-        "DANO TOTAL RECEBIDO:  " + std::to_string(totalDeDanoRecebido),
-        "CURA TOTAL RECEBIDA:  " + std::to_string(curaTotalRecebida),
-        "NUMERO DE TURNOS:         " + std::to_string(turnosCombate)
-    };
+    bool primeiraVez = true;
+    while (true) {
+        Aparencia::limparTela();
+        
+        if (renderCabecalho) {
+            renderCabecalho(primeiraVez);
+            primeiraVez = false;
+        }
+
+        if (renderConteudo) {
+            renderConteudo();
+        }
+
+        std::vector<std::string> opcoes = construtorOpcoesMenu();
+        std::cout << "\n";
+        int escolha = ControleDeInput::lerSelecaoMenuComSetas(opcoes, centralizarMenu, margemMenu);
+        
+        if (!processarEscolha(escolha)) {
+            break;
+        }
+    }
+}
+
+void TelaBase::executarLoopPadrao(
+    const std::string& titulo,
+    Cor corTema,
+    const std::function<void()>& renderConteudo,
+    const std::function<std::vector<std::string>()>& construtorOpcoesMenu,
+    const std::function<bool(int)>& processarEscolha)
+{
+    executarLoop(
+        [titulo, corTema](bool animar) { Aparencia::exibirPainelTexto(titulo, corTema, animar); },
+        renderConteudo,
+        construtorOpcoesMenu,
+        processarEscolha
+    );
 }
 
 bool TelaBase::deveAnimarEntradaDaTela(std::chrono::steady_clock::time_point& ultimoAcesso, int delayMilissegundos) {
@@ -30,9 +58,3 @@ bool TelaBase::deveAnimarEntradaDaTela(std::chrono::steady_clock::time_point& ul
     ultimoAcesso = agora;
     return animar;
 }
-
-
-
-
-
-

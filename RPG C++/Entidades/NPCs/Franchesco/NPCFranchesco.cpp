@@ -13,6 +13,7 @@
 #include "../../../Core/Utilidades/Aparencia.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"
 #include "../../../Core/Controladores/Loja.h"
+#include "../../../Core/Utilidades/FuncoesDialogo.h"
 #include "NPCFranchescoLayout.h"
 
 namespace {
@@ -38,11 +39,11 @@ namespace {
     void processarVendaDeItens(Personagem* jogadorAtual);
 
     void dialogoFranchesco(const std::string& texto, bool novaLinhaAntes = true, bool novaLinhaDepois = true) {
-        Aparencia::imprimirDialogoNPC("Franchesco", Cor::AMARELO, texto, novaLinhaAntes, novaLinhaDepois);
+        FuncoesDialogo::imprimirDialogoNPC("Franchesco", Cor::AMARELO, texto, novaLinhaAntes, novaLinhaDepois);
     }
 
     void dialogoFranchesco(const std::vector<std::string>& linhas) {
-        Aparencia::imprimirDialogoNPC("Franchesco", Cor::AMARELO, linhas);
+        FuncoesDialogo::imprimirDialogoNPC("Franchesco", Cor::AMARELO, linhas);
     }
 }
 
@@ -139,9 +140,3 @@ namespace {
         } while (codigoVenda != "0");
     }
 }
-
-
-
-
-
-

@@ -5,44 +5,42 @@
 #include "../../Sistemas/Inventario/FabricaItens.h"
 #include "../Utilidades/ControleDeInput.h"
 #include "../../Sistemas/Progresso/Diario.h"
+#include "../../Interface/Telas/TelaBase.h"
 
 void Loja::processarCompra(Personagem* jogadorAtual, const std::string& tituloLoja, Cor corLoja, 
                                       std::map<int, ProdutoLoja>& estoqueAtual, 
                                       const std::function<void(const std::string&)>& exibirDialogoNPC, 
                                       const std::function<std::string(ItemID)>& formatadorNomeExtra) {
-    std::string opcaoCompra;
-    bool primeiraVez = true;
-    do {
-        Aparencia::limparTela();
-        Aparencia::exibirPainelTexto(tituloLoja, corLoja, primeiraVez);
-        primeiraVez = false;
-        
-        std::vector<std::string> linhas = {
-            "Seu Ouro: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G", ""
-        };
-
-        int maxId = 0;
-        for (auto const& [id, produto] : estoqueAtual) {
-            if (id > maxId) maxId = id;
-            std::string nomeItem = FabricaItens::obterNomeDeID(produto.idItem);
-            if (formatadorNomeExtra) nomeItem += formatadorNomeExtra(produto.idItem);
+    TelaBase::executarLoopPadrao(
+        tituloLoja, corLoja,
+        [jogadorAtual]() {
+            std::cout << "\n";
+            Aparencia::imprimirCentralizado("Seu Ouro: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G", Aparencia::cor(Cor::AMARELO));
+            std::cout << "\n";
+        },
+        [&estoqueAtual, formatadorNomeExtra]() {
+            std::vector<std::string> opcoes;
+            for (auto const& [id, produto] : estoqueAtual) {
+                std::string nomeItem = FabricaItens::obterNomeDeID(produto.idItem);
+                if (formatadorNomeExtra) nomeItem += formatadorNomeExtra(produto.idItem);
+                
+                std::string preco = std::to_string(produto.preco) + "G";
+                std::string estoqueInfo = (produto.quantidade == -1) ? "" : (produto.quantidade == 0 ? " (Esgotado)" : " (Estoque: " + std::to_string(produto.quantidade) + ")");
+                
+                opcoes.push_back(nomeItem + " - " + preco + estoqueInfo);
+            }
+            opcoes.push_back("VOLTAR");
+            return opcoes;
+        },
+        [&](int escolha) {
+            if (escolha == -1 || escolha == static_cast<int>(estoqueAtual.size())) {
+                return false;
+            }
             
-            std::string preco = std::to_string(produto.preco) + "G";
-            std::string estoqueInfo = (produto.quantidade == -1) ? "" : (produto.quantidade == 0 ? " (Esgotado)" : " (Estoque: " + std::to_string(produto.quantidade) + ")");
-            
-            linhas.push_back("[" + std::to_string(id) + "] " + nomeItem + " - " + preco + estoqueInfo);
-        }
-        linhas.push_back("");
-        linhas.push_back("[0] VOLTAR");
+            auto it = estoqueAtual.begin();
+            std::advance(it, escolha);
+            auto& produto = it->second;
 
-        std::cout << "\n";
-        Aparencia::imprimirBlocoCentralizado(linhas);
-        std::cout << "\n";
-        int id = ControleDeInput::lerInteiroComLimites("Escolha: ", 0, maxId, true);
-        opcaoCompra = std::to_string(id);
-
-        if (opcaoCompra != "0" && estoqueAtual.find(id) != estoqueAtual.end()) {
-            auto& produto = estoqueAtual[id];
             if (produto.quantidade == 0) {
                 exibirDialogoNPC("Este item esta esgotado!");
             } else {
@@ -63,12 +61,7 @@ void Loja::processarCompra(Personagem* jogadorAtual, const std::string& tituloLo
                 }
             }
             ControleDeInput::aguardarEnter();
+            return true;
         }
-    } while (opcaoCompra != "0");
+    );
 }
-
-
-
-
-
-

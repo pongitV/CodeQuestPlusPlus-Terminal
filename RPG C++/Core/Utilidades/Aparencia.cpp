@@ -333,6 +333,19 @@ void Aparencia::imprimirDigitando(const std::string& texto, int atrasoMs, bool a
     std::cout << std::flush;
 
     for (; i < texto.length(); ++i) {
+        // Processa codigos ANSI inteiros instantaneamente para nao corromper a string se o usuario pular
+        if (texto[i] == '\033') {
+            size_t startAnsi = i;
+            if (i + 1 < texto.length() && texto[i+1] == '[') {
+                i += 2;
+                while (i < texto.length() && !(texto[i] >= 0x40 && texto[i] <= 0x7E)) {
+                    i++;
+                }
+                std::cout << texto.substr(startAnsi, i - startAnsi + 1) << std::flush;
+                continue;
+            }
+        }
+
         if (ControleDeInput::teclaPressionada()) { 
             char tecla = ControleDeInput::lerTecla(); 
             if (tecla == 'k' || tecla == 'K') { 

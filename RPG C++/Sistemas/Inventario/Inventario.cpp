@@ -19,13 +19,6 @@ int Inventario::contarItem(const std::string& nomeDoItem) const
     return it != contagemItens_.end() ? it->second : 0;
 }
 
-bool Inventario::possuiPocaoDeCura() const 
-{
-    return std::any_of(listaDeItens.begin(), listaDeItens.end(), [](const std::unique_ptr<Item>& item) 
-    {
-        return item->temPropriedade(Propriedade::ConsumivelCura);
-    });
-}
 
 void Inventario::adicionarOuro(int quantidadeAdicional) 
 { 
@@ -125,9 +118,3 @@ Item* Inventario::buscarItemPorCodigo(const std::string& codigoDigitado, Item* a
         default:  return nullptr;
     }
 }
-
-
-
-
-
-

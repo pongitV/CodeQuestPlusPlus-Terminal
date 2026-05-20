@@ -14,6 +14,8 @@
 #include "../../../Core/Utilidades/ControleDeInput.h"
 #include "../../../Sistemas/Inventario/Equipamentos/EquipamentoArma.h"
 #include "../../../Core/Controladores/Loja.h"
+#include "../../../Core/Utilidades/FuncoesDialogo.h"
+#include "../../../Interface/Telas/TelaBase.h"
 #include "NPCMorganaLayout.h"
 
 namespace {
@@ -105,11 +107,11 @@ namespace {
     void processarMenuMissoes(Personagem* jogadorAtual);
 
     void dialogoMorgana(const std::string& texto, bool novaLinhaAntes = true, bool novaLinhaDepois = true) {
-        Aparencia::imprimirDialogoNPC("Morgana", Cor::MAGENTA, texto, novaLinhaAntes, novaLinhaDepois);
+        FuncoesDialogo::imprimirDialogoNPC("Morgana", Cor::MAGENTA, texto, novaLinhaAntes, novaLinhaDepois);
     }
 
     void dialogoMorgana(const std::vector<std::string>& linhas) {
-        Aparencia::imprimirDialogoNPC("Morgana", Cor::MAGENTA, linhas);
+        FuncoesDialogo::imprimirDialogoNPC("Morgana", Cor::MAGENTA, linhas);
     }
 }
 
@@ -167,60 +169,55 @@ void NPCMorgana::processarOpcao(Personagem* jogador, const std::string& opcao, i
 namespace {
     // --- PROCESSAMENTO DE OPCOES ---
     void processarEncantamentos(Personagem* jogadorAtual, bool isUniversal) {
-        std::string opcaoEncantar;
-        do {
-            Aparencia::limparTela();
-            Aparencia::exibirPainelTexto(isUniversal ? "CABANA - ENCANTOS UNIVERSAIS" : "CABANA - ENCANTOS ESPECIFICOS", Cor::MAGENTA);
-            
-            std::vector<std::string> linhas;
-            if (isUniversal) {
-                linhas.push_back("[1] Sangramento (40x Dente de Goblin)");
-                linhas.push_back("[2] Lentidao (5x Nucleo pegajoso)");
-                linhas.push_back("[3] Quebra de Resistencia (25x Po magico)");
-            } else {
-                linhas.push_back("[1] Arco recurvo de madeira: Magia (1x Madeira enfeiticada)");
-                linhas.push_back("[2] Cajado de cristal magico: Cipos (1x Coracao da floresta)");
-                linhas.push_back("[3] Violao encantado: Raizes (1x Madeira enfeiticada)");
-            }
-            linhas.push_back("");
-            linhas.push_back("[0] VOLTAR");
-            
-            std::cout << "\n";
-            Aparencia::imprimirBlocoCentralizado(linhas);
-            std::cout << "\n";
-            int id = ControleDeInput::lerInteiroComLimites("Escolha: ", 0, 3, true);
-            opcaoEncantar = std::to_string(id);
+        TelaBase::executarLoopPadrao(
+            isUniversal ? "CABANA - ENCANTOS UNIVERSAIS" : "CABANA - ENCANTOS ESPECIFICOS", Cor::MAGENTA,
+            nullptr,
+            [isUniversal]() {
+                std::vector<std::string> linhas;
+                if (isUniversal) {
+                    linhas.push_back("Sangramento (40x Dente de Goblin)");
+                    linhas.push_back("Lentidao (5x Nucleo pegajoso)");
+                    linhas.push_back("Quebra de Resistencia (25x Po magico)");
+                } else {
+                    linhas.push_back("Arco recurvo de madeira: Magia (1x Madeira enfeiticada)");
+                    linhas.push_back("Cajado de cristal magico: Cipos (1x Coracao da floresta)");
+                    linhas.push_back("Violao encantado: Raizes (1x Madeira enfeiticada)");
+                }
+                linhas.push_back("VOLTAR");
+                return linhas;
+            },
+            [&](int id) {
+                if (id == 3 || id == -1) return false;
 
-            if (opcaoEncantar != "0") {
-                int index = (isUniversal ? 0 : 3) + (opcaoEncantar[0] - '1');
+                int index = (isUniversal ? 0 : 3) + id;
                 const auto& op = operacoesDeEncantamento[index];
                 
                 std::string itemNecessario = FabricaItens::obterNomeDeID(op.materialId);
                 if (!InteracaoNPC::verificarMaterialNoInventario(jogadorAtual, itemNecessario, op.qtd, "Morgana", Cor::MAGENTA)) {
-                    continue;
+                    return true;
                 }
                 
                 std::string codigoArma;
                 Item* itemEscolhido = InteracaoNPC::lerItemDoInventario(jogadorAtual, "Escolha a ARMA para encantar ou [0] VOLTAR: ", "Morgana", Cor::MAGENTA, codigoArma);
-                if (codigoArma == "0") continue;
-                if (!itemEscolhido) continue;
+                if (codigoArma == "0") return true;
+                if (!itemEscolhido) return true;
                 
                 EquipamentoArma* armaEscolhida = dynamic_cast<EquipamentoArma*>(itemEscolhido);
-                if (!armaEscolhida) { dialogoMorgana("Eu so posso encantar ARMAS com isso!"); ControleDeInput::aguardarEnter(); continue; }
+                if (!armaEscolhida) { dialogoMorgana("Eu so posso encantar ARMAS com isso!"); ControleDeInput::aguardarEnter(); return true; }
                 
                 if (op.armaRestritaId != ItemID::Nenhum) {
                     std::string nomeRestrito = FabricaItens::obterNomeDeID(op.armaRestritaId);
                     if (armaEscolhida->obterNomeItem().find(nomeRestrito) == std::string::npos) {
                         dialogoMorgana("Este encantamento so funciona no " + nomeRestrito + "!");
                         ControleDeInput::aguardarEnter();
-                        continue;
+                        return true;
                     }
                 }
                 
                 if (op.checarConflito(armaEscolhida)) {
                     dialogoMorgana(op.msgConflito);
                     ControleDeInput::aguardarEnter();
-                    continue;
+                    return true;
                 }
                 
                 std::string nomeAntigoArma = armaEscolhida->obterNomeItem();
@@ -230,8 +227,9 @@ namespace {
                 
                 std::string equacao = "[" + nomeAntigoArma + "] + " + std::to_string(op.qtd) + "x [" + itemNecessario + "] = [" + novoNome + "]";
                 InteracaoNPC::exibirTelaDeSucesso("ENCANTAMENTO SUCESSO", Cor::MAGENTA, equacao, NPCMorganaLayouts::arteCaldeirao, "Morgana", "Feito! A magia flui pela sua arma...");
+                return true;
             }
-        } while (opcaoEncantar != "0");
+        );
     }
 
     void processarPocoes(Personagem* jogadorAtual, bool isBuff) {
@@ -266,38 +264,32 @@ namespace {
     }
 
     void processarMenuMissoes(Personagem* jogadorAtual) {
-        std::string opcaoMissao;
-        do {
-            Aparencia::limparTela();
-            Aparencia::exibirPainelTexto("MISSOES DE MORGANA", Cor::MAGENTA);
-            
-            std::vector<std::string> missoes;
-            if (!jogadorAtual->obterLabirintoDesbloqueado()) {
-                missoes.push_back("[M] Consiga 3x Coracoes da floresta");
-            } else {
-                missoes.push_back("(Nenhuma missao disponivel)");
+        TelaBase::executarLoopPadrao(
+            "MISSOES DE MORGANA", Cor::MAGENTA,
+            []() {
+                std::cout << "\n";
+                Aparencia::imprimirCentralizado("Escolha uma missao:");
+                std::cout << "\n";
+            },
+            [jogadorAtual]() {
+                std::vector<std::string> missoes;
+                if (!jogadorAtual->obterLabirintoDesbloqueado()) {
+                    missoes.push_back("[M] Consiga 3x Coracoes da floresta");
+                } else {
+                    missoes.push_back("(Nenhuma missao disponivel)");
+                }
+                missoes.push_back("VOLTAR");
+                return missoes;
+            },
+            [&](int id) {
+                if (!jogadorAtual->obterLabirintoDesbloqueado() && id == 0) {
+                    processarMissaoLabirinto(jogadorAtual);
+                } else if (jogadorAtual->obterLabirintoDesbloqueado() && id == 0) {
+                    dialogoMorgana("Nao busco mais nada de voce no momento...");
+                    ControleDeInput::aguardarEnter();
+                } else if (id == 1 || id == -1) { return false; }
+                return true;
             }
-            missoes.push_back("VOLTAR");
-            
-            std::cout << "\n";
-            Aparencia::imprimirCentralizado("Escolha uma missao:");
-            std::cout << "\n";
-            
-            int id = ControleDeInput::lerSelecaoMenuComSetas(missoes);
-            opcaoMissao = missoes[id];
-            
-            if (opcaoMissao == "[M] Consiga 3x Coracoes da floresta") {
-                processarMissaoLabirinto(jogadorAtual);
-            } else if (opcaoMissao == "(Nenhuma missao disponivel)") {
-                dialogoMorgana("Nao busco mais nada de voce no momento...");
-                ControleDeInput::aguardarEnter();
-            }
-        } while (opcaoMissao != "VOLTAR");
+        );
     }
 }
-
-
-
-
-
-

@@ -28,13 +28,12 @@ Personagem::Personagem(std::string nome, std::unique_ptr<RacaBase> racaEscolhida
     this->arma = nullptr;
     this->escudo = nullptr;
     this->armadura = nullptr;
+    this->consumivelRapido = nullptr;
     this->itemSelecionadoParaUso = nullptr;
-    this->ouroRecompensa = Constantes::OURO_RECOMPENSA_INICIAL;
     
     this->nivel = 1;
     this->xpAtual = 0;
     this->xpParaSubir = Constantes::XP_BASE_PARA_SUBIR;
-    this->xpRecompensa = 0;
 
     auto receberEEquiparKit = [this](std::vector<std::unique_ptr<Item>> kit) {
         for (auto& itemUnique : kit) {
@@ -240,6 +239,7 @@ void Personagem::equiparItem(Item* item)
             }
         }
     }
+    else if (item->obterTipo() == TipoEquipamento::CONSUMIVEL) this->consumivelRapido = item;
     cache_.sujo = true;
 }
 
@@ -379,9 +379,3 @@ void Personagem::finalizarBatalha() {
         ControleDeInput::aguardarEnter();
     }
 }
-
-
-
-
-
-
