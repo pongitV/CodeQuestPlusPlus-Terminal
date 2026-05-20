@@ -224,6 +224,7 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
         int larguraArte = 0;
         std::vector<std::string> arteTrans;
         int larguraTrans = 0;
+        std::function<void()> acaoNarracao = nullptr;
 
         if (tituloDoMapaAtual == "VILA INICIAL") {
             arteTitulo = Mapa1VilaLayouts::obterLogoVila();
@@ -233,9 +234,24 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
         } else if (tituloDoMapaAtual == "CAMINHO DO INICIO") {
             arteTitulo = Mapa1VilaLayouts::obterLogoSpawn();
             larguraArte = 105;
+            if (matrizDoMapaDoSpawnSalva.empty()) {
+                acaoNarracao = []() {
+                    std::cout << "\n\n";
+                    std::vector<std::string> dialogoInicio = {
+                        "[NARRACAO]: Voce desperta nos arredores de um lugar desconhecido...",
+                        "[NARRACAO]: Na sua vista, uma pequena vila sendo atacada por monstros.",
+                        "[NARRACAO]: Empunhando seu equipamento, voce sente que seu destino o aguarda.",
+                        "[NARRACAO]: Um novo capitulo se inicia agora."
+                    };
+                    Aparencia::imprimirBlocoCentralizadoDigitando(dialogoInicio);
+                    std::cout << "\n";
+                    Aparencia::imprimirCentralizado("Pressione ENTER para iniciar...");
+                    ControleDeInput::aguardarEnter("");
+                };
+            }
         }
         
-        linhaInicialParaDesenharOMapa = ControleMapa::animarIntroducaoMapa(tituloDoMapaAtual, arteTitulo, larguraArte, arteTrans, larguraTrans, Cor::AMARELO, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, true);
+        linhaInicialParaDesenharOMapa = ControleMapa::animarIntroducaoMapa(tituloDoMapaAtual, arteTitulo, larguraArte, arteTrans, larguraTrans, Cor::AMARELO, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, true, acaoNarracao);
         precisaRenderizar = false;
     };
 

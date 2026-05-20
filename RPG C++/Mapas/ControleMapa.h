@@ -1,11 +1,11 @@
 #pragma once
 
 #include "../Sistemas/SistemaPersonagem.h"
-#include "../Utilidades/Aparencia.h"
 #include <functional>
 #include <string>
 #include <vector>
 #include <memory>
+#include "../Utilidades/Aparencia.h"
 
 class ControleMapa 
 {
@@ -42,8 +42,8 @@ public:
         int posicaoXDoJogador,
         int posicaoYDoJogador,
         const std::function<std::string(char, int, int)>& formatadorCelula,
-        bool animar = true
-    );
+        bool animar = true,
+        const std::function<void()>& acaoAposFadeInArte = nullptr);
 
     static void calcularCameraVertical(int alturaDoTerminal, int linhaInicial, int posicaoYDoJogador, int tamanhoDoMapa, int& startY, int& endY);
     static void calcularCameraHorizontal(int larguraDoTerminal, int posicaoXDoJogador, int larguraDoMapa, int& startX, int& endX);

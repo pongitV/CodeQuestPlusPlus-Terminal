@@ -9,6 +9,7 @@
 #include "../Gerenciadores/GerenciadorDebug.h"
 #include "../Utilidades/ControleDeInput.h"
 #include "../Utilidades/GeradorAleatorio.h"
+#include "../Utilidades/Aparencia.h"
 #include <iostream>
 #include <algorithm>
 #include <thread>
@@ -216,7 +217,8 @@ int ControleMapa::animarIntroducaoMapa(
     int posicaoXDoJogador,
     int posicaoYDoJogador,
     const std::function<std::string(char, int, int)>& formatadorCelula,
-    bool animar
+    bool animar,
+    const std::function<void()>& acaoAposFadeInArte
 ) {
     Aparencia::limparTela();
     Aparencia::ocultarCursor();
@@ -275,7 +277,11 @@ int ControleMapa::animarIntroducaoMapa(
         std::cout << "\033[H" << buffer.str() << std::flush;
     });
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    if (acaoAposFadeInArte) {
+        acaoAposFadeInArte();
+    } else {
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    }
 
     // 2. A tela desce (Scroll down)
     int linhasParaDescer = 5;
@@ -306,6 +312,12 @@ int ControleMapa::animarIntroducaoMapa(
 
     ControleDeInput::limparBuffer();
     
+    return linhaInicialMapa;
+    }
+
+    Aparencia::exibirPainelTexto(tituloDoMapa, corTema);
+    int linhaInicialMapa = Aparencia::obterPosicaoCursorY();
+    renderizarMapa(matrizDoMapa, posicaoXDoJogador, posicaoYDoJogador, larguraTerminal, alturaTerminal, linhaInicialMapa, formatadorCelula);
     return linhaInicialMapa;
 }
 

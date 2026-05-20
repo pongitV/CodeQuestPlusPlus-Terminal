@@ -454,20 +454,4 @@ void TelaMenu::exibirIntroducaoJornada(const std::string& infoBox) {
         Aparencia::imprimirBlocoCentralizado(avisoSave);
 
     ControleDeInput::aguardarEnter();
-
-    std::cout << "\033[?25l";
-        Aparencia::limparTela();
-        exibirPainelLogoJogo("INICIO DA JORNADA");
-        if (infoBox.empty()) std::cout << "\n";
-        else exibirInfoBox(infoBox);
-
-    std::vector<std::string> dialogoInicio = {
-        "[NARRACAO]: Voce desperta nos arredores de um lugar desconhecido...",
-        "[NARRACAO]: Na sua vista, uma pequena vila sendo atacada por monstros.",
-        "[NARRACAO]: Empunhando seu equipamento, voce sente que seu destino o aguarda.",
-        "[NARRACAO]: Um novo capitulo se inicia agora."
-    };
-    
-    Aparencia::imprimirBlocoCentralizadoDigitando(dialogoInicio);
-    ControleDeInput::aguardarEnter("Pressione ENTER para iniciar...");
 }
