@@ -34,9 +34,9 @@ public:
     void decrementarTurno() { turnosRestantes--; }
     bool expirou() const { return turnosRestantes <= 0; }
     
-    virtual void aoEntrar(Personagem* alvo) {}
-    virtual void aplicarInicioTurno(Personagem* alvo) {}
-    virtual void aoSair(Personagem* alvo) {}
+    virtual void aoEntrar(Personagem* /*alvo*/) {}
+    virtual void aplicarInicioTurno(Personagem* /*alvo*/) {}
+    virtual void aoSair(Personagem* /*alvo*/) {}
     
     virtual int processarDanoRecebido(int dano) { return dano; }
     virtual bool impedeAcao() const { return false; }

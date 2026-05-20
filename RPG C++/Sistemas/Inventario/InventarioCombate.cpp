@@ -49,7 +49,8 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
             
             if (offset == 1 && escolha == 0) {
                 Item* rapido = jogadorAtual->obterConsumivelRapido();
-                int countAntes = jogadorAtual->obterInventario()->contarItem(rapido->obterNomeItem());
+                std::string nomeRapido = rapido->obterNomeItem(); // Salva o nome antes do item ser deletado
+                int countAntes = jogadorAtual->obterInventario()->contarItem(nomeRapido);
                 if (countAntes > 0) {
                     bool consumiu = false;
                     processarUsoDeItem(jogadorAtual, rapido, turnoFoiConsumido ? &consumiu : nullptr);
@@ -58,7 +59,7 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
                     if (jogadorAtual->obterItemSelecionadoParaUso() != nullptr) {
                         return false; 
                     }
-                    if (jogadorAtual->obterInventario()->contarItem(rapido->obterNomeItem()) == 0) {
+                    if (jogadorAtual->obterInventario()->contarItem(nomeRapido) == 0) {
                         jogadorAtual->desequiparConsumivel();
                     }
                 } else {
@@ -148,6 +149,7 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
                                     }
                                     
                                     if (itemAtual) {
+                                        bool ehEquipavel = itemAtual->isEquipavel(); // Salva a informacao antes de consumir
                                         int countAntes = jogadorAtual->obterInventario()->contarItem(nomeItem);
                                         bool turnoLocal = false;
                                         processarUsoDeItem(jogadorAtual, itemAtual, turnoFoiConsumido ? &turnoLocal : nullptr);
@@ -162,7 +164,7 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
                                         }
                                         
                                         int countDepois = jogadorAtual->obterInventario()->contarItem(nomeItem);
-                                        if (countDepois == countAntes && !itemAtual->isEquipavel()) {
+                                        if (countDepois == countAntes && !ehEquipavel) {
                                             break;
                                         }
                                     }

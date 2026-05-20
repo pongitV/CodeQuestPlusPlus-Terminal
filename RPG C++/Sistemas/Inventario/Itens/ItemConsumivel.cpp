@@ -15,7 +15,7 @@ std::string ItemConsumivel::obterNomeItem() const { return nome; }
 
 TipoEquipamento ItemConsumivel::obterTipo() const { return TipoEquipamento::CONSUMIVEL; }
 
-std::vector<std::string> ItemConsumivel::obterDetalhesInspecao(Personagem* personagem) const {
+std::vector<std::string> ItemConsumivel::obterDetalhesInspecao(Personagem* /*personagem*/) const {
     std::vector<std::string> detalhes;
     detalhes.push_back(" > Tipo: Consumivel");
     if (!descricaoInspecao.empty()) {
@@ -43,6 +43,18 @@ std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
             int curaReal = vidaDepois - vidaAntes;
             std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE) << "[SISTEMA]: " << item->obterNomeItem() << " usada! +" << curaReal << " HP. (Vida atual: " << vidaDepois << "/" << usuario->obterVidaMaxima() << ")" << Aparencia::cor(Cor::RESET) << "\n";
             Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERDE) + "[SISTEMA]: " + item->obterNomeItem() + " usada! +" + std::to_string(curaReal) + " HP." + Aparencia::cor(Cor::RESET));
+            
+            if (usuario->obterConsumivelRapido() == item) {
+                usuario->desequiparConsumivel();
+                std::string nomeDesteItem = item->obterNomeItem();
+                for (auto* outroItem : usuario->obterInventario()->obterTodosOsItens()) {
+                    if (outroItem != item && outroItem->obterNomeItem() == nomeDesteItem) {
+                        usuario->equiparItem(outroItem);
+                        break;
+                    }
+                }
+            }
+
             usuario->obterInventario()->removerItem(item);
             if (turnoFoiConsumido) *turnoFoiConsumido = true;
             return true;
@@ -58,6 +70,18 @@ std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
             usuario->alterarAtributoEstatico(buffAtr, 5);
             usuario->alterarAtributoEstatico(debuffAtr, -5);
             std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << item->obterNomeItem() << " consumido!\n";
+            
+            if (usuario->obterConsumivelRapido() == item) {
+                usuario->desequiparConsumivel();
+                std::string nomeDesteItem = item->obterNomeItem();
+                for (auto* outroItem : usuario->obterInventario()->obterTodosOsItens()) {
+                    if (outroItem != item && outroItem->obterNomeItem() == nomeDesteItem) {
+                        usuario->equiparItem(outroItem);
+                        break;
+                    }
+                }
+            }
+
             usuario->obterInventario()->removerItem(item);
             if (turnoFoiConsumido) *turnoFoiConsumido = true;
             return true;
@@ -75,6 +99,18 @@ std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
             usuario->definirMultiplicador(1.5);
             std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE_CLARO) << "[SISTEMA]: " << item->obterNomeItem() << " consumida! Atributos ampliados em 1.5x por 2 turnos!" << Aparencia::cor(Cor::RESET) << "\n";
             Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERDE_CLARO) + "[SISTEMA]: " + item->obterNomeItem() + " consumida! Atributos ampliados em 1.5x por 2 turnos!" + Aparencia::cor(Cor::RESET));
+            
+            if (usuario->obterConsumivelRapido() == item) {
+                usuario->desequiparConsumivel();
+                std::string nomeDesteItem = item->obterNomeItem();
+                for (auto* outroItem : usuario->obterInventario()->obterTodosOsItens()) {
+                    if (outroItem != item && outroItem->obterNomeItem() == nomeDesteItem) {
+                        usuario->equiparItem(outroItem);
+                        break;
+                    }
+                }
+            }
+
             usuario->obterInventario()->removerItem(item);
             *turnoFoiConsumido = true;
             return true;
@@ -95,7 +131,7 @@ std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
                 usuario->definirItemSelecionadoParaUso(item);
                 return true;
             });
-            debuff->definirAcaoUsar([](Personagem* usuario, Personagem* alvo) {
+            debuff->definirAcaoUsar([](Personagem* /*usuario*/, Personagem* alvo) {
                 if (!Personagem::isValido(alvo) || alvo->obterVida() <= 0) return;
                 alvo->adicionarEfeito(std::make_unique<EfeitoLentidao>(3));
             TelaCombate::adicionarMensagemFixa("\n" + Aparencia::margemCombate() + Aparencia::cor(Cor::MAGENTA) + ">> Voce jogou o frasco! " + alvo->obterNome() + " esta com lentidao por 3 turnos!" + Aparencia::cor(Cor::RESET) + "\n");
@@ -111,7 +147,7 @@ std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
                 usuario->definirItemSelecionadoParaUso(item);
                 return true;
             });
-            debuff->definirAcaoUsar([](Personagem* usuario, Personagem* alvo) {
+            debuff->definirAcaoUsar([](Personagem* /*usuario*/, Personagem* alvo) {
                 if (!Personagem::isValido(alvo) || alvo->obterVida() <= 0) return;
                 alvo->adicionarEfeito(std::make_unique<EfeitoFraqueza>(3));
             TelaCombate::adicionarMensagemFixa("\n" + Aparencia::margemCombate() + Aparencia::cor(Cor::VERMELHO) + ">> Voce jogou o frasco! " + alvo->obterNome() + " teve sua forca reduzida em 25% por 3 turnos!" + Aparencia::cor(Cor::RESET) + "\n");
@@ -129,6 +165,9 @@ std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
                     usuario->desbloquearRegeneracaoTroll();
                     usuario->modificarVida(usuario->obterVidaMaxima());
                     std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE) << "[SISTEMA]: " << item->obterNomeItem() << " consumido! Voce agora curara 100% do seu HP apos cada combate!" << Aparencia::cor(Cor::RESET) << "\n";
+                    
+                    if (usuario->obterConsumivelRapido() == item) usuario->desequiparConsumivel();
+                    
                     usuario->obterInventario()->removerItem(item);
                 }
                 if (turnoFoiConsumido) *turnoFoiConsumido = true;
@@ -145,9 +184,3 @@ std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
     if (it != construtores.end()) return it->second();
     return nullptr;
 }
-
-
-
-
-
-

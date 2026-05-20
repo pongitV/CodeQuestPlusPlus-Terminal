@@ -8,7 +8,7 @@ ItemMissao::ItemMissao(std::string nome, int preco) : Item(preco), nome(nome) {}
 std::string ItemMissao::obterNomeItem() const { return nome; }
 TipoEquipamento ItemMissao::obterTipo() const { return TipoEquipamento::MISSAO; }
 
-std::vector<std::string> ItemMissao::obterDetalhesInspecao(Personagem* personagem) const {
+std::vector<std::string> ItemMissao::obterDetalhesInspecao(Personagem* /*personagem*/) const {
     std::vector<std::string> detalhes;
     detalhes.push_back(" > Tipo: Item de Missao");
     if (!descricaoInspecao.empty()) {
@@ -31,9 +31,3 @@ std::unique_ptr<Item> fabricarItemMissao(ItemID id) {
     if (it != construtores.end()) return it->second();
     return nullptr;
 }
-
-
-
-
-
-

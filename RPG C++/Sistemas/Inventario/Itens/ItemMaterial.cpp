@@ -12,7 +12,7 @@ ItemMaterial::ItemMaterial(std::string nome, int preco) : Item(preco), nome(nome
 std::string ItemMaterial::obterNomeItem() const { return nome; }
 TipoEquipamento ItemMaterial::obterTipo() const { return TipoEquipamento::MATERIAL; }
 
-std::vector<std::string> ItemMaterial::obterDetalhesInspecao(Personagem* personagem) const {
+std::vector<std::string> ItemMaterial::obterDetalhesInspecao(Personagem* /*personagem*/) const {
     std::vector<std::string> linhas;
     linhas.push_back(" > Tipo: Material");
     
@@ -45,9 +45,3 @@ std::unique_ptr<Item> fabricarItemMaterial(ItemID id) {
     if (it != construtores.end()) return it->second();
     return nullptr;
 }
-
-
-
-
-
-

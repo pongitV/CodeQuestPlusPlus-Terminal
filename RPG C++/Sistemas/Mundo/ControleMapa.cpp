@@ -209,9 +209,9 @@ void ControleMapa::moverInimigosAleatoriamente(std::vector<std::string>& matrizD
 int ControleMapa::animarIntroducaoMapa(
     const std::string& tituloDoMapa,
     const std::vector<std::string>& arteDoMapa,
-    int larguraArte,
+    int /*larguraArte*/,
     const std::vector<std::string>& arteTransicao,
-    int larguraTransicao,
+    int /*larguraTransicao*/,
     Cor corTema,
     const std::vector<std::string>& matrizDoMapa,
     int posicaoXDoJogador,
@@ -241,7 +241,7 @@ int ControleMapa::animarIntroducaoMapa(
     }
 
     // 1. Fade In do Titulo (1.5s = 15 frames x 100ms)
-    Aparencia::animarFadeIn(15, 100, [&](int frame, int intensidade) {
+    Aparencia::animarFadeIn(15, 100, [&](int /*frame*/, int intensidade) {
         std::ostringstream buffer;
         std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
 
@@ -377,7 +377,7 @@ void ControleMapa::executarLoopDeExploracao(
     int& posicaoXDoJogador,
     int& posicaoYDoJogador,
     bool& exploracaoEstaAtiva,
-    const std::string& tituloDoMapaAtual,
+    const std::string& /*tituloDoMapaAtual*/,
     const std::function<std::string()>& obterSimbolosInimigos,
     const std::function<std::vector<std::string>()>& obterLayoutOriginal,
     const std::function<void(int, int, int)>& processarInteracao,
@@ -429,10 +429,3 @@ void ControleMapa::executarLoopDeExploracao(
         }
     }
 }
-
-
-
-
-
-
-

@@ -143,6 +143,8 @@ bool Combate::executarTurnoJogadorOuAliado(Personagem* personagem, bool& primeir
         exibirTelaDeCombate(primeiraRenderizacao);
         primeiraRenderizacao = false;
         processarMenuDeAcoesDoJogador(personagem, turnoConsumido, usouInventario);
+        
+        limparInimigosMortos();
         if (verificarCondicaoDeVitoriaOuDerrota()) return true; 
     }
 
@@ -271,8 +273,6 @@ void Combate::processarAcaoAtacar(Personagem* personagemAgindo, bool& turnoFoiCo
         realizarAtaqueFisico(personagemAgindo, listaDeInimigos[indiceDoAlvoEscolhido].get(), contadorDoTurnoAtual);
         turnoFoiConsumido = true;
     }
-
-    limparInimigosMortos();
 }
 
 Item* Combate::selecionarEscudo(Personagem* personagemAgindo) 
@@ -363,14 +363,23 @@ void Combate::processarAcaoInventario(Personagem* personagemAgindo, bool& turnoF
             
             itemSelecionado->usar(personagemAgindo, alvo);
             
+            if (personagemAgindo->obterConsumivelRapido() == itemSelecionado) {
+                personagemAgindo->desequiparConsumivel();
+                std::string nomeDesteItem = itemSelecionado->obterNomeItem();
+                for (auto* outroItem : personagemAgindo->obterInventario()->obterTodosOsItens()) {
+                    if (outroItem != itemSelecionado && outroItem->obterNomeItem() == nomeDesteItem) {
+                        personagemAgindo->equiparItem(outroItem);
+                        break;
+                    }
+                }
+            }
+            
             personagemAgindo->obterInventario()->removerItem(itemSelecionado);
             personagemAgindo->definirItemSelecionadoParaUso(nullptr);
             turnoFoiConsumido = true;
             usouInventarioNoTurno = true;
             stats_itensConsumidos++;
         }
-        exibirTelaDeCombate();
-        ControleDeInput::aguardarEnter();
     }
 }
 

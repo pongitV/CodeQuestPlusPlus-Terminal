@@ -89,28 +89,28 @@ public:
     virtual void definirDescricaoInspecao(const std::vector<std::string>& desc) { descricaoInspecao = desc; }
     virtual void definirDescricaoInspecao(const std::string& desc) { descricaoInspecao = {desc}; }
 
-    virtual bool podeSerEquipadoPor(Personagem* personagem) const { return true; }
+    virtual bool podeSerEquipadoPor(Personagem* /*personagem*/) const { return true; }
     virtual bool isEquipavel() const { return false; }
     virtual std::string obterMensagemRequisito() const { return "\n[SISTEMA]: Atributos insuficientes para equipar " + obterNomeItem() + "!\n"; }
     
-    virtual std::vector<std::string> obterDetalhesInspecao(Personagem* personagem = nullptr) const {
+    virtual std::vector<std::string> obterDetalhesInspecao(Personagem* /*personagem*/ = nullptr) const {
         std::vector<std::string> detalhes;
         detalhes.push_back(" > Tipo: Desconhecido");
         detalhes.push_back(" > Descricao: Nenhuma informacao disponivel.");
         return detalhes;
     }
 
-    virtual void alterarNome(const std::string& n) {}
+    virtual void alterarNome(const std::string& /*n*/) {}
     virtual bool possuiEfeitoSangramento() const { return false; }
     virtual bool possuiEfeitoLentidao() const { return false; }
     virtual void aplicarEfeitoSangramento() {}
     virtual void aplicarEfeitoLentidao() {}
 
-    virtual void reduzirDurabilidade(int qtd) {}
-    virtual void aumentarDurabilidade(int qtd) {}
+    virtual void reduzirDurabilidade(int /*qtd*/) {}
+    virtual void aumentarDurabilidade(int /*qtd*/) {}
     
-    virtual void antesDeCausarDano(Personagem* atacante, Personagem* alvo) {}
-    virtual void aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCausado) {}
+    virtual void antesDeCausarDano(Personagem* /*atacante*/, Personagem* /*alvo*/) {}
+    virtual void aoCausarDano(Personagem* /*atacante*/, Personagem* /*alvo*/, int /*danoCausado*/) {}
     virtual int garantirDanoMinimo(int danoFinal) { return std::max(danoFinal, 1); }
 
     virtual int obterPrecoVenda() const { return precoVenda; }

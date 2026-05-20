@@ -58,7 +58,7 @@ public:
     virtual bool habilidadeConsomeTurno() const { return true; }
 
 protected:
-    void notificarMensagemCombate(const std::string& msgComCor, const std::string& msgSemCor) const {
+    void notificarMensagemCombate(const std::string& msgComCor, const std::string& /*msgSemCor*/) const {
         // A mensagem na UI foi removida para priorizar o combate limpo
         // std::string msgFinal = Aparencia::margemCombate() + msgComCor + "\n";
         // TelaCombate::adicionarMensagemFixa(msgFinal);
@@ -127,6 +127,6 @@ protected:
         }
     }
 
-    virtual int processarDanoPreAtaque(Personagem* atacante, Personagem* defensor, int danoBase, bool isAtacanteJogador, size_t qtdInimigos) { return danoBase; }
-    virtual void processarDanoPosAtaque(Personagem* atacante, Personagem* alvoAtual, Personagem* defensorPrincipal, int danoBase, int danoPerfurante, const std::function<void(Personagem*, Personagem*, int, int)>& aplicarDano, bool isAtacanteJogador, bool isArea, bool& ativouPassiva) {}
+    virtual int processarDanoPreAtaque(Personagem* /*atacante*/, Personagem* /*defensor*/, int danoBase, bool /*isAtacanteJogador*/, size_t /*qtdInimigos*/) { return danoBase; }
+    virtual void processarDanoPosAtaque(Personagem* /*atacante*/, Personagem* /*alvoAtual*/, Personagem* /*defensorPrincipal*/, int /*danoBase*/, int /*danoPerfurante*/, const std::function<void(Personagem*, Personagem*, int, int)>& /*aplicarDano*/, bool /*isAtacanteJogador*/, bool /*isArea*/, bool& /*ativouPassiva*/) {}
 };

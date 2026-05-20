@@ -99,7 +99,7 @@ ProximaTransicaoMapa Mapa3Reino::iniciarLoopDeExploracao()
         }
     };
 
-    interacoes['G'] = [&](int px, int py, int larg) {
+    interacoes['G'] = [&](int /*px*/, int /*py*/, int larg) {
         Aparencia::limparTela();
         Aparencia::exibirPainelTexto("GUARDA REAL", Cor::CIANO);
         int espacosM = (larg - 60) / 2;
