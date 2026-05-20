@@ -21,37 +21,15 @@ Mapa3Reino::Mapa3Reino(Personagem* personagemJogador) :
     posicaoYDoJogador(33),
     jogadorAtual(personagemJogador), 
     exploracaoEstaAtiva(true), 
-    tituloDoMapaAtual("CAMINHO DO CASTELO")
+    tituloDoMapaAtual("CAMINHO DO CASTELO"),
+    proximoMapa(ProximaTransicaoMapa::Nenhuma)
 {
     matrizDoMapaAtual = Mapa3ReinoLayouts::obterLayoutReino();
 }
 
 Mapa3Reino::~Mapa3Reino() = default;
 
-namespace {
-    std::vector<std::string> obterArteTransicaoReino() {
-        return {
-            "                  |>>>                        |>>>",
-            "                    |                           |",
-            "                _  _|_  _                   _  _|_  _",
-            "               | |_| |_| |                 | |_| |_| |",
-            "               \\  .      /                 \\ .    .  /",
-            "                \\    ,  /                   \\    .  /",
-            "                 | .   |_   _   _   _   _   _| ,   |",
-            "                 |    .| |_| |_| |_| |_| |_| |  .  |",
-            "                 | ,   | .    .     .      . |    .|",
-            "                 |   . |  .     . .   .  ,   |.    |",
-            "     ___----_____| .   |.   ,  _______   .   |   , |---~_____",
-            "_---~            |     |  .   /+++++++\\    . | .   |         ~---_",
-            "                 |.    | .    |+++++++| .    |   . |              ~-_",
-            "              __ |   . |   ,  |+++++++|.  . _|__   |                 ~-_",
-            "     ____--`~    '--~~__ .    |++++ __|----~    ~`---,              ___^~-__",
-            "-~--~                   ~---__|,--~'                  ~~----_____-~'   `~----~"
-        };
-    }
-}
-
-void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
+ProximaTransicaoMapa Mapa3Reino::iniciarLoopDeExploracao()
 {
     bool trollDerrotado = false;
     bool conviteRecebido = false;
@@ -83,7 +61,7 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
         if (tituloDoMapaAtual == "CAMINHO DO CASTELO") {
             arteTitulo = Mapa3ReinoLayouts::obterLogoReino();
             larguraArte = 60;
-            arteTrans = obterArteTransicaoReino();
+            arteTrans = Mapa3ReinoLayouts::obterArteTransicaoReino();
             larguraTrans = 75;
         }
 
@@ -112,10 +90,12 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
                 std::cout << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: A historia continua em breve...\n";
                 ControleDeInput::aguardarEnter();
                 exploracaoEstaAtiva = false;
+                proximoMapa = ProximaTransicaoMapa::VoltarMenu;
             }
         }
         else if (nextCell == 'F') {
             exploracaoEstaAtiva = false;
+            proximoMapa = ProximaTransicaoMapa::Floresta;
         }
     };
 
@@ -135,40 +115,28 @@ void Mapa3Reino::iniciarLoopDeExploracaoDoMapa()
     interacoes['T'] = interagirCavaleiro;
     interacoes['C'] = interagirCavaleiro;
 
-    while (exploracaoEstaAtiva && jogadorAtual->obterVida() > 0)
-    {
-        int larguraDoTerminal = Aparencia::obterLarguraTerminal();
-        int alturaDoTerminal = Aparencia::obterAlturaTerminal();
-
-
-        ControleMapa::renderizarMapa(matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, larguraDoTerminal, alturaDoTerminal, linhaInicialParaDesenharOMapa, formatador);
-
-        char teclaPressionadaPeloJogador = ControleDeInput::lerTecla();
-
-        int proximaPosicaoX = posicaoXDoJogador;
-        int proximaPosicaoY = posicaoYDoJogador;
-
-        bool abriuMenu = ControleMapa::processarInputEComandos(teclaPressionadaPeloJogador, jogadorAtual, proximaPosicaoX, proximaPosicaoY, restaurarTela);
-        
-        if (jogadorAtual->obterVoltarProMenu()) break;
-        if (abriuMenu) continue;
-
-        ControleMapa::aplicarLimitesDeMapa(proximaPosicaoX, proximaPosicaoY, matrizDoMapaAtual);
-
-        char celulaDestino = matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX];
-
+    auto processarInteracao = [&](int px, int py, int larg) {
+        char celulaDestino = matrizDoMapaAtual[py][px];
         auto it = interacoes.find(celulaDestino);
         if (it != interacoes.end()) {
-            it->second(proximaPosicaoX, proximaPosicaoY, larguraDoTerminal);
+            it->second(px, py, larg);
         } else if ((celulaDestino != '#' && celulaDestino != '=' && celulaDestino != '|' && celulaDestino != '[' && celulaDestino != ']' && celulaDestino != 'A' && celulaDestino != 'S' && celulaDestino != 'E' && celulaDestino != 'L' && celulaDestino != 'O' && celulaDestino != ' ') || jogadorAtual->isNoclip()) {
-            posicaoXDoJogador = proximaPosicaoX;
-            posicaoYDoJogador = proximaPosicaoY;
+            posicaoXDoJogador = px;
+            posicaoYDoJogador = py;
         }
+    };
+
+    bool precisaRenderizar = true;
+    ControleMapa::executarLoopDeExploracao(
+        jogadorAtual, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador,
+        exploracaoEstaAtiva, tituloDoMapaAtual, []() { return ""; },
+        []() -> std::vector<std::string> { return {}; },
+        processarInteracao, formatador, restaurarTela,
+        linhaInicialParaDesenharOMapa, precisaRenderizar
+    );
+
+    if (jogadorAtual->obterVida() <= 0 || jogadorAtual->obterVoltarProMenu()) {
+        return ProximaTransicaoMapa::VoltarMenu;
     }
+    return proximoMapa;
 }
-
-
-
-
-
-

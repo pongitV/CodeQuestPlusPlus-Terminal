@@ -371,6 +371,66 @@ void ControleMapa::renderizarMapa(const std::vector<std::string>& matrizDoMapa, 
     std::cout << "\n" << margemEsquerdaControles << textoDeControles << std::flush;
 }
 
+void ControleMapa::executarLoopDeExploracao(
+    Personagem* jogadorAtual,
+    std::vector<std::string>& matrizDoMapaAtual,
+    int& posicaoXDoJogador,
+    int& posicaoYDoJogador,
+    bool& exploracaoEstaAtiva,
+    const std::string& tituloDoMapaAtual,
+    const std::function<std::string()>& obterSimbolosInimigos,
+    const std::function<std::vector<std::string>()>& obterLayoutOriginal,
+    const std::function<void(int, int, int)>& processarInteracao,
+    const std::function<std::string(char, int, int)>& formatador,
+    const std::function<void()>& restaurarTela,
+    int& linhaInicialParaDesenharOMapa,
+    bool& precisaRenderizar
+) {
+    auto ultimoMovimentoInimigos = std::chrono::steady_clock::now();
+
+    while (exploracaoEstaAtiva && jogadorAtual->obterVida() > 0)
+    {
+        auto agora = std::chrono::steady_clock::now();
+        bool tempoDeMoverInimigos = std::chrono::duration_cast<std::chrono::milliseconds>(agora - ultimoMovimentoInimigos).count() >= 800;
+
+        if (tempoDeMoverInimigos) {
+            ControleMapa::moverInimigosAleatoriamente(matrizDoMapaAtual, obterLayoutOriginal(), obterSimbolosInimigos(), posicaoXDoJogador, posicaoYDoJogador);
+            ultimoMovimentoInimigos = std::chrono::steady_clock::now();
+            precisaRenderizar = true;
+        }
+
+        int larguraDoTerminal = Aparencia::obterLarguraTerminal();
+        
+        if (precisaRenderizar) {
+            int alturaDoTerminal = Aparencia::obterAlturaTerminal();
+
+            ControleMapa::renderizarMapa(matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, larguraDoTerminal, alturaDoTerminal, linhaInicialParaDesenharOMapa, formatador);
+
+            precisaRenderizar = false;
+        }
+
+        if (ControleDeInput::teclaPressionada()) {
+            char teclaPressionadaPeloJogador = ControleDeInput::lerTecla();
+
+            int proximaPosicaoX = posicaoXDoJogador;
+            int proximaPosicaoY = posicaoYDoJogador;
+
+            bool abriuMenu = ControleMapa::processarInputEComandos(teclaPressionadaPeloJogador, jogadorAtual, proximaPosicaoX, proximaPosicaoY, restaurarTela);
+            
+            if (jogadorAtual->obterVoltarProMenu()) break;
+            if (abriuMenu) continue;
+
+            ControleMapa::aplicarLimitesDeMapa(proximaPosicaoX, proximaPosicaoY, matrizDoMapaAtual);
+            processarInteracao(proximaPosicaoX, proximaPosicaoY, larguraDoTerminal);
+            
+            precisaRenderizar = true;
+        } else {
+            std::this_thread::sleep_for(std::chrono::milliseconds(30));
+        }
+    }
+}
+
+
 
 
 

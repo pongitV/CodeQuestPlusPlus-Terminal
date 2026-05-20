@@ -37,7 +37,7 @@ class Item;
 class ClasseBase 
 {
 public:
-    virtual ~ClasseBase() {}
+    virtual ~ClasseBase() = default;
 
     // INFORMACOES DA CLASSE
     virtual std::string obterNomeClasse() const = 0;

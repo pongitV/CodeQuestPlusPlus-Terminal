@@ -8,7 +8,7 @@
 #include "../../../Entidades/Personagem.h"
 #include "../MapaInteracao.h"
 
-class Mapa2Floresta 
+class Mapa2Floresta final : public IMapa 
 {
 public:
     std::vector<std::string> matrizDoMapaAtual;
@@ -20,7 +20,7 @@ public:
     int posicaoXSalvaAntesDeEntrarNoSubMapa;
     int posicaoYSalvaAntesDeEntrarNoSubMapa;
     bool jogadorEstaDentroDeUmSubMapa;
-
+ 
     std::vector<std::string> matrizDoMapaDoCoracaoDaArvoreSalva;
     std::vector<std::string> matrizDoMapaDaCabanaSalva;
     std::vector<std::string> matrizDoMapaDoLabirintoSalva;
@@ -31,13 +31,17 @@ public:
     bool salaDoChefeJaFoiVisitada;
     bool exploracaoEstaAtiva;
     std::string tituloDoMapaAtual;
+    ProximaTransicaoMapa proximoMapa;
 
     std::unordered_map<char, std::unique_ptr<InteracaoFloresta>> interacoes;
 
 public:
-    Mapa2Floresta(Personagem* personagemJogador);
-    ~Mapa2Floresta();
-    void iniciarLoopDeExploracaoDoMapa();
+    explicit Mapa2Floresta(Personagem* personagemJogador);
+    ~Mapa2Floresta() override;
+    
+    std::string obterTitulo() const override { return tituloDoMapaAtual; }
+    ProximaTransicaoMapa iniciarLoopDeExploracao() override;
+
 private:
     void inicializarInteracoes();
 };

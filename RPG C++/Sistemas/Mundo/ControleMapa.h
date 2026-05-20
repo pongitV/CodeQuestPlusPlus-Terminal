@@ -51,4 +51,20 @@ public:
     static void padronizarTamanhoDoMapa(std::vector<std::string>& matrizDoMapa);
 
     static void renderizarMapa(const std::vector<std::string>& matrizDoMapa, int posicaoXDoJogador, int posicaoYDoJogador, int larguraDoTerminal, int alturaDoTerminal, int linhaInicial, const std::function<std::string(char, int, int)>& formatadorCelula);
+
+    static void executarLoopDeExploracao(
+        Personagem* jogadorAtual,
+        std::vector<std::string>& matrizDoMapaAtual,
+        int& posicaoXDoJogador,
+        int& posicaoYDoJogador,
+        bool& exploracaoEstaAtiva,
+        const std::string& tituloDoMapaAtual,
+        const std::function<std::string()>& obterSimbolosInimigos,
+        const std::function<std::vector<std::string>()>& obterLayoutOriginal,
+        const std::function<void(int, int, int)>& processarInteracao,
+        const std::function<std::string(char, int, int)>& formatador,
+        const std::function<void()>& restaurarTela,
+        int& linhaInicialParaDesenharOMapa,
+        bool& precisaRenderizar
+    );
 };

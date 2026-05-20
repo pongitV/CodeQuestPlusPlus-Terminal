@@ -1,6 +1,23 @@
 #pragma once
 
 #include <functional>
+#include <string>
+
+enum class ProximaTransicaoMapa {
+    Nenhuma,
+    VoltarMenu,
+    Vila,
+    Floresta,
+    Reino
+};
+
+class IMapa {
+public:
+    virtual ~IMapa() = default;
+    virtual std::string obterTitulo() const = 0;
+    virtual ProximaTransicaoMapa iniciarLoopDeExploracao() = 0;
+};
+
 
 class Mapa2Floresta;
 struct ContextoInteracaoFloresta {

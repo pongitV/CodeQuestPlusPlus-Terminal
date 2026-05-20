@@ -9,7 +9,7 @@
 #include "../../../Entidades/Personagem.h"
 #include "../MapaInteracao.h"
 
-class Mapa1Vila 
+class Mapa1Vila final : public IMapa 
 {
 public:
     std::vector<std::string> matrizDoMapaAtual;
@@ -39,11 +39,16 @@ public:
     bool cavernaJaFoiVisitada;
     bool spawnJaFoiVisitado;
 
-public:
-    Mapa1Vila(Personagem* personagemJogador);
-    ~Mapa1Vila();
+    ProximaTransicaoMapa proximoMapa;
+    bool veioDaFloresta;
 
-    void iniciarLoopDeExploracaoDoMapa1Vila();
+public:
+    explicit Mapa1Vila(Personagem* personagemJogador);
+    ~Mapa1Vila() override;
+
+    std::string obterTitulo() const override { return tituloDoMapaAtual; }
+    ProximaTransicaoMapa iniciarLoopDeExploracao() override;
+
 private:
     void inicializarInteracoes();
 };

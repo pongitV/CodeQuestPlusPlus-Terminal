@@ -1,4 +1,6 @@
 #include <iostream>
+#include <memory>
+#include <array>
 
 #ifdef _WIN32
     #include <windows.h>
@@ -13,6 +15,8 @@
 #include "Entidades/Classes/Mago.h"
 #include "Core/Controladores/MenuJogo.h"
 #include "Sistemas/Mundo/Vila/Mapa1Vila.h"
+#include "Sistemas/Mundo/Floresta/Mapa2Floresta.h"
+#include "Sistemas/Mundo/Reino/Mapa3Reino.h"
 #include "Entidades/Racas/Anao.h"
 #include "Entidades/Racas/Elfo.h"
 #include "Entidades/Racas/Humano.h"
@@ -21,23 +25,24 @@
 #include "Core/Utilidades/Aparencia.h"
 
 // Funcao para garantir que o jogo rode como Administrador
-bool garantirAdmin() 
+bool garantirAdmin() noexcept 
 {
 #ifdef _WIN32
     if (!IsUserAnAdmin()) 
     {
-        char caminho[MAX_PATH];
-        GetModuleFileNameA(NULL, caminho, MAX_PATH);
-
-        SHELLEXECUTEINFOA sei = { sizeof(sei) };
-        sei.lpVerb = "runas"; // Comando para elevar privilegios
-        sei.lpFile = caminho;
-        sei.hwnd = NULL;
-        sei.nShow = SW_NORMAL;
-
-        if (ShellExecuteExA(&sei)) 
+        std::array<char, MAX_PATH> caminho{};
+        if (GetModuleFileNameA(nullptr, caminho.data(), MAX_PATH) != 0) 
         {
-            return true; // Sucesso ao abrir nova instancia, fechar a atual
+            SHELLEXECUTEINFOA sei = { sizeof(sei) };
+            sei.lpVerb = "runas"; // Comando para elevar privilegios
+            sei.lpFile = caminho.data();
+            sei.hwnd = nullptr;
+            sei.nShow = SW_NORMAL;
+
+            if (ShellExecuteExA(&sei)) 
+            {
+                return true; // Sucesso ao abrir nova instancia, fechar a atual
+            }
         }
     }
 #endif
@@ -47,12 +52,16 @@ bool garantirAdmin()
 // --- PADRAO STATE PARA O FLUXO DO JOGO ---
 class Jogo;
 
+struct ContextoJogo {
+    std::unique_ptr<Personagem> jogador;
+};
+
 class EstadoJogo {
 public:
     virtual ~EstadoJogo() = default;
-    virtual void onEnter(Jogo& jogo) {}
-    virtual void executar(Jogo& jogo) = 0;
-    virtual void onExit(Jogo& jogo) {}
+    virtual void onEnter(Jogo& jogo, ContextoJogo& ctx) {}
+    virtual void executar(Jogo& jogo, ContextoJogo& ctx) = 0;
+    virtual void onExit(Jogo& jogo, ContextoJogo& ctx) {}
 };
 
 class Jogo {
@@ -60,27 +69,29 @@ private:
     std::unique_ptr<EstadoJogo> estadoAtual;
     std::unique_ptr<EstadoJogo> proximoEstado;
     bool mudancaPendente = false;
-    std::unique_ptr<Personagem> jogadorAtual;
+    ContextoJogo contexto;
+
 public:
-    Jogo(std::unique_ptr<EstadoJogo> estadoInicial) : estadoAtual(std::move(estadoInicial)) {
-    }
+    explicit Jogo(std::unique_ptr<EstadoJogo> estadoInicial) noexcept 
+        : estadoAtual(std::move(estadoInicial)) {}
     
-    void mudarEstado(std::unique_ptr<EstadoJogo> novoEstado) { 
+    void mudarEstado(std::unique_ptr<EstadoJogo> novoEstado) noexcept { 
         proximoEstado = std::move(novoEstado);
         mudancaPendente = true;
     }
-    void definirJogador(std::unique_ptr<Personagem> jogador) { jogadorAtual = std::move(jogador); }
-    Personagem* obterJogador() const { return jogadorAtual.get(); }
+
+    ContextoJogo& obterContexto() noexcept { return contexto; }
+    const ContextoJogo& obterContexto() const noexcept { return contexto; }
     
     void rodar() {
-        if (estadoAtual) estadoAtual->onEnter(*this);
+        if (estadoAtual) estadoAtual->onEnter(*this, contexto);
         while (estadoAtual) {
-            estadoAtual->executar(*this);
+            estadoAtual->executar(*this, contexto);
             
             if (mudancaPendente) {
-                if (estadoAtual) estadoAtual->onExit(*this);
+                if (estadoAtual) estadoAtual->onExit(*this, contexto);
                 estadoAtual = std::move(proximoEstado);
-                if (estadoAtual) estadoAtual->onEnter(*this);
+                if (estadoAtual) estadoAtual->onEnter(*this, contexto);
                 mudancaPendente = false;
             }
         }
@@ -89,38 +100,69 @@ public:
 
 class EstadoMenu; // Forward declaration
 
-class EstadoExploracao : public EstadoJogo {
+class EstadoExploracao final : public EstadoJogo {
 public:
-    void executar(Jogo& jogo) override;
-    void onExit(Jogo& jogo) override;
+    void executar(Jogo& jogo, ContextoJogo& ctx) override;
+    void onExit(Jogo& jogo, ContextoJogo& ctx) override;
 };
 
-class EstadoMenu : public EstadoJogo {
+class EstadoMenu final : public EstadoJogo {
 public:
-    void executar(Jogo& jogo) override {
+    void executar(Jogo& jogo, ContextoJogo& ctx) override {
         auto jogador = MenuJogo::menuPrincipal();
-        if (!jogador) { jogo.mudarEstado(nullptr); return; }
-        jogo.definirJogador(std::move(jogador));
+        if (!jogador) { 
+            jogo.mudarEstado(nullptr); 
+            return; 
+        }
+        ctx.jogador = std::move(jogador);
         jogo.mudarEstado(std::make_unique<EstadoExploracao>());
     }
 };
 
-void EstadoExploracao::onExit(Jogo& jogo) {
-    Personagem* jogador = jogo.obterJogador();
+void EstadoExploracao::onExit(Jogo& jogo, ContextoJogo& ctx) {
+    Personagem* jogador = ctx.jogador.get();
     // Salva o jogo caso a transicao de mapa aconteca enquanto o jogador ainda esta vivo
     if (jogador && jogador->obterVida() > 0) {
         Salvamento::salvarJogo(jogador);
     }
     // Desvincula e limpa a memoria do jogador para a proxima iteracao
-    jogo.definirJogador(nullptr);
+    ctx.jogador.reset();
 }
 
-void EstadoExploracao::executar(Jogo& jogo) {
-    Personagem* jogador = jogo.obterJogador();
-    if (!jogador) { jogo.mudarEstado(nullptr); return; }
+void EstadoExploracao::executar(Jogo& jogo, ContextoJogo& ctx) {
+    Personagem* jogador = ctx.jogador.get();
+    if (!jogador) { 
+        jogo.mudarEstado(nullptr); 
+        return; 
+    }
 
-    Mapa1Vila mapaDoJogo{jogador};
-    mapaDoJogo.iniciarLoopDeExploracaoDoMapa1Vila();
+    auto mapaVila = std::make_unique<Mapa1Vila>(jogador);
+    auto mapaFloresta = std::make_unique<Mapa2Floresta>(jogador);
+    auto mapaReino = std::make_unique<Mapa3Reino>(jogador);
+
+    IMapa* mapaAtual = mapaVila.get();
+    while (mapaAtual) {
+        ProximaTransicaoMapa transicao = mapaAtual->iniciarLoopDeExploracao();
+        
+        if (transicao == ProximaTransicaoMapa::VoltarMenu || jogador->obterVida() <= 0 || jogador->obterVoltarProMenu()) {
+            break;
+        }
+        else if (transicao == ProximaTransicaoMapa::Vila) {
+            mapaAtual = mapaVila.get();
+            mapaVila->exploracaoEstaAtiva = true;
+        }
+        else if (transicao == ProximaTransicaoMapa::Floresta) {
+            mapaAtual = mapaFloresta.get();
+            mapaFloresta->exploracaoEstaAtiva = true;
+        }
+        else if (transicao == ProximaTransicaoMapa::Reino) {
+            mapaAtual = mapaReino.get();
+            mapaReino->exploracaoEstaAtiva = true;
+        }
+        else {
+            break;
+        }
+    }
     
     if (jogador->obterVida() > 0 && !jogador->obterVoltarProMenu()) { 
         jogo.mudarEstado(nullptr); 
@@ -147,6 +189,7 @@ int main()
 
     return 0;
 }
+
 
 
 

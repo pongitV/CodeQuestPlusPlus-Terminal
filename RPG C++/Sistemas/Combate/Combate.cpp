@@ -408,11 +408,7 @@ void Combate::limparInimigosMortos()
         }
     }
 
-    listaDeInimigos.erase(
-        std::remove_if(listaDeInimigos.begin(), listaDeInimigos.end(),
-            [](const std::unique_ptr<Personagem>& inimigo) { return inimigo->obterVida() <= 0; }),
-        listaDeInimigos.end()
-    );
+    std::erase_if(listaDeInimigos, [](const auto& inimigo) { return inimigo->obterVida() <= 0; });
 }
 
 void Combate::executarTurnoDeTodosOsInimigos() 

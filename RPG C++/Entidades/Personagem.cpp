@@ -17,24 +17,22 @@ bool Personagem::isValido(Personagem* p) {
     return personagensAtivos.find(p) != personagensAtivos.end();
 }
 
-Personagem::Personagem(std::string nome, std::unique_ptr<RacaBase> racaEscolhida, std::unique_ptr<ClasseBase> classeEscolhida) 
+Personagem::Personagem(std::string nome, std::unique_ptr<RacaBase> racaEscolhida, std::unique_ptr<ClasseBase> classeEscolhida)
+    : nomePersonagem(std::move(nome)),
+      vidaAtual(0),
+      raca(std::move(racaEscolhida)),
+      classe(std::move(classeEscolhida)),
+      statsFinais{ 0, 0, 0, 0, 0, 0, 0 },
+      mochila(std::make_unique<Inventario>()),
+      arma(nullptr),
+      escudo(nullptr),
+      armadura(nullptr),
+      consumivelRapido(nullptr),
+      itemSelecionadoParaUso(nullptr),
+      nivel(1),
+      xpAtual(0),
+      xpParaSubir(Constantes::XP_BASE_PARA_SUBIR)
 {
-    this->nomePersonagem = nome;
-    this->raca = std::move(racaEscolhida);
-    this->classe = std::move(classeEscolhida);
-    this->mochila = std::make_unique<Inventario>();
-    this->statsFinais = { 0, 0, 0, 0, 0, 0, 0 }; // Atributos base
-
-    this->arma = nullptr;
-    this->escudo = nullptr;
-    this->armadura = nullptr;
-    this->consumivelRapido = nullptr;
-    this->itemSelecionadoParaUso = nullptr;
-    
-    this->nivel = 1;
-    this->xpAtual = 0;
-    this->xpParaSubir = Constantes::XP_BASE_PARA_SUBIR;
-
     auto receberEEquiparKit = [this](std::vector<std::unique_ptr<Item>> kit) {
         for (auto& itemUnique : kit) {
             Item* ptr = itemUnique.get();
@@ -188,10 +186,10 @@ void Personagem::modificarVida(int valor)
 }
 
 const EfeitoStatus* Personagem::encontrarEfeito(EfeitoID id) const {
-    for (const auto& ef : efeitosAtivos) {
-        if (ef->obterID() == id) return ef.get();
-    }
-    return nullptr;
+    auto it = std::find_if(efeitosAtivos.begin(), efeitosAtivos.end(), [id](const auto& ef) {
+        return ef->obterID() == id;
+    });
+    return it != efeitosAtivos.end() ? it->get() : nullptr;
 }
 
 bool Personagem::possuiEfeito(EfeitoID id) const {
@@ -346,11 +344,12 @@ void Personagem::limparEfeitos() {
 }
 
 bool Personagem::podeAgir(std::string& outMotivoIncapacidade) const {
-    for (auto& ef : efeitosAtivos) {
-        if (ef->impedeAcao()) {
-            outMotivoIncapacidade = ef->obterNome();
-            return false;
-        }
+    auto it = std::find_if(efeitosAtivos.begin(), efeitosAtivos.end(), [](const auto& ef) {
+        return ef->impedeAcao();
+    });
+    if (it != efeitosAtivos.end()) {
+        outMotivoIncapacidade = (*it)->obterNome();
+        return false;
     }
     return true;
 }
@@ -358,9 +357,9 @@ bool Personagem::podeAgir(std::string& outMotivoIncapacidade) const {
 void Personagem::obterIDsEfeitosAtivos(std::vector<EfeitoID>& outIDs) const {
     outIDs.clear();
     outIDs.reserve(efeitosAtivos.size());
-    for (auto& ef : efeitosAtivos) {
-        outIDs.push_back(ef->obterID());
-    }
+    std::transform(efeitosAtivos.begin(), efeitosAtivos.end(), std::back_inserter(outIDs), [](const auto& ef) {
+        return ef->obterID();
+    });
 }
 
 void Personagem::executarDrops(Personagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)

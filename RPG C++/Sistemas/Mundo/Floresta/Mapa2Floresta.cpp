@@ -44,7 +44,8 @@ Mapa2Floresta::Mapa2Floresta(Personagem* personagemJogador) :
     labirintoJaFoiVisitado(false),
     salaDoChefeJaFoiVisitada(false),
     exploracaoEstaAtiva(true), 
-    tituloDoMapaAtual("FLORESTA")
+    tituloDoMapaAtual("FLORESTA"),
+    proximoMapa(ProximaTransicaoMapa::Nenhuma)
 {
     matrizDoMapaAtual = Mapa2FlorestaLayouts::obterLayoutFloresta();
 }
@@ -156,18 +157,14 @@ namespace {
             }
             else if (nextCell == 'V') {
                 ctx.self->exploracaoEstaAtiva = false;
+                ctx.self->proximoMapa = ProximaTransicaoMapa::Vila;
             }
             else if (nextCell == 'T' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDoCoracaoDaArvoreSalva, ctx.self->coracaoDaArvoreJaFoiVisitado, Mapa2FlorestaLayouts::obterLayoutCoracaoDaArvore(), 10, 3, "CORACAO DA ARVORE", ctx.restaurarTela);
             }
             else if (nextCell == 'R' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                Mapa3Reino mapaReino(ctx.self->jogadorAtual);
-                mapaReino.iniciarLoopDeExploracaoDoMapa();
-                if (ctx.self->jogadorAtual->obterVoltarProMenu()) {
-                    ctx.self->exploracaoEstaAtiva = false;
-                    return;
-                }
-                ctx.animarTela();
+                ctx.self->exploracaoEstaAtiva = false;
+                ctx.self->proximoMapa = ProximaTransicaoMapa::Reino;
             }
             else if (nextCell == 'L' && ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 if (!ctx.self->jogadorAtual->obterLabirintoDesbloqueado()) {
@@ -313,7 +310,7 @@ void Mapa2Floresta::inicializarInteracoes() {
     interacoes['^'] = std::make_unique<InteracaoTeleporte>();
 }
 
-void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
+ProximaTransicaoMapa Mapa2Floresta::iniciarLoopDeExploracao()
 {
     inicializarInteracoes();
 
@@ -386,7 +383,6 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
     bool precisaRenderizar = false;
     int linhaInicialParaDesenharOMapa = 0;
 
-    // Lambda para restaurar a tela apos eventos
     auto restaurarTela = [&]() {
         linhaInicialParaDesenharOMapa = ControleMapa::animarIntroducaoMapa(tituloDoMapaAtual, {}, 0, {}, 0, Cor::VERDE, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, false);
         precisaRenderizar = true;
@@ -449,48 +445,17 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
         }
     };
 
-    auto ultimoMovimentoInimigos = std::chrono::steady_clock::now();
+    ControleMapa::executarLoopDeExploracao(
+        jogadorAtual, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador,
+        exploracaoEstaAtiva, tituloDoMapaAtual,
+        [this]() { return (tituloDoMapaAtual == "SALA DO CHEFE") ? "" : "SFA"; },
+        [this]() { return obterLayoutOriginalFloresta(tituloDoMapaAtual); },
+        processarInteracao, formatador, restaurarTela,
+        linhaInicialParaDesenharOMapa, precisaRenderizar
+    );
 
-    while (exploracaoEstaAtiva && jogadorAtual->obterVida() > 0)
-    {
-        auto agora = std::chrono::steady_clock::now();
-        bool tempoDeMoverInimigos = std::chrono::duration_cast<std::chrono::milliseconds>(agora - ultimoMovimentoInimigos).count() >= 800;
-
-        if (tempoDeMoverInimigos) {
-            std::string simbolos = (tituloDoMapaAtual == "SALA DO CHEFE") ? "" : "SFA";
-            ControleMapa::moverInimigosAleatoriamente(matrizDoMapaAtual, obterLayoutOriginalFloresta(tituloDoMapaAtual), simbolos, posicaoXDoJogador, posicaoYDoJogador);
-            ultimoMovimentoInimigos = std::chrono::steady_clock::now();
-            precisaRenderizar = true;
-        }
-
-        int larguraDoTerminal = Aparencia::obterLarguraTerminal();
-        
-        if (precisaRenderizar) {
-            int alturaDoTerminal = Aparencia::obterAlturaTerminal();
-
-
-            ControleMapa::renderizarMapa(matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, larguraDoTerminal, alturaDoTerminal, linhaInicialParaDesenharOMapa, formatador);
-
-            precisaRenderizar = false;
-        }
-
-        if (ControleDeInput::teclaPressionada()) {
-            char teclaPressionadaPeloJogador = ControleDeInput::lerTecla();
-
-            int proximaPosicaoX = posicaoXDoJogador;
-            int proximaPosicaoY = posicaoYDoJogador;
-
-            bool abriuMenu = ControleMapa::processarInputEComandos(teclaPressionadaPeloJogador, jogadorAtual, proximaPosicaoX, proximaPosicaoY, restaurarTela);
-            
-            if (jogadorAtual->obterVoltarProMenu()) break;
-            if (abriuMenu) continue;
-
-            ControleMapa::aplicarLimitesDeMapa(proximaPosicaoX, proximaPosicaoY, matrizDoMapaAtual);
-            processarInteracao(proximaPosicaoX, proximaPosicaoY, larguraDoTerminal);
-            
-            precisaRenderizar = true;
-        } else {
-            std::this_thread::sleep_for(std::chrono::milliseconds(30));
-        }
+    if (jogadorAtual->obterVida() <= 0 || jogadorAtual->obterVoltarProMenu()) {
+        return ProximaTransicaoMapa::VoltarMenu;
     }
+    return proximoMapa;
 }
