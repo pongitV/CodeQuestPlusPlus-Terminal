@@ -8,6 +8,7 @@
 #include <sstream>
 
 #include "../../../Core/Utilidades/Aparencia.h"
+#include "../../../Core/Utilidades/FuncoesDialogo.h"
 #include "../../../Entidades/Personagem.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"
 #include "../../../Entidades/Racas/RacaBase.h"
@@ -300,8 +301,8 @@ void TelaMenu::exibirPromptNome() {
     std::cout << "\n";
     
     std::vector<std::string> narracao = {
-        "[NARRACAO]: O mundo clama por um novo destino...",
-        "[NARRACAO]: E todas lendas possuem um nome."
+        FuncoesDialogo::formatarMsgNarracao("O mundo clama por um novo destino..."),
+        FuncoesDialogo::formatarMsgNarracao("E todas lendas possuem um nome.")
     };
 
     Aparencia::imprimirBlocoCentralizadoDigitando(narracao);
@@ -311,19 +312,19 @@ void TelaMenu::exibirPromptNome() {
 
 int TelaMenu::exibirPromptRaca(const std::string& nome) {
     return exibirPromptGenerico("SELECAO DE RACA", "| JOGADOR: " + nome + " |", 
-        {"[NARRACAO]: Qual sua origem?"}, 
+        {FuncoesDialogo::formatarMsgNarracao("Qual sua origem?")}, 
         {"Dwarf", "Elfo", "Humano", "Ork", "VOLTAR (selecao de nome)"});
 }
 
 int TelaMenu::exibirPromptClasse(const std::string& nome, const std::string& nomeRaca) {
     return exibirPromptGenerico("SELECAO DE CLASSE", "| JOGADOR: " + nome + " | RACA: " + nomeRaca + " |", 
-        {"[NARRACAO]: Qual seu caminho?"}, 
+        {FuncoesDialogo::formatarMsgNarracao("Qual seu caminho?")}, 
         {"Arqueiro", "Bardo", "Guerreiro", "Mago", "VOLTAR (selecao de raca)"});
 }
 
 int TelaMenu::exibirPromptDificuldade(const std::string& nome, const std::string& nomeRaca, const std::string& nomeClasse) {
     return exibirPromptGenerico("DIFICULDADE DO MUNDO", "| JOGADOR: " + nome + " | RACA: " + nomeRaca + " | CLASSE: " + nomeClasse + " |", 
-        {"[SISTEMA]: Escolha o nivel de desafio da sua jornada:"}, 
+        {FuncoesDialogo::formatarMsgSistema("Escolha o nivel de desafio da sua jornada:")}, 
         {
             Aparencia::cor(Cor::VERDE) + "FACIL" + Aparencia::cor(Cor::RESET) + "   (Inimigos com 1x Atributos, sem habilidades adicionais)      ",
             Aparencia::cor(Cor::AMARELO) + "NORMAL" + Aparencia::cor(Cor::RESET) + "  (Inimigos com 1.5x Atributos, com habilidades de raca)       ",
@@ -335,7 +336,7 @@ int TelaMenu::exibirPromptDificuldade(const std::string& nome, const std::string
 int TelaMenu::exibirPromptParry(const std::string& nome, const std::string& nomeRaca, const std::string& nomeClasse) {
     return exibirPromptGenerico("CONFIGURACOES DO JOGO", "| JOGADOR: " + nome + " | RACA: " + nomeRaca + " | CLASSE: " + nomeClasse + " |", 
         {
-            "[SISTEMA]: Deseja ativar o sistema de PARRY?",
+            FuncoesDialogo::formatarMsgSistema("Deseja ativar o sistema de PARRY?"),
             "(Permite reduzir danos ao digitar uma sequencia de numeros num tempo limite)",
             "(O tutorial esta disponivel apenas neste momento, mas voce pode ligar/desligar depois)"
         }, 
@@ -455,9 +456,3 @@ void TelaMenu::exibirIntroducaoJornada(const std::string& infoBox) {
 
     ControleDeInput::aguardarEnter();
 }
-
-
-
-
-
-

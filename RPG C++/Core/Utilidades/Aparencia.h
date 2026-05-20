@@ -62,8 +62,6 @@ public:
     static void imprimirCentralizadoDigitando(const std::string& texto, int atrasoMs = atrasoDigitacaoMS);
     static int atrasoDigitacaoMS; // Variável estática para a velocidade padrão
     static void imprimirDigitando(const std::string& texto, int atrasoMs = atrasoDigitacaoMS, bool addNewline = true);
-    static void imprimirDialogoNPC(const std::string& npcNome, Cor npcCor, const std::string& texto, bool novaLinhaAntes = true, bool novaLinhaDepois = true);
-    static void imprimirDialogoNPC(const std::string& npcNome, Cor npcCor, const std::vector<std::string>& linhas);
     static void imprimirVetorAnimado(const std::vector<std::string>& linhas, int atrasoMs = 30);
     static void exibirPainel(const std::string& titulo, Cor corPrincipal = Cor::BRANCO, const std::vector<std::string>& artePrincipal = {}, int larguraArte = 0, const std::vector<std::string>& arteSecundaria = {}, Cor corSecundaria = Cor::RESET, bool animarFadeIn = false);
     static void exibirPainelTexto(const std::string& titulo, Cor corDoCabecalho = Cor::BRANCO, bool animarFadeIn = false);

@@ -6,6 +6,7 @@
 #include "../../Core/Controladores/Drops.h"
 #include "../../Core/Utilidades/GeradorAleatorio.h"
 #include "../../Interface/Telas/Combate/TelaCombate.h"
+#include "../../Core/Utilidades/FuncoesDialogo.h"
 #include <memory>
 
 // --- INFORMACOES DA RACA ---
@@ -40,9 +41,9 @@ void Mahoraga::aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCaus
             atacante->alterarAtributoEstatico(TipoAtributo::Destreza, 5);
             atacante->alterarAtributoEstatico(TipoAtributo::Resistencia, 5);
             atacante->alterarAtributoEstatico(TipoAtributo::Constituicao, 5);
-            Aparencia::registrarLogBatalha(Aparencia::cor(Cor::MAGENTA) + ">> A Roda gira... Mahoraga adaptou-se ao combate fisico, ganhando atributos ofensivos e defensivos!" + Aparencia::cor(Cor::RESET));
+            Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("A Roda gira... Mahoraga adaptou-se ao combate fisico, ganhando atributos ofensivos e defensivos!", Cor::MAGENTA));
         } else {
-            Aparencia::registrarLogBatalha(Aparencia::cor(Cor::MAGENTA) + ">> A Roda gira... A adaptacao fisica de Mahoraga atingiu o limite de 50!" + Aparencia::cor(Cor::RESET));
+            Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("A Roda gira... A adaptacao fisica de Mahoraga atingiu o limite de 50!", Cor::MAGENTA));
         }
     } else {
         if (atacante->obterSabedoria() < 50) {
@@ -50,23 +51,23 @@ void Mahoraga::aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCaus
             atacante->alterarAtributoEstatico(TipoAtributo::Destreza, 5);
             atacante->alterarAtributoEstatico(TipoAtributo::Sabedoria, 5);
             atacante->alterarAtributoEstatico(TipoAtributo::Constituicao, 5);
-            Aparencia::registrarLogBatalha(Aparencia::cor(Cor::MAGENTA) + ">> A Roda gira... Mahoraga adaptou-se a sua magia, ganhando atributos magicos e vitais!" + Aparencia::cor(Cor::RESET));
+            Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("A Roda gira... Mahoraga adaptou-se a sua magia, ganhando atributos magicos e vitais!", Cor::MAGENTA));
         } else {
-            Aparencia::registrarLogBatalha(Aparencia::cor(Cor::MAGENTA) + ">> A Roda gira... A adaptacao magica de Mahoraga atingiu o limite de 50!" + Aparencia::cor(Cor::RESET));
+            Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("A Roda gira... A adaptacao magica de Mahoraga atingiu o limite de 50!", Cor::MAGENTA));
         }
     }
 
     // Cura
     int cura = atacante->obterVidaMaxima() * 0.05; 
     atacante->modificarVida(cura);
-    Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERDE) + ">> Mahoraga regenerou " + std::to_string(cura) + " HP" + Aparencia::cor(Cor::RESET));
+    Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("Mahoraga regenerou " + std::to_string(cura) + " HP", Cor::VERDE));
 
     // Limpeza de debuffs
     std::vector<EfeitoID> efeitos;
     atacante->obterIDsEfeitosAtivos(efeitos);
     if (!efeitos.empty()) {
         atacante->limparEfeitos();
-        Aparencia::registrarLogBatalha(Aparencia::cor(Cor::BRANCO) + ">> Mahoraga adaptou-se a todos os status negativos" + Aparencia::cor(Cor::RESET));
+        Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("Mahoraga adaptou-se a todos os status negativos", Cor::BRANCO));
     }
 }
 
@@ -74,7 +75,7 @@ void Mahoraga::aoSofrerParryPerfeito() {
     parrysSofridos++;
     if (parrysSofridos == 10) {
         TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + "\033[5m" + Aparencia::cor(Cor::AMARELO) + "* KLINK! *" + Aparencia::cor(Cor::RESET) + " A Roda gira...\n");
-        Aparencia::registrarLogBatalha(Aparencia::cor(Cor::MAGENTA) + ">> A Roda gira... Mahoraga adaptou-se aos seus reflexos! Seus ataques agora sao IMPARAVEIS!" + Aparencia::cor(Cor::RESET));
+        Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("A Roda gira... Mahoraga adaptou-se aos seus reflexos! Seus ataques agora sao IMPARAVEIS!", Cor::MAGENTA));
     }
 }
 
@@ -275,10 +276,3 @@ void Mahoraga::realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, std:
     Drops::darEProcessarItem(jogadorAtual, ItemID::PocaoFuria, 3, itensObtidos);
     Drops::darEProcessarItem(jogadorAtual, ItemID::ElixirArcano, 3, itensObtidos);
 }
-
-
-
-
-
-
-

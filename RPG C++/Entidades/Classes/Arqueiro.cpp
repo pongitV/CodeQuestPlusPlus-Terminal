@@ -5,6 +5,7 @@
 
 #include "../../Sistemas/Inventario/FabricaItens.h"
 #include "../../Core/Utilidades/Aparencia.h"
+#include "../../Core/Utilidades/FuncoesDialogo.h"
 
 // --- INFORMACOES DA CLASSE ---
 std::string Arqueiro::obterNomeClasse() const 
@@ -126,12 +127,6 @@ void Arqueiro::usarHabilidadeClasse(Personagem* personagemUsuario, std::vector<P
 
     personagemUsuario->adicionarEfeito(std::make_unique<EfeitoInviolavel>(1));
     personagemUsuario->definirRecarga(true);
-    std::string msg = Aparencia::cor(Cor::VERDE_CLARO) + "[HABILIDADE]: Retirada com pontaria! Voce se afasta neste turno." + Aparencia::cor(Cor::RESET);
+    std::string msg = FuncoesDialogo::formatarMsgHabilidade("Retirada com pontaria! Voce se afasta neste turno.");
     notificarMensagemCombate(msg, msg);
 }
-
-
-
-
-
-

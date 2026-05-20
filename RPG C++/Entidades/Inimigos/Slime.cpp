@@ -7,6 +7,7 @@
 #include "../../Core/Controladores/Drops.h"
 #include "../../Core/Utilidades/GeradorAleatorio.h"
 #include "../../Interface/Telas/Combate/TelaCombate.h"
+#include "../../Core/Utilidades/FuncoesDialogo.h"
 
 // --- INFORMACOES DA RACA ---
 std::string Slime::obterNomeRaca() const 
@@ -145,14 +146,7 @@ void Slime::aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCausado
             // A mensagem na UI foi removida para priorizar o combate limpo
             // std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::MAGENTA) + ">> [PASSIVA SLIME]: Uma gosma esverdeada grudou e deixou " + alvo->obterNome() + " mais lento!" + Aparencia::cor(Cor::RESET) + "\n";
             // TelaCombate::adicionarMensagemFixa(msg);
-            Aparencia::registrarLogBatalha(Aparencia::cor(Cor::MAGENTA) + ">> [PASSIVA SLIME]: Uma gosma esverdeada grudou e deixou " + alvo->obterNome() + " mais lento!" + Aparencia::cor(Cor::RESET));
+            Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("Uma gosma esverdeada grudou e deixou " + alvo->obterNome() + " mais lento!", Cor::MAGENTA));
         }
     }
 }
-
-
-
-
-
-
-

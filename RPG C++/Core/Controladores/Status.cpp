@@ -5,16 +5,8 @@
 #include "../../Entidades/Classes/ClasseBase.h"
 #include "../../Entidades/Personagem.h"
 #include "../Utilidades/Aparencia.h"
+#include "../Utilidades/FuncoesDialogo.h"
 #include "../../Interface/Telas/Combate/TelaCombate.h"
-
-namespace {
-    void notificarEfeito(Cor cor, const std::string& texto) {
-        // A mensagem na UI foi removida para priorizar o combate limpo
-        // std::string msg = Aparencia::margemCombate() + Aparencia::cor(cor) + texto + Aparencia::cor(Cor::RESET) + "\n";
-        // TelaCombate::adicionarMensagemFixa(msg);
-        Aparencia::registrarLogBatalha(Aparencia::cor(cor) + texto + Aparencia::cor(Cor::RESET));
-    }
-}
 
 void EfeitoSugaSangue::aplicarInicioTurno(Personagem* alvo) {
     if (!Personagem::isValido(atacante) || atacante->obterVida() <= 0) return;
@@ -23,7 +15,7 @@ void EfeitoSugaSangue::aplicarInicioTurno(Personagem* alvo) {
     {
         alvo->modificarVida(-danoRaizes);
         atacante->modificarVida(danoRaizes);
-        notificarEfeito(Cor::VERDE, ">> [" + nome + "]: Drenou " + std::to_string(danoRaizes) + " de HP de " + alvo->obterNome() + " e curou " + atacante->obterNome() + "!");
+        Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgStatus("Drenou " + std::to_string(danoRaizes) + " de HP de " + alvo->obterNome() + " e curou " + atacante->obterNome() + "!", Cor::VERDE));
     }
 }
 
@@ -35,7 +27,7 @@ void EfeitoLentidao::aoEntrar(Personagem* alvo) {
 void EfeitoLentidao::aoSair(Personagem* alvo) {
     if (alvo->obterClasse()) alvo->obterAtributosFinais().destreza = alvo->obterClasse()->reverterPenalidadeLentidaoPassivaArqueiro(alvo->obterAtributosFinais().destreza);
     else alvo->obterAtributosFinais().destreza *= 2;
-    notificarEfeito(Cor::MAGENTA, "[EFEITO]: " + alvo->obterNome() + " se livrou da gosma e recuperou sua agilidade.");
+    Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgStatus(alvo->obterNome() + " se livrou da gosma e recuperou sua agilidade.", Cor::MAGENTA));
 }
 
 void EfeitoFraqueza::aoEntrar(Personagem* alvo) {
@@ -45,7 +37,7 @@ void EfeitoFraqueza::aoEntrar(Personagem* alvo) {
 
 void EfeitoFraqueza::aoSair(Personagem* alvo) {
     alvo->obterAtributosFinais().forca += forcaPerdida;
-    notificarEfeito(Cor::VERMELHO, "[EFEITO]: " + alvo->obterNome() + " recuperou sua forca original.");
+    Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgStatus(alvo->obterNome() + " recuperou sua forca original.", Cor::VERMELHO));
 }
 
 void EfeitoQuebraResistencia::aoEntrar(Personagem* alvo) {
@@ -61,19 +53,19 @@ void EfeitoQuebraResistencia::aoSair(Personagem* alvo) {
 }
 
 void EfeitoQuebraResistencia::aplicarInicioTurno(Personagem* alvo) {
-    notificarEfeito(Cor::CIANO, "[EFEITO]: " + alvo->obterNome() + " continua enfraquecido pelo po magico! (-" + std::to_string(resistenciaPerdida) + " Res, -" + std::to_string(constituicaoPerdida) + " Con)");
+    Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgStatus(alvo->obterNome() + " continua enfraquecido pelo po magico! (-" + std::to_string(resistenciaPerdida) + " Res, -" + std::to_string(constituicaoPerdida) + " Con)", Cor::CIANO));
 }
 
 void EfeitoSangramento::aplicarInicioTurno(Personagem* alvo) {
     if (alvo->obterVida() <= 0) return;
     alvo->modificarVida(-danoPorTurno);
     Cor corSangramento = (alvo->obterNomeClasse() != "Monstro") ? Cor::VERMELHO_CLARO : Cor::VERMELHO;
-    notificarEfeito(corSangramento, "[EFEITO]: " + alvo->obterNome() + " sofreu " + std::to_string(danoPorTurno) + " de dano por sangramento!");
+    Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgStatus(alvo->obterNome() + " sofreu " + std::to_string(danoPorTurno) + " de dano por sangramento!", corSangramento));
 }
 
 int EfeitoMetadeDano::processarDanoRecebido(int dano) {
     int danoReduzido = dano / 2;
-    notificarEfeito(Cor::CIANO, ">> [EFEITO]: O dano foi reduzido pela metade! (Through the wire)");
+    Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgStatus("O dano foi reduzido pela metade! (Through the wire)", Cor::CIANO));
     return danoReduzido;
 }
 
@@ -91,7 +83,7 @@ void EfeitoBuffAtributos::aoSair(Personagem* alvo) {
     if (alvo->obterMultiplicador() != 1.0) {
         alvo->definirMultiplicador(1.0);
     }
-    notificarEfeito(Cor::VERDE_CLARO, "[SISTEMA]: O efeito da habilidade expirou!");
+    Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgSistema("O efeito da habilidade expirou!", Cor::VERDE_CLARO));
 }
 
 void EfeitoRodaAdaptacao::aplicarInicioTurno(Personagem* alvo) {
@@ -102,7 +94,7 @@ void EfeitoRodaAdaptacao::aplicarInicioTurno(Personagem* alvo) {
     if (cura > 0) {
         alvo->modificarVida(cura);
         TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + Aparencia::cor(Cor::VERDE) + ">> A Roda gira... Regenerou " + std::to_string(cura) + " HP!" + Aparencia::cor(Cor::RESET) + "\n");
-        Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERDE) + ">> A Roda gira... Regenerou " + std::to_string(cura) + " HP!" + Aparencia::cor(Cor::RESET));
+        Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("A Roda gira... Regenerou " + std::to_string(cura) + " HP!", Cor::VERDE));
     }
 }
 
@@ -166,9 +158,3 @@ void EfeitoRodaAdaptacao::adaptar(Personagem* alvo, Personagem* inimigo) {
 
     TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + "\033[5m" + Aparencia::cor(Cor::AMARELO) + "* KLINK! *" + Aparencia::cor(Cor::RESET) + " A Roda adapta " + msgDefesa + " e " + msgAtaque + " (+2)!\n");
 }
-
-
-
-
-
-

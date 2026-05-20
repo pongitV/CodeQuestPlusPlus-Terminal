@@ -41,6 +41,7 @@
 #include "../../Interface/Telas/Inventario/TelaInventario.h"
 #include "../../Interface/Telas/Menu/TelaMenu.h"
 #include "../Utilidades/Aparencia.h"
+#include "../Utilidades/FuncoesDialogo.h"
 #include "../Utilidades/ControleDeInput.h"
 #include "../Utilidades/GeradorAleatorio.h"
 
@@ -116,12 +117,12 @@ namespace {
                 auto jogador = Salvamento::carregarJogo(saveSelecionado);
                 if (jogador) {
                     std::cout << "\n";
-                    Aparencia::imprimirCentralizado("[SISTEMA]: Jogo carregado com sucesso!");
+                    Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("Jogo carregado com sucesso!", Cor::AMARELO));
                     ControleDeInput::aguardarEnter();
                     return jogador;
                 } else {
                     std::cout << "\n";
-                    Aparencia::imprimirCentralizado("[ERRO]: Falha ao carregar o save!", Aparencia::cor(Cor::VERMELHO));
+                    Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("Falha ao carregar o save!", Cor::VERMELHO));
                     ControleDeInput::aguardarEnter();
                 }
             }
@@ -141,13 +142,13 @@ namespace {
                 if (digitado == nomeCorreto) {
                     Salvamento::deletarSave(saveSelecionado);
                     std::cout << "\n";
-                    Aparencia::imprimirCentralizado("[SISTEMA]: Save deletado com sucesso!", Aparencia::cor(Cor::VERDE));
+                    Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("Save deletado com sucesso!", Cor::VERDE));
                     ControleDeInput::aguardarEnter();
                     saveFoiDeletado = true;
                     break; 
                 } else {
                     std::cout << "\n";
-                    Aparencia::imprimirCentralizado("[SISTEMA]: Nome incorreto. Exclusao cancelada.", Aparencia::cor(Cor::VERMELHO));
+                    Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("Nome incorreto. Exclusao cancelada.", Cor::VERMELHO));
                     ControleDeInput::aguardarEnter();
                 }
             }
@@ -233,12 +234,12 @@ std::unique_ptr<Personagem> MenuJogo::menuPrincipal()
                 auto jogador = Salvamento::carregarJogo(saves[escolhaSave]);
                 if (jogador) {
                     std::cout << "\n";
-                    Aparencia::imprimirCentralizado("[SISTEMA]: Jogo carregado com sucesso!");
+                    Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("Jogo carregado com sucesso!", Cor::AMARELO));
                     ControleDeInput::aguardarEnter();
                     return jogador;
                 } else {
                     std::cout << "\n";
-                    Aparencia::imprimirCentralizado("[ERRO]: Falha ao carregar o save!", Aparencia::cor(Cor::VERMELHO));
+                    Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("Falha ao carregar o save!", Cor::VERMELHO));
                     ControleDeInput::aguardarEnter();
                 }
             }
@@ -248,7 +249,7 @@ std::unique_ptr<Personagem> MenuJogo::menuPrincipal()
         } else {
             std::vector<std::string> opcoesSimNao = { "NAO", "SIM" };
             std::cout << "\n";
-            Aparencia::imprimirCentralizado("[SISTEMA]: Deseja realmente sair do jogo?", Aparencia::cor(Cor::AMARELO));
+            Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("Deseja realmente sair do jogo?"));
             std::cout << "\n";
             if (ControleDeInput::lerSelecaoMenuComSetas(opcoesSimNao, true) == 1) {
                 return nullptr;
@@ -459,10 +460,3 @@ void MenuJogo::etapaEscolherDificuldade(const std::string& nome, RacaBase* raca,
     dificuldade = escolha + 1;
     etapaAtual = EtapaCriacao::Parry;
 }
-
-
-
-
-
-
-

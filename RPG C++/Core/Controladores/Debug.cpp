@@ -10,6 +10,7 @@
 #include "../Utilidades/Aparencia.h"
 #include "../Utilidades/ControleDeInput.h"
 #include "../../Sistemas/Progresso/Diario.h"
+#include "../Utilidades/FuncoesDialogo.h"
 
 namespace {
     void ativarGodMode(Personagem* jogador) {
@@ -24,7 +25,7 @@ namespace {
         jogador->definirVida(jogador->obterVidaMaxima());
         
         std::cout << "\n";
-        Aparencia::imprimirCentralizado("[SISTEMA] God Mode ativado! Voce agora e um deus intocavel.", Aparencia::cor(Cor::AMARELO));
+        Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("God Mode ativado! Voce agora e um deus intocavel.", Cor::AMARELO));
         std::cout << "\n";
         ControleDeInput::aguardarEnter();
     }
@@ -97,7 +98,7 @@ namespace {
             for (int q = 0; q < quantidade; ++q) jogador->obterInventario()->adicionarItem(FabricaItens::criarItem(idEscolhido));
             Diario::instancia().registrarItem(Aparencia::removerCoresANSI(FabricaItens::obterNomeDeID(idEscolhido)));
             
-            std::cout << "\n  " << Aparencia::cor(Cor::AMARELO) << "[SISTEMA] " << quantidade << "x '" << FabricaItens::obterNomeDeID(idEscolhido) << "' adicionado(s) ao inventario!" << Aparencia::cor(Cor::RESET) << "\n";
+            std::cout << "\n  " << FuncoesDialogo::formatarMsgInteracao(std::to_string(quantidade) + "x '" + FabricaItens::obterNomeDeID(idEscolhido) + "' adicionado(s) ao inventario!") << "\n";
             ControleDeInput::aguardarEnter();
         }
     }
@@ -132,7 +133,7 @@ void Debug::exibirMenuDebug(Personagem* jogador) {
             jogador->ganharOuro(10000);
             jogador->ganharXp(10000);
             std::cout << "\n";
-            Aparencia::imprimirCentralizado("[SISTEMA] +10000 Ouro e +10000 XP adicionados!", Aparencia::cor(Cor::AMARELO));
+            Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("+10000 Ouro e +10000 XP adicionados!", Cor::AMARELO));
             std::cout << "\n";
             ControleDeInput::aguardarEnter();
             
@@ -143,10 +144,3 @@ void Debug::exibirMenuDebug(Personagem* jogador) {
         }
     }
 }
-
-
-
-
-
-
-

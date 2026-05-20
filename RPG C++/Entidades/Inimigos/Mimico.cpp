@@ -6,6 +6,7 @@
 #include "../../Core/Controladores/Drops.h"
 #include "../../Core/Utilidades/GeradorAleatorio.h"
 #include "../../Interface/Telas/Combate/TelaCombate.h"
+#include "../../Core/Utilidades/FuncoesDialogo.h"
 #include "../../Sistemas/Progresso/Bestiario.h"
 
 // --- INFORMACOES DA RACA ---
@@ -146,7 +147,7 @@ void Mimico::aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCausad
     // A mensagem na UI foi removida para priorizar o combate limpo
     // std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::AMARELO) + ">> [MIMICO]: Com uma lingua grotesca, o Mimico roubou " + std::to_string(roubo) + "G do seu bolso!" + Aparencia::cor(Cor::RESET) + "\n";
     // TelaCombate::adicionarMensagemFixa(msg);
-    Aparencia::registrarLogBatalha(Aparencia::cor(Cor::AMARELO) + ">> [MIMICO]: Com uma lingua grotesca, o Mimico roubou " + std::to_string(roubo) + "G do seu bolso!" + Aparencia::cor(Cor::RESET));
+    Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("Com uma lingua grotesca, o Mimico roubou " + std::to_string(roubo) + "G do seu bolso!", Cor::AMARELO));
 }
 
 // --- BESTIARIO E DROPS ---
@@ -166,17 +167,10 @@ void Mimico::realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, std::v
     Drops::relatarEProcessarXpOuro(jogadorAtual, 150, 120 + ouroRoubadoTotal, ouroTotal, xpTotal);
 
     if (ouroRoubadoTotal > 0) {
-         Aparencia::registrarLogBatalha(Aparencia::cor(Cor::AMARELO) + ">> Voce recuperou " + std::to_string(ouroRoubadoTotal) + "G que haviam sido roubados!" + Aparencia::cor(Cor::RESET));
+         Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgDrop("Voce recuperou " + std::to_string(ouroRoubadoTotal) + "G que haviam sido roubados!", Cor::AMARELO));
          Bestiario::instancia().registrarDrop(inimigo->obterNome(), "Ouro Extra (Ouro roubado retornado)");
     }
 
     Drops::darEProcessarItem(jogadorAtual, ItemID::PocaoCura30, GeradorAleatorio::obterInteiro(1, 2), itensObtidos);
     Drops::darEProcessarItem(jogadorAtual, ItemID::ArmaduraBau, 1, itensObtidos);
 }
-
-
-
-
-
-
-

@@ -25,6 +25,7 @@
 #include "../../../Entidades/Inimigos/Mahoraga.h"
 #include "../../../Core/Utilidades/Aparencia.h"
 #include "../../Progresso/Diario.h"
+#include "../../../Core/Utilidades/FuncoesDialogo.h"
 #include "../ControleMapa.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"
 #include "../../../Core/Utilidades/GeradorAleatorio.h"
@@ -95,18 +96,18 @@ namespace {
                 Aparencia::exibirPainelTexto("TESOURO ESCONDIDO", Cor::VERDE);
                 int mE = (ctx.larguraDoTerminal - 40) / 2;
                 std::string margem(mE > 0 ? mE : 0, ' ');
-                std::cout << "\n" << margem << "[!] Voce encontrou um Baú ancestral!\n\n";
+                std::cout << "\n" << margem << FuncoesDialogo::formatarMsgInteracao("Voce encontrou um Bau ancestral!") << "\n\n";
                 
                 std::vector<std::string> opcoesBau = { "Nao", "Abrir!" };
                 int opcao = ControleDeInput::lerSelecaoMenuComSetas(opcoesBau, false, margem);
 
                 if (opcao == 1) {
-                    if (GeradorAleatorio::rolarChance(25)) { // 25% de chance de ser um Mímico
-                        std::cout << "\n" << margem << Aparencia::cor(Cor::VERMELHO) << "[!] O bau se revela uma criatura viva! E UM MIMICO!" << Aparencia::cor(Cor::RESET) << "\n";
+                    if (GeradorAleatorio::rolarChance(25)) {
+                        std::cout << "\n" << margem << FuncoesDialogo::formatarMsgCombate("O bau se revela uma criatura viva! E UM MIMICO!", Cor::VERMELHO) << "\n";
                         ControleDeInput::aguardarEnter();
                         ControleMapa::processarCombate(ctx.self->jogadorAtual, ctx.self->matrizDoMapaAtual, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->exploracaoEstaAtiva, "CILADA!", "O Bau era um Mimico!", CriadorInimigos::criarInimigoMimico(1), ctx.proximaPosicaoX, ctx.proximaPosicaoY, ctx.proximaPosicaoX, 1, ctx.larguraDoTerminal, ctx.restaurarTela);
                     } else {
-                    std::cout << "\n" << margem << "[SISTEMA]: O baú se abre rangendo... Voce obteve itens valiosos!\n";
+                    std::cout << "\n" << margem << FuncoesDialogo::formatarMsgInteracao("O bau se abre rangendo... Voce obteve itens valiosos!") << "\n";
 
                     int qtdPocoes = GeradorAleatorio::obterInteiro(2, 4);
                     for (int i = 0; i < qtdPocoes; ++i) {
@@ -173,7 +174,7 @@ namespace {
                     Aparencia::limparTela();
                 Aparencia::exibirPainelTexto("PASSAGEM BLOQUEADA", Cor::VERDE);
                     int espacosM = (ctx.larguraDoTerminal - 60) / 2;
-                    std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: A passagem esta selada por magia. Fale com Morgana.\n";
+                    std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << FuncoesDialogo::formatarMsgSistema("A passagem esta selada por magia. Fale com Morgana.") << "\n";
                     ControleDeInput::aguardarEnter();
                     ctx.restaurarTela();
                     return;
@@ -233,9 +234,9 @@ namespace {
                 int espacosM = (ctx.larguraDoTerminal - 60) / 2;
                 std::string margem(espacosM > 0 ? espacosM : 0, ' ');
                 
-                std::cout << "\n" << margem << "[SISTEMA]: Voce encontrou a saida do labirinto!\n";
-                std::cout << margem << "[SISTEMA]: A sua frente, uma escadaria desce para uma caverna escura.\n";
-                std::cout << margem << "[SISTEMA]: No fundo, parece haver um mar de liquido preto raso...\n\n";
+                std::cout << "\n" << margem << FuncoesDialogo::formatarMsgNarracao("Voce encontrou a saida do labirinto!") << "\n";
+                std::cout << margem << FuncoesDialogo::formatarMsgNarracao("A sua frente, uma escadaria desce para uma caverna escura.") << "\n";
+                std::cout << margem << FuncoesDialogo::formatarMsgNarracao("No fundo, parece haver um mar de liquido preto raso...") << "\n\n";
 
                 std::vector<std::string> opcoesCaminho = { "Descer a escadaria", "Voltar para a Cabana da Bruxa" };
                 int escolha = ControleDeInput::lerSelecaoMenuComSetas(opcoesCaminho, false, margem);
@@ -247,10 +248,10 @@ namespace {
                     std::cout << "\n\n";
                     Aparencia::imprimirCentralizadoMultilinha(arteSimbolo, 109, Aparencia::cor(Cor::BRANCO));
                     
-                    std::cout << "\n" << margem << "[SISTEMA]: O ar aqui embaixo e gelado, cortante\n";
-                    std::cout << margem << "[SISTEMA]: o liquido preto no chao e raso e liso como vidro\n";
-                    std::cout << margem << "[SISTEMA]: Tudo e escuridao, exceto pelo brilho pulsante da\n";
-                    std::cout << margem << "[SISTEMA]: enorme runa magica desenhada no fundo da caverna\n\n";
+                    std::cout << "\n" << margem << FuncoesDialogo::formatarMsgNarracao("O ar aqui embaixo e gelado, cortante") << "\n";
+                    std::cout << margem << FuncoesDialogo::formatarMsgNarracao("o liquido preto no chao e raso e liso como vidro") << "\n";
+                    std::cout << margem << FuncoesDialogo::formatarMsgNarracao("Tudo e escuridao, exceto pelo brilho pulsante da") << "\n";
+                    std::cout << margem << FuncoesDialogo::formatarMsgNarracao("enorme runa magica desenhada no fundo da caverna") << "\n\n";
                     
                     std::vector<std::string> opcoesBoss = {
                         Aparencia::cor(Cor::VERMELHO) + "Seguir em frente" + Aparencia::cor(Cor::RESET),
@@ -493,9 +494,3 @@ void Mapa2Floresta::iniciarLoopDeExploracaoDoMapa()
         }
     }
 }
-
-
-
-
-
-

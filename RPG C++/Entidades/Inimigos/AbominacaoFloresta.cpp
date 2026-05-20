@@ -4,6 +4,7 @@
 #include "../../Sistemas/Inventario/FabricaItens.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Controladores/Drops.h"
+#include "../../Core/Utilidades/FuncoesDialogo.h"
 #include "../../Interface/Telas/Combate/TelaCombate.h"
 
 // --- INFORMACOES DA RACA ---
@@ -62,7 +63,7 @@ void AbominacaoFloresta::aoCausarDano(Personagem* atacante, Personagem* alvo, in
                 // A mensagem na UI foi removida para priorizar o combate limpo
                 // std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::VERDE) + "[PASSIVA]: Raizes Parasitas! A Abominacao absorveu " + std::to_string(cura) + " de HP!" + Aparencia::cor(Cor::RESET) + "\n";
                 // TelaCombate::adicionarMensagemFixa(msg);
-                Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERDE) + "[PASSIVA]: Raizes Parasitas! A Abominacao absorveu " + std::to_string(cura) + " de HP!" + Aparencia::cor(Cor::RESET));
+                Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("Raizes Parasitas! A Abominacao absorveu " + std::to_string(cura) + " de HP!", Cor::VERDE));
             }
         }
         if (atacante->obterVida() >= (vidaMax * 0.60))
@@ -208,10 +209,3 @@ void AbominacaoFloresta::realizarDrops(Personagem* inimigo, Personagem* jogadorA
     Drops::darEProcessarItem(jogadorAtual, ItemID::MadeiraEnfeiticada, 1, itensObtidos);
     Drops::darEProcessarItem(jogadorAtual, ItemID::CoracaoFloresta, 1, itensObtidos);
 }
-
-
-
-
-
-
-

@@ -19,6 +19,7 @@
 #include "../../../Entidades/NPCs/Franchesco/NPCFranchesco.h"
 #include "../../../Entidades/Inimigos/OrcExilado.h"
 #include "../../../Core/Utilidades/Aparencia.h"
+#include "../../../Core/Utilidades/FuncoesDialogo.h"
 #include "../ControleMapa.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"
 #include "../../../Core/Utilidades/GeradorAleatorio.h"
@@ -72,10 +73,12 @@ namespace {
             } else if (ctx.self->tituloDoMapaAtual == "CAVERNA DO ORK") {
                 Aparencia::limparTela();
             Aparencia::exibirPainelTexto("RESGATE NA CAVERNA", Cor::AMARELO);
-                int espacosM = std::max(0, (ctx.larguraDoTerminal - 50) / 2);
-                std::string mE(espacosM, ' ');
-                std::cout << "\n" << mE << "[Bjorn]: Pelos deuses, muito obrigado por me salvar!\n";
-                std::cout << mE << "[Bjorn]: Passe na Forja e eu ajudarei voce!\n";
+                std::vector<std::string> falasBjorn = {
+                    "Pelos deuses, muito obrigado por me salvar!",
+                    "Passe na Forja e eu ajudarei voce!"
+                };
+                FuncoesDialogo::imprimirDialogoNPC("Bjorn", Cor::CIANO, falasBjorn);
+                std::cout << "\n";
                 ctx.self->bjornResgatado = true;
 
                 ctx.self->matrizDoMapaAtual[ctx.proximaPosicaoY][ctx.proximaPosicaoX] = '.';
@@ -149,7 +152,7 @@ namespace {
                     Aparencia::limparTela();
                     exibirTituloDoMapaVila(ctx.self->tituloDoMapaAtual);
                     int espacosM = std::max(0, (ctx.larguraDoTerminal - 60) / 2);
-                    std::cout << "\n" << std::string(espacosM, ' ') << "[SISTEMA]: A Forja esta trancada. O ferreiro sumiu...\n";
+                    std::cout << "\n" << std::string(espacosM, ' ') << FuncoesDialogo::formatarMsgSistema("A Forja esta trancada. O ferreiro sumiu...") << "\n";
                     ControleDeInput::aguardarEnter();
                     ctx.restaurarTela();
                     return;
@@ -238,15 +241,13 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
                 acaoNarracao = []() {
                     std::cout << "\n\n";
                     std::vector<std::string> dialogoInicio = {
-                        "[NARRACAO]: Voce desperta nos arredores de um lugar desconhecido...",
-                        "[NARRACAO]: Na sua vista, uma pequena vila sendo atacada por monstros.",
-                        "[NARRACAO]: Empunhando seu equipamento, voce sente que seu destino o aguarda.",
-                        "[NARRACAO]: Um novo capitulo se inicia agora."
+                        FuncoesDialogo::formatarMsgNarracao("Voce desperta nos arredores de um lugar desconhecido..."),
+                        FuncoesDialogo::formatarMsgNarracao("Na sua vista, uma pequena vila sendo atacada por monstros."),
+                        FuncoesDialogo::formatarMsgNarracao("Empunhando seu equipamento, voce sente que seu destino o aguarda."),
+                        FuncoesDialogo::formatarMsgNarracao("Um novo capitulo se inicia agora.")
                     };
                     Aparencia::imprimirBlocoCentralizadoDigitando(dialogoInicio);
-                    std::cout << "\n";
-                    Aparencia::imprimirCentralizado("Pressione ENTER para iniciar...");
-                    ControleDeInput::aguardarEnter("");
+                    ControleDeInput::aguardarEnter("Pressione ENTER para iniciar...");
                 };
             }
         }
@@ -319,9 +320,3 @@ void Mapa1Vila::iniciarLoopDeExploracaoDoMapa1Vila()
         }
     }
 }
-
-
-
-
-
-

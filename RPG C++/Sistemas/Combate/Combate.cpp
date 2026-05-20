@@ -26,6 +26,7 @@
 #include "../../Core/Utilidades/GeradorAleatorio.h"
 #include "../../Interface/Telas/Menu/TelaMenu.h"
 #include "../../Core/Utilidades/ControleDeInput.h"
+#include "../../Core/Utilidades/FuncoesDialogo.h"
 
 namespace {
     void registrarLog(const std::string& texto, Cor cor = Cor::RESET) {
@@ -185,8 +186,8 @@ void Combate::iniciarCombate()
         primeiraRenderizacao = false;
         
         if (maxDestrezaInimigos > (jogadorAtual->obterDestreza() * 2)) {
-            std::string msg = "[SISTEMA]: A agilidade extrema dos inimigos (" + std::to_string(maxDestrezaInimigos) + " VS " + std::to_string(jogadorAtual->obterDestreza()) + ") permite que eles ataquem duas vezes seguidas!";
-            std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << msg << Aparencia::cor(Cor::RESET) << "\n";
+            std::string msg = FuncoesDialogo::formatarMsgSistema("A agilidade extrema dos inimigos (" + std::to_string(maxDestrezaInimigos) + " VS " + std::to_string(jogadorAtual->obterDestreza()) + ") permite que eles ataquem duas vezes seguidas!", Cor::VERMELHO);
+            std::cout << "\n" << Aparencia::margemCombate() << msg << "\n";
             Aparencia::registrarLogBatalha(msg);
             ControleDeInput::aguardarEnter();
 
@@ -419,7 +420,7 @@ void Combate::executarTurnoDeTodosOsInimigos()
     if (jogadorAtual->obterPularTurnoInimigo()) 
     {
         // A mensagem na UI foi removida para priorizar o combate limpo
-        registrarLog("[EFEITO]: Os inimigos estao atordoados e nao podem agir!", Cor::VERDE);
+        registrarLog(FuncoesDialogo::formatarMsgStatus("Os inimigos estao atordoados e nao podem agir!", Cor::VERDE));
         jogadorAtual->definirPularTurnoInimigo(false); 
     }
     else
@@ -456,7 +457,7 @@ void Combate::executarTurnoDeTodosOsInimigos()
             else
             {
                 // A mensagem na UI foi removida para priorizar o combate limpo
-                registrarLog("[EFEITO]: " + inimigoAtual->obterNome() + " esta sob efeito de " + motivoIncapacidade + " e nao pode agir!", Cor::VERDE);
+                registrarLog(FuncoesDialogo::formatarMsgStatus(inimigoAtual->obterNome() + " esta sob efeito de " + motivoIncapacidade + " e nao pode agir!", Cor::VERDE));
             }
         }
     }
@@ -607,8 +608,7 @@ void Combate::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* pers
 {
     if (personagemAlvo->possuiEfeito(EfeitoID::Inviolavel))
     {
-        std::string msgSemCor = "[COMBATE]: O alvo esta Inviolavel e desviou do ataque perfeitamente!";
-        registrarLog(msgSemCor, Cor::CIANO);
+        registrarLog(FuncoesDialogo::formatarMsgCombate("O alvo esta Inviolavel e desviou do ataque perfeitamente!", Cor::CIANO));
         return;
     }
 
@@ -626,9 +626,9 @@ void Combate::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* pers
     if (personagemAlvo->obterParryAtivado()) 
     {
         if (ataqueImparavel) {
-            std::string msgImparavel = "[!] " + personagemAtacante->obterNome() + " desfere um ATAQUE IMPARAVEL! O Parry foi ignorado!";
-            registrarLog(msgImparavel, Cor::FUNDO_VERMELHO);
-            TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + Aparencia::cor(Cor::FUNDO_VERMELHO) + msgImparavel + Aparencia::cor(Cor::RESET) + "\n");
+            std::string msgImparavel = FuncoesDialogo::formatarMsgCombate(personagemAtacante->obterNome() + " desfere um ATAQUE IMPARAVEL! O Parry foi ignorado!", Cor::FUNDO_VERMELHO);
+            registrarLog(msgImparavel);
+            TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + msgImparavel + "\n");
         } else {
             tentouParry = true;
             parryFoiBemSucedido = Parry::tentarParry(personagemAtacante, danoBaseMitigado, quantidadeDeDanoReduzidoPeloParry);
@@ -651,9 +651,9 @@ void Combate::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* pers
         int danoRefletido = std::max(1, (quantidadeDeDanoBruto + danoPerfurante) / 4);
         personagemAtacante->modificarVida(-danoRefletido);
         
-        std::string msgReflexao = ">> [PARRY PERFEITO]: Reflexao! " + personagemAtacante->obterNome() + " sofreu " + std::to_string(danoRefletido) + " de dano de volta!";
-        registrarLog(msgReflexao, Cor::AMARELO);
-        TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + Aparencia::cor(Cor::AMARELO) + msgReflexao + Aparencia::cor(Cor::RESET) + "\n");
+        std::string msgReflexao = FuncoesDialogo::formatarMsgCombate("Parry Perfeito! Reflexao! " + personagemAtacante->obterNome() + " sofreu " + std::to_string(danoRefletido) + " de dano de volta!", Cor::AMARELO);
+        registrarLog(msgReflexao);
+        TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + msgReflexao + "\n");
         
         std::vector<Personagem*> aliadosVivos = obterAliadosVivosRaw();
         if (!isPersonagemJogadorOuAliado(personagemAtacante)) {
@@ -671,12 +671,14 @@ void Combate::exibirResultadoDoAtaque(Personagem* alvo, int danoFinal, bool tent
     std::string msg = "";
 
     if (danoBloqueado > 0) {
-        msg += Aparencia::margemCombate() + Aparencia::cor(Cor::CIANO) + ">> [DEFESA]: O escudo bloqueou " + std::to_string(danoBloqueado) + " de dano!" + Aparencia::cor(Cor::RESET) + "\n";
-        registrarLog(">> [DEFESA]: O escudo bloqueou " + std::to_string(danoBloqueado) + " de dano!", Cor::CIANO);
+        std::string msgDefesa = FuncoesDialogo::formatarMsgCombate("O escudo bloqueou " + std::to_string(danoBloqueado) + " de dano!", Cor::CIANO);
+        msg += Aparencia::margemCombate() + msgDefesa + "\n";
+        registrarLog(msgDefesa);
         
         if (escudoQuebrou) {
-            msg += Aparencia::margemCombate() + Aparencia::cor(Cor::FUNDO_VERMELHO) + "[!] ALERTA: O escudo " + nomeEscudoQuebrado + " foi DESTRUIDO em pedacos!" + Aparencia::cor(Cor::RESET) + "\n";
-            registrarLog("[!] ALERTA: O escudo " + nomeEscudoQuebrado + " foi DESTRUIDO em pedacos!", Cor::VERMELHO);
+            std::string msgQuebra = FuncoesDialogo::formatarMsgCombate("ALERTA: O escudo " + nomeEscudoQuebrado + " foi DESTRUIDO em pedacos!", Cor::FUNDO_VERMELHO);
+            msg += Aparencia::margemCombate() + msgQuebra + "\n";
+            registrarLog(msgQuebra);
         }
     }
 
@@ -687,25 +689,25 @@ void Combate::exibirResultadoDoAtaque(Personagem* alvo, int danoFinal, bool tent
             std::string mensagemParryLog;
             if (parrySucesso) {
                 if (danoFinal <= 0) {
-                    mensagemParryLog = "parry perfeito! Ataque anulado!";
+                    mensagemParryLog = "Parry perfeito! Ataque anulado!";
                 } else {
-                    mensagemParryLog = "parry efetivo! Mas o ataque e muito forte!";
+                    mensagemParryLog = "Parry efetivo! Mas o ataque e muito forte!";
                 }
             } else {
-                mensagemParryLog = "parry falhou!";
+                mensagemParryLog = "Parry falhou!";
             }
             
-            registrarLog("[PARRY]: " + mensagemParryLog + " Inimigo causou " + std::to_string(danoFinal) + " de dano em " + alvo->obterNome(), Cor::VERMELHO_CLARO);
+            registrarLog(FuncoesDialogo::formatarMsgCombate(mensagemParryLog + " Inimigo causou " + std::to_string(danoFinal) + " de dano em " + alvo->obterNome(), Cor::VERMELHO_CLARO));
         }
         else if (danoFinal > 0) 
         {
             // A mensagem estatica na UI de dano ao jogador foi comentada para priorizar o Texto de Dano Flutuante
-            registrarLog(">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano", Cor::VERMELHO_CLARO);
+            registrarLog(FuncoesDialogo::formatarMsgCombate(alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano", Cor::VERMELHO_CLARO));
         }
         else if (danoFinal == 0 && alvo->obterDefendendo()) 
         {
             // A mensagem estatica na UI de dano ao jogador foi comentada para priorizar o Texto de Dano Flutuante
-            registrarLog(">> O dano foi totalmente absorvido pela defesa de " + alvo->obterNome() + "!", Cor::CIANO);
+            registrarLog(FuncoesDialogo::formatarMsgCombate("O dano foi totalmente absorvido pela defesa de " + alvo->obterNome() + "!", Cor::CIANO));
         }
         
         if (danoFinal > 0 && alvo == jogadorAtual) totalDeDanoRecebido += danoFinal;
@@ -715,7 +717,7 @@ void Combate::exibirResultadoDoAtaque(Personagem* alvo, int danoFinal, bool tent
         if (danoFinal > stats_maiorDanoCausado) stats_maiorDanoCausado = danoFinal;
         if (alvo != jogadorAtual) totalDeDanoCausado += danoFinal;
         // A mensagem estatica na UI de dano aos inimigos foi comentada para priorizar o Texto de Dano Flutuante
-        registrarLog(">> " + alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano", Cor::VERMELHO);
+        registrarLog(FuncoesDialogo::formatarMsgCombate(alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano", Cor::VERMELHO));
     }
 
     if (!msg.empty()) {
@@ -744,7 +746,7 @@ bool Combate::verificarCondicaoDeVitoriaOuDerrota()
 
 void Combate::processarMorteDeInimigo(Personagem* inimigo)
 {
-    registrarLog("[!] " + inimigo->obterNome() + " derrotado!", Cor::VERMELHO);
+    registrarLog(FuncoesDialogo::formatarMsgCombate(inimigo->obterNome() + " derrotado!", Cor::VERMELHO));
 
     std::string nomeRaca = inimigo->obterRaca()->obterNomeRaca();
     if (!Bestiario::instancia().jaDerrotado(nomeRaca)) {
@@ -764,9 +766,3 @@ void Combate::processarMorteDeInimigo(Personagem* inimigo)
         Bestiario::instancia().registrarDrop(inimigo->obterRaca()->obterNomeRaca(), itensObtidos[i]);
     }
 }
-
-
-
-
-
-

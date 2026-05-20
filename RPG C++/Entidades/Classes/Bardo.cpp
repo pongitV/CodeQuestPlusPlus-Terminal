@@ -8,6 +8,7 @@
 #include "../../Sistemas/Inventario/FabricaItens.h"
 #include "../../Core/Utilidades/Constantes.h"
 #include "../../Core/Utilidades/Aparencia.h"
+#include "../../Core/Utilidades/FuncoesDialogo.h"
 #include "../../Core/Utilidades/ControleDeInput.h"
 
 // --- INFORMACOES DA CLASSE ---
@@ -136,22 +137,22 @@ void Bardo::usarHabilidadeClasse(Personagem* personagemUsuario, std::vector<Pers
             int cura = static_cast<int>((personagemHabilidade->obterSabedoria() * 2) + (personagemHabilidade->obterVidaMaxima() * 0.15));
             personagemHabilidade->modificarVida(cura);
             personagemHabilidade->definirCooldown(HabilidadeID::FlashingLights, 3);
-            std::string msg = Aparencia::cor(Cor::VERDE) + "[HABILIDADE]: !Flashing lights! Voce recuperou " + std::to_string(cura) + " HP e encantou os inimigos!" + Aparencia::cor(Cor::RESET);
+            std::string msg = FuncoesDialogo::formatarMsgHabilidade("!Flashing lights! Voce recuperou " + std::to_string(cura) + " HP e encantou os inimigos!", Cor::VERDE);
             this->notificarMensagemCombate(msg, msg);
         }},
         { HabilidadeID::OnSight, "On sight", "1.5x Dano no proximo ataque", [this](Personagem* personagemHabilidade) {
             personagemHabilidade->definirMultiplicador(1.5);
             personagemHabilidade->definirCooldown(HabilidadeID::OnSight, 3);
-            std::string msg1 = Aparencia::cor(Cor::VERDE_CLARO) + personagemHabilidade->obterNome() + " tocou 'On sight' e ganhara 1.5x de dano!" + Aparencia::cor(Cor::RESET);
+            std::string msg1 = FuncoesDialogo::formatarMsgHabilidade(personagemHabilidade->obterNome() + " tocou 'On sight' e ganhara 1.5x de dano!");
             this->notificarMensagemCombate(msg1, msg1);
-            std::string msg2 = Aparencia::cor(Cor::VERDE_CLARO) + "[HABILIDADE]: !On sight! Seu proximo ataque causara 1.5x de dano!" + Aparencia::cor(Cor::RESET);
+            std::string msg2 = FuncoesDialogo::formatarMsgHabilidade("!On sight! Seu proximo ataque causara 1.5x de dano!");
             this->notificarMensagemCombate(msg2, msg2);
         }},
         { HabilidadeID::ThroughTheWire, "Through the wire", "Metade do dano recebido", [this](Personagem* personagemHabilidade) {
             personagemHabilidade->adicionarEfeito(std::make_unique<EfeitoMetadeDano>(1));
             personagemHabilidade->definirCooldown(HabilidadeID::ThroughTheWire, 3);
-            std::string msg = "[HABILIDADE]: !Through the wire! Voce esta protegido contra metade do dano recebido!";
-            this->notificarMensagemCombate(Aparencia::cor(Cor::CIANO) + msg + Aparencia::cor(Cor::RESET), msg);
+            std::string msg = FuncoesDialogo::formatarMsgHabilidade("!Through the wire! Voce esta protegido contra metade do dano recebido!", Cor::CIANO);
+            this->notificarMensagemCombate(msg, msg);
         }}
     }};
 
@@ -176,9 +177,3 @@ void Bardo::usarHabilidadeClasse(Personagem* personagemUsuario, std::vector<Pers
 
     hab.acao(personagemUsuario);
 }
-
-
-
-
-
-

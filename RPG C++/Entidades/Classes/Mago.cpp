@@ -5,6 +5,7 @@
 
 #include "../../Sistemas/Inventario/FabricaItens.h"
 #include "../../Core/Utilidades/Aparencia.h"
+#include "../../Core/Utilidades/FuncoesDialogo.h"
 #include "../../Interface/Telas/Combate/TelaCombate.h"
 
 // --- INFORMACOES DA CLASSE ---
@@ -118,10 +119,10 @@ void Mago::usarHabilidadeClasse(Personagem* personagemUsuario, std::vector<Perso
     Item* escudo = personagemUsuario->obterEscudo();
     if (escudo) {
         personagemUsuario->definirDefendendo(true);
-        std::string msg = Aparencia::cor(Cor::VERDE_CLARO) + "[HABILIDADE]: Canalizacao arcana! Voce se defende com " + escudo->obterNomeItem() + " e prepara um ataque devastador (2x Dano)!" + Aparencia::cor(Cor::RESET);
+        std::string msg = FuncoesDialogo::formatarMsgHabilidade("Canalizacao arcana! Voce se defende com " + escudo->obterNomeItem() + " e prepara um ataque devastador (2x Dano)!");
         notificarMensagemCombate(msg, msg);
     } else {
-        std::string msg = Aparencia::cor(Cor::VERDE_CLARO) + "[HABILIDADE]: Canalizacao arcana! Voce foca sua energia para um ataque devastador (2x Dano) no proximo turno!" + Aparencia::cor(Cor::RESET);
+        std::string msg = FuncoesDialogo::formatarMsgHabilidade("Canalizacao arcana! Voce foca sua energia para um ataque devastador (2x Dano) no proximo turno!");
         notificarMensagemCombate(msg, msg);
     }
 }
@@ -131,8 +132,8 @@ int Mago::processarDanoPreAtaque(Personagem* atacante, Personagem* defensor, int
     if (defensor == nullptr) return danoBase;
     if (!isAtacanteJogador || qtdInimigos <= 1) {
         int danoAumentado = static_cast<int>(danoBase * 1.25);
-        std::string logMsg = "[Foco Arcano]: Dano concentrado aumentado em 25%!";
-        notificarMensagemCombate(Aparencia::cor(Cor::MAGENTA) + logMsg + Aparencia::cor(Cor::RESET), logMsg);
+        std::string logMsg = FuncoesDialogo::formatarMsgHabilidade("Foco Arcano: Dano concentrado aumentado em 25%!", Cor::MAGENTA);
+        notificarMensagemCombate(logMsg, logMsg);
         return danoAumentado;
     }
     return danoBase;
@@ -142,8 +143,8 @@ void Mago::processarDanoPosAtaque(Personagem* atacante, Personagem* alvoAtual, P
     if (isAtacanteJogador && !isArea && alvoAtual != defensorPrincipal && alvoAtual->obterVida() > 0) {
         if (!ativouPassiva) {
             int danoAreaMsg = static_cast<int>(danoBase * 0.25);
-            std::string logMsg = "[Foco Arcano]: A magia ressoa, causando " + std::to_string(danoAreaMsg) + " de dano aos inimigos proximos!";
-            notificarMensagemCombate(Aparencia::cor(Cor::MAGENTA) + logMsg + Aparencia::cor(Cor::RESET), logMsg);
+            std::string logMsg = FuncoesDialogo::formatarMsgHabilidade("Foco Arcano: A magia ressoa, causando " + std::to_string(danoAreaMsg) + " de dano aos inimigos proximos!", Cor::MAGENTA);
+            notificarMensagemCombate(logMsg, logMsg);
             ativouPassiva = true;
         }
         int danoArea = static_cast<int>(danoBase * 0.25);
@@ -151,9 +152,3 @@ void Mago::processarDanoPosAtaque(Personagem* atacante, Personagem* alvoAtual, P
         aplicarDano(atacante, alvoAtual, danoArea, perfuranteArea);
     }
 }
-
-
-
-
-
-

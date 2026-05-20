@@ -10,6 +10,7 @@
 #include "../../Entidades/Personagem.h"
 #include "../../Core/Utilidades/GeradorAleatorio.h"
 #include "../../Core/Utilidades/Aparencia.h"
+#include "../../Core/Utilidades/FuncoesDialogo.h"
 
 bool Parry::tentarParry(Personagem* atacante, int danoMitigado, int& quantidadeDeDanoReduzido) 
 {
@@ -42,17 +43,18 @@ bool Parry::executarMinigame(int quantidadeDeNumerosParaDigitar, int tempoLimite
         quantidadeDeDanoReduzido += numeroAleatorio;
     }
 
-    std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << "[PARRY] O inimigo ataca! Digite a sequencia rapidamente para defender!" << Aparencia::cor(Cor::RESET) << "\n";
+    std::cout << "\n" << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgCombate("O inimigo ataca! Digite a sequencia rapidamente para defender!", Cor::VERMELHO) << "\n";
     
-    std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << "[PARRY] Sequencia: " << Aparencia::cor(Cor::AMARELO) << std::flush;
+    std::cout << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgCombate("Sequencia: ", Cor::VERMELHO) << Aparencia::cor(Cor::AMARELO) << std::flush;
     for (char c : sequenciaGeradaPeloSistema) {
         std::cout << c << std::flush;
         std::this_thread::sleep_for(std::chrono::milliseconds(150));
     }
     std::cout << Aparencia::cor(Cor::RESET) << "\n";
 
-    std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << "[PARRY] Tempo Limite: " << Aparencia::cor(Cor::BRANCO) << tempoLimiteEmSegundos << Aparencia::cor(Cor::VERMELHO) << " segundos!" << Aparencia::cor(Cor::RESET) << "\n";
-    std::cout << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << "[PARRY] Digite: " << Aparencia::cor(Cor::BRANCO) << std::flush;
+    std::string tempoMsg = "Tempo Limite: " + Aparencia::cor(Cor::BRANCO) + std::to_string(tempoLimiteEmSegundos) + Aparencia::cor(Cor::VERMELHO) + " segundos!";
+    std::cout << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgCombate(tempoMsg, Cor::VERMELHO) << "\n";
+    std::cout << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgCombate("Digite: ", Cor::VERMELHO) << Aparencia::cor(Cor::BRANCO) << std::flush;
 
     std::string entradaDigitadaPeloJogador = "";
     
@@ -62,7 +64,8 @@ bool Parry::executarMinigame(int quantidadeDeNumerosParaDigitar, int tempoLimite
         auto tempoAtual = std::chrono::steady_clock::now();
         std::chrono::duration<double> tempoDecorrido = tempoAtual - tempoInicial;
         if (tempoDecorrido.count() > tempoLimiteEmSegundos) {
-            std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::FUNDO_VERMELHO) << "[PARRY] TEMPO ESGOTADO (" << tempoDecorrido.count() << "s)!" << Aparencia::cor(Cor::RESET) << "\n";
+            std::string timeoutMsg = "TEMPO ESGOTADO (" + std::to_string(tempoDecorrido.count()) + "s)!";
+            std::cout << "\n" << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgCombate(timeoutMsg, Cor::FUNDO_VERMELHO) << "\n";
             return false;
         }
         if (ControleDeInput::teclaPressionada()) 
@@ -83,9 +86,3 @@ bool Parry::executarMinigame(int quantidadeDeNumerosParaDigitar, int tempoLimite
     }
     return entradaDigitadaPeloJogador == sequenciaGeradaPeloSistema;
 }
-
-
-
-
-
-

@@ -12,6 +12,7 @@
 #include "../../../Core/Controladores/CriadorInimigos.h"
 #include "../../../Interface/Telas/Menu/TelaMenu.h"
 #include "../../../Core/Utilidades/Aparencia.h"
+#include "../../../Core/Utilidades/FuncoesDialogo.h"
 #include "../../../Sistemas/Progresso/Diario.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"
 #include "NPCCavaleiroGenericoLayout.h"
@@ -45,11 +46,11 @@ namespace {
     // --- APARENCIA E DIALOGOS ---
     void dialogoCavaleiro(const std::string& texto, bool novaLinhaAntes = true, bool novaLinhaDepois = true) {
         // Removido o "  " extra para consistência com a nova função auxiliar e outros NPCs.
-        Aparencia::imprimirDialogoNPC("Cavaleiro Real", Cor::CINZA, texto, novaLinhaAntes, novaLinhaDepois);
+        FuncoesDialogo::imprimirDialogoNPC("Cavaleiro Real", Cor::CINZA, texto, novaLinhaAntes, novaLinhaDepois);
     }
 
     void dialogoCavaleiro(const std::vector<std::string>& linhas) {
-        Aparencia::imprimirDialogoNPC("Cavaleiro Real", Cor::CINZA, linhas);
+        FuncoesDialogo::imprimirDialogoNPC("Cavaleiro Real", Cor::CINZA, linhas);
     }
 
     bool buscarTrollProximo(const std::vector<std::string>& mapa, int startX, int startY, int& outX, int& outY) {
@@ -107,11 +108,11 @@ void NPCCavaleiroGenerico::interagir(Personagem* jogadorAtual, bool& trollDerrot
 
         if (posicaoTrollX == -1) {
             exibirTelaCavaleiro("CAVALEIROS REAIS", {
-                "Ainda temos invasores no reino!,",
+                "Ainda temos invasores no reino!",
                 "voce precisa de permissao se nao quiser ser",
                 "tratado como invasor tambem...",
                 "Nos ajude a derrotar todos e podemos",
-                "garantir sua entrar no reino!"
+                "garantir sua entrada no reino!"
             });
             
             ControleDeInput::aguardarEnter();
@@ -161,7 +162,7 @@ void NPCCavaleiroGenerico::interagir(Personagem* jogadorAtual, bool& trollDerrot
                 "Como prometido, aqui esta a sua recompensa."
             });
             
-            std::vector<std::string> info = { Aparencia::cor(Cor::AMARELO) + "[SISTEMA]: Voce recebeu o [Convite Real]!" + Aparencia::cor(Cor::RESET) };
+            std::vector<std::string> info = { FuncoesDialogo::formatarMsgInteracao("Voce recebeu o [Convite Real]!") };
             Aparencia::imprimirBlocoCentralizado(info);
             
             jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::ConviteReal));
@@ -176,9 +177,3 @@ void NPCCavaleiroGenerico::interagir(Personagem* jogadorAtual, bool& trollDerrot
         }
     }
 }
-
-
-
-
-
-

@@ -21,6 +21,7 @@
 #include "Bestiario.h"
 #include "Diario.h"
 #include "../../Core/Utilidades/Aparencia.h"
+#include "../../Core/Utilidades/FuncoesDialogo.h"
 #include "../../Entidades/Personagem.h"
 
 namespace {
@@ -122,7 +123,7 @@ std::vector<std::string> Salvamento::listarSaves() {
             }
         }
     } catch (const std::exception& e) {
-        std::cerr << "[SISTEMA]: Erro ao ler diretorio de saves: " << e.what() << "\n";
+        std::cerr << FuncoesDialogo::formatarMsgSistema(std::string("Erro ao ler diretorio de saves: ") + e.what(), Cor::VERMELHO) << "\n";
     }
     return saves;
 }
@@ -267,12 +268,6 @@ void Salvamento::deletarSave(const std::string& nomeArquivo) {
     try {
         std::filesystem::remove(nomeArquivo);
     } catch (const std::exception& e) {
-        std::cerr << "[SISTEMA]: Erro ao deletar save: " << e.what() << "\n";
+        std::cerr << FuncoesDialogo::formatarMsgSistema(std::string("Erro ao deletar save: ") + e.what(), Cor::VERMELHO) << "\n";
     }
 }
-
-
-
-
-
-

@@ -10,6 +10,7 @@
 #include "TelaCombate.h"
 #include "../../../Entidades/Personagem.h"
 #include "../../../Core/Utilidades/Aparencia.h"
+#include "../../../Core/Utilidades/FuncoesDialogo.h"
 #include "../../../Entidades/Racas/RacaBase.h"
 #include "../../../Entidades/Classes/ClasseBase.h"
 #include "../../../Sistemas/Inventario/Item.h"
@@ -877,50 +878,50 @@ int TelaCombate::obterEscolhaDeEscudo(const std::string& nomePersonagem, const s
 }
 
 void TelaCombate::notificarInimigosMaisAgeis() {
-    std::string msg = "[SISTEMA]: Os inimigos sao mais ageis e atacam primeiro!";
-    std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << msg << Aparencia::cor(Cor::RESET) << "\n";
+    std::string msg = FuncoesDialogo::formatarMsgSistema("Os inimigos sao mais ageis e atacam primeiro!", Cor::VERMELHO);
+    std::cout << "\n" << Aparencia::margemCombate() << msg << "\n";
     Aparencia::registrarLogBatalha(msg);
     ControleDeInput::aguardarEnter();
 }
 
 void TelaCombate::notificarTurnoExtra(int destrezaJogador, int maxDestrezaInimigos) {
-    std::string msg = "[SISTEMA]: Sua agilidade extrema (" + std::to_string(destrezaJogador) + " VS " + std::to_string(maxDestrezaInimigos) + ") permite que voce aja novamente!";
-    std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::CIANO) << msg << Aparencia::cor(Cor::RESET) << "\n";
+    std::string msg = FuncoesDialogo::formatarMsgSistema("Sua agilidade extrema (" + std::to_string(destrezaJogador) + " VS " + std::to_string(maxDestrezaInimigos) + ") permite que voce aja novamente!", Cor::CIANO);
+    std::cout << "\n" << Aparencia::margemCombate() << msg << "\n";
     Aparencia::registrarLogBatalha(msg);
     ControleDeInput::aguardarEnter();
 }
 
 void TelaCombate::notificarDesprevencaoInventario() {
-    std::string msg = "[SISTEMA]: O inimigo te pegou desprevinido enquanto voce usava o inventario!";
-    std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::AMARELO) << msg << Aparencia::cor(Cor::RESET) << "\n";
+    std::string msg = FuncoesDialogo::formatarMsgSistema("O inimigo te pegou desprevinido enquanto voce usava o inventario!");
+    std::cout << "\n" << Aparencia::margemCombate() << msg << "\n";
     Aparencia::registrarLogBatalha(msg);
 }
 
 void TelaCombate::notificarSemEscudos(const std::string& nomePersonagem) {
-    std::cout << "\n" << Aparencia::margemCombate() << "[!] " << nomePersonagem << " nao possui escudos no inventario para usar!\n";
+    std::cout << "\n" << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgSistema(nomePersonagem + " nao possui escudos no inventario para usar!", Cor::VERMELHO) << "\n";
 }
 
 void TelaCombate::notificarDesequilibrioDefesa(const std::string& nomePersonagem) {
-    std::string msg = "[ERRO]: " + nomePersonagem + " se desequilibrou e precisa de 1 turno para poder defender novamente!";
+    std::string msg = FuncoesDialogo::formatarMsgSistema(nomePersonagem + " se desequilibrou e precisa de 1 turno para poder defender novamente!", Cor::VERMELHO);
     std::cout << "\n" << Aparencia::margemCombate() << msg << "\n";
     Aparencia::registrarLogBatalha(msg);
     ControleDeInput::aguardarEnter();
 }
 
 void TelaCombate::notificarPosturaDefensiva(const std::string& nomePersonagem, const std::string& nomeEscudo) {
-    std::string msg = "[SISTEMA]: " + nomePersonagem + " assumiu uma postura defensiva com " + nomeEscudo + "!";
+    std::string msg = FuncoesDialogo::formatarMsgSistema(nomePersonagem + " assumiu uma postura defensiva com " + nomeEscudo + "!", Cor::BRANCO);
     std::cout << "\n" << Aparencia::margemCombate() << msg << "\n";
     Aparencia::registrarLogBatalha(msg);
     ControleDeInput::aguardarEnter();
 }
 
 void TelaCombate::notificarAcaoInvalida() {
-    std::cout << "\n" << Aparencia::margemCombate() << "[ERRO] Acao invalida!\n";
+    std::cout << "\n" << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgSistema("Acao invalida!", Cor::VERMELHO) << "\n";
     ControleDeInput::aguardarEnter();
 }
 
 void TelaCombate::notificarCancelamentoItem() {
-    std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA] Uso do frasco cancelado. O item voltou para a mochila.\n";
+    std::cout << "\n" << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgSistema("Uso do frasco cancelado. O item voltou para a mochila.") << "\n";
 }
 
 void TelaCombate::notificarRequisitoNaoAtendido(const std::string& mensagemRequisito) {
@@ -971,9 +972,3 @@ void TelaCombate::animarDanoNoJogador(const std::string& tituloCombate, const st
         renderizarCenaPadrao(tituloCombate, listaDeInimigos, nullptr, 0, false, false, nullptr, jogadorAtual, listaDeAliados);
     });
 }
-
-
-
-
-
-

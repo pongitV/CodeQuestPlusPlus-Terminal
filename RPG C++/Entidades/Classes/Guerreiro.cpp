@@ -5,6 +5,7 @@
 
 #include "../../Sistemas/Inventario/FabricaItens.h"
 #include "../../Core/Utilidades/Aparencia.h"
+#include "../../Core/Utilidades/FuncoesDialogo.h"
 #include "../../Interface/Telas/Combate/TelaCombate.h"
 
 // --- INFORMACOES DA CLASSE ---
@@ -113,8 +114,9 @@ void Guerreiro::usarHabilidadeClasse(Personagem* personagemUsuario, std::vector<
     if (verificarEReportarRecarga(personagemUsuario, turnosRestantes, obterNomeHabilidadeClasse())) return;
 
     if (personagemUsuario->possuiEfeito(EfeitoID::GritoDeGuerra)) {
-        std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: A habilidade " << obterNomeHabilidadeClasse() << " ja esta ativa!\n";
-        Aparencia::registrarLogBatalha("[SISTEMA]: A habilidade " + obterNomeHabilidadeClasse() + " ja esta ativa!");
+        std::string msg = FuncoesDialogo::formatarMsgSistema("A habilidade " + obterNomeHabilidadeClasse() + " ja esta ativa!", Cor::AMARELO);
+        std::cout << "\n" << Aparencia::margemCombate() << msg << "\n";
+        Aparencia::registrarLogBatalha(msg);
         ControleDeInput::aguardarEnter();
         personagemUsuario->definirHabilidadeCancelada(true);
         return;
@@ -126,7 +128,7 @@ void Guerreiro::usarHabilidadeClasse(Personagem* personagemUsuario, std::vector<
     personagemUsuario->adicionarEfeito(std::make_unique<EfeitoGritoGuerra>(2, bonusForca, bonusDestreza));
     personagemUsuario->definirCooldown(HabilidadeID::Determinacao, 4);
     
-    std::string msg = Aparencia::cor(Cor::VERDE_CLARO) + "[HABILIDADE]: Grito de guerra! Forca +" + std::to_string(bonusForca) + " e Destreza +" + std::to_string(bonusDestreza) + "!" + Aparencia::cor(Cor::RESET);
+    std::string msg = FuncoesDialogo::formatarMsgHabilidade("Grito de guerra! Forca +" + std::to_string(bonusForca) + " e Destreza +" + std::to_string(bonusDestreza) + "!");
     notificarMensagemCombate(msg, msg);
 }
 
@@ -146,15 +148,9 @@ int Guerreiro::processarDanoPreAtaque(Personagem* atacante, Personagem* defensor
     
     if (bonus > 0) {
         danoFinal = static_cast<int>(danoFinal * (1.0 + bonus / 100.0));
-        std::string textoLog = "[Golpe Decisivo]: O inimigo esta " + estado + "! Dano aumentado em " + std::to_string(bonus) + "%!";
-        notificarMensagemCombate(Aparencia::cor(Cor::VERMELHO) + textoLog + Aparencia::cor(Cor::RESET), textoLog);
+        std::string textoLog = FuncoesDialogo::formatarMsgHabilidade("Golpe Decisivo: O inimigo esta " + estado + "! Dano aumentado em " + std::to_string(bonus) + "%!", Cor::VERMELHO);
+        notificarMensagemCombate(textoLog, textoLog);
     }
     
     return danoFinal;
 }
-
-
-
-
-
-

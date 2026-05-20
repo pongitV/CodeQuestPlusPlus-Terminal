@@ -5,6 +5,7 @@
 #include "../../Interface/Telas/Combate/TelaCombate.h"
 #include "../Utilidades/GeradorAleatorio.h"
 #include "../../Sistemas/Progresso/Diario.h"
+#include "../Utilidades/FuncoesDialogo.h"
 
 void Drops::relatarEProcessarXpOuro(Personagem* jogador, int xpDrop, int ouroDrop, int& ouroTotal, int& xpTotal) 
 {
@@ -13,13 +14,13 @@ void Drops::relatarEProcessarXpOuro(Personagem* jogador, int xpDrop, int ouroDro
     xpTotal += xpDrop;
     ouroTotal += ouroDrop;
 
-    Aparencia::registrarLogBatalha(Aparencia::cor(Cor::AMARELO) + "+" + std::to_string(ouroDrop) + "G" + Aparencia::cor(Cor::RESET));
-    Aparencia::registrarLogBatalha(Aparencia::cor(Cor::CIANO) + "+" + std::to_string(xpDrop) + " XP" + Aparencia::cor(Cor::RESET));
+    if (ouroDrop > 0) Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgDrop("+" + std::to_string(ouroDrop) + "G", Cor::AMARELO));
+    if (xpDrop > 0) Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgDrop("+" + std::to_string(xpDrop) + " XP", Cor::CIANO));
 }
 
 void Drops::relatarDropItem(const std::string& nomeItem, int quantidade) 
 {
-    Aparencia::registrarLogBatalha(Aparencia::cor(Cor::BRANCO) + "+" + std::to_string(quantidade) + "x " + nomeItem + Aparencia::cor(Cor::RESET));
+    Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgDrop("+" + std::to_string(quantidade) + "x " + nomeItem, Cor::BRANCO));
 }
 
 void Drops::darEProcessarItem(Personagem* jogador, ItemID idItem, int quantidade, std::vector<std::string>& itensObtidos, int chanceDeDrop)
@@ -41,10 +42,3 @@ void Drops::darEProcessarItem(Personagem* jogador, ItemID idItem, int quantidade
     Diario::instancia().registrarItem(Aparencia::removerCoresANSI(nomeItem));
     relatarDropItem(nomeItem, quantidade);
 }
-
-
-
-
-
-
-
