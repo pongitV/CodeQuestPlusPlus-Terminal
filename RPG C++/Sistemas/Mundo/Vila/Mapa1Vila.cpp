@@ -213,6 +213,10 @@ ProximaTransicaoMapa Mapa1Vila::iniciarLoopDeExploracao()
         if (celula == 'G' || celula == 'O') return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
         if (celula == 'B') return Aparencia::cor(Cor::NEGRITO, Cor::CIANO) + "B" + Aparencia::cor(Cor::RESET);
         if (celula == 'F' && x > 0 && matrizDoMapaAtual[y][x-1] == '.') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "F" + Aparencia::cor(Cor::RESET);
+        
+        // Remove a exibicao visual dos pontos (chao) para deixar o mapa mais limpo
+        if (celula == '.') return " ";
+        
         return std::string(1, celula);
     };
 

@@ -325,7 +325,9 @@ ProximaTransicaoMapa Mapa2Floresta::iniciarLoopDeExploracao()
         if (celula == 'M') return Aparencia::cor(Cor::NEGRITO, Cor::MAGENTA) + "M" + Aparencia::cor(Cor::RESET);
         if (celula == 'B') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "B" + Aparencia::cor(Cor::RESET);
         if (tituloDoMapaAtual == "SALA DO CHEFE" && (celula == 'M' || celula == 'A' || celula == 'H' || celula == 'O' || celula == 'R' || celula == 'G')) return Aparencia::cor(Cor::NEGRITO, Cor::MAGENTA) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
-        if (tituloDoMapaAtual == "SALA DO CHEFE" && celula == '.') return Aparencia::cor(Cor::CINZA) + "." + Aparencia::cor(Cor::RESET);
+        
+        // Remove a exibicao visual dos pontos (chao) para deixar o mapa mais limpo, sem quebrar a logica de colisao original
+        if (celula == '.' && tituloDoMapaAtual != "LABIRINTO SUBTERRANEO") return " ";
         
         if (tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") {
             auto isHWall = [](char c) { return c == '=' || c == '.' || c == '\''; };

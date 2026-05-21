@@ -303,8 +303,13 @@ int ControleMapa::animarIntroducaoMapa(
     Aparencia::animarFadeIn(15, 100, [&](int frame, int intensidade) {
         auto formatadorFade = [&](char celula, int x, int y) -> std::string {
             if (frame == 15) return formatadorCelula(celula, x, y);
+            
+            std::string stringFormatada = formatadorCelula(celula, x, y);
+            std::string caractereLimpo = Aparencia::removerCoresANSI(stringFormatada);
+            if (caractereLimpo == " " || caractereLimpo.empty()) return " ";
+            
             std::string corRGB = Aparencia::obterCorRGBFade(Cor::BRANCO, intensidade);
-            return corRGB + std::string(1, celula) + "\033[0m";
+            return corRGB + caractereLimpo + "\033[0m";
         };
 
         renderizarMapa(matrizDoMapa, posicaoXDoJogador, posicaoYDoJogador, larguraTerminal, alturaTerminal, linhaInicialMapa, formatadorFade);
@@ -360,15 +365,17 @@ void ControleMapa::renderizarMapa(const std::vector<std::string>& matrizDoMapa, 
     int startY, endY;
     calcularCameraVertical(alturaDoTerminal, linhaInicial, posicaoYDoJogador, static_cast<int>(matrizDoMapa.size()), startY, endY);
 
+    std::cout << margemEsquerdaControles << Aparencia::cor(Cor::CINZA) << textoDeControles << Aparencia::cor(Cor::RESET) << "\n\n";
+
     for (int y = startY; y < endY; y++) {
         std::string linhaSendoRenderizada = margemEsquerdaDoMapa;
         linhaSendoRenderizada.reserve(margemEsquerdaDoMapa.size() + (endX - startX) * 10);
         for (int x = startX; x < endX; x++) {
             linhaSendoRenderizada += formatadorCelula(matrizDoMapa[y][x], x, y);
         }
-        std::cout << linhaSendoRenderizada << "\n";
+        std::cout << linhaSendoRenderizada << "\033[K\n";
     }
-    std::cout << "\n" << margemEsquerdaControles << textoDeControles << std::flush;
+    std::cout << "\033[J" << std::flush;
 }
 
 void ControleMapa::executarLoopDeExploracao(

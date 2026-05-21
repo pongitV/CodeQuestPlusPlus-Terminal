@@ -69,6 +69,11 @@ std::string Aparencia::cor(Cor estilo, Cor codigo) {
 void Aparencia::maximizarJanelaTerminal() {
 #ifdef _WIN32
     HWND hwnd = GetConsoleWindow();
+
+    // Define o estilo da janela para "popup" (sem bordas, sem barra de titulo)
+    SetWindowLong(hwnd, GWL_STYLE, WS_POPUP);
+
+    // Maximiza a janela popup, que por padrao ocupa a tela inteira
     ShowWindow(hwnd, SW_MAXIMIZE);
 #endif
 }

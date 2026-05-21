@@ -229,6 +229,31 @@ namespace {
             }
             std::cout << "\n" << corBordaEsqDir << linhaEsq << Aparencia::cor(corDoTurno) << textoDoTurno << corBordaEsqDir << linhaDir << Aparencia::cor(Cor::RESET) << "\n";
 
+            if (alvoDanoJogador != nullptr && danoAnimacao > 0 && frame > 0 && !isCura) {
+                int shakeX = (frame % 2 == 0) ? 4 : -4;
+                std::string padEsq = (shakeX > 0) ? std::string(shakeX, ' ') : "";
+                std::string padDir = (shakeX < 0) ? std::string(-shakeX, ' ') : "";
+
+                std::string nomeAtacante = "Desconhecido";
+                if (g_inimigoAtacanteParry != nullptr) {
+                    for (size_t i = 0; i < inimigos.size(); ++i) {
+                        if (inimigos[i] == g_inimigoAtacanteParry) {
+                            nomeAtacante = inimigos[i]->obterNome() + " (" + std::to_string(i + 1) + ")";
+                            break;
+                        }
+                    }
+                    if (nomeAtacante == "Desconhecido") nomeAtacante = g_inimigoAtacanteParry->obterNome();
+                }
+
+                std::string mensagemDano = nomeAtacante + " causou " + std::to_string(danoAnimacao) + " de dano em " + alvoDanoJogador->obterNome() + "!";
+
+                std::cout << "\n";
+                if (frame % 2 == 0) std::cout << "\n"; // Tremor vertical da mensagem
+                
+                int espacosCentralizar = std::max(0, (larguraTerminal - Aparencia::obterComprimentoVisual(mensagemDano)) / 2);
+                std::cout << padEsq << std::string(espacosCentralizar, ' ') << "\033[1;38;2;255;50;50m" << mensagemDano << Aparencia::cor(Cor::RESET) << padDir << "\n";
+            }
+
             if (!mensagensFixasCombate.empty()) {
                 std::cout << "\n";
                 for (const auto& msg : mensagensFixasCombate) {
@@ -427,22 +452,13 @@ std::vector<std::string> TelaCombate::obterLinhasBarraDeStatusDoJogador(Personag
     std::string statusStr = gerarStringDeStatus(jogadorAtual, tempoMs);
 
     std::string fctPrint = "";
-    if (danoAnimacao > 0 && frameAnimacao > 0) {
+    if (danoAnimacao > 0 && frameAnimacao > 0 && isCura) {
         std::string corFCT;
-        std::string textoFlutuante;
-        if (isCura) {
-            textoFlutuante = "+" + std::to_string(danoAnimacao) + "!";
-            if (frameAnimacao <= 3) corFCT = "\033[1;38;2;150;255;150m";
-            else if (frameAnimacao <= 6) corFCT = "\033[1;38;2;50;255;50m";
-            else if (frameAnimacao <= 9) corFCT = "\033[1;38;2;0;200;0m";
-            else corFCT = "\033[1;38;2;0;150;0m";
-        } else {
-            textoFlutuante = "-" + std::to_string(danoAnimacao) + "!";
-            if (frameAnimacao <= 3) corFCT = "\033[1;38;2;255;200;0m";
-            else if (frameAnimacao <= 6) corFCT = "\033[1;38;2;255;100;0m";
-            else if (frameAnimacao <= 9) corFCT = "\033[1;38;2;255;0;0m";
-            else corFCT = "\033[1;38;2;150;0;0m";
-        }
+        std::string textoFlutuante = "+" + std::to_string(danoAnimacao) + "!";
+        if (frameAnimacao <= 3) corFCT = "\033[1;38;2;150;255;150m";
+        else if (frameAnimacao <= 6) corFCT = "\033[1;38;2;50;255;50m";
+        else if (frameAnimacao <= 9) corFCT = "\033[1;38;2;0;200;0m";
+        else corFCT = "\033[1;38;2;0;150;0m";
         fctPrint = "  " + corFCT + textoFlutuante + "\033[0m";
     }
     std::string emptyPad(10, ' ');

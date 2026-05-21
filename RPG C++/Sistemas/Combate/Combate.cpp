@@ -436,17 +436,20 @@ void Combate::executarTurnoDeTodosOsInimigos()
         registrarLog(textoTurnoInimigos);
             TelaCombate::definirTurnoVisivel(contadorDoTurnoAtual, "INIMIGOS");
             exibirTelaDeCombate(false); // Forca o HUD a atualizar o nome do Turno para os inimigos antes do ataque iniciar
-        for (auto& inimigoAtualPtr : listaDeInimigos) 
+        for (size_t i = 0; i < listaDeInimigos.size(); ++i) 
         {
+            auto& inimigoAtualPtr = listaDeInimigos[i];
             if (jogadorAtual->obterVida() <= 0) break; // Interrompe se o jogador morrer
             
             Personagem* inimigoAtual = inimigoAtualPtr.get();
             inimigoAtual->processarEfeitosInicioTurno();
             if (inimigoAtual->obterVida() <= 0) continue;
 
+            bool agiu = false;
             std::string motivoIncapacidade;
             if (inimigoAtual->podeAgir(motivoIncapacidade)) 
             {
+                agiu = true;
                 Personagem* alvo = jogadorAtual;
                 std::vector<Personagem*> aliadosVivos = obterAliadosVivosRaw();
                 if (!aliadosVivos.empty()) {
@@ -464,6 +467,10 @@ void Combate::executarTurnoDeTodosOsInimigos()
             {
                 // A mensagem na UI foi removida para priorizar o combate limpo
                 registrarLog(FuncoesDialogo::formatarMsgStatus(inimigoAtual->obterNome() + " esta sob efeito de " + motivoIncapacidade + " e nao pode agir!", Cor::VERDE));
+            }
+
+            if (agiu && i < listaDeInimigos.size() - 1 && jogadorAtual->obterVida() > 0) {
+                ControleDeInput::aguardarEnter("... o ataque continua ...");
             }
         }
     }
