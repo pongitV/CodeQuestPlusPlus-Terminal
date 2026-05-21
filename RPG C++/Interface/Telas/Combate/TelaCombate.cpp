@@ -6,6 +6,7 @@
 #include <chrono>
 #include <sstream>
 #include <functional>
+#include <unordered_map>
 
 #include "TelaCombate.h"
 #include "../../../Entidades/Personagem.h"
@@ -21,6 +22,16 @@ extern Personagem* g_inimigoAtacanteParry;
 extern int g_parryStatus;
 
 namespace {
+    struct PlayerHUDVisualState {
+        double hpFantasma = -1.0;
+        double hpAnterior = -1.0;
+        int ouroAnterior = -1;
+        int xpAnterior = -1;
+        long long tempoUltimaRecompensaOuro = 0;
+        long long tempoUltimaRecompensaXp = 0;
+    };
+    static std::unordered_map<Personagem*, PlayerHUDVisualState> hudStates;
+
     std::string gerarBarraDeXp(Personagem* jogadorAtual, const std::string& corXp, const std::string& corReset) {
         int tamanho = 8;
         double porcentagem = static_cast<double>(jogadorAtual->obterXpAtual()) / std::max(1, jogadorAtual->obterXpParaSubir());
@@ -43,14 +54,19 @@ namespace {
         }
     }
 
-    std::string gerarStringDeStatus(Personagem* jogadorAtual) {
+    std::string gerarStringDeStatus(Personagem* jogadorAtual, int tempoMs) {
         std::vector<EfeitoID> efeitos;
         jogadorAtual->obterIDsEfeitosAtivos(efeitos);
         std::string status = "";
+        bool piscaPerigo = (tempoMs / 300) % 2 == 0;
         for (EfeitoID id : efeitos) {
             auto disp = obterDisplayEfeito(id);
             if (!disp.nome.empty()) {
-                status += Aparencia::cor(disp.cor) + "[" + disp.nome + "]" + Aparencia::cor(Cor::RESET) + " ";
+                std::string corUsada = Aparencia::cor(disp.cor);
+                if ((id == EfeitoID::Sangramento || id == EfeitoID::Lentidao || id == EfeitoID::Fraqueza) && piscaPerigo) {
+                    corUsada = "\033[38;2;255;100;100m"; // Rosa/Vermelho claro perigo
+                }
+                status += corUsada + "[" + disp.nome + "]" + Aparencia::cor(Cor::RESET) + " ";
             }
         }
         return status.empty() ? "Nenhum" : status;
@@ -126,6 +142,9 @@ namespace {
     }
 
     void renderizarCenaPadrao(const std::string& titulo, const std::vector<Personagem*>& inimigos, Personagem* alvoAnimacao, int frame, bool isCura, bool isMorte, Item* arma, Personagem* jogadorAtual, const std::vector<Personagem*>& aliados, Personagem* alvoDanoJogador = nullptr, Cor corDanoJogador = Cor::RESET, int danoAnimacao = -1, const std::vector<std::string>& dropsAnimacao = {}, bool animarEntrada = false) {
+        auto agora = std::chrono::steady_clock::now();
+        int tempoMs = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(agora.time_since_epoch()).count());
+
         renderizarFrameBufferizado([&]() {
             (void)titulo;
             std::cout << "\n";
@@ -155,6 +174,8 @@ namespace {
 
             std::vector<std::string> painelDireito;
             if (TelaCombate::selecaoAcaoAtual != -1) {
+                std::string cursorIcon = ((tempoMs / 400) % 2 == 0) ? ">  " : " > ";
+
                 painelDireito.push_back("═══ ESCOLHA UMA ACAO ═══");
                 for (size_t i = 0; i < 3; ++i) {
                     std::string linhaDir = "";
@@ -163,7 +184,7 @@ namespace {
                         if (idx < TelaCombate::opcoesMenuAtual.size()) {
                             std::string op = "";
                             if (static_cast<int>(idx) == TelaCombate::selecaoAcaoAtual) {
-                                op = Aparencia::cor(Cor::VERDE) + " > " + TelaCombate::opcoesMenuAtual[idx] + Aparencia::cor(Cor::RESET);
+                                op = Aparencia::cor(Cor::VERDE) + cursorIcon + TelaCombate::opcoesMenuAtual[idx] + Aparencia::cor(Cor::RESET);
                             } else {
                                 op = "   " + TelaCombate::opcoesMenuAtual[idx];
                             }
@@ -200,7 +221,13 @@ namespace {
             for (int i = 0; i < tracosDir; ++i) linhaDir += "═";
             
             Cor corDoTurno = (TelaCombate::nomeTurnoVisivel == "INIMIGOS") ? Cor::VERMELHO : Cor::VERDE;
-            std::cout << "\n" << Aparencia::cor(Cor::BRANCO) << linhaEsq << Aparencia::cor(corDoTurno) << textoDoTurno << Aparencia::cor(Cor::BRANCO) << linhaDir << Aparencia::cor(Cor::RESET) << "\n";
+            std::string corBordaEsqDir;
+            if (TelaCombate::nomeTurnoVisivel == "INIMIGOS") {
+                corBordaEsqDir = "\033[38;2;120;0;0m"; // Vermelho estatico
+            } else {
+                corBordaEsqDir = "\033[38;2;0;120;0m"; // Verde estatico
+            }
+            std::cout << "\n" << corBordaEsqDir << linhaEsq << Aparencia::cor(corDoTurno) << textoDoTurno << corBordaEsqDir << linhaDir << Aparencia::cor(Cor::RESET) << "\n";
 
             if (!mensagensFixasCombate.empty()) {
                 std::cout << "\n";
@@ -314,6 +341,15 @@ std::vector<std::string> TelaCombate::obterLinhasBarraDeStatusDoJogador(Personag
     std::string nomeDoEscudo = (jogadorAtual->obterEscudo()) ? jogadorAtual->obterEscudo()->obterNomeItem() + jogadorAtual->obterEscudo()->obterInfoStatus() : "Nenhum";
     std::string nomeDaArmadura = (jogadorAtual->obterArmadura()) ? jogadorAtual->obterArmadura()->obterNomeItem() + jogadorAtual->obterArmadura()->obterInfoStatus() : "Trapos";
     
+    Item* consumivelRapido = jogadorAtual->obterConsumivelRapido();
+    std::string nomeCuraRapida = "Vazio";
+    if (consumivelRapido) {
+        nomeCuraRapida = consumivelRapido->obterNomeItem() + " (" + std::to_string(jogadorAtual->obterInventario()->contarItem(consumivelRapido->obterNomeItem())) + "x)";
+    }
+
+    auto agora = std::chrono::steady_clock::now();
+    int tempoMs = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(agora.time_since_epoch()).count());
+
     double porcentagemDeVida = static_cast<double>(jogadorAtual->obterVida()) / jogadorAtual->obterVidaMaxima();
     std::string corLaranja = Aparencia::cor(Cor::AMARELO);
     std::string corCiano = Aparencia::cor(Cor::CIANO);
@@ -321,15 +357,74 @@ std::vector<std::string> TelaCombate::obterLinhasBarraDeStatusDoJogador(Personag
     
     std::string corVida = (porcentagemDeVida > 0.70) ? Aparencia::cor(Cor::VERDE) : (porcentagemDeVida > 0.30) ? corLaranja : Aparencia::cor(Cor::VERMELHO);
 
-    std::vector<std::string> arteDoCoracao;
-    if (porcentagemDeVida > 0.70)      arteDoCoracao = { "   _   _   ", "  / \\_/ \\  ", "  \\     /  ", "   \\___/   " };
-    else if (porcentagemDeVida > 0.30) arteDoCoracao = { "   _   _   ", "  / \\// \\  ", "  \\  \\ /   ", "   \\___/   " };
-    else                               arteDoCoracao = { "  _     _  ", " / \\   / \\ ", " \\     \\_/ ", "  \\___/    " };
-    for (auto& linha : arteDoCoracao) linha = corVida + linha + corReset;
+    int velocidadeBatida = (porcentagemDeVida <= 0.30) ? 300 : 1000;
+    int frameBatida = (tempoMs % velocidadeBatida) < 150 ? 1 : 0;
 
-    std::string barraHP = Aparencia::gerarBarraSuave(porcentagemDeVida, 8, corVida, Aparencia::cor(Cor::CINZA));
-    std::string arteDeBarraDeXp = gerarBarraDeXp(jogadorAtual, corCiano, corReset);
-    std::string statusStr = gerarStringDeStatus(jogadorAtual);
+    std::string corCoracao = corVida;
+    if (frameBatida == 1) {
+        if (porcentagemDeVida > 0.70) corCoracao = "\033[38;2;150;255;150m"; // Verde mais claro
+        else if (porcentagemDeVida > 0.30) corCoracao = "\033[38;2;255;255;150m"; // Amarelo mais claro
+        else corCoracao = "\033[38;2;255;100;100m"; // Vermelho mais claro
+    }
+
+    std::vector<std::string> arteDoCoracao;
+    if (porcentagemDeVida > 0.70) {
+        if (frameBatida == 0) arteDoCoracao = { "   _   _   ", "  / \\_/ \\  ", "  \\     /  ", "   \\___/   " };
+        else                  arteDoCoracao = { "   _   _   ", "  / \\_/ \\  ", "  \\ \\_/ /  ", "   \\___/   " };
+    } else if (porcentagemDeVida > 0.30) {
+        if (frameBatida == 0) arteDoCoracao = { "   _   _   ", "  / \\// \\  ", "  \\  \\ /   ", "   \\___/   " };
+        else                  arteDoCoracao = { "   _   _   ", "  / \\// \\  ", "  \\ \\/ /   ", "   \\___/   " };
+    } else {
+        if (frameBatida == 0) arteDoCoracao = { "  _     _  ", " / \\   / \\ ", " \\     \\_/ ", "  \\___/    " };
+        else                  arteDoCoracao = { "  _     _  ", " / \\   / \\ ", " \\ \\_  \\_/ ", "  \\___/    " };
+    }
+    for (auto& linha : arteDoCoracao) linha = corCoracao + linha + corReset;
+
+    PlayerHUDVisualState& estadoHUD = hudStates[jogadorAtual];
+    double vidaAtual = jogadorAtual->obterVida();
+    if (estadoHUD.hpAnterior == -1.0) estadoHUD.hpFantasma = vidaAtual;
+    if (vidaAtual < estadoHUD.hpFantasma) {
+        estadoHUD.hpFantasma -= std::max(0.5, (estadoHUD.hpFantasma - vidaAtual) * 0.15);
+        if (estadoHUD.hpFantasma < vidaAtual) estadoHUD.hpFantasma = vidaAtual;
+    } else {
+        estadoHUD.hpFantasma = vidaAtual;
+    }
+    estadoHUD.hpAnterior = vidaAtual;
+
+    double porcentagemFantasma = estadoHUD.hpFantasma / jogadorAtual->obterVidaMaxima();
+    int tamanhoBarra = 8;
+    int qtdReal = static_cast<int>(porcentagemDeVida * tamanhoBarra * 8);
+    int qtdFantasma = static_cast<int>(porcentagemFantasma * tamanhoBarra * 8);
+    std::string barraHP = "";
+    std::string corFantasma = "\033[38;2;255;100;100m";
+    std::string corFundoHP = Aparencia::cor(Cor::CINZA);
+    std::string blocos[] = {" ", "▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"};
+    for (int i = 0; i < tamanhoBarra * 8; i += 8) {
+        if (qtdReal >= i + 8) barraHP += corVida + "█";
+        else if (qtdFantasma >= i + 8) {
+            if (qtdReal > i) barraHP += corVida + blocos[qtdReal - i];
+            else barraHP += corFantasma + "█";
+        } else if (qtdFantasma > i) {
+            if (qtdReal > i) barraHP += corVida + blocos[qtdReal - i];
+            else barraHP += corFantasma + blocos[qtdFantasma - i];
+        } else barraHP += corFundoHP + "░";
+    }
+
+    int ouroAtual = jogadorAtual->obterInventario()->obterOuro();
+    int xpAtual = jogadorAtual->obterXpAtual();
+    if (estadoHUD.ouroAnterior == -1) estadoHUD.ouroAnterior = ouroAtual;
+    if (estadoHUD.xpAnterior == -1) estadoHUD.xpAnterior = xpAtual;
+    if (ouroAtual > estadoHUD.ouroAnterior) estadoHUD.tempoUltimaRecompensaOuro = tempoMs;
+    if (xpAtual > estadoHUD.xpAnterior) estadoHUD.tempoUltimaRecompensaXp = tempoMs;
+    estadoHUD.ouroAnterior = ouroAtual;
+    estadoHUD.xpAnterior = xpAtual;
+    bool piscarOuro = (tempoMs - estadoHUD.tempoUltimaRecompensaOuro < 1500) && ((tempoMs / 150) % 2 == 0);
+    bool piscarXp = (tempoMs - estadoHUD.tempoUltimaRecompensaXp < 1500) && ((tempoMs / 150) % 2 == 0);
+    std::string corOuro = piscarOuro ? "\033[38;2;255;255;100m" : corLaranja;
+    std::string corXpStr = piscarXp ? "\033[38;2;150;255;255m" : corCiano;
+
+    std::string arteDeBarraDeXp = gerarBarraDeXp(jogadorAtual, corXpStr, corReset);
+    std::string statusStr = gerarStringDeStatus(jogadorAtual, tempoMs);
 
     std::string fctPrint = "";
     if (danoAnimacao > 0 && frameAnimacao > 0) {
@@ -370,9 +465,10 @@ std::vector<std::string> TelaCombate::obterLinhasBarraDeStatusDoJogador(Personag
     std::vector<std::string> linhasParaImprimir = 
     {
         "║ " + arteDoCoracao[0] + " ║ " + playerTag + " (" + jogadorAtual->obterRaca()->obterNomeRaca() + "/" + jogadorAtual->obterNomeClasse() + ") ║ HP: [" + barraHP + corReset + "] " + corVida + std::to_string(jogadorAtual->obterVida()) + corReset + "/" + std::to_string(jogadorAtual->obterVidaMaxima()) + parryPrint + fctPrint + emptyPad,
-        "║ " + arteDoCoracao[1] + " ║ NIVEL: " + std::to_string(jogadorAtual->obterNivel()) + " ║ XP: " + arteDeBarraDeXp + " ║ OURO: " + corLaranja + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G" + corReset + emptyPad,
-        "║ " + arteDoCoracao[2] + " ║ ARMA: " + nomeDaArma + " ║ ESC: " + nomeDoEscudo + " ║ ARM: " + nomeDaArmadura + emptyPad,
-        "║ " + arteDoCoracao[3] + " ║ STATUS: " + statusStr + emptyPad
+        "║ " + arteDoCoracao[1] + " ║ NIVEL: " + std::to_string(jogadorAtual->obterNivel()) + " ║ XP: " + arteDeBarraDeXp + " ║ OURO: " + corOuro + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G" + corReset + emptyPad,
+        "║ " + arteDoCoracao[2] + " ║ ARMA: " + nomeDaArma + " ║ CURA RAP.: " + nomeCuraRapida + emptyPad,
+        "║ " + arteDoCoracao[3] + " ║ ESC: " + nomeDoEscudo + " ║ ARM: " + nomeDaArmadura + emptyPad,
+        "║ " + std::string(11, ' ') + " ║ STATUS: " + statusStr + emptyPad
     };
 
     return linhasParaImprimir;
@@ -401,10 +497,33 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>&
         return chars;
     };
 
+    auto agora = std::chrono::steady_clock::now();
+    int tempoMs = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(agora.time_since_epoch()).count());
+    
+    std::vector<int> offsetsIdle;
+    for (size_t idx = 0; idx < listaDeInimigos.size(); ++idx) {
+        Personagem* ini = listaDeInimigos[idx];
+        if (ini->obterVida() <= 0 || ini->obterMorteAnimada() || (ini == alvoAnimacao && frameAnimacao > 0 && !isMorte && !isCura)) {
+            offsetsIdle.push_back(0); // Mantém estático durante animações de dano ou morte
+        } else {
+            // Ciclo de balanço: Move horizontalmente de forma suave (esquerda e direita)
+            int cycle = ((tempoMs + idx * 500) / 200) % 8;
+            int offset = 0;
+            if (cycle == 1 || cycle == 3) offset = 1;
+            else if (cycle == 2) offset = 2;
+            else if (cycle == 5 || cycle == 7) offset = -1;
+            else if (cycle == 6) offset = -2;
+            offsetsIdle.push_back(offset);
+        }
+    }
+
     auto imprimirLinhaHorda = [&](const std::function<std::pair<std::string, std::string>(Personagem*, size_t)>& gerador) {
         for (size_t i = 0; i < listaDeInimigos.size(); ++i) {
             auto [textoVisual, textoPrint] = gerador(listaDeInimigos[i], i);
             int espacosEsq = std::max(0, (larguraSeparadaParaCadaColuna - static_cast<int>(textoVisual.length())) / 2);
+            espacosEsq += offsetsIdle[i];
+            if (espacosEsq < 0) espacosEsq = 0;
+            
             std::cout << std::string(espacosEsq, ' ') << textoPrint;
             if (i < listaDeInimigos.size() - 1) {
                 int espacosDir = std::max(0, larguraSeparadaParaCadaColuna - espacosEsq - static_cast<int>(textoVisual.length()));
@@ -435,48 +554,6 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>&
         return std::make_pair(textoVisual, textoPrint);
     };
 
-    imprimirLinhaHorda([&](Personagem* inimigo, size_t i) {
-        std::string tag = inimigo->obterNome();
-        std::string printTag = tag;
-        if (TelaCombate::selecaoAlvoAtual == static_cast<int>(i)) {
-            tag = "> " + tag + " <";
-            if (TelaCombate::piscarSelecao) {
-                printTag = Aparencia::cor(Cor::AMARELO) + tag + Aparencia::cor(Cor::RESET);
-            } else {
-                printTag = Aparencia::cor(Cor::CINZA) + tag + Aparencia::cor(Cor::RESET);
-            }
-        }
-        return formatarFadeOut(inimigo, tag, printTag);
-    });
-
-    imprimirLinhaHorda([&](Personagem* inimigo, size_t i) {
-        std::string hp = "HP: " + std::to_string(inimigo->obterVida()) + "/" + std::to_string(inimigo->obterVidaMaxima());
-        return formatarFadeOut(inimigo, hp, hp);
-    });
-
-    bool hordaTemDebuffs = false;
-    for (auto* ini : listaDeInimigos) {
-        std::vector<EfeitoID> effs; ini->obterIDsEfeitosAtivos(effs);
-        if (!effs.empty()) { hordaTemDebuffs = true; break; }
-    }
-
-    if (hordaTemDebuffs) {
-        imprimirLinhaHorda([&](Personagem* inimigo, size_t i) {
-            std::vector<EfeitoID> efeitosAtivos;
-            inimigo->obterIDsEfeitosAtivos(efeitosAtivos);
-            std::string visualStr = "", printStr = "";
-            for (size_t e = 0; e < efeitosAtivos.size(); ++e) {
-                auto disp = obterDisplayEfeito(efeitosAtivos[e]);
-                if (!disp.nome.empty()) {
-                    visualStr += "[" + disp.nome + "]";
-                    printStr += Aparencia::cor(disp.cor) + "[" + disp.nome + "]" + Aparencia::cor(Cor::RESET);
-                    if (e < efeitosAtivos.size() - 1) { visualStr += " "; printStr += " "; }
-                }
-            }
-            return formatarFadeOut(inimigo, visualStr, printStr);
-        });
-    }
-    
     for (int fctLine = 0; fctLine < 2; ++fctLine) {
         imprimirLinhaHorda([&](Personagem* inimigo, size_t i) {
             std::string visualStr = "", printStr = "";
@@ -504,6 +581,56 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>&
             return std::make_pair(visualStr, printStr);
         });
     }
+
+    bool hordaTemDebuffs = false;
+    for (auto* ini : listaDeInimigos) {
+        std::vector<EfeitoID> effs; ini->obterIDsEfeitosAtivos(effs);
+        if (!effs.empty()) { hordaTemDebuffs = true; break; }
+    }
+
+    if (hordaTemDebuffs) {
+        imprimirLinhaHorda([&](Personagem* inimigo, size_t i) {
+            std::vector<EfeitoID> efeitosAtivos;
+            inimigo->obterIDsEfeitosAtivos(efeitosAtivos);
+            std::string visualStr = "", printStr = "";
+            for (size_t e = 0; e < efeitosAtivos.size(); ++e) {
+                auto disp = obterDisplayEfeito(efeitosAtivos[e]);
+                if (!disp.nome.empty()) {
+                    visualStr += "[" + disp.nome + "]";
+                    printStr += Aparencia::cor(disp.cor) + "[" + disp.nome + "]" + Aparencia::cor(Cor::RESET);
+                    if (e < efeitosAtivos.size() - 1) { visualStr += " "; printStr += " "; }
+                }
+            }
+            return formatarFadeOut(inimigo, visualStr, printStr);
+        });
+    }
+
+    imprimirLinhaHorda([&](Personagem* inimigo, size_t i) {
+        std::string hp = "HP: " + std::to_string(inimigo->obterVida()) + "/" + std::to_string(inimigo->obterVidaMaxima());
+        std::string printHp = hp;
+        if (inimigo == g_inimigoAtacanteParry) {
+            printHp = "\033[38;2;255;140;0m" + hp + Aparencia::cor(Cor::RESET);
+        }
+        return formatarFadeOut(inimigo, hp, printHp);
+    });
+
+    imprimirLinhaHorda([&](Personagem* inimigo, size_t i) {
+        std::string tag = inimigo->obterNome();
+        std::string printTag = tag;
+        if (TelaCombate::selecaoAlvoAtual == static_cast<int>(i)) {
+            tag = "> " + tag + " <";
+            if (TelaCombate::piscarSelecao) {
+                printTag = Aparencia::cor(Cor::AMARELO) + tag + Aparencia::cor(Cor::RESET);
+            } else {
+                printTag = Aparencia::cor(Cor::CINZA) + tag + Aparencia::cor(Cor::RESET);
+            }
+        } else if (inimigo == g_inimigoAtacanteParry) {
+            printTag = "\033[38;2;255;140;0m" + tag + Aparencia::cor(Cor::RESET); // Laranja Escuro
+        }
+        return formatarFadeOut(inimigo, tag, printTag);
+    });
+    
+    std::cout << "\n";
         
     std::vector<std::string> linhasDaArte;
     for (size_t indiceDaLinhaDaArte = 0; indiceDaLinhaDaArte < arteDoInimigo.size(); indiceDaLinhaDaArte++) 
@@ -511,12 +638,25 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>&
         std::string linhaAtual = "";
         for (size_t indiceDoInimigoParaDesenhar = 0; indiceDoInimigoParaDesenhar < listaDeInimigos.size(); indiceDoInimigoParaDesenhar++) 
         {
-            int visivelLen = static_cast<int>(splitUTF8(arteDoInimigo[indiceDaLinhaDaArte]).size());
-            int espacosParaCentralizarAArte = (larguraSeparadaParaCadaColuna - visivelLen) / 2;
-            std::string espacos(espacosParaCentralizarAArte > 0 ? espacosParaCentralizarAArte : 0, ' ');
-            
             Personagem* inimigoAtual = listaDeInimigos[indiceDoInimigoParaDesenhar];
-            std::string linhaArte = arteDoInimigo[indiceDaLinhaDaArte];
+            
+            int offset = offsetsIdle[indiceDoInimigoParaDesenhar];
+            int linhaReal = static_cast<int>(indiceDaLinhaDaArte);
+            std::string linhaArte;
+            int visivelLen;
+            
+            if (linhaReal >= 0 && linhaReal < static_cast<int>(arteDoInimigo.size())) {
+                linhaArte = arteDoInimigo[linhaReal];
+                visivelLen = static_cast<int>(splitUTF8(linhaArte).size());
+            } else {
+                visivelLen = static_cast<int>(splitUTF8(arteDoInimigo[0]).size()); // Margem de segurança de tamanho
+                linhaArte = std::string(visivelLen, ' ');
+            }
+            
+            int espacosParaCentralizarAArte = (larguraSeparadaParaCadaColuna - visivelLen) / 2;
+            espacosParaCentralizarAArte += offset; // Aplica o deslocamento horizontal na margem da arte
+            if (espacosParaCentralizarAArte < 0) espacosParaCentralizarAArte = 0; // Evita crashes com margens negativas
+            std::string espacos(espacosParaCentralizarAArte, ' ');
             
             if (inimigoAtual->obterMorteAnimada()) {
                 linhaArte = std::string(visivelLen, ' ');
@@ -658,6 +798,8 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>&
                         linhaAtual += corDestaque + baseLinha + Aparencia::cor(Cor::RESET);
                     } else if (TelaCombate::selecaoAlvoAtual == static_cast<int>(indiceDoInimigoParaDesenhar)) {
                         linhaAtual += (TelaCombate::piscarSelecao ? Aparencia::cor(Cor::AMARELO) : Aparencia::cor(Cor::CINZA)) + baseLinha + Aparencia::cor(Cor::RESET);
+                    } else if (inimigoAtual == g_inimigoAtacanteParry) {
+                        linhaAtual += "\033[38;2;255;140;0m" + baseLinha + Aparencia::cor(Cor::RESET);
                     } else {
                         linhaAtual += baseLinha;
                     }
@@ -667,6 +809,8 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>&
                     linhaAtual += linhaArte; // Adiciona espacos vazios
                 } else if (TelaCombate::selecaoAlvoAtual == static_cast<int>(indiceDoInimigoParaDesenhar)) {
                     linhaAtual += (TelaCombate::piscarSelecao ? Aparencia::cor(Cor::AMARELO) : Aparencia::cor(Cor::CINZA)) + linhaArte + Aparencia::cor(Cor::RESET);
+                } else if (inimigoAtual == g_inimigoAtacanteParry) {
+                    linhaAtual += "\033[38;2;255;140;0m" + linhaArte + Aparencia::cor(Cor::RESET);
                 } else {
                     linhaAtual += linhaArte;
                 }
@@ -715,11 +859,8 @@ int TelaCombate::obterAcaoDoJogador(int turnoAtual, Personagem* personagemAgindo
     personagemHUD = personagemAgindo;
     selecaoAcaoAtual = 0;
     
-
-    while (true) {
+    auto construirOpcoes = [&]() {
         opcoesMenuAtual.clear();
-        
-        // Se o HUD estiver focado em alguem que NAO e o dono do turno, restringe as acoes
         if (personagemHUD != nullptr && personagemHUD != personagemAgindo) {
             opcoesMenuAtual.push_back("Voltar a Acao");
             opcoesMenuAtual.push_back("Ver Aliados");
@@ -738,54 +879,75 @@ int TelaCombate::obterAcaoDoJogador(int turnoAtual, Personagem* personagemAgindo
             opcoesMenuAtual.push_back("Diario");
             opcoesMenuAtual.push_back("Log Batalha");
         }
+    };
 
-        int totalOpcoes = static_cast<int>(opcoesMenuAtual.size());
+    construirOpcoes();
+    auto ultimoUpdate = std::chrono::steady_clock::now();
+    atualizarTelaEstatica("", inimigos, jogadorAtual, aliados);
 
-        atualizarTelaEstatica("", inimigos, jogadorAtual, aliados);
-        
-        unsigned char tecla = static_cast<unsigned char>(ControleDeInput::lerTecla());
-        
-        if (tecla == 224 || tecla == 0 || tecla == '\033') {
-            unsigned char proxTecla = static_cast<unsigned char>(ControleDeInput::lerTecla());
-            if (proxTecla == '[') proxTecla = static_cast<unsigned char>(ControleDeInput::lerTecla());
-            if (proxTecla == 72 || proxTecla == 'A') tecla = 'w';
-            else if (proxTecla == 80 || proxTecla == 'B') tecla = 's';
-        }
-
-        if (tecla == 'w' || tecla == 'W') { 
-            selecaoAcaoAtual--; 
-            if (selecaoAcaoAtual < 0) selecaoAcaoAtual = totalOpcoes - 1; 
-        }
-        else if (tecla == 's' || tecla == 'S') { 
-            selecaoAcaoAtual++; 
-            if (selecaoAcaoAtual >= totalOpcoes) selecaoAcaoAtual = 0; 
-        }
-        else if (tecla == '\r' || tecla == '\n') { 
-            std::string op = opcoesMenuAtual[selecaoAcaoAtual];
-            if (op == "Ver Aliados") {
-                selecionarHUDDeAliado(jogadorAtual, aliados);
-                selecaoAcaoAtual = 0; // Reseta selecao para evitar falhas ao recarregar a lista
-                continue;
-            }
-            if (op == "Voltar a Acao") {
-                personagemHUD = personagemAgindo;
-                selecaoAcaoAtual = 0;
-                continue;
-            }
-
-            int escolha = selecaoAcaoAtual;
-            selecaoAcaoAtual = -1; // Remove cursor para as animacoes manterem a tela limpa
-            personagemHUD = nullptr; // Garante que o HUD volte a mostrar o personagem agindo de fato nas proximas animacoes
+    while (true) {
+        auto agora = std::chrono::steady_clock::now();
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(agora - ultimoUpdate).count() >= 150) {
             atualizarTelaEstatica("", inimigos, jogadorAtual, aliados);
+            ultimoUpdate = agora;
+        }
+
+        if (ControleDeInput::teclaPressionada()) {
+            unsigned char tecla = static_cast<unsigned char>(ControleDeInput::lerTecla());
             
-            if (op == "Atacar") return 1;
-            if (op == "Defender") return 2;
-            if (op == "Habilidade") return 3;
-            if (op == "Inventario") return 4;
-            if (op == "Ficha") return 5;
-            if (op == "Diario") return 6;
-            if (op == "Log Batalha") return 7;
-            return 0;
+            if (tecla == 224 || tecla == 0 || tecla == '\033') {
+                unsigned char proxTecla = static_cast<unsigned char>(ControleDeInput::lerTecla());
+                if (proxTecla == '[') proxTecla = static_cast<unsigned char>(ControleDeInput::lerTecla());
+                if (proxTecla == 72 || proxTecla == 'A') tecla = 'w';
+                else if (proxTecla == 80 || proxTecla == 'B') tecla = 's';
+            }
+
+            int totalOpcoes = static_cast<int>(opcoesMenuAtual.size());
+
+            if (tecla == 'w' || tecla == 'W') { 
+                selecaoAcaoAtual--; 
+                if (selecaoAcaoAtual < 0) selecaoAcaoAtual = totalOpcoes - 1; 
+                ultimoUpdate = std::chrono::steady_clock::now();
+                atualizarTelaEstatica("", inimigos, jogadorAtual, aliados);
+            }
+            else if (tecla == 's' || tecla == 'S') { 
+                selecaoAcaoAtual++; 
+                if (selecaoAcaoAtual >= totalOpcoes) selecaoAcaoAtual = 0; 
+                ultimoUpdate = std::chrono::steady_clock::now();
+                atualizarTelaEstatica("", inimigos, jogadorAtual, aliados);
+            }
+            else if (tecla == '\r' || tecla == '\n') { 
+                std::string op = opcoesMenuAtual[selecaoAcaoAtual];
+                if (op == "Ver Aliados") {
+                    selecionarHUDDeAliado(jogadorAtual, aliados);
+                    selecaoAcaoAtual = 0; 
+                    construirOpcoes();
+                    atualizarTelaEstatica("", inimigos, jogadorAtual, aliados);
+                    continue;
+                }
+                if (op == "Voltar a Acao") {
+                    personagemHUD = personagemAgindo;
+                    selecaoAcaoAtual = 0;
+                    construirOpcoes();
+                    atualizarTelaEstatica("", inimigos, jogadorAtual, aliados);
+                    continue;
+                }
+
+                selecaoAcaoAtual = -1; // Remove cursor para as animacoes manterem a tela limpa
+                personagemHUD = nullptr; // Garante que o HUD volte a mostrar o personagem agindo de fato nas proximas animacoes
+                atualizarTelaEstatica("", inimigos, jogadorAtual, aliados);
+                
+                if (op == "Atacar") return 1;
+                if (op == "Defender") return 2;
+                if (op == "Habilidade") return 3;
+                if (op == "Inventario") return 4;
+                if (op == "Ficha") return 5;
+                if (op == "Diario") return 6;
+                if (op == "Log Batalha") return 7;
+                return 0;
+            }
+        } else {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     }
 }

@@ -2,6 +2,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <thread>
 
 #ifdef _WIN32
     #include <conio.h>
@@ -113,6 +115,10 @@ int ControleDeInput::lerSelecaoMenuComSetas(const std::vector<std::string>& opco
     std::cout << "\033[?25l";
 
     while (true) {
+        auto agora = std::chrono::steady_clock::now();
+        int tempoMs = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(agora.time_since_epoch()).count());
+        std::string cursorIcon = ((tempoMs / 400) % 2 == 0) ? ">  " : " > ";
+
         for (int i = 0; i < maxLinhas; ++i) {
             std::string linhaEsq = "";
             int lenEsqReal = 0;
@@ -127,7 +133,7 @@ int ControleDeInput::lerSelecaoMenuComSetas(const std::vector<std::string>& opco
                 if (isHeader) {
                     linhaEsq = "   " + texto;
                 } else if (i == selecaoAtual) {
-                    linhaEsq = Aparencia::cor(Cor::VERDE) + " > " + texto + Aparencia::cor(Cor::RESET);
+                    linhaEsq = Aparencia::cor(Cor::VERDE) + cursorIcon + texto + Aparencia::cor(Cor::RESET);
                 } else {
                     linhaEsq = "   " + texto;
                 }
@@ -144,33 +150,38 @@ int ControleDeInput::lerSelecaoMenuComSetas(const std::vector<std::string>& opco
 
         std::cout << std::flush; // Garante que a tela sempre atualize antes de esperar a tecla
 
-        unsigned char tecla = static_cast<unsigned char>(lerTecla());
-        
-        if (tecla == 224 || tecla == 0 || tecla == '\033') {
-            unsigned char proxTecla = static_cast<unsigned char>(lerTecla());
-            if (proxTecla == '[') proxTecla = static_cast<unsigned char>(lerTecla()); // Para lidar com sequências de escape POSIX (\033[A)
+        if (teclaPressionada()) {
+            unsigned char tecla = static_cast<unsigned char>(lerTecla());
             
-            if (proxTecla == 72 || proxTecla == 'A') tecla = 'w';
-            else if (proxTecla == 80 || proxTecla == 'B') tecla = 's';
-        }
+            if (tecla == 224 || tecla == 0 || tecla == '\033') {
+                unsigned char proxTecla = static_cast<unsigned char>(lerTecla());
+                if (proxTecla == '[') proxTecla = static_cast<unsigned char>(lerTecla()); // Para lidar com sequências de escape POSIX (\033[A)
+                
+                if (proxTecla == 72 || proxTecla == 'A') tecla = 'w';
+                else if (proxTecla == 80 || proxTecla == 'B') tecla = 's';
+            }
 
-        if (tecla == 'w' || tecla == 'W') { 
-            int inicio = selecaoAtual;
-            do {
-                selecaoAtual--; 
-                if (selecaoAtual < 0) selecaoAtual = totalOpcoes - 1; 
-            } while (opcoes[selecaoAtual].find("#HEADER#") == 0 && selecaoAtual != inicio);
-        }
-        else if (tecla == 's' || tecla == 'S') { 
-            int inicio = selecaoAtual;
-            do {
-                selecaoAtual++; 
-                if (selecaoAtual >= totalOpcoes) selecaoAtual = 0; 
-            } while (opcoes[selecaoAtual].find("#HEADER#") == 0 && selecaoAtual != inicio);
-        }
-        else if (tecla == '\r' || tecla == '\n') { std::cout << "\033[?25h"; return selecaoAtual; } // Restaura o cursor
+            if (tecla == 'w' || tecla == 'W') { 
+                int inicio = selecaoAtual;
+                do {
+                    selecaoAtual--; 
+                    if (selecaoAtual < 0) selecaoAtual = totalOpcoes - 1; 
+                } while (opcoes[selecaoAtual].find("#HEADER#") == 0 && selecaoAtual != inicio);
+            }
+            else if (tecla == 's' || tecla == 'S') { 
+                int inicio = selecaoAtual;
+                do {
+                    selecaoAtual++; 
+                    if (selecaoAtual >= totalOpcoes) selecaoAtual = 0; 
+                } while (opcoes[selecaoAtual].find("#HEADER#") == 0 && selecaoAtual != inicio);
+            }
+            else if (tecla == '\r' || tecla == '\n') { std::cout << "\033[?25h"; return selecaoAtual; } // Restaura o cursor
 
-        std::cout << "\r\033[" << maxLinhas << "A"; // Retorna o cursor para cima a fim de reescrever o texto
+            std::cout << "\r\033[" << maxLinhas << "A"; // Retorna o cursor para cima a fim de reescrever o texto
+        } else {
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+            std::cout << "\r\033[" << maxLinhas << "A"; // Retorna o cursor para cima a fim de reescrever o texto
+        }
     }
 }
 
