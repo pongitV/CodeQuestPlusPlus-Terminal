@@ -12,17 +12,36 @@
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
 
-bool Parry::tentarParry(Personagem* atacante, int danoMitigado, int& quantidadeDeDanoReduzido) 
+bool Parry::tentarParry(Personagem* atacante, Personagem* defensor, int danoMitigado, int& quantidadeDeDanoReduzido) 
 {
-    int quantidadeDeNumerosDoParry = std::max(1, danoMitigado / 4);
-    int destrezaDoAtacante = std::max(1, atacante->obterDestreza());
-    int tempoLimiteParaParryEmSegundos = std::max(1, 60 / destrezaDoAtacante);
+    int destrezaDoAtacante = atacante ? std::max(1, atacante->obterDestreza()) : 1;
+    int destrezaDoDefensor = defensor ? std::max(1, defensor->obterDestreza()) : 1;
+
+    if (destrezaDoAtacante > destrezaDoDefensor) 
+    {
+        std::string msgAgil = "O inimigo e agil demais para voce efetivar o parry!";
+        std::cout << "\n" << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgCombate(msgAgil, Cor::FUNDO_VERMELHO) << "\n";
+        std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+        quantidadeDeDanoReduzido = 0;
+        return false;
+    }
+
+    // Quantidade de numeros: Relacionado puramente ao dano do monstro (1/3 do dano)
+    // Limitamos a 15 digitos no maximo para o minigame nao se tornar humanamente impossivel
+    int quantidadeDeNumerosDoParry = std::clamp(danoMitigado / 3, 3, 15); 
+    
+    // Tempo em segundos: Tempo humano base + Relacao estrita com a diferenca de Destreza
+    int tempoBaseParaDigitar = std::max(2, quantidadeDeNumerosDoParry / 2);
+    int bonusDeDestreza = (destrezaDoDefensor - destrezaDoAtacante) / 5;
+    int tempoLimiteParaParryEmSegundos = std::max(1, tempoBaseParaDigitar + bonusDeDestreza);
 
     bool sucesso = executarMinigame(quantidadeDeNumerosDoParry, tempoLimiteParaParryEmSegundos, quantidadeDeDanoReduzido);
     if (sucesso) 
     {
-        int limiteMaximoDeReducao = std::max(1, danoMitigado / 2);
-        quantidadeDeDanoReduzido = std::min(quantidadeDeDanoReduzido, limiteMaximoDeReducao);
+        // Balanceamento da recompensa: Multiplicamos a soma dos numeros pelo nivel do ataque
+        // Isso garante que o parry continue eficiente e recompensador contra grandes danos (Chefes)
+        int fatorMultiplicador = std::max(1, (danoMitigado / 15) + 1);
+        quantidadeDeDanoReduzido *= fatorMultiplicador;
     }
     else 
     {
@@ -45,12 +64,7 @@ bool Parry::executarMinigame(int quantidadeDeNumerosParaDigitar, int tempoLimite
 
     std::cout << "\n" << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgCombate("O inimigo ataca! Digite a sequencia rapidamente para defender!", Cor::VERMELHO) << "\n";
     
-    std::cout << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgCombate("Sequencia: ", Cor::VERMELHO) << Aparencia::cor(Cor::AMARELO) << std::flush;
-    for (char c : sequenciaGeradaPeloSistema) {
-        std::cout << c << std::flush;
-        std::this_thread::sleep_for(std::chrono::milliseconds(150));
-    }
-    std::cout << Aparencia::cor(Cor::RESET) << "\n";
+    std::cout << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgCombate("Sequencia: ", Cor::VERMELHO) << Aparencia::cor(Cor::AMARELO) << sequenciaGeradaPeloSistema << Aparencia::cor(Cor::RESET) << "\n";
 
     std::string tempoMsg = "Tempo Limite: " + Aparencia::cor(Cor::BRANCO) + std::to_string(tempoLimiteEmSegundos) + Aparencia::cor(Cor::VERMELHO) + " segundos!";
     std::cout << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgCombate(tempoMsg, Cor::VERMELHO) << "\n";

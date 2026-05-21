@@ -56,7 +56,7 @@ void Combate::resetarEstatisticasAvancadas() {
 }
 
 Combate::Combate(Personagem* jogadorParaOCombate, std::vector<std::unique_ptr<Personagem>>&& inimigosParaOCombate) 
-    : jogadorAtual(jogadorParaOCombate), listaDeInimigos(std::move(inimigosParaOCombate)), contadorDoTurnoAtual(1), quantidadeDeOuroObtido(0), quantidadeDeXpObtido(0), totalDeDanoCausado(0), totalDeDanoRecebido(0)
+    : jogadorAtual(jogadorParaOCombate), listaDeInimigos(std::move(inimigosParaOCombate)), quantidadeDeOuroObtido(0), quantidadeDeXpObtido(0), totalDeDanoCausado(0), totalDeDanoRecebido(0), contadorDoTurnoAtual(1)
 {
 
     int nivelDeDificuldade = static_cast<int>(jogadorAtual->obterDificuldade());
@@ -610,7 +610,7 @@ void Combate::processarPosDano(Personagem* atacante, Personagem* alvo, int danoF
     g_parryStatus = 0;
 }
 
-void Combate::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* personagemAlvo, int quantidadeDeDanoBruto, int danoPerfurante, int turnoAtualDoCombate) 
+void Combate::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* personagemAlvo, int quantidadeDeDanoBruto, int danoPerfurante, int /*turnoAtualDoCombate*/) 
 {
     if (personagemAlvo->possuiEfeito(EfeitoID::Inviolavel))
     {
@@ -637,7 +637,7 @@ void Combate::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* pers
             TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + msgImparavel + "\n");
         } else {
             tentouParry = true;
-            parryFoiBemSucedido = Parry::tentarParry(personagemAtacante, danoBaseMitigado, quantidadeDeDanoReduzidoPeloParry);
+            parryFoiBemSucedido = Parry::tentarParry(personagemAtacante, personagemAlvo, danoBaseMitigado, quantidadeDeDanoReduzidoPeloParry);
             stats_parriesTentados++;
             if (parryFoiBemSucedido) stats_parriesEfetivos++;
         }
@@ -647,6 +647,16 @@ void Combate::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* pers
 
     ResultadoDano res = personagemAlvo->receberDano(quantidadeDeDanoBruto, danoPerfurante, quantidadeDeDanoReduzidoPeloParry, personagemAtacante, aplicarPassivas);
 
+    // Burlar o limite de "minimo de 1 de dano" do sistema base caso o Parry absorva todo o impacto
+    if (tentouParry && parryFoiBemSucedido && quantidadeDeDanoReduzidoPeloParry >= danoBaseMitigado) 
+    {
+        if (res.danoFinal > 0) 
+        {
+            personagemAlvo->modificarVida(res.danoFinal); // Restaura o HP retirado pela trava de minimo de dano
+            res.danoFinal = 0; // Anula o dano para ativar a Reflexao de Parry Perfeito
+        }
+    }
+
     exibirResultadoDoAtaque(personagemAlvo, res.danoFinal, tentouParry, parryFoiBemSucedido, res.danoBloqueado, res.escudoQuebrou, res.nomeEscudoQuebrado);
 
     processarPosDano(personagemAtacante, personagemAlvo, res.danoFinal, tentouParry, parryFoiBemSucedido);
@@ -654,7 +664,7 @@ void Combate::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* pers
     if (tentouParry && parryFoiBemSucedido && res.danoFinal <= 0 && isPersonagemJogadorOuAliado(personagemAlvo) && personagemAtacante) {
         personagemAtacante->obterRaca()->aoSofrerParryPerfeito();
 
-        int danoRefletido = std::max(1, (quantidadeDeDanoBruto + danoPerfurante) / 4);
+        int danoRefletido = std::max(1, (quantidadeDeDanoBruto + danoPerfurante) / 2);
         personagemAtacante->modificarVida(-danoRefletido);
         
         std::string msgReflexao = FuncoesDialogo::formatarMsgCombate("Parry Perfeito! Reflexao! " + personagemAtacante->obterNome() + " sofreu " + std::to_string(danoRefletido) + " de dano de volta!", Cor::AMARELO);

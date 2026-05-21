@@ -17,28 +17,6 @@ void TelaVitoria::exibir(Personagem* jogadorAtual, int quantidadeDeOuroObtido, i
     Aparencia::limparTela();
     int frames = 20;
 
-    // --- Calculo do Rank de Desempenho ---
-    int ptsTurno = (turnosCombate <= 3) ? 40 : (turnosCombate <= 6) ? 30 : (turnosCombate <= 10) ? 20 : 10;
-    int pctDano = (jogadorAtual->obterVidaMaxima() > 0) ? (totalDeDanoRecebido * 100 / jogadorAtual->obterVidaMaxima()) : 0;
-    int ptsDano = (totalDeDanoRecebido == 0) ? 40 : (pctDano <= 20) ? 30 : (pctDano <= 50) ? 20 : 10;
-    
-    int ptsParry = 0;
-    if (Combate::obterParriesTentados() > 0) {
-        int pctParry = (Combate::obterParriesEfetivos() * 100) / Combate::obterParriesTentados();
-        ptsParry = (pctParry >= 80) ? 20 : (pctParry >= 50) ? 10 : 0;
-    } else if (totalDeDanoRecebido == 0) {
-        ptsParry = 20; // Recompensa extra por esquiva/invulnerabilidade total se nenhum parry foi disparado
-    }
-
-    int scoreTotal = ptsTurno + ptsDano + ptsParry;
-    std::string rankLetter;
-    Cor corRank;
-    if (scoreTotal >= 90) { rankLetter = "S"; corRank = Cor::AMARELO; }
-    else if (scoreTotal >= 75) { rankLetter = "A"; corRank = Cor::VERDE; }
-    else if (scoreTotal >= 60) { rankLetter = "B"; corRank = Cor::CIANO; }
-    else if (scoreTotal >= 40) { rankLetter = "C"; corRank = Cor::BRANCO; }
-    else { rankLetter = "D"; corRank = Cor::VERMELHO; }
-
     for (int frame = 0; frame <= frames; ++frame) {
         int curOuro = (quantidadeDeOuroObtido * frame) / frames;
         int curXp = (quantidadeDeXpObtido * frame) / frames;
@@ -96,11 +74,6 @@ void TelaVitoria::exibir(Personagem* jogadorAtual, int quantidadeDeOuroObtido, i
         std::cout << "\n";
         std::vector<std::string> linhasDeRodape;
         
-        std::string rankStr = Aparencia::cor(corRank);
-        if (frame == frames && corRank == Cor::AMARELO) rankStr += "\033[5m"; // Efeito de piscar para Rank S
-        rankStr += "RANK DE AVALIACAO: " + rankLetter + Aparencia::cor(Cor::RESET);
-        linhasDeRodape.push_back(rankStr);
-        
         if (frame == frames) {
             if (!Combate::obterNovasDescobertas().empty()) {
                 linhasDeRodape.push_back("");
@@ -127,9 +100,3 @@ void TelaVitoria::exibir(Personagem* jogadorAtual, int quantidadeDeOuroObtido, i
 
     ControleDeInput::aguardarEnter();
 }
-
-
-
-
-
-
