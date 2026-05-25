@@ -174,6 +174,11 @@ std::unique_ptr<Item> fabricarEquipamentoArma(ItemID id) {
             violao->adicionarPropriedade(Propriedade::ViolaoBase);
             return violao; 
         }},
+        {ItemID::CajadoOsso, [criarArma]() { 
+            auto arma = criarArma(ItemID::CajadoOsso, 2, 8, 0, 0, 5, 10, 10); 
+            arma->adicionarPropriedade(Propriedade::Magica);
+            return arma; 
+        }},
         {ItemID::EspadaFerro, [criarArma]() { return criarArma(ItemID::EspadaFerro, 10, 0, 0, 0, 0, 0, 3); }},
         {ItemID::MachadoGuerra, [criarArma]() { return criarArma(ItemID::MachadoGuerra, 15, 0, 10, 0, 0, 0, 3); }},
         {ItemID::GosmaAcidaArma, [criarArma]() { return criarArma(ItemID::GosmaAcidaArma, 2, 7, 0, 0, 0, 0, 3); }},
@@ -199,9 +204,3 @@ std::unique_ptr<Item> fabricarEquipamentoArma(ItemID id) {
     if (it != construtores.end()) return it->second();
     return nullptr;
 }
-
-
-
-
-
-

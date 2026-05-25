@@ -3,6 +3,7 @@
 #include <iostream>
 #include <memory>
 
+#include "../../Sistemas/Combate/Combate.h"
 #include "../../Sistemas/Inventario/FabricaItens.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
@@ -108,7 +109,7 @@ std::string Guerreiro::obterDescricaoHabilidadeClasse() const
     return "Gasta seu turno para aumentar Forca e Destreza em 1.5x por 2 turnos."; 
 }
 
-void Guerreiro::usarHabilidadeClasse(Personagem* personagemUsuario, std::vector<Personagem*>& /*listaDeInimigos*/) 
+void Guerreiro::usarHabilidadeClasse(Combate* /*combate*/, Personagem* personagemUsuario, std::vector<Personagem*>& /*listaDeInimigos*/) 
 {
     int turnosRestantes = personagemUsuario->obterCooldown(HabilidadeID::Determinacao);
     if (verificarEReportarRecarga(personagemUsuario, turnosRestantes, obterNomeHabilidadeClasse())) return;
@@ -133,7 +134,7 @@ void Guerreiro::usarHabilidadeClasse(Personagem* personagemUsuario, std::vector<
 }
 
 // --- PROCESSAMENTO DE DANO  ---
-int Guerreiro::processarDanoPreAtaque(Personagem* atacante, Personagem* defensor, int danoBase, bool isAtacanteJogador, size_t qtdInimigos) {
+int Guerreiro::processarDanoPreAtaque(Personagem* /*atacante*/, Personagem* defensor, int danoBase, bool /*isAtacanteJogador*/, size_t /*qtdInimigos*/) {
     int danoFinal = danoBase;
     
     if (!defensor) return danoFinal;

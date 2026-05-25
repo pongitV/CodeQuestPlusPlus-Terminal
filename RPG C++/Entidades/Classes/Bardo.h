@@ -3,6 +3,7 @@
 #include "ClasseBase.h"
 
 class Item;
+class Combate;
 
 class Bardo : public ClasseBase
 {
@@ -24,5 +25,5 @@ public:
     std::string obterRecargaHabilidadeClasse() const override;
     std::string obterNomeHabilidadeClasse() const override;
     std::string obterDescricaoHabilidadeClasse() const override;
-    void usarHabilidadeClasse(Personagem* personagemUsuario, std::vector<Personagem*>& listaDeInimigos) override;
+    void usarHabilidadeClasse(Combate* combate, Personagem* personagemUsuario, std::vector<Personagem*>& listaDeInimigos) override;
 };

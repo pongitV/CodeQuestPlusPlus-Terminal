@@ -50,6 +50,7 @@ namespace {
             case EfeitoID::Fraqueza: return {"Fraqueza", Cor::AMARELO};
             case EfeitoID::QuebraResistencia: return {"Quebra Def.", Cor::CIANO};
             case EfeitoID::RodaAdaptacao: return {"Adaptacao", Cor::AMARELO};
+            case EfeitoID::Necrose: return {"Necrose", Cor::MAGENTA};
             default: return {"", Cor::RESET};
         }
     }
@@ -317,7 +318,6 @@ void TelaCombate::limparMensagensFixas() {
 void TelaCombate::exibirLogoParaTelaDeCombate(const std::string& tituloDaTela, bool animar) 
 {
     std::cout << "\033[?25l"; // Esconde o cursor
-    int larguraConsole = Aparencia::obterLarguraTerminal();
     
     Aparencia::exibirPainelArte(TelaCombateLayouts::obterLogoCombate(), 95, Cor::VERMELHO, tituloDaTela, animar);
 }
@@ -485,7 +485,7 @@ std::vector<std::string> TelaCombate::obterLinhasBarraDeStatusDoJogador(Personag
     if (g_parryStatus > 0 && frameAnimacao > 0 && frameAnimacao <= 12) {
         bool isPiscarColorido = (frameAnimacao <= 6 && frameAnimacao % 2 == 1) || (frameAnimacao > 6);
         std::string txtParry;
-        Cor corParry;
+        Cor corParry = Cor::RESET;
         if (g_parryStatus == 1) { txtParry = "  [Parry Perfeito!]"; corParry = Cor::VERDE; }
         else if (g_parryStatus == 2) { txtParry = "  [Parry Efetivo!]"; corParry = Cor::AMARELO; }
         else if (g_parryStatus == 3) { txtParry = "  [Parry Falhou!]"; corParry = Cor::VERMELHO; }
@@ -508,7 +508,7 @@ std::vector<std::string> TelaCombate::obterLinhasBarraDeStatusDoJogador(Personag
     return linhasParaImprimir;
 }
 
-void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>& listaDeInimigos, Personagem* alvoAnimacao, int frameAnimacao, bool isCura, bool animarSurgimento, bool isMorte, Item* armaAtacante, int danoAnimacao, const std::vector<std::string>& dropsAnimacao) 
+void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>& listaDeInimigos, Personagem* alvoAnimacao, int frameAnimacao, bool isCura, bool animarSurgimento, bool isMorte, Item* /*armaAtacante*/, int danoAnimacao, const std::vector<std::string>& dropsAnimacao) 
 {
     if (listaDeInimigos.empty()) return;
     int larguraTerminal = Aparencia::obterLarguraTerminal();
@@ -589,7 +589,7 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>&
     };
 
     for (int fctLine = 0; fctLine < 2; ++fctLine) {
-        imprimirLinhaHorda([&](Personagem* inimigo, size_t i) {
+        imprimirLinhaHorda([&](Personagem* inimigo, size_t /*i*/) {
             std::string visualStr = "", printStr = "";
             if (inimigo == alvoAnimacao && danoAnimacao > 0 && !isMorte && frameAnimacao > 0) {
                 int targetLine = (frameAnimacao < 4) ? 1 : 0;
@@ -623,7 +623,7 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>&
     }
 
     if (hordaTemDebuffs) {
-        imprimirLinhaHorda([&](Personagem* inimigo, size_t i) {
+        imprimirLinhaHorda([&](Personagem* inimigo, size_t /*i*/) {
             std::vector<EfeitoID> efeitosAtivos;
             inimigo->obterIDsEfeitosAtivos(efeitosAtivos);
             std::string visualStr = "", printStr = "";
@@ -639,7 +639,7 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>&
         });
     }
 
-    imprimirLinhaHorda([&](Personagem* inimigo, size_t i) {
+    imprimirLinhaHorda([&](Personagem* inimigo, size_t /*i*/) {
         std::string hp = "HP: " + std::to_string(inimigo->obterVida()) + "/" + std::to_string(inimigo->obterVidaMaxima());
         std::string printHp = hp;
         if (inimigo == g_inimigoAtacanteParry) {
@@ -901,7 +901,14 @@ int TelaCombate::obterAcaoDoJogador(int turnoAtual, Personagem* personagemAgindo
         } else {
             opcoesMenuAtual.push_back("Atacar");
             opcoesMenuAtual.push_back("Defender");
-            opcoesMenuAtual.push_back("Habilidade");
+            
+            std::string habOption = "Habilidade";
+            if (personagemAgindo->obterTipoClasse() == TipoClasse::NECROMANTE) {
+                size_t almas = personagemAgindo->obterNumeroDeAlmas();
+                if (almas == 0) habOption += Aparencia::cor(Cor::VERMELHO) + " (0 Almas)" + Aparencia::cor(Cor::RESET);
+                else habOption += " (" + std::to_string(almas) + " Alma" + (almas > 1 ? "s" : "") + ")";
+            }
+            opcoesMenuAtual.push_back(habOption);
             
             bool temInventario = (personagemAgindo->obterInventario() != nullptr && personagemAgindo->obterInventario()->obterTodosOsItens().size() > 0);
             if (temInventario || personagemAgindo == jogadorAtual) {
@@ -973,7 +980,7 @@ int TelaCombate::obterAcaoDoJogador(int turnoAtual, Personagem* personagemAgindo
                 
                 if (op == "Atacar") return 1;
                 if (op == "Defender") return 2;
-                if (op == "Habilidade") return 3;
+                if (op.find("Habilidade") != std::string::npos) return 3;
                 if (op == "Inventario") return 4;
                 if (op == "Ficha") return 5;
                 if (op == "Diario") return 6;

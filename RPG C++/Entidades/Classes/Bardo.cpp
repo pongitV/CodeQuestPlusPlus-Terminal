@@ -5,6 +5,7 @@
 #include <iostream>
 #include <memory>
 
+#include "../../Sistemas/Combate/Combate.h"
 #include "../../Sistemas/Inventario/FabricaItens.h"
 #include "../../Core/Utilidades/Constantes.h"
 #include "../../Core/Utilidades/Aparencia.h"
@@ -122,7 +123,7 @@ std::string Bardo::obterDescricaoHabilidadeClasse() const
     return "Possui 3 habilidades: Flashing lights, On sight e Through the wire."; 
 }
 
-void Bardo::usarHabilidadeClasse(Personagem* personagemUsuario, std::vector<Personagem*>& /*listaDeInimigos*/)
+void Bardo::usarHabilidadeClasse(Combate* /*combate*/, Personagem* personagemUsuario, std::vector<Personagem*>& /*listaDeInimigos*/)
 {
     struct SubHabilidade {
         HabilidadeID id;

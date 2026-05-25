@@ -27,6 +27,7 @@
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Utilidades/GeradorAleatorio.h"
 #include "../../Interface/Telas/Menu/TelaMenu.h"
+#include "../../Entidades/Classes/ClasseBase.h"
 #include "../../Core/Utilidades/ControleDeInput.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
 
@@ -80,6 +81,10 @@ Combate::Combate(Personagem* jogadorParaOCombate, std::vector<std::unique_ptr<Pe
 void Combate::adicionarAliados(std::vector<std::unique_ptr<Personagem>> aliados)
 {
     listaDeAliados = std::move(aliados);
+}
+
+void Combate::adicionarAliadoEmCombate(std::unique_ptr<Personagem> aliado) {
+    listaDeAliados.push_back(std::move(aliado));
 }
 
 Combate::~Combate()
@@ -224,11 +229,12 @@ void Combate::iniciarCombate()
         }
         
         // Turnos dos Aliados
-        for (auto& aliado : listaDeAliados) {
+        for (size_t i = 0; i < listaDeAliados.size(); ++i) {
+            Personagem* aliado = listaDeAliados[i].get();
             if (aliado->obterVida() <= 0 || listaDeInimigos.empty()) continue;
             
             bool isPrimeiraRend = false;
-            if (executarTurnoJogadorOuAliado(aliado.get(), isPrimeiraRend)) return;
+            if (executarTurnoJogadorOuAliado(aliado, isPrimeiraRend)) return;
         }
         
         executarTurnoDeTodosOsInimigos();
@@ -323,9 +329,9 @@ void Combate::processarAcaoDefender(Personagem* personagemAgindo, bool& turnoFoi
 void Combate::processarAcaoHabilidade(Personagem* personagemAgindo, bool& turnoFoiConsumido)
 {
     std::vector<Personagem*> alvosRaw = obterInimigosRaw();
-
+    
     personagemAgindo->definirHabilidadeCancelada(false);
-    personagemAgindo->obterClasse()->usarHabilidadeClasse(personagemAgindo, alvosRaw);
+    personagemAgindo->obterClasse()->usarHabilidadeClasse(this, personagemAgindo, alvosRaw);
     
     if (personagemAgindo->obterHabilidadeCancelada()) return;
 
@@ -452,16 +458,34 @@ void Combate::executarTurnoDeTodosOsInimigos()
             if (inimigoAtual->podeAgir(motivoIncapacidade)) 
             {
                 agiu = true;
-                Personagem* alvo = jogadorAtual;
+
+                // Logica de escolha de alvo do inimigo
+                std::vector<Personagem*> alvosPossiveis;
+                std::vector<Personagem*> minionsVivos;
+                std::vector<Personagem*> aliadosNormaisVivos;
                 std::vector<Personagem*> aliadosVivos = obterAliadosVivosRaw();
-                if (!aliadosVivos.empty()) {
-                    alvo = aliadosVivos[GeradorAleatorio::obterInteiro(0, static_cast<int>(aliadosVivos.size()) - 1)];
+
+                for (auto* aliado : aliadosVivos) {
+                    if (aliado->isMinion()) {
+                        minionsVivos.push_back(aliado);
+                    } else {
+                        aliadosNormaisVivos.push_back(aliado);
+                    }
                 }
+
+                if (!minionsVivos.empty()) {
+                    alvosPossiveis = minionsVivos;
+                } else if (!aliadosNormaisVivos.empty()) {
+                    alvosPossiveis = aliadosNormaisVivos;
+                } else {
+                    alvosPossiveis.push_back(jogadorAtual);
+                }
+
+                Personagem* alvo = alvosPossiveis[GeradorAleatorio::obterInteiro(0, static_cast<int>(alvosPossiveis.size()) - 1)];
 
                 bool turnoConsumidoPorHabilidade = inimigoAtual->obterRaca()->tentarUsarHabilidadeAtiva(inimigoAtual, alvo, static_cast<int>(jogadorAtual->obterDificuldade()));
                 
-                if (!turnoConsumidoPorHabilidade) 
-                {
+                if (!turnoConsumidoPorHabilidade) {
                     realizarAtaqueFisico(inimigoAtual, alvo, contadorDoTurnoAtual);
                 }
             }
@@ -782,6 +806,13 @@ void Combate::processarMorteDeInimigo(Personagem* inimigo)
 
     if (inimigo->obterNome() == "Mahoraga") {
         Progressao::instancia().definirFlag(Flags::Floresta_MahoragaDerrotado, true);
+    }
+
+    // Passiva do Necromante: Coletar alma
+    if (jogadorAtual->obterTipoClasse() == TipoClasse::NECROMANTE) {
+        jogadorAtual->adicionarAlma(inimigo->clone());
+        std::string msg = FuncoesDialogo::formatarMsgHabilidade("Voce coletou a alma de " + inimigo->obterNome() + "!", Cor::MAGENTA);
+        registrarLog(msg);
     }
 
     registrarLog("═══ DROPS ═══", Cor::AMARELO);

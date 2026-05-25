@@ -20,6 +20,7 @@ namespace {
         {"Cajado de cristal magico", ItemID::CajadoCristal},
         {"Varinha corroida", ItemID::VarinhaCorroida},
         {"Violao encantado", ItemID::ViolaoEncantado},
+        {"Cajado de osso", ItemID::CajadoOsso},
         {"Espada longa de ferro", ItemID::EspadaFerro},
         {"Machado de guerra danificado", ItemID::MachadoGuerra},
         {"Gosma acida corrosiva", ItemID::GosmaAcidaArma},
@@ -37,6 +38,7 @@ namespace {
         {"Traje de Couro e tecido nobre", ItemID::TrajeNobre},
         {"Armadura de trapos e sucata", ItemID::ArmaduraTrapos},
         {"Armadura de Cavaleiro", ItemID::ArmaduraCavaleiro},
+        {"Roupas de Ritualista", ItemID::RoupasRitualista},
         {"Armadura de bau", ItemID::ArmaduraBau},
         {"Roda da Adaptacao", ItemID::RodaAdaptacao},
         
@@ -131,9 +133,3 @@ std::unique_ptr<Item> FabricaItens::criarItem(ItemID id) {
     }
     return nullptr;
 }
-
-
-
-
-
-

@@ -319,7 +319,11 @@ ProximaTransicaoMapa Mapa2Floresta::iniciarLoopDeExploracao()
     Aparencia::ocultarCursor();
 
     auto formatador = [&](char celula, int x, int y) -> std::string {
-        if (x == posicaoXDoJogador && y == posicaoYDoJogador) return Aparencia::cor(Cor::NEGRITO, jogadorAtual->obterCorJogador()) + std::string(1, jogadorAtual->obterIconeJogador()) + Aparencia::cor(Cor::RESET);
+        if (x == posicaoXDoJogador && y == posicaoYDoJogador) {
+            char ic = jogadorAtual->obterIconeJogador();
+            if (ic <= 32 || ic > 126) ic = '@'; // Garante que o icone seja um caractere visivel
+            return Aparencia::cor(jogadorAtual->obterCorJogador()) + std::string(1, ic) + Aparencia::cor(Cor::RESET);
+        }
         if (celula == 'S' && (x == 0 || matrizDoMapaAtual[y][x-1] != '^')) return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + "S" + Aparencia::cor(Cor::RESET);
         if (celula == 'F' || celula == 'A') return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
         if (celula == 'M') return Aparencia::cor(Cor::NEGRITO, Cor::MAGENTA) + "M" + Aparencia::cor(Cor::RESET);

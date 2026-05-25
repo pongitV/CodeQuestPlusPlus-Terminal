@@ -30,14 +30,9 @@ std::string ClasseBaseInimigo::obterDescricaoPassivaClasse() const { return "Ini
 std::string ClasseBaseInimigo::obterRecargaHabilidadeClasse() const { return ""; }
 std::string ClasseBaseInimigo::obterNomeHabilidadeClasse() const { return "Nenhuma"; }
 std::string ClasseBaseInimigo::obterDescricaoHabilidadeClasse() const { return "Inimigos basicos nao possuem habilidades ativas."; }
-void ClasseBaseInimigo::usarHabilidadeClasse(Personagem* /*personagemUsuario*/, std::vector<Personagem*>& /*listaDeInimigos*/) {}
+void ClasseBaseInimigo::usarHabilidadeClasse(Combate* /*combate*/, Personagem* /*personagemUsuario*/, std::vector<Personagem*>& /*listaDeInimigos*/) 
+{
+}
 
 TipoAtaque ClasseBaseInimigo::obterTipoAtaque() const { return TipoAtaque::UNICO; }
 bool ClasseBaseInimigo::habilidadeConsomeTurno() const { return true; }
-
-
-
-
-
-
-

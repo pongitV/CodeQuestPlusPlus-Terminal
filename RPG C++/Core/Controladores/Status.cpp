@@ -19,6 +19,13 @@ void EfeitoSugaSangue::aplicarInicioTurno(Personagem* alvo) {
     }
 }
 
+void EfeitoNecrose::aplicarInicioTurno(Personagem* alvo) {
+    if (alvo->obterVida() <= 0) return;
+    alvo->modificarVida(-danoPorTurno);
+    Cor corNecrose = (alvo->obterNomeClasse() != "Monstro") ? Cor::VERMELHO_CLARO : Cor::VERMELHO;
+    Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgStatus(alvo->obterNome() + " sofreu " + std::to_string(danoPorTurno) + " de dano por necrose!", corNecrose));
+}
+
 void EfeitoLentidao::aoEntrar(Personagem* alvo) {
     if (alvo->obterClasse()) alvo->obterAtributosFinais().destreza = alvo->obterClasse()->aplicarPenalidadeLentidaoPassivaArqueiro(alvo->obterAtributosFinais().destreza);
     else alvo->obterAtributosFinais().destreza /= 2;

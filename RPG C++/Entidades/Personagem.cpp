@@ -8,6 +8,7 @@
 
 #include "Classes/ClasseBase.h"
 #include "Racas/RacaBase.h"
+#include "Classes/CloneNecro.h"
 #include "../Core/Utilidades/Constantes.h"
 #include "../Core/Utilidades/Aparencia.h"
 
@@ -15,6 +16,49 @@ std::unordered_set<Personagem*> Personagem::personagensAtivos;
 
 bool Personagem::isValido(Personagem* p) {
     return personagensAtivos.find(p) != personagensAtivos.end();
+}
+
+Personagem::Personagem(const Personagem& other)
+    : nomePersonagem(other.nomePersonagem),
+      vidaAtual(other.vidaAtual),
+      raca(std::make_unique<RacaClone>(other.raca ? other.raca->obterNomeRaca() : "Desconhecido", other.raca ? other.raca->obterAparenciaRaca() : std::vector<std::string>())),
+      classe(std::make_unique<ClasseClone>()),
+      statsFinais(other.statsFinais),
+      mochila(std::make_unique<Inventario>()),
+      arma(nullptr), escudo(nullptr), armadura(nullptr), consumivelRapido(nullptr), itemSelecionadoParaUso(nullptr),
+      nivel(other.nivel), xpAtual(other.xpAtual), xpParaSubir(other.xpParaSubir)
+{
+    sistema = other.sistema;
+    
+    combate.estaDefendendo = other.combate.estaDefendendo;
+    // almasColetadas nao sao copiadas
+    combate.recargaDefesa = other.combate.recargaDefesa;
+    combate.recargaHabilidade = other.combate.recargaHabilidade;
+    combate.pularTurnoInimigo = other.combate.pularTurnoInimigo;
+    combate.habilidadeCancelada = other.combate.habilidadeCancelada;
+    combate.morteAnimada = other.combate.morteAnimada;
+    combate.multiplicadorAtual = other.combate.multiplicadorAtual;
+    combate.curaTotalRecebida = other.combate.curaTotalRecebida;
+    combate.vidaMaximaFixa = other.combate.vidaMaximaFixa;
+    combate.cooldownsAtivos = other.combate.cooldownsAtivos;
+
+    cache_ = other.cache_;
+    personagensAtivos.insert(this);
+
+    // Copia dos Itens (Conforme regra: "mas possui os mesmos items")
+    if (other.arma) {
+        auto copiaArma = FabricaItens::criarItem(Aparencia::removerCoresANSI(other.arma->obterNomeItem()));
+        if (copiaArma) { this->arma = copiaArma.get(); this->mochila->adicionarItem(std::move(copiaArma)); }
+    }
+    if (other.escudo) {
+        auto copiaEscudo = FabricaItens::criarItem(Aparencia::removerCoresANSI(other.escudo->obterNomeItem()));
+        if (copiaEscudo) { this->escudo = copiaEscudo.get(); this->mochila->adicionarItem(std::move(copiaEscudo)); }
+    }
+    if (other.armadura) {
+        auto copiaArmadura = FabricaItens::criarItem(Aparencia::removerCoresANSI(other.armadura->obterNomeItem()));
+        if (copiaArmadura) { this->armadura = copiaArmadura.get(); this->mochila->adicionarItem(std::move(copiaArmadura)); }
+    }
+    atualizarCacheSeNecessario();
 }
 
 Personagem::Personagem(std::string nome, std::unique_ptr<RacaBase> racaEscolhida, std::unique_ptr<ClasseBase> classeEscolhida)
@@ -52,6 +96,36 @@ Personagem::~Personagem()
 {
     personagensAtivos.erase(this);
 }  
+
+std::unique_ptr<Personagem> Personagem::clone() const {
+    return std::make_unique<Personagem>(*this);
+}
+
+void Personagem::escalarAtributos(double fator) {
+    statsFinais.vida = std::max(1, static_cast<int>(statsFinais.vida * fator));
+    statsFinais.forca = static_cast<int>(statsFinais.forca * fator);
+    statsFinais.destreza = static_cast<int>(statsFinais.destreza * fator);
+    statsFinais.resistencia = static_cast<int>(statsFinais.resistencia * fator);
+    statsFinais.constituicao = static_cast<int>(statsFinais.constituicao * fator);
+    statsFinais.inteligencia = static_cast<int>(statsFinais.inteligencia * fator);
+    statsFinais.sabedoria = static_cast<int>(statsFinais.sabedoria * fator);
+    combate.vidaMaximaFixa = statsFinais.vida; 
+    forcarRecalculoCache();
+    vidaAtual = obterVidaMaxima();
+}
+
+void Personagem::adicionarAlma(std::unique_ptr<Personagem> alma) { combate.almasColetadas.push_back(std::move(alma)); }
+
+std::vector<std::unique_ptr<Personagem>>& Personagem::obterAlmas() { return combate.almasColetadas; }
+
+size_t Personagem::obterNumeroDeAlmas() const { return combate.almasColetadas.size(); }
+
+std::unique_ptr<Personagem> Personagem::removerAlma(int index) {
+    if (index < 0 || index >= static_cast<int>(combate.almasColetadas.size())) return nullptr;
+    auto alma = std::move(combate.almasColetadas[index]);
+    combate.almasColetadas.erase(combate.almasColetadas.begin() + index);
+    return alma;
+}
 
 int* Personagem::obterPonteiroAtributoEstatico(TipoAtributo atributo) {
     switch (atributo) {

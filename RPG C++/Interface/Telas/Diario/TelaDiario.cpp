@@ -25,6 +25,7 @@
 #include "../../../Entidades/Classes/Bardo.h"
 #include "../../../Entidades/Classes/Guerreiro.h"
 #include "../../../Entidades/Classes/Mago.h"
+#include "../../../Entidades/Classes/Necromante.h"
 #include "../../../Entidades/NPCs/Bjorn/NPCBjornLayout.h"
 #include "../../../Entidades/NPCs/Franchesco/NPCFranchescoLayout.h"
 #include "../../../Entidades/NPCs/Morgana/NPCMorganaLayout.h"
@@ -453,6 +454,7 @@ void TelaDiario::inspecionarClasse(const std::string& nomeClasse) {
     else if (nomeClasse == "Mago") classeObj = std::make_unique<Mago>();
     else if (nomeClasse == "Arqueiro") classeObj = std::make_unique<Arqueiro>();
     else if (nomeClasse == "Bardo") classeObj = std::make_unique<Bardo>();
+    else if (nomeClasse == "Necromante") classeObj = std::make_unique<Necromante>();
 
     if (classeObj) {
         std::vector<std::string> arte = classeObj->obterAparenciaClasseMenu();

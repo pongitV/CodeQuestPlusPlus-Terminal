@@ -24,6 +24,7 @@
 #include "../../Entidades/Classes/ClasseBase.h"
 #include "../../Entidades/Classes/Guerreiro.h"
 #include "../../Entidades/Classes/Mago.h"
+#include "../../Entidades/Classes/Necromante.h"
 #include "CriadorInimigos.h"
 #include "../../Sistemas/Inventario/Equipamentos/EquipamentoArma.h"
 #include "../../Sistemas/Inventario/Equipamentos/EquipamentoArmadura.h"
@@ -344,7 +345,7 @@ void MenuJogo::etapaEscolherRaca(const std::string& nome, std::unique_ptr<RacaBa
 void MenuJogo::etapaEscolherClasse(const std::string& nome, RacaBase* raca, std::unique_ptr<ClasseBase>& classeEscolhida, EtapaCriacao& etapaAtual)
 {
     int escolha = TelaMenu::exibirPromptClasse(nome, raca->obterNomeRaca());
-    if (escolha == 4) { etapaAtual = EtapaCriacao::Raca; return; }
+    if (escolha == 5) { etapaAtual = EtapaCriacao::Raca; return; }
 
     std::unique_ptr<ClasseBase> classeTemporaria;
     switch(escolha) 
@@ -353,6 +354,7 @@ void MenuJogo::etapaEscolherClasse(const std::string& nome, RacaBase* raca, std:
         case 1: classeTemporaria = std::make_unique<Bardo>(); break;
         case 2: classeTemporaria = std::make_unique<Guerreiro>(); break;
         case 3: classeTemporaria = std::make_unique<Mago>(); break;
+        case 4: classeTemporaria = std::make_unique<Necromante>(); break;
     }
 
     if (classeTemporaria) 
@@ -364,6 +366,7 @@ void MenuJogo::etapaEscolherClasse(const std::string& nome, RacaBase* raca, std:
         else if (tipo == TipoClasse::Bardo) descCombatStyle = "Estilo de combate: Focado em buffs e curas.";
         else if (tipo == TipoClasse::Mago) descCombatStyle = "Estilo de combate: Estilo Glass Cannon.";
         else if (tipo == TipoClasse::Arqueiro) descCombatStyle = "Estilo de combate: Focado em dano critico e desvios.";
+        else if (tipo == TipoClasse::NECROMANTE) descCombatStyle = "Estilo de combate: Invocacao de lacaios e debuffs mortais.";
 
         std::vector<std::string> info = TelaMenu::comporQuadroDeAtributos(classeTemporaria->obterAtributosClasse(), "[ ATRIBUTOS BONUS DA CLASSE ]", "[ HABILIDADE PASSIVA DA CLASSE ]", classeTemporaria->obterNomePassivaClasse(), classeTemporaria->obterDescricaoPassivaClasse());
         

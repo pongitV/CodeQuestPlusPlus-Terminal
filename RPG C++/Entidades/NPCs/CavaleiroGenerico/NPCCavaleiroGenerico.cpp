@@ -45,6 +45,7 @@ namespace {
         }
     };
 
+    // Comentario adicionado para forcar a recompilacao e resolver erros de linkagem do Guerreiro
     // --- APARENCIA E DIALOGOS ---
     void dialogoCavaleiro(const std::vector<std::string>& linhas) {
         FuncoesDialogo::imprimirDialogoNPC("Cavaleiro Real", Cor::CINZA, linhas);

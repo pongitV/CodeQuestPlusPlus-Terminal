@@ -14,7 +14,8 @@ enum class EfeitoID {
     SugaSangue,
     Atordoamento,
     BuffAtributos,
-    GritoDeGuerra
+    GritoDeGuerra,
+    Necrose
 };
 
 class Personagem; // Forward declaration
@@ -88,6 +89,14 @@ private:
     int danoPorTurno;
 public:
     EfeitoSangramento(int turnosDuracao, int dano) : EfeitoStatus(EfeitoID::Sangramento, "Sangramento", turnosDuracao), danoPorTurno(dano) {}
+    void aplicarInicioTurno(Personagem* alvo) override;
+};
+
+class EfeitoNecrose : public EfeitoStatus {
+private:
+    int danoPorTurno;
+public:
+    EfeitoNecrose(int turnosDuracao, int dano) : EfeitoStatus(EfeitoID::Necrose, "Necrose", turnosDuracao), danoPorTurno(dano) {}
     void aplicarInicioTurno(Personagem* alvo) override;
 };
 

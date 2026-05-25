@@ -64,6 +64,9 @@ namespace {
         } else if (tipo == TipoClasse::Bardo) {
             linhas.push_back(" 1. " + Aparencia::cor(Cor::LILAS)       + "Sabedoria    " + cB + ": Fortalece intensamente os efeitos das curas e utilidade do Bardo.");
             linhas.push_back(" 2. " + Aparencia::cor(Cor::ROXO)        + "Inteligencia " + cB + ": Melhora o dano magico, permitindo que o Bardo lute efetivamente.");
+        } else if (tipo == TipoClasse::NECROMANTE) {
+            linhas.push_back(" 1. " + Aparencia::cor(Cor::LILAS)       + "Sabedoria    " + cB + ": Melhora magias e a durabilidade dos seus lacaios invocados.");
+            linhas.push_back(" 2. " + Aparencia::cor(Cor::CIANO)       + "Constituicao " + cB + ": Importante para sobrevivencia enquanto suas invocacoes lutam.");
         } else {
             linhas.push_back(" Nenhum atributo de dano especifico definido para esta classe.");
         }
@@ -80,8 +83,6 @@ void TelaAtributos::exibir(Personagem* jogadorAtual)
 
     static auto ultimoAcessoFicha = std::chrono::steady_clock::now() - std::chrono::hours(1);
     bool animar = TelaBase::deveAnimarEntradaDaTela(ultimoAcessoFicha, 300);
-
-    int largura = Aparencia::obterLarguraTerminal();
 
     Aparencia::exibirPainelArte(ArtesAtributos::logoFicha, 59, Cor::MAGENTA, "", animar);
 
@@ -150,12 +151,20 @@ void TelaAtributos::exibir(Personagem* jogadorAtual)
     std::vector<std::string> caixaAtributos = Aparencia::criarCaixa(atrLinhas, "ATRIBUTOS", 35, Cor::MAGENTA);
 
     std::vector<std::string> habLinhas;
+    auto adicionarDescricaoSplit = [&](const std::string& texto) {
+        std::istringstream stream(texto);
+        std::string linhaDesc;
+        while (std::getline(stream, linhaDesc)) {
+            habLinhas.push_back(" - " + Aparencia::cor(Cor::CINZA) + linhaDesc + Aparencia::cor(Cor::RESET));
+        }
+    };
+
     habLinhas.push_back("[HAB. RACA]: " + jogadorAtual->obterRaca()->obterNomeHabilidadeRaca());
-    habLinhas.push_back(" - " + Aparencia::cor(Cor::CINZA) + jogadorAtual->obterRaca()->obterDescricaoHabilidadeRaca() + Aparencia::cor(Cor::RESET));
+    adicionarDescricaoSplit(jogadorAtual->obterRaca()->obterDescricaoHabilidadeRaca());
     habLinhas.push_back("[PASSIVA]  : " + jogadorAtual->obterClasse()->obterNomePassivaClasse());
-    habLinhas.push_back(" - " + Aparencia::cor(Cor::CINZA) + jogadorAtual->obterClasse()->obterDescricaoPassivaClasse() + Aparencia::cor(Cor::RESET));
+    adicionarDescricaoSplit(jogadorAtual->obterClasse()->obterDescricaoPassivaClasse());
     habLinhas.push_back("[ATIVA]    : " + jogadorAtual->obterClasse()->obterNomeHabilidadeClasse());
-    habLinhas.push_back(" - " + Aparencia::cor(Cor::CINZA) + jogadorAtual->obterClasse()->obterDescricaoHabilidadeClasse() + Aparencia::cor(Cor::RESET));
+    adicionarDescricaoSplit(jogadorAtual->obterClasse()->obterDescricaoHabilidadeClasse());
     habLinhas.push_back("");
     habLinhas.push_back("EQUIPAMENTOS:");
     std::string arma = jogadorAtual->obterArma() ? jogadorAtual->obterArma()->obterNomeItem() + jogadorAtual->obterArma()->obterInfoStatus() : "Punhos";
@@ -206,6 +215,7 @@ void TelaAtributos::exibir(Personagem* jogadorAtual)
         {EfeitoID::Fraqueza,           Cor::VERMELHO,"Fraqueza",         true},
         {EfeitoID::QuebraResistencia, Cor::CIANO,   "Quebra de Resistencia", false},
         {EfeitoID::RodaAdaptacao,     Cor::AMARELO, "Adaptacao Divina",  false},
+        {EfeitoID::Necrose,           Cor::MAGENTA, "Necrose",           true},
     };
 
     std::vector<std::string> statusLinhas;

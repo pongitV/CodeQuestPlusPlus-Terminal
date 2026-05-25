@@ -45,13 +45,13 @@ enum class Propriedade
 enum class ItemID {
     Nenhum = 0,
     // Armas
-    AdagaPedra, ArcoMadeira, CajadoCristal, VarinhaCorroida, ViolaoEncantado, EspadaFerro, MachadoGuerra, GosmaAcidaArma, TroncoAmarrotado, EspadaCavaleiro, EspadaExterminio,
+    AdagaPedra, ArcoMadeira, CajadoCristal, VarinhaCorroida, ViolaoEncantado, EspadaFerro, MachadoGuerra, GosmaAcidaArma, TroncoAmarrotado, EspadaCavaleiro, EspadaExterminio, CajadoOsso,
     
     // Escudos
     EscudoMetal, BarreiraMagica, CapaMagica, BracedeirasPrata,
     
     // Armaduras
-    ArmaduraMalha, ArmaduraCouro, Tunica, TrajeNobre, ArmaduraTrapos, ArmaduraCavaleiro, ArmaduraBau, RodaAdaptacao,
+    ArmaduraMalha, ArmaduraCouro, Tunica, TrajeNobre, ArmaduraTrapos, ArmaduraCavaleiro, ArmaduraBau, RodaAdaptacao, RoupasRitualista,
     
     // Consumiveis
     PocaoCura30, PocaoFuria, ElixirArcano, FrascoGosma, FrascoFraqueza, OrgaoRegenerador,

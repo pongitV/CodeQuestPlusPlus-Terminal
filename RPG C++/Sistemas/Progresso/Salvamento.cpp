@@ -10,6 +10,8 @@
 #include "../../Entidades/Classes/Bardo.h"
 #include "../../Entidades/Classes/Guerreiro.h"
 #include "../../Entidades/Classes/Mago.h"
+#include "../../Entidades/Classes/Necromante.h"
+#include "../../Entidades/Classes/CloneNecro.h"
 #include "../Inventario/Equipamentos/EquipamentoArma.h"
 #include "../Inventario/Equipamentos/EquipamentoArmadura.h"
 #include "../Inventario/FabricaItens.h"
@@ -165,6 +167,34 @@ void Salvamento::salvarJogo(Personagem* jogador) {
 
     Progressao::instancia().salvar(arquivo);
 
+    // Salvar as Almas Coletadas (Necromante)
+    auto& almas = jogador->obterAlmas();
+    arquivo << almas.size() << "\n";
+    for (const auto& alma : almas) {
+        arquivo << alma->obterNome() << "\n";
+        arquivo << alma->obterRaca()->obterNomeRaca() << "\n";
+        
+        auto aparencia = alma->obterRaca()->obterAparenciaRaca();
+        arquivo << aparencia.size() << "\n";
+        for (const auto& linha : aparencia) {
+            arquivo << linha << "\n";
+        }
+        
+        auto& attr = alma->obterAtributosFinais();
+        arquivo << attr.vida << " " << attr.forca << " " << attr.destreza << " " << attr.resistencia << " " << attr.constituicao << " " << attr.inteligencia << " " << attr.sabedoria << "\n";
+        arquivo << alma->obterVida() << "\n";
+        
+        auto itensAlma = alma->obterInventario()->obterTodosOsItens();
+        arquivo << itensAlma.size() << "\n";
+        for (Item* item : itensAlma) {
+            int equipSlot = 0;
+            if (item == alma->obterArma()) equipSlot = 1;
+            else if (item == alma->obterEscudo()) equipSlot = 2;
+            else if (item == alma->obterArmadura()) equipSlot = 3;
+            arquivo << equipSlot << " " << item->obterNomeItem() << "\n";
+        }
+    }
+
     arquivo.close();
 }
 
@@ -194,7 +224,8 @@ std::unique_ptr<Personagem> Salvamento::carregarJogo(const std::string& nomeArqu
         {"Arqueiro", []() { return std::make_unique<Arqueiro>(); }},
         {"Bardo", []() { return std::make_unique<Bardo>(); }},
         {"Guerreiro", []() { return std::make_unique<Guerreiro>(); }},
-        {"Mago", []() { return std::make_unique<Mago>(); }}
+        {"Mago", []() { return std::make_unique<Mago>(); }},
+        {"Necromante", []() { return std::make_unique<Necromante>(); }}
     };
 
     std::unique_ptr<RacaBase> raca;
@@ -265,6 +296,60 @@ std::unique_ptr<Personagem> Salvamento::carregarJogo(const std::string& nomeArqu
     }
 
     Progressao::instancia().carregar(arquivo);
+
+    // Carregar as Almas Coletadas (Retrocompativel com saves antigos)
+    size_t almasSize = 0;
+    if (arquivo >> almasSize) {
+        std::string lixoAlmas; std::getline(arquivo, lixoAlmas); // Consome \n
+        for (size_t i = 0; i < almasSize; ++i) {
+            std::string almaNome, almaRacaNome;
+            std::getline(arquivo, almaNome);
+            std::getline(arquivo, almaRacaNome);
+            
+            size_t aparenciaSize = 0;
+            arquivo >> aparenciaSize;
+            std::getline(arquivo, lixoAlmas);
+            std::vector<std::string> almaAparencia;
+            for (size_t j = 0; j < aparenciaSize; ++j) {
+                std::string linhaAparencia;
+                std::getline(arquivo, linhaAparencia);
+                almaAparencia.push_back(linhaAparencia);
+            }
+            
+            Atributos almaAttr;
+            arquivo >> almaAttr.vida >> almaAttr.forca >> almaAttr.destreza >> almaAttr.resistencia >> almaAttr.constituicao >> almaAttr.inteligencia >> almaAttr.sabedoria;
+            
+            int almaVida;
+            arquivo >> almaVida;
+            std::getline(arquivo, lixoAlmas);
+            
+            auto almaRaca = std::make_unique<RacaClone>(almaRacaNome, almaAparencia);
+            auto almaClasse = std::make_unique<ClasseClone>();
+            auto almaPersonagem = std::make_unique<Personagem>(almaNome, std::move(almaRaca), std::move(almaClasse));
+            
+            almaPersonagem->obterAtributosFinais() = almaAttr;
+            almaPersonagem->definirVida(almaVida);
+            almaPersonagem->setAsMinion(true);
+            
+            size_t itensAlmaSize = 0;
+            arquivo >> itensAlmaSize;
+            std::getline(arquivo, lixoAlmas);
+            for (size_t j = 0; j < itensAlmaSize; ++j) {
+                int equipSlot; arquivo >> equipSlot;
+                arquivo.ignore(); // Consome o espaco
+                std::string nomeItem; std::getline(arquivo, nomeItem);
+                
+                auto novoItem = recriarItemComModificadores(nomeItem);
+                if (novoItem) {
+                    Item* ptr = novoItem.get();
+                    almaPersonagem->obterInventario()->adicionarItem(std::move(novoItem));
+                    if (equipSlot != 0) almaPersonagem->equiparItem(ptr);
+                }
+            }
+            
+            jogador->adicionarAlma(std::move(almaPersonagem));
+        }
+    }
 
     arquivo.close();
     return jogador;

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <memory>
 
+#include "../../Sistemas/Combate/Combate.h"
 #include "../../Sistemas/Inventario/FabricaItens.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
@@ -107,14 +108,14 @@ std::string Mago::obterDescricaoHabilidadeClasse() const
     return "Pula seu turno para se defender e dobra o dano no proximo turno. Recarga: 3 turnos."; 
 }
 
-void Mago::usarHabilidadeClasse(Personagem* personagemUsuario, std::vector<Personagem*>& /*listaDeInimigos*/) 
+void Mago::usarHabilidadeClasse(Combate* /*combate*/, Personagem* personagemUsuario, std::vector<Personagem*>& /*listaDeInimigos*/) 
 {
-    int turnosRestantes = personagemUsuario->obterCooldown(HabilidadeID::EstrategiaArcana);
+    int turnosRestantes = personagemUsuario->obterCooldown(HabilidadeID::CanalizacaoArcana);
     if (verificarEReportarRecarga(personagemUsuario, turnosRestantes, obterNomeHabilidadeClasse())) return;
     
     personagemUsuario->definirMultiplicador(2.0);
     personagemUsuario->adicionarEfeito(std::make_unique<EfeitoBuffAtributos>(2)); 
-    personagemUsuario->definirCooldown(HabilidadeID::EstrategiaArcana, 4);
+    personagemUsuario->definirCooldown(HabilidadeID::CanalizacaoArcana, 4);
     
     Item* escudo = personagemUsuario->obterEscudo();
     if (escudo) {
@@ -128,7 +129,7 @@ void Mago::usarHabilidadeClasse(Personagem* personagemUsuario, std::vector<Perso
 }
 
 // --- PROCESSAMENTO DE DANO  ---
-int Mago::processarDanoPreAtaque(Personagem* atacante, Personagem* defensor, int danoBase, bool isAtacanteJogador, size_t qtdInimigos) {
+int Mago::processarDanoPreAtaque(Personagem* /*atacante*/, Personagem* defensor, int danoBase, bool isAtacanteJogador, size_t qtdInimigos) {
     if (defensor == nullptr) return danoBase;
     if (!isAtacanteJogador || qtdInimigos <= 1) {
         int danoAumentado = static_cast<int>(danoBase * 1.25);

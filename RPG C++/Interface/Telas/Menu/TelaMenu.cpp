@@ -82,7 +82,7 @@ bool TelaMenu::exibirConfirmacaoDeEscolhaComArteLadoALado(const std::string& tip
 
     size_t maxLinhas = std::max(infoTextOnly.size(), arteTextOnly.size());
 
-    Aparencia::animarFadeIn(17, 15, [&](int frame, int intensidade) {
+    Aparencia::animarFadeIn(17, 15, [&](int /*frame*/, int intensidade) {
         std::ostringstream buffer;
         std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
         
@@ -153,7 +153,8 @@ std::vector<std::string> TelaMenu::comporQuadroDeAtributos(const Atributos& stat
         std::string sinal = (valorAtr >= 0 ? "+" : "");
         return " - " + nomeAtr + ": " + corVal + sinal + std::to_string(valorAtr) + Aparencia::cor(Cor::RESET); 
     };
-    return {
+
+    std::vector<std::string> resultado = {
         Aparencia::cor(Cor::BRANCO) + tituloSecao + Aparencia::cor(Cor::RESET),
         formatarAtributo("Vida", stats.vida),
         formatarAtributo("Forca", stats.forca),
@@ -164,9 +165,16 @@ std::vector<std::string> TelaMenu::comporQuadroDeAtributos(const Atributos& stat
         formatarAtributo("Sabedoria", stats.sabedoria),
         "",
         Aparencia::cor(Cor::BRANCO) + tituloHabilidade + Aparencia::cor(Cor::RESET),
-        " " + Aparencia::cor(Cor::CIANO) + nomeHab + Aparencia::cor(Cor::RESET),
-        " - " + Aparencia::cor(Cor::CINZA) + descHab + Aparencia::cor(Cor::RESET)
+        " " + Aparencia::cor(Cor::CIANO) + nomeHab + Aparencia::cor(Cor::RESET)
     };
+
+    std::istringstream stream(descHab);
+    std::string linhaDesc;
+    while (std::getline(stream, linhaDesc)) {
+        resultado.push_back(" - " + Aparencia::cor(Cor::CINZA) + linhaDesc + Aparencia::cor(Cor::RESET));
+    }
+
+    return resultado;
 }
 
 int TelaMenu::exibirOpcoesMenuPrincipal(bool temSave) {
@@ -183,7 +191,7 @@ int TelaMenu::exibirOpcoesMenuPrincipal(bool temSave) {
         int recuo = std::max(0, (larguraConsole - larguraLinhaCompleta) / 2);
         std::string margem(recuo, ' ');
 
-        Aparencia::animarFadeIn(32, 30, [&](int frame, int intensidade) {
+        Aparencia::animarFadeIn(32, 30, [&](int /*frame*/, int intensidade) {
             std::ostringstream buffer;
             std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
             
@@ -318,7 +326,7 @@ int TelaMenu::exibirPromptRaca(const std::string& nome) {
 int TelaMenu::exibirPromptClasse(const std::string& nome, const std::string& nomeRaca) {
     return exibirPromptGenerico("SELECAO DE CLASSE", "| JOGADOR: " + nome + " | RACA: " + nomeRaca + " |", 
         {FuncoesDialogo::formatarMsgNarracao("Qual seu caminho?")}, 
-        {"Arqueiro", "Bardo", "Guerreiro", "Mago", "VOLTAR (selecao de raca)"});
+        {"Arqueiro", "Bardo", "Guerreiro", "Mago", "Necromante", "VOLTAR (selecao de raca)"});
 }
 
 int TelaMenu::exibirPromptDificuldade(const std::string& nome, const std::string& nomeRaca, const std::string& nomeClasse) {

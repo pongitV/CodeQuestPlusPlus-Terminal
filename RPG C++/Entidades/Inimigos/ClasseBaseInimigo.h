@@ -18,7 +18,7 @@ public:
     std::string obterDescricaoPassivaClasse() const override;
     std::string obterRecargaHabilidadeClasse() const override;
 
-    void usarHabilidadeClasse(Personagem* personagemUsuario, std::vector<Personagem*>& listaDeInimigos) override;
+    void usarHabilidadeClasse(Combate* combate, Personagem* personagemUsuario, std::vector<Personagem*>& listaDeInimigos) override;
     std::string obterNomeHabilidadeClasse() const override;
     std::string obterDescricaoHabilidadeClasse() const override;
     

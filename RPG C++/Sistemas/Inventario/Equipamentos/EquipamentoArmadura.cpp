@@ -88,6 +88,7 @@ std::unique_ptr<Item> fabricarEquipamentoArmadura(ItemID id) {
         {ItemID::TrajeNobre, [criarArmadura]() { return criarArmadura(ItemID::TrajeNobre, 4, 0, 0, 3); }},
         {ItemID::ArmaduraTrapos, [criarArmadura]() { return criarArmadura(ItemID::ArmaduraTrapos, 3, 0, 0, 3); }},
         {ItemID::ArmaduraCavaleiro, [criarArmadura]() { return criarArmadura(ItemID::ArmaduraCavaleiro, 12, 0, 0, 0); }},
+        {ItemID::RoupasRitualista, [criarArmadura]() { return criarArmadura(ItemID::RoupasRitualista, 3, 0, 0, 15); }},
         {ItemID::ArmaduraBau, [criarArmadura]() { 
             auto armadura = criarArmadura(ItemID::ArmaduraBau, 20, 0, 0, 150); 
             armadura->definirPenalidadeDestreza(10);
@@ -113,9 +114,3 @@ std::unique_ptr<Item> fabricarEquipamentoArmadura(ItemID id) {
     if (it != construtores.end()) return it->second();
     return nullptr;
 }
-
-
-
-
-
-

@@ -46,9 +46,7 @@ private:
     void processarMorteDeInimigo(Personagem* inimigo);
     void exibirResultadoDoAtaque(Personagem* alvo, int danoFinal, bool tentouParry, bool parrySucesso, int danoBloqueado, bool escudoQuebrou, const std::string& nomeEscudoQuebrado);
 
-    std::vector<Personagem*> obterAliadosVivosRaw() const;
     void prepararTurnoPersonagem(Personagem* personagem);
-    bool executarTurnoJogadorOuAliado(Personagem* personagem, bool& primeiraRenderizacao);
     void processarPosDano(Personagem* atacante, Personagem* alvo, int danoFinal, bool tentouParry, bool parrySucesso);
     bool isPersonagemJogadorOuAliado(Personagem* personagem) const;
     void processarMenuDeAcoesDoJogador(Personagem* personagemAgindo, bool& turnoFoiConsumido, bool& usouInventarioNoTurno);
@@ -69,6 +67,9 @@ public:
     Combate(Personagem* jogadorParaOCombate, std::vector<std::unique_ptr<Personagem>>&& inimigosParaOCombate);
     virtual ~Combate();
 
+    std::vector<Personagem*> obterAliadosVivosRaw() const;
+    bool executarTurnoJogadorOuAliado(Personagem* personagem, bool& primeiraRenderizacao);
+    void adicionarAliadoEmCombate(std::unique_ptr<Personagem> aliado);
     void adicionarAliados(std::vector<std::unique_ptr<Personagem>> aliados);
     void iniciarCombate();
     void executarTurnoDeTodosOsInimigos();

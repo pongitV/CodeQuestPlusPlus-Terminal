@@ -3,6 +3,7 @@
 #include <iostream>
 #include <memory>
 
+#include "../../Sistemas/Combate/Combate.h"
 #include "../../Sistemas/Inventario/FabricaItens.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
@@ -121,12 +122,13 @@ std::string Arqueiro::obterDescricaoHabilidadeClasse() const
     return "Se afasta durante um turno, no proximo turno causa 2x dano"; 
 }
 
-void Arqueiro::usarHabilidadeClasse(Personagem* personagemUsuario, std::vector<Personagem*>& /*listaDeInimigos*/) 
+void Arqueiro::usarHabilidadeClasse(Combate* /*combate*/, Personagem* personagemUsuario, std::vector<Personagem*>& /*listaDeInimigos*/) 
 {
-    if (verificarEReportarRecarga(personagemUsuario, personagemUsuario->obterRecarga() ? 1 : 0, obterNomeHabilidadeClasse())) return;
+    int turnosRestantes = personagemUsuario->obterCooldown(HabilidadeID::RetiradaComPontaria);
+    if (verificarEReportarRecarga(personagemUsuario, turnosRestantes, obterNomeHabilidadeClasse())) return;
 
     personagemUsuario->adicionarEfeito(std::make_unique<EfeitoInviolavel>(1));
-    personagemUsuario->definirRecarga(true);
+    personagemUsuario->definirCooldown(HabilidadeID::RetiradaComPontaria, 2);
     std::string msg = FuncoesDialogo::formatarMsgHabilidade("Retirada com pontaria! Voce se afasta neste turno.");
     notificarMensagemCombate(msg, msg);
 }

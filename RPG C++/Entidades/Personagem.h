@@ -76,6 +76,7 @@ class Personagem
 private:
     struct ControleCombate {
         bool estaDefendendo = false;
+        std::vector<std::unique_ptr<Personagem>> almasColetadas;
         bool recargaDefesa = false;
         bool recargaHabilidade = false;
         bool pularTurnoInimigo = false;
@@ -108,6 +109,7 @@ private:
         bool possuiRegeneracaoTroll = false;
         bool godModeAtivo = false;
         bool noclipAtivo = false;
+        bool isMinion = false;
         DificuldadeJogo dificuldadeAtual = DificuldadeJogo::Normal;
         double dificuldadeMultiplicador = 1.0;
         char iconeJogador = '@';
@@ -160,14 +162,17 @@ protected:
     int* obterPonteiroAtributoEstatico(TipoAtributo atributo);
 
 public:
+    Personagem(const Personagem& other);
     Personagem(std::string nome, std::unique_ptr<RacaBase> r, std::unique_ptr<ClasseBase> c);
     virtual ~Personagem();
 
     static bool isValido(Personagem* p);
 
     void calcularAtributos();
+    std::unique_ptr<Personagem> clone() const;
     void mostrarStatus() const;
     void modificarVida(int valor);
+    void alterarNome(const std::string& novoNome) { nomePersonagem = novoNome; }
     void equiparItem(Item* item);
 
     // Getters e Setters em camelCase
@@ -194,6 +199,12 @@ public:
     void ganharXp(int valor) { xpAtual += valor; }
     bool podeSubirDeNivel() const { return xpAtual >= xpParaSubir; }
     bool subirDeNivel(TipoAtributo atributo);
+    void escalarAtributos(double fator);
+    void adicionarAlma(std::unique_ptr<Personagem> alma);
+    std::vector<std::unique_ptr<Personagem>>& obterAlmas();
+    size_t obterNumeroDeAlmas() const;
+    std::unique_ptr<Personagem> removerAlma(int index);
+
     void forcarRecalculoCache() { cache_.sujo = true; }
     
     int obterCuraTotalRecebida() const { return combate.curaTotalRecebida; }
@@ -280,6 +291,9 @@ public:
 
     void definirParryAtivado(bool p) { sistema.parryAtivado = p; }
     bool obterParryAtivado() const { return sistema.parryAtivado; }
+
+    void setAsMinion(bool minion) { sistema.isMinion = minion; }
+    bool isMinion() const { return sistema.isMinion; }
 
     void definirDificuldade(DificuldadeJogo d) { sistema.dificuldadeAtual = d; }
     DificuldadeJogo obterDificuldade() const { return sistema.dificuldadeAtual; }

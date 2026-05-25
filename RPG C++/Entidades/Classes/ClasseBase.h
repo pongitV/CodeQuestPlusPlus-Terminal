@@ -18,21 +18,25 @@ enum class TipoClasse
     Arqueiro,
     Bardo,
     Guerreiro,
-    Mago
+    Mago,
+    NECROMANTE
 };
 
 enum class HabilidadeID
 {
     Nenhuma,
     Determinacao,
-    EstrategiaArcana,
+    CanalizacaoArcana,
     FlashingLights,
     OnSight,
-    ThroughTheWire
+    ThroughTheWire,
+    RetiradaComPontaria,
+    InvocacaoDeEspectro
 };
 
 class Personagem;
 class Item;
+class Combate;
 
 class ClasseBase 
 {
@@ -53,7 +57,7 @@ public:
     // HABILIDADE DA CLASSE
     virtual std::string obterNomeHabilidadeClasse() const = 0;
     virtual std::string obterDescricaoHabilidadeClasse() const = 0;
-    virtual void usarHabilidadeClasse(Personagem* personagemUsuario, std::vector<Personagem*>& listaDeInimigos) = 0;
+    virtual void usarHabilidadeClasse(Combate* combate, Personagem* personagemUsuario, std::vector<Personagem*>& listaDeInimigos) = 0;
     virtual TipoAtaque obterTipoAtaque() const { return TipoAtaque::UNICO; }
     virtual bool habilidadeConsomeTurno() const { return true; }
 
