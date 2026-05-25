@@ -14,6 +14,8 @@
 #include "../../../Core/Utilidades/Aparencia.h"
 #include "../../../Core/Utilidades/FuncoesDialogo.h"
 #include "../../../Sistemas/Progresso/Diario.h"
+#include "../../../Sistemas/Progresso/Progressao.h"
+#include "../../../Sistemas/Progresso/ProgressaoFlags.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"
 #include "NPCCavaleiroGenericoLayout.h"
 
@@ -44,11 +46,6 @@ namespace {
     };
 
     // --- APARENCIA E DIALOGOS ---
-    void dialogoCavaleiro(const std::string& texto, bool novaLinhaAntes = true, bool novaLinhaDepois = true) {
-        // Removido o "  " extra para consistência com a nova função auxiliar e outros NPCs.
-        FuncoesDialogo::imprimirDialogoNPC("Cavaleiro Real", Cor::CINZA, texto, novaLinhaAntes, novaLinhaDepois);
-    }
-
     void dialogoCavaleiro(const std::vector<std::string>& linhas) {
         FuncoesDialogo::imprimirDialogoNPC("Cavaleiro Real", Cor::CINZA, linhas);
     }
@@ -94,7 +91,7 @@ std::unique_ptr<Personagem> NPCCavaleiroGenerico::criarCavaleiro(const std::stri
 }
 
 // --- INTERACAO ---
-void NPCCavaleiroGenerico::interagir(Personagem* jogadorAtual, bool& trollDerrotado, bool& conviteRecebido, int larguraDoTerminal, std::vector<std::string>& matrizDoMapaAtual, bool exploracaoEstaAtiva, const std::function<void()>& restaurarTela, char celulaDestino, int proximaPosicaoX, int proximaPosicaoY) {
+void NPCCavaleiroGenerico::interagir(Personagem* jogadorAtual, bool& trollDerrotado, bool& conviteRecebido, int /*larguraDoTerminal*/, std::vector<std::string>& matrizDoMapaAtual, bool exploracaoEstaAtiva, const std::function<void()>& restaurarTela, char celulaDestino, int proximaPosicaoX, int proximaPosicaoY) {
     Diario::instancia().registrarNPC("Cavaleiro Real");
     if (!trollDerrotado && (celulaDestino == 'T' || celulaDestino == 'C')) {
         int posicaoTrollX = -1, posicaoTrollY = -1;
@@ -151,6 +148,7 @@ void NPCCavaleiroGenerico::interagir(Personagem* jogadorAtual, bool& trollDerrot
                 }
                 if (trollsRestantes == 0) {
                     trollDerrotado = true;
+                    Progressao::instancia().definirFlag(Flags::Reino_TrollDerrotado, true);
                 }
             }
         }
@@ -167,6 +165,7 @@ void NPCCavaleiroGenerico::interagir(Personagem* jogadorAtual, bool& trollDerrot
             
             jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::ConviteReal));
             Diario::instancia().registrarItem("Convite Real");
+            Progressao::instancia().definirFlag(Flags::Vila_ConviteReal, true);
             conviteRecebido = true;
             ControleDeInput::aguardarEnter();
             restaurarTela();

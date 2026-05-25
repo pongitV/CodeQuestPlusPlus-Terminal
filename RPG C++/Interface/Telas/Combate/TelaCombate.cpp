@@ -173,10 +173,21 @@ namespace {
             painelEsquerdo.insert(painelEsquerdo.end(), linhasDestaque.begin(), linhasDestaque.end());
 
             std::vector<std::string> painelDireito;
+            const int LARGURA_PAINEL_DIREITO = 50;
+
+            auto padLinhaDireita = [&](std::string& linha) {
+                int visualLen = Aparencia::obterComprimentoVisual(linha);
+                if (visualLen < LARGURA_PAINEL_DIREITO) {
+                    linha += std::string(LARGURA_PAINEL_DIREITO - visualLen, ' ');
+                }
+            };
+
             if (TelaCombate::selecaoAcaoAtual != -1) {
                 std::string cursorIcon = ((tempoMs / 400) % 2 == 0) ? ">  " : " > ";
 
-                painelDireito.push_back("═══ ESCOLHA UMA ACAO ═══");
+                std::string tituloAcao = "═══ ESCOLHA UMA ACAO ═══";
+                padLinhaDireita(tituloAcao);
+                painelDireito.push_back(tituloAcao);
                 for (size_t i = 0; i < 3; ++i) {
                     std::string linhaDir = "";
                     for (size_t col = 0; col < 3; ++col) {
@@ -196,15 +207,22 @@ namespace {
                             }
                         }
                     }
+                    padLinhaDireita(linhaDir);
                     painelDireito.push_back(linhaDir);
                 }
             } else if (TelaCombate::selecaoAlvoAtual != -1) {
-                painelDireito.push_back("═══ ESCOLHA UM ALVO ═══");
-                painelDireito.push_back("   < / > : Selecionar");
-                painelDireito.push_back("   ENTER : Confirmar");
-                painelDireito.push_back("   ESC   : Cancelar");
+                std::vector<std::string> linhasAlvo = {
+                    "═══ ESCOLHA UM ALVO ═══",
+                    "   < / > : Selecionar",
+                    "   ENTER : Confirmar",
+                    "   ESC   : Cancelar"
+                };
+                for(auto& linha : linhasAlvo) {
+                    padLinhaDireita(linha);
+                    painelDireito.push_back(linha);
+                }
             } else {
-                for (int i = 0; i < 4; ++i) painelDireito.push_back(std::string(37, ' '));
+                for (int i = 0; i < 4; ++i) painelDireito.push_back(std::string(LARGURA_PAINEL_DIREITO, ' '));
             }
             
             Aparencia::imprimirLadoALado(painelEsquerdo, painelDireito, 0, 5, Cor::RESET, Cor::RESET, 0);

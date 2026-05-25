@@ -5,7 +5,9 @@
 #include "../../Interface/Telas/Menu/TelaMenu.h"
 #include "../../Interface/Telas/Pause/TelaPause.h"
 #include "../../Core/Utilidades/Aparencia.h"
+#include "../../Interface/Telas/MapaMundial/TelaMapaMundial.h"
 #include "../Combate/Combate.h"
+#include "../../Sistemas/Progresso/Progressao.h"
 #include "../../Core/Controladores/Debug.h"
 #include "../../Core/Utilidades/ControleDeInput.h"
 #include "../../Core/Utilidades/GeradorAleatorio.h"
@@ -357,7 +359,7 @@ void ControleMapa::renderizarMapa(const std::vector<std::string>& matrizDoMapa, 
 
     std::string margemEsquerdaDoMapa = calcularMargemCentralizada(larguraDoTerminal, endX - startX);
 
-    std::string textoDeControles = "W,A,S,D: Mover | I: Inventario | C: Ficha | B: Diario";
+    std::string textoDeControles = "W,A,S,D: Mover | I: Inventario | C: Ficha | B: Diario | M: Mapa";
     std::string margemEsquerdaControles = calcularMargemCentralizada(larguraDoTerminal, textoDeControles.length());
 
     Aparencia::moverCursor(0, linhaInicial);
@@ -378,13 +380,13 @@ void ControleMapa::renderizarMapa(const std::vector<std::string>& matrizDoMapa, 
     std::cout << "\033[J" << std::flush;
 }
 
-void ControleMapa::executarLoopDeExploracao(
+ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
     Personagem* jogadorAtual,
     std::vector<std::string>& matrizDoMapaAtual,
     int& posicaoXDoJogador,
     int& posicaoYDoJogador,
     bool& exploracaoEstaAtiva,
-    const std::string& /*tituloDoMapaAtual*/,
+    const std::string& tituloDoMapaAtual,
     const std::function<std::string()>& obterSimbolosInimigos,
     const std::function<std::vector<std::string>()>& obterLayoutOriginal,
     const std::function<void(int, int, int)>& processarInteracao,
@@ -394,6 +396,7 @@ void ControleMapa::executarLoopDeExploracao(
     bool& precisaRenderizar
 ) {
     auto ultimoMovimentoInimigos = std::chrono::steady_clock::now();
+    ProximaTransicaoMapa destinoViagemRapida = ProximaTransicaoMapa::Nenhuma;
 
     while (exploracaoEstaAtiva && jogadorAtual->obterVida() > 0)
     {
@@ -419,6 +422,34 @@ void ControleMapa::executarLoopDeExploracao(
         if (ControleDeInput::teclaPressionada()) {
             char teclaPressionadaPeloJogador = ControleDeInput::lerTecla();
 
+             if (teclaPressionadaPeloJogador == 'm' || teclaPressionadaPeloJogador == 'M') {
+                LocalizacaoMapa loc = LocalizacaoMapa::VilaInicial;
+                std::string tituloUpper = tituloDoMapaAtual;
+                std::transform(tituloUpper.begin(), tituloUpper.end(), tituloUpper.begin(), ::toupper);
+                
+                if (tituloUpper.find("FLORESTA") != std::string::npos || tituloUpper.find("BOSQUE") != std::string::npos) {
+                    loc = LocalizacaoMapa::Floresta;
+                } else if (tituloUpper.find("REINO") != std::string::npos || tituloUpper.find("CASTELO") != std::string::npos) {
+                    loc = LocalizacaoMapa::Reino;
+                }
+                
+                int progressoVila = Progressao::instancia().obterProgressoVila(jogadorAtual);
+                int progressoFloresta = Progressao::instancia().obterProgressoFloresta(jogadorAtual);
+                int progressoReino = Progressao::instancia().obterProgressoReino(jogadorAtual);
+
+                ProximaTransicaoMapa destino = TelaMapaMundial::exibir(loc, progressoVila, progressoFloresta, progressoReino);
+
+                if (destino != ProximaTransicaoMapa::Nenhuma) {
+                    destinoViagemRapida = destino;
+                    exploracaoEstaAtiva = false; // Sinaliza para sair do loop e processar a viagem
+                    break;
+                }
+                // Se nenhum destino foi escolhido, apenas restaura a tela e continua a exploração.
+                restaurarTela();
+                precisaRenderizar = true;
+                continue;
+            }
+
             int proximaPosicaoX = posicaoXDoJogador;
             int proximaPosicaoY = posicaoYDoJogador;
 
@@ -435,4 +466,6 @@ void ControleMapa::executarLoopDeExploracao(
             std::this_thread::sleep_for(std::chrono::milliseconds(30));
         }
     }
+
+    return destinoViagemRapida;
 }

@@ -24,6 +24,8 @@
 #include "../../../Core/Utilidades/ControleDeInput.h"
 #include "../../../Core/Utilidades/GeradorAleatorio.h"
 #include "../MapaInteracao.h"
+#include "../../Progresso/Progressao.h"
+#include "../../Progresso/ProgressaoFlags.h"
 #include "../../Progresso/Diario.h"
 #include "Mapa1VilaLayout.h"
 
@@ -36,7 +38,7 @@ Mapa1Vila::Mapa1Vila(Personagem* personagemJogador) :
     posicaoXSalvaAntesDeEntrarNoSubMapa(2), 
     posicaoYSalvaAntesDeEntrarNoSubMapa(2),
     jogadorEstaDentroDeUmSubMapa(true),
-    bjornResgatado(false), 
+    bjornResgatado(Progressao::instancia().obterFlag(Flags::Vila_BjornResgatado)), 
     forjaJaFoiVisitada(false), 
     lojaJaFoiVisitada(false), 
     cavernaJaFoiVisitada(false),
@@ -77,12 +79,14 @@ namespace {
                 Aparencia::limparTela();
             Aparencia::exibirPainelTexto("RESGATE NA CAVERNA", Cor::AMARELO);
                 std::vector<std::string> falasBjorn = {
-                    "Pelos deuses, muito obrigado por me salvar!",
-                    "Passe na Forja e eu ajudarei voce!"
+                    Aparencia::cor(Cor::CIANO) + "Bjorn:" + Aparencia::cor(Cor::RESET) + " Pelos deuses, muito obrigado por me salvar!",
+                    Aparencia::cor(Cor::CIANO) + "Bjorn:" + Aparencia::cor(Cor::RESET) + " Passe na Forja e eu ajudarei voce!"
                 };
-                FuncoesDialogo::imprimirDialogoNPC("Bjorn", Cor::CIANO, falasBjorn);
+                std::cout << "\n";
+                Aparencia::imprimirBlocoCentralizado(falasBjorn);
                 std::cout << "\n";
                 ctx.self->bjornResgatado = true;
+                Progressao::instancia().definirFlag(Flags::Vila_BjornResgatado, true);
 
                 ctx.self->matrizDoMapaAtual[ctx.proximaPosicaoY][ctx.proximaPosicaoX] = '.';
                 ControleDeInput::aguardarEnter();
@@ -166,6 +170,16 @@ namespace {
                 ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaLojaSalva, ctx.self->lojaJaFoiVisitada, Mapa1VilaLayouts::obterLayoutLoja(), 8, 2, "LOJA DA VILA", ctx.restaurarTela);
             }
             else if (nextCell == 'F' && nextNextCell == 'l' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
+                if (!Progressao::instancia().obterFlag(Flags::Vila_BjornResgatado)) {
+                    Aparencia::limparTela();
+                    Aparencia::exibirPainelTexto(ctx.self->tituloDoMapaAtual, Cor::AMARELO);
+                    int espacosM = std::max(0, (ctx.larguraDoTerminal - 60) / 2);
+                    std::cout << "\n" << std::string(espacosM, ' ') << FuncoesDialogo::formatarMsgSistema("Voce precisa ajudar os habitantes da vila antes de seguir jornada.") << "\n";
+                    std::cout << std::string(espacosM, ' ') << FuncoesDialogo::formatarMsgSistema("(Dica: Explore a caverna a leste da vila).") << "\n";
+                    ControleDeInput::aguardarEnter();
+                    ctx.restaurarTela();
+                    return;
+                }
                 ctx.self->exploracaoEstaAtiva = false;
                 ctx.self->proximoMapa = ProximaTransicaoMapa::Floresta;
                 ctx.self->veioDaFloresta = true;
@@ -281,7 +295,7 @@ ProximaTransicaoMapa Mapa1Vila::iniciarLoopDeExploracao()
         }
     };
 
-    ControleMapa::executarLoopDeExploracao(
+    ProximaTransicaoMapa destinoViagemRapida = ControleMapa::executarLoopDeExploracao(
         jogadorAtual, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador,
         exploracaoEstaAtiva, tituloDoMapaAtual,
         [this]() { return "GO"; },
@@ -289,6 +303,10 @@ ProximaTransicaoMapa Mapa1Vila::iniciarLoopDeExploracao()
         processarInteracao, formatador, restaurarTela,
         linhaInicialParaDesenharOMapa, precisaRenderizar
     );
+
+    if (destinoViagemRapida != ProximaTransicaoMapa::Nenhuma) {
+        return destinoViagemRapida;
+    }
 
     if (jogadorAtual->obterVida() <= 0 || jogadorAtual->obterVoltarProMenu()) {
         return ProximaTransicaoMapa::VoltarMenu;

@@ -31,6 +31,86 @@
 #include "../../../Entidades/NPCs/CavaleiroGenerico/NPCCavaleiroGenericoLayout.h"
 #include "../Inventario/TelaInventario.h"
 
+#include "../../../Sistemas/Progresso/Progressao.h"
+#include "../../../Sistemas/Progresso/ProgressaoFlags.h"
+
+namespace {
+    enum class CategoriaProgresso { NPC, MONSTRO, ITEM };
+
+    struct ItemProgresso {
+        const char* flag;
+        const char* nome;
+        const char* descricao;
+        CategoriaProgresso categoria;
+    };
+
+    const std::vector<ItemProgresso> itensDeProgresso = {
+        // NPCs
+        {Flags::Vila_BjornResgatado, "O Salvador da Forja", "Resgatou o ferreiro Bjorn encurralado por um Orc.", CategoriaProgresso::NPC},
+        {Flags::Vila_ConviteReal, "Passe Real", "Ajudou os cavaleiros a se livrarem dos Trolls e recebeu um convite para o castelo.", CategoriaProgresso::NPC},
+        {Flags::Floresta_MissaoMorgana, "Pacto com a Bruxa", "Entregou os Coracoes da Floresta para Morgana e recebeu a chave para o Labirinto.", CategoriaProgresso::NPC},
+        // Monstros
+        {Flags::Floresta_MahoragaDerrotado, "Ritual concluido", "Derrotou Mahoraga pela primeira vez.", CategoriaProgresso::MONSTRO},
+        {Flags::Reino_TrollDerrotado, "Pacificador do Reino", "Derrotou todos os Trolls que invadiram a entrada do Reino.", CategoriaProgresso::MONSTRO}
+    };
+
+    void exibirProgresso(Personagem* /*jogador*/) {
+        TelaBase::executarLoopPadrao(
+            "DIARIO - PROGRESSO",
+            Cor::AMARELO,
+            [&]() {
+                std::cout << "\n";
+                Aparencia::imprimirCentralizado("Seus maiores feitos nesta jornada:");
+                std::cout << "\n\n";
+
+                std::vector<std::string> linhasParaImprimir;
+                int conquistasExibidas = 0;
+
+                auto imprimirCategoria = [&](const std::string& titulo, CategoriaProgresso categoria) {
+                    std::vector<std::string> linhasCategoria;
+                    int count = 0;
+                    for (const auto& item : itensDeProgresso) {
+                        if (item.categoria == categoria && Progressao::instancia().obterFlag(item.flag)) {
+                            if (linhasCategoria.empty()) {
+                                linhasCategoria.push_back("  " + Aparencia::cor(Cor::CIANO) + "═══ " + titulo + " ═══" + Aparencia::cor(Cor::RESET));
+                                linhasCategoria.push_back("");
+                            }
+                            std::string corNome = Aparencia::cor(Cor::AMARELO);
+                            std::string corDesc = Aparencia::cor(Cor::BRANCO);
+                            std::string status = Aparencia::cor(Cor::VERDE) + "[CONCLUIDO]";
+
+                            linhasCategoria.push_back("    " + status + " " + corNome + item.nome + Aparencia::cor(Cor::RESET));
+                            linhasCategoria.push_back("      " + corDesc + "  " + item.descricao + Aparencia::cor(Cor::RESET));
+                            linhasCategoria.push_back("");
+                            count++;
+                        }
+                    }
+                    if (!linhasCategoria.empty()) {
+                        linhasParaImprimir.insert(linhasParaImprimir.end(), linhasCategoria.begin(), linhasCategoria.end());
+                    }
+                    return count;
+                };
+
+                conquistasExibidas += imprimirCategoria("NPCs", CategoriaProgresso::NPC);
+                conquistasExibidas += imprimirCategoria("Monstros", CategoriaProgresso::MONSTRO);
+                conquistasExibidas += imprimirCategoria("Itens", CategoriaProgresso::ITEM);
+
+                if (conquistasExibidas == 0) {
+                    Aparencia::imprimirCentralizado("Nenhum grande feito para registrar ainda...", Aparencia::cor(Cor::CINZA));
+                    std::cout << "\n";
+                } else {
+                    if (!linhasParaImprimir.empty()) linhasParaImprimir.pop_back(); // Remove a ultima linha em branco
+                    Aparencia::imprimirBlocoCentralizado(linhasParaImprimir);
+                }
+            },
+            []() { return std::vector<std::string>{"VOLTAR"}; },
+            [&](int id) {
+                return !(id == 0 || id == -1);
+            }
+        );
+    }
+}
+
 void TelaDiario::exibir(Personagem* jogadorAtual) {
     if (jogadorAtual == nullptr) return;
 
@@ -49,6 +129,7 @@ void TelaDiario::exibir(Personagem* jogadorAtual) {
             "NPCs Conhecidos",
             "Racas do Mundo",
             "Classes Jogaveis",
+            "Progresso",
             "Voltar"
         };
 
@@ -75,6 +156,9 @@ void TelaDiario::exibir(Personagem* jogadorAtual) {
                 exibirMenuClasses(jogadorAtual);
                 break;
             case 5:
+                exibirProgresso(jogadorAtual);
+                break;
+            case 6:
             case -1:
                 continuar = false;
                 break;
@@ -147,7 +231,7 @@ void TelaDiario::exibirMenuItens(Personagem* jogadorAtual) {
                 menuItens.push_back("Voltar");
 
                 int escolhaItem = ControleDeInput::lerSelecaoMenuComSetas(menuItens, true);
-                if (escolhaItem == menuItens.size() - 1 || escolhaItem == -1) {
+                if (static_cast<size_t>(escolhaItem) == menuItens.size() - 1 || escolhaItem == -1) {
                     lendoItens = false;
                 } else {
                     // Remove o prefixo " - " adicionado acima para puxar o nome limpo
@@ -175,7 +259,7 @@ void TelaDiario::inspecionarItem(Personagem* jogadorAtual, const std::string& no
     ControleDeInput::aguardarEnter();
 }
 
-void TelaDiario::exibirMenuNPCs(Personagem* jogadorAtual) {
+void TelaDiario::exibirMenuNPCs(Personagem* /*jogadorAtual*/) {
     bool continuar = true;
     while (continuar) {
         Aparencia::limparTela();
@@ -192,7 +276,7 @@ void TelaDiario::exibirMenuNPCs(Personagem* jogadorAtual) {
         opcoes.push_back("Voltar");
 
         int escolha = ControleDeInput::lerSelecaoMenuComSetas(opcoes, true);
-        if (escolha == opcoes.size() - 1 || escolha == -1) {
+        if (static_cast<size_t>(escolha) == opcoes.size() - 1 || escolha == -1) {
             continuar = false;
         } else {
             inspecionarNPC(npcs[escolha]);
@@ -290,7 +374,7 @@ void TelaDiario::exibirMenuRacas(Personagem* jogadorAtual) {
                 menuRacas.push_back("Voltar");
 
                 int escolhaRaca = ControleDeInput::lerSelecaoMenuComSetas(menuRacas, true);
-                if (escolhaRaca == menuRacas.size() - 1 || escolhaRaca == -1) {
+                if (static_cast<size_t>(escolhaRaca) == menuRacas.size() - 1 || escolhaRaca == -1) {
                     lendoRacas = false;
                 } else {
                     if (escolhaCat == 0) {
@@ -334,7 +418,7 @@ void TelaDiario::inspecionarRacaJogavel(const std::string& nomeRaca) {
     ControleDeInput::aguardarEnter();
 }
 
-void TelaDiario::exibirMenuClasses(Personagem* jogadorAtual) {
+void TelaDiario::exibirMenuClasses(Personagem* /*jogadorAtual*/) {
     bool continuar = true;
     while (continuar) {
         Aparencia::limparTela();
@@ -351,7 +435,7 @@ void TelaDiario::exibirMenuClasses(Personagem* jogadorAtual) {
         opcoes.push_back("Voltar");
 
         int escolha = ControleDeInput::lerSelecaoMenuComSetas(opcoes, true);
-        if (escolha == opcoes.size() - 1 || escolha == -1) {
+        if (static_cast<size_t>(escolha) == opcoes.size() - 1 || escolha == -1) {
             continuar = false;
         } else {
             inspecionarClasse(classes[escolha]);
@@ -391,9 +475,3 @@ void TelaDiario::inspecionarClasse(const std::string& nomeClasse) {
     std::cout << "\n";
     ControleDeInput::aguardarEnter();
 }
-
-
-
-
-
-

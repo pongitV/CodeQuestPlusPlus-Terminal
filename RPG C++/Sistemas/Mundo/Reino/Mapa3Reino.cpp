@@ -131,13 +131,17 @@ ProximaTransicaoMapa Mapa3Reino::iniciarLoopDeExploracao()
     };
 
     bool precisaRenderizar = true;
-    ControleMapa::executarLoopDeExploracao(
+    ProximaTransicaoMapa destinoViagemRapida = ControleMapa::executarLoopDeExploracao(
         jogadorAtual, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador,
         exploracaoEstaAtiva, tituloDoMapaAtual, []() { return ""; },
         []() -> std::vector<std::string> { return {}; },
         processarInteracao, formatador, restaurarTela,
         linhaInicialParaDesenharOMapa, precisaRenderizar
     );
+
+    if (destinoViagemRapida != ProximaTransicaoMapa::Nenhuma) {
+        return destinoViagemRapida;
+    }
 
     if (jogadorAtual->obterVida() <= 0 || jogadorAtual->obterVoltarProMenu()) {
         return ProximaTransicaoMapa::VoltarMenu;

@@ -22,6 +22,8 @@
 #include "Entidades/Racas/Humano.h"
 #include "Entidades/Racas/Orc.h"
 #include "Sistemas/Progresso/Salvamento.h"
+#include "Sistemas/Progresso/Progressao.h"
+#include "Sistemas/Progresso/ProgressaoFlags.h"
 #include "Core/Utilidades/Aparencia.h"
 
 // Funcao para garantir que o jogo rode como Administrador
@@ -121,8 +123,8 @@ public:
 
 void EstadoExploracao::onExit(Jogo& jogo, ContextoJogo& ctx) {
     Personagem* jogador = ctx.jogador.get();
-    // Salva o jogo caso a transicao de mapa aconteca enquanto o jogador ainda esta vivo
-    if (jogador && jogador->obterVida() > 0) {
+    // Salva o jogo APENAS se o jogador estiver voltando para o menu principal por escolha propria.
+    if (jogador && jogador->obterVida() > 0 && jogador->obterVoltarProMenu()) {
         Salvamento::salvarJogo(jogador);
     }
     // Desvincula e limpa a memoria do jogador para a proxima iteracao
@@ -154,12 +156,18 @@ void EstadoExploracao::executar(Jogo& jogo, ContextoJogo& ctx) {
         else if (transicao == ProximaTransicaoMapa::Floresta) {
             mapaAtual = mapaFloresta.get();
             mapaFloresta->exploracaoEstaAtiva = true;
+            if (!Progressao::instancia().obterFlag(Flags::Visitou_Floresta)) Progressao::instancia().definirFlag(Flags::Visitou_Floresta, true);
         }
         else if (transicao == ProximaTransicaoMapa::Reino) {
             mapaAtual = mapaReino.get();
             mapaReino->exploracaoEstaAtiva = true;
+            if (!Progressao::instancia().obterFlag(Flags::Visitou_Reino)) Progressao::instancia().definirFlag(Flags::Visitou_Reino, true);
         }
-        else {
+        else { // Inclui ProximaTransicaoMapa::Nenhuma
+            // Se nenhuma transicao foi solicitada, significa que o loop de exploracao do mapa
+            // terminou por uma razao interna (ex: o mapa de destino nao foi atualizado para o novo sistema).
+            // Sair do loop de exploracao e voltar ao menu e o comportamento mais seguro.
+            jogador->definirVoltarProMenu(true);
             break;
         }
     }
@@ -189,10 +197,3 @@ int main()
 
     return 0;
 }
-
-
-
-
-
-
-

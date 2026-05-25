@@ -15,6 +15,8 @@
 #include "../../Entidades/Racas/RacaBase.h"
 #include "../Progresso/Bestiario.h"
 #include "../Progresso/Diario.h"
+#include "../Progresso/Progressao.h"
+#include "../Progresso/ProgressaoFlags.h"
 #include "Parry.h"
 #include "../../Interface/Telas/Bestiario/TelaBestiario.h"
 #include "../../Interface/Telas/Diario/TelaDiario.h"
@@ -777,6 +779,10 @@ void Combate::processarMorteDeInimigo(Personagem* inimigo)
     }
 
     Bestiario::instancia().registrarDerrota(inimigo->obterRaca()->obterNomeRaca());
+
+    if (inimigo->obterNome() == "Mahoraga") {
+        Progressao::instancia().definirFlag(Flags::Floresta_MahoragaDerrotado, true);
+    }
 
     registrarLog("═══ DROPS ═══", Cor::AMARELO);
 

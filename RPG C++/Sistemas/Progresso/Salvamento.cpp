@@ -20,6 +20,7 @@
 #include "../../Entidades/Racas/Orc.h"
 #include "Bestiario.h"
 #include "Diario.h"
+#include "Progressao.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
 #include "../../Entidades/Personagem.h"
@@ -161,6 +162,9 @@ void Salvamento::salvarJogo(Personagem* jogador) {
     arquivo << (jogador->podeUsarRessurreicao() ? 1 : 0) << "\n";
     arquivo << jogador->obterIconeJogador() << "\n";
     arquivo << static_cast<uint32_t>(jogador->obterCorJogador()) << "\n";
+
+    Progressao::instancia().salvar(arquivo);
+
     arquivo.close();
 }
 
@@ -259,6 +263,8 @@ std::unique_ptr<Personagem> Salvamento::carregarJogo(const std::string& nomeArqu
     if (arquivo >> cor) {
         jogador->definirCorJogador(static_cast<Cor>(cor));
     }
+
+    Progressao::instancia().carregar(arquivo);
 
     arquivo.close();
     return jogador;

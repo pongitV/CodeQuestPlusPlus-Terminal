@@ -15,6 +15,8 @@
 #include "../../../Sistemas/Inventario/Equipamentos/EquipamentoArma.h"
 #include "../../../Core/Controladores/Loja.h"
 #include "../../../Core/Utilidades/FuncoesDialogo.h"
+#include "../../../Sistemas/Progresso/Progressao.h"
+#include "../../../Sistemas/Progresso/ProgressaoFlags.h"
 #include "../../../Interface/Telas/TelaBase.h"
 #include "NPCMorganaLayout.h"
 
@@ -133,14 +135,20 @@ const std::vector<std::string>& NPCMorgana::obterArteASCII() const {
 }
 
 // --- INTERACAO E MENU ---
-void NPCMorgana::exibirDialogo(Personagem* jogador) {
-    dialogoMorgana(std::vector<std::string>{
-        "Hmmm... sinto cheiro de poder no ar.",
-        "O que voce busca, viajante?"
-    });
+void NPCMorgana::exibirDialogo(Personagem* /*jogador*/) {
+    if (Progressao::instancia().obterFlag(Flags::Floresta_MissaoMorgana)) {
+        dialogoMorgana(std::vector<std::string>{
+            "O Labirinto o aguarda..."
+        });
+    } else {
+        dialogoMorgana(std::vector<std::string>{
+            "Hmmm... sinto cheiro de poder no ar.",
+            "O que voce busca, viajante?"
+        });
+    }
 }
 
-std::vector<std::string> NPCMorgana::obterOpcoesMenu(Personagem* jogador, int larguraDoTerminal) {
+std::vector<std::string> NPCMorgana::obterOpcoesMenu(Personagem* /*jogador*/, int /*larguraDoTerminal*/) {
     return {
         "ENCANTAR Armas (Universais)",
         "ENCANTAR Armas (Especificas)",
@@ -151,7 +159,7 @@ std::vector<std::string> NPCMorgana::obterOpcoesMenu(Personagem* jogador, int la
     };
 }
 
-void NPCMorgana::processarOpcao(Personagem* jogador, const std::string& opcao, int larguraDoTerminal) {
+void NPCMorgana::processarOpcao(Personagem* jogador, const std::string& opcao, int /*larguraDoTerminal*/) {
     if (opcao == "ENCANTAR Armas (Universais)") {
         processarEncantamentos(jogador, true);
     }
@@ -251,6 +259,7 @@ namespace {
 
         for (int i = 0; i < 3; ++i) jogadorAtual->obterInventario()->removerItem(nomeCoracao);
         jogadorAtual->desbloquearLabirinto();
+        Progressao::instancia().definirFlag(Flags::Floresta_MissaoMorgana, true);
         
         Aparencia::limparTela();
         Aparencia::exibirPainelTexto("MISSAO CONCLUIDA", Cor::VERDE);

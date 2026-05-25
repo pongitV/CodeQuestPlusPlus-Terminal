@@ -6,6 +6,7 @@
 #include <vector>
 #include <memory>
 #include "../../Core/Utilidades/Aparencia.h"
+#include "MapaInteracao.h"
 
 class ControleMapa 
 {
@@ -52,7 +53,7 @@ public:
 
     static void renderizarMapa(const std::vector<std::string>& matrizDoMapa, int posicaoXDoJogador, int posicaoYDoJogador, int larguraDoTerminal, int alturaDoTerminal, int linhaInicial, const std::function<std::string(char, int, int)>& formatadorCelula);
 
-    static void executarLoopDeExploracao(
+    static ProximaTransicaoMapa executarLoopDeExploracao(
         Personagem* jogadorAtual,
         std::vector<std::string>& matrizDoMapaAtual,
         int& posicaoXDoJogador,

@@ -447,7 +447,7 @@ ProximaTransicaoMapa Mapa2Floresta::iniciarLoopDeExploracao()
         }
     };
 
-    ControleMapa::executarLoopDeExploracao(
+    ProximaTransicaoMapa destinoViagemRapida = ControleMapa::executarLoopDeExploracao(
         jogadorAtual, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador,
         exploracaoEstaAtiva, tituloDoMapaAtual,
         [this]() { return (tituloDoMapaAtual == "SALA DO CHEFE") ? "" : "SFA"; },
@@ -455,6 +455,10 @@ ProximaTransicaoMapa Mapa2Floresta::iniciarLoopDeExploracao()
         processarInteracao, formatador, restaurarTela,
         linhaInicialParaDesenharOMapa, precisaRenderizar
     );
+
+    if (destinoViagemRapida != ProximaTransicaoMapa::Nenhuma) {
+        return destinoViagemRapida;
+    }
 
     if (jogadorAtual->obterVida() <= 0 || jogadorAtual->obterVoltarProMenu()) {
         return ProximaTransicaoMapa::VoltarMenu;
