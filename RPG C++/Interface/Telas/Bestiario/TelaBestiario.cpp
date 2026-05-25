@@ -30,6 +30,8 @@ void TelaBestiario::exibirLista(Personagem* jogadorAtual) {
     std::copy_if(inimigos.begin(), inimigos.end(), std::back_inserter(descobertos),
                  [&](const std::string& nome) { return bestiario.estaDescoberto(nome); });
 
+    Aparencia::ordenarAlfabeticamente(descobertos);
+
     static auto ultimoAcesso = std::chrono::steady_clock::now() - std::chrono::hours(1);
     bool animarEntrada = TelaBase::deveAnimarEntradaDaTela(ultimoAcesso, 300);
 
@@ -216,9 +218,3 @@ void TelaBestiario::exibirFicha(Personagem* jogadorAtual, const std::string& nom
         if (escolha == "0") break;
     }
 }
-
-
-
-
-
-

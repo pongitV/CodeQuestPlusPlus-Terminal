@@ -32,6 +32,7 @@ namespace {
     };
 
     struct EncantoOperacao {
+        std::string nomeMenu;
         ItemID materialId;
         int qtd;
         ItemID armaRestritaId; 
@@ -41,19 +42,19 @@ namespace {
     };
 
     const std::vector<EncantoOperacao> operacoesDeEncantamento = {
-        { ItemID::DenteGoblin, 40, ItemID::Nenhum, 
+        { "Sangramento (40x Dente de Goblin)", ItemID::DenteGoblin, 40, ItemID::Nenhum, 
           [](EquipamentoArma* a){ return a->possuiEfeitoSangramento(); }, "Esta arma ja esta encantada com Sangramento!",
           [](Personagem*, EquipamentoArma* a){ a->aplicarEfeitoSangramento(); a->alterarNome(a->obterNomeItem() + " (Sangrenta)"); return a->obterNomeItem(); } },
           
-        { ItemID::NucleoPegajoso, 5, ItemID::Nenhum,
+        { "Lentidao (5x Nucleo pegajoso)", ItemID::NucleoPegajoso, 5, ItemID::Nenhum,
           [](EquipamentoArma* a){ return a->possuiEfeitoLentidao(); }, "Esta arma ja esta encantada com Lentidao!",
           [](Personagem*, EquipamentoArma* a){ a->aplicarEfeitoLentidao(); a->alterarNome(a->obterNomeItem() + " (Viscosa)"); return a->obterNomeItem(); } },
           
-        { ItemID::PoMagico, 25, ItemID::Nenhum,
+        { "Quebra de Resistencia (25x Po magico)", ItemID::PoMagico, 25, ItemID::Nenhum,
           [](EquipamentoArma* a){ return a->temPropriedade(Propriedade::Penetrante); }, "Esta arma ja esta encantada com Reducao de Resistencia!",
           [](Personagem*, EquipamentoArma* a){ a->alterarNome(a->obterNomeItem() + " (Quebra-Defesas)"); a->adicionarPropriedade(Propriedade::Penetrante); return a->obterNomeItem(); } },
           
-        { ItemID::MadeiraEnfeiticada, 1, ItemID::ArcoMadeira,
+        { "Arco recurvo de madeira: Magia (1x Madeira enfeiticada)", ItemID::MadeiraEnfeiticada, 1, ItemID::ArcoMadeira,
           [](EquipamentoArma* a){ return a->temPropriedade(Propriedade::Magica); }, "Esta arma ja esta encantada com Magia!",
           [](Personagem* jogadorAtual, EquipamentoArma* armaEscolhida) {
               std::string nomeArco = FabricaItens::obterNomeDeID(ItemID::ArcoMadeira);
@@ -76,7 +77,7 @@ namespace {
               return novoArco->obterNomeItem();
           } },
           
-        { ItemID::CoracaoFloresta, 1, ItemID::CajadoCristal,
+        { "Cajado de cristal magico: Cipos (1x Coracao da floresta)", ItemID::CoracaoFloresta, 1, ItemID::CajadoCristal,
           [](EquipamentoArma* a){ return a->temPropriedade(Propriedade::CipoPrisao); }, "Esta arma ja esta encantada com Cipos!",
           [](Personagem*, EquipamentoArma* a){
               std::string nomeCajado = FabricaItens::obterNomeDeID(ItemID::CajadoCristal);
@@ -88,7 +89,7 @@ namespace {
               return a->obterNomeItem();
           } },
           
-        { ItemID::MadeiraEnfeiticada, 1, ItemID::ViolaoEncantado,
+        { "Violao encantado: Raizes (1x Madeira enfeiticada)", ItemID::MadeiraEnfeiticada, 1, ItemID::ViolaoEncantado,
           [](EquipamentoArma* a){ return a->temPropriedade(Propriedade::ViolaoMagico); }, "Esta arma ja esta encantada com Raizes!",
           [](Personagem*, EquipamentoArma* a){
               std::string nomeViolao = FabricaItens::obterNomeDeID(ItemID::ViolaoEncantado);
@@ -177,31 +178,39 @@ void NPCMorgana::processarOpcao(Personagem* jogador, const std::string& opcao, i
 namespace {
     // --- PROCESSAMENTO DE OPCOES ---
     void processarEncantamentos(Personagem* jogadorAtual, bool isUniversal) {
+        std::vector<const EncantoOperacao*> opsAtuais;
+        int inicio = isUniversal ? 0 : 3;
+        int fim = isUniversal ? 3 : 6;
+        for (int i = inicio; i < fim; ++i) {
+            opsAtuais.push_back(&operacoesDeEncantamento[i]);
+        }
+
+        Aparencia::ordenarAlfabeticamente(opsAtuais, [](const EncantoOperacao* op) { return op->nomeMenu; });
+
         TelaBase::executarLoopPadrao(
             isUniversal ? "CABANA - ENCANTOS UNIVERSAIS" : "CABANA - ENCANTOS ESPECIFICOS", Cor::MAGENTA,
             nullptr,
-            [isUniversal]() {
+            [&opsAtuais]() {
                 std::vector<std::string> linhas;
-                if (isUniversal) {
-                    linhas.push_back("Sangramento (40x Dente de Goblin)");
-                    linhas.push_back("Lentidao (5x Nucleo pegajoso)");
-                    linhas.push_back("Quebra de Resistencia (25x Po magico)");
-                } else {
-                    linhas.push_back("Arco recurvo de madeira: Magia (1x Madeira enfeiticada)");
-                    linhas.push_back("Cajado de cristal magico: Cipos (1x Coracao da floresta)");
-                    linhas.push_back("Violao encantado: Raizes (1x Madeira enfeiticada)");
-                }
+                for (auto* op : opsAtuais) linhas.push_back(op->nomeMenu);
                 linhas.push_back("VOLTAR");
                 return linhas;
             },
             [&](int id) {
-                if (id == 3 || id == -1) return false;
+                if (id == static_cast<int>(opsAtuais.size()) || id == -1) return false;
 
-                int index = (isUniversal ? 0 : 3) + id;
-                const auto& op = operacoesDeEncantamento[index];
+                const auto& op = *opsAtuais[id];
                 
                 std::string itemNecessario = FabricaItens::obterNomeDeID(op.materialId);
-                if (!InteracaoNPC::verificarMaterialNoInventario(jogadorAtual, itemNecessario, op.qtd, "Morgana", Cor::MAGENTA)) {
+                int qtdAtual = jogadorAtual->obterInventario()->contarItem(itemNecessario);
+                if (qtdAtual < op.qtd) {
+                    std::vector<std::string> dialogo = {
+                        Aparencia::cor(Cor::MAGENTA) + "Morgana:" + Aparencia::cor(Cor::RESET) + " Voce nao tem " + itemNecessario + " suficiente! (Possui: " + std::to_string(qtdAtual) + "/" + std::to_string(op.qtd) + ")"
+                    };
+                    std::cout << "\n";
+                    Aparencia::imprimirBlocoCentralizado(dialogo);
+                    std::cout << "\n";
+                    ControleDeInput::aguardarEnter();
                     return true;
                 }
                 
@@ -251,9 +260,16 @@ namespace {
     void processarMissaoLabirinto(Personagem* jogadorAtual) {
         std::string nomeCoracao = FabricaItens::obterNomeDeID(ItemID::CoracaoFloresta);
         int qtdCoracoes = jogadorAtual->obterInventario()->contarItem(nomeCoracao);
-        std::string msgErro = "Voce ainda nao possui os 3 Coracoes da floresta que eu pedi. (Possui: " + std::to_string(qtdCoracoes) + "/3)\nEles sao dropados por Abominacoes no Coracao da Arvore.";
-        
-        if (!InteracaoNPC::verificarMaterialNoInventario(jogadorAtual, nomeCoracao, 3, "Morgana", Cor::MAGENTA, msgErro)) {
+
+        if (qtdCoracoes < 3) {
+            std::vector<std::string> dialogo = {
+                Aparencia::cor(Cor::MAGENTA) + "Morgana:" + Aparencia::cor(Cor::RESET) + " Voce ainda nao possui os 3 Coracoes da floresta que eu pedi. (Possui: " + std::to_string(qtdCoracoes) + "/3)",
+                Aparencia::cor(Cor::MAGENTA) + "Morgana:" + Aparencia::cor(Cor::RESET) + " Eles sao dropados por Abominacoes no Coracao da Arvore."
+            };
+            std::cout << "\n";
+            Aparencia::imprimirBlocoCentralizado(dialogo);
+            std::cout << "\n";
+            ControleDeInput::aguardarEnter();
             return;
         }
 
@@ -263,12 +279,15 @@ namespace {
         
         Aparencia::limparTela();
         Aparencia::exibirPainelTexto("MISSAO CONCLUIDA", Cor::VERDE);
-        dialogoMorgana(std::vector<std::string>{
-            "Ah, perfeitos! Estes coracoes pulsam com uma magia ancestral.",
-            "Como recompensa, revelarei um segredo... Atras de mim, ha uma passagem secreta.",
-            "Use a entrada [^L] para explorar o meu Labirinto Subterraneo.",
-            "E um lugar perigoso, mergulhado em uma nevoa de cor roxa, mas guarda grandes tesouros."
-        });
+        std::vector<std::string> dialogo = {
+            Aparencia::cor(Cor::MAGENTA) + "Morgana:" + Aparencia::cor(Cor::RESET) + " Ah, perfeitos! Estes coracoes pulsam com uma magia ancestral.",
+            Aparencia::cor(Cor::MAGENTA) + "Morgana:" + Aparencia::cor(Cor::RESET) + " Como recompensa, revelarei um segredo... Atras de mim, ha uma passagem secreta.",
+            Aparencia::cor(Cor::MAGENTA) + "Morgana:" + Aparencia::cor(Cor::RESET) + " Use a entrada [^L] para explorar o meu Labirinto Subterraneo.",
+            Aparencia::cor(Cor::MAGENTA) + "Morgana:" + Aparencia::cor(Cor::RESET) + " E um lugar perigoso, mergulhado em uma nevoa de cor roxa, mas guarda grandes tesouros."
+        };
+        std::cout << "\n";
+        Aparencia::imprimirBlocoCentralizado(dialogo);
+        std::cout << "\n";
         ControleDeInput::aguardarEnter();
     }
 

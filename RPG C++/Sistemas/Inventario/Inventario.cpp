@@ -98,7 +98,7 @@ Item* Inventario::buscarItemPorCodigo(const std::string& codigoDigitado, Item* a
             }
         }
         
-        std::sort(nomesDosItensExibidos.begin(), nomesDosItensExibidos.end());
+        Aparencia::ordenarAlfabeticamente(nomesDosItensExibidos);
 
         if (indiceDoItem > 0 && indiceDoItem <= static_cast<int>(nomesDosItensExibidos.size())) {
             size_t indiceOriginalNoInventario = cacheDeIndice[nomesDosItensExibidos[indiceDoItem - 1]];

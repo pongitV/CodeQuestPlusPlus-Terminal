@@ -198,6 +198,14 @@ void TelaDiario::exibirMenuItens(Personagem* jogadorAtual) {
             }
         }
 
+        Aparencia::ordenarAlfabeticamente(armas);
+        Aparencia::ordenarAlfabeticamente(escudos);
+        Aparencia::ordenarAlfabeticamente(armaduras);
+        Aparencia::ordenarAlfabeticamente(consumiveis);
+        Aparencia::ordenarAlfabeticamente(materiais);
+        Aparencia::ordenarAlfabeticamente(missoes);
+        Aparencia::ordenarAlfabeticamente(outros);
+
         std::vector<std::string> categorias = {
             "Armas (" + std::to_string(armas.size()) + ")",
             "Escudos (" + std::to_string(escudos.size()) + ")",
@@ -272,6 +280,8 @@ void TelaDiario::exibirMenuNPCs(Personagem* /*jogadorAtual*/) {
             ControleDeInput::aguardarEnter();
             return;
         }
+
+        Aparencia::ordenarAlfabeticamente(npcs);
 
         std::vector<std::string> opcoes = npcs;
         opcoes.push_back("Voltar");
@@ -353,6 +363,9 @@ void TelaDiario::exibirMenuRacas(Personagem* jogadorAtual) {
             }
         }
 
+        Aparencia::ordenarAlfabeticamente(jogaveis);
+        Aparencia::ordenarAlfabeticamente(monstros);
+
         std::vector<std::string> categorias = {
             "Racas Jogaveis (" + std::to_string(jogaveis.size()) + ")",
             "Monstros e Inimigos (" + std::to_string(monstros.size()) + ")",
@@ -431,6 +444,8 @@ void TelaDiario::exibirMenuClasses(Personagem* /*jogadorAtual*/) {
             ControleDeInput::aguardarEnter();
             return;
         }
+
+        Aparencia::ordenarAlfabeticamente(classes);
 
         std::vector<std::string> opcoes = classes;
         opcoes.push_back("Voltar");

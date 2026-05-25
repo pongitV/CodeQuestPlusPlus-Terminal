@@ -320,15 +320,19 @@ void MenuJogo::etapaEscolherNome(std::string& nomeDoPersonagem, EtapaCriacao& et
 void MenuJogo::etapaEscolherRaca(const std::string& nome, std::unique_ptr<RacaBase>& racaEscolhida, EtapaCriacao& etapaAtual)
 {
     int escolha = TelaMenu::exibirPromptRaca(nome);
-    if (escolha == 4) { etapaAtual = EtapaCriacao::Nome; return; }
+    
+    std::vector<std::string> racas = {"Dwarf", "Elfo", "Humano", "Ork"};
+    Aparencia::ordenarAlfabeticamente(racas);
+    
+    if (escolha == static_cast<int>(racas.size()) || escolha == -1) { etapaAtual = EtapaCriacao::Nome; return; }
 
     std::unique_ptr<RacaBase> racaTemporaria;
-    switch(escolha) {
-        case 0: racaTemporaria = std::make_unique<Dwarf>(); break;
-        case 1: racaTemporaria = std::make_unique<Elfo>();  break;
-        case 2: racaTemporaria = std::make_unique<Humano>(); break;
-        case 3: racaTemporaria = std::make_unique<Ork>();   break;
-    }
+    std::string racaSelecionada = racas[escolha];
+    
+    if (racaSelecionada == "Dwarf") racaTemporaria = std::make_unique<Dwarf>();
+    else if (racaSelecionada == "Elfo") racaTemporaria = std::make_unique<Elfo>();
+    else if (racaSelecionada == "Humano") racaTemporaria = std::make_unique<Humano>();
+    else if (racaSelecionada == "Ork") racaTemporaria = std::make_unique<Ork>();
 
     if (racaTemporaria) 
     {
@@ -345,17 +349,20 @@ void MenuJogo::etapaEscolherRaca(const std::string& nome, std::unique_ptr<RacaBa
 void MenuJogo::etapaEscolherClasse(const std::string& nome, RacaBase* raca, std::unique_ptr<ClasseBase>& classeEscolhida, EtapaCriacao& etapaAtual)
 {
     int escolha = TelaMenu::exibirPromptClasse(nome, raca->obterNomeRaca());
-    if (escolha == 5) { etapaAtual = EtapaCriacao::Raca; return; }
+    
+    std::vector<std::string> classes = {"Arqueiro", "Bardo", "Guerreiro", "Mago", "Necromante"};
+    Aparencia::ordenarAlfabeticamente(classes);
+    
+    if (escolha == static_cast<int>(classes.size()) || escolha == -1) { etapaAtual = EtapaCriacao::Raca; return; }
 
     std::unique_ptr<ClasseBase> classeTemporaria;
-    switch(escolha) 
-    {
-        case 0: classeTemporaria = std::make_unique<Arqueiro>(); break;
-        case 1: classeTemporaria = std::make_unique<Bardo>(); break;
-        case 2: classeTemporaria = std::make_unique<Guerreiro>(); break;
-        case 3: classeTemporaria = std::make_unique<Mago>(); break;
-        case 4: classeTemporaria = std::make_unique<Necromante>(); break;
-    }
+    std::string classeSelecionada = classes[escolha];
+    
+    if (classeSelecionada == "Arqueiro") classeTemporaria = std::make_unique<Arqueiro>();
+    else if (classeSelecionada == "Bardo") classeTemporaria = std::make_unique<Bardo>();
+    else if (classeSelecionada == "Guerreiro") classeTemporaria = std::make_unique<Guerreiro>();
+    else if (classeSelecionada == "Mago") classeTemporaria = std::make_unique<Mago>();
+    else if (classeSelecionada == "Necromante") classeTemporaria = std::make_unique<Necromante>();
 
     if (classeTemporaria) 
     {

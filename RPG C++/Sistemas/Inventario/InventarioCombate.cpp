@@ -85,6 +85,7 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
                 },
                 [jogadorAtual, categoria]() {
                     auto itens = TelaInventario::obterListaCategoria(jogadorAtual, categoria, false);
+                    Aparencia::ordenarAlfabeticamente(itens, [](const auto& par) { return par.first; });
                     std::vector<std::string> ops;
                     for(auto& p : itens) ops.push_back(p.first);
                     ops.push_back("VOLTAR");
@@ -92,6 +93,7 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
                 },
                 [&](int escolhaItem) {
                     auto itens = TelaInventario::obterListaCategoria(jogadorAtual, categoria, false);
+                    Aparencia::ordenarAlfabeticamente(itens, [](const auto& par) { return par.first; });
                     if (escolhaItem < 0 || escolhaItem >= static_cast<int>(itens.size())) return false; // VOLTAR
 
                     Item* itemEncontrado = itens[escolhaItem].second;

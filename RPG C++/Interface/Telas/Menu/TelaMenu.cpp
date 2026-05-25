@@ -318,15 +318,21 @@ void TelaMenu::exibirPromptNome() {
 }
 
 int TelaMenu::exibirPromptRaca(const std::string& nome) {
+    std::vector<std::string> opcoes = {"Dwarf", "Elfo", "Humano", "Ork"};
+    Aparencia::ordenarAlfabeticamente(opcoes);
+    opcoes.push_back("VOLTAR (selecao de nome)");
     return exibirPromptGenerico("SELECAO DE RACA", "| JOGADOR: " + nome + " |", 
         {FuncoesDialogo::formatarMsgNarracao("Qual sua origem?")}, 
-        {"Dwarf", "Elfo", "Humano", "Ork", "VOLTAR (selecao de nome)"});
+        opcoes);
 }
 
 int TelaMenu::exibirPromptClasse(const std::string& nome, const std::string& nomeRaca) {
+    std::vector<std::string> opcoes = {"Arqueiro", "Bardo", "Guerreiro", "Mago", "Necromante"};
+    Aparencia::ordenarAlfabeticamente(opcoes);
+    opcoes.push_back("VOLTAR (selecao de raca)");
     return exibirPromptGenerico("SELECAO DE CLASSE", "| JOGADOR: " + nome + " | RACA: " + nomeRaca + " |", 
         {FuncoesDialogo::formatarMsgNarracao("Qual seu caminho?")}, 
-        {"Arqueiro", "Bardo", "Guerreiro", "Mago", "Necromante", "VOLTAR (selecao de raca)"});
+        opcoes);
 }
 
 int TelaMenu::exibirPromptDificuldade(const std::string& nome, const std::string& nomeRaca, const std::string& nomeClasse) {

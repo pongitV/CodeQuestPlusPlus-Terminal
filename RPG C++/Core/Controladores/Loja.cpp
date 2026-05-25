@@ -11,6 +11,17 @@ void Loja::processarCompra(Personagem* jogadorAtual, const std::string& tituloLo
                                       std::map<int, ProdutoLoja>& estoqueAtual, 
                                       const std::function<void(const std::string&)>& exibirDialogoNPC, 
                                       const std::function<std::string(ItemID)>& formatadorNomeExtra) {
+    std::vector<std::map<int, ProdutoLoja>::iterator> itensOrdenados;
+    for (auto it = estoqueAtual.begin(); it != estoqueAtual.end(); ++it) {
+        itensOrdenados.push_back(it);
+    }
+
+    Aparencia::ordenarAlfabeticamente(itensOrdenados, [&formatadorNomeExtra](auto it) {
+        std::string nomeItem = FabricaItens::obterNomeDeID(it->second.idItem);
+        if (formatadorNomeExtra) nomeItem += formatadorNomeExtra(it->second.idItem);
+        return nomeItem;
+    });
+
     TelaBase::executarLoopPadrao(
         tituloLoja, corLoja,
         [jogadorAtual]() {
@@ -18,9 +29,10 @@ void Loja::processarCompra(Personagem* jogadorAtual, const std::string& tituloLo
             Aparencia::imprimirCentralizado("Seu Ouro: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G", Aparencia::cor(Cor::AMARELO));
             std::cout << "\n";
         },
-        [&estoqueAtual, formatadorNomeExtra]() {
+        [&itensOrdenados, formatadorNomeExtra]() {
             std::vector<std::string> opcoes;
-            for (auto const& [id, produto] : estoqueAtual) {
+            for (auto it : itensOrdenados) {
+                auto& produto = it->second;
                 std::string nomeItem = FabricaItens::obterNomeDeID(produto.idItem);
                 if (formatadorNomeExtra) nomeItem += formatadorNomeExtra(produto.idItem);
                 
@@ -33,12 +45,11 @@ void Loja::processarCompra(Personagem* jogadorAtual, const std::string& tituloLo
             return opcoes;
         },
         [&](int escolha) {
-            if (escolha == -1 || escolha == static_cast<int>(estoqueAtual.size())) {
+            if (escolha == -1 || escolha == static_cast<int>(itensOrdenados.size())) {
                 return false;
             }
             
-            auto it = estoqueAtual.begin();
-            std::advance(it, escolha);
+            auto it = itensOrdenados[escolha];
             auto& produto = it->second;
 
             if (produto.quantidade == 0) {

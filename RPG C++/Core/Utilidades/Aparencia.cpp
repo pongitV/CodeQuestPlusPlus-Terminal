@@ -558,6 +558,10 @@ void Aparencia::exibirUltimosLogs(int quantidade) {
     std::cout << "\n";
 }
 
+void Aparencia::ordenarAlfabeticamente(std::vector<std::string>& lista) {
+    std::sort(lista.begin(), lista.end());
+}
+
 void Aparencia::exibirHistoricoCompleto() {
     if (historicoBatalha.empty()) {
         limparTela();

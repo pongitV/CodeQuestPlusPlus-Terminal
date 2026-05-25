@@ -13,6 +13,7 @@
 #include "../../Entidades/Inimigos/AbominacaoFloresta.h"
 #include "../../Entidades/Inimigos/Mimico.h"
 #include "../../Entidades/Inimigos/Troll.h"
+#include "../../Entidades/Inimigos/Mahoraga.h"
 #include "../Utilidades/GeradorAleatorio.h"
 
 template<typename RacaType, typename ClasseType>
@@ -82,9 +83,7 @@ std::vector<std::unique_ptr<Personagem>> CriadorInimigos::criarInimigoMimico(int
     return criarInimigosGenericos<Mimico, ClasseBaseInimigo>(quantidade, 10);
 }
 
-
-
-
-
-
-
+std::vector<std::unique_ptr<Personagem>> CriadorInimigos::criarInimigoMahoraga(int quantidade)
+{
+    return criarInimigosGenericos<Mahoraga, ClasseBaseInimigo>(quantidade, 5);
+}

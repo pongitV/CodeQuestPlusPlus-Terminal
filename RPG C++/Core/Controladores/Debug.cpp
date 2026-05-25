@@ -4,11 +4,14 @@
 #include <iomanip>
 #include <string>
 #include <vector>
+#include <map>
+#include <algorithm>
 
 #include "../../Entidades/Personagem.h"
 #include "../../Sistemas/Inventario/FabricaItens.h"
 #include "../Utilidades/Aparencia.h"
 #include "../Utilidades/ControleDeInput.h"
+#include "../../Core/Controladores/CriadorInimigos.h"
 #include "../../Sistemas/Progresso/Diario.h"
 #include "../Utilidades/FuncoesDialogo.h"
 #include "../../Interface/Telas/TelaBase.h"
@@ -67,44 +70,140 @@ namespace {
         );
     }
 
-    void menuObterItem(Personagem* jogador) {
-        static const std::vector<ItemID> todosItens = {
-            ItemID::AdagaPedra, ItemID::ArcoMadeira, ItemID::CajadoCristal, ItemID::VarinhaCorroida, ItemID::ViolaoEncantado,
-            ItemID::EspadaFerro, ItemID::MachadoGuerra, ItemID::GosmaAcidaArma, ItemID::TroncoAmarrotado, ItemID::EspadaExterminio,
-            ItemID::EscudoMetal, ItemID::BarreiraMagica, ItemID::CapaMagica, ItemID::BracedeirasPrata,
-            ItemID::ArmaduraMalha, ItemID::ArmaduraCouro, ItemID::Tunica, ItemID::TrajeNobre, ItemID::ArmaduraTrapos, ItemID::ArmaduraCavaleiro, ItemID::ArmaduraBau, ItemID::RodaAdaptacao,
-            ItemID::PocaoCura30, ItemID::PocaoFuria, ItemID::ElixirArcano, ItemID::FrascoGosma, ItemID::FrascoFraqueza, ItemID::OrgaoRegenerador,
-            ItemID::TalismaUrso, ItemID::TalismaCorvo, ItemID::TalismaLeopardo, ItemID::TalismaCoruja,
-            ItemID::GosmaAcida, ItemID::DenteGoblin, ItemID::NucleoPegajoso, ItemID::PoMagico, ItemID::MadeiraEnfeiticada, ItemID::CoracaoFloresta, ItemID::PedraUpgrade, ItemID::ConviteReal,
-            ItemID::DispositivoLinguagem
-        };
+    std::map<std::string, std::vector<ItemID>> obterTodosItensCategorizados() {
+        std::map<std::string, std::vector<ItemID>> categorias;
         
-        while (true) {
-            Aparencia::limparTela();
-            Aparencia::exibirPainelTexto("OBTER ITEM", Cor::AMARELO);
-            
-            int limit = (todosItens.size() + 1) / 2;
-            std::cout << "\n";
-            for (int i = 0; i < limit; ++i) {
-                std::string col1 = "[" + std::to_string(i + 1) + "] " + FabricaItens::obterNomeDeID(todosItens[i]);
-                std::string col2 = "";
-                if (i + limit < (int)todosItens.size()) { col2 = "[" + std::to_string(i + limit + 1) + "] " + FabricaItens::obterNomeDeID(todosItens[i + limit]); }
-                std::cout << "      " << std::left << std::setw(45) << col1 << col2 << "\n";
+        // Varredura automatica de IDs de itens (ate 200 para garantir que pegue todos os novos itens que foram ou serao criados)
+        for (int i = 1; i <= 200; ++i) {
+            ItemID id = static_cast<ItemID>(i);
+            std::string nome = FabricaItens::obterNomeDeID(id);
+            if (!nome.empty() && nome != "Desconhecido") {
+                auto tempItem = FabricaItens::criarItem(id);
+                if (tempItem) {
+                    TipoEquipamento tipo = tempItem->obterTipo();
+                    if (tipo == TipoEquipamento::ARMA) categorias["Armas"].push_back(id);
+                    else if (tipo == TipoEquipamento::ARMADURA) categorias["Armaduras"].push_back(id);
+                    else if (tipo == TipoEquipamento::ESCUDO) categorias["Escudos"].push_back(id);
+                    else {
+                        // Classifica os demais itens pelos nomes ou definicoes base
+                        if (nome.find("Talisma") != std::string::npos || nome == "Convite" || nome == "Dispositivo") {
+                            categorias["Missoes"].push_back(id);
+                        } else if (nome.find("Pocao") != std::string::npos || nome.find("Frasco") != std::string::npos || nome.find("Elixir") != std::string::npos || nome.find("Regenerador") != std::string::npos) {
+                            categorias["Consumiveis"].push_back(id);
+                        } else {
+                            categorias["Materiais"].push_back(id);
+                        }
+                    }
+                }
             }
-            std::cout << "\n  [0] Voltar\n\n";
-            
-            int escolhaID = ControleDeInput::lerInteiroComLimites("  Escolha o ID do item: ", 0, todosItens.size());
-            if (escolhaID == 0) break;
-            
-            int quantidade = ControleDeInput::lerInteiroComLimites("  Quantidade: ", 1, 999);
-            ItemID idEscolhido = todosItens[escolhaID - 1];
-            
-            for (int q = 0; q < quantidade; ++q) jogador->obterInventario()->adicionarItem(FabricaItens::criarItem(idEscolhido));
-            Diario::instancia().registrarItem(Aparencia::removerCoresANSI(FabricaItens::obterNomeDeID(idEscolhido)));
-            
-            std::cout << "\n  " << FuncoesDialogo::formatarMsgInteracao(std::to_string(quantidade) + "x '" + FabricaItens::obterNomeDeID(idEscolhido) + "' adicionado(s) ao inventario!") << "\n";
-            ControleDeInput::aguardarEnter();
         }
+        return categorias;
+    }
+
+    void menuObterAlma(Personagem* jogador) {
+        struct AlmaOpcao {
+            std::string nome;
+            std::vector<std::unique_ptr<Personagem>> (*criador)(int);
+        };
+
+        std::vector<AlmaOpcao> opcoesAlmas = {
+            {"Goblin", CriadorInimigos::criarInimigoGoblin},
+            {"Slime", CriadorInimigos::criarInimigoSlime},
+            {"Fada", CriadorInimigos::criarInimigoFada},
+            {"Orc Exilado", CriadorInimigos::criarInimigoOrkExilado},
+            {"Abominacao da Floresta", CriadorInimigos::criarInimigoAbominacaoFloresta},
+            {"Troll", CriadorInimigos::criarInimigoTroll},
+            {"Mimico", CriadorInimigos::criarInimigoMimico},
+            {"Mahoraga", CriadorInimigos::criarInimigoMahoraga}
+        };
+
+        Aparencia::ordenarAlfabeticamente(opcoesAlmas, [](const AlmaOpcao& op) { return op.nome; });
+
+        TelaBase::executarLoopPadrao(
+            "OBTER ALMAS (NECROMANTE)", Cor::AMARELO,
+            nullptr,
+            [&opcoesAlmas]() {
+                std::vector<std::string> nomes;
+                for (const auto& op : opcoesAlmas) nomes.push_back(op.nome);
+                nomes.push_back("Voltar");
+                return nomes;
+            },
+            [jogador, &opcoesAlmas](int escolhaAlma) {
+                if (escolhaAlma == static_cast<int>(opcoesAlmas.size()) || escolhaAlma == -1) return false;
+                
+                std::string nomeCriado = opcoesAlmas[escolhaAlma].nome;
+                
+                std::cout << "\n";
+                int quantidade = ControleDeInput::lerInteiroComLimites("Quantidade (1 a 99): ", 1, 99);
+                auto criados = opcoesAlmas[escolhaAlma].criador(quantidade);
+                
+                int adicionados = 0;
+                for (auto& alma : criados) {
+                    if (alma) { jogador->adicionarAlma(std::move(alma)); adicionados++; }
+                }
+                
+                if (adicionados > 0) {
+                    std::cout << "\n";
+                    std::string plural = adicionados > 1 ? "s" : "";
+                    Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgInteracao(std::to_string(adicionados) + "x Alma" + plural + " de " + nomeCriado + " adicionada" + plural + " com sucesso!"));
+                    ControleDeInput::aguardarEnter();
+                }
+                return true;
+            }
+        );
+    }
+
+    void menuObterItem(Personagem* jogador) {
+        TelaBase::executarLoopPadrao(
+            "OBTER ITEM (CATEGORIAS)", Cor::AMARELO,
+            nullptr,
+            []() {
+                return std::vector<std::string>{"Armas", "Armaduras", "Escudos", "Materiais", "Consumiveis", "Missoes", "Almas de Classes/Inimigos (Necromante)", "Voltar"};
+            },
+            [jogador](int escolhaCat) {
+                if (escolhaCat == 7 || escolhaCat == -1) return false;
+                if (escolhaCat == 6) { menuObterAlma(jogador); return true; }
+                
+                std::string categoriasNomes[] = { "Armas", "Armaduras", "Escudos", "Materiais", "Consumiveis", "Missoes" };
+                std::string catSelecionada = categoriasNomes[escolhaCat];
+                auto todasCat = obterTodosItensCategorizados();
+                auto itensDaCat = todasCat[catSelecionada];
+                
+                if (itensDaCat.empty()) {
+                    std::cout << "\n";
+                    Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("Nenhum item encontrado nesta categoria.", Cor::VERMELHO));
+                    ControleDeInput::aguardarEnter();
+                    return true;
+                }
+
+                Aparencia::ordenarAlfabeticamente(itensDaCat, [](ItemID id) { return FabricaItens::obterNomeDeID(id); });
+
+                TelaBase::executarLoopPadrao(
+                    "OBTER ITEM - " + catSelecionada, Cor::AMARELO,
+                    nullptr,
+                    [&itensDaCat]() {
+                        std::vector<std::string> opcoes;
+                        for (auto id : itensDaCat) opcoes.push_back(FabricaItens::obterNomeDeID(id));
+                        opcoes.push_back("Voltar");
+                        return opcoes;
+                    },
+                    [jogador, &itensDaCat](int escolhaItem) {
+                        if (escolhaItem == static_cast<int>(itensDaCat.size()) || escolhaItem == -1) return false;
+                        ItemID idEscolhido = itensDaCat[escolhaItem];
+                        std::cout << "\n";
+                        int quantidade = ControleDeInput::lerInteiroComLimites("Quantidade (1 a 99): ", 1, 99);
+                        for (int q = 0; q < quantidade; ++q) jogador->obterInventario()->adicionarItem(FabricaItens::criarItem(idEscolhido));
+                        Diario::instancia().registrarItem(Aparencia::removerCoresANSI(FabricaItens::obterNomeDeID(idEscolhido)));
+                        std::cout << "\n";
+                        std::string plural = quantidade > 1 ? "s" : "";
+                        Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgInteracao(std::to_string(quantidade) + "x '" + FabricaItens::obterNomeDeID(idEscolhido) + "' adicionado" + plural + " ao inventario!"));
+                        ControleDeInput::aguardarEnter();
+                        return true;
+                    }
+                );
+                return true;
+            }
+        );
     }
 }
 
