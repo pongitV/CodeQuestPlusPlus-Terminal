@@ -143,6 +143,26 @@ bool Combate::executarTurnoJogadorOuAliado(Personagem* personagem, bool& primeir
     prepararTurnoPersonagem(personagem);
     if (personagem->obterVida() <= 0) return false;
 
+    if (personagem == jogadorAtual) {
+        bool limpouAliado = false;
+        for (auto& aliado : listaDeAliados) {
+            if (aliado->isMinion() && aliado->obterVida() > 0) {
+                int dano = std::max(1, static_cast<int>(aliado->obterVidaMaxima() * 0.15));
+                aliado->modificarVida(-dano);
+                registrarLog(FuncoesDialogo::formatarMsgStatus(aliado->obterNome() + " perdeu " + std::to_string(dano) + " HP (decomposicao).", Cor::MAGENTA));
+                
+                if (aliado->obterVida() <= 0) {
+                    registrarLog(FuncoesDialogo::formatarMsgStatus(aliado->obterNome() + " se decompos durante o combate", Cor::VERMELHO));
+                    limpouAliado = true;
+                }
+            }
+        }
+        // Remove definitivamente da memória os aliados que morreram pelo dreno
+        if (limpouAliado) {
+            std::erase_if(listaDeAliados, [](const auto& a) { return a->obterVida() <= 0; });
+        }
+    }
+
     bool turnoConsumido = false;
     bool usouInventario = false;
 

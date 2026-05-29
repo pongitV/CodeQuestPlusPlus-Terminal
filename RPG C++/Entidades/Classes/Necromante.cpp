@@ -156,11 +156,11 @@ std::string Necromante::obterRecargaHabilidadeClasse() const {
 }
 
 std::string Necromante::obterNomeHabilidadeClasse() const {
-    return "Invocacao de Espectro";
+    return "Invocacao de Morto-Vivo";
 }
 
 std::string Necromante::obterDescricaoHabilidadeClasse() const {
-    return "Usa uma alma para invocar um clone com 80% dos atributos (Chefes 60%). Max: 3 lacaios.";
+    return "Usa uma alma para invocar um clone com 80% dos atributos (Chefes 60%). Max: 3 lacaios.\nLacaios perdem 15% de sua Vida Max a cada turno do jogador.";
 }
 
 void Necromante::usarHabilidadeClasse(Combate* combate, Personagem* personagemUsuario, std::vector<Personagem*>& /*listaDeInimigos*/) {
@@ -177,7 +177,7 @@ void Necromante::usarHabilidadeClasse(Combate* combate, Personagem* personagemUs
     }
 
     if (temMiniBoss) {
-        std::string msg = FuncoesDialogo::formatarMsgSistema("Seu Espectro Chefe exige todo o seu controle! Nao e possivel invocar mais lacaios.", Cor::VERMELHO);
+        std::string msg = FuncoesDialogo::formatarMsgSistema("Seu Morto-Vivo Chefe exige todo o seu controle! Nao e possivel invocar mais lacaios.", Cor::VERMELHO);
         std::cout << "\n" << Aparencia::margemCombate() << msg << "\n";
         Aparencia::registrarLogBatalha(msg);
         personagemUsuario->definirHabilidadeCancelada(true);
@@ -205,8 +205,8 @@ void Necromante::usarHabilidadeClasse(Combate* combate, Personagem* personagemUs
     std::cout << "\n" << Aparencia::margemCombate() << "═══ QUANTIDADE DE INVOCACOES ═══\n";
     std::vector<std::string> opcoesQtd;
     for (int i = 1; i <= maxPossivel; ++i) {
-        if (i == 1) opcoesQtd.push_back("1 Espectro");
-        else opcoesQtd.push_back(std::to_string(i) + " Espectros (Inimigo atua imediatamente)");
+        if (i == 1) opcoesQtd.push_back("1 Morto-Vivo");
+        else opcoesQtd.push_back(std::to_string(i) + " Mortos-Vivos (Inimigo atua imediatamente)");
     }
     opcoesQtd.push_back("Cancelar");
 
@@ -256,7 +256,7 @@ void Necromante::usarHabilidadeClasse(Combate* combate, Personagem* personagemUs
                 cor = Aparencia::cor(Cor::AMARELO);
             }
             
-            opcoes.push_back(cor + std::to_string(g.quantidade) + "x " + prefixo + "Espectro de " + g.nome + Aparencia::cor(Cor::RESET));
+            opcoes.push_back(cor + std::to_string(g.quantidade) + "x " + prefixo + "Morto-Vivo de " + g.nome + Aparencia::cor(Cor::RESET));
         }
         opcoes.push_back("Cancelar Restante");
 
@@ -283,9 +283,9 @@ void Necromante::usarHabilidadeClasse(Combate* combate, Personagem* personagemUs
         
         minion->escalarAtributos(fatorEscala);
         minion->setAsMinion(true);
-        minion->alterarNome("Espectro (" + nomeOriginal + ")");
+        minion->alterarNome("Morto-Vivo (" + nomeOriginal + ")");
 
-        std::string msg = FuncoesDialogo::formatarMsgHabilidade(personagemUsuario->obterNome() + " invocou um Espectro de " + nomeOriginal + "!", Cor::MAGENTA);
+        std::string msg = FuncoesDialogo::formatarMsgHabilidade(personagemUsuario->obterNome() + " ergueu um Morto-Vivo de " + nomeOriginal + "!", Cor::MAGENTA);
         notificarMensagemCombate(msg, msg);
 
         Personagem* minionPtr = minion.get();
@@ -299,7 +299,7 @@ void Necromante::usarHabilidadeClasse(Combate* combate, Personagem* personagemUs
                 notificarMensagemCombate(msgBoss, msgBoss);
                 std::cout << "\n" << Aparencia::margemCombate() << msgBoss << "\n";
             }
-            break; // Interrompe o laco, impedindo que os proximos espectros selecionados sejam invocados no mesmo turno
+            break; // Interrompe o laco, impedindo que os proximos mortos-vivos selecionados sejam invocados no mesmo turno
         }
     }
     
