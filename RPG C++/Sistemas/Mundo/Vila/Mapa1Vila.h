@@ -27,15 +27,11 @@ public:
     bool jogadorEstaDentroDeUmSubMapa;
 
     std::vector<std::string> matrizDoMapaDaCavernaSalva;
-    std::vector<std::string> matrizDoMapaDaLojaSalva;
-    std::vector<std::string> matrizDoMapaDaForjaSalva;
     std::vector<std::string> matrizDoMapaDoSpawnSalva;
     std::vector<std::string> mapaBaseDaVila;
 
     // State moved from loop function
     bool bjornResgatado;
-    bool forjaJaFoiVisitada;
-    bool lojaJaFoiVisitada;
     bool cavernaJaFoiVisitada;
     bool spawnJaFoiVisitado;
 

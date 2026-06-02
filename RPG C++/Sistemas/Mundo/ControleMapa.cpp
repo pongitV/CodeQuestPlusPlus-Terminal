@@ -446,7 +446,7 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
                     
                     char cell = matrizDoMapaAtual[novoY][novoX];
                     // Verifica se o jogador parou em um trigger (Inimigos ou Teleportes)
-                    std::string triggers = "^GOBFSAMTHR";
+                    std::string triggers = "^GOBFSAMTHRP";
                     if (triggers.find(cell) != std::string::npos) {
                         isTrigger = true;
                     }

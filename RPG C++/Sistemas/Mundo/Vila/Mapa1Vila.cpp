@@ -39,8 +39,6 @@ Mapa1Vila::Mapa1Vila(Personagem* personagemJogador) :
     posicaoYSalvaAntesDeEntrarNoSubMapa(4),
     jogadorEstaDentroDeUmSubMapa(true),
     bjornResgatado(Progressao::instancia().obterFlag(Flags::Vila_BjornResgatado)), 
-    forjaJaFoiVisitada(false), 
-    lojaJaFoiVisitada(false), 
     cavernaJaFoiVisitada(false),
     spawnJaFoiVisitado(true),
     proximoMapa(ProximaTransicaoMapa::Nenhuma),
@@ -49,6 +47,15 @@ Mapa1Vila::Mapa1Vila(Personagem* personagemJogador) :
     matrizDoMapaPrincipalSalva = Mapa1VilaLayouts::obterLayoutVilaInicial();
     matrizDoMapaAtual = Mapa1VilaLayouts::obterLayoutSpawn();
     mapaBaseDaVila = Mapa1VilaLayouts::obterLayoutVilaInicial();
+
+    if (!bjornResgatado) {
+        for (auto& linha : matrizDoMapaPrincipalSalva) {
+            std::replace(linha.begin(), linha.end(), 'B', 'P');
+        }
+        for (auto& linha : mapaBaseDaVila) {
+            std::replace(linha.begin(), linha.end(), 'B', 'P');
+        }
+    }
 }
 
 Mapa1Vila::~Mapa1Vila() = default;
@@ -71,11 +78,7 @@ namespace {
     class InteracaoNPCBjorn : public InteracaoVila {
     public:
         void processar(ContextoInteracaoVila& ctx) override {
-            if (ctx.self->tituloDoMapaAtual == "FORJA DA VILA" && ctx.celula == 'B') {
-                NPCBjorn interacaoBjorn;
-                interacaoBjorn.interagir(ctx.self->jogadorAtual);
-                Diario::instancia().registrarNPC("Bjorn (Ferreiro)");
-            } else if (ctx.self->tituloDoMapaAtual == "CAVERNA DO ORK") {
+            if (ctx.self->tituloDoMapaAtual == "CAVERNA DO ORK") {
                 Aparencia::limparTela();
             Aparencia::exibirPainelTexto("RESGATE NA CAVERNA", Cor::AMARELO);
                 std::vector<std::string> falasBjorn = {
@@ -89,7 +92,21 @@ namespace {
                 Progressao::instancia().definirFlag(Flags::Vila_BjornResgatado, true);
 
                 ctx.self->matrizDoMapaAtual[ctx.proximaPosicaoY][ctx.proximaPosicaoX] = '.';
+                
+                // Atualiza os mapas salvos para que a Placa volte a ser o Bjorn na Vila
+                for (auto& linha : ctx.self->matrizDoMapaPrincipalSalva) {
+                    std::replace(linha.begin(), linha.end(), 'P', 'B');
+                }
+                for (auto& linha : ctx.self->mapaBaseDaVila) {
+                    std::replace(linha.begin(), linha.end(), 'P', 'B');
+                }
                 ControleDeInput::aguardarEnter();
+            } else if (ctx.self->tituloDoMapaAtual == "VILA INICIAL") {
+                NPCBjorn interacaoBjorn;
+                interacaoBjorn.interagir(ctx.self->jogadorAtual);
+                Diario::instancia().registrarNPC("Bjorn (Ferreiro)");
+                ctx.self->posicaoXDoJogador = 50;
+                ctx.self->posicaoYDoJogador = 9;
             } else {
                 ctx.self->posicaoXDoJogador = ctx.proximaPosicaoX;
                 ctx.self->posicaoYDoJogador = ctx.proximaPosicaoY;
@@ -101,15 +118,26 @@ namespace {
     class InteracaoNPCFranchesco : public InteracaoVila {
     public:
         void processar(ContextoInteracaoVila& ctx) override {
-            if (ctx.self->tituloDoMapaAtual == "LOJA DA VILA") { // This check is redundant now, as interagir() handles the loop
-                NPCFranchesco interacaoFranchesco;
-                interacaoFranchesco.interagir(ctx.self->jogadorAtual);
-                Diario::instancia().registrarNPC("Franchesco (Mercador)");
-                if (ctx.self->exploracaoEstaAtiva) ctx.restaurarTela();
-            } else {
-                ctx.self->posicaoXDoJogador = ctx.proximaPosicaoX;
-                ctx.self->posicaoYDoJogador = ctx.proximaPosicaoY;
-            }
+            NPCFranchesco interacaoFranchesco;
+            interacaoFranchesco.interagir(ctx.self->jogadorAtual);
+            Diario::instancia().registrarNPC("Franchesco (Mercador)");
+            ctx.self->posicaoXDoJogador = 37;
+            ctx.self->posicaoYDoJogador = 13;
+            if (ctx.self->exploracaoEstaAtiva) ctx.restaurarTela();
+        }
+    };
+
+    class InteracaoPlaca : public InteracaoVila {
+    public:
+        void processar(ContextoInteracaoVila& ctx) override {
+            Aparencia::limparTela();
+            exibirTituloDoMapaVila(ctx.self->tituloDoMapaAtual);
+            int espacosM = std::max(0, (ctx.larguraDoTerminal - 60) / 2);
+            std::cout << "\n" << std::string(espacosM, ' ') << FuncoesDialogo::formatarMsgSistema("A Forja esta fechada. Uma placa diz: 'Fui a caverna a leste'.") << "\n";
+            ControleDeInput::aguardarEnter();
+            ctx.self->posicaoXDoJogador = 50;
+            ctx.self->posicaoYDoJogador = 9;
+            if (ctx.self->exploracaoEstaAtiva) ctx.restaurarTela();
         }
     };
 
@@ -117,31 +145,17 @@ namespace {
     public:
         void processar(ContextoInteracaoVila& ctx) override {
             char nextCell = ctx.self->matrizDoMapaAtual[ctx.proximaPosicaoY][ctx.proximaPosicaoX+1];
-            char nextNextCell = ctx.self->matrizDoMapaAtual[ctx.proximaPosicaoY][ctx.proximaPosicaoX+2];
+            int px = ctx.proximaPosicaoX;
+            int py = ctx.proximaPosicaoY;
             
-            if (nextCell == 'C' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaCavernaSalva, ctx.self->cavernaJaFoiVisitada, Mapa1VilaLayouts::obterLayoutCaverna(ctx.self->bjornResgatado), 8, 3, "CAVERNA DO ORK", ctx.restaurarTela);
+            // 1. Entrar na Caverna a partir da Vila (X=121, Y=12)
+            if (px == 121 && py == 12 && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
+                ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaCavernaSalva, ctx.self->cavernaJaFoiVisitada, Mapa1VilaLayouts::obterLayoutCaverna(ctx.self->bjornResgatado), 14, 3, "CAVERNA DO ORK", ctx.restaurarTela);
             }
-            else if (nextCell == 'V' && nextNextCell == 'i') {
-                if (ctx.self->tituloDoMapaAtual == "CAMINHO DO INICIO") {
-                    ctx.self->matrizDoMapaDoSpawnSalva = ctx.self->matrizDoMapaAtual;
-                    ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaPrincipalSalva;
-                    ctx.self->posicaoXDoJogador = 10;
-                    ctx.self->posicaoYDoJogador = 4;
-                    ctx.self->jogadorEstaDentroDeUmSubMapa = false;
-                    ctx.self->tituloDoMapaAtual = "VILA INICIAL";
-                    ctx.animarTela();
-                }
-            }
+            // 2. Retornar dos Interiores/Caverna de volta para a Vila Inicial
             else if (nextCell == 'S' && ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 if (ctx.self->tituloDoMapaAtual == "CAVERNA DO ORK") {
                     ctx.self->cavernaJaFoiVisitada = false;
-                }
-                else if (ctx.self->tituloDoMapaAtual == "LOJA DA VILA") {
-                    ctx.self->matrizDoMapaDaLojaSalva = ctx.self->matrizDoMapaAtual;
-                }
-                else if (ctx.self->tituloDoMapaAtual == "FORJA DA VILA") {
-                    ctx.self->matrizDoMapaDaForjaSalva = ctx.self->matrizDoMapaAtual;
                 }
 
                 ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaPrincipalSalva;
@@ -151,25 +165,22 @@ namespace {
                 ctx.self->tituloDoMapaAtual = "VILA INICIAL";
                 ctx.restaurarTela();
             }
-            else if (nextCell == 'S' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDoSpawnSalva, ctx.self->spawnJaFoiVisitado, Mapa1VilaLayouts::obterLayoutSpawn(), 51, 5, "CAMINHO DO INICIO", ctx.restaurarTela);
+            // 3. Voltar para a Vila Inicial a partir do Caminho do Inicio (X=54, Y=6)
+            else if (px == 54 && py == 6 && ctx.self->tituloDoMapaAtual == "CAMINHO DO INICIO") {
+                ctx.self->matrizDoMapaDoSpawnSalva = ctx.self->matrizDoMapaAtual;
+                ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaPrincipalSalva;
+                ctx.self->posicaoXDoJogador = 10;
+                ctx.self->posicaoYDoJogador = 4;
+                ctx.self->jogadorEstaDentroDeUmSubMapa = false;
+                ctx.self->tituloDoMapaAtual = "VILA INICIAL";
+                ctx.animarTela();
             }
-            else if (nextCell == 'F' && nextNextCell == 'o' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                if (!ctx.self->bjornResgatado) {
-                    Aparencia::limparTela();
-                    exibirTituloDoMapaVila(ctx.self->tituloDoMapaAtual);
-                    int espacosM = std::max(0, (ctx.larguraDoTerminal - 60) / 2);
-                    std::cout << "\n" << std::string(espacosM, ' ') << FuncoesDialogo::formatarMsgSistema("A Forja esta trancada. O ferreiro sumiu...") << "\n";
-                    ControleDeInput::aguardarEnter();
-                    ctx.restaurarTela();
-                    return;
-                }
-                ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaForjaSalva, ctx.self->forjaJaFoiVisitada, Mapa1VilaLayouts::obterLayoutForja(), 8, 2, "FORJA DA VILA", ctx.restaurarTela);
+            // 4. Entrar no Caminho do Inicio (Spawn) a partir da Vila Inicial (X=8, Y=4)
+            else if (px == 8 && py == 4 && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
+                ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDoSpawnSalva, ctx.self->spawnJaFoiVisitado, Mapa1VilaLayouts::obterLayoutSpawn(), 52, 6, "CAMINHO DO INICIO", ctx.restaurarTela);
             }
-            else if (nextCell == 'L' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaLojaSalva, ctx.self->lojaJaFoiVisitada, Mapa1VilaLayouts::obterLayoutLoja(), 8, 2, "LOJA DA VILA", ctx.restaurarTela);
-            }
-            else if (nextCell == 'F' && nextNextCell == 'l' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
+            // 7. Seguir caminho para a Floresta (X=133, Y=49)
+            else if (px == 133 && py == 49 && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 if (!Progressao::instancia().obterFlag(Flags::Vila_BjornResgatado)) {
                     Aparencia::limparTela();
                     Aparencia::exibirPainelTexto(ctx.self->tituloDoMapaAtual, Cor::AMARELO);
@@ -193,10 +204,14 @@ namespace {
 
     std::vector<std::string> obterLayoutOriginalVila(const std::string& titulo, bool bjornResgatado) {
         if (titulo == "CAVERNA DO ORK") return Mapa1VilaLayouts::obterLayoutCaverna(bjornResgatado);
-        if (titulo == "FORJA DA VILA") return Mapa1VilaLayouts::obterLayoutForja();
-        if (titulo == "LOJA DA VILA") return Mapa1VilaLayouts::obterLayoutLoja();
         if (titulo == "CAMINHO DO INICIO") return Mapa1VilaLayouts::obterLayoutSpawn();
-        return Mapa1VilaLayouts::obterLayoutVilaInicial();
+        auto layout = Mapa1VilaLayouts::obterLayoutVilaInicial();
+        if (!bjornResgatado) {
+            for (auto& linha : layout) {
+                std::replace(linha.begin(), linha.end(), 'B', 'P');
+            }
+        }
+        return layout;
     }
 }
 
@@ -205,6 +220,7 @@ void Mapa1Vila::inicializarInteracoes() {
     interacoes['O'] = std::make_unique<InteracaoCombateOrk>();
     interacoes['B'] = std::make_unique<InteracaoNPCBjorn>();
     interacoes['F'] = std::make_unique<InteracaoNPCFranchesco>();
+    interacoes['P'] = std::make_unique<InteracaoPlaca>();
     interacoes['^'] = std::make_unique<InteracaoTeleporte>();
 }
 
@@ -230,7 +246,8 @@ ProximaTransicaoMapa Mapa1Vila::iniciarLoopDeExploracao()
         }
         if (celula == 'G' || celula == 'O') return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
         if (celula == 'B') return Aparencia::cor(Cor::NEGRITO, Cor::CIANO) + "B" + Aparencia::cor(Cor::RESET);
-        if (celula == 'F' && x > 0 && matrizDoMapaAtual[y][x-1] == '.') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "F" + Aparencia::cor(Cor::RESET);
+        if (celula == 'F' && x > 0 && matrizDoMapaAtual[y][x-1] == '{') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "F" + Aparencia::cor(Cor::RESET);
+        if (celula == 'P') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "P" + Aparencia::cor(Cor::RESET);
         
         if (celula == '*') {
             bool isTrunk = false;
@@ -293,18 +310,29 @@ ProximaTransicaoMapa Mapa1Vila::iniciarLoopDeExploracao()
         precisaRenderizar = false;
     };
 
+    // Substitui o Bjorn por uma placa se ele ainda nao foi resgatado (Antes de animar a tela)
+    if (tituloDoMapaAtual == "VILA INICIAL" && !bjornResgatado) {
+        for (auto& linha : matrizDoMapaAtual) {
+            std::replace(linha.begin(), linha.end(), 'B', 'P');
+        }
+    }
+
     animarTela();
 
     if (mapaBaseDaVila.empty()) mapaBaseDaVila = matrizDoMapaPrincipalSalva;
 
     auto processarInteracao = [&](int proximaPosicaoX, int proximaPosicaoY, int larguraDoTerminal) {
         char celulaDestinoDoMapa = matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX];
+        
         auto it = interacoes.find(celulaDestinoDoMapa);
-        if (it != interacoes.end()) {
+        bool ehFalsoF = (celulaDestinoDoMapa == 'F' && proximaPosicaoX > 0 && matrizDoMapaAtual[proximaPosicaoY][proximaPosicaoX - 1] != '{');
+
+        if (it != interacoes.end() && !ehFalsoF) {
             ContextoInteracaoVila ctx = {this, proximaPosicaoX, proximaPosicaoY, larguraDoTerminal, restaurarTela, celulaDestinoDoMapa, animarTela};
             it->second->processar(ctx);
         } else {
-            bool ehParede = (celulaDestinoDoMapa == '#');
+            std::string caracteresParede = "#|_[]{}-=";
+            bool ehParede = (caracteresParede.find(celulaDestinoDoMapa) != std::string::npos);
             if (!ehParede || jogadorAtual->isNoclip()) {
                 posicaoXDoJogador = proximaPosicaoX;
                 posicaoYDoJogador = proximaPosicaoY;

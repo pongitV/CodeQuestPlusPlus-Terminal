@@ -39,7 +39,6 @@ Mapa2Floresta::Mapa2Floresta(Personagem* personagemJogador) :
     posicaoXSalvaAntesDeEntrarNoSubMapa(0), 
     posicaoYSalvaAntesDeEntrarNoSubMapa(0),
     jogadorEstaDentroDeUmSubMapa(false),
-    cabanaJaFoiVisitada(false), 
     coracaoDaArvoreJaFoiVisitado(false), 
     labirintoJaFoiVisitado(false),
     salaDoChefeJaFoiVisitada(false),
@@ -85,6 +84,8 @@ namespace {
             NPCMorgana interacaoMorgana;
             interacaoMorgana.interagir(ctx.self->jogadorAtual);
             Diario::instancia().registrarNPC("Morgana (Bruxa)");
+            ctx.self->posicaoXDoJogador = 123;
+            ctx.self->posicaoYDoJogador = 10;
             if (ctx.self->exploracaoEstaAtiva) ctx.restaurarTela();
         }
     };
@@ -138,6 +139,8 @@ namespace {
                     ControleDeInput::aguardarEnter();
                     }
                 }
+                ctx.self->posicaoXDoJogador = ctx.proximaPosicaoX;
+                ctx.self->posicaoYDoJogador = ctx.proximaPosicaoY;
 
                 if (ctx.self->exploracaoEstaAtiva) ctx.restaurarTela();
             } else {
@@ -150,70 +153,58 @@ namespace {
     class InteracaoTeleporte : public InteracaoFloresta {
     public:
         void processar(ContextoInteracaoFloresta& ctx) override {
-            char nextCell = ctx.self->matrizDoMapaAtual[ctx.proximaPosicaoY][ctx.proximaPosicaoX+1];
+            int px = ctx.proximaPosicaoX;
+            int py = ctx.proximaPosicaoY;
+            std::string titulo = ctx.self->tituloDoMapaAtual;
             
-            if (nextCell == 'C' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaCabanaSalva, ctx.self->cabanaJaFoiVisitada, Mapa2FlorestaLayouts::obterLayoutCabana(), 8, 2, "CABANA DA BRUXA", ctx.restaurarTela);
-            }
-            else if (nextCell == 'V') {
+            // 2. Voltar para a Vila a partir da Floresta (X=32, Y=10)
+            if (px == 32 && py == 10 && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 ctx.self->exploracaoEstaAtiva = false;
                 ctx.self->proximoMapa = ProximaTransicaoMapa::Vila;
             }
-            else if (nextCell == 'T' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
+            // 3. Entrar no Coracao da Arvore a partir da Floresta (X=121, Y=43)
+            else if (px == 121 && py == 43 && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDoCoracaoDaArvoreSalva, ctx.self->coracaoDaArvoreJaFoiVisitado, Mapa2FlorestaLayouts::obterLayoutCoracaoDaArvore(), 10, 3, "CORACAO DA ARVORE", ctx.restaurarTela);
             }
-            else if (nextCell == 'R' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
+            // 4. Ir para o Reino a partir da Floresta (X=18, Y=45)
+            else if (px == 18 && py == 45 && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 ctx.self->exploracaoEstaAtiva = false;
                 ctx.self->proximoMapa = ProximaTransicaoMapa::Reino;
             }
-            else if (nextCell == 'L' && ctx.self->jogadorEstaDentroDeUmSubMapa) {
+            // 5. Entrar no Labirinto a partir da Floresta (X=130, Y=10)
+            else if (px == 130 && py == 10 && titulo == "FLORESTA") {
                 if (!ctx.self->jogadorAtual->obterLabirintoDesbloqueado()) {
                     Aparencia::limparTela();
-                Aparencia::exibirPainelTexto("PASSAGEM BLOQUEADA", Cor::VERDE);
+                    Aparencia::exibirPainelTexto("PASSAGEM BLOQUEADA", Cor::VERDE);
                     int espacosM = (ctx.larguraDoTerminal - 60) / 2;
                     std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << FuncoesDialogo::formatarMsgSistema("A passagem esta selada por magia. Fale com Morgana.") << "\n";
                     ControleDeInput::aguardarEnter();
+                    ctx.self->posicaoXDoJogador = 129;
+                    ctx.self->posicaoYDoJogador = 10;
                     ctx.restaurarTela();
                     return;
                 }
 
-                if (ctx.self->tituloDoMapaAtual == "CABANA DA BRUXA") ctx.self->matrizDoMapaDaCabanaSalva = ctx.self->matrizDoMapaAtual;
-
-                if (!ctx.self->labirintoJaFoiVisitado) {
-                    ctx.self->matrizDoMapaAtual = Mapa2FlorestaLayouts::obterLayoutLabirinto();
-                    ctx.self->labirintoJaFoiVisitado = true;
-                    ControleMapa::padronizarTamanhoDoMapa(ctx.self->matrizDoMapaAtual);
-                } else {
-                    ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaDoLabirintoSalva;
-                }
-
-                ctx.self->posicaoXDoJogador = 3;
-                ctx.self->posicaoYDoJogador = 13;
-                ctx.self->tituloDoMapaAtual = "LABIRINTO SUBTERRANEO";
-                ctx.restaurarTela();
+                ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDoLabirintoSalva, ctx.self->labirintoJaFoiVisitado, Mapa2FlorestaLayouts::obterLayoutLabirinto(), 3, 13, "LABIRINTO SUBTERRANEO", ctx.restaurarTela);
             }
-            else if (nextCell == 'S' && ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                if (ctx.self->tituloDoMapaAtual == "CORACAO DA ARVORE") {
+            // 6. Sair de Submapas
+            else if ((px == 9 && py == 3 && titulo == "CORACAO DA ARVORE") ||
+                     (px == 1 && py == 13 && titulo == "LABIRINTO SUBTERRANEO") ||
+                     (px == 53 && py == 54 && titulo == "SALA DO CHEFE")) {
+                
+                if (titulo == "CORACAO DA ARVORE") {
                     ctx.self->coracaoDaArvoreJaFoiVisitado = false; 
                 }
-                else if (ctx.self->tituloDoMapaAtual == "CABANA DA BRUXA") {
-                    ctx.self->matrizDoMapaDaCabanaSalva = ctx.self->matrizDoMapaAtual;
-                }
-                else if (ctx.self->tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") {
+                else if (titulo == "LABIRINTO SUBTERRANEO") {
                     ctx.self->matrizDoMapaDoLabirintoSalva = ctx.self->matrizDoMapaAtual;
                 }
-                else if (ctx.self->tituloDoMapaAtual == "SALA DO CHEFE") {
+                else if (titulo == "SALA DO CHEFE") {
                     ctx.self->matrizDoMapaSalaDoChefeSalva = ctx.self->matrizDoMapaAtual;
                 }
 
-                if (ctx.self->tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") {
-                    ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaDaCabanaSalva;
-                    ctx.self->posicaoXDoJogador = 20;
-                    ctx.self->posicaoYDoJogador = 2;
-                    ctx.self->tituloDoMapaAtual = "CABANA DA BRUXA";
-                } else if (ctx.self->tituloDoMapaAtual == "SALA DO CHEFE") {
+                if (titulo == "SALA DO CHEFE") {
                     ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaDoLabirintoSalva;
-                    ctx.self->posicaoXDoJogador = 96; 
+                    ctx.self->posicaoXDoJogador = 102; 
                     ctx.self->posicaoYDoJogador = 13;
                     ctx.self->tituloDoMapaAtual = "LABIRINTO SUBTERRANEO";
                 } else {
@@ -225,7 +216,8 @@ namespace {
                 }
                 ctx.restaurarTela();
             }
-            else if (nextCell == 'E' && ctx.self->tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") {
+            // 7. Fim do Labirinto (Escadaria para Boss) (X=103, Y=13)
+            else if (px == 103 && py == 13 && titulo == "LABIRINTO SUBTERRANEO") {
                 Aparencia::limparTela();
             Aparencia::exibirPainelTexto("FIM DO LABIRINTO", Cor::VERDE);
                 int espacosM = (ctx.larguraDoTerminal - 60) / 2;
@@ -235,7 +227,7 @@ namespace {
                 std::cout << margem << FuncoesDialogo::formatarMsgNarracao("A sua frente, uma escadaria desce para uma caverna escura.") << "\n";
                 std::cout << margem << FuncoesDialogo::formatarMsgNarracao("No fundo, parece haver um mar de liquido preto raso...") << "\n\n";
 
-                std::vector<std::string> opcoesCaminho = { "Descer a escadaria", "Voltar para a Cabana da Bruxa" };
+                std::vector<std::string> opcoesCaminho = { "Descer a escadaria", "Voltar para a Floresta" };
                 int escolha = ControleDeInput::lerSelecaoMenuComSetas(opcoesCaminho, false, margem);
 
                 if (escolha == 0) {
@@ -252,7 +244,7 @@ namespace {
                     
                     std::vector<std::string> opcoesBoss = {
                         Aparencia::cor(Cor::VERMELHO) + "Seguir em frente" + Aparencia::cor(Cor::RESET),
-                        Aparencia::cor(Cor::BRANCO) + "Voltar para a seguranca da Cabana" + Aparencia::cor(Cor::RESET)
+                        Aparencia::cor(Cor::BRANCO) + "Voltar para a seguranca da Floresta" + Aparencia::cor(Cor::RESET)
                     };
                     int escolhaBoss = ControleDeInput::lerSelecaoMenuComSetas(opcoesBoss, false, margem);
                     
@@ -266,23 +258,25 @@ namespace {
                         } else {
                             ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaSalaDoChefeSalva;
                         }
-                        ctx.self->posicaoXDoJogador = 54;
-                        ctx.self->posicaoYDoJogador = 54;
+                        ctx.self->posicaoXDoJogador = 53;
+                        ctx.self->posicaoYDoJogador = 53;
                         ctx.self->tituloDoMapaAtual = "SALA DO CHEFE";
                         ctx.restaurarTela();
                     } else {
                         ctx.self->matrizDoMapaDoLabirintoSalva = ctx.self->matrizDoMapaAtual;
-                        ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaDaCabanaSalva;
-                        ctx.self->posicaoXDoJogador = 20;
-                        ctx.self->posicaoYDoJogador = 2;
-                        ctx.self->tituloDoMapaAtual = "CABANA DA BRUXA";
+                        ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaPrincipalSalva;
+                        ctx.self->posicaoXDoJogador = ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa;
+                        ctx.self->posicaoYDoJogador = ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa;
+                        ctx.self->jogadorEstaDentroDeUmSubMapa = false;
+                        ctx.self->tituloDoMapaAtual = "FLORESTA";
                     }
                 } else {
                     ctx.self->matrizDoMapaDoLabirintoSalva = ctx.self->matrizDoMapaAtual;
-                    ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaDaCabanaSalva;
-                    ctx.self->posicaoXDoJogador = 20;
-                    ctx.self->posicaoYDoJogador = 2;
-                    ctx.self->tituloDoMapaAtual = "CABANA DA BRUXA";
+                    ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaPrincipalSalva;
+                    ctx.self->posicaoXDoJogador = ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa;
+                    ctx.self->posicaoYDoJogador = ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa;
+                    ctx.self->jogadorEstaDentroDeUmSubMapa = false;
+                    ctx.self->tituloDoMapaAtual = "FLORESTA";
                 }
                 if (ctx.self->exploracaoEstaAtiva) ctx.restaurarTela();
             } else {
@@ -293,7 +287,6 @@ namespace {
     };
 
     std::vector<std::string> obterLayoutOriginalFloresta(const std::string& titulo) {
-        if (titulo == "CABANA DA BRUXA") return Mapa2FlorestaLayouts::obterLayoutCabana();
         if (titulo == "CORACAO DA ARVORE") return Mapa2FlorestaLayouts::obterLayoutCoracaoDaArvore();
         if (titulo == "LABIRINTO SUBTERRANEO") return Mapa2FlorestaLayouts::obterLayoutLabirinto();
         if (titulo == "SALA DO CHEFE") return Mapa2FlorestaLayouts::obterLayoutSalaDoChefe();
@@ -455,7 +448,8 @@ ProximaTransicaoMapa Mapa2Floresta::iniciarLoopDeExploracao()
             } else if (tituloDoMapaAtual == "SALA DO CHEFE") {
                 ehParede = (celulaDestinoDoMapa == ' ');
             } else {
-                ehParede = (celulaDestinoDoMapa == '#');
+                std::string caracteresParede = "#|_[]{}-=";
+                ehParede = (caracteresParede.find(celulaDestinoDoMapa) != std::string::npos);
             }
             if (!ehParede || jogadorAtual->isNoclip()) {
                 posicaoXDoJogador = proximaPosicaoX;

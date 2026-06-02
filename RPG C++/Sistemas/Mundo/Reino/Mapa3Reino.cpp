@@ -81,8 +81,8 @@ ProximaTransicaoMapa Mapa3Reino::iniciarLoopDeExploracao()
     std::unordered_map<char, std::function<void(int, int, int)>> interacoes;
 
     interacoes['^'] = [&](int px, int py, int larg) {
-        char nextCell = matrizDoMapaAtual[py][px+1];
-        if (nextCell == 'C') {
+        // 1. Acesso ao Castelo (X=47, Y=3)
+        if (px == 47 && py == 3) {
             if (!conviteRecebido) {
                 Aparencia::limparTela();
                 Aparencia::exibirPainelTexto("ACESSO NEGADO", Cor::CIANO);
@@ -101,24 +101,29 @@ ProximaTransicaoMapa Mapa3Reino::iniciarLoopDeExploracao()
                 proximoMapa = ProximaTransicaoMapa::VoltarMenu;
             }
         }
-        else if (nextCell == 'F') {
+        // 2. Retornar para a Floresta (X=47, Y=33)
+        else if (px == 47 && py == 33) {
             exploracaoEstaAtiva = false;
             proximoMapa = ProximaTransicaoMapa::Floresta;
         }
     };
 
-    interacoes['G'] = [&](int /*px*/, int /*py*/, int larg) {
+    interacoes['G'] = [&](int px, int py, int larg) {
         Aparencia::limparTela();
         Aparencia::exibirPainelTexto("GUARDA REAL", Cor::CIANO);
         int espacosM = (larg - 60) / 2;
         std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[Guarda]: Alto la! Somente o Rei pode conceder passagem.\n";
         std::cout << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[Guarda]: (O castelo ainda esta em construcao pelos deuses/devs)\n";
         ControleDeInput::aguardarEnter();
+        posicaoXDoJogador = px;
+        posicaoYDoJogador = py;
         restaurarTela();
     };
 
     auto interagirCavaleiro = [&](int px, int py, int larg) {
         NPCCavaleiroGenerico::interagir(jogadorAtual, trollDerrotado, conviteRecebido, larg, matrizDoMapaAtual, exploracaoEstaAtiva, restaurarTela, matrizDoMapaAtual[py][px], px, py);
+        posicaoXDoJogador = px;
+        posicaoYDoJogador = py;
     };
     interacoes['T'] = interagirCavaleiro;
     interacoes['C'] = interagirCavaleiro;

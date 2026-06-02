@@ -125,10 +125,10 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
             float novoY = jogadorY + sinf(anguloVisao) * velocidadeMovimento * tempoDelta;
             
             if (novoY >= 0 && novoY < alturaMapa && jogadorX >= 0 && jogadorX < larguraMapa) {
-                if (RaycasterMundo::isWalkable(matrizDoMapa[(int)novoY][(int)jogadorX])) jogadorY = novoY;
+                if (RaycasterMundo::isWalkable((int)jogadorX, (int)novoY, matrizDoMapa)) jogadorY = novoY;
             }
             if (jogadorY >= 0 && jogadorY < alturaMapa && novoX >= 0 && novoX < larguraMapa) {
-                if (RaycasterMundo::isWalkable(matrizDoMapa[(int)jogadorY][(int)novoX])) jogadorX = novoX;
+                if (RaycasterMundo::isWalkable((int)novoX, (int)jogadorY, matrizDoMapa)) jogadorX = novoX;
             }
         }
         if (GetAsyncKeyState('S') & 0x8000) {
@@ -136,10 +136,10 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
             float novoY = jogadorY - sinf(anguloVisao) * velocidadeMovimento * tempoDelta;
             
             if (novoY >= 0 && novoY < alturaMapa && jogadorX >= 0 && jogadorX < larguraMapa) {
-                if (RaycasterMundo::isWalkable(matrizDoMapa[(int)novoY][(int)jogadorX])) jogadorY = novoY;
+                if (RaycasterMundo::isWalkable((int)jogadorX, (int)novoY, matrizDoMapa)) jogadorY = novoY;
             }
             if (jogadorY >= 0 && jogadorY < alturaMapa && novoX >= 0 && novoX < larguraMapa) {
-                if (RaycasterMundo::isWalkable(matrizDoMapa[(int)jogadorY][(int)novoX])) jogadorX = novoX;
+                if (RaycasterMundo::isWalkable((int)novoX, (int)jogadorY, matrizDoMapa)) jogadorX = novoX;
             }
         }
 
@@ -182,17 +182,9 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
                 } else {
                     char c = matrizDoMapa[testeY][testeX];
                     // Para o raio ao encontrar paredes ou Inimigos/NPCs (Ignora marcadores de teleporte como ^Saida)
-                    if (c != '.' && c != ' ') {
-                        bool isWordAfterTeleport = false;
-                        
-                        // Checa pra tras se a letra atual faz parte de uma palavra como ^Saida ou ^Loja
-                        for (int tx = testeX - 1; tx >= std::max(0, testeX - 10); tx--) {
-                            char check = matrizDoMapa[testeY][tx];
-                            if (check == '^') { isWordAfterTeleport = true; break; }
-                            if (check == ' ' || check == '.') break; 
-                        }
-                        
-                        if (!isWordAfterTeleport) {
+                    if (c != '.' && c != ' ' && c != '~') {
+                        bool isLabel = RaycasterMundo::isMapLabel(testeX, testeY, matrizDoMapa);
+                        if (!isLabel) {
                             bool isTeleport = (c == '^');
                             bool isEntity = RaycasterMundo::isEntity(c);
                             
@@ -236,15 +228,38 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
             }
             } // Fecha o loop while(!bateuNaParede)
 
+            // Calcula a coordenada da textura (texX) da parede atingida (0.0 a 1.0)
+            float hitX = jogadorX + olhoX * distanciaAteParede;
+            float hitY = jogadorY + olhoY * distanciaAteParede;
+            float hitXAnterior = jogadorX + olhoX * (distanciaAteParede - 0.1f);
+            float hitYAnterior = jogadorY + olhoY * (distanciaAteParede - 0.1f);
+            float texXParede = 0.0f;
+            if ((int)hitXAnterior != (int)hitX) {
+                texXParede = hitY - floorf(hitY); // Cruzou no eixo X (Parede vertical)
+            } else {
+                texXParede = hitX - floorf(hitX); // Cruzou no eixo Y (Parede horizontal)
+            }
+
             int teto = (float)(ALTURA_TELA / 2.0) - ALTURA_TELA / ((float)distanciaAteParede);
             int chao = ALTURA_TELA - teto;
 
-        string pixelChao = RaycasterMundo::obterPixelChao(temaFloresta);
-
             for (int y = 0; y < ALTURA_TELA; y++) {
                 if (y < teto) tela[y * LARGURA_TELA + x] = texturaCeu[y];
-                else if (y >= teto && y <= chao) tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelParede(temaFloresta, distanciaAteParede, profundidadeMaxima, charParede, y, teto, chao);
-                else tela[y * LARGURA_TELA + x] = pixelChao;
+                else if (y >= teto && y <= chao) tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelParede(temaFloresta, distanciaAteParede, profundidadeMaxima, charParede, y, teto, chao, texXParede);
+                else {
+                    float currentDist = (float)ALTURA_TELA / ((float)y - (float)ALTURA_TELA / 2.0f);
+                    float currentX = jogadorX + olhoX * currentDist;
+                    float currentY = jogadorY + olhoY * currentDist;
+                    char floorChar = '.';
+                    if (currentX >= 0 && currentX < larguraMapa && currentY >= 0 && currentY < alturaMapa) {
+                        floorChar = matrizDoMapa[(int)currentY][(int)currentX];
+                    }
+                    if (floorChar == '~') {
+                        tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelAgua(currentX, currentY, currentDist, profundidadeMaxima);
+                    } else {
+                        tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelChao(tituloMapa, x, y);
+                    }
+                }
             }
 
             // --- DESENHA A ARTE DO INIMIGO POR CIMA DO MUNDO ---
@@ -318,22 +333,28 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
                 if (mapX >= 0 && mapX < larguraMapa && mapY >= 0 && mapY < alturaMapa) {
                     char c = matrizDoMapa[mapY][mapX];
                     
-                    bool isWordAfterTeleport = RaycasterMundo::isWordAfterTeleport(mapX, mapY, matrizDoMapa);
-                    bool isEntityMini = RaycasterMundo::isEntity(c) && !isWordAfterTeleport;
+                    bool isLabel = RaycasterMundo::isMapLabel(mapX, mapY, matrizDoMapa);
+                    bool isEntityMini = RaycasterMundo::isEntity(c) && !isLabel;
                     bool isTeleportMini = RaycasterMundo::isTeleport(c);
-                    bool isParedeMini = (c != '.' && c != ' ' && !(c >= 'a' && c <= 'z') && !isEntityMini && !isTeleportMini && !isWordAfterTeleport);
+                    bool isParedeMini = (c != '.' && c != ' ' && !isLabel && !isEntityMini && !isTeleportMini);
 
                     if (mx == larguraMiniMapa/2 && my == alturaMiniMapa/2) {
                         tela[screenY * LARGURA_TELA + screenX] = bgMini + corJogadorAnsi + string(1, iconeDoJogador) + "\033[0m"; // Jogador
                     } else if (mx == larguraMiniMapa/2 + dirX && my == alturaMiniMapa/2 + dirY) {
                         tela[screenY * LARGURA_TELA + screenX] = bgMini + "\033[1;38;2;255;255;255m" + direcaoArrow + "\033[0m"; // Indicador Visao Branco
                     } else if (isParedeMini) {
-                        tela[screenY * LARGURA_TELA + screenX] = bgMini + (temaFloresta ? "\033[38;2;101;67;33m" + string(1, c) + "\033[0m" : "\033[38;2;200;200;200m" + string(1, c) + "\033[0m");
+                        if (c == '~') {
+                            tela[screenY * LARGURA_TELA + screenX] = bgMini + "\033[38;2;50;150;255m~\033[0m";
+                        } else {
+                            tela[screenY * LARGURA_TELA + screenX] = bgMini + (temaFloresta ? "\033[38;2;101;67;33m" + string(1, c) + "\033[0m" : "\033[38;2;200;200;200m" + string(1, c) + "\033[0m");
+                        }
                     } else if (isTeleportMini) {
-                        tela[screenY * LARGURA_TELA + screenX] = bgMini + "\033[38;2;255;255;50m^\033[0m"; // Mostra os teleportes em amarelo brilhante
+                    tela[screenY * LARGURA_TELA + screenX] = bgMini + "\033[38;2;255;255;50m^\033[0m"; // Mostra os teleportes em amarelo brilhante
                     } else if (isEntityMini) {
                         string corMinimapaEnt = RaycasterMundo::obterCorMinimapaEntidade(c, tituloMapa);
                         tela[screenY * LARGURA_TELA + screenX] = bgMini + corMinimapaEnt + string(1, c) + "\033[0m";
+                    } else if (isLabel) {
+                        tela[screenY * LARGURA_TELA + screenX] = bgMini + "\033[38;2;150;150;150m" + string(1, c) + "\033[0m"; // Renderiza a letra da palavra no minimapa
                     } else {
                         tela[screenY * LARGURA_TELA + screenX] = bgMini + "\033[38;2;50;50;50m.\033[0m";
                     }
