@@ -16,6 +16,7 @@ public:
     static std::vector<std::unique_ptr<Personagem>> criarInimigoAbominacaoFloresta(int quantidade = 1);
     static std::vector<std::unique_ptr<Personagem>> criarInimigoTroll(int quantidade = 1);
     static std::vector<std::unique_ptr<Personagem>> criarInimigoMimico(int quantidade = 1);
+    static std::vector<std::unique_ptr<Personagem>> criarInimigoMahoraga(int quantidade = 1);
 
 private:
     template<typename RacaType, typename ClasseType>

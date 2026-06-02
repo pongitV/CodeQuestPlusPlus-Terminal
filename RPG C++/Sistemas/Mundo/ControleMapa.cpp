@@ -7,11 +7,11 @@
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Interface/Telas/MapaMundial/TelaMapaMundial.h"
 #include "../Combate/Combate.h"
-#include "../../Sistemas/Progresso/Progressao.h"
+#include "../Progresso/Progressao.h"
 #include "../../Core/Controladores/Debug.h"
 #include "../../Core/Utilidades/ControleDeInput.h"
 #include "../../Core/Utilidades/GeradorAleatorio.h"
-#include "../../Core/Utilidades/Aparencia.h"
+#include "../Raycaster/Raycaster.h"
 #include <iostream>
 #include <algorithm>
 #include <thread>
@@ -359,7 +359,7 @@ void ControleMapa::renderizarMapa(const std::vector<std::string>& matrizDoMapa, 
 
     std::string margemEsquerdaDoMapa = calcularMargemCentralizada(larguraDoTerminal, endX - startX);
 
-    std::string textoDeControles = "W,A,S,D: Mover | I: Inventario | C: Ficha | B: Diario | M: Mapa";
+    std::string textoDeControles = "W,A,S,D: Mover | V: Visao | I: Inventario | C: Ficha | B: Diario | M: Mapa";
     std::string margemEsquerdaControles = calcularMargemCentralizada(larguraDoTerminal, textoDeControles.length());
 
     Aparencia::moverCursor(0, linhaInicial);
@@ -397,6 +397,7 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
 ) {
     auto ultimoMovimentoInimigos = std::chrono::steady_clock::now();
     ProximaTransicaoMapa destinoViagemRapida = ProximaTransicaoMapa::Nenhuma;
+    float anguloCamera3D = 0.0f; // Persiste a direcao da visao do jogador enquanto ele estiver no mapa
 
     while (exploracaoEstaAtiva && jogadorAtual->obterVida() > 0)
     {
@@ -421,6 +422,29 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
 
         if (ControleDeInput::teclaPressionada()) {
             char teclaPressionadaPeloJogador = ControleDeInput::lerTecla();
+
+            if (teclaPressionadaPeloJogador == 'v' || teclaPressionadaPeloJogador == 'V') {
+                float pX = static_cast<float>(posicaoXDoJogador);
+                float pY = static_cast<float>(posicaoYDoJogador);
+                
+                char acaoPendente = Raycaster::iniciarExploracao3D(matrizDoMapaAtual, pX, pY, anguloCamera3D, tituloDoMapaAtual, jogadorAtual);
+                
+                int novoX = static_cast<int>(pX);
+                int novoY = static_cast<int>(pY);
+                
+                if (novoX != posicaoXDoJogador || novoY != posicaoYDoJogador) {
+                    ControleMapa::aplicarLimitesDeMapa(novoX, novoY, matrizDoMapaAtual);
+                    processarInteracao(novoX, novoY, larguraDoTerminal); // Aciona o combate/NPC caso o jogador tenha parado em cima de um
+                }
+                
+                restaurarTela();
+                precisaRenderizar = true;
+                if (acaoPendente == 'M') {
+                    teclaPressionadaPeloJogador = 'M';
+                } else {
+                    continue;
+                }
+            }
 
              if (teclaPressionadaPeloJogador == 'm' || teclaPressionadaPeloJogador == 'M') {
                 LocalizacaoMapa loc = LocalizacaoMapa::VilaInicial;
