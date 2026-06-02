@@ -35,8 +35,8 @@ Mapa1Vila::Mapa1Vila(Personagem* personagemJogador) :
     jogadorAtual(personagemJogador), 
     exploracaoEstaAtiva(true),
     tituloDoMapaAtual("CAMINHO DO INICIO"),
-    posicaoXSalvaAntesDeEntrarNoSubMapa(2), 
-    posicaoYSalvaAntesDeEntrarNoSubMapa(2),
+    posicaoXSalvaAntesDeEntrarNoSubMapa(10), 
+    posicaoYSalvaAntesDeEntrarNoSubMapa(4),
     jogadorEstaDentroDeUmSubMapa(true),
     bjornResgatado(Progressao::instancia().obterFlag(Flags::Vila_BjornResgatado)), 
     forjaJaFoiVisitada(false), 
@@ -120,14 +120,14 @@ namespace {
             char nextNextCell = ctx.self->matrizDoMapaAtual[ctx.proximaPosicaoY][ctx.proximaPosicaoX+2];
             
             if (nextCell == 'C' && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaCavernaSalva, ctx.self->cavernaJaFoiVisitada, Mapa1VilaLayouts::obterLayoutCaverna(ctx.self->bjornResgatado), 16, 2, "CAVERNA DO ORK", ctx.restaurarTela);
+                ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaCavernaSalva, ctx.self->cavernaJaFoiVisitada, Mapa1VilaLayouts::obterLayoutCaverna(ctx.self->bjornResgatado), 8, 3, "CAVERNA DO ORK", ctx.restaurarTela);
             }
             else if (nextCell == 'V' && nextNextCell == 'i') {
                 if (ctx.self->tituloDoMapaAtual == "CAMINHO DO INICIO") {
                     ctx.self->matrizDoMapaDoSpawnSalva = ctx.self->matrizDoMapaAtual;
                     ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaPrincipalSalva;
-                    ctx.self->posicaoXDoJogador = 2;
-                    ctx.self->posicaoYDoJogador = 2;
+                    ctx.self->posicaoXDoJogador = 10;
+                    ctx.self->posicaoYDoJogador = 4;
                     ctx.self->jogadorEstaDentroDeUmSubMapa = false;
                     ctx.self->tituloDoMapaAtual = "VILA INICIAL";
                     ctx.animarTela();
@@ -232,6 +232,19 @@ ProximaTransicaoMapa Mapa1Vila::iniciarLoopDeExploracao()
         if (celula == 'B') return Aparencia::cor(Cor::NEGRITO, Cor::CIANO) + "B" + Aparencia::cor(Cor::RESET);
         if (celula == 'F' && x > 0 && matrizDoMapaAtual[y][x-1] == '.') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "F" + Aparencia::cor(Cor::RESET);
         
+        if (celula == '*') {
+            bool isTrunk = false;
+            if (y > 0 && matrizDoMapaAtual[y-1][x] == '*') {
+                int countHorizontal = 0;
+                if (x > 0 && matrizDoMapaAtual[y][x-1] == '*') countHorizontal++;
+                if (x + 1 < static_cast<int>(matrizDoMapaAtual[y].length()) && matrizDoMapaAtual[y][x+1] == '*') countHorizontal++;
+                if (countHorizontal <= 1) isTrunk = true;
+            }
+            if (isTrunk) return "\033[38;2;101;67;33m*\033[0m"; // Tronco Marrom
+            return "\033[38;2;34;139;34m*\033[0m"; // Folhas Verdes
+        }
+        if (celula == '~') return "\033[38;2;50;150;255m~\033[0m"; // Agua
+
         // Remove a exibicao visual dos pontos (chao) para deixar o mapa mais limpo
         if (celula == '.') return " ";
         

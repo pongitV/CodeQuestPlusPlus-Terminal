@@ -29,5 +29,5 @@ void RaycasterInimigos::inicializarSprites(std::map<char, SpriteCache>& cache) {
     cache['T'] = RaycasterSprites::parseArte(getArte(CriadorInimigos::criarInimigoTroll));
     cache['M'] = RaycasterSprites::parseArte(getArte(CriadorInimigos::criarInimigoMimico));
     
-    cache['H'] = RaycasterSprites::parseArte(RaycasterSprites::colorirArte(getArteFull(CriadorInimigos::criarInimigoMahoraga), "\033[38;2;255;100;255m"));
+    cache['H'] = RaycasterSprites::parseArte(getArteFull(CriadorInimigos::criarInimigoMahoraga));
 }

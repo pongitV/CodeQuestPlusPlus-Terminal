@@ -31,6 +31,7 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
     string corJogadorAnsi = Aparencia::cor(jogador->obterCorJogador());
 
     bool temaFloresta = RaycasterMundo::isTemaFloresta(tituloMapa);
+    int temaCeu = RaycasterMundo::obterTemaCeu(tituloMapa);
 
     // Obtem a resolucao dinamica do terminal para preencher a tela inteira
     int LARGURA_TELA = Aparencia::obterLarguraTerminal();
@@ -39,6 +40,11 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
     // Fallback de seguranca caso nao consiga ler a resolucao
     if (LARGURA_TELA <= 0) LARGURA_TELA = 120;
     if (ALTURA_TELA <= 0) ALTURA_TELA = 40;
+    
+    std::vector<std::string> texturaCeu(ALTURA_TELA);
+    for (int y = 0; y < ALTURA_TELA; ++y) {
+        texturaCeu[y] = RaycasterMundo::obterPixelTeto(temaCeu, y, ALTURA_TELA);
+    }
 
     map<char, SpriteCache> cacheSprites;
     RaycasterInimigos::inicializarSprites(cacheSprites);
@@ -115,8 +121,8 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
 
         // Movimento (Com sistema de Sliding - permite deslizar na parede ao andar em diagonal)
         if (GetAsyncKeyState('W') & 0x8000) {
-            float novoX = jogadorX + sinf(anguloVisao) * velocidadeMovimento * tempoDelta;
-            float novoY = jogadorY + cosf(anguloVisao) * velocidadeMovimento * tempoDelta;
+            float novoX = jogadorX + cosf(anguloVisao) * velocidadeMovimento * tempoDelta;
+            float novoY = jogadorY + sinf(anguloVisao) * velocidadeMovimento * tempoDelta;
             
             if (novoY >= 0 && novoY < alturaMapa && jogadorX >= 0 && jogadorX < larguraMapa) {
                 if (RaycasterMundo::isWalkable(matrizDoMapa[(int)novoY][(int)jogadorX])) jogadorY = novoY;
@@ -126,8 +132,8 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
             }
         }
         if (GetAsyncKeyState('S') & 0x8000) {
-            float novoX = jogadorX - sinf(anguloVisao) * velocidadeMovimento * tempoDelta;
-            float novoY = jogadorY - cosf(anguloVisao) * velocidadeMovimento * tempoDelta;
+            float novoX = jogadorX - cosf(anguloVisao) * velocidadeMovimento * tempoDelta;
+            float novoY = jogadorY - sinf(anguloVisao) * velocidadeMovimento * tempoDelta;
             
             if (novoY >= 0 && novoY < alturaMapa && jogadorX >= 0 && jogadorX < larguraMapa) {
                 if (RaycasterMundo::isWalkable(matrizDoMapa[(int)novoY][(int)jogadorX])) jogadorY = novoY;
@@ -157,19 +163,19 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
             float distanciaAteParede = 0.0f;
             bool bateuNaParede = false;
 
-            float olhoX = sinf(raioAngulo);
-            float olhoY = cosf(raioAngulo);
+            float olhoX = cosf(raioAngulo);
+            float olhoY = sinf(raioAngulo);
             
             float distEntidade = -1.0f;
             char charEntidade = ' ';
             float texXEntidade = 0.0f;
+            char charParede = '#';
 
             while (!bateuNaParede && distanciaAteParede < profundidadeMaxima) {
                 distanciaAteParede += 0.1f;
 
                 int testeX = (int)(jogadorX + olhoX * distanciaAteParede);
                 int testeY = (int)(jogadorY + olhoY * distanciaAteParede);
-
                 if (testeX < 0 || testeX >= larguraMapa || testeY < 0 || testeY >= alturaMapa) {
                     bateuNaParede = true;
                     distanciaAteParede = profundidadeMaxima;
@@ -205,7 +211,7 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
                                     float dx = centerX - jogadorX;
                                     float dy = centerY - jogadorY;
                                     
-                                    float anguloProCentro = atan2(dx, dy);
+                                    float anguloProCentro = atan2(dy, dx);
                                     float diffAngulo = raioAngulo - anguloProCentro;
                                     
                                     while (diffAngulo < -3.14159f) diffAngulo += 2.0f * 3.14159f;
@@ -223,6 +229,7 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
                                 }
                             } else {
                             bateuNaParede = true;
+                            charParede = c;
                         }
                     }
                 }
@@ -232,22 +239,11 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
             int teto = (float)(ALTURA_TELA / 2.0) - ALTURA_TELA / ((float)distanciaAteParede);
             int chao = ALTURA_TELA - teto;
 
-            // Define as texturas/sombras da parede ASCII extendida
-            char sombraParede = ' ';
-            if (distanciaAteParede <= profundidadeMaxima / 4.0f)     sombraParede = (char)219; // Bloco cheio
-            else if (distanciaAteParede < profundidadeMaxima / 3.0f) sombraParede = (char)178; // Bloco escuro
-            else if (distanciaAteParede < profundidadeMaxima / 2.0f) sombraParede = (char)177; // Bloco medio
-            else if (distanciaAteParede < profundidadeMaxima)        sombraParede = (char)176; // Bloco claro
-
-        string corParede = RaycasterMundo::obterCorParede(temaFloresta, distanciaAteParede, profundidadeMaxima);
-        string pixelParede = corParede + string(1, sombraParede) + "\033[0m";
-
         string pixelChao = RaycasterMundo::obterPixelChao(temaFloresta);
-            string pixelTeto = " ";
 
             for (int y = 0; y < ALTURA_TELA; y++) {
-                if (y < teto) tela[y * LARGURA_TELA + x] = pixelTeto;
-                else if (y >= teto && y <= chao) tela[y * LARGURA_TELA + x] = pixelParede;
+                if (y < teto) tela[y * LARGURA_TELA + x] = texturaCeu[y];
+                else if (y >= teto && y <= chao) tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelParede(temaFloresta, distanciaAteParede, profundidadeMaxima, charParede, y, teto, chao);
                 else tela[y * LARGURA_TELA + x] = pixelChao;
             }
 
@@ -280,7 +276,7 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
         int larguraMiniMapa = 31; // Aumentado a largura para visao panoramica horizontal
         int alturaMiniMapa = 15;  // Mantem a altura original
         int offsetX = 2;
-        int offsetY = 2; // Desceu 1 linha para acomodar o menu
+        int offsetY = 1; // Topo
 
         // 1. Desenha a borda do mini-mapa
         string corBorda = "\033[38;2;150;150;150m"; // Cinza claro
@@ -305,11 +301,11 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
         float anguloNorm = fmod(anguloVisao, 2.0f * 3.14159f);
         if (anguloNorm < 0) anguloNorm += 2.0f * 3.14159f;
         
-        string direcaoArrow = "v"; // 0 radianos na nossa matriz aponta para o Sul (+Y)
-        int dirX = 0, dirY = 1;
-        if (anguloNorm >= 0.785f && anguloNorm < 2.356f) { direcaoArrow = ">"; dirX = 1; dirY = 0; }
-        else if (anguloNorm >= 2.356f && anguloNorm < 3.926f) { direcaoArrow = "^"; dirX = 0; dirY = -1; } // Pi radianos aponta para o Norte (-Y)
-        else if (anguloNorm >= 3.926f && anguloNorm < 5.497f) { direcaoArrow = "<"; dirX = -1; dirY = 0; }
+        string direcaoArrow = "►"; // 0 radianos aponta para o Leste (+X)
+        int dirX = 1, dirY = 0;
+        if (anguloNorm >= 0.785f && anguloNorm < 2.356f) { direcaoArrow = "▼"; dirX = 0; dirY = 1; }
+        else if (anguloNorm >= 2.356f && anguloNorm < 3.926f) { direcaoArrow = "◄"; dirX = -1; dirY = 0; }
+        else if (anguloNorm >= 3.926f && anguloNorm < 5.497f) { direcaoArrow = "▲"; dirX = 0; dirY = -1; }
 
         for (int my = 0; my < alturaMiniMapa; my++) {
             for (int mx = 0; mx < larguraMiniMapa; mx++) {
@@ -332,7 +328,7 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
                     } else if (mx == larguraMiniMapa/2 + dirX && my == alturaMiniMapa/2 + dirY) {
                         tela[screenY * LARGURA_TELA + screenX] = bgMini + "\033[1;38;2;255;255;255m" + direcaoArrow + "\033[0m"; // Indicador Visao Branco
                     } else if (isParedeMini) {
-                        tela[screenY * LARGURA_TELA + screenX] = bgMini + (temaFloresta ? "\033[38;2;101;67;33m" + string(1, c) + "\033[0m" : "\033[38;2;200;200;200m#\033[0m");
+                        tela[screenY * LARGURA_TELA + screenX] = bgMini + (temaFloresta ? "\033[38;2;101;67;33m" + string(1, c) + "\033[0m" : "\033[38;2;200;200;200m" + string(1, c) + "\033[0m");
                     } else if (isTeleportMini) {
                         tela[screenY * LARGURA_TELA + screenX] = bgMini + "\033[38;2;255;255;50m^\033[0m"; // Mostra os teleportes em amarelo brilhante
                     } else if (isEntityMini) {
@@ -349,19 +345,7 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
             }
         }
 
-        // 3. Controles no topo (igual ao mapa normal)
-        string textoDeControles = "W,A,S,D: Mover | V: Visao | I: Inventario | C: Ficha | B: Diario | M: Mapa";
-        int startHudX = (LARGURA_TELA - textoDeControles.length()) / 2;
-        for (int x = 0; x < LARGURA_TELA; x++) {
-            tela[x] = "\033[48;2;20;20;20m \033[0m"; // Fundo cinza escuro na primeira linha
-        }
-        if (startHudX > 0) {
-            for (size_t i = 0; i < textoDeControles.length(); ++i) {
-                tela[startHudX + i] = "\033[38;2;150;150;150m\033[48;2;20;20;20m" + string(1, textoDeControles[i]) + "\033[0m";
-            }
-        }
-
-        // 4. Importar HUD do Combate
+        // 3. Importar HUD do Combate
         vector<string> linhasHUD = TelaCombate::obterLinhasBarraDeStatusDoJogador(jogador, Cor::RESET, -1, 0, false);
         int hudHeight = linhasHUD.size();
         int maxHudWidth = 0;
@@ -374,7 +358,7 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
         int boxHeight = hudHeight + 2;
         int hudOffsetX = (LARGURA_TELA - maxHudWidth) / 2; // Posiciona no centro horizontal exato
         if (hudOffsetX < 0) hudOffsetX = 0;
-        int hudOffsetY = ALTURA_TELA - boxHeight; // Encostado no inferior exato da tela
+        int hudOffsetY = ALTURA_TELA - boxHeight - 1; // Subiu 1 linha para acomodar os controles na base
 
         string corHudBorda = "\033[38;2;150;150;150m"; // Cinza claro
         string bgHud = "\033[48;2;25;25;25m"; // Fundo pseudo-transparente cinza escuro
@@ -437,6 +421,19 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
                 for(int x = 1; x < boxWidth; ++x) {
                     if (hudOffsetX + x < LARGURA_TELA) tela[y * LARGURA_TELA + hudOffsetX + x] = "";
                 }
+            }
+        }
+        
+        // 4. Controles no inferior (abaixo do HUD)
+        string textoDeControles = "W,A,S,D: Mover | V: Visao | I: Inventario | C: Ficha | B: Diario | M: Mapa";
+        int startCtrlX = (LARGURA_TELA - textoDeControles.length()) / 2;
+        int linhaControles = ALTURA_TELA - 1;
+        for (int x = 0; x < LARGURA_TELA; x++) {
+            tela[linhaControles * LARGURA_TELA + x] = "\033[48;2;20;20;20m \033[0m"; // Fundo cinza escuro na ultima linha
+        }
+        if (startCtrlX > 0) {
+            for (size_t i = 0; i < textoDeControles.length(); ++i) {
+                tela[linhaControles * LARGURA_TELA + startCtrlX + i] = "\033[38;2;150;150;150m\033[48;2;20;20;20m" + string(1, textoDeControles[i]) + "\033[0m";
             }
         }
 

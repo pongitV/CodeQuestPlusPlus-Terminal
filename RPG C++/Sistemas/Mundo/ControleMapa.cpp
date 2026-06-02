@@ -398,6 +398,7 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
     auto ultimoMovimentoInimigos = std::chrono::steady_clock::now();
     ProximaTransicaoMapa destinoViagemRapida = ProximaTransicaoMapa::Nenhuma;
     float anguloCamera3D = 0.0f; // Persiste a direcao da visao do jogador enquanto ele estiver no mapa
+    bool exploracao3DAtiva = false; // Mantem a visao 3D ativa ao entrar/sair de ambientes
 
     while (exploracaoEstaAtiva && jogadorAtual->obterVida() > 0)
     {
@@ -412,7 +413,7 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
 
         int larguraDoTerminal = Aparencia::obterLarguraTerminal();
         
-        if (precisaRenderizar) {
+        if (precisaRenderizar && !exploracao3DAtiva) {
             int alturaDoTerminal = Aparencia::obterAlturaTerminal();
 
             ControleMapa::renderizarMapa(matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, larguraDoTerminal, alturaDoTerminal, linhaInicialParaDesenharOMapa, formatador);
@@ -420,10 +421,17 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
             precisaRenderizar = false;
         }
 
-        if (ControleDeInput::teclaPressionada()) {
-            char teclaPressionadaPeloJogador = ControleDeInput::lerTecla();
+        char teclaPressionadaPeloJogador = '\0';
+        bool processarInput = false;
 
-            if (teclaPressionadaPeloJogador == 'v' || teclaPressionadaPeloJogador == 'V') {
+        if (!exploracao3DAtiva && ControleDeInput::teclaPressionada()) {
+            teclaPressionadaPeloJogador = ControleDeInput::lerTecla();
+            processarInput = true;
+        }
+
+        if (exploracao3DAtiva || (processarInput && (teclaPressionadaPeloJogador == 'v' || teclaPressionadaPeloJogador == 'V'))) {
+            exploracao3DAtiva = true;
+
                 float pX = static_cast<float>(posicaoXDoJogador);
                 float pY = static_cast<float>(posicaoYDoJogador);
                 
@@ -432,21 +440,41 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
                 int novoX = static_cast<int>(pX);
                 int novoY = static_cast<int>(pY);
                 
+                bool isTrigger = false;
                 if (novoX != posicaoXDoJogador || novoY != posicaoYDoJogador) {
                     ControleMapa::aplicarLimitesDeMapa(novoX, novoY, matrizDoMapaAtual);
+                    
+                    char cell = matrizDoMapaAtual[novoY][novoX];
+                    // Verifica se o jogador parou em um trigger (Inimigos ou Teleportes)
+                    std::string triggers = "^GOBFSAMTHR";
+                    if (triggers.find(cell) != std::string::npos) {
+                        isTrigger = true;
+                    }
+                    
                     processarInteracao(novoX, novoY, larguraDoTerminal); // Aciona o combate/NPC caso o jogador tenha parado em cima de um
                 }
                 
                 restaurarTela();
                 precisaRenderizar = true;
+                
                 if (acaoPendente == 'M') {
                     teclaPressionadaPeloJogador = 'M';
+                    processarInput = true;
+                    exploracao3DAtiva = false; // Pausa a visao 3D para exibir o Mapa Mundial
+                } else if (!isTrigger) {
+                    exploracao3DAtiva = false;
+                    continue;
                 } else {
                     continue;
                 }
+        }
+
+        if (processarInput) {
+            if (teclaPressionadaPeloJogador == 'v' || teclaPressionadaPeloJogador == 'V') {
+                continue; // Ja foi tratado acima
             }
 
-             if (teclaPressionadaPeloJogador == 'm' || teclaPressionadaPeloJogador == 'M') {
+            if (teclaPressionadaPeloJogador == 'm' || teclaPressionadaPeloJogador == 'M') {
                 LocalizacaoMapa loc = LocalizacaoMapa::VilaInicial;
                 std::string tituloUpper = tituloDoMapaAtual;
                 std::transform(tituloUpper.begin(), tituloUpper.end(), tituloUpper.begin(), ::toupper);
