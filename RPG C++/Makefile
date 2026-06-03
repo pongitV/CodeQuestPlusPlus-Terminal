@@ -3,7 +3,7 @@ TARGET = JogoRPG.exe
 
 # Compilador e flags de compilacao (-O2 adiciona otimizacoes de performance)
 CXX = g++
-CXXFLAGS = -std=c++23 -Wall -Wextra -O2
+CXXFLAGS = -std=c++23 -Wall -Wextra -O2 -MMD -MP
 
 # Funcao para buscar recursivamente todos os arquivos .cpp nas pastas
 rwildcard=$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
@@ -14,6 +14,7 @@ SRCS := $(call rwildcard,,*.cpp)
 # Pasta onde os arquivos .o serao guardados (mantem o projeto limpo)
 OBJ_DIR = obj
 OBJS := $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(SRCS))
+DEPS := $(OBJS:.o=.d)
 
 # Regra padrao a ser executada ao digitar o comando make
 all: $(TARGET)
@@ -32,3 +33,5 @@ clean:
 	-rmdir /S /Q $(OBJ_DIR) 2>nul
 	-del /S /Q *.o 2>nul
 	-del /Q $(TARGET) 2>nul
+
+-include $(DEPS)

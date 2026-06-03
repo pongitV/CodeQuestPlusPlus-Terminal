@@ -66,6 +66,15 @@ std::string Aparencia::cor(Cor estilo, Cor codigo) {
     return "\033[" + estiloStr + type + std::to_string(r) + ";" + std::to_string(g) + ";" + std::to_string(b) + "m";
 }
 
+std::string Aparencia::corRGB(uint8_t r, uint8_t g, uint8_t b, bool negrito) {
+    std::string estiloStr = negrito ? "1;" : "0;";
+    return "\033[" + estiloStr + "38;2;" + std::to_string(r) + ";" + std::to_string(g) + ";" + std::to_string(b) + "m";
+}
+
+std::string Aparencia::bgRGB(uint8_t r, uint8_t g, uint8_t b) {
+    return "\033[48;2;" + std::to_string(r) + ";" + std::to_string(g) + ";" + std::to_string(b) + "m";
+}
+
 void Aparencia::maximizarJanelaTerminal() {
 #ifdef _WIN32
     HWND hwnd = GetConsoleWindow();
@@ -277,13 +286,15 @@ void Aparencia::imprimirCentralizadoMultilinha(const std::vector<std::string>& l
 }
 
 std::string Aparencia::obterCorRGBFade(Cor corTema, int intensidade) {
-    int r = intensidade, g = intensidade, b = intensidade;
-    if (corTema == Cor::VERDE) { r = 0; g = intensidade; b = 0; }
-    else if (corTema == Cor::AMARELO) { r = intensidade; g = intensidade; b = 0; }
-    else if (corTema == Cor::CIANO) { r = 0; g = intensidade; b = intensidade; }
-    else if (corTema == Cor::MAGENTA) { r = intensidade; g = 0; b = intensidade; }
-    else if (corTema == Cor::VERMELHO) { r = intensidade; g = 0; b = 0; }
-    else if (corTema == Cor::AZUL) { r = 0; g = 0; b = intensidade; }
+    uint32_t val = static_cast<uint32_t>(corTema);
+    uint8_t baseR = (val >> 16) & 0xFF;
+    uint8_t baseG = (val >> 8) & 0xFF;
+    uint8_t baseB = val & 0xFF;
+    
+    int r = (baseR * intensidade) / 255;
+    int g = (baseG * intensidade) / 255;
+    int b = (baseB * intensidade) / 255;
+
     return "\033[38;2;" + std::to_string(r) + ";" + std::to_string(g) + ";" + std::to_string(b) + "m";
 }
 

@@ -10,5 +10,5 @@ public:
     // Toma controle da thread atual para gerar frames em tempo real.
     // Retorna (encerra) quando o jogador pressiona a tecla ESC.
     // Utiliza referencias para atualizar a posicao X e Y reais do jogador no mapa top-down.
-    static char iniciarExploracao3D(const std::vector<std::string>& matrizDoMapa, float& jogadorX, float& jogadorY, float& anguloVisao, const std::string& tituloMapa, Personagem* jogador);
+    static char iniciarExploracao3D(const std::vector<std::string>& matrizDoMapa, float& jogadorX, float& jogadorY, float& anguloVisao, const std::string& tituloMapa, Personagem* jogador, int& outHitX, int& outHitY);
 };

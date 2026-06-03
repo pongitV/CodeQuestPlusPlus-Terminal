@@ -21,13 +21,13 @@ namespace {
 }
 
 void RaycasterInimigos::inicializarSprites(std::map<char, SpriteCache>& cache) {
-    cache['G'] = RaycasterSprites::parseArte(getArte(CriadorInimigos::criarInimigoGoblin));
-    cache['O'] = RaycasterSprites::parseArte(getArte(CriadorInimigos::criarInimigoOrkExilado));
-    cache['S'] = RaycasterSprites::parseArte(getArte(CriadorInimigos::criarInimigoSlime));
-    cache['F'] = RaycasterSprites::parseArte(getArte(CriadorInimigos::criarInimigoFada));
-    cache['A'] = RaycasterSprites::parseArte(getArte(CriadorInimigos::criarInimigoAbominacaoFloresta));
-    cache['T'] = RaycasterSprites::parseArte(getArte(CriadorInimigos::criarInimigoTroll));
-    cache['M'] = RaycasterSprites::parseArte(getArte(CriadorInimigos::criarInimigoMimico));
+    cache['G'] = RaycasterSprites::parseSprite(getArteFull(CriadorInimigos::criarInimigoGoblin), 100, 200, 50); // Verde Goblin
+    cache['O'] = RaycasterSprites::parseSprite(getArteFull(CriadorInimigos::criarInimigoOrkExilado), 50, 150, 50); // Verde Escuro Orc
+    cache['S'] = RaycasterSprites::parseSprite(getArteFull(CriadorInimigos::criarInimigoSlime), 50, 200, 255); // Ciano Slime
+    cache['F'] = RaycasterSprites::parseSprite(getArteFull(CriadorInimigos::criarInimigoFada), 255, 100, 200); // Rosa Fada
+    cache['A'] = RaycasterSprites::parseSprite(getArteFull(CriadorInimigos::criarInimigoAbominacaoFloresta), 139, 69, 19); // Marrom Abominacao
+    cache['T'] = RaycasterSprites::parseSprite(getArteFull(CriadorInimigos::criarInimigoTroll), 150, 150, 160); // Cinza Troll
+    cache['M'] = RaycasterSprites::parseSprite(getArteFull(CriadorInimigos::criarInimigoMimico), 200, 150, 50); // Dourado Mimico
     
-    cache['H'] = RaycasterSprites::parseArte(getArteFull(CriadorInimigos::criarInimigoMahoraga));
+    cache['H'] = RaycasterSprites::parseSprite(getArteFull(CriadorInimigos::criarInimigoMahoraga), 255, 255, 255); // Branco Mahoraga
 }

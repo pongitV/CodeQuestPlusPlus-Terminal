@@ -46,7 +46,12 @@ ProximaTransicaoMapa Mapa3Reino::iniciarLoopDeExploracao()
         }
         if (celula == 'T') return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + "T" + Aparencia::cor(Cor::RESET);
         if (celula == 'G') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "G" + Aparencia::cor(Cor::RESET);
-        if (celula == '=' || celula == '|') return Aparencia::cor(Cor::CINZA) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
+        if (celula == 'C') return Aparencia::cor(Cor::NEGRITO, Cor::PRATA) + "C" + Aparencia::cor(Cor::RESET); // Cavaleiro Real prata
+        if (celula == '^') return Aparencia::cor(Cor::NEGRITO, Cor::TELEPORTE) + "^" + Aparencia::cor(Cor::RESET);
+        
+        if (celula == '|') return Aparencia::cor(Cor::MADEIRA) + "|" + Aparencia::cor(Cor::RESET); // Madeira do portao
+        std::string estruturas = "_[]{}/\\<>;=-+#";
+        if (estruturas.find(celula) != std::string::npos) return Aparencia::cor(Cor::CINZA) + std::string(1, celula) + Aparencia::cor(Cor::RESET); // Tijolos Cinzas do Castelo
         
         // Remove a exibicao visual dos pontos (chao) para deixar o mapa mais limpo
         if (celula == '.') return " ";

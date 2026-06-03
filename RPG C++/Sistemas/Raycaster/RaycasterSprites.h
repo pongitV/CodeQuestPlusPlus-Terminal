@@ -11,5 +11,6 @@ struct SpriteCache {
 class RaycasterSprites {
 public:
     static SpriteCache parseArte(const std::vector<std::string>& raw);
+    static SpriteCache parseSprite(const std::vector<std::string>& raw, int r, int g, int b);
     static std::vector<std::string> colorirArte(const std::vector<std::string>& arte, const std::string& corAnsi);
 };

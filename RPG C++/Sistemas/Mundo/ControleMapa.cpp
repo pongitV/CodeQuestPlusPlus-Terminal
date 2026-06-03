@@ -34,6 +34,8 @@ namespace {
     }
 }
 
+static bool s_exploracao3DAtiva = false;
+
 bool ControleMapa::processarInputEComandos(char tecla, Personagem* jogador, int& proximaPosicaoX, int& proximaPosicaoY, const std::function<void()>& restaurarTela)
 {
     // --- TELA DE PAUSE ---
@@ -398,7 +400,6 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
     auto ultimoMovimentoInimigos = std::chrono::steady_clock::now();
     ProximaTransicaoMapa destinoViagemRapida = ProximaTransicaoMapa::Nenhuma;
     float anguloCamera3D = 0.0f; // Persiste a direcao da visao do jogador enquanto ele estiver no mapa
-    bool exploracao3DAtiva = false; // Mantem a visao 3D ativa ao entrar/sair de ambientes
 
     while (exploracaoEstaAtiva && jogadorAtual->obterVida() > 0)
     {
@@ -413,7 +414,7 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
 
         int larguraDoTerminal = Aparencia::obterLarguraTerminal();
         
-        if (precisaRenderizar && !exploracao3DAtiva) {
+        if (precisaRenderizar && !s_exploracao3DAtiva) {
             int alturaDoTerminal = Aparencia::obterAlturaTerminal();
 
             ControleMapa::renderizarMapa(matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, larguraDoTerminal, alturaDoTerminal, linhaInicialParaDesenharOMapa, formatador);
@@ -424,34 +425,35 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
         char teclaPressionadaPeloJogador = '\0';
         bool processarInput = false;
 
-        if (!exploracao3DAtiva && ControleDeInput::teclaPressionada()) {
+            if (!s_exploracao3DAtiva && ControleDeInput::teclaPressionada()) {
             teclaPressionadaPeloJogador = ControleDeInput::lerTecla();
             processarInput = true;
         }
 
-        if (exploracao3DAtiva || (processarInput && (teclaPressionadaPeloJogador == 'v' || teclaPressionadaPeloJogador == 'V'))) {
-            exploracao3DAtiva = true;
+        if (s_exploracao3DAtiva || (processarInput && (teclaPressionadaPeloJogador == 'v' || teclaPressionadaPeloJogador == 'V'))) {
+            s_exploracao3DAtiva = true;
 
-                float pX = static_cast<float>(posicaoXDoJogador);
-                float pY = static_cast<float>(posicaoYDoJogador);
+                float pX = static_cast<float>(posicaoXDoJogador) + 0.5f;
+                float pY = static_cast<float>(posicaoYDoJogador) + 0.5f;
                 
-                char acaoPendente = Raycaster::iniciarExploracao3D(matrizDoMapaAtual, pX, pY, anguloCamera3D, tituloDoMapaAtual, jogadorAtual);
+                int hitX = -1, hitY = -1;
+                char acaoPendente = Raycaster::iniciarExploracao3D(matrizDoMapaAtual, pX, pY, anguloCamera3D, tituloDoMapaAtual, jogadorAtual, hitX, hitY);
                 
-                int novoX = static_cast<int>(pX);
-                int novoY = static_cast<int>(pY);
+                posicaoXDoJogador = static_cast<int>(pX);
+                posicaoYDoJogador = static_cast<int>(pY);
                 
                 bool isTrigger = false;
-                if (novoX != posicaoXDoJogador || novoY != posicaoYDoJogador) {
-                    ControleMapa::aplicarLimitesDeMapa(novoX, novoY, matrizDoMapaAtual);
+                if (hitX != -1 && hitY != -1) {
+                    ControleMapa::aplicarLimitesDeMapa(hitX, hitY, matrizDoMapaAtual);
                     
-                    char cell = matrizDoMapaAtual[novoY][novoX];
+                    char cell = matrizDoMapaAtual[hitY][hitX];
                     // Verifica se o jogador parou em um trigger (Inimigos ou Teleportes)
-                    std::string triggers = "^GOBFSAMTHRP";
+                    std::string triggers = "^GOBFSAMTHRPC";
                     if (triggers.find(cell) != std::string::npos) {
                         isTrigger = true;
                     }
                     
-                    processarInteracao(novoX, novoY, larguraDoTerminal); // Aciona o combate/NPC caso o jogador tenha parado em cima de um
+                    processarInteracao(hitX, hitY, larguraDoTerminal); // Aciona o combate/NPC caso o jogador tenha parado em cima de um
                 }
                 
                 restaurarTela();
@@ -460,9 +462,9 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
                 if (acaoPendente == 'M') {
                     teclaPressionadaPeloJogador = 'M';
                     processarInput = true;
-                    exploracao3DAtiva = false; // Pausa a visao 3D para exibir o Mapa Mundial
+                    s_exploracao3DAtiva = false; // Pausa a visao 3D para exibir o Mapa Mundial
                 } else if (!isTrigger) {
-                    exploracao3DAtiva = false;
+                    s_exploracao3DAtiva = false;
                     continue;
                 } else {
                     continue;

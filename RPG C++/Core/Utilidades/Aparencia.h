@@ -9,19 +9,28 @@
 enum class Cor : uint32_t {
     RESET = 0xFFFFFFFF,
     NEGRITO = 0xFFFFFFFE,
-    VERMELHO = 0xFF0000,
-    VERDE = 0x00FF00,
-    AMARELO = 0xFFFF00,
+    VERMELHO = 0xFF3232, // 255, 50, 50
+    VERDE = 0x228B22,    // 34, 139, 34
+    AMARELO = 0xFFC832,  // 255, 200, 50
     AZUL = 0x0000FF,
-    MAGENTA = 0xFF00FF,
-    CIANO = 0x00FFFF,
+    MAGENTA = 0xC864FF,  // 200, 100, 255
+    CIANO = 0x64C8FF,    // 100, 200, 255
     BRANCO = 0xFFFFFF,
-    CINZA = 0x808080,
+    CINZA = 0x8C8C8C,    // 140, 140, 140
     VERMELHO_CLARO = 0xFF5555,
     VERDE_CLARO = 0x55FF55,
     LARANJA = 0xFFA500,
     ROXO = 0x800080,
     LILAS = 0xC8A2C8,
+
+    // Novas Cores da Paleta do Mundo 3D
+    MARROM = 0x8B4513,   // 139, 69, 19
+    MADEIRA = 0x654321,  // 101, 67, 33
+    TIJOLO = 0xA03C28,   // 160, 60, 40
+    PRATA = 0xC8C8DC,    // 200, 200, 220
+    DOURADO = 0xC89632,  // 200, 150, 50
+    TELEPORTE = 0xFFFF32, // 255, 255, 50
+
     FUNDO_VERMELHO = 0x80FF0000,
     FUNDO_VERDE = 0x8000FF00,
     FUNDO_AMARELO = 0x80FFFF00,
@@ -37,6 +46,8 @@ public:
     static void inicializarConsole();
     static std::string cor(Cor codigo);
     static std::string cor(Cor estilo, Cor codigo);
+    static std::string corRGB(uint8_t r, uint8_t g, uint8_t b, bool negrito = false);
+    static std::string bgRGB(uint8_t r, uint8_t g, uint8_t b);
 
     // --- CONTROLE DO TERMINAL ---
     static void maximizarJanelaTerminal();

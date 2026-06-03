@@ -15,6 +15,8 @@
 #include "../../Sistemas/Progresso/Diario.h"
 #include "../Utilidades/FuncoesDialogo.h"
 #include "../../Interface/Telas/TelaBase.h"
+#include "../../Sistemas/Progresso/Progressao.h"
+#include "../../Sistemas/Progresso/ProgressaoFlags.h"
 
 namespace {
     void ativarGodMode(Personagem* jogador) {
@@ -217,6 +219,7 @@ void Debug::exibirMenuDebug(Personagem* jogador) {
                 "Definir Atributos Livres",
                 "Obter Qualquer Item",
                 "Adicionar Ouro e XP (+10000)",
+                "Liberar Todos os Mapas (Fast Travel)",
                 std::string("Noclip (Atravessar paredes): ") + (jogador->isNoclip() ? Aparencia::cor(Cor::VERDE) + "LIGADO" + Aparencia::cor(Cor::RESET) : Aparencia::cor(Cor::VERMELHO) + "DESLIGADO" + Aparencia::cor(Cor::RESET)),
                 "Fechar Debug Menu"
             };
@@ -236,8 +239,18 @@ void Debug::exibirMenuDebug(Personagem* jogador) {
                 std::cout << "\n";
                 ControleDeInput::aguardarEnter();
             } else if (escolhaDebug == 4) {
+                Progressao::instancia().definirFlag(Flags::Vila_BjornResgatado, true);
+                Progressao::instancia().definirFlag(Flags::Floresta_MissaoMorgana, true);
+                Progressao::instancia().definirFlag(Flags::Floresta_MahoragaDerrotado, true);
+                Progressao::instancia().definirFlag(Flags::Visitou_Floresta, true);
+                Progressao::instancia().definirFlag(Flags::Visitou_Reino, true);
+                std::cout << "\n";
+                Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("Todos os mapas e submapas liberados para Viagem Rapida (Tecla M)!", Cor::AMARELO));
+                std::cout << "\n";
+                ControleDeInput::aguardarEnter();
+            } else if (escolhaDebug == 5) {
                 jogador->alternarNoclip();
-            } else if (escolhaDebug == 5 || escolhaDebug == -1) { 
+            } else if (escolhaDebug == 6 || escolhaDebug == -1) { 
                 return false; 
             }
             return true;

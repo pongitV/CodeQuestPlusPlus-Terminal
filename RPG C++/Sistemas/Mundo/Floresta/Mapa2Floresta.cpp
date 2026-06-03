@@ -320,8 +320,9 @@ ProximaTransicaoMapa Mapa2Floresta::iniciarLoopDeExploracao()
         if (celula == 'S' && (x == 0 || matrizDoMapaAtual[y][x-1] != '^')) return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + "S" + Aparencia::cor(Cor::RESET);
         if (celula == 'F' || celula == 'A') return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
         if (celula == 'M') return Aparencia::cor(Cor::NEGRITO, Cor::MAGENTA) + "M" + Aparencia::cor(Cor::RESET);
-        if (celula == 'B') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "B" + Aparencia::cor(Cor::RESET);
+        if (celula == 'B') return Aparencia::cor(Cor::NEGRITO, Cor::DOURADO) + "B" + Aparencia::cor(Cor::RESET);
         if (tituloDoMapaAtual == "SALA DO CHEFE" && (celula == 'M' || celula == 'A' || celula == 'H' || celula == 'O' || celula == 'R' || celula == 'G')) return Aparencia::cor(Cor::NEGRITO, Cor::BRANCO) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
+        if (celula == '^') return Aparencia::cor(Cor::NEGRITO, Cor::TELEPORTE) + "^" + Aparencia::cor(Cor::RESET);
         
         if (celula == '*') {
             bool isTrunk = false;
@@ -331,10 +332,16 @@ ProximaTransicaoMapa Mapa2Floresta::iniciarLoopDeExploracao()
                 if (x + 1 < static_cast<int>(matrizDoMapaAtual[y].length()) && matrizDoMapaAtual[y][x+1] == '*') countHorizontal++;
                 if (countHorizontal <= 1) isTrunk = true;
             }
-            if (isTrunk) return "\033[38;2;101;67;33m*\033[0m"; // Tronco Marrom
-            return "\033[38;2;34;139;34m*\033[0m"; // Folhas Verdes
+            if (isTrunk) return Aparencia::cor(Cor::MADEIRA) + "*" + Aparencia::cor(Cor::RESET); // Tronco Marrom
+            return Aparencia::cor(Cor::VERDE) + "*" + Aparencia::cor(Cor::RESET); // Folhas Verdes
         }
-        if (celula == '~') return "\033[38;2;50;150;255m~\033[0m"; // Agua
+        if (celula == '~') return Aparencia::corRGB(50, 150, 255) + "~" + Aparencia::cor(Cor::RESET); // Agua
+
+        if (tituloDoMapaAtual != "LABIRINTO SUBTERRANEO") {
+            std::string estruturas = "|_[]{}/\\<>;=-:+";
+            if (estruturas.find(celula) != std::string::npos) return Aparencia::cor(Cor::MADEIRA) + std::string(1, celula) + Aparencia::cor(Cor::RESET); // Madeira Estruturas
+            if (celula == '#') return Aparencia::cor(Cor::VERDE) + std::string(1, celula) + Aparencia::cor(Cor::RESET); // Bordas Floresta (Verdes)
+        }
 
         // Remove a exibicao visual dos pontos (chao) para deixar o mapa mais limpo, sem quebrar a logica de colisao original
         if (celula == '.' && tituloDoMapaAtual != "LABIRINTO SUBTERRANEO") return " ";
