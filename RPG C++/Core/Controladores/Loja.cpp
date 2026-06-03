@@ -10,7 +10,8 @@
 void Loja::processarCompra(Personagem* jogadorAtual, const std::string& tituloLoja, Cor corLoja, 
                                       std::map<int, ProdutoLoja>& estoqueAtual, 
                                       const std::function<void(const std::string&)>& exibirDialogoNPC, 
-                                      const std::function<std::string(ItemID)>& formatadorNomeExtra) {
+                                      const std::function<std::string(ItemID)>& formatadorNomeExtra,
+                                      const std::vector<std::string>& arteAscii) {
     std::vector<std::map<int, ProdutoLoja>::iterator> itensOrdenados;
     for (auto it = estoqueAtual.begin(); it != estoqueAtual.end(); ++it) {
         itensOrdenados.push_back(it);
@@ -22,14 +23,11 @@ void Loja::processarCompra(Personagem* jogadorAtual, const std::string& tituloLo
         return nomeItem;
     });
 
-    TelaBase::executarLoopPadrao(
-        tituloLoja, corLoja,
-        [jogadorAtual]() {
-            std::cout << "\n";
-            Aparencia::imprimirCentralizado("Seu Ouro: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G", Aparencia::cor(Cor::AMARELO));
-            std::cout << "\n";
-        },
-        [&itensOrdenados, formatadorNomeExtra]() {
+    while (true) {
+        std::vector<std::string> texto = { 
+            "Seu Ouro: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G" 
+        };
+        
             std::vector<std::string> opcoes;
             for (auto it : itensOrdenados) {
                 auto& produto = it->second;
@@ -42,11 +40,11 @@ void Loja::processarCompra(Personagem* jogadorAtual, const std::string& tituloLo
                 opcoes.push_back(nomeItem + " - " + preco + estoqueInfo);
             }
             opcoes.push_back("VOLTAR");
-            return opcoes;
-        },
-        [&](int escolha) {
+            
+            int escolha = ControleDeInput::lerSelecaoMenuEmPopup(tituloLoja, texto, opcoes, corLoja, arteAscii);
+            
             if (escolha == -1 || escolha == static_cast<int>(itensOrdenados.size())) {
-                return false;
+                break;
             }
             
             auto it = itensOrdenados[escolha];
@@ -71,8 +69,5 @@ void Loja::processarCompra(Personagem* jogadorAtual, const std::string& tituloLo
                     }
                 }
             }
-            ControleDeInput::aguardarEnter();
-            return true;
-        }
-    );
+    }
 }

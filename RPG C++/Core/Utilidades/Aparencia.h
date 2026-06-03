@@ -89,6 +89,11 @@ public:
     static void exibirPainelTexto(const std::string& titulo, Cor corDoCabecalho = Cor::BRANCO, bool animarFadeIn = false);
     static void exibirPainelArte(const std::vector<std::string>& arteAscii, int larguraVisual, Cor corDaArte, const std::string& tituloSecundario = "", bool animarFadeIn = false);
     static void exibirPrompt(const std::string& mensagem);
+    static void exibirPopup(const std::string& titulo, const std::vector<std::string>& texto, Cor corTema = Cor::BRANCO, const std::vector<std::string>& arteAscii = {});
+    static void iniciarInteracaoPopup();
+    static void atualizarMinTamanhoPopup(int largura, int altura);
+    static int obterMinLarguraPopup();
+    static int obterMinAlturaPopup();
     static std::string margemCombate();
     static std::vector<std::string> reduzirEscalaAscii(const std::vector<std::string>& arteOriginal, int fatorX = 2, int fatorY = 2);
 

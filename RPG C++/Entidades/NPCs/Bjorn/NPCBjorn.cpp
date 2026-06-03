@@ -38,12 +38,12 @@ namespace {
     void processarUpgradePorMaterial(Personagem* jogadorAtual);
 
     // --- APARENCIA E DIALOGOS ---
-    void dialogoBjorn(const std::string& texto, bool novaLinhaAntes = true, bool novaLinhaDepois = true) {
-        FuncoesDialogo::imprimirDialogoNPC("Bjorn", Cor::CIANO, texto, novaLinhaAntes, novaLinhaDepois);
-    }
-
     void dialogoBjorn(const std::vector<std::string>& linhas) {
-        FuncoesDialogo::imprimirDialogoNPC("Bjorn", Cor::CIANO, linhas);
+        Aparencia::exibirPopup("BJORN", linhas, Cor::CIANO, NPCBjornLayouts::arteBjorn);
+    }
+    
+    void dialogoBjornUnico(const std::string& msg) {
+        dialogoBjorn({msg});
     }
 }
 
@@ -65,6 +65,15 @@ const std::vector<std::string>& NPCBjorn::obterArteASCII() const {
 }
 
 // --- INTERACAO E MENU ---
+void NPCBjorn::interagir(Personagem* jogador) {
+    ControleDeInput::executarLoopMenuPopup(
+        [this, jogador]() { this->exibirDialogo(jogador); },
+        [this, jogador]() { return this->obterOpcoesMenu(jogador, Aparencia::obterLarguraTerminal()); },
+        [this, jogador](const std::string& op) { this->processarOpcao(jogador, op, Aparencia::obterLarguraTerminal()); return true; },
+        obterNomeDoLugar(), obterCorDoCabecalho(), obterArteASCII()
+    );
+}
+
 void NPCBjorn::exibirDialogo(Personagem* jogador) {
     dialogoBjorn(std::vector<std::string>{
         "Bem-vindo a minha forja, salvador!",
@@ -102,28 +111,35 @@ namespace {
         std::string tituloLoja = comprandoArmas ? "FORJA - ARMAS" : "FORJA - ARMADURAS";
 
         Loja::processarCompra(jogadorAtual, tituloLoja, Cor::CIANO, estoqueAtual, 
-            [](const std::string& msg) { dialogoBjorn(msg); }, InteracaoNPC::obterFormatadorStatusItem);
+            [](const std::string& msg) { dialogoBjornUnico(msg); }, InteracaoNPC::obterFormatadorStatusItem, NPCBjornLayouts::arteBjorn);
     }
 
     void processarMelhoriaNaBigorna(Personagem* jogadorAtual) {
-        std::string codigoDoItemBase;
         do {
-            Item* itemBase = InteracaoNPC::lerItemDoInventario(jogadorAtual, "Escolha a ARMA, ESCUDO ou ARMADURA para melhorar (requer copia) ou [0] VOLTAR: ", "Bjorn", Cor::CIANO, codigoDoItemBase);
-            if (codigoDoItemBase == "0") break;
-            if (!itemBase) continue;
+            std::vector<Item*> itensValidos;
+            std::vector<std::string> opcoesItem;
+            for (auto* item : jogadorAtual->obterInventario()->obterTodosOsItens()) {
+                TipoEquipamento tipo = item->obterTipo();
+                if ((tipo == TipoEquipamento::ARMA || tipo == TipoEquipamento::ESCUDO || tipo == TipoEquipamento::ARMADURA) && !item->temPropriedade(Propriedade::Melhorado)) {
+                    itensValidos.push_back(item);
+                    opcoesItem.push_back(item->obterNomeItem());
+                }
+            }
+            if (opcoesItem.empty()) { dialogoBjornUnico("Voce nao tem nenhum equipamento que eu possa melhorar!"); break; }
+            opcoesItem.push_back("VOLTAR");
             
+            int escolha = ControleDeInput::lerSelecaoMenuEmPopup("FUSAO DE EQUIPAMENTO", {"Qual item deseja fundir? (Requer copia no inventario)"}, opcoesItem, Cor::CIANO, NPCBjornLayouts::arteBigorna);
+            if (escolha == -1 || escolha == static_cast<int>(opcoesItem.size()) - 1) break;
+            
+            Item* itemBase = itensValidos[escolha];
             if (!InteracaoNPC::verificarItemNaoEquipado(jogadorAtual, itemBase, "Bjorn", Cor::CIANO, "Voce precisa DESEQUIPAR o item antes de usa-lo na bigorna!")) continue;
-            if (itemBase->temPropriedade(Propriedade::Melhorado)) { dialogoBjorn("Este item ja atingiu o limite de melhoria basica!"); ControleDeInput::aguardarEnter(); continue; }
-            TipoEquipamento tipo = itemBase->obterTipo();
-            if (tipo != TipoEquipamento::ARMA && tipo != TipoEquipamento::ESCUDO && tipo != TipoEquipamento::ARMADURA) { dialogoBjorn("Eu so posso melhorar Armas, Escudos e Armaduras!"); ControleDeInput::aguardarEnter(); continue; }
 
             if (!InteracaoNPC::verificarMaterialNoInventario(jogadorAtual, itemBase->obterNomeItem(), 2, "Bjorn", Cor::CIANO)) continue;
 
             if ((jogadorAtual->obterArma() && jogadorAtual->obterArma()->obterNomeItem() == itemBase->obterNomeItem()) ||
                 (jogadorAtual->obterEscudo() && jogadorAtual->obterEscudo()->obterNomeItem() == itemBase->obterNomeItem()) ||
                 (jogadorAtual->obterArmadura() && jogadorAtual->obterArmadura()->obterNomeItem() == itemBase->obterNomeItem())) {
-                dialogoBjorn("Voce possui uma copia deste item equipada! DESEQUIPE antes de fundir.");
-                ControleDeInput::aguardarEnter(); continue;
+                dialogoBjornUnico("Voce possui uma copia deste item equipada! DESEQUIPE antes de fundir."); continue;
             }
 
             std::unique_ptr<Item> novoItem = itemBase->gerarCopiaMelhorada();
@@ -136,37 +152,40 @@ namespace {
                 jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
 
                 std::string equacao = "[" + nomeAntigo + "] + [" + nomeAntigo + "] = [" + novoNome + "]";
-                InteracaoNPC::exibirTelaDeSucesso("FORJA - SUCESSO", Cor::CIANO, equacao, NPCBjornLayouts::arteBigorna, "Bjorn", "Ha! Trabalho feito! Seu equipamento esta mais forte do que nunca!");
+            Aparencia::exibirPopup("FORJA - SUCESSO", {equacao, "", "Ha! Trabalho feito! Seu equipamento esta mais forte do que nunca!"}, Cor::CIANO, NPCBjornLayouts::arteBigorna);
             }
-        } while (codigoDoItemBase != "0");
+        } while (true);
     }
 
     void processarUpgradePorMaterial(Personagem* jogadorAtual) {
-        std::string codigoDaArmadura;
         std::string nomePedraUpgrade = FabricaItens::obterNomeDeID(ItemID::PedraUpgrade);
         do {
             if (!InteracaoNPC::verificarMaterialNoInventario(jogadorAtual, nomePedraUpgrade, 1, "Bjorn", Cor::CIANO)) {
                 return;
             }
-
-            Item* itemParaUpgrade = InteracaoNPC::lerItemDoInventario(jogadorAtual, "Escolha a ARMADURA para melhorar (+3 Defesa/Resistencia) ou [0] VOLTAR: ", "Bjorn", Cor::CIANO, codigoDaArmadura);
-            if (codigoDaArmadura == "0") break;
-            if (!itemParaUpgrade) continue;
-
-            if (!InteracaoNPC::verificarItemNaoEquipado(jogadorAtual, itemParaUpgrade, "Bjorn", Cor::CIANO, "Voce precisa DESEQUIPAR o item antes de usa-lo na bigorna!")) continue;
-
-            if (itemParaUpgrade->obterTipo() != TipoEquipamento::ARMADURA) {
-                dialogoBjorn("Esta pedra magica so pode ser usada em ARMADURAS!");
-                ControleDeInput::aguardarEnter(); 
-                continue;
+            
+            std::vector<Item*> itensValidos;
+            std::vector<std::string> opcoesItem;
+            for (auto* item : jogadorAtual->obterInventario()->obterTodosOsItens()) {
+                if (item->obterTipo() == TipoEquipamento::ARMADURA && !item->temPropriedade(Propriedade::MelhoradoMaterial)) {
+                    itensValidos.push_back(item);
+                    opcoesItem.push_back(item->obterNomeItem());
+                }
             }
+            if (opcoesItem.empty()) { dialogoBjornUnico("Voce nao tem armaduras validas para imbuir!"); break; }
+            opcoesItem.push_back("VOLTAR");
+            
+            int escolha = ControleDeInput::lerSelecaoMenuEmPopup("IMBUIR ARMADURA", {"Qual armadura imbuir com a Pedra? (+3 Defesa)"}, opcoesItem, Cor::CIANO, NPCBjornLayouts::arteBigorna);
+            if (escolha == -1 || escolha == static_cast<int>(opcoesItem.size()) - 1) break;
+
+            Item* itemParaUpgrade = itensValidos[escolha];
+            if (!InteracaoNPC::verificarItemNaoEquipado(jogadorAtual, itemParaUpgrade, "Bjorn", Cor::CIANO, "Voce precisa DESEQUIPAR o item antes de usa-lo na bigorna!")) continue;
 
             EquipamentoArmadura* armadura = dynamic_cast<EquipamentoArmadura*>(itemParaUpgrade);
             if (!armadura) continue;
 
             if (armadura->temPropriedade(Propriedade::MelhoradoMaterial)) {
-                dialogoBjorn("Esta armadura ja foi imbuida com a pedra magica!");
-                ControleDeInput::aguardarEnter();
+                dialogoBjornUnico("Esta armadura ja foi imbuida com a pedra magica!");
                 continue;
             }
 
@@ -189,7 +208,7 @@ namespace {
             jogadorAtual->obterInventario()->adicionarItem(std::move(novaArmadura));
 
             std::string equacao = "[" + nomeAntigo + "] + [Pedra magica] = [" + novoNome + "]";
-            InteracaoNPC::exibirTelaDeSucesso("FORJA - SUCESSO", Cor::CIANO, equacao, {}, "Bjorn", "Impressionante! Essa pedra e mesmo magica. A armadura agora possui mais +3 de resistencia (defesa)!");
-        } while (codigoDaArmadura != "0");
+            Aparencia::exibirPopup("FORJA - SUCESSO", {equacao, "", "Impressionante! A armadura agora possui +3 de defesa!"}, Cor::CIANO, NPCBjornLayouts::arteBigorna);
+        } while (true);
     }
 }

@@ -8,6 +8,7 @@
 class NPCBjorn : public InteracaoNPC
 {
 public:
+    void interagir(Personagem* jogador);
 
 protected:
     // INFORMACOES DO LUGAR E APARENCIA

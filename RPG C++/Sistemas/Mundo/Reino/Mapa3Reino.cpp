@@ -89,19 +89,16 @@ ProximaTransicaoMapa Mapa3Reino::iniciarLoopDeExploracao()
         // 1. Acesso ao Castelo (X=47, Y=3)
         if (px == 47 && py == 3) {
             if (!conviteRecebido) {
-                Aparencia::limparTela();
-                Aparencia::exibirPainelTexto("ACESSO NEGADO", Cor::CIANO);
-                int espacosM = (larg - 60) / 2;
-                std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: Os portoes estao trancados. Voce precisa de uma permissao real.\n";
-                ControleDeInput::aguardarEnter();
-                restaurarTela();
+                Aparencia::iniciarInteracaoPopup();
+                std::vector<std::string> msg = { "Os portoes estao trancados.", "Voce precisa de uma permissao real." };
+                Aparencia::exibirPopup("ACESSO NEGADO", msg, Cor::CIANO);
             } else {
-                Aparencia::limparTela();
-                Aparencia::exibirPainelTexto("FIM DA DEMO", Cor::CIANO);
-                int espacosM = (larg - 60) / 2;
-                std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: Voce apresentou o Convite Real e os portoes se abriram!\n";
-                std::cout << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[SISTEMA]: A historia continua em breve...\n";
-                ControleDeInput::aguardarEnter();
+                Aparencia::iniciarInteracaoPopup();
+                std::vector<std::string> msg = {
+                    "Voce apresentou o Convite Real e os portoes se abriram!",
+                    "A historia continua em breve..."
+                };
+                Aparencia::exibirPopup("FIM DA DEMO", msg, Cor::AMARELO);
                 exploracaoEstaAtiva = false;
                 proximoMapa = ProximaTransicaoMapa::VoltarMenu;
             }
@@ -114,15 +111,15 @@ ProximaTransicaoMapa Mapa3Reino::iniciarLoopDeExploracao()
     };
 
     interacoes['G'] = [&](int px, int py, int larg) {
-        Aparencia::limparTela();
-        Aparencia::exibirPainelTexto("GUARDA REAL", Cor::CIANO);
-        int espacosM = (larg - 60) / 2;
-        std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[Guarda]: Alto la! Somente o Rei pode conceder passagem.\n";
-        std::cout << std::string(espacosM > 0 ? espacosM : 0, ' ') << "[Guarda]: (O castelo ainda esta em construcao pelos deuses/devs)\n";
-        ControleDeInput::aguardarEnter();
+        Aparencia::iniciarInteracaoPopup();
+        std::vector<std::string> msg = {
+            "Alto la! Somente o Rei pode conceder passagem.",
+            "(O castelo ainda esta em construcao pelos devs)"
+        };
+        Aparencia::exibirPopup("GUARDA REAL", msg, Cor::CIANO);
         posicaoXDoJogador = px;
         posicaoYDoJogador = py;
-        restaurarTela();
+        if (exploracaoEstaAtiva && !ControleMapa::isExploracao3DAtiva()) restaurarTela();
     };
 
     auto interagirCavaleiro = [&](int px, int py, int larg) {

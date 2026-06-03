@@ -86,7 +86,7 @@ namespace {
             Diario::instancia().registrarNPC("Morgana (Bruxa)");
             ctx.self->posicaoXDoJogador = 123;
             ctx.self->posicaoYDoJogador = 10;
-            if (ctx.self->exploracaoEstaAtiva) ctx.restaurarTela();
+            if (ctx.self->exploracaoEstaAtiva && !ControleMapa::isExploracao3DAtiva()) ctx.restaurarTela();
         }
     };
 
@@ -94,22 +94,19 @@ namespace {
     public:
         void processar(ContextoInteracaoFloresta& ctx) override {
             if (ctx.self->tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") {
-                Aparencia::limparTela();
-                Aparencia::exibirPainelTexto("TESOURO ESCONDIDO", Cor::VERDE);
-                int mE = (ctx.larguraDoTerminal - 40) / 2;
-                std::string margem(mE > 0 ? mE : 0, ' ');
-                std::cout << "\n" << margem << FuncoesDialogo::formatarMsgInteracao("Voce encontrou um Bau ancestral!") << "\n\n";
+                Aparencia::iniciarInteracaoPopup();
                 
+                std::vector<std::string> msgText = { "Voce encontrou um Bau ancestral!" };
                 std::vector<std::string> opcoesBau = { "Nao", "Abrir!" };
-                int opcao = ControleDeInput::lerSelecaoMenuComSetas(opcoesBau, false, margem);
+                int opcao = ControleDeInput::lerSelecaoMenuEmPopup("TESOURO ESCONDIDO", msgText, opcoesBau, Cor::VERDE);
 
                 if (opcao == 1) {
                     if (GeradorAleatorio::rolarChance(25)) {
-                        std::cout << "\n" << margem << FuncoesDialogo::formatarMsgCombate("O bau se revela uma criatura viva! E UM MIMICO!", Cor::VERMELHO) << "\n";
-                        ControleDeInput::aguardarEnter();
+                        Aparencia::iniciarInteracaoPopup();
+                        Aparencia::exibirPopup("CILADA!", {"O bau se revela uma criatura viva!", "E UM MIMICO!"}, Cor::VERMELHO);
                         ControleMapa::processarCombate(ctx.self->jogadorAtual, ctx.self->matrizDoMapaAtual, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->exploracaoEstaAtiva, "CILADA!", "O Bau era um Mimico!", CriadorInimigos::criarInimigoMimico(1), ctx.proximaPosicaoX, ctx.proximaPosicaoY, ctx.proximaPosicaoX, 1, ctx.larguraDoTerminal, ctx.restaurarTela);
                     } else {
-                    std::cout << "\n" << margem << FuncoesDialogo::formatarMsgInteracao("O bau se abre rangendo... Voce obteve itens valiosos!") << "\n";
+                    std::vector<std::string> lootMsg = { "O bau se abre rangendo...", "Voce obteve itens valiosos!", "" };
 
                     int qtdPocoes = GeradorAleatorio::obterInteiro(2, 4);
                     for (int i = 0; i < qtdPocoes; ++i) {
@@ -117,32 +114,33 @@ namespace {
                         pocao->adicionarPropriedade(Propriedade::ConsumivelCura);
                         ctx.self->jogadorAtual->obterInventario()->adicionarItem(std::move(pocao));
                     }
-                    std::cout << margem << "+ " << qtdPocoes << "x Pocoes de Cura (30%VM)\n";
+                    lootMsg.push_back("+ " + std::to_string(qtdPocoes) + "x Pocoes de Cura (30%VM)");
 
                     int qtdOuro = GeradorAleatorio::obterInteiro(150, 300);
                     ctx.self->jogadorAtual->obterInventario()->adicionarOuro(qtdOuro);
-                    std::cout << margem << "+ " << qtdOuro << "G\n";
+                    lootMsg.push_back("+ " + std::to_string(qtdOuro) + "G");
 
                     bool isFuria = GeradorAleatorio::rolarChance(50);
                     std::string nomeBuff = isFuria ? "Pocao de Furia (Buff)" : "Elixir Arcano (Buff)";
                     auto buff = std::make_unique<ItemConsumivel>(nomeBuff);
                     buff->adicionarPropriedade(Propriedade::ConsumivelBuff);
                     ctx.self->jogadorAtual->obterInventario()->adicionarItem(std::move(buff));
-                    std::cout << margem << "+ 1x " << nomeBuff << "\n";
+                    lootMsg.push_back("+ 1x " + nomeBuff);
 
                     ctx.self->jogadorAtual->obterInventario()->adicionarItem(std::make_unique<ItemMaterial>("Pedra magica de upgrade"));
-                    std::cout << margem << "+ 1x Pedra magica de upgrade\n";
+                    lootMsg.push_back("+ 1x Pedra magica de upgrade");
 
                     ctx.self->matrizDoMapaAtual[ctx.proximaPosicaoY][ctx.proximaPosicaoX] = ' ';
                     ctx.self->posicaoXDoJogador = ctx.proximaPosicaoX;
                     ctx.self->posicaoYDoJogador = ctx.proximaPosicaoY;
-                    ControleDeInput::aguardarEnter();
+                    Aparencia::iniciarInteracaoPopup();
+                    Aparencia::exibirPopup("TESOURO ESCONDIDO", lootMsg, Cor::VERDE);
                     }
                 }
                 ctx.self->posicaoXDoJogador = ctx.proximaPosicaoX;
                 ctx.self->posicaoYDoJogador = ctx.proximaPosicaoY;
 
-                if (ctx.self->exploracaoEstaAtiva) ctx.restaurarTela();
+                if (ctx.self->exploracaoEstaAtiva && !ControleMapa::isExploracao3DAtiva()) ctx.restaurarTela();
             } else {
                 ctx.self->posicaoXDoJogador = ctx.proximaPosicaoX;
                 ctx.self->posicaoYDoJogador = ctx.proximaPosicaoY;
@@ -174,11 +172,12 @@ namespace {
             // 5. Entrar no Labirinto a partir da Floresta (X=130, Y=10)
             else if (px == 130 && py == 10 && titulo == "FLORESTA") {
                 if (!ctx.self->jogadorAtual->obterLabirintoDesbloqueado()) {
-                    Aparencia::limparTela();
-                    Aparencia::exibirPainelTexto("PASSAGEM BLOQUEADA", Cor::VERDE);
-                    int espacosM = (ctx.larguraDoTerminal - 60) / 2;
-                    std::cout << "\n" << std::string(espacosM > 0 ? espacosM : 0, ' ') << FuncoesDialogo::formatarMsgSistema("A passagem esta selada por magia. Fale com Morgana.") << "\n";
-                    ControleDeInput::aguardarEnter();
+                    Aparencia::iniciarInteracaoPopup();
+                    std::vector<std::string> msg = {
+                        "A passagem esta selada por magia.",
+                        "Fale com Morgana."
+                    };
+                    Aparencia::exibirPopup("PASSAGEM BLOQUEADA", msg, Cor::MAGENTA);
                     ctx.self->posicaoXDoJogador = 129;
                     ctx.self->posicaoYDoJogador = 10;
                     ctx.restaurarTela();
@@ -214,40 +213,32 @@ namespace {
                     ctx.self->jogadorEstaDentroDeUmSubMapa = false;
                     ctx.self->tituloDoMapaAtual = "FLORESTA";
                 }
-                ctx.restaurarTela();
+                if (!ControleMapa::isExploracao3DAtiva()) ctx.restaurarTela();
             }
             // 7. Fim do Labirinto (Escadaria para Boss) (X=103, Y=13)
             else if (px == 103 && py == 13 && titulo == "LABIRINTO SUBTERRANEO") {
-                Aparencia::limparTela();
-            Aparencia::exibirPainelTexto("FIM DO LABIRINTO", Cor::VERDE);
-                int espacosM = (ctx.larguraDoTerminal - 60) / 2;
-                std::string margem(espacosM > 0 ? espacosM : 0, ' ');
-                
-                std::cout << "\n" << margem << FuncoesDialogo::formatarMsgNarracao("Voce encontrou a saida do labirinto!") << "\n";
-                std::cout << margem << FuncoesDialogo::formatarMsgNarracao("A sua frente, uma escadaria desce para uma caverna escura.") << "\n";
-                std::cout << margem << FuncoesDialogo::formatarMsgNarracao("No fundo, parece haver um mar de liquido preto raso...") << "\n\n";
-
+                Aparencia::iniciarInteracaoPopup();
+                std::vector<std::string> msgLab = {
+                    "Voce encontrou a saida do labirinto!",
+                    "A sua frente, uma escadaria desce para uma caverna escura.",
+                    "No fundo, parece haver um mar de liquido preto raso..."
+                };
                 std::vector<std::string> opcoesCaminho = { "Descer a escadaria", "Voltar para a Floresta" };
-                int escolha = ControleDeInput::lerSelecaoMenuComSetas(opcoesCaminho, false, margem);
+                int escolha = ControleDeInput::lerSelecaoMenuEmPopup("FIM DO LABIRINTO", msgLab, opcoesCaminho, Cor::VERDE);
 
                 if (escolha == 0) {
-                    Aparencia::limparTela();
-                    std::vector<std::string> arteSimbolo = Mapa2FlorestaLayouts::obterArteSimboloChefe();
-                    
-                    std::cout << "\n\n";
-                    Aparencia::imprimirCentralizadoMultilinha(arteSimbolo, 109, Aparencia::cor(Cor::BRANCO));
-                    
-                    std::cout << "\n" << margem << FuncoesDialogo::formatarMsgNarracao("O ar aqui embaixo e gelado, cortante") << "\n";
-                    std::cout << margem << FuncoesDialogo::formatarMsgNarracao("o liquido preto no chao e raso e liso como vidro") << "\n";
-                    std::cout << margem << FuncoesDialogo::formatarMsgNarracao("Tudo e escuridao, exceto pelo brilho pulsante da") << "\n";
-                    std::cout << margem << FuncoesDialogo::formatarMsgNarracao("enorme runa magica desenhada no fundo da caverna") << "\n\n";
+                    std::vector<std::string> msgBoss = {
+                        "O ar aqui embaixo e gelado, cortante.",
+                        "O liquido preto no chao e raso e liso como vidro.",
+                        "Tudo e escuridao, exceto pelo brilho pulsante da",
+                        "enorme runa magica desenhada no fundo da caverna."
+                    };
                     
                     std::vector<std::string> opcoesBoss = {
                         Aparencia::cor(Cor::VERMELHO) + "Seguir em frente" + Aparencia::cor(Cor::RESET),
                         Aparencia::cor(Cor::BRANCO) + "Voltar para a seguranca da Floresta" + Aparencia::cor(Cor::RESET)
                     };
-                    int escolhaBoss = ControleDeInput::lerSelecaoMenuComSetas(opcoesBoss, false, margem);
-                    
+                    int escolhaBoss = ControleDeInput::lerSelecaoMenuEmPopup("CAVERNA SOMBRIA", msgBoss, opcoesBoss, Cor::VERMELHO);
                     
                     if (escolhaBoss == 0) {
                         ctx.self->matrizDoMapaDoLabirintoSalva = ctx.self->matrizDoMapaAtual;
@@ -261,7 +252,7 @@ namespace {
                         ctx.self->posicaoXDoJogador = 53;
                         ctx.self->posicaoYDoJogador = 53;
                         ctx.self->tituloDoMapaAtual = "SALA DO CHEFE";
-                        ctx.restaurarTela();
+                        if (!ControleMapa::isExploracao3DAtiva()) ctx.restaurarTela();
                     } else {
                         ctx.self->matrizDoMapaDoLabirintoSalva = ctx.self->matrizDoMapaAtual;
                         ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaPrincipalSalva;
@@ -278,7 +269,7 @@ namespace {
                     ctx.self->jogadorEstaDentroDeUmSubMapa = false;
                     ctx.self->tituloDoMapaAtual = "FLORESTA";
                 }
-                if (ctx.self->exploracaoEstaAtiva) ctx.restaurarTela();
+                if (ctx.self->exploracaoEstaAtiva && !ControleMapa::isExploracao3DAtiva()) ctx.restaurarTela();
             } else {
                 ctx.self->posicaoXDoJogador = ctx.proximaPosicaoX;
                 ctx.self->posicaoYDoJogador = ctx.proximaPosicaoY;

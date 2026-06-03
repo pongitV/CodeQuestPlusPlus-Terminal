@@ -36,6 +36,8 @@ namespace {
 
 static bool s_exploracao3DAtiva = false;
 
+bool ControleMapa::isExploracao3DAtiva() { return s_exploracao3DAtiva; }
+
 bool ControleMapa::processarInputEComandos(char tecla, Personagem* jogador, int& proximaPosicaoX, int& proximaPosicaoY, const std::function<void()>& restaurarTela)
 {
     // --- TELA DE PAUSE ---
@@ -96,14 +98,12 @@ void ControleMapa::processarCombate(
     const std::string& tituloDoCombate, const std::string& mensagemDeAviso, std::vector<std::unique_ptr<Personagem>> inimigosParaBatalha, 
     int posicaoXAposCombate, int posicaoYAposCombate, int posicaoXInicialDoInimigo, int quantidadeDeCelulasOcupadas, int larguraDoTerminal, const std::function<void()>& restaurarTela)
 {
-    Aparencia::limparTela();
-    Aparencia::exibirPainelTexto(tituloDoCombate, Cor::VERMELHO);
-    int espacosParaCentralizarMensagem = std::max(0, (larguraDoTerminal - static_cast<int>(mensagemDeAviso.length())) / 2);
-    std::string margemEsquerdaMensagem(espacosParaCentralizarMensagem, ' ');
-    std::cout << "\n" << margemEsquerdaMensagem << Aparencia::cor(Cor::AMARELO) << "[!] " << mensagemDeAviso << Aparencia::cor(Cor::RESET) << "\n\n";
-    
+    Aparencia::iniciarInteracaoPopup();
+    std::vector<std::string> texto = { 
+        Aparencia::cor(Cor::AMARELO) + "[!] " + mensagemDeAviso + Aparencia::cor(Cor::RESET) 
+    };
     std::vector<std::string> opcoesCombate = { "Nao, recuar", "Sim, batalha!" };
-    int opcaoEscolhidaPeloJogador = ControleDeInput::lerSelecaoMenuComSetas(opcoesCombate, false, margemEsquerdaMensagem);
+    int opcaoEscolhidaPeloJogador = ControleDeInput::lerSelecaoMenuEmPopup(tituloDoCombate, texto, opcoesCombate, Cor::VERMELHO);
 
     if (opcaoEscolhidaPeloJogador == 1) {
         Combate combate(jogadorAtual, std::move(inimigosParaBatalha));
@@ -116,7 +116,7 @@ void ControleMapa::processarCombate(
         }
     }
 
-    if (exploracaoEstaAtiva) restaurarTela();
+    if (exploracaoEstaAtiva && !s_exploracao3DAtiva) restaurarTela();
 }
 
 void ControleMapa::entrarSubMapa(
@@ -138,7 +138,7 @@ void ControleMapa::entrarSubMapa(
     posicaoYDoJogador = posicaoYInicialNoSubMapa;
     jogadorEstaDentroDeUmSubMapa = true;
     tituloDoMapaAtual = tituloDoSubMapa;
-    restaurarTela();
+    if (!s_exploracao3DAtiva) restaurarTela();
 }
 
 void ControleMapa::moverInimigosAleatoriamente(std::vector<std::string>& matrizDoMapaAtual, const std::vector<std::string>& matrizOriginal, const std::string& simbolosInimigos, int jogadorX, int jogadorY) {
@@ -400,6 +400,8 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
     auto ultimoMovimentoInimigos = std::chrono::steady_clock::now();
     ProximaTransicaoMapa destinoViagemRapida = ProximaTransicaoMapa::Nenhuma;
     float anguloCamera3D = 0.0f; // Persiste a direcao da visao do jogador enquanto ele estiver no mapa
+    float posCamera3DX = -1.0f;
+    float posCamera3DY = -1.0f;
 
     while (exploracaoEstaAtiva && jogadorAtual->obterVida() > 0)
     {
@@ -433,14 +435,16 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
         if (s_exploracao3DAtiva || (processarInput && (teclaPressionadaPeloJogador == 'v' || teclaPressionadaPeloJogador == 'V'))) {
             s_exploracao3DAtiva = true;
 
-                float pX = static_cast<float>(posicaoXDoJogador) + 0.5f;
-                float pY = static_cast<float>(posicaoYDoJogador) + 0.5f;
+                if (posCamera3DX == -1.0f || static_cast<int>(posCamera3DX) != posicaoXDoJogador || static_cast<int>(posCamera3DY) != posicaoYDoJogador) {
+                    posCamera3DX = static_cast<float>(posicaoXDoJogador) + 0.5f;
+                    posCamera3DY = static_cast<float>(posicaoYDoJogador) + 0.5f;
+                }
                 
                 int hitX = -1, hitY = -1;
-                char acaoPendente = Raycaster::iniciarExploracao3D(matrizDoMapaAtual, pX, pY, anguloCamera3D, tituloDoMapaAtual, jogadorAtual, hitX, hitY);
+                char acaoPendente = Raycaster::iniciarExploracao3D(matrizDoMapaAtual, posCamera3DX, posCamera3DY, anguloCamera3D, tituloDoMapaAtual, jogadorAtual, hitX, hitY);
                 
-                posicaoXDoJogador = static_cast<int>(pX);
-                posicaoYDoJogador = static_cast<int>(pY);
+                posicaoXDoJogador = static_cast<int>(posCamera3DX);
+                posicaoYDoJogador = static_cast<int>(posCamera3DY);
                 
                 bool isTrigger = false;
                 if (hitX != -1 && hitY != -1) {
@@ -456,15 +460,16 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
                     processarInteracao(hitX, hitY, larguraDoTerminal); // Aciona o combate/NPC caso o jogador tenha parado em cima de um
                 }
                 
-                restaurarTela();
-                precisaRenderizar = true;
-                
                 if (acaoPendente == 'M') {
                     teclaPressionadaPeloJogador = 'M';
                     processarInput = true;
                     s_exploracao3DAtiva = false; // Pausa a visao 3D para exibir o Mapa Mundial
+                    restaurarTela();
+                    precisaRenderizar = true;
                 } else if (!isTrigger) {
                     s_exploracao3DAtiva = false;
+                    restaurarTela();
+                    precisaRenderizar = true;
                     continue;
                 } else {
                     continue;

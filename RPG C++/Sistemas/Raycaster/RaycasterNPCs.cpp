@@ -27,13 +27,13 @@ void RaycasterNPCs::inicializarSprites(std::map<char, SpriteCache>& cache) {
 
     cache['C'] = RaycasterSprites::parseSprite(NPCCavaleiroGenericoLayouts::arteCavaleiro, 200, 200, 220); // Cavaleiro Real
 
-    cache['P'] = RaycasterSprites::parseArte({
-        "\033[38;2;139;69;19m  ____  \033[0m",
-        "\033[38;2;139;69;19m |    | \033[0m",
-        "\033[38;2;139;69;19m |____| \033[0m",
-        "\033[38;2;139;69;19m   ||   \033[0m",
-        "\033[38;2;139;69;19m   ||   \033[0m"
-    }); // Placa de madeira
+    cache['P'] = RaycasterSprites::parseSprite({
+        "  ____  ",
+        " |%%%%| ",
+        " |____| ",
+        "   ||   ",
+        "   ||   "
+    }, 160, 90, 40); // Placa de madeira detalhada
 
     cache['*'] = RaycasterSprites::parseArte({
         "         \033[38;2;50;180;50m##\033[0m         ",

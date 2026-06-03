@@ -16,6 +16,9 @@
 #include "ControleDeInput.h"
 
 namespace {
+    int popupMinLarguraAtual = 0;
+    int popupMinAlturaAtual = 0;
+
     std::vector<std::string> historicoBatalha;
 }
 
@@ -529,6 +532,135 @@ void Aparencia::exibirPrompt(const std::string& mensagem) {
 
 void Aparencia::exibirPainelArte(const std::vector<std::string>& arteAscii, int larguraVisual, Cor corDaArte, const std::string& tituloSecundario, bool animarFadeIn) {
     exibirPainel(tituloSecundario, corDaArte, arteAscii, larguraVisual, {}, Cor::RESET, animarFadeIn);
+}
+
+void Aparencia::iniciarInteracaoPopup() {
+    popupMinLarguraAtual = 0;
+    popupMinAlturaAtual = 0;
+}
+void Aparencia::atualizarMinTamanhoPopup(int largura, int altura) {
+    if (largura > popupMinLarguraAtual) popupMinLarguraAtual = largura;
+    if (altura > popupMinAlturaAtual) popupMinAlturaAtual = altura;
+}
+int Aparencia::obterMinLarguraPopup() { return popupMinLarguraAtual; }
+int Aparencia::obterMinAlturaPopup() { return popupMinAlturaAtual; }
+
+void Aparencia::exibirPopup(const std::string& titulo, const std::vector<std::string>& texto, Cor corTema, const std::vector<std::string>& arteOriginal) {
+    int maxLinhasArte = obterAlturaTerminal() - 6;
+    std::vector<std::string> arte = arteOriginal;
+    if (static_cast<int>(arte.size()) > maxLinhasArte) {
+        arte = reduzirEscalaAscii(arte, 2, 2);
+        if (static_cast<int>(arte.size()) > maxLinhasArte) arte = reduzirEscalaAscii(arteOriginal, 3, 3);
+        if (static_cast<int>(arte.size()) > maxLinhasArte) arte = reduzirEscalaAscii(arteOriginal, 4, 4);
+    }
+
+    int larguraArte = 0;
+    for (const auto& l : arte) {
+        int len = obterComprimentoVisual(l);
+        if (len > larguraArte) larguraArte = len;
+    }
+
+    std::vector<std::string> linhasTexto = texto;
+    
+    int minBoxHeight = Aparencia::obterMinAlturaPopup() - 2;
+    int minTotalWidth = Aparencia::obterMinLarguraPopup() - 4;
+    if (minBoxHeight < 0) minBoxHeight = 0;
+    if (minTotalWidth < 0) minTotalWidth = 0;
+
+    // Preenche com espacos vazios na vertical para garantir o tamanho minimo e sobrepor popups velhos
+    // Considerando que vamos adicionar 2 linhas no final ("" e o prompt de ENTER)
+    while (std::max(arte.size(), linhasTexto.size() + 2) < static_cast<size_t>(minBoxHeight)) {
+        linhasTexto.push_back("");
+    }
+    linhasTexto.push_back("");
+    linhasTexto.push_back(cor(Cor::CINZA) + "[ Pressione ENTER para continuar ]" + cor(Cor::RESET));
+
+    int larguraTexto = 0;
+    for (const auto& l : linhasTexto) {
+        int len = obterComprimentoVisual(l);
+        if (len > larguraTexto) larguraTexto = len;
+    }
+
+    int totalWidth = larguraArte + (larguraArte > 0 ? 3 : 1) + larguraTexto; 
+    
+    // Expande a largura de texto para garantir que a janela fique com a largura ideal padrao
+    if (totalWidth < minTotalWidth) {
+        larguraTexto += (minTotalWidth - totalWidth);
+        totalWidth = minTotalWidth;
+    }
+
+    int boxHeight = std::max(static_cast<int>(arte.size()), static_cast<int>(linhasTexto.size()));
+
+    std::vector<std::string> caixa;
+    std::string corStr = cor(corTema);
+    std::string resetStr = cor(Cor::RESET);
+
+    std::string top = "╔";
+    int tituloLen = obterComprimentoVisual(titulo);
+    
+    if (tituloLen > 0) {
+        top += "══ " + titulo + " ";
+        int restantes = totalWidth + 2 - (tituloLen + 4);
+        if (restantes < 0) restantes = 0;
+        for (int i = 0; i < restantes; ++i) top += "═";
+    } else {
+        for (int i = 0; i < totalWidth + 2; ++i) top += "═";
+    }
+    top += "╗";
+    caixa.push_back(corStr + top + resetStr);
+
+    for (int i = 0; i < boxHeight; ++i) {
+        std::string linhaArte = (i < static_cast<int>(arte.size())) ? arte[i] : "";
+        int padArte = larguraArte - obterComprimentoVisual(linhaArte);
+        std::string artePart = linhaArte + std::string(padArte > 0 ? padArte : 0, ' ');
+
+        std::string linhaTexto = (i < static_cast<int>(linhasTexto.size())) ? linhasTexto[i] : "";
+        int padTexto = larguraTexto - obterComprimentoVisual(linhaTexto);
+        std::string textoPart = linhaTexto + std::string(padTexto > 0 ? padTexto : 0, ' ');
+
+        if (larguraArte > 0) {
+            caixa.push_back(corStr + "║ " + resetStr + artePart + corStr + " ║ " + resetStr + textoPart + corStr + " ║" + resetStr);
+        } else {
+            caixa.push_back(corStr + "║ " + resetStr + textoPart + corStr + " ║" + resetStr);
+        }
+    }
+
+    std::string bottom = "╚";
+    for (int i = 0; i < totalWidth + 2; ++i) bottom += "═";
+    bottom += "╝";
+    caixa.push_back(corStr + bottom + resetStr);
+
+    int finalBoxWidth = obterComprimentoVisual(caixa[0]);
+    int finalBoxHeight = caixa.size();
+    Aparencia::atualizarMinTamanhoPopup(finalBoxWidth, finalBoxHeight);
+    
+    int larguraTerm = obterLarguraTerminal();
+    int alturaTerm = obterAlturaTerminal();
+    int startX = (larguraTerm - finalBoxWidth) / 2;
+    int startY = (alturaTerm - finalBoxHeight) / 2;
+    if (startX < 0) startX = 0;
+    if (startY < 0) startY = 0;
+    
+    std::string bgPopup = "\033[48;2;15;15;15m"; 
+    
+    for (int i = 0; i < finalBoxHeight; ++i) {
+        moverCursor(startX, startY + i);
+        std::string linha = caixa[i];
+        size_t pos = 0;
+        while ((pos = linha.find("\033[0m", pos)) != std::string::npos) {
+            linha.replace(pos, 4, "\033[0m" + bgPopup);
+            pos += 4 + bgPopup.length(); 
+        }
+        linha = bgPopup + linha + "\033[0m"; 
+        std::cout << linha;
+    }
+    std::cout << std::flush;
+    
+    ControleDeInput::limparBuffer();
+    while (true) {
+        char c = ControleDeInput::lerTecla();
+        if (c == '\r' || c == '\n') break;
+    }
 }
 
 std::vector<std::string> Aparencia::reduzirEscalaAscii(const std::vector<std::string>& arteOriginal, int fatorX, int fatorY) {

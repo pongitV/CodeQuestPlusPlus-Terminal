@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include "Aparencia.h"
 
 enum class ComandoMapa {
     Cima,
@@ -26,5 +27,15 @@ public:
     
     static int lerInteiroComLimites(const std::string& promptMensagem, int minimo, int maximo, bool centralizarPrompt = false, const std::string& margemPersonalizada = "");
     static int lerSelecaoMenuComSetas(const std::vector<std::string>& opcoes, bool centralizar = true, const std::string& margemPersonalizada = "", const std::vector<std::string>& painelDireito = {});
+    static int lerSelecaoMenuEmPopup(const std::string& titulo, const std::vector<std::string>& texto, const std::vector<std::string>& opcoes, Cor corTema = Cor::BRANCO, const std::vector<std::string>& arteAscii = {});
     static void aguardarEnter(const std::string& mensagem = "Pressione ENTER para continuar...");
+    
+    static void executarLoopMenuPopup(
+        const std::function<void()>& exibirDialogo,
+        const std::function<std::vector<std::string>()>& obterOpcoes,
+        const std::function<bool(const std::string&)>& processarOpcao,
+        const std::string& titulo,
+        Cor corTema,
+        const std::vector<std::string>& arteAscii
+    );
 };

@@ -80,6 +80,8 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
         // Limitador de delta para nao "pular" paredes ou quebrar o mapa se a thread travar
         if (tempoDelta > 0.1f) tempoDelta = 0.1f;
 
+        float oldPlayerX = jogadorX;
+        float oldPlayerY = jogadorY;
         int oldCellX = (int)jogadorX;
         int oldCellY = (int)jogadorY;
         bool isMoving = false;
@@ -174,8 +176,8 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
             if (!isLabel && (RaycasterMundo::isTeleport(cell) || RaycasterMundo::isEntity(cell))) {
                 outHitX = newCellX;
                 outHitY = newCellY;
-                jogadorX = oldCellX + 0.5f; // Retorna o jogador para a célula segura (Impede fusao fisica e teleporte fantasma)
-                jogadorY = oldCellY + 0.5f;
+                jogadorX = oldPlayerX; // Retorna para a exata posicao anterior flutuante
+                jogadorY = oldPlayerY;
                 rodando = false; // Sai do loop 3D e devolve o controle pro mapa top-down processar o evento!
             }
         }
@@ -214,6 +216,9 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
 
     // Ao apertar ESC, o loop morre, limpa o console e o controle volta para o jogo top-down padrao
     ControleDeInput::limparBuffer();
-    Aparencia::limparTela();
+    // So limpa a tela se o fechamento foi manual (ESC). Se bateu em entidade, preserva a visao 3D como fundo pro Popup!
+    if (outHitX == -1 && outHitY == -1) {
+        Aparencia::limparTela();
+    }
     return 0;
 }

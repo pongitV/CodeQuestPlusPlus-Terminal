@@ -51,6 +51,8 @@ public:
     static std::string calcularMargemCentralizada(int larguraDoTerminal, int larguraDoTexto);
     static void padronizarTamanhoDoMapa(std::vector<std::string>& matrizDoMapa);
 
+    static bool isExploracao3DAtiva();
+
     static void renderizarMapa(const std::vector<std::string>& matrizDoMapa, int posicaoXDoJogador, int posicaoYDoJogador, int larguraDoTerminal, int alturaDoTerminal, int linhaInicial, const std::function<std::string(char, int, int)>& formatadorCelula);
 
     static ProximaTransicaoMapa executarLoopDeExploracao(

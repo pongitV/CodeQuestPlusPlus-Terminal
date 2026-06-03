@@ -42,23 +42,17 @@ void InteracaoNPC::interagir(Personagem* jogadorAtual) {
 void InteracaoNPC::processarMenuMissoesVazio(Personagem* jogadorAtual, const std::string& tituloMenu, Cor corCabecalho, const std::string& nomeNPC, const std::string& falaVazia) {
     std::string opcaoMissao;
     do {
-        Aparencia::limparTela();
-        Aparencia::exibirPainelTexto(tituloMenu, corCabecalho);
         std::vector<std::string> missoes = {
             "(Nenhuma missao disponivel)",
             "VOLTAR"
         };
         
-        std::cout << "\n";
-        Aparencia::imprimirCentralizado("Escolha uma missao:");
-        std::cout << "\n";
-        
-        int id = ControleDeInput::lerSelecaoMenuComSetas(missoes);
+        int id = ControleDeInput::lerSelecaoMenuEmPopup(tituloMenu, {"Escolha uma missao:"}, missoes, corCabecalho);
+        if (id == -1) break;
         opcaoMissao = missoes[id];
 
         if (opcaoMissao == "(Nenhuma missao disponivel)") {
-            FuncoesDialogo::imprimirDialogoNPC(nomeNPC, corCabecalho, falaVazia);
-            ControleDeInput::aguardarEnter();
+            Aparencia::exibirPopup(nomeNPC, {falaVazia}, corCabecalho);
         }
     } while (opcaoMissao != "VOLTAR");
 }

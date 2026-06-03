@@ -17,6 +17,7 @@
 #include "../../../Sistemas/Progresso/Progressao.h"
 #include "../../../Sistemas/Progresso/ProgressaoFlags.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"
+#include "../../../Sistemas/Mundo/ControleMapa.h"
 #include "NPCCavaleiroGenericoLayout.h"
 
 namespace {
@@ -69,12 +70,7 @@ namespace {
     }
 
     void exibirTelaCavaleiro(const std::string& tituloCabecalho, const std::vector<std::string>& falas) {
-        Aparencia::limparTela();
-        Aparencia::exibirPainelTexto(tituloCabecalho, Cor::CINZA);
-        Aparencia::imprimirBlocoCentralizado(NPCCavaleiroGenericoLayouts::arteCavaleiro);
-        std::cout << "\n";
-        dialogoCavaleiro(falas);
-        std::cout << "\n";
+        Aparencia::exibirPopup(tituloCabecalho, falas, Cor::CINZA);
     }
 }
 
@@ -105,28 +101,26 @@ void NPCCavaleiroGenerico::interagir(Personagem* jogadorAtual, bool& trollDerrot
         }
 
         if (posicaoTrollX == -1) {
-            exibirTelaCavaleiro("CAVALEIROS REAIS", {
+            Aparencia::iniciarInteracaoPopup();
+            std::vector<std::string> falas = {
                 "Ainda temos invasores no reino!",
                 "voce precisa de permissao se nao quiser ser",
                 "tratado como invasor tambem...",
                 "Nos ajude a derrotar todos e podemos",
                 "garantir sua entrada no reino!"
-            });
-            
-            ControleDeInput::aguardarEnter();
-            if (exploracaoEstaAtiva) restaurarTela();
+            };
+            Aparencia::exibirPopup("CAVALEIROS REAIS", falas, Cor::CINZA);
             return;
         }
 
-        exibirTelaCavaleiro("PEDIDO DE AJUDA", {
+        Aparencia::iniciarInteracaoPopup();
+        std::vector<std::string> falas = {
             "Viajante! Este Troll bloqueia a passagem.",
             "Nossas forcas estao se esgotando!",
             "Nos ajude a derrota-lo e o recompensaremos!"
-        });
+        };
         
-        std::vector<std::string> opcoes = { "Ajudar os Cavaleiros", "Recuar" };
-        
-        int escolha = ControleDeInput::lerSelecaoMenuComSetas(opcoes);
+        int escolha = ControleDeInput::lerSelecaoMenuEmPopup("PEDIDO DE AJUDA", falas, {"Ajudar os Cavaleiros", "Recuar"}, Cor::CINZA);
         if (escolha == 0) {
             std::vector<std::unique_ptr<Personagem>> aliados;
             aliados.push_back(criarCavaleiro("Cavaleiro Real 1"));
@@ -153,27 +147,25 @@ void NPCCavaleiroGenerico::interagir(Personagem* jogadorAtual, bool& trollDerrot
                 }
             }
         }
-        if (exploracaoEstaAtiva) restaurarTela();
+        if (exploracaoEstaAtiva && !ControleMapa::isExploracao3DAtiva()) restaurarTela();
     } else if (celulaDestino == 'C') {
         if (!conviteRecebido) {
-            exibirTelaCavaleiro("RECOMPENSA", {
+            Aparencia::iniciarInteracaoPopup();
+            std::vector<std::string> falas = {
                 "Voce lutou bravamente e limpou o reino dos Trolls!",
-                "Como prometido, aqui esta a sua recompensa."
-            });
-            
-            std::vector<std::string> info = { FuncoesDialogo::formatarMsgInteracao("Voce recebeu o [Convite Real]!") };
-            Aparencia::imprimirBlocoCentralizado(info);
+                "Como prometido, aqui esta a sua recompensa.",
+                "",
+                "Voce recebeu o [Convite Real]!"
+            };
+            Aparencia::exibirPopup("RECOMPENSA", falas, Cor::AMARELO);
             
             jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::ConviteReal));
             Diario::instancia().registrarItem("Convite Real");
             Progressao::instancia().definirFlag(Flags::Vila_ConviteReal, true);
             conviteRecebido = true;
-            ControleDeInput::aguardarEnter();
-            restaurarTela();
         } else {
-            exibirTelaCavaleiro("CAVALEIRO REAL", { "O Rei o aguarda no castelo. Siga em frente!" });
-            ControleDeInput::aguardarEnter();
-            restaurarTela();
+            Aparencia::iniciarInteracaoPopup();
+            Aparencia::exibirPopup("CAVALEIRO REAL", { "O Rei o aguarda no castelo. Siga em frente!" }, Cor::CINZA);
         }
     }
 }
