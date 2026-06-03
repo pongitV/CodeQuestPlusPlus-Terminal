@@ -72,14 +72,18 @@ bool RaycasterMundo::isMapLabel(int mapX, int mapY, const std::vector<std::strin
 }
 
 std::string RaycasterMundo::obterPixelParede(const std::string& tituloMapa, bool temaFloresta, float distanciaAteParede, float profundidadeMaxima, char charParede, int y, int teto, int chao, float texX, float tempoAnimacao) {
+    // Reduz o peso da distancia para empurrar a escuridao (fog) mais para longe
+    // Isso melhora drasticamente a clareza visual a medias e longas distancias
+    distanciaAteParede *= 0.55f;
+
     int alturaParede = chao - teto;
     int metadeParede = teto + (alturaParede / 2);
     
     float texY = 0.0f;
     if (alturaParede > 0) texY = (float)(y - teto) / (float)alturaParede;
     if (texY > 0.999f) texY = 0.999f; // Impede o "wrapping" (loop) da textura no ultimo pixel tocando o chao
-    int tx = (int)(texX * 32.0f) % 32;
-    int ty = (int)(texY * 32.0f) % 32;
+    int tx = (int)(texX * 64.0f) % 64;
+    int ty = (int)(texY * 64.0f) % 64;
 
     std::string tituloUpper = tituloMapa;
     for (char& ch : tituloUpper) ch = std::toupper(static_cast<unsigned char>(ch));
@@ -117,7 +121,7 @@ std::string RaycasterMundo::obterPixelParede(const std::string& tituloMapa, bool
             }
         } else {
             // Muros do Castelo com Degraus (Battlements)
-            bool isBattlementGap = (ty < 6 && (tx % 16) >= 8);
+            bool isBattlementGap = (ty < 12 && (tx % 32) >= 16);
             if (isBattlementGap) {
                 return "FUNDO";
             }
@@ -202,13 +206,13 @@ std::string RaycasterMundo::obterPixelParede(const std::string& tituloMapa, bool
 
     if (!isReino && temaFloresta && charParede == '#') {
         int folhaTx = tx;
-        int limiteFolhas = 14 + ((tx * 7) % 5); // Borda organica variando de 14 a 18 de altura
+        int limiteFolhas = 28 + ((tx * 7) % 10); // Borda organica variando de 28 a 37 de altura
 
         if (ty < limiteFolhas) {
             // Animacao de vento suave com seno nas folhas do topo
-            int animOffset = (int)(std::sin(tempoAnimacao * 1.5f + texX * 10.0f) * 2.0f);
-            folhaTx = (tx + animOffset) % 32;
-            if (folhaTx < 0) folhaTx += 32;
+            int animOffset = (int)(std::sin(tempoAnimacao * 1.5f + texX * 10.0f) * 4.0f);
+            folhaTx = (tx + animOffset) % 64;
+            if (folhaTx < 0) folhaTx += 64;
             
             bool sombraFolha = ((folhaTx * 7 + ty * 13) % 11) < 4; 
             if (sombraFolha) {
@@ -226,8 +230,8 @@ std::string RaycasterMundo::obterPixelParede(const std::string& tituloMapa, bool
             }
         } else {
             // Tronco macico de arvore antiga cobrindo todo o bloco na base
-            bool isBordaEscura = (tx < 3 || tx > 28);
-            bool isSombra = (tx >= 3 && tx <= 6) || (tx >= 25 && tx <= 28);
+            bool isBordaEscura = (tx < 6 || tx > 57);
+            bool isSombra = (tx >= 6 && tx <= 12) || (tx >= 51 && tx <= 57);
             bool hasWoodGrain = ((tx * 3 + ty * 7) % 5) == 0;
 
             if (isBordaEscura) {
@@ -342,6 +346,8 @@ std::string RaycasterMundo::obterPixelParede(const std::string& tituloMapa, bool
 }
 
 std::string RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float currentX, float currentY, float currentDist, float profundidadeMaxima) {
+    currentDist *= 0.55f; // Empurra o sombreamento do chao mais para o fundo
+
     std::string tituloUpper = tituloMapa;
     for (char& ch : tituloUpper) ch = std::toupper(static_cast<unsigned char>(ch));
 
@@ -387,6 +393,8 @@ std::string RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float 
 }
 
 std::string RaycasterMundo::obterPixelAgua(float currentX, float currentY, float currentDist, float profundidadeMaxima) {
+    currentDist *= 0.55f; // Empurra o sombreamento da agua mais para o fundo
+
     int tx = (int)(currentX * 32.0f) % 32;
     int ty = (int)(currentY * 32.0f) % 32;
 
