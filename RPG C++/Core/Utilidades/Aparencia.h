@@ -65,7 +65,7 @@ public:
     static std::string centralizarTexto(const std::string& texto);
     
     // --- DESENHO E FORMATACAO ---
-    static std::string gerarBarraSuave(double porcentagem, int tamanhoVisual, const std::string& corCheia, const std::string& corVazia);
+    static std::string gerarBarraGradiente(double pct, int tamanho, Cor corFinal);
     static std::vector<std::string> criarCaixa(const std::vector<std::string>& linhas, const std::string& titulo = "", int larguraMinima = 0, Cor corCaixa = Cor::BRANCO);
     static void imprimirLinhaDivisoria(char caractere = '=');
     static void imprimirCentralizado(const std::string& texto, const std::string& corAnsi = "");

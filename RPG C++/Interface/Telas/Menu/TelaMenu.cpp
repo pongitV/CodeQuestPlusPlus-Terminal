@@ -400,7 +400,7 @@ void TelaMenu::exibirTutorialDeParry(const std::string& infoBox) {
         else exibirInfoBox(infoBox);
         
         Aparencia::imprimirCentralizado("Inimigo: " + niveis[i].nomeInimigo);
-        Aparencia::imprimirCentralizado("Sequencia: " + std::to_string(niveis[i].digitos) + " digitos | Tempo limite: " + std::to_string(niveis[i].tempoLimiteMs / 1000.0) + "s");
+        Aparencia::imprimirCentralizado("Sequencia: " + std::to_string(niveis[i].digitos) + " digitos | Tempo limite: " + std::to_string(niveis[i].tempoLimiteMs / 1000) + "s");
         ControleDeInput::aguardarEnter();
 
         int acertos = 0;

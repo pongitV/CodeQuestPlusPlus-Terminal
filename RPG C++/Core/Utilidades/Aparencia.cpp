@@ -184,22 +184,20 @@ int Aparencia::obterComprimentoVisual(const std::string& texto) {
     return comprimento;
 }
 
-std::string Aparencia::gerarBarraSuave(double porcentagem, int tamanhoVisual, const std::string& corCheia, const std::string& corVazia) {
-    const std::vector<std::string> fracoes = {" ", "▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"};
-    if (porcentagem < 0.0) porcentagem = 0.0;
-    if (porcentagem > 1.0) porcentagem = 1.0;
-
-    double totalBlocos = porcentagem * tamanhoVisual;
-    int blocosInteiros = static_cast<int>(totalBlocos);
-    int indiceFracao = static_cast<int>((totalBlocos - blocosInteiros) * 8);
-
-    std::string barra = corCheia;
-    for (int i = 0; i < blocosInteiros; ++i) barra += "█";
-    if (blocosInteiros < tamanhoVisual) barra += fracoes[indiceFracao];
-    
-    barra += corVazia;
-    for (int i = blocosInteiros + 1; i < tamanhoVisual; ++i) barra += " ";
-    barra += "\033[0m";
+std::string Aparencia::gerarBarraGradiente(double pct, int tamanho, Cor corFinal) {
+    if (pct < 0.0) pct = 0.0;
+    if (pct > 1.0) pct = 1.0;
+    int qtdReal = static_cast<int>(pct * tamanho * 8);
+    std::string blocos[] = {" ", "▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"};
+    std::string barra = "";
+    for (int i = 0; i < tamanho; ++i) {
+        int intensidade = 30 + (70 * i) / std::max(1, tamanho - 1);
+        std::string corAtual = Aparencia::obterCorRGBFade(corFinal, intensidade);
+        int charIdx = i * 8;
+        if (qtdReal >= charIdx + 8) barra += corAtual + "█";
+        else if (qtdReal > charIdx) barra += corAtual + blocos[qtdReal - charIdx];
+        else barra += Aparencia::cor(Cor::CINZA) + "░";
+    }
     return barra;
 }
 

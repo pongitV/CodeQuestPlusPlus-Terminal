@@ -4,6 +4,7 @@ TARGET = JogoRPG.exe
 # Compilador e flags de compilacao (-O2 adiciona otimizacoes de performance)
 CXX = g++
 CXXFLAGS = -std=c++23 -Wall -Wextra -O2 -MMD -MP
+LDFLAGS = -static -static-libgcc -static-libstdc++
 
 # Funcao para buscar recursivamente todos os arquivos .cpp nas pastas
 rwildcard=$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
@@ -21,7 +22,7 @@ all: $(TARGET)
 
 # Regra de linkagem: junta todos os .o para criar o .exe
 $(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 # Regra de compilacao: compila cada .cpp em um .o dentro da pasta obj/
 $(OBJ_DIR)/%.o: %.cpp

@@ -20,4 +20,5 @@ namespace Flags {
     // Flags de Visita (para Viagem Rapida)
     inline constexpr const char* Visitou_Floresta = "Visitou_Floresta";
     inline constexpr const char* Visitou_Reino = "Visitou_Reino";
+    inline constexpr const char* Mapas_Descobertos = "Mapas_Descobertos";
 }

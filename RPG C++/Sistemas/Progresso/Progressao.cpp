@@ -57,4 +57,13 @@ void Progressao::carregar(std::ifstream& in) {
         std::string lixo; std::getline(in, lixo); // consome a quebra de linha
         for (size_t i = 0; i < size; ++i) { std::string chave; std::getline(in, chave); int valor; in >> valor; std::getline(in, lixo); flags[chave] = (valor == 1); }
     }
+
+    // --- RETROCOMPATIBILIDADE DE SAVES ANTIGOS ---
+    // Evita que saves antigos (anteriores a atualizacao) percam o acesso a Viagem Rapida
+    auto itFloresta = flags.find("Visitou_Floresta");
+    auto itReino = flags.find("Visitou_Reino");
+    if ((itFloresta != flags.end() && itFloresta->second) || 
+        (itReino != flags.end() && itReino->second)) {
+        flags["Mapas_Descobertos"] = true;
+    }
 }

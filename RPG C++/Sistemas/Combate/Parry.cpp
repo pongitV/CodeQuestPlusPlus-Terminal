@@ -78,7 +78,7 @@ bool Parry::executarMinigame(int quantidadeDeNumerosParaDigitar, int tempoLimite
         auto tempoAtual = std::chrono::steady_clock::now();
         std::chrono::duration<double> tempoDecorrido = tempoAtual - tempoInicial;
         if (tempoDecorrido.count() > tempoLimiteEmSegundos) {
-            std::string timeoutMsg = "TEMPO ESGOTADO (" + std::to_string(tempoDecorrido.count()) + "s)!";
+            std::string timeoutMsg = "TEMPO ESGOTADO (" + std::to_string(static_cast<int>(tempoDecorrido.count())) + "s)!";
             std::cout << "\n" << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgCombate(timeoutMsg, Cor::FUNDO_VERMELHO) << "\n";
             return false;
         }

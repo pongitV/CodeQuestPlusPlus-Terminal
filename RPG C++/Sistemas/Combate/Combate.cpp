@@ -682,7 +682,7 @@ void Combate::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* pers
     bool ataqueImparavel = personagemAtacante && personagemAtacante->obterRaca()->ignoraParry();
 
     // Logica do Parry
-    if (personagemAlvo->obterParryAtivado()) 
+    if (personagemAlvo->obterParryAtivado() && !personagemAlvo->obterDefendendo()) 
     {
         if (ataqueImparavel) {
             std::string msgImparavel = FuncoesDialogo::formatarMsgCombate(personagemAtacante->obterNome() + " desfere um ATAQUE IMPARAVEL! O Parry foi ignorado!", Cor::FUNDO_VERMELHO);

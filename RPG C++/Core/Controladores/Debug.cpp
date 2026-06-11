@@ -1,7 +1,6 @@
 #include "Debug.h"
 
 #include <iostream>
-#include <iomanip>
 #include <string>
 #include <vector>
 #include <map>
@@ -54,13 +53,15 @@ namespace {
                 
                 auto& attrs = jogador->obterAtributosFinais();
                 std::string nomeAtr; int* ptrAtr = nullptr;
-                if (escolhaAtr == 0) { nomeAtr = "Vida Maxima"; ptrAtr = &attrs.vida; }
-                else if (escolhaAtr == 1) { nomeAtr = "Forca"; ptrAtr = &attrs.forca; }
-                else if (escolhaAtr == 2) { nomeAtr = "Destreza"; ptrAtr = &attrs.destreza; }
-                else if (escolhaAtr == 3) { nomeAtr = "Resistencia"; ptrAtr = &attrs.resistencia; }
-                else if (escolhaAtr == 4) { nomeAtr = "Constituicao"; ptrAtr = &attrs.constituicao; }
-                else if (escolhaAtr == 5) { nomeAtr = "Inteligencia"; ptrAtr = &attrs.inteligencia; }
-                else if (escolhaAtr == 6) { nomeAtr = "Sabedoria"; ptrAtr = &attrs.sabedoria; }
+                switch (escolhaAtr) {
+                    case 0: nomeAtr = "Vida Maxima"; ptrAtr = &attrs.vida; break;
+                    case 1: nomeAtr = "Forca"; ptrAtr = &attrs.forca; break;
+                    case 2: nomeAtr = "Destreza"; ptrAtr = &attrs.destreza; break;
+                    case 3: nomeAtr = "Resistencia"; ptrAtr = &attrs.resistencia; break;
+                    case 4: nomeAtr = "Constituicao"; ptrAtr = &attrs.constituicao; break;
+                    case 5: nomeAtr = "Inteligencia"; ptrAtr = &attrs.inteligencia; break;
+                    case 6: nomeAtr = "Sabedoria"; ptrAtr = &attrs.sabedoria; break;
+                }
                 
                 std::cout << "\n";
                 int novoValor = ControleDeInput::lerInteiroComLimites("Defina o novo valor para " + nomeAtr + ": ", 0, 999999, true);
@@ -216,42 +217,52 @@ void Debug::exibirMenuDebug(Personagem* jogador) {
         [jogador]() {
             return std::vector<std::string>{
                 "God Mode (Max Atributos - Instakill/Imortal)",
-                "Definir Atributos Livres",
+                "Definir Atributos",
                 "Obter Qualquer Item",
-                "Adicionar Ouro e XP (+10000)",
+                "Definir Ouro e XP",
                 "Liberar Todos os Mapas (Fast Travel)",
                 std::string("Noclip (Atravessar paredes): ") + (jogador->isNoclip() ? Aparencia::cor(Cor::VERDE) + "LIGADO" + Aparencia::cor(Cor::RESET) : Aparencia::cor(Cor::VERMELHO) + "DESLIGADO" + Aparencia::cor(Cor::RESET)),
                 "Fechar Debug Menu"
             };
         },
         [jogador](int escolhaDebug) {
-            if (escolhaDebug == 0) {
-                ativarGodMode(jogador);
-            } else if (escolhaDebug == 1) {
-                menuDefinirAtributos(jogador);
-            } else if (escolhaDebug == 2) {
-                menuObterItem(jogador);
-            } else if (escolhaDebug == 3) {
-                jogador->ganharOuro(10000);
-                jogador->ganharXp(10000);
-                std::cout << "\n";
-                Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("+10000 Ouro e +10000 XP adicionados!", Cor::AMARELO));
-                std::cout << "\n";
-                ControleDeInput::aguardarEnter();
-            } else if (escolhaDebug == 4) {
-                Progressao::instancia().definirFlag(Flags::Vila_BjornResgatado, true);
-                Progressao::instancia().definirFlag(Flags::Floresta_MissaoMorgana, true);
-                Progressao::instancia().definirFlag(Flags::Floresta_MahoragaDerrotado, true);
-                Progressao::instancia().definirFlag(Flags::Visitou_Floresta, true);
-                Progressao::instancia().definirFlag(Flags::Visitou_Reino, true);
-                std::cout << "\n";
-                Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("Todos os mapas e submapas liberados para Viagem Rapida (Tecla M)!", Cor::AMARELO));
-                std::cout << "\n";
-                ControleDeInput::aguardarEnter();
-            } else if (escolhaDebug == 5) {
-                jogador->alternarNoclip();
-            } else if (escolhaDebug == 6 || escolhaDebug == -1) { 
-                return false; 
+            switch (escolhaDebug) {
+                case 0:
+                    ativarGodMode(jogador);
+                    break;
+                case 1:
+                    menuDefinirAtributos(jogador);
+                    break;
+                case 2:
+                    menuObterItem(jogador);
+                    break;
+                case 3: {
+                    std::cout << "\n";
+                    int qtd = ControleDeInput::lerInteiroComLimites("Digite a quantidade de Ouro e XP desejada (1 a 999999): ", 1, 999999, true);
+                    jogador->ganharOuro(qtd);
+                    jogador->ganharXp(qtd);
+                    std::cout << "\n";
+                    Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("+" + std::to_string(qtd) + " Ouro e +" + std::to_string(qtd) + " XP adicionados!", Cor::AMARELO));
+                    std::cout << "\n";
+                    ControleDeInput::aguardarEnter();
+                    break;
+                }
+                case 4:
+                    Progressao::instancia().definirFlag(Flags::Vila_BjornResgatado, true);
+                    Progressao::instancia().definirFlag(Flags::Floresta_MissaoMorgana, true);
+                    Progressao::instancia().definirFlag(Flags::Floresta_MahoragaDerrotado, true);
+                    Progressao::instancia().definirFlag(Flags::Mapas_Descobertos, true);
+                    std::cout << "\n";
+                    Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("Todos os mapas e submapas liberados para Viagem Rapida (Tecla M)!", Cor::AMARELO));
+                    std::cout << "\n";
+                    ControleDeInput::aguardarEnter();
+                    break;
+                case 5:
+                    jogador->alternarNoclip();
+                    break;
+                case 6:
+                case -1:
+                    return false;
             }
             return true;
         }

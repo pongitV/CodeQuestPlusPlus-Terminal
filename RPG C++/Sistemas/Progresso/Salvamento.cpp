@@ -154,6 +154,7 @@ void Salvamento::salvarJogo(Personagem* jogador) {
         if (item == jogador->obterArma()) equipSlot = 1;
         else if (item == jogador->obterEscudo()) equipSlot = 2;
         else if (item == jogador->obterArmadura()) equipSlot = 3;
+        else if (item == jogador->obterConsumivelRapido()) equipSlot = 4;
         arquivo << equipSlot << " " << item->obterNomeItem() << "\n";
     }
 
@@ -191,6 +192,7 @@ void Salvamento::salvarJogo(Personagem* jogador) {
             if (item == alma->obterArma()) equipSlot = 1;
             else if (item == alma->obterEscudo()) equipSlot = 2;
             else if (item == alma->obterArmadura()) equipSlot = 3;
+            else if (item == alma->obterConsumivelRapido()) equipSlot = 4;
             arquivo << equipSlot << " " << item->obterNomeItem() << "\n";
         }
     }
@@ -270,32 +272,37 @@ std::unique_ptr<Personagem> Salvamento::carregarJogo(const std::string& nomeArqu
     Bestiario::instancia().carregar(arquivo);
     Diario::instancia().carregar(arquivo);
     
-    int regTroll = 0;
-    if (arquivo >> regTroll && regTroll == 1) {
-        jogador->desbloquearRegeneracaoTroll();
-    }
+    std::streampos posMark = arquivo.tellg();
+    int test1, test2;
     
-    int parryAtivado = 0;
-    if (arquivo >> parryAtivado) {
-        jogador->definirParryAtivado(parryAtivado == 1);
-    }
+    if (arquivo >> test1 >> test2) {
+        // FORMATO NOVO: Consegue ler os ints do regTroll e parryAtivado
+        arquivo.clear();
+        arquivo.seekg(posMark);
+        
+        int regTroll = 0;
+        if (arquivo >> regTroll && regTroll == 1) jogador->desbloquearRegeneracaoTroll();
+        
+        int parryAtivado = 0;
+        if (arquivo >> parryAtivado) jogador->definirParryAtivado(parryAtivado == 1);
 
-    int podeReviver = 1;
-    if (arquivo >> podeReviver && podeReviver == 0) {
-        jogador->consumirRessurreicao();
-    }
+        int podeReviver = 1;
+        if (arquivo >> podeReviver && podeReviver == 0) jogador->consumirRessurreicao();
 
-    char icone = '@';
-    if (arquivo >> icone) {
-        jogador->definirIconeJogador(icone);
-    }
-    
-    uint32_t cor = static_cast<uint32_t>(Cor::VERDE);
-    if (arquivo >> cor) {
-        jogador->definirCorJogador(static_cast<Cor>(cor));
-    }
+        char icone = '@';
+        if (arquivo >> icone) jogador->definirIconeJogador(icone);
+        
+        uint32_t cor = static_cast<uint32_t>(Cor::VERDE);
+        if (arquivo >> cor) jogador->definirCorJogador(static_cast<Cor>(cor));
 
-    Progressao::instancia().carregar(arquivo);
+        Progressao::instancia().carregar(arquivo);
+    } else {
+        // FORMATO ANTIGO (Retrocompatibilidade): 
+        // O proximo campo seria o tamanho da Progressao seguido por uma String, falhando no "test2"
+        arquivo.clear();
+        arquivo.seekg(posMark);
+        Progressao::instancia().carregar(arquivo);
+    }
 
     // Carregar as Almas Coletadas (Retrocompativel com saves antigos)
     size_t almasSize = 0;

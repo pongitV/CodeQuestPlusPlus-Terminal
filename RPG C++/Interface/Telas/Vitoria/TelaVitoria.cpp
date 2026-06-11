@@ -48,7 +48,7 @@ void TelaVitoria::exibir(Personagem* jogadorAtual, int quantidadeDeOuroObtido, i
         lootLinhas.push_back("");
         
         double xpPct = static_cast<double>(jogadorAtual->obterXpAtual()) / std::max(1, jogadorAtual->obterXpParaSubir());
-        std::string barraXp = Aparencia::gerarBarraSuave(xpPct, 12, Aparencia::cor(Cor::CIANO), Aparencia::cor(Cor::CINZA));
+        std::string barraXp = Aparencia::gerarBarraGradiente(xpPct, 12, Cor::CIANO);
         lootLinhas.push_back(" XP: [" + barraXp + Aparencia::cor(Cor::RESET) + "] " + Aparencia::cor(Cor::CIANO) + "+" + std::to_string(curXp) + Aparencia::cor(Cor::RESET));
         
         int totalAnimadoOuro = jogadorAtual->obterInventario()->obterOuro() - quantidadeDeOuroObtido + curOuro;

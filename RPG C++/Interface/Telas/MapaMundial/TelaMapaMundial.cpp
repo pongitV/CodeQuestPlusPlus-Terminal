@@ -45,19 +45,25 @@ ProximaTransicaoMapa TelaMapaMundial::exibir(LocalizacaoMapa localAtual, int pro
             for (int y = 0; y < static_cast<int>(arteMapa.size()); ++y) {
                 std::string linha = arteMapa[y];
 
-                auto formatarProgresso = [](std::string& str, const std::string& placeholder, int valor) {
-                    size_t pos = str.find(placeholder);
+                bool mapasDescobertos = Progressao::instancia().obterFlag(Flags::Mapas_Descobertos);
+
+                auto formatarProgresso = [](std::string& str, const std::string& placeholder, int valor, bool descoberto) {
+                    size_t pos = str.find(placeholder + "%");
                     if (pos != std::string::npos) {
-                        std::string p = std::to_string(valor);
-                        if (p.length() < 3) p = std::string(3 - p.length(), ' ') + p;
-                        std::string cor = (valor >= 100) ? Aparencia::cor(Cor::CIANO) : (valor > 0) ? Aparencia::cor(Cor::AMARELO) : Aparencia::cor(Cor::CINZA);
-                        str.replace(pos, placeholder.length(), cor + p + Aparencia::cor(Cor::RESET));
+                        if (!descoberto) {
+                            str.replace(pos, placeholder.length() + 1, Aparencia::cor(Cor::CINZA) + "??? " + Aparencia::cor(Cor::RESET));
+                        } else {
+                            std::string p = std::to_string(valor);
+                            if (p.length() < 3) p = std::string(3 - p.length(), ' ') + p;
+                            std::string cor = (valor >= 100) ? Aparencia::cor(Cor::CIANO) : (valor > 0) ? Aparencia::cor(Cor::AMARELO) : Aparencia::cor(Cor::CINZA);
+                            str.replace(pos, placeholder.length() + 1, cor + p + "%" + Aparencia::cor(Cor::RESET));
+                        }
                     }
                 };
 
-                formatarProgresso(linha, "[V]", progressoVila);
-                formatarProgresso(linha, "[F]", progressoFloresta);
-                formatarProgresso(linha, "[R]", progressoReino);
+                formatarProgresso(linha, "[V]", progressoVila, true); // Vila sempre fica descoberta
+                formatarProgresso(linha, "[F]", progressoFloresta, mapasDescobertos);
+                formatarProgresso(linha, "[R]", progressoReino, mapasDescobertos);
 
                 std::string palavra;
                 if (localAtual == LocalizacaoMapa::VilaInicial) palavra = "VILA";
@@ -67,6 +73,23 @@ ProximaTransicaoMapa TelaMapaMundial::exibir(LocalizacaoMapa localAtual, int pro
                 size_t pos = linha.find(palavra);
                 if (pos != std::string::npos) {
                     linha.replace(pos, palavra.length(), Aparencia::cor(Cor::VERDE) + palavra + Aparencia::cor(Cor::RESET));
+                }
+
+                if (!mapasDescobertos) {
+                    auto substituirExato = [&](const std::string& alvo, const std::string& substituto) {
+                        size_t p = linha.find(alvo);
+                        if (p != std::string::npos) {
+                            linha.replace(p, alvo.length(), Aparencia::cor(Cor::CINZA) + substituto + Aparencia::cor(Cor::RESET));
+                        }
+                    };
+
+                    substituirExato("╔══════════╗", "  ╔═════╗   ");
+                    substituirExato("║ FLORESTA ║", "  ║ ??? ║   ");
+                    substituirExato("╚══════════╝", "  ╚═════╝   ");
+
+                    substituirExato("╔═══════╗", "  ╔═════╗");
+                    substituirExato("║ REINO ╠", "  ║ ??? ╠");
+                    substituirExato("╚═══════╝", "  ╚═════╝");
                 }
                 
                 std::cout << margem << linha << "\n";
@@ -84,25 +107,38 @@ ProximaTransicaoMapa TelaMapaMundial::exibir(LocalizacaoMapa localAtual, int pro
         [&]() {
             std::vector<std::string> opcoes;
             opcoes.push_back("Vila Inicial");
-            if (Progressao::instancia().obterFlag(Flags::Visitou_Floresta)) opcoes.push_back("Floresta");
-            if (Progressao::instancia().obterFlag(Flags::Visitou_Reino)) opcoes.push_back("Reino");
+            
+            bool mapasDescobertos = Progressao::instancia().obterFlag(Flags::Mapas_Descobertos);
+            
+            if (mapasDescobertos) opcoes.push_back("Floresta");
+            else opcoes.push_back(Aparencia::cor(Cor::CINZA) + "???" + Aparencia::cor(Cor::RESET));
+            
+            if (mapasDescobertos) opcoes.push_back("Reino");
+            else opcoes.push_back(Aparencia::cor(Cor::CINZA) + "???" + Aparencia::cor(Cor::RESET));
+            
             opcoes.push_back("Cancelar Viagem");
             return opcoes;
         },
         // process choice
         [&](int id) {
-            std::vector<std::pair<std::string, ProximaTransicaoMapa>> destinos;
-            destinos.push_back({"Vila Inicial", ProximaTransicaoMapa::Vila});
-            if (Progressao::instancia().obterFlag(Flags::Visitou_Floresta)) destinos.push_back({"Floresta", ProximaTransicaoMapa::Floresta});
-            if (Progressao::instancia().obterFlag(Flags::Visitou_Reino)) destinos.push_back({"Reino", ProximaTransicaoMapa::Reino});
-
-            if (id == -1 || id >= static_cast<int>(destinos.size())) {
+            if (id == -1 || id == 3) {
                 destinoEscolhido = ProximaTransicaoMapa::Nenhuma;
                 return false;
             }
 
-            ProximaTransicaoMapa destinoCandidato = destinos[id].second;
-            LocalizacaoMapa locCandidata = (destinoCandidato == ProximaTransicaoMapa::Vila) ? LocalizacaoMapa::VilaInicial : (destinoCandidato == ProximaTransicaoMapa::Floresta) ? LocalizacaoMapa::Floresta : LocalizacaoMapa::Reino;
+            bool mapasDescobertos = Progressao::instancia().obterFlag(Flags::Mapas_Descobertos);
+
+            if (id == 1 && !mapasDescobertos) {
+                msgExtra = "Local ainda nao descoberto!";
+                return true;
+            }
+            if (id == 2 && !mapasDescobertos) {
+                msgExtra = "Local ainda nao descoberto!";
+                return true;
+            }
+
+            ProximaTransicaoMapa destinoCandidato = (id == 0) ? ProximaTransicaoMapa::Vila : (id == 1) ? ProximaTransicaoMapa::Floresta : ProximaTransicaoMapa::Reino;
+            LocalizacaoMapa locCandidata = (id == 0) ? LocalizacaoMapa::VilaInicial : (id == 1) ? LocalizacaoMapa::Floresta : LocalizacaoMapa::Reino;
 
             if (locCandidata == localAtual) {
                 msgExtra = "Voce ja esta neste local!";

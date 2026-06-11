@@ -71,6 +71,8 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
 
             int categoria = escolha - offset;
             
+            std::vector<Item*> mapIndexParaItem;
+            
             TelaBase::executarLoop(
                 [](bool animar) { TelaInventario::exibirCabecalhoInventario(animar); },
                 [categoria]() {
@@ -83,20 +85,89 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
                     Aparencia::imprimirCentralizado(titulo, Aparencia::cor(Cor::CIANO));
                     std::cout << "\n";
                 },
-                [jogadorAtual, categoria]() {
+                [jogadorAtual, categoria, &mapIndexParaItem]() {
                     auto itens = TelaInventario::obterListaCategoria(jogadorAtual, categoria, false);
                     Aparencia::ordenarAlfabeticamente(itens, [](const auto& par) { return par.first; });
+                    
                     std::vector<std::string> ops;
-                    for(auto& p : itens) ops.push_back(p.first);
+                    mapIndexParaItem.clear();
+
+                    auto adicionarCategoria = [&](const std::string& titulo, const std::vector<std::pair<std::string, Item*>>& lista) {
+                        if (!lista.empty()) {
+                            ops.push_back(Aparencia::cor(Cor::CINZA) + "--- " + titulo + " ---" + Aparencia::cor(Cor::RESET));
+                            mapIndexParaItem.push_back(nullptr); // nullptr representa que e apenas um titulo, nao interativo
+                            for (const auto& p : lista) {
+                                ops.push_back(p.first);
+                                mapIndexParaItem.push_back(p.second);
+                            }
+                        }
+                    };
+
+                    if (categoria == 0) {
+                        std::vector<std::pair<std::string, Item*>> equipados, danoFisico, danoMagico, armaduras, escudos, outros;
+                        for (auto& p : itens) {
+                            Item* it = p.second;
+                            if (jogadorAtual->isItemEquipado(it)) {
+                                equipados.push_back(p);
+                            } else if (it->obterTipo() == TipoEquipamento::ARMA) {
+                                if (auto* arma = dynamic_cast<EquipamentoArma*>(it)) {
+                                    if (arma->obterDanoMagico() > arma->obterDanoFisico()) danoMagico.push_back(p);
+                                    else danoFisico.push_back(p);
+                                } else {
+                                    outros.push_back(p);
+                                }
+                            } else if (it->obterTipo() == TipoEquipamento::ARMADURA) {
+                                armaduras.push_back(p);
+                            } else if (it->obterTipo() == TipoEquipamento::ESCUDO) {
+                                escudos.push_back(p);
+                            } else {
+                                outros.push_back(p);
+                            }
+                        }
+                        adicionarCategoria("EQUIPADOS", equipados);
+                        adicionarCategoria("ARMAS - DANO FISICO", danoFisico);
+                        adicionarCategoria("ARMAS - DANO MAGICO", danoMagico);
+                        adicionarCategoria("ARMADURAS", armaduras);
+                        adicionarCategoria("ESCUDOS", escudos);
+                        adicionarCategoria("OUTROS", outros);
+                    } else if (categoria == 1) {
+                        std::vector<std::pair<std::string, Item*>> equipados, cura, buff, outros;
+                        for (auto& p : itens) {
+                            Item* it = p.second;
+                            if (jogadorAtual->isItemEquipado(it)) {
+                                equipados.push_back(p);
+                            } else if (it->temPropriedade(Propriedade::ConsumivelCura)) {
+                                cura.push_back(p);
+                            } else if (it->temPropriedade(Propriedade::ConsumivelBuff)) {
+                                buff.push_back(p);
+                            } else {
+                                outros.push_back(p);
+                            }
+                        }
+                        adicionarCategoria("NO ACESSO RAPIDO", equipados);
+                        adicionarCategoria("CURA E RESTAURACAO", cura);
+                        adicionarCategoria("BUFFS E ELIXIRES", buff);
+                        adicionarCategoria("OUTROS CONSUMIVEIS", outros);
+                    } else {
+                        // Missões e Materiais, apenas listar
+                        for (auto& p : itens) {
+                            ops.push_back(p.first);
+                            mapIndexParaItem.push_back(p.second);
+                        }
+                    }
+
                     ops.push_back("VOLTAR");
+                    mapIndexParaItem.push_back(nullptr);
                     return ops;
                 },
                 [&](int escolhaItem) {
-                    auto itens = TelaInventario::obterListaCategoria(jogadorAtual, categoria, false);
-                    Aparencia::ordenarAlfabeticamente(itens, [](const auto& par) { return par.first; });
-                    if (escolhaItem < 0 || escolhaItem >= static_cast<int>(itens.size())) return false; // VOLTAR
-
-                    Item* itemEncontrado = itens[escolhaItem].second;
+                    if (escolhaItem < 0 || escolhaItem >= static_cast<int>(mapIndexParaItem.size())) return false; // Clicou pra voltar via teclado
+                    
+                    Item* itemEncontrado = mapIndexParaItem[escolhaItem];
+                    if (itemEncontrado == nullptr) {
+                        if (escolhaItem == static_cast<int>(mapIndexParaItem.size()) - 1) return false; // Clicou em VOLTAR no fim da lista
+                        return true; // Clicou em cima do titulo da categoria, entao apenas ignora e mantem a tela aberta
+                    }
                     
                     TelaBase::executarLoopPadrao(
                         "OPCOES DE ITEM", Cor::AMARELO,
@@ -111,11 +182,11 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
                             if (tipo == TipoEquipamento::ARMA || tipo == TipoEquipamento::ESCUDO || tipo == TipoEquipamento::ARMADURA) {
                                 ops = {"Equipar / Desequipar", "Inspecionar (Dano, Durabilidade, Requisitos, etc)"};
                             } else if (tipo == TipoEquipamento::MISSAO) {
-                                ops = {"Usar em quantidade", "Inspecionar (Lore)"};
+                                ops = {Aparencia::cor(Cor::CINZA) + "Uso em missoes (Automatico)" + Aparencia::cor(Cor::RESET), "Inspecionar (Lore)"};
                             } else if (tipo == TipoEquipamento::CONSUMIVEL) {
                                 ops = {"Usar em quantidade", "Equipar no Acesso Rapido", "Inspecionar Efeitos"};
                             } else {
-                                ops = {"Usar", "Inspecionar Detalhes"};
+                                ops = {Aparencia::cor(Cor::CINZA) + "Levar para NPC (Forja/Mago)" + Aparencia::cor(Cor::RESET), "Inspecionar Detalhes"};
                             }
                             ops.push_back("Cancelar");
                             return ops;
@@ -125,7 +196,7 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
                             
                             if (subOpcao == 0) {
                                 int quantidadeParaUsar = 1;
-                                if (tipo == TipoEquipamento::CONSUMIVEL || tipo == TipoEquipamento::MISSAO) {
+                                if (tipo == TipoEquipamento::CONSUMIVEL) {
                                     int qtdDisponivel = jogadorAtual->obterInventario()->contarItem(itemEncontrado->obterNomeItem());
                                     if (qtdDisponivel > 1 && turnoFoiConsumido == nullptr) {
                                         std::string msgQtd = "Quantidade para usar (1 a " + std::to_string(qtdDisponivel) + ", 0 cancelar): ";
@@ -268,6 +339,22 @@ void InventarioCombate::processarUsoDeItem(Personagem* jogadorAtual, Item* itemE
         return;
     }
 
-    std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Este item nao pode ser usado " << (turnoFoiConsumido ? "em combate!" : "fora de combate!") << "\n";
+    std::string msgErro;
+    switch (itemEncontrado->obterTipo()) {
+        case TipoEquipamento::MATERIAL:
+            msgErro = "Materiais são utilizados para NPCs especializados.";
+            break;
+        case TipoEquipamento::MISSAO:
+            msgErro = "Itens de missao sao ativados automaticamente no momento ou local certo ou na historia.";
+            break;
+        case TipoEquipamento::CONSUMIVEL:
+            msgErro = "Este consumivel nao pode ser usado " + std::string(turnoFoiConsumido ? "no combate!" : "fora de combate!");
+            break;
+        default:
+            msgErro = "Este item nao possui uso direto no inventario.";
+            break;
+    }
+
+    std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << msgErro << "\n";
     ControleDeInput::aguardarEnter();
 }

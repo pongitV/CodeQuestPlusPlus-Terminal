@@ -35,7 +35,7 @@ namespace {
     std::string gerarBarraDeXp(Personagem* jogadorAtual, const std::string& corXp, const std::string& corReset) {
         int tamanho = 8;
         double porcentagem = static_cast<double>(jogadorAtual->obterXpAtual()) / std::max(1, jogadorAtual->obterXpParaSubir());
-        std::string barra = Aparencia::gerarBarraSuave(porcentagem, tamanho, corXp, Aparencia::cor(Cor::CINZA));
+        std::string barra = Aparencia::gerarBarraGradiente(porcentagem, tamanho, Cor::CIANO);
         return "[" + barra + corReset + "] " + corXp + std::to_string(jogadorAtual->obterXpAtual()) + corReset + "/" + std::to_string(jogadorAtual->obterXpParaSubir());
     }
 
@@ -442,14 +442,18 @@ std::vector<std::string> TelaCombate::obterLinhasBarraDeStatusDoJogador(Personag
     std::string corFantasma = "\033[38;2;255;100;100m";
     std::string corFundoHP = Aparencia::cor(Cor::CINZA);
     std::string blocos[] = {" ", "▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"};
-    for (int i = 0; i < tamanhoBarra * 8; i += 8) {
-        if (qtdReal >= i + 8) barraHP += corVida + "█";
-        else if (qtdFantasma >= i + 8) {
-            if (qtdReal > i) barraHP += corVida + blocos[qtdReal - i];
+    Cor baseCorVida = (porcentagemDeVida > 0.70) ? Cor::VERDE : (porcentagemDeVida > 0.30) ? Cor::AMARELO : Cor::VERMELHO;
+    for (int i = 0; i < tamanhoBarra; ++i) {
+        int intensidade = 30 + (70 * i) / std::max(1, tamanhoBarra - 1);
+        std::string corAtual = Aparencia::obterCorRGBFade(baseCorVida, intensidade);
+        int charIdx = i * 8;
+        if (qtdReal >= charIdx + 8) barraHP += corAtual + "█";
+        else if (qtdFantasma >= charIdx + 8) {
+            if (qtdReal > charIdx) barraHP += corAtual + blocos[qtdReal - charIdx];
             else barraHP += corFantasma + "█";
-        } else if (qtdFantasma > i) {
-            if (qtdReal > i) barraHP += corVida + blocos[qtdReal - i];
-            else barraHP += corFantasma + blocos[qtdFantasma - i];
+        } else if (qtdFantasma > charIdx) {
+            if (qtdReal > charIdx) barraHP += corAtual + blocos[qtdReal - charIdx];
+            else barraHP += corFantasma + blocos[qtdFantasma - charIdx];
         } else barraHP += corFundoHP + "░";
     }
 
@@ -554,13 +558,14 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>&
     auto imprimirLinhaHorda = [&](const std::function<std::pair<std::string, std::string>(Personagem*, size_t)>& gerador) {
         for (size_t i = 0; i < listaDeInimigos.size(); ++i) {
             auto [textoVisual, textoPrint] = gerador(listaDeInimigos[i], i);
-            int espacosEsq = std::max(0, (larguraSeparadaParaCadaColuna - static_cast<int>(textoVisual.length())) / 2);
+            int compVisual = Aparencia::obterComprimentoVisual(textoVisual);
+            int espacosEsq = std::max(0, (larguraSeparadaParaCadaColuna - compVisual) / 2);
             espacosEsq += offsetsIdle[i];
             if (espacosEsq < 0) espacosEsq = 0;
             
             std::cout << std::string(espacosEsq, ' ') << textoPrint;
             if (i < listaDeInimigos.size() - 1) {
-                int espacosDir = std::max(0, larguraSeparadaParaCadaColuna - espacosEsq - static_cast<int>(textoVisual.length()));
+                int espacosDir = std::max(0, larguraSeparadaParaCadaColuna - espacosEsq - compVisual);
                 std::cout << std::string(espacosDir, ' ');
             }
         }
@@ -568,8 +573,9 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>&
     };
 
     auto formatarFadeOut = [&](Personagem* inimigo, const std::string& textoVisual, const std::string& textoPrint) -> std::pair<std::string, std::string> {
+        int compVisual = Aparencia::obterComprimentoVisual(textoVisual);
         if (inimigo->obterMorteAnimada()) {
-            return std::make_pair(std::string(textoVisual.length(), ' '), std::string(textoVisual.length(), ' '));
+            return std::make_pair(std::string(compVisual, ' '), std::string(compVisual, ' '));
         }
 
         if (isMorte && inimigo == alvoAnimacao && frameAnimacao > 0) {
@@ -578,7 +584,7 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>&
             int intensidade = std::max(0, 255 - static_cast<int>(255.0 * progresso));
             
             if (intensidade < 30) {
-                return std::make_pair(std::string(textoVisual.length(), ' '), std::string(textoVisual.length(), ' '));
+                return std::make_pair(std::string(compVisual, ' '), std::string(compVisual, ' '));
             } else {
                 // Retira as cores internas originais e aplica a escala de cinza de forma agressiva!
                 std::string corFade = "\033[38;2;" + std::to_string(intensidade) + ";" + std::to_string(intensidade) + ";" + std::to_string(intensidade) + "m";
@@ -640,12 +646,19 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>&
     }
 
     imprimirLinhaHorda([&](Personagem* inimigo, size_t /*i*/) {
-        std::string hp = "HP: " + std::to_string(inimigo->obterVida()) + "/" + std::to_string(inimigo->obterVidaMaxima());
-        std::string printHp = hp;
+        double pctVida = static_cast<double>(inimigo->obterVida()) / std::max(1, inimigo->obterVidaMaxima());
+        Cor corVidaInimigo = (pctVida > 0.7) ? Cor::VERDE : (pctVida > 0.3) ? Cor::AMARELO : Cor::VERMELHO;
+        std::string barraPrint = Aparencia::gerarBarraGradiente(pctVida, 8, corVidaInimigo);
+        std::string barraVisual = Aparencia::removerCoresANSI(barraPrint);
+        
+        std::string hpStr = std::to_string(inimigo->obterVida()) + "/" + std::to_string(inimigo->obterVidaMaxima());
+        std::string textoVisual = "HP: [" + barraVisual + "] " + hpStr;
+        std::string printHp = "HP: [" + barraPrint + Aparencia::cor(Cor::RESET) + "] " + hpStr;
+        
         if (inimigo == g_inimigoAtacanteParry) {
-            printHp = "\033[38;2;255;140;0m" + hp + Aparencia::cor(Cor::RESET);
+            printHp = "HP: [" + barraPrint + Aparencia::cor(Cor::RESET) + "] \033[38;2;255;140;0m" + hpStr + Aparencia::cor(Cor::RESET);
         }
-        return formatarFadeOut(inimigo, hp, printHp);
+        return formatarFadeOut(inimigo, textoVisual, printHp);
     });
 
     imprimirLinhaHorda([&](Personagem* inimigo, size_t i) {
@@ -702,7 +715,8 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>&
                     if (frameAnimacao >= totalLinhasArte) {
                         int maxTextLen = 10; // Tamanho de "DERROTADO!"
                         for (const auto& d : dropsAnimacao) {
-                            if (static_cast<int>(d.length()) > maxTextLen) maxTextLen = static_cast<int>(d.length());
+                            int compVisual = Aparencia::obterComprimentoVisual(d);
+                            if (compVisual > maxTextLen) maxTextLen = compVisual;
                         }
                         if (maxTextLen > visivelLen - 4) maxTextLen = visivelLen - 4;
                         if (maxTextLen < 0) maxTextLen = 0;
@@ -736,9 +750,9 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>&
                                 else if (innerTxt.find("XP") != std::string::npos) corDrop = Aparencia::cor(Cor::CIANO);
                                 else if (innerTxt.find("G") != std::string::npos) corDrop = Aparencia::cor(Cor::AMARELO);
                                 
-                                int txtLen = static_cast<int>(innerTxt.length());
+                                int txtLen = Aparencia::obterComprimentoVisual(innerTxt);
                                 if (txtLen > maxTextLen) {
-                                    innerTxt = innerTxt.substr(0, maxTextLen);
+                                    innerTxt = Aparencia::removerCoresANSI(innerTxt).substr(0, maxTextLen);
                                     txtLen = maxTextLen;
                                 }
                                 
@@ -1134,7 +1148,7 @@ void TelaCombate::notificarAcaoInvalida() {
 }
 
 void TelaCombate::notificarCancelamentoItem() {
-    std::cout << "\n" << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgSistema("Uso do frasco cancelado. O item voltou para a mochila.") << "\n";
+    std::cout << "\n" << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgSistema("Uso do item cancelado. Ele retornou para a mochila.") << "\n";
 }
 
 void TelaCombate::notificarRequisitoNaoAtendido(const std::string& mensagemRequisito) {

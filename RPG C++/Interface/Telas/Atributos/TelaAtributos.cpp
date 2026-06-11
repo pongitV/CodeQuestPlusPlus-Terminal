@@ -98,10 +98,10 @@ void TelaAtributos::exibir(Personagem* jogadorAtual)
     std::vector<std::string> infoGeral;
     infoGeral.push_back("NOME: " + jogadorAtual->obterNome() + "   RACA: " + jogadorAtual->obterRaca()->obterNomeRaca() + "   CLASSE: " + jogadorAtual->obterNomeClasse());
     double porcentagemXp = static_cast<double>(jogadorAtual->obterXpAtual()) / std::max(1, jogadorAtual->obterXpParaSubir());
-    std::string barraXp = Aparencia::gerarBarraSuave(porcentagemXp, 10, Aparencia::cor(Cor::CIANO), Aparencia::cor(Cor::CINZA));
+    std::string barraXp = Aparencia::gerarBarraGradiente(porcentagemXp, 10, Cor::CIANO);
     double pctVida = static_cast<double>(jogadorAtual->obterVida()) / std::max(1, jogadorAtual->obterVidaMaxima());
-    std::string corVida = (pctVida > 0.7) ? Aparencia::cor(Cor::VERDE) : (pctVida > 0.3) ? Aparencia::cor(Cor::AMARELO) : Aparencia::cor(Cor::VERMELHO);
-    std::string barraVida = Aparencia::gerarBarraSuave(pctVida, 10, corVida, Aparencia::cor(Cor::CINZA));
+    Cor corVidaEnum = (pctVida > 0.7) ? Cor::VERDE : (pctVida > 0.3) ? Cor::AMARELO : Cor::VERMELHO;
+    std::string barraVida = Aparencia::gerarBarraGradiente(pctVida, 10, corVidaEnum);
 
     infoGeral.push_back("NIVEL: " + std::to_string(jogadorAtual->obterNivel()) + " [" + barraXp + Aparencia::cor(Cor::RESET) + "]   HP: [" + barraVida + Aparencia::cor(Cor::RESET) + "] " + std::to_string(jogadorAtual->obterVida()) + "/" + std::to_string(jogadorAtual->obterVidaMaxima()) + "   OURO: " + Aparencia::cor(Cor::AMARELO) + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G" + Aparencia::cor(Cor::RESET));
 
@@ -121,7 +121,7 @@ void TelaAtributos::exibir(Personagem* jogadorAtual)
     {
         int bonusBuff = temBuff ? static_cast<int>(valorBaseDoAtributo * multiplicadorDeAtributosAtual) - valorBaseDoAtributo : 0;
         double pct = std::min(1.0, valorBaseDoAtributo / 50.0);
-        std::string barra = Aparencia::gerarBarraSuave(pct, 10, Aparencia::cor(corBase), Aparencia::cor(Cor::CINZA));
+        std::string barra = Aparencia::gerarBarraGradiente(pct, 10, corBase);
 
         std::ostringstream ss;
         ss << std::left << std::setw(13) << nomeDoAtributo << ": " << std::setw(3) << valorBaseDoAtributo << " [" << barra << Aparencia::cor(Cor::RESET) << "]";
@@ -159,11 +159,11 @@ void TelaAtributos::exibir(Personagem* jogadorAtual)
         }
     };
 
-    habLinhas.push_back("[HAB. RACA]: " + jogadorAtual->obterRaca()->obterNomeHabilidadeRaca());
+    habLinhas.push_back("[HAB. Passiva de Raca]  : " + jogadorAtual->obterRaca()->obterNomeHabilidadeRaca());
     adicionarDescricaoSplit(jogadorAtual->obterRaca()->obterDescricaoHabilidadeRaca());
-    habLinhas.push_back("[PASSIVA]  : " + jogadorAtual->obterClasse()->obterNomePassivaClasse());
+    habLinhas.push_back("[HAB. Passiva de Classe]: " + jogadorAtual->obterClasse()->obterNomePassivaClasse());
     adicionarDescricaoSplit(jogadorAtual->obterClasse()->obterDescricaoPassivaClasse());
-    habLinhas.push_back("[ATIVA]    : " + jogadorAtual->obterClasse()->obterNomeHabilidadeClasse());
+    habLinhas.push_back("[HAB. Ativa de Classe]  : " + jogadorAtual->obterClasse()->obterNomeHabilidadeClasse());
     adicionarDescricaoSplit(jogadorAtual->obterClasse()->obterDescricaoHabilidadeClasse());
     habLinhas.push_back("");
     habLinhas.push_back("EQUIPAMENTOS:");
@@ -259,9 +259,29 @@ void TelaAtributos::gerenciarFichaDoJogador(Personagem* jogadorAtual)
                     Aparencia::exibirPrompt(FuncoesDialogo::formatarMsgSistema("Voce nao tem XP suficiente para subir de nivel!", Cor::AMARELO));
                     ControleDeInput::aguardarEnter();
                 } else {
-                    std::vector<std::string> opcoesAtr = {
-                        "Vida", "Forca", "Destreza", "Resistencia", "Constituicao", "Inteligencia", "Sabedoria", "Cancelar"
-                    };
+                    std::vector<std::string> opcoesAtr;
+                    std::string nomesAtr[] = {"Vida", "Forca", "Destreza", "Resistencia", "Constituicao", "Inteligencia", "Sabedoria"};
+                    
+                    for (int i = 1; i <= 7; ++i) {
+                        auto clonePreview = jogadorAtual->clone();
+                        clonePreview->subirDeNivel(static_cast<TipoAtributo>(i));
+                        
+                        int valAtual = 0, valNovo = 0;
+                        switch (i) {
+                            case 1: valAtual = jogadorAtual->obterVidaMaxima(); valNovo = clonePreview->obterVidaMaxima(); break;
+                            case 2: valAtual = jogadorAtual->obterForca(); valNovo = clonePreview->obterForca(); break;
+                            case 3: valAtual = jogadorAtual->obterDestreza(); valNovo = clonePreview->obterDestreza(); break;
+                            case 4: valAtual = jogadorAtual->obterResistencia(); valNovo = clonePreview->obterResistencia(); break;
+                            case 5: valAtual = jogadorAtual->obterConstituicao(); valNovo = clonePreview->obterConstituicao(); break;
+                            case 6: valAtual = jogadorAtual->obterInteligencia(); valNovo = clonePreview->obterInteligencia(); break;
+                            case 7: valAtual = jogadorAtual->obterSabedoria(); valNovo = clonePreview->obterSabedoria(); break;
+                        }
+                        
+                        int ganho = valNovo - valAtual;
+                        opcoesAtr.push_back(nomesAtr[i - 1] + " " + Aparencia::cor(Cor::CINZA) + "(" + std::to_string(valAtual) + " -> " + std::to_string(valNovo) + " [" + Aparencia::cor(Cor::VERDE) + "+" + std::to_string(ganho) + Aparencia::cor(Cor::CINZA) + "])" + Aparencia::cor(Cor::RESET));
+                    }
+                    opcoesAtr.push_back("Cancelar");
+
                     std::cout << "\n";
                     Aparencia::imprimirCentralizado("Escolha o atributo para melhorar:");
                     std::cout << "\n";
