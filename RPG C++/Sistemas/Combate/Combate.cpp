@@ -12,6 +12,7 @@
 #include "../Inventario/InventarioCombate.h"
 #include "../Inventario/Item.h"
 #include "../Inventario/Equipamentos/EquipamentoEscudo.h"
+#include "../../Entidades/Inimigos/Mahoraga.h"
 #include "../../Entidades/Racas/RacaBase.h"
 #include "../Progresso/Bestiario.h"
 #include "../Progresso/Diario.h"
@@ -600,6 +601,14 @@ std::pair<int, int> Combate::calcularDanoBase(Personagem* atacante)
         perfuranteFinal = totalFinal;
     }
 
+    // Logica de adaptacao do Mahoraga para ignorar escudos
+    if (atacante->obterTipoRaca() == TipoRaca::Mahoraga) {
+        auto* mahoraga = dynamic_cast<Mahoraga*>(atacante->obterRaca());
+        if (mahoraga && mahoraga->ignoraEscudo()) {
+            perfuranteFinal = totalFinal;
+        }
+    }
+
     return { totalFinal, perfuranteFinal };
 }
 
@@ -699,6 +708,15 @@ void Combate::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* pers
     bool aplicarPassivas = (isPersonagemJogadorOuAliado(personagemAlvo) || static_cast<int>(jogadorAtual->obterDificuldade()) >= 2);
 
     ResultadoDano res = personagemAlvo->receberDano(quantidadeDeDanoBruto, danoPerfurante, quantidadeDeDanoReduzidoPeloParry, personagemAtacante, aplicarPassivas);
+
+    // Logica de adaptacao do Mahoraga ao ter seu ataque bloqueado por escudo
+    if (res.danoBloqueado > 0 && personagemAtacante->obterTipoRaca() == TipoRaca::Mahoraga) {
+        // Precisamos de um cast para chamar o metodo especifico da raca Mahoraga
+        auto* mahoraga = dynamic_cast<Mahoraga*>(personagemAtacante->obterRaca());
+        if (mahoraga) {
+            mahoraga->aoTerAtaqueBloqueadoPorEscudo();
+        }
+    }
 
     // Burlar o limite de "minimo de 1 de dano" do sistema base caso o Parry absorva todo o impacto
     if (tentouParry && parryFoiBemSucedido && quantidadeDeDanoReduzidoPeloParry >= danoBaseMitigado) 

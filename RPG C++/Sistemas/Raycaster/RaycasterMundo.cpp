@@ -18,6 +18,24 @@ bool RaycasterMundo::isTeleport(char c) { return c == '^'; }
 bool RaycasterMundo::isWalkable(int mapX, int mapY, const std::vector<std::string>& matrizDoMapa) {
     char c = matrizDoMapa[mapY][mapX];
     if (c == '*') return false; // Impede atravessar arvores
+    
+    if (c == '=' || c == '|' || c == '\'' || c == '+') return false; // Paredes do labirinto
+    if (c == '.') {
+        bool isWall = false;
+        for (int dy = -1; dy <= 1; dy++) {
+            for (int dx = -1; dx <= 1; dx++) {
+                int nx = mapX + dx;
+                int ny = mapY + dy;
+                if (ny >= 0 && ny < (int)matrizDoMapa.size() && nx >= 0 && nx < (int)matrizDoMapa[ny].size()) {
+                    if (matrizDoMapa[ny][nx] == '=' || matrizDoMapa[ny][nx] == '|') {
+                        isWall = true;
+                    }
+                }
+            }
+        }
+        if (isWall) return false;
+    }
+
     if (c == '.' || c == ' ' || c == '^' || c == '~' || isEntity(c)) return true;
     if (isMapLabel(mapX, mapY, matrizDoMapa)) return true;
     return false;
@@ -92,6 +110,28 @@ std::string RaycasterMundo::obterPixelParede(const std::string& tituloMapa, bool
     bool isEstrutura = false;
     std::string charsEstrutura = "|_[]{}/\\<>;=-:+";
     if (charsEstrutura.find(charParede) != std::string::npos) isEstrutura = true;
+
+    if (tituloUpper.find("LABIRINTO") != std::string::npos) {
+        // Textura de casa tradicional japonesa (Shoji) para TODAS as paredes do Labirinto
+        bool isWoodBase = (ty > 54);
+        bool isWoodenPillar = (tx % 32 < 4);
+        bool isWoodenFrameX = (tx % 16 < 2);
+        bool isWoodenFrameY = (ty % 16 < 2);
+
+        if (isWoodBase || isWoodenPillar || isWoodenFrameX || isWoodenFrameY) {
+            if (distanciaAteParede <= profundidadeMaxima / 4.0f)     return "\033[48;2;70;40;20m \033[0m";
+            else if (distanciaAteParede < profundidadeMaxima / 3.0f) return "\033[48;2;50;25;10m \033[0m";
+            else if (distanciaAteParede < profundidadeMaxima / 2.0f) return "\033[48;2;30;15;5m \033[0m";
+            else if (distanciaAteParede < profundidadeMaxima)        return "\033[48;2;15;5;0m \033[0m";
+            return "\033[48;2;0;0;0m \033[0m";
+        } else {
+            if (distanciaAteParede <= profundidadeMaxima / 4.0f)     return "\033[48;2;235;220;190m \033[0m";
+            else if (distanciaAteParede < profundidadeMaxima / 3.0f) return "\033[48;2;180;160;130m \033[0m";
+            else if (distanciaAteParede < profundidadeMaxima / 2.0f) return "\033[48;2;120;100;75m \033[0m";
+            else if (distanciaAteParede < profundidadeMaxima)        return "\033[48;2;60;50;35m \033[0m";
+            return "\033[48;2;0;0;0m \033[0m";
+        }
+    }
 
     if (isReino && (isEstrutura || charParede == '#')) {
         if (charParede == '|') {
@@ -263,7 +303,8 @@ std::string RaycasterMundo::obterPixelParede(const std::string& tituloMapa, bool
         }
     } else if (!isReino) {
         bool isSpawn = (tituloUpper.find("INICIO") != std::string::npos);
-        bool isCaverna = (tituloUpper.find("CAVERNA") != std::string::npos || tituloUpper.find("LABIRINTO") != std::string::npos || tituloUpper.find("CHEFE") != std::string::npos || tituloUpper.find("CORACAO") != std::string::npos);
+        bool isSalaChefe = (tituloUpper.find("CHEFE") != std::string::npos);
+        bool isCaverna = (tituloUpper.find("CAVERNA") != std::string::npos || tituloUpper.find("CORACAO") != std::string::npos);
         
         if (isSpawn) {
             // Tijolos brancos originais para o Spawn
@@ -289,6 +330,26 @@ std::string RaycasterMundo::obterPixelParede(const std::string& tituloMapa, bool
                     else if (distanciaAteParede < profundidadeMaxima)        return "\033[48;2;60;60;60m \033[0m";
                     return "\033[48;2;0;0;0m \033[0m";
                 }
+            }
+        } else if (isSalaChefe) {
+            // Fundo preto com espirais cinza escuro
+            float cx = (tx - 32.0f);
+            float cy = (ty - 32.0f);
+            float dist = std::sqrt(cx*cx + cy*cy);
+            float angle = std::atan2(cy, cx);
+            float spiral = std::sin(dist * 0.5f - angle * 3.0f);
+            
+            if (spiral > 0.0f) {
+                if (distanciaAteParede <= profundidadeMaxima / 4.0f)     return "\033[48;2;50;50;50m \033[0m";
+                else if (distanciaAteParede < profundidadeMaxima / 3.0f) return "\033[48;2;35;35;35m \033[0m";
+                else if (distanciaAteParede < profundidadeMaxima / 2.0f) return "\033[48;2;20;20;20m \033[0m";
+                else if (distanciaAteParede < profundidadeMaxima)        return "\033[48;2;10;10;10m \033[0m";
+                return "\033[48;2;0;0;0m \033[0m";
+            } else {
+                if (distanciaAteParede <= profundidadeMaxima / 4.0f)     return "\033[48;2;15;15;15m \033[0m";
+                else if (distanciaAteParede < profundidadeMaxima / 3.0f) return "\033[48;2;10;10;10m \033[0m";
+                else if (distanciaAteParede < profundidadeMaxima / 2.0f) return "\033[48;2;5;5;5m \033[0m";
+                return "\033[48;2;0;0;0m \033[0m";
             }
         } else if (isCaverna) {
             // Textura de Rochas Escuras e Umidas para Cavernas
@@ -355,6 +416,8 @@ std::string RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float 
                     tituloUpper.find("BOSQUE") != std::string::npos ||
                     tituloUpper.find("VILA") != std::string::npos ||
                     tituloUpper.find("INICIO") != std::string::npos);
+    bool isLabirinto = (tituloUpper.find("LABIRINTO") != std::string::npos);
+    bool isSalaChefe = (tituloUpper.find("CHEFE") != std::string::npos);
 
     unsigned int globX = static_cast<unsigned int>(std::abs(currentX * 32.0f));
     unsigned int globY = static_cast<unsigned int>(std::abs(currentY * 32.0f));
@@ -363,29 +426,58 @@ std::string RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float 
     std::string fg;
     char c = ' ';
 
-    // Textura HD no Background (Mesclando tons baseados na grade 32x32)
-    if (isTerra) {
+    if (isLabirinto) {
+        fg = "\033[38;2;150;130;90m";
+        bool bordaX = (globX % 64 < 2) || (globX % 64 > 61);
+        bool bordaY = (globY % 32 < 2) || (globY % 32 > 29);
+        if (bordaX || bordaY) {
+            bg = "\033[48;2;40;40;30m";
+            c = ' ';
+        } else {
+            if ((globX + globY) % 2 == 0) bg = "\033[48;2;180;160;110m";
+            else bg = "\033[48;2;160;140;95m";
+            c = ((globX * 3 + globY * 7) % 5 < 2) ? '-' : '=';
+        }
+    } else if (isSalaChefe) {
+        float cx = (globX % 64) - 32.0f;
+        float cy = (globY % 64) - 32.0f;
+        float dist = std::sqrt(cx*cx + cy*cy);
+        float angle = std::atan2(cy, cx);
+        float spiral = std::sin(dist * 0.4f - angle * 3.0f);
+
+        bg = "\033[48;2;5;5;5m"; 
+        fg = "\033[38;2;50;50;50m"; 
+        if (spiral > 0.3f) c = '@';
+        else if (spiral > 0.0f) c = '%';
+        else if (spiral > -0.3f) c = '.';
+        else c = ' ';
+    } else if (isTerra) {
         fg = "\033[38;2;45;25;10m";
         if ((globX + globY) % 2 == 0) bg = "\033[48;2;28;18;8m";
         else if ((globX * 3 + globY * 5) % 7 < 2) bg = "\033[48;2;22;12;4m";
         else bg = "\033[48;2;25;15;5m";
+        
+        if ((globX * 17 + globY * 23) % 47 < 4) c = '.';
+        else if ((globX * globX + globY * 13) % 53 < 3) c = '-';
+        else if ((globX * 3 + globY * 7) % 31 < 2) c = '`';
     } else {
         fg = "\033[38;2;60;60;60m";
         if ((globX + globY) % 2 == 0) bg = "\033[48;2;24;24;24m";
         else if ((globX * 3 + globY * 5) % 7 < 2) bg = "\033[48;2;16;16;16m";
         else bg = "\033[48;2;20;20;20m";
+        
+        if ((globX * 17 + globY * 23) % 47 < 4) c = '.';
+        else if ((globX * globX + globY * 13) % 53 < 3) c = '-';
+        else if ((globX * 3 + globY * 7) % 31 < 2) c = '`';
     }
-
-    // Padrao HD para os detalhes em caracteres
-    if ((globX * 17 + globY * 23) % 47 < 4) c = '.'; // Manchas
-    else if ((globX * globX + globY * 13) % 53 < 3) c = '-'; // Rachaduras/ranhuras
-    else if ((globX * 3 + globY * 7) % 31 < 2) c = '`'; // Pedregulhos
     
     // Aplicando sombreamento de distancia (Nevoeiro) ao chao
     if (currentDist > profundidadeMaxima / 2.0f) {
-        bg = "\033[48;2;8;8;8m"; fg = "\033[38;2;20;20;20m";
+        if (isSalaChefe) { bg = "\033[48;2;0;0;0m"; fg = "\033[38;2;15;15;15m"; }
+        else { bg = "\033[48;2;8;8;8m"; fg = "\033[38;2;20;20;20m"; }
     } else if (currentDist > profundidadeMaxima / 3.0f) {
-        bg = "\033[48;2;12;12;12m"; fg = "\033[38;2;30;30;30m";
+        if (isSalaChefe) { bg = "\033[48;2;2;2;2m"; fg = "\033[38;2;30;30;30m"; }
+        else { bg = "\033[48;2;12;12;12m"; fg = "\033[38;2;30;30;30m"; }
     }
     
     if (c == ' ') return bg + " \033[0m";

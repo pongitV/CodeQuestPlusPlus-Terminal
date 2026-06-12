@@ -486,7 +486,11 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
                 std::string tituloUpper = tituloDoMapaAtual;
                 std::transform(tituloUpper.begin(), tituloUpper.end(), tituloUpper.begin(), ::toupper);
                 
-                if (tituloUpper.find("FLORESTA") != std::string::npos || tituloUpper.find("BOSQUE") != std::string::npos) {
+                if (tituloUpper.find("FLORESTA") != std::string::npos || 
+                    tituloUpper.find("BOSQUE") != std::string::npos ||
+                    tituloUpper.find("LABIRINTO") != std::string::npos ||
+                    tituloUpper.find("CHEFE") != std::string::npos ||
+                    tituloUpper.find("ARVORE") != std::string::npos) {
                     loc = LocalizacaoMapa::Floresta;
                 } else if (tituloUpper.find("REINO") != std::string::npos || tituloUpper.find("CASTELO") != std::string::npos) {
                     loc = LocalizacaoMapa::Reino;

@@ -184,12 +184,12 @@ namespace {
                     return;
                 }
 
-                ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDoLabirintoSalva, ctx.self->labirintoJaFoiVisitado, Mapa2FlorestaLayouts::obterLayoutLabirinto(), 3, 13, "LABIRINTO SUBTERRANEO", ctx.restaurarTela);
+                ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDoLabirintoSalva, ctx.self->labirintoJaFoiVisitado, Mapa2FlorestaLayouts::obterLayoutLabirinto(), 4, 11, "LABIRINTO SUBTERRANEO", ctx.restaurarTela);
             }
             // 6. Sair de Submapas
-            else if ((px == 9 && py == 3 && titulo == "CORACAO DA ARVORE") ||
-                     (px == 1 && py == 13 && titulo == "LABIRINTO SUBTERRANEO") ||
-                     (px == 53 && py == 54 && titulo == "SALA DO CHEFE")) {
+            else if ((titulo == "CORACAO DA ARVORE") ||
+                     ((px == 1 || px == 2) && py == 11 && titulo == "LABIRINTO SUBTERRANEO") ||
+                     (titulo == "SALA DO CHEFE")) {
                 
                 if (titulo == "CORACAO DA ARVORE") {
                     ctx.self->coracaoDaArvoreJaFoiVisitado = false; 
@@ -203,8 +203,8 @@ namespace {
 
                 if (titulo == "SALA DO CHEFE") {
                     ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaDoLabirintoSalva;
-                    ctx.self->posicaoXDoJogador = 102; 
-                    ctx.self->posicaoYDoJogador = 13;
+                    ctx.self->posicaoXDoJogador = 76; 
+                    ctx.self->posicaoYDoJogador = 11;
                     ctx.self->tituloDoMapaAtual = "LABIRINTO SUBTERRANEO";
                 } else {
                     ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaPrincipalSalva;
@@ -215,8 +215,8 @@ namespace {
                 }
                 if (!ControleMapa::isExploracao3DAtiva()) ctx.restaurarTela();
             }
-            // 7. Fim do Labirinto (Escadaria para Boss) (X=103, Y=13)
-            else if (px == 103 && py == 13 && titulo == "LABIRINTO SUBTERRANEO") {
+            // 7. Fim do Labirinto (Escadaria para Boss)
+            else if ((px == 77 || px == 78) && py == 11 && titulo == "LABIRINTO SUBTERRANEO") {
                 Aparencia::iniciarInteracaoPopup();
                 std::vector<std::string> msgLab = {
                     "Voce encontrou a saida do labirinto!",
@@ -296,6 +296,15 @@ void Mapa2Floresta::inicializarInteracoes() {
 
 ProximaTransicaoMapa Mapa2Floresta::iniciarLoopDeExploracao()
 {
+    // Resgata o jogador se ele usou Viagem Rapida enquanto estava dentro de um submapa
+    if (jogadorEstaDentroDeUmSubMapa) {
+        matrizDoMapaAtual = matrizDoMapaPrincipalSalva;
+        posicaoXDoJogador = posicaoXSalvaAntesDeEntrarNoSubMapa;
+        posicaoYDoJogador = posicaoYSalvaAntesDeEntrarNoSubMapa;
+        jogadorEstaDentroDeUmSubMapa = false;
+        tituloDoMapaAtual = "FLORESTA";
+    }
+
     inicializarInteracoes();
 
     ControleMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
@@ -341,24 +350,24 @@ ProximaTransicaoMapa Mapa2Floresta::iniciarLoopDeExploracao()
             auto isHWall = [](char c) { return c == '=' || c == '.' || c == '\''; };
             auto isVWall = [](char c) { return c == '|' || c == '+' || c == 'S' || c == 'E'; };
 
-            if (celula == '=') return Aparencia::cor(Cor::CINZA) + "═" + Aparencia::cor(Cor::RESET);
+            if (celula == '=') return Aparencia::cor(Cor::CINZA) + "─" + Aparencia::cor(Cor::RESET);
             if (celula == '|') {
                 bool right = (x + 1 < static_cast<int>(matrizDoMapaAtual[y].length()) && isHWall(matrizDoMapaAtual[y][x+1]));
                 bool left = (x > 0 && isHWall(matrizDoMapaAtual[y][x-1]));
-                if (right && left) return Aparencia::cor(Cor::CINZA) + "╬" + Aparencia::cor(Cor::RESET);
-                if (right) return Aparencia::cor(Cor::CINZA) + "╠" + Aparencia::cor(Cor::RESET);
-                if (left) return Aparencia::cor(Cor::CINZA) + "╣" + Aparencia::cor(Cor::RESET);
-                return Aparencia::cor(Cor::CINZA) + "║" + Aparencia::cor(Cor::RESET);
+                if (right && left) return Aparencia::cor(Cor::CINZA) + "┼" + Aparencia::cor(Cor::RESET);
+                if (right) return Aparencia::cor(Cor::CINZA) + "├" + Aparencia::cor(Cor::RESET);
+                if (left) return Aparencia::cor(Cor::CINZA) + "┤" + Aparencia::cor(Cor::RESET);
+                return Aparencia::cor(Cor::CINZA) + "│" + Aparencia::cor(Cor::RESET);
             }
             if (celula == '.') {
                 bool right = (x + 1 < static_cast<int>(matrizDoMapaAtual[y].length()) && isHWall(matrizDoMapaAtual[y][x+1]));
                 bool left = (x > 0 && isHWall(matrizDoMapaAtual[y][x-1]));
                 bool down = (y + 1 < static_cast<int>(matrizDoMapaAtual.size()) && isVWall(matrizDoMapaAtual[y+1][x]));
                 
-                if (left && right && down) return Aparencia::cor(Cor::CINZA) + "╦" + Aparencia::cor(Cor::RESET);
-                if (right && down) return Aparencia::cor(Cor::CINZA) + "╔" + Aparencia::cor(Cor::RESET);
-                if (left && down) return Aparencia::cor(Cor::CINZA) + "╗" + Aparencia::cor(Cor::RESET);
-                if (left && right) return Aparencia::cor(Cor::CINZA) + "═" + Aparencia::cor(Cor::RESET);
+                if (left && right && down) return Aparencia::cor(Cor::CINZA) + "┬" + Aparencia::cor(Cor::RESET);
+                if (right && down) return Aparencia::cor(Cor::CINZA) + "┌" + Aparencia::cor(Cor::RESET);
+                if (left && down) return Aparencia::cor(Cor::CINZA) + "┐" + Aparencia::cor(Cor::RESET);
+                if (left && right) return Aparencia::cor(Cor::CINZA) + "─" + Aparencia::cor(Cor::RESET);
                 return Aparencia::cor(Cor::CINZA) + "█" + Aparencia::cor(Cor::RESET);
             }
             if (celula == '\'') {
@@ -366,10 +375,10 @@ ProximaTransicaoMapa Mapa2Floresta::iniciarLoopDeExploracao()
                 bool left = (x > 0 && isHWall(matrizDoMapaAtual[y][x-1]));
                 bool up = (y > 0 && isVWall(matrizDoMapaAtual[y-1][x]));
                 
-                if (left && right && up) return Aparencia::cor(Cor::CINZA) + "╩" + Aparencia::cor(Cor::RESET);
-                if (right && up) return Aparencia::cor(Cor::CINZA) + "╚" + Aparencia::cor(Cor::RESET);
-                if (left && up) return Aparencia::cor(Cor::CINZA) + "╝" + Aparencia::cor(Cor::RESET);
-                if (left && right) return Aparencia::cor(Cor::CINZA) + "═" + Aparencia::cor(Cor::RESET);
+                if (left && right && up) return Aparencia::cor(Cor::CINZA) + "┴" + Aparencia::cor(Cor::RESET);
+                if (right && up) return Aparencia::cor(Cor::CINZA) + "└" + Aparencia::cor(Cor::RESET);
+                if (left && up) return Aparencia::cor(Cor::CINZA) + "┘" + Aparencia::cor(Cor::RESET);
+                if (left && right) return Aparencia::cor(Cor::CINZA) + "─" + Aparencia::cor(Cor::RESET);
                 return Aparencia::cor(Cor::CINZA) + "█" + Aparencia::cor(Cor::RESET);
             }
             if (celula == '+') {
@@ -378,12 +387,12 @@ ProximaTransicaoMapa Mapa2Floresta::iniciarLoopDeExploracao()
                 bool down = (y + 1 < static_cast<int>(matrizDoMapaAtual.size()) && isVWall(matrizDoMapaAtual[y+1][x]));
                 bool up = (y > 0 && isVWall(matrizDoMapaAtual[y-1][x]));
                 
-                if (left && right && down && up) return Aparencia::cor(Cor::CINZA) + "╬" + Aparencia::cor(Cor::RESET);
-                if (left && right && down) return Aparencia::cor(Cor::CINZA) + "╦" + Aparencia::cor(Cor::RESET);
-                if (left && right && up) return Aparencia::cor(Cor::CINZA) + "╩" + Aparencia::cor(Cor::RESET);
-                if (up && down && left) return Aparencia::cor(Cor::CINZA) + "╣" + Aparencia::cor(Cor::RESET);
-                if (up && down && right) return Aparencia::cor(Cor::CINZA) + "╠" + Aparencia::cor(Cor::RESET);
-                return Aparencia::cor(Cor::CINZA) + "╬" + Aparencia::cor(Cor::RESET);
+                if (left && right && down && up) return Aparencia::cor(Cor::CINZA) + "┼" + Aparencia::cor(Cor::RESET);
+                if (left && right && down) return Aparencia::cor(Cor::CINZA) + "┬" + Aparencia::cor(Cor::RESET);
+                if (left && right && up) return Aparencia::cor(Cor::CINZA) + "┴" + Aparencia::cor(Cor::RESET);
+                if (up && down && left) return Aparencia::cor(Cor::CINZA) + "┤" + Aparencia::cor(Cor::RESET);
+                if (up && down && right) return Aparencia::cor(Cor::CINZA) + "├" + Aparencia::cor(Cor::RESET);
+                return Aparencia::cor(Cor::CINZA) + "┼" + Aparencia::cor(Cor::RESET);
             }
         }
         

@@ -444,7 +444,7 @@ std::vector<std::string> TelaCombate::obterLinhasBarraDeStatusDoJogador(Personag
     std::string blocos[] = {" ", "▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"};
     Cor baseCorVida = (porcentagemDeVida > 0.70) ? Cor::VERDE : (porcentagemDeVida > 0.30) ? Cor::AMARELO : Cor::VERMELHO;
     for (int i = 0; i < tamanhoBarra; ++i) {
-        int intensidade = 30 + (70 * i) / std::max(1, tamanhoBarra - 1);
+        int intensidade = 130 + (125 * i) / std::max(1, tamanhoBarra - 1);
         std::string corAtual = Aparencia::obterCorRGBFade(baseCorVida, intensidade);
         int charIdx = i * 8;
         if (qtdReal >= charIdx + 8) barraHP += corAtual + "█";

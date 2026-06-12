@@ -5,6 +5,7 @@
 class Mahoraga : public RacaBase {
 private:
     int parrysSofridos = 0;
+    int defesasComEscudoSofridas = 0;
 public:
     std::string obterNomeRaca() const override;
     TipoRaca obterTipoRaca() const override { return TipoRaca::Mahoraga; }
@@ -18,7 +19,9 @@ public:
     
     void aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCausado) override;
     void aoSofrerParryPerfeito() override;
+    void aoTerAtaqueBloqueadoPorEscudo();
     bool ignoraParry() const override;
+    bool ignoraEscudo() const;
 
     InfoBestiario obterInfoBestiario() const override;
     void realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal) override;

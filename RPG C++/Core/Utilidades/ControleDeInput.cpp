@@ -238,7 +238,7 @@ int ControleDeInput::lerSelecaoMenuEmPopup(const std::string& titulo, const std:
             if (len > larguraTexto) larguraTexto = len;
         }
 
-        int totalWidth = larguraArte + (larguraArte > 0 ? 3 : 1) + larguraTexto; 
+        int totalWidth = larguraArte + (larguraArte > 0 ? 3 : 0) + larguraTexto; 
         
         // Expande a largura de texto para garantir que a janela fique com a largura ideal padrao
         if (totalWidth < minTotalWidth) {

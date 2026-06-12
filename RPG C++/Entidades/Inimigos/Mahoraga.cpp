@@ -43,7 +43,7 @@ void Mahoraga::aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCaus
             atacante->alterarAtributoEstatico(TipoAtributo::Constituicao, 5);
             Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("A Roda gira... Mahoraga adaptou-se ao combate fisico, ganhando atributos ofensivos e defensivos!", Cor::MAGENTA));
         } else {
-            Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("A Roda gira... A adaptacao fisica de Mahoraga atingiu o limite de 50!", Cor::MAGENTA));
+            Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("A Roda gira... A adaptacao fisica de Mahoraga atingiu seu limite...", Cor::MAGENTA));
         }
     } else {
         if (atacante->obterSabedoria() < 50) {
@@ -53,7 +53,7 @@ void Mahoraga::aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCaus
             atacante->alterarAtributoEstatico(TipoAtributo::Constituicao, 5);
             Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("A Roda gira... Mahoraga adaptou-se a sua magia, ganhando atributos magicos e vitais!", Cor::MAGENTA));
         } else {
-            Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("A Roda gira... A adaptacao magica de Mahoraga atingiu o limite de 50!", Cor::MAGENTA));
+            Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("A Roda gira... A adaptacao magica de Mahoraga atingiu seu limite...", Cor::MAGENTA));
         }
     }
 
@@ -75,12 +75,26 @@ void Mahoraga::aoSofrerParryPerfeito() {
     parrysSofridos++;
     if (parrysSofridos == 10) {
         TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + "\033[5m" + Aparencia::cor(Cor::AMARELO) + "* KLINK! *" + Aparencia::cor(Cor::RESET) + " A Roda gira...\n");
-        Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("A Roda gira... Mahoraga adaptou-se aos seus reflexos! Seus ataques agora sao IMPARAVEIS!", Cor::MAGENTA));
+        Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("A Roda gira... Mahoraga adaptou-se aos seus reflexos! Seus ataques agora sao IMPARAVEIS!", Cor::FUNDO_VERMELHO));
+    }
+}
+
+void Mahoraga::aoTerAtaqueBloqueadoPorEscudo() {
+    if (defesasComEscudoSofridas < 3) {
+        defesasComEscudoSofridas++;
+        if (defesasComEscudoSofridas == 3) {
+            TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + "\033[5m" + Aparencia::cor(Cor::AMARELO) + "* KLINK! *" + Aparencia::cor(Cor::RESET) + " A Roda gira...\n");
+            Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("A Roda gira... Mahoraga adaptou-se a sua defesa! Seus ataques agora perfuram escudos!", Cor::FUNDO_VERMELHO));
+        }
     }
 }
 
 bool Mahoraga::ignoraParry() const {
     return parrysSofridos >= 10;
+}
+
+bool Mahoraga::ignoraEscudo() const {
+    return defesasComEscudoSofridas >= 3;
 }
 
 // --- APARENCIA ---

@@ -81,7 +81,54 @@ void RaycasterHUD::desenharMinimapa(vector<string>& tela, int LARGURA_TELA, int 
                         if (c == '|') tela[screenY * LARGURA_TELA + screenX] = bgMini + "\033[38;2;101;67;33m|\033[0m";
                         else tela[screenY * LARGURA_TELA + screenX] = bgMini + "\033[38;2;140;140;140m" + string(1, c) + "\033[0m";
                     } else if (isInterior) {
-                        tela[screenY * LARGURA_TELA + screenX] = bgMini + "\033[38;2;140;140;140m" + string(1, c) + "\033[0m";
+                        if (tituloUpper.find("LABIRINTO") != std::string::npos) {
+                            string strC = string(1, c);
+                            auto isHWall = [](char ch) { return ch == '=' || ch == '.' || ch == '\''; };
+                            auto isVWall = [](char ch) { return ch == '|' || ch == '+' || ch == 'S' || ch == 'E'; };
+                            
+                            if (c == '=') strC = "─";
+                            else if (c == '|') {
+                                bool right = (mapX + 1 < larguraMapa && isHWall(matrizDoMapa[mapY][mapX+1]));
+                                bool left = (mapX > 0 && isHWall(matrizDoMapa[mapY][mapX-1]));
+                                if (right && left) strC = "┼";
+                                else if (right) strC = "├";
+                                else if (left) strC = "┤";
+                                else strC = "│";
+                            }
+                            else if (c == '.') {
+                                bool right = (mapX + 1 < larguraMapa && isHWall(matrizDoMapa[mapY][mapX+1]));
+                                bool left = (mapX > 0 && isHWall(matrizDoMapa[mapY][mapX-1]));
+                                bool down = (mapY + 1 < alturaMapa && isVWall(matrizDoMapa[mapY+1][mapX]));
+                                if (left && right && down) strC = "┬";
+                                else if (right && down) strC = "┌";
+                                else if (left && down) strC = "┐";
+                                else if (left && right) strC = "─";
+                            }
+                            else if (c == '\'') {
+                                bool right = (mapX + 1 < larguraMapa && isHWall(matrizDoMapa[mapY][mapX+1]));
+                                bool left = (mapX > 0 && isHWall(matrizDoMapa[mapY][mapX-1]));
+                                bool up = (mapY > 0 && isVWall(matrizDoMapa[mapY-1][mapX]));
+                                if (left && right && up) strC = "┴";
+                                else if (right && up) strC = "└";
+                                else if (left && up) strC = "┘";
+                                else if (left && right) strC = "─";
+                            }
+                            else if (c == '+') {
+                                bool right = (mapX + 1 < larguraMapa && isHWall(matrizDoMapa[mapY][mapX+1]));
+                                bool left = (mapX > 0 && isHWall(matrizDoMapa[mapY][mapX-1]));
+                                bool down = (mapY + 1 < alturaMapa && isVWall(matrizDoMapa[mapY+1][mapX]));
+                                bool up = (mapY > 0 && isVWall(matrizDoMapa[mapY-1][mapX]));
+                                if (left && right && down && up) strC = "┼";
+                                else if (left && right && down) strC = "┬";
+                                else if (left && right && up) strC = "┴";
+                                else if (up && down && left) strC = "┤";
+                                else if (up && down && right) strC = "├";
+                                else strC = "┼";
+                            }
+                            tela[screenY * LARGURA_TELA + screenX] = bgMini + "\033[38;2;150;130;90m" + strC + "\033[0m";
+                        } else {
+                            tela[screenY * LARGURA_TELA + screenX] = bgMini + "\033[38;2;140;140;140m" + string(1, c) + "\033[0m";
+                        }
                     } else {
                         std::string estruturas = "|_[]{}/\\<>;=-:+";
                         if (estruturas.find(c) != std::string::npos) {

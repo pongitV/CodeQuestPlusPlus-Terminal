@@ -191,7 +191,7 @@ std::string Aparencia::gerarBarraGradiente(double pct, int tamanho, Cor corFinal
     std::string blocos[] = {" ", "▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"};
     std::string barra = "";
     for (int i = 0; i < tamanho; ++i) {
-        int intensidade = 30 + (70 * i) / std::max(1, tamanho - 1);
+        int intensidade = 130 + (125 * i) / std::max(1, tamanho - 1);
         std::string corAtual = Aparencia::obterCorRGBFade(corFinal, intensidade);
         int charIdx = i * 8;
         if (qtdReal >= charIdx + 8) barra += corAtual + "█";
@@ -579,7 +579,7 @@ void Aparencia::exibirPopup(const std::string& titulo, const std::vector<std::st
         if (len > larguraTexto) larguraTexto = len;
     }
 
-    int totalWidth = larguraArte + (larguraArte > 0 ? 3 : 1) + larguraTexto; 
+    int totalWidth = larguraArte + (larguraArte > 0 ? 3 : 0) + larguraTexto; 
     
     // Expande a largura de texto para garantir que a janela fique com a largura ideal padrao
     if (totalWidth < minTotalWidth) {
