@@ -81,7 +81,7 @@ void TelaInventario::exibirInspecaoItem(Item* item, Personagem* jogadorAtual)
     if (!item) return;
     
     std::vector<std::string> linhas;
-    linhas.push_back(Aparencia::cor(Cor::CIANO) + " ═══ " + item->obterNomeItem() + " ═══" + Aparencia::cor(Cor::RESET));
+    linhas.push_back(Aparencia::cor(Cor::AMARELO) + " ═══ " + item->obterNomeItem() + " ═══" + Aparencia::cor(Cor::RESET));
     
     std::vector<std::string> detalhes = item->obterDetalhesInspecao(jogadorAtual);
     linhas.insert(linhas.end(), detalhes.begin(), detalhes.end());

@@ -95,6 +95,13 @@ int ControleDeInput::lerSelecaoMenuComSetas(const std::vector<std::string>& opco
     int selecaoAtual = 0;
     int totalOpcoes = static_cast<int>(opcoes.size());
     int totalDir = static_cast<int>(painelDireito.size());
+
+    // Pula para a primeira opcao que nao seja HEADER (evita que comece focado nas bordas da caixa)
+    while (selecaoAtual < totalOpcoes && opcoes[selecaoAtual].find("#HEADER#") == 0) {
+        selecaoAtual++;
+    }
+    if (selecaoAtual >= totalOpcoes) selecaoAtual = 0;
+
     int maxLinhas = std::max(totalOpcoes, totalDir);
     std::string margem = margemPersonalizada;
     

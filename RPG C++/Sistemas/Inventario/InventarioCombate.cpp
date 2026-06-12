@@ -27,20 +27,20 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
         [jogadorAtual]() {
             TelaInventario::exibirCaixaEquipados(jogadorAtual);
             std::cout << "\n";
-            Aparencia::imprimirCentralizado("DINHEIRO: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + " moedas", Aparencia::cor(Cor::AMARELO));
+            Aparencia::imprimirCentralizado("BOLSO: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + " Moedas de Ouro [$$]", Aparencia::cor(Cor::AMARELO));
             std::cout << "\n";
         },
         [jogadorAtual]() {
             std::vector<std::string> opcoes;
             if (jogadorAtual->obterConsumivelRapido()) {
                 int qtd = jogadorAtual->obterInventario()->contarItem(jogadorAtual->obterConsumivelRapido()->obterNomeItem());
-                opcoes.push_back("Acesso Rapido: " + jogadorAtual->obterConsumivelRapido()->obterNomeItem() + " (" + std::to_string(qtd) + "x)");
+                opcoes.push_back(Aparencia::cor(Cor::VERDE) + "[+] Acesso Rapido: " + jogadorAtual->obterConsumivelRapido()->obterNomeItem() + " (" + std::to_string(qtd) + "x)" + Aparencia::cor(Cor::RESET));
             }
-            opcoes.push_back("Arsenal de Equipamentos");
-            opcoes.push_back("Itens Consumiveis");
-            opcoes.push_back("Estoque e Materiais");
-            opcoes.push_back("Itens de Missao");
-            opcoes.push_back("VOLTAR");
+            opcoes.push_back("[X] Arsenal de Equipamentos");
+            opcoes.push_back("[o] Itens Consumiveis");
+            opcoes.push_back("[#] Estoque e Materiais");
+            opcoes.push_back("[!] Itens de Missao");
+            opcoes.push_back("[<] VOLTAR");
             return opcoes;
         },
         [&](int escolha) {
@@ -77,12 +77,12 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
                 [](bool animar) { TelaInventario::exibirCabecalhoInventario(animar); },
                 [categoria]() {
                     std::string titulo = "";
-                    if (categoria == 0) titulo = "ARSENAL DE EQUIPAMENTOS";
-                    else if (categoria == 1) titulo = "ITENS CONSUMIVEIS";
-                    else if (categoria == 2) titulo = "ESTOQUE E MATERIAIS";
-                    else if (categoria == 3) titulo = "ITENS DE MISSAO";
+                    if (categoria == 0) titulo = "=== [X] ARSENAL DE EQUIPAMENTOS [X] ===";
+                    else if (categoria == 1) titulo = "=== [o] ITENS CONSUMIVEIS [o] ===";
+                    else if (categoria == 2) titulo = "=== [#] ESTOQUE E MATERIAIS [#] ===";
+                    else if (categoria == 3) titulo = "=== [!] ITENS DE MISSAO [!] ===";
                     std::cout << "\n";
-                    Aparencia::imprimirCentralizado(titulo, Aparencia::cor(Cor::CIANO));
+                    Aparencia::imprimirCentralizado(titulo, Aparencia::cor(Cor::AMARELO));
                     std::cout << "\n";
                 },
                 [jogadorAtual, categoria, &mapIndexParaItem]() {
@@ -94,42 +94,107 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
 
                     auto adicionarCategoria = [&](const std::string& titulo, const std::vector<std::pair<std::string, Item*>>& lista) {
                         if (!lista.empty()) {
-                            ops.push_back(Aparencia::cor(Cor::CINZA) + "--- " + titulo + " ---" + Aparencia::cor(Cor::RESET));
-                            mapIndexParaItem.push_back(nullptr); // nullptr representa que e apenas um titulo, nao interativo
+                            std::vector<std::string> linhasItem;
                             for (const auto& p : lista) {
-                                ops.push_back(p.first);
-                                mapIndexParaItem.push_back(p.second);
+                                linhasItem.push_back(" " + p.first); // Adiciona um pequeno recuo interno
                             }
+                            
+                            std::vector<std::string> caixa = Aparencia::criarCaixa(linhasItem, titulo, 60, Cor::AMARELO);
+                            
+                            ops.push_back("#HEADER#" + caixa[0]); // Topo da caixa
+                            mapIndexParaItem.push_back(nullptr);
+                            for (size_t i = 0; i < lista.size(); ++i) {
+                                ops.push_back(caixa[i + 1]); // Linha com o item interativo
+                                mapIndexParaItem.push_back(lista[i].second);
+                            }
+                            ops.push_back("#HEADER#" + caixa.back()); // Fundo da caixa
+                            mapIndexParaItem.push_back(nullptr);
+                            ops.push_back("#HEADER#"); // Separacao visual entre caixas
+                            mapIndexParaItem.push_back(nullptr);
                         }
                     };
 
                     if (categoria == 0) {
                         std::vector<std::pair<std::string, Item*>> equipados, danoFisico, danoMagico, armaduras, escudos, outros;
+                        std::vector<std::string> nomesProcessados;
                         for (auto& p : itens) {
                             Item* it = p.second;
-                            if (jogadorAtual->isItemEquipado(it)) {
-                                equipados.push_back(p);
-                            } else if (it->obterTipo() == TipoEquipamento::ARMA) {
-                                if (auto* arma = dynamic_cast<EquipamentoArma*>(it)) {
-                                    if (arma->obterDanoMagico() > arma->obterDanoFisico()) danoMagico.push_back(p);
-                                    else danoFisico.push_back(p);
+                            std::string nomeItem = it->obterNomeItem();
+                            
+                            bool jaProcessado = false;
+                            for (const auto& n : nomesProcessados) {
+                                if (n == nomeItem) {
+                                    jaProcessado = true;
+                                    break;
+                                }
+                            }
+                            if (jaProcessado) continue;
+                            nomesProcessados.push_back(nomeItem);
+                            
+                            Item* equipado = nullptr;
+                            for (auto* invIt : jogadorAtual->obterInventario()->obterTodosOsItens()) {
+                                if (invIt->obterNomeItem() == nomeItem && jogadorAtual->isItemEquipado(invIt)) {
+                                    equipado = invIt;
+                                    break;
+                                }
+                            }
+                            
+                            if (equipado) {
+                                equipados.push_back({nomeItem, equipado});
+                                
+                                int total = jogadorAtual->obterInventario()->contarItem(nomeItem);
+                                int sobra = total - 1;
+                                
+                                if (sobra > 0) {
+                                    std::string nomeSobra = nomeItem + (sobra > 1 ? " (" + std::to_string(sobra) + "x)" : "");
+                                    Item* desequipado = nullptr;
+                                    for (auto* invIt : jogadorAtual->obterInventario()->obterTodosOsItens()) {
+                                        if (invIt->obterNomeItem() == nomeItem && !jogadorAtual->isItemEquipado(invIt)) {
+                                            desequipado = invIt;
+                                            break;
+                                        }
+                                    }
+                                    
+                                    if (desequipado) {
+                                        if (desequipado->obterTipo() == TipoEquipamento::ARMA) {
+                                            if (auto* arma = dynamic_cast<EquipamentoArma*>(desequipado)) {
+                                                if (arma->obterDanoMagico() > arma->obterDanoFisico()) danoMagico.push_back({nomeSobra, desequipado});
+                                                else danoFisico.push_back({nomeSobra, desequipado});
+                                            } else {
+                                                outros.push_back({nomeSobra, desequipado});
+                                            }
+                                        } else if (desequipado->obterTipo() == TipoEquipamento::ARMADURA) {
+                                            armaduras.push_back({nomeSobra, desequipado});
+                                        } else if (desequipado->obterTipo() == TipoEquipamento::ESCUDO) {
+                                            escudos.push_back({nomeSobra, desequipado});
+                                        } else {
+                                            outros.push_back({nomeSobra, desequipado});
+                                        }
+                                    }
+                                }
+                            } else {
+                                if (it->obterTipo() == TipoEquipamento::ARMA) {
+                                    if (auto* arma = dynamic_cast<EquipamentoArma*>(it)) {
+                                        if (arma->obterDanoMagico() > arma->obterDanoFisico()) danoMagico.push_back(p);
+                                        else danoFisico.push_back(p);
+                                    } else {
+                                        outros.push_back(p);
+                                    }
+                                } else if (it->obterTipo() == TipoEquipamento::ARMADURA) {
+                                    armaduras.push_back(p);
+                                } else if (it->obterTipo() == TipoEquipamento::ESCUDO) {
+                                    escudos.push_back(p);
                                 } else {
                                     outros.push_back(p);
                                 }
-                            } else if (it->obterTipo() == TipoEquipamento::ARMADURA) {
-                                armaduras.push_back(p);
-                            } else if (it->obterTipo() == TipoEquipamento::ESCUDO) {
-                                escudos.push_back(p);
-                            } else {
-                                outros.push_back(p);
                             }
                         }
-                        adicionarCategoria("EQUIPADOS", equipados);
+                        adicionarCategoria("EQUIPAMENTOS EM USO", equipados);
                         adicionarCategoria("ARMAS - DANO FISICO", danoFisico);
                         adicionarCategoria("ARMAS - DANO MAGICO", danoMagico);
                         adicionarCategoria("ARMADURAS", armaduras);
                         adicionarCategoria("ESCUDOS", escudos);
-                        adicionarCategoria("OUTROS", outros);
+                        adicionarCategoria("OUTROS EQUIPAMENTOS", outros);
                     } else if (categoria == 1) {
                         std::vector<std::pair<std::string, Item*>> equipados, cura, buff, outros;
                         for (auto& p : itens) {
@@ -144,19 +209,34 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
                                 outros.push_back(p);
                             }
                         }
-                        adicionarCategoria("NO ACESSO RAPIDO", equipados);
-                        adicionarCategoria("CURA E RESTAURACAO", cura);
-                        adicionarCategoria("BUFFS E ELIXIRES", buff);
+                        adicionarCategoria("EQUIPADO: ACESSO RAPIDO", equipados);
+                        adicionarCategoria("POCOES DE CURA E RESTAURACAO", cura);
+                        adicionarCategoria("ELIXIRES E BUFFS", buff);
                         adicionarCategoria("OUTROS CONSUMIVEIS", outros);
                     } else {
                         // Missões e Materiais, apenas listar
+                        std::vector<std::string> linhas;
+                        std::vector<Item*> itensMapeados;
                         for (auto& p : itens) {
-                            ops.push_back(p.first);
-                            mapIndexParaItem.push_back(p.second);
+                            linhas.push_back(" " + p.first);
+                            itensMapeados.push_back(p.second);
+                        }
+                        if (!linhas.empty()) {
+                            std::vector<std::string> caixa = Aparencia::criarCaixa(linhas, "ITENS", 60, Cor::AMARELO);
+                            ops.push_back("#HEADER#" + caixa[0]);
+                            mapIndexParaItem.push_back(nullptr);
+                            for (size_t i = 0; i < itensMapeados.size(); ++i) {
+                                ops.push_back(caixa[i + 1]);
+                                mapIndexParaItem.push_back(itensMapeados[i]);
+                            }
+                            ops.push_back("#HEADER#" + caixa.back());
+                            mapIndexParaItem.push_back(nullptr);
+                            ops.push_back("#HEADER#");
+                            mapIndexParaItem.push_back(nullptr);
                         }
                     }
 
-                    ops.push_back("VOLTAR");
+                    ops.push_back("[<] VOLTAR");
                     mapIndexParaItem.push_back(nullptr);
                     return ops;
                 },
@@ -169,32 +249,35 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
                         return true; // Clicou em cima do titulo da categoria, entao apenas ignora e mantem a tela aberta
                     }
                     
-                    TelaBase::executarLoopPadrao(
-                        "OPCOES DE ITEM", Cor::AMARELO,
-                        [itemEncontrado]() {
-                            std::cout << "\n";
-                            Aparencia::imprimirCentralizado("Item Selecionado: " + Aparencia::cor(Cor::CIANO) + itemEncontrado->obterNomeItem() + Aparencia::cor(Cor::RESET));
-                            std::cout << "\n";
-                        },
-                        [itemEncontrado]() {
-                            TipoEquipamento tipo = itemEncontrado->obterTipo();
-                            std::vector<std::string> ops;
-                            if (tipo == TipoEquipamento::ARMA || tipo == TipoEquipamento::ESCUDO || tipo == TipoEquipamento::ARMADURA) {
-                                ops = {"Equipar / Desequipar", "Inspecionar (Dano, Durabilidade, Requisitos, etc)"};
-                            } else if (tipo == TipoEquipamento::MISSAO) {
-                                ops = {Aparencia::cor(Cor::CINZA) + "Uso em missoes (Automatico)" + Aparencia::cor(Cor::RESET), "Inspecionar (Lore)"};
-                            } else if (tipo == TipoEquipamento::CONSUMIVEL) {
-                                ops = {"Usar em quantidade", "Equipar no Acesso Rapido", "Inspecionar Efeitos"};
-                            } else {
-                                ops = {Aparencia::cor(Cor::CINZA) + "Levar para NPC (Forja/Mago)" + Aparencia::cor(Cor::RESET), "Inspecionar Detalhes"};
-                            }
-                            ops.push_back("Cancelar");
-                            return ops;
-                        },
-                        [&](int subOpcao) {
-                            TipoEquipamento tipo = itemEncontrado->obterTipo();
-                            
-                            if (subOpcao == 0) {
+                    bool submenuAberto = true;
+                    while (submenuAberto) {
+                        TipoEquipamento tipo = itemEncontrado->obterTipo();
+                        std::vector<std::string> ops;
+                        if (tipo == TipoEquipamento::ARMA || tipo == TipoEquipamento::ESCUDO || tipo == TipoEquipamento::ARMADURA) {
+                            ops = {"[+] Equipar / Desequipar", "[?] Inspecionar (Atributos, Requisitos, Lore)"};
+                        } else if (tipo == TipoEquipamento::MISSAO) {
+                            ops = {Aparencia::cor(Cor::CINZA) + "[!] Uso em missoes (Automatico)" + Aparencia::cor(Cor::RESET), "[?] Inspecionar (Lore)"};
+                        } else if (tipo == TipoEquipamento::CONSUMIVEL) {
+                            ops = {"[*] Usar item", "[+] Equipar no Acesso Rapido", "[?] Inspecionar Efeitos"};
+                        } else {
+                            ops = {Aparencia::cor(Cor::CINZA) + "[#] Levar para NPC (Forja/Mago)" + Aparencia::cor(Cor::RESET), "[?] Inspecionar Detalhes"};
+                        }
+                        ops.push_back("[<] Cancelar");
+                        
+                        Aparencia::iniciarInteracaoPopup();
+                        int subOpcao = ControleDeInput::lerSelecaoMenuEmPopup(
+                            "OPCOES DE ITEM", 
+                            {"O que deseja fazer com:", Aparencia::cor(Cor::AMARELO) + ">> " + itemEncontrado->obterNomeItem() + " <<" + Aparencia::cor(Cor::RESET)}, 
+                            ops, 
+                            Cor::AMARELO
+                        );
+
+                        if (subOpcao == static_cast<int>(ops.size()) - 1 || subOpcao == -1) {
+                            submenuAberto = false;
+                            break;
+                        }
+                        
+                        if (subOpcao == 0) {
                                 int quantidadeParaUsar = 1;
                                 if (tipo == TipoEquipamento::CONSUMIVEL) {
                                     int qtdDisponivel = jogadorAtual->obterInventario()->contarItem(itemEncontrado->obterNomeItem());
@@ -221,26 +304,43 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
                                             std::string msgQtd = "Quantidade (1 a " + std::to_string(qtdDisponivel) + ", 0 cancelar): ";
                                             quantidadeParaUsar = Aparencia::lerInteiroEmPopupFlutuante(msgQtd, 0, qtdDisponivel, Cor::AMARELO);
                                         } else {
-                                            return true; // Cancelar
+                                            submenuAberto = false;
+                                            break; // Cancelar
                                         }
                                     }
                                 }
                                 
-                                if (quantidadeParaUsar == 0) return true; // Cancelado
+                                if (quantidadeParaUsar == 0) {
+                                    submenuAberto = false;
+                                    break; // Cancelado
+                                }
 
                                 std::string nomeItem = itemEncontrado->obterNomeItem();
                                 bool consumiuAlgumTurno = false;
                                 
                                 for (int i = 0; i < quantidadeParaUsar; ++i) {
                                     Item* itemAtual = nullptr;
-                                    for (auto* it : jogadorAtual->obterInventario()->obterTodosOsItens()) {
-                                        if (it->obterNomeItem() == nomeItem && !jogadorAtual->isItemEquipado(it)) {
-                                            itemAtual = it;
-                                            break;
+                                    if (itemEncontrado->isEquipavel()) {
+                                        if (jogadorAtual->isItemEquipado(itemEncontrado)) {
+                                            itemAtual = itemEncontrado;
+                                        } else {
+                                            for (auto* it : jogadorAtual->obterInventario()->obterTodosOsItens()) {
+                                                if (it->obterNomeItem() == nomeItem && !jogadorAtual->isItemEquipado(it)) {
+                                                    itemAtual = it;
+                                                    break;
+                                                }
+                                            }
                                         }
-                                    }
-                                    if (!itemAtual && jogadorAtual->isItemEquipado(itemEncontrado)) {
-                                        itemAtual = itemEncontrado;
+                                    } else {
+                                        for (auto* it : jogadorAtual->obterInventario()->obterTodosOsItens()) {
+                                            if (it->obterNomeItem() == nomeItem && !jogadorAtual->isItemEquipado(it)) {
+                                                itemAtual = it;
+                                                break;
+                                            }
+                                        }
+                                        if (!itemAtual && jogadorAtual->isItemEquipado(itemEncontrado)) {
+                                            itemAtual = itemEncontrado;
+                                        }
                                     }
                                     
                                     if (itemAtual) {
@@ -272,8 +372,9 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
                                 if (turnoFoiConsumido && consumiuAlgumTurno) {
                                     *turnoFoiConsumido = true;
                                 }
-                                return false; // Sai do Submenu apos o uso
-                            } else if (subOpcao == 1 && tipo == TipoEquipamento::CONSUMIVEL) {
+                                submenuAberto = false; // Sai do Submenu apos o uso
+                                break;
+                        } else if (subOpcao == 1 && tipo == TipoEquipamento::CONSUMIVEL) {
                                 if (jogadorAtual->obterConsumivelRapido() == itemEncontrado) {
                                     jogadorAtual->desequiparConsumivel();
                                     std::cout << "\n" << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgSistema(itemEncontrado->obterNomeItem() + " desequipado do acesso rapido!", Cor::AMARELO) << "\n";
@@ -282,18 +383,21 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
                                     std::cout << "\n" << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgSistema(itemEncontrado->obterNomeItem() + " equipado no acesso rapido!", Cor::VERDE) << "\n";
                                 }
                                 ControleDeInput::aguardarEnter();
-                                return false;
-                            } else if ((subOpcao == 1 && tipo != TipoEquipamento::CONSUMIVEL) || (subOpcao == 2 && tipo == TipoEquipamento::CONSUMIVEL)) {
+                                submenuAberto = false;
+                                break;
+                        } else if ((subOpcao == 1 && tipo != TipoEquipamento::CONSUMIVEL) || (subOpcao == 2 && tipo == TipoEquipamento::CONSUMIVEL)) {
                                 Aparencia::limparTela();
                                 Aparencia::exibirPainelTexto("INSPECAO DE ITEM", Cor::AMARELO);
                                 TelaInventario::exibirInspecaoItem(itemEncontrado, jogadorAtual);
                                 std::cout << "\n";
                                 ControleDeInput::aguardarEnter();
-                                return true;
-                            }
-                            return false; // Cancelar
+                                submenuAberto = false;
+                                break;
                         }
-                    );
+                        
+                        submenuAberto = false;
+                        break;
+                    } // Fim do while (submenuAberto)
 
                     if (turnoFoiConsumido && *turnoFoiConsumido) return false;
                     return true;
