@@ -94,6 +94,7 @@ public:
     static void atualizarMinTamanhoPopup(int largura, int altura);
     static int obterMinLarguraPopup();
     static int obterMinAlturaPopup();
+    static int lerInteiroEmPopupFlutuante(const std::string& mensagem, int limiteMin, int limiteMax, Cor corTema = Cor::BRANCO);
     static std::string margemCombate();
     static std::vector<std::string> reduzirEscalaAscii(const std::vector<std::string>& arteOriginal, int fatorX = 2, int fatorY = 2);
 

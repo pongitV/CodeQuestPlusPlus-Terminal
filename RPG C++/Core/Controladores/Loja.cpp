@@ -58,7 +58,39 @@ void Loja::processarCompra(Personagem* jogadorAtual, const std::string& tituloLo
                     exibirDialogoNPC("Voce nao tem ouro suficiente para isso!");
                 } else {
                     int maxPossivel = (produto.quantidade == -1) ? maxComprador : std::min(maxComprador, produto.quantidade);
-                    int qtdComprar = (maxPossivel > 1) ? ControleDeInput::lerInteiroComLimites("Quantidade (1 a " + std::to_string(maxPossivel) + ", 0 cancelar): ", 0, maxPossivel, true) : 1;
+                int qtdComprar = 1;
+                
+                if (maxPossivel > 1) {
+                    std::string nomeDoItem = FabricaItens::obterNomeDeID(produto.idItem);
+                    if (formatadorNomeExtra) nomeDoItem += formatadorNomeExtra(produto.idItem);
+                    
+                    std::vector<std::string> opcoesQtd = {
+                        "Comprar 1 unidade",
+                        "Comprar Maximo (" + std::to_string(maxPossivel) + " unidades)",
+                        "Digitar quantidade...",
+                        "Cancelar"
+                    };
+                    
+                    int escolhaQtd = ControleDeInput::lerSelecaoMenuEmPopup(
+                        "QUANTIDADE: " + nomeDoItem,
+                        {"Preco Unitario: " + std::to_string(produto.preco) + "G", "Voce pode comprar ate " + std::to_string(maxPossivel) + " unidades."},
+                        opcoesQtd, 
+                        corLoja,
+                        arteAscii
+                    );
+                    
+                    if (escolhaQtd == 0) {
+                        qtdComprar = 1;
+                    } else if (escolhaQtd == 1) {
+                        qtdComprar = maxPossivel;
+                    } else if (escolhaQtd == 2) {
+                        std::string msgQtd = "Quantidade (1 a " + std::to_string(maxPossivel) + ", 0 cancelar): ";
+                        qtdComprar = Aparencia::lerInteiroEmPopupFlutuante(msgQtd, 0, maxPossivel, corLoja);
+                    } else {
+                        qtdComprar = 0; // Cancelar
+                    }
+                }
+
                     if (qtdComprar > 0) {
                         jogadorAtual->obterInventario()->adicionarOuro(-(produto.preco * qtdComprar));
                         if (produto.quantidade != -1) produto.quantidade -= qtdComprar;

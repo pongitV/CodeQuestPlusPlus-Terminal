@@ -661,6 +661,37 @@ void Aparencia::exibirPopup(const std::string& titulo, const std::vector<std::st
     }
 }
 
+int Aparencia::lerInteiroEmPopupFlutuante(const std::string& mensagem, int limiteMin, int limiteMax, Cor corTema) {
+    int termW = obterLarguraTerminal();
+    int termH = obterAlturaTerminal();
+    int msgLen = obterComprimentoVisual(mensagem);
+    int boxW = msgLen + 8;
+    
+    int startX = std::max(0, (termW - boxW) / 2);
+    int startY = std::max(0, termH / 2);
+    
+    std::string corBox = cor(corTema);
+    std::string reset = cor(Cor::RESET);
+    std::string bg = "\033[48;2;15;15;15m";
+
+    moverCursor(startX, startY - 1);
+    std::string top = "╔"; for(int i = 0; i < boxW - 2; ++i) top += "═"; top += "╗";
+    std::cout << bg << corBox << top << reset;
+    
+    moverCursor(startX, startY);
+    std::cout << bg << corBox << "║ " << reset << bg << mensagem << "    " << corBox << "║" << reset;
+    
+    moverCursor(startX, startY + 1);
+    std::string bottom = "╚"; for(int i = 0; i < boxW - 2; ++i) bottom += "═"; bottom += "╝";
+    std::cout << bg << corBox << bottom << reset;
+
+    moverCursor(startX + 2 + msgLen, startY);
+    std::cout << bg << reset;
+    int resultado = ControleDeInput::lerInteiroComLimites("", limiteMin, limiteMax, false);
+    std::cout << "\033[0m";
+    return resultado;
+}
+
 std::vector<std::string> Aparencia::reduzirEscalaAscii(const std::vector<std::string>& arteOriginal, int fatorX, int fatorY) {
     std::vector<std::string> arteReduzida;
     if (fatorX <= 0) fatorX = 1;

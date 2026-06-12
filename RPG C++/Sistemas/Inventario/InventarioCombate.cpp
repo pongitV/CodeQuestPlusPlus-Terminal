@@ -199,8 +199,30 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
                                 if (tipo == TipoEquipamento::CONSUMIVEL) {
                                     int qtdDisponivel = jogadorAtual->obterInventario()->contarItem(itemEncontrado->obterNomeItem());
                                     if (qtdDisponivel > 1 && turnoFoiConsumido == nullptr) {
-                                        std::string msgQtd = "Quantidade para usar (1 a " + std::to_string(qtdDisponivel) + ", 0 cancelar): ";
-                                        quantidadeParaUsar = ControleDeInput::lerInteiroComLimites(msgQtd, 0, qtdDisponivel, true);
+                                        std::vector<std::string> opcoesQtd = {
+                                            "Usar 1 unidade",
+                                            "Usar Todos (" + std::to_string(qtdDisponivel) + " unidades)",
+                                            "Digitar quantidade...",
+                                            "Cancelar"
+                                        };
+                                        
+                                        int escolhaQtd = ControleDeInput::lerSelecaoMenuEmPopup(
+                                            "QUANTIDADE: " + itemEncontrado->obterNomeItem(),
+                                            {"Voce possui " + std::to_string(qtdDisponivel) + " unidades deste item."},
+                                            opcoesQtd, 
+                                            Cor::AMARELO
+                                        );
+                                        
+                                        if (escolhaQtd == 0) {
+                                            quantidadeParaUsar = 1;
+                                        } else if (escolhaQtd == 1) {
+                                            quantidadeParaUsar = qtdDisponivel;
+                                        } else if (escolhaQtd == 2) {
+                                            std::string msgQtd = "Quantidade (1 a " + std::to_string(qtdDisponivel) + ", 0 cancelar): ";
+                                            quantidadeParaUsar = Aparencia::lerInteiroEmPopupFlutuante(msgQtd, 0, qtdDisponivel, Cor::AMARELO);
+                                        } else {
+                                            return true; // Cancelar
+                                        }
                                     }
                                 }
                                 

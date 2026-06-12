@@ -129,27 +129,100 @@ namespace {
 
     void processarVendaDeItens(Personagem* jogadorAtual) {
         do {
-            std::vector<Item*> itensValidos;
-            std::vector<std::string> opcoesItem;
+            std::vector<std::pair<std::string, std::vector<Item*>>> gruposItens;
+            std::map<std::string, int> indexMap;
+            
             for (auto* item : jogadorAtual->obterInventario()->obterTodosOsItens()) {
                 if (item->obterTipo() != TipoEquipamento::MISSAO) {
-                    itensValidos.push_back(item);
-                    opcoesItem.push_back(item->obterNomeItem() + " (" + std::to_string(item->obterPrecoVenda()) + "G)");
+                    std::string nomeItem = item->obterNomeItem();
+                    bool equipado = jogadorAtual->isItemEquipado(item);
+                    std::string chave = nomeItem;
+                    if (equipado) {
+                        chave += " [Equipado]";
+                    }
+                    
+                    if (indexMap.find(chave) == indexMap.end()) {
+                        indexMap[chave] = gruposItens.size();
+                        gruposItens.push_back({chave, {item}});
+                    } else {
+                        gruposItens[indexMap[chave]].second.push_back(item);
+                    }
                 }
             }
+
+            std::vector<std::vector<Item*>> itensValidos;
+            std::vector<std::string> opcoesItem;
+            
+            for (const auto& grupo : gruposItens) {
+                int qtd = grupo.second.size();
+                Item* itemExemplo = grupo.second.front();
+                int precoVenda = itemExemplo->obterPrecoVenda();
+                
+                std::string textoOpcao = grupo.first + " (" + std::to_string(precoVenda) + "G)";
+                if (qtd > 1) {
+                    textoOpcao += " x" + std::to_string(qtd);
+                }
+                
+                itensValidos.push_back(grupo.second);
+                opcoesItem.push_back(textoOpcao);
+            }
+
             if (opcoesItem.empty()) { dialogoFranchescoUnico("Voce nao tem nada que me interesse!"); break; }
             opcoesItem.push_back("VOLTAR");
             
             int escolha = ControleDeInput::lerSelecaoMenuEmPopup("VENDER ITENS", {"Seu Ouro: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G", "Escolha um item para vender:"}, opcoesItem, Cor::AMARELO, NPCFranchescoLayouts::arteFranchesco);
             if (escolha == -1 || escolha == static_cast<int>(opcoesItem.size()) - 1) break;
             
-            Item* itemParaVenda = itensValidos[escolha];
+            std::vector<Item*> itensEscolhidos = itensValidos[escolha];
+            Item* itemParaVenda = itensEscolhidos.front();
+
             if (!InteracaoNPC::verificarItemNaoEquipado(jogadorAtual, itemParaVenda, "Franchesco", Cor::AMARELO, "Nao e possivel vender itens que estao equipados!")) continue;
+            
+            int qtdParaVender = 1;
+            if (itensEscolhidos.size() > 1) {
+                std::vector<std::string> opcoesQtd = {
+                    "Vender 1 unidade",
+                    "Vender Todos (" + std::to_string(itensEscolhidos.size()) + " unidades)",
+                    "Digitar quantidade...",
+                    "Cancelar"
+                };
+                
+                int escolhaQtd = ControleDeInput::lerSelecaoMenuEmPopup(
+                    "QUANTIDADE: " + itemParaVenda->obterNomeItem(),
+                    {"Voce possui " + std::to_string(itensEscolhidos.size()) + " unidades deste item."},
+                    opcoesQtd, 
+                    Cor::AMARELO, 
+                    NPCFranchescoLayouts::arteFranchesco
+                );
+                
+                if (escolhaQtd == 0) {
+                    qtdParaVender = 1;
+                } else if (escolhaQtd == 1) {
+                    qtdParaVender = itensEscolhidos.size();
+                } else if (escolhaQtd == 2) {
+                    std::string msgQtd = "Quantidade (1 a " + std::to_string(itensEscolhidos.size()) + ", 0 cancelar): ";
+                    qtdParaVender = Aparencia::lerInteiroEmPopupFlutuante(msgQtd, 0, itensEscolhidos.size(), Cor::AMARELO);
+                } else {
+                    continue; // Cancelar
+                }
+            }
+            
+            if (qtdParaVender == 0) continue;
+
             std::string nomeItemVenda = itemParaVenda->obterNomeItem();
-            int precoVenda = itemParaVenda->obterPrecoVenda();
-            jogadorAtual->obterInventario()->adicionarOuro(precoVenda);
-            jogadorAtual->obterInventario()->removerItem(itemParaVenda);
-            dialogoFranchescoUnico("Voce vendeu " + nomeItemVenda + " por " + std::to_string(precoVenda) + "G!");
+            int precoVendaUnitario = itemParaVenda->obterPrecoVenda();
+            int ganhoTotal = precoVendaUnitario * qtdParaVender;
+            
+            jogadorAtual->obterInventario()->adicionarOuro(ganhoTotal);
+            for (int i = 0; i < qtdParaVender; ++i) {
+                jogadorAtual->obterInventario()->removerItem(itensEscolhidos[i]);
+            }
+            
+            if (qtdParaVender > 1) {
+                dialogoFranchescoUnico("Voce vendeu " + std::to_string(qtdParaVender) + "x " + nomeItemVenda + " por " + std::to_string(ganhoTotal) + "G!");
+            } else {
+                dialogoFranchescoUnico("Voce vendeu " + nomeItemVenda + " por " + std::to_string(ganhoTotal) + "G!");
+            }
         } while (true);
     }
 }
