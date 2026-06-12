@@ -5,24 +5,36 @@
 #include <vector>
 #include <functional>
 #include <unordered_map>
+#include "../../../Interface/Telas/Combate/TelaCombate.h"
 #include "../FabricaItens.h"
 
 EquipamentoEscudo::EquipamentoEscudo(std::string nome, int reducaoFixa, int durabilidade, int reqResistencia, int reqSecundario, TipoAtributo tipoSecundario, int preco)
-    : Item(preco), nome(nome), reducaoFixa(reducaoFixa), durabilidade(durabilidade), reqResistencia(reqResistencia), reqSecundario(reqSecundario), tipoSecundario(tipoSecundario)
+    : Item(preco), nome(nome), reducaoFixa(reducaoFixa), durabilidade(durabilidade), durabilidadeMaxima(durabilidade), reqResistencia(reqResistencia), reqSecundario(reqSecundario), tipoSecundario(tipoSecundario)
 {
 }
 
 std::string EquipamentoEscudo::obterNomeItem() const { return nome; }
 TipoEquipamento EquipamentoEscudo::obterTipo() const { return TipoEquipamento::ESCUDO; }
 
+int EquipamentoEscudo::obterDurabilidadeMaxima() const { return durabilidadeMaxima; }
+void EquipamentoEscudo::definirDurabilidade(int novaDurabilidade) { durabilidade = novaDurabilidade; }
 int EquipamentoEscudo::obterDurabilidadeAtualEscudo() const { return durabilidade; }
-int EquipamentoEscudo::obterReducaoDanoFixaEscudo() const { return reducaoFixa; }
+int EquipamentoEscudo::obterReducaoDanoFixaEscudo() const { return (durabilidade > 0) ? reducaoFixa : 0; }
 
 int EquipamentoEscudo::obterReqResistencia() const { return reqResistencia; }
 int EquipamentoEscudo::obterReqSecundario() const { return reqSecundario; }
 TipoAtributo EquipamentoEscudo::obterTipoSecundario() const { return tipoSecundario; }
 
-void EquipamentoEscudo::reduzirDurabilidade(int qtd) { durabilidade -= qtd; }
+void EquipamentoEscudo::reduzirDurabilidade(int qtd) { 
+    if (durabilidade <= 0) return; // Ja estava quebrado
+    
+    durabilidade -= qtd; 
+    if (durabilidade <= 0) {
+        durabilidade = 0;
+        TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + Aparencia::cor(Cor::VERMELHO) + ">> O escudo [" + nome + "] quebrou e perdeu seu poder de bloqueio!" + Aparencia::cor(Cor::RESET) + "\n");
+        Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERMELHO) + ">> O escudo [" + nome + "] quebrou e perdeu seu poder de bloqueio!" + Aparencia::cor(Cor::RESET));
+    }
+}
 void EquipamentoEscudo::aumentarDurabilidade(int qtd) { durabilidade += qtd; }
 
 bool EquipamentoEscudo::podeSerEquipadoPor(Personagem* personagem) const {
@@ -67,7 +79,7 @@ std::vector<std::string> EquipamentoEscudo::obterDetalhesInspecao(Personagem* pe
 }
 
 std::string EquipamentoEscudo::obterInfoStatus() const {
-    std::string info = " (Def: " + std::to_string(reducaoFixa) + " | Dur: " + std::to_string(durabilidade);
+    std::string info = " (Def: " + std::to_string(reducaoFixa) + " | Dur: " + std::to_string(durabilidade) + "/" + std::to_string(durabilidadeMaxima);
     std::string reqs = "";
     if (reqResistencia > 0 || reqSecundario > 0) {
         reqs += " | Req: ";
@@ -80,11 +92,18 @@ std::string EquipamentoEscudo::obterInfoStatus() const {
             else if (tipoSecundario == TipoAtributo::Sabedoria) reqs += "Sab ";
         }
     }
-    return info + reqs + ")";
+    
+    std::string tag = "";
+    if (durabilidade <= 0) {
+        tag = " " + Aparencia::cor(Cor::VERMELHO) + "[QUEBRADO]" + Aparencia::cor(Cor::RESET);
+    } else if (durabilidade < durabilidadeMaxima) {
+        tag = " " + Aparencia::cor(Cor::VERMELHO) + "[D]" + Aparencia::cor(Cor::RESET);
+    }
+    return info + reqs + ")" + tag;
 }
 
 std::unique_ptr<Item> EquipamentoEscudo::gerarCopiaMelhorada() const {
-    auto novoEscudo = std::make_unique<EquipamentoEscudo>(nome + "+", static_cast<int>(reducaoFixa * 1.5), static_cast<int>(durabilidade * 1.5), reqResistencia, reqSecundario, tipoSecundario, precoVenda * 2);
+    auto novoEscudo = std::make_unique<EquipamentoEscudo>(nome + "+", static_cast<int>(reducaoFixa * 1.5), static_cast<int>(durabilidadeMaxima * 1.5), reqResistencia, reqSecundario, tipoSecundario, precoVenda * 2);
     for (Propriedade prop : propriedades) novoEscudo->adicionarPropriedade(prop);
     novoEscudo->adicionarPropriedade(Propriedade::Melhorado);
     return novoEscudo;
@@ -101,9 +120,3 @@ std::unique_ptr<Item> fabricarEquipamentoEscudo(ItemID id) {
     if (it != construtores.end()) return it->second();
     return nullptr;
 }
-
-
-
-
-
-

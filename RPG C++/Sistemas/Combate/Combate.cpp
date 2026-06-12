@@ -335,6 +335,13 @@ void Combate::processarAcaoDefender(Personagem* personagemAgindo, bool& turnoFoi
     Item* escudoEscolhido = selecionarEscudo(personagemAgindo);
     if (escudoEscolhido != nullptr) 
     {
+        if (escudoEscolhido->obterDurabilidadeAtualEscudo() <= 0) {
+            std::string msg = FuncoesDialogo::formatarMsgSistema("O escudo [" + escudoEscolhido->obterNomeItem() + "] esta quebrado e nao pode ser usado!", Cor::VERMELHO);
+            std::cout << "\n" << Aparencia::margemCombate() << msg << "\n";
+            ControleDeInput::aguardarEnter();
+            return; // Nao consome o turno
+        }
+
         if (!escudoEscolhido->podeSerEquipadoPor(personagemAgindo)) {
             TelaCombate::notificarRequisitoNaoAtendido(escudoEscolhido->obterMensagemRequisito());
             return;
@@ -763,9 +770,11 @@ void Combate::exibirResultadoDoAtaque(Personagem* alvo, int danoFinal, bool tent
         registrarLog(msgDefesa);
         
         if (escudoQuebrou) {
-            std::string msgQuebra = FuncoesDialogo::formatarMsgCombate("ALERTA: O escudo " + nomeEscudoQuebrado + " foi DESTRUIDO em pedacos!", Cor::FUNDO_VERMELHO);
+            std::string msgQuebra = FuncoesDialogo::formatarMsgCombate("ALERTA: O escudo " + nomeEscudoQuebrado + " foi DESTRUIDO em pedacos e desequipado!", Cor::FUNDO_VERMELHO);
             msg += Aparencia::margemCombate() + msgQuebra + "\n";
             registrarLog(msgQuebra);
+            
+            alvo->desequiparEscudo();
         }
     }
 

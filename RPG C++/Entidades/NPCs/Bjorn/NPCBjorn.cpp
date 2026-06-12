@@ -10,6 +10,7 @@
 #include "../../../Sistemas/Inventario/Item.h"
 #include "../../../Sistemas/Inventario/FabricaItens.h"
 #include "../../../Sistemas/Inventario/Equipamentos/EquipamentoArmadura.h"
+#include "../../../Sistemas/Inventario/Equipamentos/EquipamentoEscudo.h"
 #include "../../../Interface/Telas/Inventario/TelaInventario.h"
 #include "../../../Core/Utilidades/Aparencia.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"
@@ -36,6 +37,7 @@ namespace {
     void processarCompraDeEquipamento(Personagem* jogadorAtual, bool comprandoArmas);
     void processarMelhoriaNaBigorna(Personagem* jogadorAtual);
     void processarUpgradePorMaterial(Personagem* jogadorAtual);
+    void processarConsertoDeEscudo(Personagem* jogadorAtual);
 
     // --- APARENCIA E DIALOGOS ---
     void dialogoBjorn(const std::vector<std::string>& linhas) {
@@ -74,14 +76,14 @@ void NPCBjorn::interagir(Personagem* jogador) {
     );
 }
 
-void NPCBjorn::exibirDialogo(Personagem* jogador) {
+void NPCBjorn::exibirDialogo(Personagem* /*jogador*/) {
     dialogoBjorn(std::vector<std::string>{
         "Bem-vindo a minha forja, salvador!",
         "O que vai ser hoje?"
     });
 }
 
-std::vector<std::string> NPCBjorn::obterOpcoesMenu(Personagem* jogador, int larguraDoTerminal) {
+std::vector<std::string> NPCBjorn::obterOpcoesMenu(Personagem* /*jogador*/, int /*larguraDoTerminal*/) {
     return {
         "COMPRAR Armas das Classes",
         "COMPRAR Armaduras das Classes",
@@ -92,13 +94,15 @@ std::vector<std::string> NPCBjorn::obterOpcoesMenu(Personagem* jogador, int larg
     };
 }
 
-void NPCBjorn::processarOpcao(Personagem* jogador, const std::string& opcao, int larguraDoTerminal) {
+void NPCBjorn::processarOpcao(Personagem* jogador, const std::string& opcao, int /*larguraDoTerminal*/) {
     if (opcao == "COMPRAR Armas das Classes" || opcao == "COMPRAR Armaduras das Classes") {
         processarCompraDeEquipamento(jogador, opcao == "COMPRAR Armas das Classes");
     } else if (opcao == "MELHORAR POR FUSAO") {
         processarMelhoriaNaBigorna(jogador);
     } else if (opcao == "MELHORAR POR MATERIAL") {
         processarUpgradePorMaterial(jogador);
+    } else if (opcao == "CONSERTAR Escudo") {
+        processarConsertoDeEscudo(jogador);
     } else if (opcao == "Missoes de Bjorn") {
         InteracaoNPC::processarMenuMissoesVazio(jogador, "MISSOES DE BJORN", Cor::CIANO, "Bjorn", "Nao tenho nenhum trabalho especial para voce no momento.");
     }
@@ -209,6 +213,46 @@ namespace {
 
             std::string equacao = "[" + nomeAntigo + "] + [Pedra magica] = [" + novoNome + "]";
             Aparencia::exibirPopup("FORJA - SUCESSO", {equacao, "", "Impressionante! A armadura agora possui +3 de defesa!"}, Cor::CIANO, NPCBjornLayouts::arteBigorna);
+        } while (true);
+    }
+
+    void processarConsertoDeEscudo(Personagem* jogadorAtual) {
+        do {
+            std::vector<EquipamentoEscudo*> escudosDanificados;
+            std::vector<std::string> opcoesEscudo;
+
+            for (auto* item : jogadorAtual->obterInventario()->obterTodosOsItens()) {
+                EquipamentoEscudo* escudo = dynamic_cast<EquipamentoEscudo*>(item);
+                if (escudo && escudo->obterDurabilidadeAtualEscudo() < escudo->obterDurabilidadeMaxima()) {
+                    escudosDanificados.push_back(escudo);
+                    int custo = (escudo->obterDurabilidadeMaxima() - escudo->obterDurabilidadeAtualEscudo()) * 5;
+                    opcoesEscudo.push_back(escudo->obterNomeItem() + " (" + std::to_string(escudo->obterDurabilidadeAtualEscudo()) + "/" + std::to_string(escudo->obterDurabilidadeMaxima()) + ") - " + std::to_string(custo) + "g");
+                }
+            }
+
+            if (escudosDanificados.empty()) {
+                dialogoBjornUnico("Voce nao tem nenhum escudo danificado que eu possa consertar!");
+                break;
+            }
+            
+            opcoesEscudo.push_back("VOLTAR");
+            
+            int escolha = ControleDeInput::lerSelecaoMenuEmPopup("CONSERTAR ESCUDO", {"Qual escudo deseja consertar? (5g por ponto perdido)"}, opcoesEscudo, Cor::CIANO, NPCBjornLayouts::arteBigorna);
+            if (escolha == -1 || escolha == static_cast<int>(opcoesEscudo.size()) - 1) break;
+
+            EquipamentoEscudo* escudoParaConsertar = escudosDanificados[escolha];
+            if (!InteracaoNPC::verificarItemNaoEquipado(jogadorAtual, escudoParaConsertar, "Bjorn", Cor::CIANO, "Voce precisa DESEQUIPAR o escudo antes de conserta-lo!")) continue;
+
+            int durabilidadePerdida = escudoParaConsertar->obterDurabilidadeMaxima() - escudoParaConsertar->obterDurabilidadeAtualEscudo();
+            int custoReparo = durabilidadePerdida * 5; // Exemplo: 5 de ouro por ponto de durabilidade perdida
+
+            if (jogadorAtual->obterInventario()->obterOuro() >= custoReparo) {
+                jogadorAtual->obterInventario()->adicionarOuro(-custoReparo);
+                escudoParaConsertar->definirDurabilidade(escudoParaConsertar->obterDurabilidadeMaxima());
+                dialogoBjornUnico("Hmph! Seu escudo esta como novo! (-" + std::to_string(custoReparo) + "g)");
+            } else {
+                dialogoBjornUnico("Voce nao tem ouro suficiente para consertar este escudo. Eu preciso de " + std::to_string(custoReparo) + "g.");
+            }
         } while (true);
     }
 }

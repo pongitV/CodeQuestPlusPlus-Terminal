@@ -422,6 +422,13 @@ void InventarioCombate::processarUsoDeItem(Personagem* jogadorAtual, Item* itemE
 
     if (itemEncontrado->isEquipavel())
     {
+        if (itemEncontrado->obterTipo() == TipoEquipamento::ESCUDO && itemEncontrado->obterDurabilidadeAtualEscudo() <= 0) {
+            std::string msgQuebrado = FuncoesDialogo::formatarMsgSistema("O escudo [" + itemEncontrado->obterNomeItem() + "] esta quebrado e nao pode ser equipado!", Cor::VERMELHO);
+            std::cout << "\n" << Aparencia::margemCombate() << msgQuebrado << "\n";
+            if (turnoFoiConsumido && !jogadorAtual->obterItemSelecionadoParaUso()) ControleDeInput::aguardarEnter();
+            return; // Retorna cedo, nao alterando 'turnoFoiConsumido' para true
+        }
+
         bool desequipou = false;
         if (itemEncontrado == jogadorAtual->obterArma()) {
             jogadorAtual->desequiparArma();

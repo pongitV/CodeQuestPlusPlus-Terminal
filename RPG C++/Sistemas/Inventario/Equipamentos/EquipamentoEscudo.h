@@ -12,6 +12,7 @@ private:
     std::string nome;
     int reducaoFixa;
     int durabilidade;
+    int durabilidadeMaxima;
     int reqResistencia;
     int reqSecundario;
     TipoAtributo tipoSecundario;
@@ -27,7 +28,9 @@ public:
     TipoEquipamento obterTipo() const override;
 
     int obterDurabilidadeAtualEscudo() const override;
+    int obterDurabilidadeMaxima() const;
     int obterReducaoDanoFixaEscudo() const override;
+    void definirDurabilidade(int novaDurabilidade);
     void reduzirDurabilidade(int qtd) override;
     void aumentarDurabilidade(int qtd) override;
 
