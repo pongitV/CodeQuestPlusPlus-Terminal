@@ -57,8 +57,56 @@ bool TelaMenu::exibirConfirmacaoDeEscolhaComArteLadoALado(const std::string& tip
 
     Cor corArte = Cor::BRANCO;
 
-    std::vector<std::string> infoTextOnly;
+    std::vector<std::string> infoSegura;
     for (const auto& s : informacoesParaExibir) {
+        if (s.empty()) {
+            infoSegura.push_back("");
+            continue;
+        }
+
+        std::istringstream stream(s);
+        std::string linha;
+        bool isFirst = true;
+        std::string prefixo = "";
+
+        while (std::getline(stream, linha)) {
+            if (!linha.empty() && linha.back() == '\r') {
+                linha.pop_back();
+            }
+
+            if (isFirst) {
+                infoSegura.push_back(linha);
+                
+                size_t pos = 0;
+                while (pos < linha.length()) {
+                    if (linha[pos] == ' ' || linha[pos] == '-' || linha[pos] == '>') {
+                        prefixo += linha[pos];
+                        pos++;
+                    } else if (linha[pos] == '\033') {
+                        size_t mPos = linha.find('m', pos);
+                        if (mPos != std::string::npos) {
+                            prefixo += linha.substr(pos, mPos - pos + 1);
+                            pos = mPos + 1;
+                        } else {
+                            break;
+                        }
+                    } else {
+                        break;
+                    }
+                }
+                isFirst = false;
+            } else {
+                if (linha.empty()) {
+                    infoSegura.push_back("");
+                } else {
+                    infoSegura.push_back(prefixo + linha + "\033[0m");
+                }
+            }
+        }
+    }
+
+    std::vector<std::string> infoTextOnly;
+    for (const auto& s : infoSegura) {
         infoTextOnly.push_back(Aparencia::removerCoresANSI(s));
     }
     
@@ -118,7 +166,7 @@ bool TelaMenu::exibirConfirmacaoDeEscolhaComArteLadoALado(const std::string& tip
     std::streambuf* oldCoutFinal = std::cout.rdbuf(bufferFinal.rdbuf());
     
     exibirPainelLogoJogo("PREVIA DA " + tipoDeEscolha + ": " + nomeDaEscolha);
-    Aparencia::imprimirLadoALado(informacoesParaExibir, arteAsciiParaExibir, 40, 6, Cor::RESET, corArte, 0);
+    Aparencia::imprimirLadoALado(infoSegura, arteAsciiParaExibir, 40, 6, Cor::RESET, corArte, 0);
     
     std::cout.rdbuf(oldCoutFinal);
     std::cout << "\033[H" << bufferFinal.str() << "\033[J" << std::flush;
@@ -136,7 +184,7 @@ void TelaMenu::exibirPainelLogoJogo(const std::string& tituloDaTela, bool animar
     Aparencia::exibirPainel(tituloDaTela, Cor::BRANCO, ArtesMenu::logoTexto, 140, ArtesMenu::logoPlus, Cor::LARANJA, animarFadeIn);
 }
 
-std::vector<std::string> TelaMenu::comporQuadroDeAtributos(const Atributos& stats, const std::string& tituloSecao, const std::string& tituloHabilidade, const std::string& nomeHab, const std::string& descHab) {
+std::vector<std::string> TelaMenu::comporQuadroDeAtributos(const Atributos& stats, const std::string& tituloSecao, const std::string& tituloHabilidade, const std::string& nomeHab, const std::string& descHab, const std::string& tituloHabilidade2, const std::string& nomeHab2, const std::string& descHab2) {
     auto formatarAtributo = [](const std::string& nomeAtr, int valorAtr) { 
         std::string corVal = Aparencia::cor(Cor::BRANCO);
         
@@ -172,6 +220,18 @@ std::vector<std::string> TelaMenu::comporQuadroDeAtributos(const Atributos& stat
     std::string linhaDesc;
     while (std::getline(stream, linhaDesc)) {
         resultado.push_back(" - " + Aparencia::cor(Cor::CINZA) + linhaDesc + Aparencia::cor(Cor::RESET));
+    }
+
+    if (!tituloHabilidade2.empty()) {
+        resultado.push_back("");
+        resultado.push_back(Aparencia::cor(Cor::BRANCO) + tituloHabilidade2 + Aparencia::cor(Cor::RESET));
+        resultado.push_back(" " + Aparencia::cor(Cor::CIANO) + nomeHab2 + Aparencia::cor(Cor::RESET));
+
+        std::istringstream stream2(descHab2);
+        std::string linhaDesc2;
+        while (std::getline(stream2, linhaDesc2)) {
+            resultado.push_back(" - " + Aparencia::cor(Cor::CINZA) + linhaDesc2 + Aparencia::cor(Cor::RESET));
+        }
     }
 
     return resultado;

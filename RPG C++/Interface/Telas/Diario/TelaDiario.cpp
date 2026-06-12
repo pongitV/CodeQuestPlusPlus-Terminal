@@ -479,13 +479,11 @@ void TelaDiario::inspecionarClasse(const std::string& nomeClasse) {
             "[ ATRIBUTOS BONUS ]", 
             "[ PASSIVA DA CLASSE ]", 
             classeObj->obterNomePassivaClasse(), 
-            classeObj->obterDescricaoPassivaClasse()
+            classeObj->obterDescricaoPassivaClasse(),
+            "[ HABILIDADE ATIVA ]",
+            classeObj->obterNomeHabilidadeClasse(),
+            classeObj->obterDescricaoHabilidadeClasse()
         );
-        
-        atributos.push_back("");
-        atributos.push_back(Aparencia::cor(Cor::BRANCO) + "[ HABILIDADE ATIVA ]" + Aparencia::cor(Cor::RESET));
-        atributos.push_back(" " + Aparencia::cor(Cor::CIANO) + classeObj->obterNomeHabilidadeClasse() + Aparencia::cor(Cor::RESET));
-        atributos.push_back(" - " + Aparencia::cor(Cor::CINZA) + classeObj->obterDescricaoHabilidadeClasse() + Aparencia::cor(Cor::RESET));
         
         Aparencia::imprimirLadoALado(atributos, arte, 40, 6, Cor::BRANCO, Cor::BRANCO, 0);
     }
