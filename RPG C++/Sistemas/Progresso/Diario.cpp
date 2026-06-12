@@ -27,6 +27,16 @@ void Diario::registrarClasse(const std::string& nomeClasse) {
     classesDescobertas.insert(nomeClasse);
 }
 
+void Diario::registrarMissaoAceita(const std::string& idMissao) {
+    std::lock_guard<std::mutex> lock(mtx);
+    missoesAceitas.insert(idMissao);
+}
+
+void Diario::registrarMissaoConcluida(const std::string& idMissao) {
+    std::lock_guard<std::mutex> lock(mtx);
+    missoesConcluidas.insert(idMissao);
+}
+
 bool Diario::itemDescoberto(const std::string& nomeItem) const {
     std::lock_guard<std::mutex> lock(mtx);
     return itensDescobertos.count(nomeItem) > 0;
@@ -45,6 +55,16 @@ bool Diario::racaDescoberta(const std::string& nomeRaca) const {
 bool Diario::classeDescoberta(const std::string& nomeClasse) const {
     std::lock_guard<std::mutex> lock(mtx);
     return classesDescobertas.count(nomeClasse) > 0;
+}
+
+bool Diario::missaoAceita(const std::string& idMissao) const {
+    std::lock_guard<std::mutex> lock(mtx);
+    return missoesAceitas.count(idMissao) > 0;
+}
+
+bool Diario::missaoConcluida(const std::string& idMissao) const {
+    std::lock_guard<std::mutex> lock(mtx);
+    return missoesConcluidas.count(idMissao) > 0;
 }
 
 std::vector<std::string> Diario::obterItensDescobertos() const {
@@ -67,6 +87,16 @@ std::vector<std::string> Diario::obterClassesDescobertas() const {
     return std::vector<std::string>(classesDescobertas.begin(), classesDescobertas.end());
 }
 
+std::vector<std::string> Diario::obterMissoesAceitas() const {
+    std::lock_guard<std::mutex> lock(mtx);
+    return std::vector<std::string>(missoesAceitas.begin(), missoesAceitas.end());
+}
+
+std::vector<std::string> Diario::obterMissoesConcluidas() const {
+    std::lock_guard<std::mutex> lock(mtx);
+    return std::vector<std::string>(missoesConcluidas.begin(), missoesConcluidas.end());
+}
+
 void Diario::salvar(std::ofstream& out) const {
     std::lock_guard<std::mutex> lock(mtx);
     
@@ -79,6 +109,8 @@ void Diario::salvar(std::ofstream& out) const {
     escreverConjunto(npcsDescobertos);
     escreverConjunto(racasDescobertas);
     escreverConjunto(classesDescobertas);
+    escreverConjunto(missoesAceitas);
+    escreverConjunto(missoesConcluidas);
 }
 
 void Diario::carregar(std::ifstream& in) {
@@ -88,6 +120,8 @@ void Diario::carregar(std::ifstream& in) {
     npcsDescobertos.clear();
     racasDescobertas.clear();
     classesDescobertas.clear();
+    missoesAceitas.clear();
+    missoesConcluidas.clear();
 
     auto lerConjunto = [&](std::set<std::string>& conjunto) {
         size_t size;
@@ -104,10 +138,6 @@ void Diario::carregar(std::ifstream& in) {
     lerConjunto(npcsDescobertos);
     lerConjunto(racasDescobertas);
     lerConjunto(classesDescobertas);
+    lerConjunto(missoesAceitas);
+    lerConjunto(missoesConcluidas);
 }
-
-
-
-
-
-

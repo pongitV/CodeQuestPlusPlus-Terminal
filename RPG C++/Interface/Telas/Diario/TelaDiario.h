@@ -13,6 +13,7 @@ private:
     static void exibirMenuNPCs(Personagem* jogadorAtual);
     static void exibirMenuRacas(Personagem* jogadorAtual);
     static void exibirMenuClasses(Personagem* jogadorAtual);
+    static void exibirMenuMissoes(Personagem* jogadorAtual);
 
     static void inspecionarItem(Personagem* jogadorAtual, const std::string& nomeItem);
     static void inspecionarRacaJogavel(const std::string& nomeRaca);

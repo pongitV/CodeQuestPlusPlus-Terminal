@@ -55,6 +55,25 @@ namespace {
         {Flags::Reino_TrollDerrotado, "Pacificador do Reino", "Derrotou todos os Trolls que invadiram a entrada do Reino.", CategoriaProgresso::MONSTRO}
     };
 
+    struct MissaoRegistro {
+        std::string id;
+        std::string nome;
+        std::function<bool(Personagem*)> checarRequisitos;
+    };
+
+    const std::vector<MissaoRegistro> registroDeMissoes = {
+        {
+            "morgana_coracoes",
+            "Consiga 3x Coracoes da floresta (Morgana)",
+            [](Personagem* p) { return p->obterInventario()->contarItem("Coracao da floresta") >= 3; }
+        },
+        {
+            "cavaleiro_trolls",
+            "Reportar Trolls derrotados (Cavaleiro Real)",
+            [](Personagem*) { return Progressao::instancia().obterFlag(Flags::Reino_TrollDerrotado); }
+        }
+    };
+
     void exibirProgresso(Personagem* /*jogador*/) {
         TelaBase::executarLoopPadrao(
             "DIARIO - PROGRESSO",
@@ -130,6 +149,7 @@ void TelaDiario::exibir(Personagem* jogadorAtual) {
             "NPCs Conhecidos",
             "Racas do Mundo",
             "Classes Jogaveis",
+            "Missoes (Em andamento, Prontas, Completas)",
             "Progresso",
             "Voltar"
         };
@@ -157,9 +177,12 @@ void TelaDiario::exibir(Personagem* jogadorAtual) {
                 exibirMenuClasses(jogadorAtual);
                 break;
             case 5:
-                exibirProgresso(jogadorAtual);
+                exibirMenuMissoes(jogadorAtual);
                 break;
             case 6:
+                exibirProgresso(jogadorAtual);
+                break;
+            case 7:
             case -1:
                 continuar = false;
                 break;
@@ -430,6 +453,54 @@ void TelaDiario::inspecionarRacaJogavel(const std::string& nomeRaca) {
     }
     std::cout << "\n";
     ControleDeInput::aguardarEnter();
+}
+
+void TelaDiario::exibirMenuMissoes(Personagem* jogadorAtual) {
+    bool continuar = true;
+    while (continuar) {
+        Aparencia::limparTela();
+        Aparencia::exibirPainelArte(ArtesDiario::logoDiario, 75, Cor::AMARELO, "DIARIO DE MISSOES", false);
+        std::cout << "\n";
+
+        std::vector<std::string> emAndamento;
+        std::vector<std::string> prontas;
+        std::vector<std::string> completas;
+
+        for (const auto& missao : registroDeMissoes) {
+            if (Diario::instancia().missaoConcluida(missao.id)) {
+                completas.push_back("[V] " + missao.nome);
+            } else if (Diario::instancia().missaoAceita(missao.id)) {
+                if (missao.checarRequisitos(jogadorAtual)) {
+                    prontas.push_back("[X] " + missao.nome);
+                } else {
+                    emAndamento.push_back("[ ] " + missao.nome);
+                }
+            }
+        }
+
+        std::vector<std::string> linhas;
+        
+        linhas.push_back(Aparencia::cor(Cor::AMARELO) + "Em andamento" + Aparencia::cor(Cor::RESET));
+        if (emAndamento.empty()) linhas.push_back("  (Nenhuma)");
+        for (const auto& m : emAndamento) linhas.push_back("  " + Aparencia::cor(Cor::BRANCO) + m + Aparencia::cor(Cor::RESET));
+        linhas.push_back("");
+
+        linhas.push_back(Aparencia::cor(Cor::AMARELO) + "Prontas" + Aparencia::cor(Cor::RESET));
+        if (prontas.empty()) linhas.push_back("  (Nenhuma)");
+        for (const auto& m : prontas) linhas.push_back("  " + Aparencia::cor(Cor::VERDE) + m + Aparencia::cor(Cor::RESET));
+        linhas.push_back("");
+
+        linhas.push_back(Aparencia::cor(Cor::AMARELO) + "Completas" + Aparencia::cor(Cor::RESET));
+        if (completas.empty()) linhas.push_back("  (Nenhuma)");
+        for (const auto& m : completas) linhas.push_back("  " + Aparencia::cor(Cor::CINZA) + m + Aparencia::cor(Cor::RESET));
+
+        Aparencia::imprimirBlocoCentralizado(linhas);
+        std::cout << "\n";
+
+        std::vector<std::string> opcoes = {"Voltar"};
+        int escolha = ControleDeInput::lerSelecaoMenuComSetas(opcoes, true);
+        if (escolha == 0 || escolha == -1) continuar = false;
+    }
 }
 
 void TelaDiario::exibirMenuClasses(Personagem* /*jogadorAtual*/) {

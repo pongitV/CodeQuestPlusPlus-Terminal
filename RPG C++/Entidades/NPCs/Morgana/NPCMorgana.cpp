@@ -15,6 +15,7 @@
 #include "../../../Sistemas/Inventario/Equipamentos/EquipamentoArma.h"
 #include "../../../Core/Controladores/Loja.h"
 #include "../../../Core/Utilidades/FuncoesDialogo.h"
+#include "../../../Sistemas/Progresso/Diario.h"
 #include "../../../Sistemas/Progresso/Progressao.h"
 #include "../../../Sistemas/Progresso/ProgressaoFlags.h"
 #include "../../../Interface/Telas/TelaBase.h"
@@ -283,6 +284,7 @@ namespace {
 
         for (int i = 0; i < 3; ++i) jogadorAtual->obterInventario()->removerItem(nomeCoracao);
         jogadorAtual->desbloquearLabirinto();
+        Diario::instancia().registrarMissaoConcluida("morgana_coracoes");
         Progressao::instancia().definirFlag(Flags::Floresta_MissaoMorgana, true);
         
         std::vector<std::string> dialogo = {
@@ -295,10 +297,17 @@ namespace {
     }
 
     void processarMenuMissoes(Personagem* jogadorAtual) {
+        Diario::instancia().registrarMissaoAceita("morgana_coracoes");
         while (true) {
             std::vector<std::string> missoes;
             if (!jogadorAtual->obterLabirintoDesbloqueado()) {
-                missoes.push_back("[M] Consiga 3x Coracoes da floresta");
+                std::string nomeCoracao = FabricaItens::obterNomeDeID(ItemID::CoracaoFloresta);
+                int qtdCoracoes = jogadorAtual->obterInventario()->contarItem(nomeCoracao);
+                if (qtdCoracoes >= 3) {
+                    missoes.push_back("[M] Entregar 3x Coracoes da floresta (Pronta)");
+                } else {
+                    missoes.push_back("[M] Consiga 3x Coracoes da floresta");
+                }
             } else {
                 missoes.push_back("(Nenhuma missao disponivel)");
             }
