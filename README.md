@@ -39,21 +39,28 @@ O jogo é programado para interagir profundamente com as propriedades do termina
 
 **Pré-requisitos:**
 *   Compilador C++ compatível com o padrão **C++23**.
-*   A ferramenta `make` configurada em seu PATH.
+*   A ferramenta **CMake** (versão 3.15 ou superior) instalada.
+*   Um gerador de build configurado (como MinGW Makefiles, Ninja ou Visual Studio).
 
-**Passos para Compilação:**
-1. Navegue até a pasta que contém o código fonte (`RPG C++`):
+**Passos para Compilação via Terminal:**
+1. Na raiz do projeto, configure o diretório de build:
    ```bash
-   cd "RPG C++"
+   cmake -B build -G "MinGW Makefiles"
    ```
-2. Inicie a build usando o Makefile embutido:
+2. Compile o projeto:
    ```bash
-   make
+   cmake --build build
    ```
-3. Após o término da compilação, o executável `JogoRPG.exe` será gerado. Você pode iniciá-lo com:
+3. O executável `JogoRPG.exe` será gerado dentro da pasta `build/`. Você pode iniciá-lo com:
    ```bash
-   ./JogoRPG.exe
+   ./build/JogoRPG.exe
    ```
+
+**Compilação via VS Code (Recomendado):**
+*   Instale a extensão **CMake Tools** no VS Code.
+*   Abra a pasta raiz do projeto. A extensão detectará automaticamente o arquivo `CMakeLists.txt`.
+*   Selecione o seu compilador C++23 (Kit).
+*   Clique no botão de build na barra de status inferior ou pressione `F7`. O executável será compilado e você poderá executá-lo ou depurá-lo diretamente pela extensão.
 
 ## Previews Visuals (Screenshots)
 
