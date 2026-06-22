@@ -20,21 +20,6 @@ bool RaycasterMundo::isWalkable(int mapX, int mapY, const std::vector<std::strin
     if (c == '*') return false; // Impede atravessar arvores
     
     if (c == '=' || c == '|' || c == '\'' || c == '+') return false; // Paredes do labirinto
-    if (c == '.') {
-        bool isWall = false;
-        for (int dy = -1; dy <= 1; dy++) {
-            for (int dx = -1; dx <= 1; dx++) {
-                int nx = mapX + dx;
-                int ny = mapY + dy;
-                if (ny >= 0 && ny < (int)matrizDoMapa.size() && nx >= 0 && nx < (int)matrizDoMapa[ny].size()) {
-                    if (matrizDoMapa[ny][nx] == '=' || matrizDoMapa[ny][nx] == '|') {
-                        isWall = true;
-                    }
-                }
-            }
-        }
-        if (isWall) return false;
-    }
 
     if (c == '.' || c == ' ' || c == '^' || c == '~' || isEntity(c)) return true;
     if (isMapLabel(mapX, mapY, matrizDoMapa)) return true;

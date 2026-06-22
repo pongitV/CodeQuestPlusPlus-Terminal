@@ -192,7 +192,7 @@ int ControleDeInput::lerSelecaoMenuComSetas(const std::vector<std::string>& opco
     }
 }
 
-int ControleDeInput::lerSelecaoMenuEmPopup(const std::string& titulo, const std::vector<std::string>& texto, const std::vector<std::string>& opcoes, Cor corTema, const std::vector<std::string>& arteOriginal) {
+int ControleDeInput::lerSelecaoMenuEmPopup(const std::string& titulo, const std::vector<std::string>& texto, const std::vector<std::string>& opcoes, Cor corTema, const std::vector<std::string>& arteOriginal, bool animarEntrada) {
     if (opcoes.empty()) return -1;
         
     int maxLinhasArte = Aparencia::obterAlturaTerminal() - 6;
@@ -299,7 +299,7 @@ int ControleDeInput::lerSelecaoMenuEmPopup(const std::string& titulo, const std:
         int startY = (alturaTerm - finalBoxHeight) / 2;
         if (startX < 0) startX = 0;
         if (startY < 0) startY = 0;
-        Aparencia::renderizarCaixaPopupAnimada(caixa, startX, startY, primeiroRender);
+        Aparencia::renderizarCaixaPopupAnimada(caixa, startX, startY, primeiroRender && animarEntrada);
         primeiroRender = false;
         
         char tecla = lerTecla();

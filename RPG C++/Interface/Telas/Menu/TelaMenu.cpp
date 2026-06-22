@@ -303,17 +303,16 @@ int TelaMenu::exibirOpcoesMenuPrincipal(bool temSave) {
 
             // Desenha a animacao de RPG lado a lado centralizada
             int step = frame % 4; // 4 frames de animacao por classe
-            int larguraAnimacaoTotal = 18 * 4; // 4 classes com 18 caracteres de largura cada
+            int larguraAnimacaoTotal = 18 * 5; // 5 classes com 18 caracteres de largura cada
             int espacosAnim = std::max(0, (larguraConsole - larguraAnimacaoTotal) / 2);
 
             for (size_t i = 0; i < 5; ++i) { // Cada arte tem 5 linhas de altura
-                std::string corBranca = "\033[38;2;255;255;255m";
-                
                 buffer << std::string(espacosAnim, ' ') 
-                       << corBranca << ArtesMenu::animacaoRpg[0 + step][i] 
-                       << ArtesMenu::animacaoRpg[4 + step][i] 
-                       << ArtesMenu::animacaoRpg[8 + step][i] 
-                       << ArtesMenu::animacaoRpg[12 + step][i] << "\033[0m\n";
+                       << "\033[38;2;255;100;100m" << ArtesMenu::animacaoRpg[0 + step][i] 
+                       << "\033[38;2;100;255;100m" << ArtesMenu::animacaoRpg[4 + step][i] 
+                       << "\033[38;2;255;255;100m" << ArtesMenu::animacaoRpg[8 + step][i] 
+                       << "\033[38;2;100;200;255m" << ArtesMenu::animacaoRpg[12 + step][i] 
+                       << "\033[38;2;200;100;255m" << ArtesMenu::animacaoRpg[16 + step][i] << "\033[0m\n";
             }
 
             buffer << "\033[J"; // Limpa o restante da tela abaixo

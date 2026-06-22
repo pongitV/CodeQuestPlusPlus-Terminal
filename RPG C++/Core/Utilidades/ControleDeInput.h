@@ -27,7 +27,7 @@ public:
     
     static int lerInteiroComLimites(const std::string& promptMensagem, int minimo, int maximo, bool centralizarPrompt = false, const std::string& margemPersonalizada = "");
     static int lerSelecaoMenuComSetas(const std::vector<std::string>& opcoes, bool centralizar = true, const std::string& margemPersonalizada = "", const std::vector<std::string>& painelDireito = {});
-    static int lerSelecaoMenuEmPopup(const std::string& titulo, const std::vector<std::string>& texto, const std::vector<std::string>& opcoes, Cor corTema = Cor::BRANCO, const std::vector<std::string>& arteAscii = {});
+    static int lerSelecaoMenuEmPopup(const std::string& titulo, const std::vector<std::string>& texto, const std::vector<std::string>& opcoes, Cor corTema = Cor::BRANCO, const std::vector<std::string>& arteAscii = {}, bool animarEntrada = true);
     static void aguardarEnter(const std::string& mensagem = "Pressione ENTER para continuar...");
     
     static void executarLoopMenuPopup(

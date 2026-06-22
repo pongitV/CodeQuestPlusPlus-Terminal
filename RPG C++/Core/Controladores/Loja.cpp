@@ -23,6 +23,10 @@ void Loja::processarCompra(Personagem* jogadorAtual, const std::string& tituloLo
         return nomeItem;
     });
 
+    Aparencia::iniciarInteracaoPopup();
+    Aparencia::atualizarMinTamanhoPopup(100, 24); // Padroniza o tamanho da tela de Loja
+
+    bool animarEntrada = true;
     while (true) {
         std::vector<std::string> texto = { 
             "Seu Ouro: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G" 
@@ -41,7 +45,8 @@ void Loja::processarCompra(Personagem* jogadorAtual, const std::string& tituloLo
             }
             opcoes.push_back("VOLTAR");
             
-            int escolha = ControleDeInput::lerSelecaoMenuEmPopup(tituloLoja, texto, opcoes, corLoja, arteAscii);
+            int escolha = ControleDeInput::lerSelecaoMenuEmPopup(tituloLoja, texto, opcoes, corLoja, arteAscii, animarEntrada);
+            animarEntrada = false;
             
             if (escolha == -1 || escolha == static_cast<int>(itensOrdenados.size())) {
                 break;
@@ -76,7 +81,8 @@ void Loja::processarCompra(Personagem* jogadorAtual, const std::string& tituloLo
                         {"Preco Unitario: " + std::to_string(produto.preco) + "G", "Voce pode comprar ate " + std::to_string(maxPossivel) + " unidades."},
                         opcoesQtd, 
                         corLoja,
-                        arteAscii
+                        arteAscii,
+                        false // Nunca animar submenus da loja
                     );
                     
                     if (escolhaQtd == 0) {

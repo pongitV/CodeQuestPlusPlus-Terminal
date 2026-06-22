@@ -697,7 +697,21 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>&
             
             if (linhaReal >= 0 && linhaReal < static_cast<int>(arteDoInimigo.size())) {
                 linhaArte = arteDoInimigo[linhaReal];
-                visivelLen = static_cast<int>(splitUTF8(linhaArte).size());
+                auto caracteres = splitUTF8(linhaArte);
+                visivelLen = static_cast<int>(caracteres.size());
+                
+                // --- SANGUE INIMIGO ---
+                if (inimigoAtual->obterVida() > 0 && inimigoAtual->obterVida() <= inimigoAtual->obterVidaMaxima() * 0.3f) {
+                    std::string linhaComSangue = "";
+                    for (size_t k = 0; k < caracteres.size(); ++k) {
+                        if (caracteres[k] != " " && caracteres[k] != "  " && (k + linhaReal * 3) % 7 == 0) {
+                            linhaComSangue += "\033[38;2;180;0;0m" + caracteres[k] + "\033[0m";
+                        } else {
+                            linhaComSangue += caracteres[k];
+                        }
+                    }
+                    linhaArte = linhaComSangue;
+                }
             } else {
                 visivelLen = static_cast<int>(splitUTF8(arteDoInimigo[0]).size()); // Margem de segurança de tamanho
                 linhaArte = std::string(visivelLen, ' ');
