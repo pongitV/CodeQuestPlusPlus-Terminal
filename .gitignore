@@ -1,0 +1,11 @@
+build/
+.vscode/
+*.exe
+*.o
+*.d
+obj/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+*.cmake
+resumo_alteracoes.md

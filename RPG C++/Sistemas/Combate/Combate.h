@@ -68,7 +68,7 @@ public:
     virtual ~Combate();
 
     std::vector<Personagem*> obterAliadosVivosRaw() const;
-    bool executarTurnoJogadorOuAliado(Personagem* personagem, bool& primeiraRenderizacao);
+    bool executarTurnoJogadorOuAliado(Personagem* personagem, bool& primeiraRenderizacao, bool processarEfeitosInicio = true);
     void adicionarAliadoEmCombate(std::unique_ptr<Personagem> aliado);
     void adicionarAliados(std::vector<std::unique_ptr<Personagem>> aliados);
     void iniciarCombate();

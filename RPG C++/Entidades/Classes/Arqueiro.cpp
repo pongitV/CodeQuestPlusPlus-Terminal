@@ -122,13 +122,14 @@ std::string Arqueiro::obterDescricaoHabilidadeClasse() const
     return "Se afasta durante um turno, no proximo turno causa 2x dano"; 
 }
 
-void Arqueiro::usarHabilidadeClasse(Combate* /*combate*/, Personagem* personagemUsuario, std::vector<Personagem*>& /*listaDeInimigos*/) 
+void Arqueiro::usarHabilidadeClasse(Combate* combate, Personagem* personagemUsuario, std::vector<Personagem*>& /*listaDeInimigos*/) 
 {
     int turnosRestantes = personagemUsuario->obterCooldown(HabilidadeID::RetiradaComPontaria);
     if (verificarEReportarRecarga(personagemUsuario, turnosRestantes, obterNomeHabilidadeClasse())) return;
 
     personagemUsuario->adicionarEfeito(std::make_unique<EfeitoInviolavel>(1));
     personagemUsuario->definirCooldown(HabilidadeID::RetiradaComPontaria, 2);
+    
     std::string msg = FuncoesDialogo::formatarMsgHabilidade("Retirada com pontaria! Voce se afasta neste turno.");
     notificarMensagemCombate(msg, msg);
 }

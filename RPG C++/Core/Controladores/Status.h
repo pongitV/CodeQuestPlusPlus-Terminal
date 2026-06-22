@@ -15,7 +15,8 @@ enum class EfeitoID {
     Atordoamento,
     BuffAtributos,
     GritoDeGuerra,
-    Necrose
+    Necrose,
+    MiraCerteira
 };
 
 class Personagem; // Forward declaration
@@ -115,6 +116,12 @@ public:
 class EfeitoInviolavel : public EfeitoStatus {
 public:
     EfeitoInviolavel(int turnosDuracao) : EfeitoStatus(EfeitoID::Inviolavel, "Inviolavel", turnosDuracao) {}
+    void aoSair(Personagem* alvo) override;
+};
+
+class EfeitoMiraCerteira : public EfeitoStatus {
+public:
+    EfeitoMiraCerteira(int turnosDuracao) : EfeitoStatus(EfeitoID::MiraCerteira, "Mira Certeira", turnosDuracao) {}
 };
 
 class EfeitoGritoGuerra : public EfeitoStatus {

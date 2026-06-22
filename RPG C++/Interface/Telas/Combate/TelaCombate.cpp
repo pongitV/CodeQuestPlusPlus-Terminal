@@ -51,6 +51,7 @@ namespace {
             case EfeitoID::QuebraResistencia: return {"Quebra Def.", Cor::CIANO};
             case EfeitoID::RodaAdaptacao: return {"Adaptacao", Cor::AMARELO};
             case EfeitoID::Necrose: return {"Necrose", Cor::MAGENTA};
+            case EfeitoID::MiraCerteira: return {"Mira Certeira", Cor::AMARELO};
             default: return {"", Cor::RESET};
         }
     }
@@ -645,6 +646,22 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>&
         });
     }
 
+    imprimirLinhaHorda([&](Personagem* inimigo, size_t i) {
+        std::string tag = inimigo->obterNome();
+        std::string printTag = tag;
+        if (TelaCombate::selecaoAlvoAtual == static_cast<int>(i)) {
+            tag = "> " + tag + " <";
+            if (TelaCombate::piscarSelecao) {
+                printTag = Aparencia::cor(Cor::AMARELO) + tag + Aparencia::cor(Cor::RESET);
+            } else {
+                printTag = Aparencia::cor(Cor::CINZA) + tag + Aparencia::cor(Cor::RESET);
+            }
+        } else if (inimigo == g_inimigoAtacanteParry) {
+            printTag = "\033[38;2;255;140;0m" + tag + Aparencia::cor(Cor::RESET); // Laranja Escuro
+        }
+        return formatarFadeOut(inimigo, tag, printTag);
+    });
+
     imprimirLinhaHorda([&](Personagem* inimigo, size_t /*i*/) {
         double pctVida = static_cast<double>(inimigo->obterVida()) / std::max(1, inimigo->obterVidaMaxima());
         Cor corVidaInimigo = (pctVida > 0.7) ? Cor::VERDE : (pctVida > 0.3) ? Cor::AMARELO : Cor::VERMELHO;
@@ -661,21 +678,7 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>&
         return formatarFadeOut(inimigo, textoVisual, printHp);
     });
 
-    imprimirLinhaHorda([&](Personagem* inimigo, size_t i) {
-        std::string tag = inimigo->obterNome();
-        std::string printTag = tag;
-        if (TelaCombate::selecaoAlvoAtual == static_cast<int>(i)) {
-            tag = "> " + tag + " <";
-            if (TelaCombate::piscarSelecao) {
-                printTag = Aparencia::cor(Cor::AMARELO) + tag + Aparencia::cor(Cor::RESET);
-            } else {
-                printTag = Aparencia::cor(Cor::CINZA) + tag + Aparencia::cor(Cor::RESET);
-            }
-        } else if (inimigo == g_inimigoAtacanteParry) {
-            printTag = "\033[38;2;255;140;0m" + tag + Aparencia::cor(Cor::RESET); // Laranja Escuro
-        }
-        return formatarFadeOut(inimigo, tag, printTag);
-    });
+
     
     std::cout << "\n";
         
@@ -950,11 +953,18 @@ int TelaCombate::obterAcaoDoJogador(int turnoAtual, Personagem* personagemAgindo
         if (ControleDeInput::teclaPressionada()) {
             unsigned char tecla = static_cast<unsigned char>(ControleDeInput::lerTecla());
             
-            if (tecla == 224 || tecla == 0 || tecla == '\033') {
+            if (tecla == 224 || tecla == 0) {
                 unsigned char proxTecla = static_cast<unsigned char>(ControleDeInput::lerTecla());
-                if (proxTecla == '[') proxTecla = static_cast<unsigned char>(ControleDeInput::lerTecla());
                 if (proxTecla == 72 || proxTecla == 'A') tecla = 'w';
                 else if (proxTecla == 80 || proxTecla == 'B') tecla = 's';
+            } else if (tecla == '\033') {
+                if (ControleDeInput::teclaPressionada()) {
+                    unsigned char proxTecla = static_cast<unsigned char>(ControleDeInput::lerTecla());
+                    if (proxTecla == '[') proxTecla = static_cast<unsigned char>(ControleDeInput::lerTecla());
+                    if (proxTecla == 72 || proxTecla == 'A') tecla = 'w';
+                    else if (proxTecla == 80 || proxTecla == 'B') tecla = 's';
+                    else if (proxTecla == 27) tecla = '\033';
+                }
             }
 
             int totalOpcoes = static_cast<int>(opcoesMenuAtual.size());
@@ -1028,12 +1038,18 @@ int TelaCombate::obterAlvoAtaque(const std::string& tituloCombate, const std::ve
         if (ControleDeInput::teclaPressionada()) {
             unsigned char tecla = static_cast<unsigned char>(ControleDeInput::lerTecla());
             
-            if (tecla == 224 || tecla == 0 || tecla == '\033') {
+            if (tecla == 224 || tecla == 0) {
                 unsigned char proxTecla = static_cast<unsigned char>(ControleDeInput::lerTecla());
-                if (proxTecla == '[') proxTecla = static_cast<unsigned char>(ControleDeInput::lerTecla());
                 if (proxTecla == 75 || proxTecla == 'D') tecla = 'a'; // Seta Esquerda
                 else if (proxTecla == 77 || proxTecla == 'C') tecla = 'd'; // Seta Direita
-                else if (proxTecla == 27) tecla = '\033'; // Esc
+            } else if (tecla == '\033') {
+                if (ControleDeInput::teclaPressionada()) {
+                    unsigned char proxTecla = static_cast<unsigned char>(ControleDeInput::lerTecla());
+                    if (proxTecla == '[') proxTecla = static_cast<unsigned char>(ControleDeInput::lerTecla());
+                    if (proxTecla == 75 || proxTecla == 'D') tecla = 'a'; // Seta Esquerda
+                    else if (proxTecla == 77 || proxTecla == 'C') tecla = 'd'; // Seta Direita
+                    else if (proxTecla == 27) tecla = '\033'; // Esc
+                }
             }
 
             if (tecla == 'a' || tecla == 'A') { 

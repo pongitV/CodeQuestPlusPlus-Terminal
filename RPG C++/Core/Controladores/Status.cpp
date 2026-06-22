@@ -165,3 +165,4 @@ void EfeitoRodaAdaptacao::adaptar(Personagem* alvo, Personagem* inimigo) {
 
     TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + "\033[5m" + Aparencia::cor(Cor::AMARELO) + "* KLINK! *" + Aparencia::cor(Cor::RESET) + " A Roda adapta " + msgDefesa + " e " + msgAtaque + " (+2)!\n");
 }
+void EfeitoInviolavel::aoSair(Personagem* alvo) { alvo->adicionarEfeito(std::make_unique<EfeitoMiraCerteira>(99)); }

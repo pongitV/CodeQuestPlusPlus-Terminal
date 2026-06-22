@@ -385,11 +385,16 @@ ResultadoDano Personagem::receberDano(int danoBruto, int danoPerfurante, int dan
 
 void Personagem::adicionarEfeito(std::unique_ptr<EfeitoStatus> efeito) {
     efeito->aoEntrar(this);
-    efeitosAtivos.push_back(std::move(efeito));
+    if (processandoEfeitos) {
+        efeitosFilaAdicao.push_back(std::move(efeito));
+    } else {
+        efeitosAtivos.push_back(std::move(efeito));
+    }
     cache_.sujo = true;
 }
 
 void Personagem::processarEfeitosInicioTurno() {
+    processandoEfeitos = true;
     for (auto& ef : efeitosAtivos) {
         ef->aplicarInicioTurno(this);
         ef->decrementarTurno();
@@ -400,13 +405,24 @@ void Personagem::processarEfeitosInicioTurno() {
             [this](const std::unique_ptr<EfeitoStatus>& ef) {
                 if (ef->expirou()) {
                     ef->aoSair(this);
-                cache_.sujo = true;
+                    cache_.sujo = true;
                     return true;
                 }
                 return false;
             }),
         efeitosAtivos.end()
     );
+    processandoEfeitos = false;
+
+    for (EfeitoID id : efeitosFilaRemocao) {
+        removerEfeito(id);
+    }
+    efeitosFilaRemocao.clear();
+
+    for (auto& ef : efeitosFilaAdicao) {
+        efeitosAtivos.push_back(std::move(ef));
+    }
+    efeitosFilaAdicao.clear();
 }
 
 void Personagem::limparEfeitos() {
@@ -414,7 +430,25 @@ void Personagem::limparEfeitos() {
         ef->aoSair(this); // Garante que os atributos (como Forca e Destreza) sejam restaurados
     }
     efeitosAtivos.clear();
+    efeitosFilaAdicao.clear();
+    efeitosFilaRemocao.clear();
     cache_.sujo = true;
+}
+
+void Personagem::removerEfeito(EfeitoID id) {
+    if (processandoEfeitos) {
+        efeitosFilaRemocao.push_back(id);
+        return;
+    }
+    auto it = std::find_if(efeitosAtivos.begin(), efeitosAtivos.end(),
+        [id](const std::unique_ptr<EfeitoStatus>& ef) {
+            return ef->obterID() == id;
+        });
+    if (it != efeitosAtivos.end()) {
+        (*it)->aoSair(this);
+        efeitosAtivos.erase(it);
+        cache_.sujo = true;
+    }
 }
 
 bool Personagem::podeAgir(std::string& outMotivoIncapacidade) const {

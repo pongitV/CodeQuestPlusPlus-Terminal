@@ -140,8 +140,10 @@ void Combate::prepararTurnoPersonagem(Personagem* personagem) {
     personagem->processarEfeitosInicioTurno();
 }
 
-bool Combate::executarTurnoJogadorOuAliado(Personagem* personagem, bool& primeiraRenderizacao) {
-    prepararTurnoPersonagem(personagem);
+bool Combate::executarTurnoJogadorOuAliado(Personagem* personagem, bool& primeiraRenderizacao, bool processarEfeitosInicio) {
+    if (processarEfeitosInicio) {
+        prepararTurnoPersonagem(personagem);
+    }
     if (personagem->obterVida() <= 0) return false;
 
     if (personagem == jogadorAtual) {
@@ -245,7 +247,7 @@ void Combate::iniciarCombate()
             if (turnoExtraFirstTurn && contadorDoTurnoAtual == 1) {
                 TelaCombate::notificarTurnoExtra(jogadorAtual->obterDestreza(), maxDestrezaInimigos);
                 turnoExtraFirstTurn = false;
-                continue;
+                if (executarTurnoJogadorOuAliado(jogadorAtual, primeiraRenderizacao, false)) return;
             }
         }
         
@@ -568,7 +570,6 @@ void Combate::realizarAtaqueFisico(Personagem* personagemAtacante, Personagem* p
 std::pair<int, int> Combate::calcularDanoBase(Personagem* atacante) 
 {
     double multiplicadorDeAtributos = atacante->obterMultiplicador();
-    if (atacante->possuiEfeito(EfeitoID::Inviolavel)) multiplicadorDeAtributos *= 2.0;
 
     int danoFisicoDaArma = 1;
     int danoMagicoDaArma = 0;
@@ -599,8 +600,8 @@ std::pair<int, int> Combate::calcularDanoBase(Personagem* atacante)
 
     int danoFisicoCalculado = std::max(0, static_cast<int>((danoFisicoDaArma + forcaEfetiva) * (1.0 + (destrezaEfetiva / 100.0))));
     int danoMagicoCalculado = std::max(0, static_cast<int>((danoMagicoDaArma + inteligenciaEfetiva) * (1.0 + (sabedoriaEfetiva / 100.0))));
+    
     int total = std::max(1, danoFisicoCalculado + danoMagicoCalculado);
-
     int totalFinal = static_cast<int>(total * multiplicadorDeAtributos);
     int perfuranteFinal = perfuranteAtual;
 
@@ -614,6 +615,13 @@ std::pair<int, int> Combate::calcularDanoBase(Personagem* atacante)
         if (mahoraga && mahoraga->ignoraEscudo()) {
             perfuranteFinal = totalFinal;
         }
+    }
+
+    // Aplica o bonus da Mira Certeira diretamente no dano base (sem mexer nos atributos)
+    if (atacante->possuiEfeito(EfeitoID::MiraCerteira)) {
+        totalFinal *= 2;
+        perfuranteFinal *= 2;
+        atacante->removerEfeito(EfeitoID::MiraCerteira);
     }
 
     return { totalFinal, perfuranteFinal };
@@ -683,7 +691,13 @@ void Combate::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* pers
 {
     if (personagemAlvo->possuiEfeito(EfeitoID::Inviolavel))
     {
-        registrarLog(FuncoesDialogo::formatarMsgCombate("O alvo esta Inviolavel e desviou do ataque perfeitamente!", Cor::CIANO));
+        std::string msgEsquiva = personagemAlvo->obterNome() + " evitou o ataque de " + personagemAtacante->obterNome();
+        registrarLog(FuncoesDialogo::formatarMsgCombate(msgEsquiva, Cor::CIANO));
+        TelaCombate::adicionarMensagemFixa(Aparencia::centralizarTexto(Aparencia::cor(Cor::CIANO) + msgEsquiva + Aparencia::cor(Cor::RESET)) + "\n");
+        
+        std::vector<Personagem*> aliadosVivos = obterAliadosVivosRaw();
+        TelaCombate::atualizarTelaEstatica(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual, aliadosVivos);
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
         return;
     }
 

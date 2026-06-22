@@ -130,6 +130,9 @@ protected:
     std::unique_ptr<Inventario> mochila;
 
     std::vector<std::unique_ptr<EfeitoStatus>> efeitosAtivos;
+    std::vector<std::unique_ptr<EfeitoStatus>> efeitosFilaAdicao;
+    std::vector<EfeitoID> efeitosFilaRemocao;
+    bool processandoEfeitos = false;
 
     Item* arma;
     Item* escudo;
@@ -315,6 +318,7 @@ public:
     // Preenche o vetor com os IDs de todos os efeitos ativos (evita alocações indesejadas)
     void obterIDsEfeitosAtivos(std::vector<EfeitoID>& outIDs) const;
     void limparEfeitos();
+    void removerEfeito(EfeitoID id);
 
     int calcularDefesaBase(int danoBruto, int danoPerfurante) const;
     ResultadoDano receberDano(int danoBruto, int danoPerfurante, int danoReduzidoParry, Personagem* atacante, bool aplicarPassivas);
