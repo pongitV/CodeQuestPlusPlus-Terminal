@@ -95,17 +95,6 @@ void Aparencia::maximizarJanelaTerminal() {
 
     // Maximiza a janela popup, que por padrao ocupa a tela inteira
     ShowWindow(hwnd, SW_MAXIMIZE);
-
-    // 2. Apos maximizar, ajusta o buffer do console para corresponder exatamente a janela visivel.
-    // Isso evita barras de scroll e garante que o conteudo nao "escape" da area visivel.
-    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    if (GetConsoleScreenBufferInfo(hOut, &csbi)) {
-        COORD bufferSize;
-        bufferSize.X = csbi.srWindow.Right - csbi.srWindow.Left + 1;
-        bufferSize.Y = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
-        SetConsoleScreenBufferSize(hOut, bufferSize);
-    }
 #endif
 }
 

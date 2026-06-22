@@ -17,8 +17,8 @@
 
 
 Mapa3Reino::Mapa3Reino(Personagem* personagemJogador) :
-    posicaoXDoJogador(48), 
-    posicaoYDoJogador(33),
+    posicaoXDoJogador(47), 
+    posicaoYDoJogador(32),
     jogadorAtual(personagemJogador), 
     exploracaoEstaAtiva(true), 
     tituloDoMapaAtual("CAMINHO DO CASTELO"),
@@ -46,6 +46,7 @@ ProximaTransicaoMapa Mapa3Reino::iniciarLoopDeExploracao()
         }
         if (celula == 'T') return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + "T" + Aparencia::cor(Cor::RESET);
         if (celula == 'G') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "G" + Aparencia::cor(Cor::RESET);
+        if (celula == '~') return Aparencia::cor(Cor::AGUA) + "~" + Aparencia::cor(Cor::RESET);
         if (celula == 'C') return Aparencia::cor(Cor::NEGRITO, Cor::PRATA) + "C" + Aparencia::cor(Cor::RESET); // Cavaleiro Real prata
         if (celula == '^') return Aparencia::cor(Cor::NEGRITO, Cor::TELEPORTE) + "^" + Aparencia::cor(Cor::RESET);
         

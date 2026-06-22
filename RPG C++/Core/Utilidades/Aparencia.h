@@ -22,6 +22,7 @@ enum class Cor : uint32_t {
     LARANJA = 0xFFA500,
     ROXO = 0x800080,
     LILAS = 0xC8A2C8,
+    AGUA = 0x3296FF, // 50, 150, 255
 
     // Novas Cores da Paleta do Mundo 3D
     MARROM = 0x8B4513,   // 139, 69, 19
