@@ -639,26 +639,60 @@ void Aparencia::exibirPopup(const std::string& titulo, const std::vector<std::st
     if (startX < 0) startX = 0;
     if (startY < 0) startY = 0;
     
-    std::string bgPopup = "\033[48;2;15;15;15m"; 
-    
-    for (int i = 0; i < finalBoxHeight; ++i) {
-        moverCursor(startX, startY + i);
-        std::string linha = caixa[i];
-        size_t pos = 0;
-        while ((pos = linha.find("\033[0m", pos)) != std::string::npos) {
-            linha.replace(pos, 4, "\033[0m" + bgPopup);
-            pos += 4 + bgPopup.length(); 
-        }
-        linha = bgPopup + linha + "\033[0m"; 
-        std::cout << linha;
-    }
-    std::cout << std::flush;
+    renderizarCaixaPopupAnimada(caixa, startX, startY, true);
     
     ControleDeInput::limparBuffer();
     while (true) {
         char c = ControleDeInput::lerTecla();
         if (c == '\r' || c == '\n') break;
     }
+}
+
+void Aparencia::renderizarCaixaPopupAnimada(const std::vector<std::string>& caixa, int startX, int startY, bool animar) {
+    if (caixa.empty()) return;
+    int finalBoxHeight = caixa.size();
+    std::string bgPopup = "\033[48;2;15;15;15m"; 
+    
+    auto formatarLinha = [&](const std::string& linhaOriginal) {
+        std::string linha = linhaOriginal;
+        size_t pos = 0;
+        while ((pos = linha.find("\033[0m", pos)) != std::string::npos) {
+            linha.replace(pos, 4, "\033[0m" + bgPopup);
+            pos += 4 + bgPopup.length(); 
+        }
+        return bgPopup + linha + "\033[0m"; 
+    };
+
+    if (animar) {
+        int metade = finalBoxHeight / 2;
+        for (int expansao = 0; expansao <= metade; expansao++) {
+            int inicioSlice = metade - expansao;
+            int fimSlice = metade + expansao;
+            if (fimSlice >= finalBoxHeight) fimSlice = finalBoxHeight - 1;
+
+            moverCursor(startX, startY + inicioSlice);
+            std::cout << formatarLinha(caixa[0]);
+
+            for (int i = inicioSlice + 1; i < fimSlice; i++) {
+                moverCursor(startX, startY + i);
+                std::cout << formatarLinha(caixa[i]);
+            }
+
+            if (fimSlice > inicioSlice) {
+                moverCursor(startX, startY + fimSlice);
+                std::cout << formatarLinha(caixa[finalBoxHeight - 1]);
+            }
+
+            std::cout << std::flush;
+            std::this_thread::sleep_for(std::chrono::milliseconds(40));
+        }
+    }
+
+    for (int i = 0; i < finalBoxHeight; ++i) {
+        moverCursor(startX, startY + i);
+        std::cout << formatarLinha(caixa[i]);
+    }
+    std::cout << std::flush;
 }
 
 int Aparencia::lerInteiroEmPopupFlutuante(const std::string& mensagem, int limiteMin, int limiteMax, Cor corTema) {

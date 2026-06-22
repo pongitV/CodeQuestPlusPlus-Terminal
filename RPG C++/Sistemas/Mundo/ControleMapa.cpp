@@ -433,6 +433,7 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
         }
 
         if (s_exploracao3DAtiva || (processarInput && (teclaPressionadaPeloJogador == 'v' || teclaPressionadaPeloJogador == 'V'))) {
+            bool recemEntrouEm3D = !s_exploracao3DAtiva;
             s_exploracao3DAtiva = true;
 
                 if (posCamera3DX == -1.0f || static_cast<int>(posCamera3DX) != posicaoXDoJogador || static_cast<int>(posCamera3DY) != posicaoYDoJogador) {
@@ -441,7 +442,7 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
                 }
                 
                 int hitX = -1, hitY = -1;
-                char acaoPendente = Raycaster::iniciarExploracao3D(matrizDoMapaAtual, posCamera3DX, posCamera3DY, anguloCamera3D, tituloDoMapaAtual, jogadorAtual, hitX, hitY);
+                char acaoPendente = Raycaster::iniciarExploracao3D(matrizDoMapaAtual, posCamera3DX, posCamera3DY, anguloCamera3D, tituloDoMapaAtual, jogadorAtual, hitX, hitY, recemEntrouEm3D);
                 
                 posicaoXDoJogador = static_cast<int>(posCamera3DX);
                 posicaoYDoJogador = static_cast<int>(posCamera3DY);

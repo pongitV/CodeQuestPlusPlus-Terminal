@@ -214,6 +214,8 @@ int ControleDeInput::lerSelecaoMenuEmPopup(const std::string& titulo, const std:
     std::string bgPopup = "\033[48;2;15;15;15m"; 
     std::cout << "\033[?25l"; 
     
+    ControleDeInput::limparBuffer();
+    bool primeiroRender = true;
     while (true) {
         std::vector<std::string> linhasTexto = texto;
         linhasTexto.push_back("");
@@ -297,19 +299,8 @@ int ControleDeInput::lerSelecaoMenuEmPopup(const std::string& titulo, const std:
         int startY = (alturaTerm - finalBoxHeight) / 2;
         if (startX < 0) startX = 0;
         if (startY < 0) startY = 0;
-        
-        for (int i = 0; i < finalBoxHeight; ++i) {
-            Aparencia::moverCursor(startX, startY + i);
-            std::string linha = caixa[i];
-            size_t pos = 0;
-            while ((pos = linha.find("\033[0m", pos)) != std::string::npos) {
-                linha.replace(pos, 4, "\033[0m" + bgPopup);
-                pos += 4 + bgPopup.length(); 
-            }
-            linha = bgPopup + linha + "\033[0m"; 
-            std::cout << linha;
-        }
-        std::cout << std::flush;
+        Aparencia::renderizarCaixaPopupAnimada(caixa, startX, startY, primeiroRender);
+        primeiroRender = false;
         
         char tecla = lerTecla();
         if (tecla == 224 || tecla == 0 || tecla == '\033') {

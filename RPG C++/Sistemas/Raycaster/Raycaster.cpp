@@ -24,7 +24,7 @@
 
 using namespace std;
 
-char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& jogadorX, float& jogadorY, float& anguloVisao, const string& tituloMapa, Personagem* jogador, int& outHitX, int& outHitY) {
+char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& jogadorX, float& jogadorY, float& anguloVisao, const string& tituloMapa, Personagem* jogador, int& outHitX, int& outHitY, bool animarEntrada) {
     outHitX = -1;
     outHitY = -1;
     if (matrizDoMapa.empty() || !jogador) return 0;
@@ -62,11 +62,54 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
 
     vector<string> tela(LARGURA_TELA * ALTURA_TELA, " ");
 
+    auto animarOlho = [&](bool abrindo, const vector<string>& frameBase) {
+        int maxPassos = 8; 
+        for (int passo = 0; passo <= maxPassos; passo++) {
+            int p = abrindo ? passo : (maxPassos - passo);
+            float aberturaPercent = (float)p / maxPassos;
+            
+            string bufferFrame = "\033[?25l\033[H";
+            bufferFrame.reserve(LARGURA_TELA * ALTURA_TELA * 15);
+            int centroY = ALTURA_TELA / 2;
+            int centroX = LARGURA_TELA / 2;
+            
+            for (int y = 0; y < ALTURA_TELA; y++) {
+                for (int x = 0; x < LARGURA_TELA; x++) {
+                    if (y == ALTURA_TELA - 1 && x == LARGURA_TELA - 1) break;
+                    
+                    float dx = std::abs(x - centroX);
+                    float rx = dx / (float)centroX; 
+                    
+                    float heightAtX = -1.0f;
+                    if (aberturaPercent > 0.0f) {
+                        heightAtX = (ALTURA_TELA * 0.6f * (1.0f - rx*rx) + ALTURA_TELA * 0.5f) * aberturaPercent; 
+                    }
+                    
+                    if (std::abs(y - centroY) > heightAtX) {
+                        bufferFrame += "\033[40m \033[0m";
+                    } else {
+                        bufferFrame += frameBase[y * LARGURA_TELA + x];
+                    }
+                }
+                if (y < ALTURA_TELA - 1) bufferFrame += "\n";
+            }
+            cout << bufferFrame << flush;
+            std::this_thread::sleep_for(std::chrono::milliseconds(30));
+        }
+    };
+
+    RaycasterRenderer::renderizar3D(tela, LARGURA_TELA, ALTURA_TELA, jogadorX, jogadorY, anguloVisao, (ALTURA_TELA / 2.0f), 0, profundidadeMaxima, 0.0f, matrizDoMapa, tituloMapa, temaFloresta, temaCeu, cacheSprites);
+    RaycasterHUD::desenhar(tela, LARGURA_TELA, ALTURA_TELA, jogadorX, jogadorY, anguloVisao, matrizDoMapa, tituloMapa, temaFloresta, jogador);
+    if (animarEntrada) {
+        animarOlho(true, tela);
+    }
+
 #ifdef _WIN32
     // Aguarda o jogador soltar a tecla 'V' antes de iniciar o loop para nao fechar no mesmo instante
     while (GetAsyncKeyState('V') & 0x8000) std::this_thread::sleep_for(std::chrono::milliseconds(10));
 #endif
 
+    bool primeiraRenderizacao = animarEntrada;
     bool rodando = true;
     while (rodando) {
         tp2 = chrono::system_clock::now();
@@ -116,6 +159,7 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
         if (GetAsyncKeyState('M') & 0x8000) {
             while (GetAsyncKeyState('M') & 0x8000) std::this_thread::sleep_for(std::chrono::milliseconds(10));
             ControleDeInput::limparBuffer();
+            animarOlho(false, tela);
             Aparencia::limparTela();
             return 'M';
         }
@@ -193,7 +237,7 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
         RaycasterHUD::desenhar(tela, LARGURA_TELA, ALTURA_TELA, jogadorX, jogadorY, anguloVisao, matrizDoMapa, tituloMapa, temaFloresta, jogador);
 
         // Envia o frame processado para o terminal de uma vez de forma linear (Zero Flickering!)
-        string bufferFrame = "\033[H"; 
+        string bufferFrame = "\033[?25l\033[H"; 
         bufferFrame.reserve(LARGURA_TELA * ALTURA_TELA * 15); 
         for (int y = 0; y < ALTURA_TELA; y++) {
             for (int x = 0; x < LARGURA_TELA; x++) {
@@ -218,6 +262,7 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
     ControleDeInput::limparBuffer();
     // So limpa a tela se o fechamento foi manual (ESC). Se bateu em entidade, preserva a visao 3D como fundo pro Popup!
     if (outHitX == -1 && outHitY == -1) {
+        animarOlho(false, tela);
         Aparencia::limparTela();
     }
     return 0;
