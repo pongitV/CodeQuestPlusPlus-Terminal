@@ -4,6 +4,7 @@
 #include "../../../Core/Utilidades/ControleDeInput.h"
 #include "../../../Entidades/Personagem.h"
 #include "../../../Sistemas/Progresso/Salvamento.h"
+#include "../../../Sistemas/Raycaster/Raycaster.h"
 #include <iostream>
 #include <vector>
 
@@ -48,6 +49,7 @@ void TelaPause::exibir(Personagem* jogador) {
                     "Sistema de PARRY: " + statusParry,
                     "Aparencia do Jogador no Mapa",
                     "Cor de Fundo do Terminal",
+                    "Sensibilidade do Mouse",
                     "Voltar"
                 };
                 
@@ -139,6 +141,46 @@ void TelaPause::exibir(Personagem* jogador) {
                             std::cout << "\033]11;" << hexColor << "\007" << std::flush;
                         } else {
                             fundoAberto = false;
+                        }
+                    }
+                } else if (confEscolha == 4) {
+                    bool sensibilidadeAberta = true;
+                    while (sensibilidadeAberta) {
+                        Aparencia::limparTela();
+                        TelaMenu::exibirPainelLogoJogo("SENSIBILIDADE", false);
+                        std::cout << "\n";
+                        
+                        // Formatar as sensibilidades para exibicao como porcentagem da base (0.002f para X, 0.08f para Y)
+                        int percX = (int)((Raycaster::sensibilidadeX / 0.002f) * 100);
+                        int percY = (int)((Raycaster::sensibilidadeY / 0.08f) * 100);
+                        
+                        std::vector<std::string> opcoesSens = {
+                            "Horizontal (X): " + std::to_string(percX) + "%  [ ENTER p/ Digitar Novo Valor ]",
+                            "Vertical (Y): " + std::to_string(percY) + "%  [ ENTER p/ Digitar Novo Valor ]",
+                            "Voltar"
+                        };
+                        
+                        int sensEscolha = ControleDeInput::lerSelecaoMenuComSetas(opcoesSens, true);
+                        if (sensEscolha == 0) {
+                            std::cout << "\n";
+                            std::string promptMsg = "Digite o novo valor em porcentagem (ex: 50, 100, 150): ";
+                            std::cout << Aparencia::espacosParaCentralizar(promptMsg.length()) << promptMsg;
+                            std::string entrada = ControleDeInput::lerEntradaProtegida();
+                            try {
+                                int novoValor = std::stoi(entrada);
+                                if (novoValor > 0) Raycaster::sensibilidadeX = (novoValor / 100.0f) * 0.002f;
+                            } catch (...) {} // ignora se digitar letras
+                        } else if (sensEscolha == 1) {
+                            std::cout << "\n";
+                            std::string promptMsg = "Digite o novo valor em porcentagem (ex: 50, 100, 150): ";
+                            std::cout << Aparencia::espacosParaCentralizar(promptMsg.length()) << promptMsg;
+                            std::string entrada = ControleDeInput::lerEntradaProtegida();
+                            try {
+                                int novoValor = std::stoi(entrada);
+                                if (novoValor > 0) Raycaster::sensibilidadeY = (novoValor / 100.0f) * 0.08f;
+                            } catch (...) {}
+                        } else {
+                            sensibilidadeAberta = false;
                         }
                     }
                 } else {

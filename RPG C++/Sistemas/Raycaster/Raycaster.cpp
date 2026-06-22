@@ -24,6 +24,36 @@
 
 using namespace std;
 
+float Raycaster::sensibilidadeX = 0.0008f; // Original: 0.002f (40%)
+float Raycaster::sensibilidadeY = 0.048f;  // Original: 0.08f (60%)
+
+#ifdef _WIN32
+struct MouseHider {
+    bool isHidden;
+    MouseHider() : isHidden(false) {}
+    void hide() {
+        if (!isHidden) {
+            BYTE ANDmaskCursor[] = { 0xFF };
+            BYTE XORmaskCursor[] = { 0x00 };
+            HCURSOR hCursor1 = CreateCursor(NULL, 0, 0, 1, 1, ANDmaskCursor, XORmaskCursor);
+            SetSystemCursor(hCursor1, 32512); // OCR_NORMAL
+            HCURSOR hCursor2 = CreateCursor(NULL, 0, 0, 1, 1, ANDmaskCursor, XORmaskCursor);
+            SetSystemCursor(hCursor2, 32513); // OCR_IBEAM
+            isHidden = true;
+        }
+    }
+    void show() {
+        if (isHidden) {
+            SystemParametersInfo(SPI_SETCURSORS, 0, NULL, 0);
+            isHidden = false;
+        }
+    }
+    ~MouseHider() {
+        show();
+    }
+};
+#endif
+
 char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& jogadorX, float& jogadorY, float& anguloVisao, const string& tituloMapa, Personagem* jogador, int& outHitX, int& outHitY, bool animarEntrada) {
     outHitX = -1;
     outHitY = -1;
@@ -59,8 +89,59 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
     auto tempoInicio = chrono::system_clock::now();
     float bobbingTime = 0.0f;
     float bobbingAmplitude = 0.0f;
+    float pitchOffset = 0.0f;
 
+    int ALTURA_INTERNA = ALTURA_TELA * 2;
+    vector<string> tela3D(LARGURA_TELA * ALTURA_INTERNA, " ");
     vector<string> tela(LARGURA_TELA * ALTURA_TELA, " ");
+
+    auto downsampleTela = [&]() {
+        for (int y = 0; y < ALTURA_TELA; y++) {
+            for (int x = 0; x < LARGURA_TELA; x++) {
+                string top = tela3D[(y * 2) * LARGURA_TELA + x];
+                string bot = tela3D[(y * 2 + 1) * LARGURA_TELA + x];
+                
+                auto getBg = [](const string& s) {
+                    size_t pos = s.find("\033[48;2;");
+                    if (pos != string::npos) {
+                        size_t end = s.find('m', pos);
+                        if (end != string::npos) return s.substr(pos, end - pos + 1);
+                    }
+                    return string("\033[48;2;0;0;0m");
+                };
+
+                auto getChar = [](const string& s) {
+                    size_t firstM = s.find('m');
+                    if (firstM != string::npos && firstM + 1 < s.size()) {
+                        char c = s[firstM + 1];
+                        if (c != '\033' && c != ' ') return c;
+                        if (c == '\033') {
+                            size_t secondM = s.find('m', firstM + 1);
+                            if (secondM != string::npos && secondM + 1 < s.size()) {
+                                c = s[secondM + 1];
+                                if (c != '\033' && c != ' ') return c;
+                            }
+                        }
+                    }
+                    return ' ';
+                };
+
+                char topC = getChar(top);
+                char botC = getChar(bot);
+                
+                if (topC == ' ' && botC == ' ') {
+                    string bgTop = getBg(top);
+                    string bgBot = getBg(bot);
+                    if (bgTop.size() > 3) bgTop[2] = '3'; // Transforma 48 (bg) em 38 (fg) trocando o '4' pelo '3' no indice 2
+                    tela[y * LARGURA_TELA + x] = bgBot + bgTop + "\xE2\x96\x80\033[0m"; // ▀ (Half-Block superior)
+                } else if (topC != ' ') {
+                    tela[y * LARGURA_TELA + x] = top;
+                } else {
+                    tela[y * LARGURA_TELA + x] = bot;
+                }
+            }
+        }
+    };
 
     auto animarOlho = [&](bool abrindo, const vector<string>& frameBase) {
         int maxPassos = 8; 
@@ -98,7 +179,8 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
         }
     };
 
-    RaycasterRenderer::renderizar3D(tela, LARGURA_TELA, ALTURA_TELA, jogadorX, jogadorY, anguloVisao, (ALTURA_TELA / 2.0f), 0, profundidadeMaxima, 0.0f, matrizDoMapa, tituloMapa, temaFloresta, temaCeu, cacheSprites);
+    RaycasterRenderer::renderizar3D(tela3D, LARGURA_TELA, ALTURA_INTERNA, jogadorX, jogadorY, anguloVisao, (ALTURA_INTERNA / 2.0f), 0, profundidadeMaxima, 0.0f, matrizDoMapa, tituloMapa, temaFloresta, temaCeu, cacheSprites);
+    downsampleTela();
     RaycasterHUD::desenhar(tela, LARGURA_TELA, ALTURA_TELA, jogadorX, jogadorY, anguloVisao, matrizDoMapa, tituloMapa, temaFloresta, jogador);
     if (animarEntrada) {
         animarOlho(true, tela);
@@ -110,7 +192,11 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
 #endif
 
     bool primeiraRenderizacao = animarEntrada;
+    bool primeiraIteracaoMouse = true;
     bool rodando = true;
+#ifdef _WIN32
+    MouseHider mouseHider;
+#endif
     while (rodando) {
         tp2 = chrono::system_clock::now();
         chrono::duration<float> elapsedTime = tp2 - tp1;
@@ -130,33 +216,82 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
         bool isMoving = false;
 
 #ifdef _WIN32
-        // --- CONTROLES ASSINCRONOS (TEMPO REAL) ---
+        // --- CONTROLES ASSINCRONOS E MOUSE ---
+        HWND hwnd = GetConsoleWindow();
+        if (hwnd && GetForegroundWindow() == hwnd) {
+            mouseHider.hide(); // Oculta 100% o cursor do mouse
+            RECT rect;
+            GetWindowRect(hwnd, &rect);
+            int centerX = rect.left + (rect.right - rect.left) / 2;
+            int centerY = rect.top + (rect.bottom - rect.top) / 2; 
+            
+            if (primeiraIteracaoMouse) {
+                SetCursorPos(centerX, centerY);
+                primeiraIteracaoMouse = false;
+            } else {
+                POINT p;
+                if (GetCursorPos(&p)) {
+                    int deltaX = p.x - centerX;
+                    int deltaY = p.y - centerY;
+                    
+                    if (deltaX != 0 || deltaY != 0) {
+                        anguloVisao += deltaX * sensibilidadeX; // Yaw (Esquerda/Direita)
+                        pitchOffset -= deltaY * sensibilidadeY;  // Pitch corrigido: multiplicador drasticamente menor pois mexe com as linhas do console
+                        
+                        // Limitar o angulo de olhar para cima/baixo
+                        float maxPitch = ALTURA_TELA * 0.7f;
+                        if (pitchOffset > maxPitch) pitchOffset = maxPitch;
+                        if (pitchOffset < -maxPitch) pitchOffset = -maxPitch;
+                        
+                        SetCursorPos(centerX, centerY); 
+                    }
+                }
+            }
+        } else {
+            mouseHider.show(); // Mostra se a janela perder o foco
+        }
+
         if (GetAsyncKeyState(VK_ESCAPE) & 0x8000) {
+            primeiraIteracaoMouse = true;
+            mouseHider.show();
+            ControleDeInput::limparBuffer(); // Previne buffer sujo ("dead input") ao abrir o menu
             TelaPause::exibir(jogador);
             Aparencia::limparTela();
             tp1 = chrono::system_clock::now();
         }
 
         if (GetAsyncKeyState('V') & 0x8000) {
+            mouseHider.show();
             rodando = false;
             while (GetAsyncKeyState('V') & 0x8000) std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
         if (GetAsyncKeyState('I') & 0x8000) {
+            primeiraIteracaoMouse = true;
+            mouseHider.show();
+            ControleDeInput::limparBuffer();
             InventarioCombate::gerenciarInventario(jogador);
             Aparencia::limparTela();
             tp1 = chrono::system_clock::now();
         }
         if (GetAsyncKeyState('C') & 0x8000) {
+            primeiraIteracaoMouse = true;
+            mouseHider.show();
+            ControleDeInput::limparBuffer();
             TelaAtributos::gerenciarFichaDoJogador(jogador);
             Aparencia::limparTela();
             tp1 = chrono::system_clock::now();
         }
         if (GetAsyncKeyState('B') & 0x8000) {
+            primeiraIteracaoMouse = true;
+            mouseHider.show();
+            ControleDeInput::limparBuffer();
             TelaDiario::exibir(jogador);
             Aparencia::limparTela();
             tp1 = chrono::system_clock::now();
         }
         if (GetAsyncKeyState('M') & 0x8000) {
+            primeiraIteracaoMouse = true;
+            mouseHider.show();
             while (GetAsyncKeyState('M') & 0x8000) std::this_thread::sleep_for(std::chrono::milliseconds(10));
             ControleDeInput::limparBuffer();
             animarOlho(false, tela);
@@ -164,27 +299,34 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
             return 'M';
         }
 
-        // Rotacao
-        if (GetAsyncKeyState('A') & 0x8000) anguloVisao -= velocidadeRotacao * tempoDelta;
-        if (GetAsyncKeyState('D') & 0x8000) anguloVisao += velocidadeRotacao * tempoDelta;
+        // Movimento e Strafing (Com sistema de Sliding)
+        float moveX = 0.0f;
+        float moveY = 0.0f;
 
-        // Movimento (Com sistema de Sliding - permite deslizar na parede ao andar em diagonal)
         if (GetAsyncKeyState('W') & 0x8000) {
             isMoving = true;
-            float novoX = jogadorX + cosf(anguloVisao) * velocidadeMovimento * tempoDelta;
-            float novoY = jogadorY + sinf(anguloVisao) * velocidadeMovimento * tempoDelta;
-            
-            if (novoY >= 0 && novoY < alturaMapa && jogadorX >= 0 && jogadorX < larguraMapa) {
-                if (RaycasterMundo::isWalkable((int)jogadorX, (int)novoY, matrizDoMapa)) jogadorY = novoY;
-            }
-            if (jogadorY >= 0 && jogadorY < alturaMapa && novoX >= 0 && novoX < larguraMapa) {
-                if (RaycasterMundo::isWalkable((int)novoX, (int)jogadorY, matrizDoMapa)) jogadorX = novoX;
-            }
+            moveX += cosf(anguloVisao) * velocidadeMovimento * tempoDelta;
+            moveY += sinf(anguloVisao) * velocidadeMovimento * tempoDelta;
         }
         if (GetAsyncKeyState('S') & 0x8000) {
             isMoving = true;
-            float novoX = jogadorX - cosf(anguloVisao) * velocidadeMovimento * tempoDelta;
-            float novoY = jogadorY - sinf(anguloVisao) * velocidadeMovimento * tempoDelta;
+            moveX -= cosf(anguloVisao) * velocidadeMovimento * tempoDelta;
+            moveY -= sinf(anguloVisao) * velocidadeMovimento * tempoDelta;
+        }
+        if (GetAsyncKeyState('A') & 0x8000) { // Strafe Esquerda (-90 graus)
+            isMoving = true;
+            moveX += cosf(anguloVisao - 1.5708f) * velocidadeMovimento * tempoDelta;
+            moveY += sinf(anguloVisao - 1.5708f) * velocidadeMovimento * tempoDelta;
+        }
+        if (GetAsyncKeyState('D') & 0x8000) { // Strafe Direita (+90 graus)
+            isMoving = true;
+            moveX += cosf(anguloVisao + 1.5708f) * velocidadeMovimento * tempoDelta;
+            moveY += sinf(anguloVisao + 1.5708f) * velocidadeMovimento * tempoDelta;
+        }
+
+        if (isMoving) {
+            float novoX = jogadorX + moveX;
+            float novoY = jogadorY + moveY;
             
             if (novoY >= 0 && novoY < alturaMapa && jogadorX >= 0 && jogadorX < larguraMapa) {
                 if (RaycasterMundo::isWalkable((int)jogadorX, (int)novoY, matrizDoMapa)) jogadorY = novoY;
@@ -231,7 +373,10 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
 #endif
 
         // --- RENDERIZACAO RAYCASTING (3D) ---
-        RaycasterRenderer::renderizar3D(tela, LARGURA_TELA, ALTURA_TELA, jogadorX, jogadorY, anguloVisao, horizonte, bobbingOffset, profundidadeMaxima, tempoAbsoluto, matrizDoMapa, tituloMapa, temaFloresta, temaCeu, cacheSprites);
+        float horizonteInterno = (ALTURA_INTERNA / 2.0f) + (bobbingOffset * 2) + (pitchOffset * 2.0f);
+        int offsetGeral = (bobbingOffset * 2) + (int)(pitchOffset * 2.0f);
+        RaycasterRenderer::renderizar3D(tela3D, LARGURA_TELA, ALTURA_INTERNA, jogadorX, jogadorY, anguloVisao, horizonteInterno, offsetGeral, profundidadeMaxima, tempoAbsoluto, matrizDoMapa, tituloMapa, temaFloresta, temaCeu, cacheSprites);
+        downsampleTela();
 
         // --- RENDERIZACAO HUD E OVERLAYS (2D) ---
         RaycasterHUD::desenhar(tela, LARGURA_TELA, ALTURA_TELA, jogadorX, jogadorY, anguloVisao, matrizDoMapa, tituloMapa, temaFloresta, jogador);

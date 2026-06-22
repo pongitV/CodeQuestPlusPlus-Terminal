@@ -74,7 +74,7 @@ bool RaycasterMundo::isMapLabel(int mapX, int mapY, const std::vector<std::strin
     return false;
 }
 
-std::string RaycasterMundo::obterPixelParede(const std::string& tituloMapa, bool temaFloresta, float distanciaAteParede, float profundidadeMaxima, char charParede, int y, int teto, int chao, float texX, float tempoAnimacao) {
+std::string RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMapa, bool temaFloresta, float distanciaAteParede, float profundidadeMaxima, char charParede, int y, int teto, int chao, float texX, float tempoAnimacao) {
     // Reduz o peso da distancia para empurrar a escuridao (fog) mais para longe
     // Isso melhora drasticamente a clareza visual a medias e longas distancias
     distanciaAteParede *= 0.55f;
@@ -389,6 +389,36 @@ std::string RaycasterMundo::obterPixelParede(const std::string& tituloMapa, bool
         }
     }
     return "\033[48;2;0;0;0m \033[0m";
+}
+
+std::string RaycasterMundo::obterPixelParede(const std::string& tituloMapa, bool temaFloresta, float distanciaAteParede, float profundidadeMaxima, char charParede, int y, int teto, int chao, float texX, float tempoAnimacao, bool isSideWall) {
+    std::string pixel = obterPixelParedeInternal(tituloMapa, temaFloresta, distanciaAteParede, profundidadeMaxima, charParede, y, teto, chao, texX, tempoAnimacao);
+    if (!isSideWall || pixel == "FUNDO") return pixel;
+    
+    // Analisa a string ANSI padrao: "\033[48;2;R;G;Bm \033[0m"
+    if (pixel.find("\033[48;2;") == 0) {
+        size_t pos1 = 7;
+        size_t pos2 = pixel.find(';', pos1);
+        size_t pos3 = pixel.find(';', pos2 + 1);
+        size_t pos4 = pixel.find('m', pos3 + 1);
+        if (pos2 != std::string::npos && pos3 != std::string::npos && pos4 != std::string::npos) {
+            try {
+                int r = std::stoi(pixel.substr(pos1, pos2 - pos1));
+                int g = std::stoi(pixel.substr(pos2 + 1, pos3 - pos2 - 1));
+                int b = std::stoi(pixel.substr(pos3 + 1, pos4 - pos3 - 1));
+                
+                // Escurece a face lateral da parede em 35% para criar contraste na quina (Directional Shading)
+                r = (int)(r * 0.65f);
+                g = (int)(g * 0.65f);
+                b = (int)(b * 0.65f);
+                
+                return "\033[48;2;" + std::to_string(r) + ";" + std::to_string(g) + ";" + std::to_string(b) + "m \033[0m";
+            } catch(...) {
+                return pixel;
+            }
+        }
+    }
+    return pixel;
 }
 
 std::string RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float currentX, float currentY, float currentDist, float profundidadeMaxima) {

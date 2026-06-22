@@ -6,6 +6,9 @@
 
 class Raycaster {
 public:
+    static float sensibilidadeX;
+    static float sensibilidadeY;
+
     // Inicia um sub-loop de renderizacao e movimentacao em 1ª Pessoa.
     // Toma controle da thread atual para gerar frames em tempo real.
     // Retorna (encerra) quando o jogador pressiona a tecla ESC.

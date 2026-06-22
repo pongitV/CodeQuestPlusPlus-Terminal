@@ -90,8 +90,14 @@ void RaycasterRenderer::renderizar3D(vector<string>& tela, int LARGURA_TELA, int
         float hitXAnterior = jogadorX + olhoX * (distanciaAteParede - 0.1f);
         float hitYAnterior = jogadorY + olhoY * (distanciaAteParede - 0.1f);
         float texXParede = 0.0f;
-        if ((int)hitXAnterior != (int)hitX) texXParede = hitY - floorf(hitY); 
-        else texXParede = hitX - floorf(hitX); 
+        bool isSideWall = false;
+        if ((int)hitXAnterior != (int)hitX) {
+            texXParede = hitY - floorf(hitY); 
+            isSideWall = true;
+        } else {
+            texXParede = hitX - floorf(hitX); 
+            isSideWall = false;
+        }
 
         int teto = (int)(horizonte - ALTURA_TELA / ((float)distanciaAteParede));
         int chao = (int)(horizonte + ALTURA_TELA / ((float)distanciaAteParede));
@@ -106,7 +112,7 @@ void RaycasterRenderer::renderizar3D(vector<string>& tela, int LARGURA_TELA, int
             if (y < teto) {
                 tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(temaCeu, raioAngulo, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
             } else if (y >= teto && y <= chao) {
-                std::string pixel = RaycasterMundo::obterPixelParede(tituloMapa, temaFloresta, distanciaAteParede, profundidadeMaxima, charParede, y, teto, chao, texXParede, tempoAbsoluto);
+                std::string pixel = RaycasterMundo::obterPixelParede(tituloMapa, temaFloresta, distanciaAteParede, profundidadeMaxima, charParede, y, teto, chao, texXParede, tempoAbsoluto, isSideWall);
                 if (pixel == "FUNDO") {
                     if (y <= horizonte) tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(temaCeu, raioAngulo, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
                     else drawFloor = true;
