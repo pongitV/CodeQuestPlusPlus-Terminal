@@ -326,7 +326,7 @@ void ControleMapa::calcularCameraVertical(int alturaDoTerminal, int linhaInicial
 }
 
 void ControleMapa::calcularCameraHorizontal(int larguraDoTerminal, int posicaoXDoJogador, int larguraDoMapa, int& startX, int& endX) {
-    int maxColunasVisiveis = std::max(10, larguraDoTerminal - 1); // -1 para evitar quebras de linha acidentais
+    int maxColunasVisiveis = std::max(10, larguraDoTerminal); // Usa a largura total do terminal
     calcularCameraAxis(maxColunasVisiveis, posicaoXDoJogador, larguraDoMapa, startX, endX);
 }
 
@@ -337,9 +337,17 @@ std::string ControleMapa::calcularMargemCentralizada(int larguraDoTerminal, int 
 
 void ControleMapa::padronizarTamanhoDoMapa(std::vector<std::string>& matrizDoMapa) {
     size_t maxLength = 0;
-    for (const auto& linha : matrizDoMapa) {
+    // Primeiro removemos os espacos em branco a direita para encontrar a largura real do mapa
+    for (auto& linha : matrizDoMapa) {
+        size_t lastChar = linha.find_last_not_of(" \t\r\n");
+        if (lastChar != std::string::npos) {
+            linha.erase(lastChar + 1);
+        } else {
+            linha.clear(); // A linha eh apenas espacos
+        }
         if (linha.length() > maxLength) maxLength = linha.length();
     }
+    // Depois preenchemos todas as linhas ate o maxLength com espacos para formar a matriz
     for (auto& linha : matrizDoMapa) {
         if (linha.length() < maxLength) linha.append(maxLength - linha.length(), ' ');
     }

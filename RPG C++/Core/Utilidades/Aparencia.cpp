@@ -27,13 +27,18 @@ int Aparencia::atrasoDigitacaoMS = 25; // Inicialização da velocidade padrão 
 void Aparencia::inicializarConsole() {
 #ifdef _WIN32
     SetConsoleOutputCP(65001); // Configura UTF-8 globalmente apenas uma vez
-    // Habilita interpretacao de codigos ANSI nativamente no console do Windows
+    // Habilita interpretacao de codigos ANSI nativamente no console do Windows e desabilita quebra de linha automatica
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
     DWORD dwMode = 0;
     if (GetConsoleMode(hOut, &dwMode)) {
         dwMode |= 0x0004; // ENABLE_VIRTUAL_TERMINAL_PROCESSING
+        dwMode &= ~0x0002; // Desabilita ENABLE_WRAP_AT_EOL_OUTPUT para evitar que o console quebre linhas longas (ex: artes ASCII grandes)
         SetConsoleMode(hOut, dwMode);
     }
+    // Desabilita autowrap via sequencia ANSI como seguranca adicional (especialmente util para o Windows Terminal)
+    std::cout << "\033[?7l";
+#else
+    std::cout << "\033[?7l";
 #endif
 }
 
@@ -164,10 +169,10 @@ int Aparencia::obterLarguraTerminal() {
 #ifdef _WIN32
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi)) {
-        return csbi.srWindow.Right - csbi.srWindow.Left; // Removido o +1 para evitar line wrap duplo invisivel
+        return csbi.srWindow.Right - csbi.srWindow.Left + 1; // +1 restaurado. Line wrap disable permite uso da largura exata do monitor
     }
 #endif
-    return 119;
+    return 120; // 120 e mais padrao que 119
 }
 
 int Aparencia::obterAlturaTerminal() {
