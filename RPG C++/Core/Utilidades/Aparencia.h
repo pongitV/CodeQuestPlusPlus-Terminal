@@ -51,6 +51,7 @@ public:
 
     // --- CONTROLE DO TERMINAL ---
     static void maximizarJanelaTerminal();
+    static void ajustarFonteParaResolucao();
     static void ocultarCursor();
     static void limparTela();
     static int obterLarguraTerminal();

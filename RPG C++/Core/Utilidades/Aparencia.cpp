@@ -80,6 +80,9 @@ std::string Aparencia::bgRGB(uint8_t r, uint8_t g, uint8_t b) {
 
 void Aparencia::maximizarJanelaTerminal() {
 #ifdef _WIN32
+    // 1. Ajusta a fonte ANTES de maximizar, para garantir colunas/linhas suficientes
+    ajustarFonteParaResolucao();
+
     HWND hwnd = GetConsoleWindow();
 
     // Define o estilo da janela para "popup" (sem bordas, sem barra de titulo)
@@ -87,6 +90,57 @@ void Aparencia::maximizarJanelaTerminal() {
 
     // Maximiza a janela popup, que por padrao ocupa a tela inteira
     ShowWindow(hwnd, SW_MAXIMIZE);
+
+    // 2. Apos maximizar, ajusta o buffer do console para corresponder exatamente a janela visivel.
+    // Isso evita barras de scroll e garante que o conteudo nao "escape" da area visivel.
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    if (GetConsoleScreenBufferInfo(hOut, &csbi)) {
+        COORD bufferSize;
+        bufferSize.X = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+        bufferSize.Y = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+        SetConsoleScreenBufferSize(hOut, bufferSize);
+    }
+#endif
+}
+
+void Aparencia::ajustarFonteParaResolucao() {
+#ifdef _WIN32
+    // Resolucao de referencia: 1920x1080 com fonte Consolas tamanho 16 produz ~238 colunas x ~60 linhas.
+    // Em telas menores, precisamos reduzir a fonte proporcionalmente para manter essas dimensoes.
+    
+    int larguraTela = GetSystemMetrics(SM_CXSCREEN);
+    int alturaTela = GetSystemMetrics(SM_CYSCREEN);
+    
+    // Se a resolucao eh igual ou maior que a referencia, nao precisa ajustar
+    if (larguraTela >= 1920 && alturaTela >= 1080) return;
+    
+    // Calcula o fator de escala baseado na menor dimensao proporcional
+    // (garante que tanto largura quanto altura fiquem dentro)
+    double escalaX = static_cast<double>(larguraTela) / 1920.0;
+    double escalaY = static_cast<double>(alturaTela) / 1080.0;
+    double escala = std::min(escalaX, escalaY);
+    
+    // Tamanho da fonte de referencia (o que funciona em 1920x1080)
+    const int FONTE_REFERENCIA = 16;
+    
+    // Calcula o novo tamanho proporcional, arredondando para baixo para garantir que cabe
+    int novoTamanho = static_cast<int>(FONTE_REFERENCIA * escala);
+    
+    // Limites de seguranca: minimo 8 (legivel), maximo 16 (referencia)
+    if (novoTamanho < 8) novoTamanho = 8;
+    if (novoTamanho >= FONTE_REFERENCIA) return; // Ja esta bom, nao muda
+    
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_FONT_INFOEX fontInfo = {};
+    fontInfo.cbSize = sizeof(fontInfo);
+    fontInfo.dwFontSize.X = 0; // Largura automatica baseada na altura
+    fontInfo.dwFontSize.Y = static_cast<SHORT>(novoTamanho);
+    fontInfo.FontFamily = FF_DONTCARE;
+    fontInfo.FontWeight = FW_NORMAL;
+    wcscpy_s(fontInfo.FaceName, L"Consolas");
+    
+    SetCurrentConsoleFontEx(hOut, FALSE, &fontInfo);
 #endif
 }
 
@@ -742,7 +796,11 @@ std::vector<std::string> Aparencia::reduzirEscalaAscii(const std::vector<std::st
 }
 
 std::string Aparencia::margemCombate() {
-    return espacosParaCentralizar(91); // Centraliza a partir do interior da HUD
+    int larguraHUD = 91; // Largura visual aproximada do interior da HUD de combate
+    int larguraTerminal = obterLarguraTerminal();
+    // Se o terminal for menor que a HUD, nao adiciona margem
+    int larguraRef = std::min(larguraHUD, larguraTerminal);
+    return espacosParaCentralizar(larguraRef);
 }
 
 void Aparencia::registrarLogBatalha(const std::string& texto) {

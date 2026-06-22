@@ -94,6 +94,7 @@ namespace {
         if (start < output.length()) linhas.push_back(output.substr(start));
 
         int alturaTerminal = Aparencia::obterAlturaTerminal();
+        int larguraTerminal = Aparencia::obterLarguraTerminal();
         int maxLinhas = (alturaTerminal > 2) ? alturaTerminal - 1 : 24; 
         
         if (static_cast<int>(linhas.size()) > maxLinhas) {
@@ -131,6 +132,39 @@ namespace {
                 }
             } else {
                 linhas.erase(linhas.begin(), linhas.begin() + linhasParaRemover);
+            }
+        }
+
+        // Safety net de largura: trunca linhas que excedem a largura do terminal para evitar line wrap
+        for (auto& linha : linhas) {
+            int compVisual = Aparencia::obterComprimentoVisual(linha);
+            if (compVisual > larguraTerminal) {
+                // Trunca respeitando sequencias ANSI (nao corta no meio de uma)
+                std::string resultado = "";
+                int contadorVisual = 0;
+                for (size_t i = 0; i < linha.length() && contadorVisual < larguraTerminal; ) {
+                    if (linha[i] == '\033' && i + 1 < linha.length() && linha[i+1] == '[') {
+                        // Copia a sequencia ANSI inteira sem contar como caractere visual
+                        size_t inicioAnsi = i;
+                        i += 2;
+                        while (i < linha.length() && !(linha[i] >= 0x40 && linha[i] <= 0x7E)) i++;
+                        if (i < linha.length()) i++; // Inclui o caractere final
+                        resultado += linha.substr(inicioAnsi, i - inicioAnsi);
+                    } else {
+                        // Caractere normal (possivelmente multi-byte UTF-8)
+                        unsigned char c = static_cast<unsigned char>(linha[i]);
+                        int len = 1;
+                        if ((c & 0x80) == 0) len = 1;
+                        else if ((c & 0xE0) == 0xC0) len = 2;
+                        else if ((c & 0xF0) == 0xE0) len = 3;
+                        else if ((c & 0xF8) == 0xF0) len = 4;
+                        resultado += linha.substr(i, len);
+                        i += len;
+                        contadorVisual++;
+                    }
+                }
+                resultado += "\033[0m"; // Reseta cores no ponto de truncamento
+                linha = resultado;
             }
         }
 
@@ -517,7 +551,29 @@ void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>&
 {
     if (listaDeInimigos.empty()) return;
     int larguraTerminal = Aparencia::obterLarguraTerminal();
-    const std::vector<std::string>& arteDoInimigo = listaDeInimigos[0]->obterRaca()->obterAparenciaCombate();
+    int alturaTerminal = Aparencia::obterAlturaTerminal();
+    const std::vector<std::string>& arteOriginalDoInimigo = listaDeInimigos[0]->obterRaca()->obterAparenciaCombate();
+    
+    // Auto-reducao da arte se excede a altura disponivel no terminal
+    // Reserva linhas para: cabecalho (FCT + debuffs + nome + HP + espacamento) ~8 + HUD inferior ~12 = ~20 linhas
+    int linhasReservadas = 20;
+    int alturaDisponivel = std::max(10, alturaTerminal - linhasReservadas);
+    
+    std::vector<std::string> arteReduzidaLocal;
+    const std::vector<std::string>* arteDoInimigoPtr = &arteOriginalDoInimigo;
+    
+    if (static_cast<int>(arteOriginalDoInimigo.size()) > alturaDisponivel) {
+        arteReduzidaLocal = Aparencia::reduzirEscalaAscii(arteOriginalDoInimigo, 2, 2);
+        if (static_cast<int>(arteReduzidaLocal.size()) > alturaDisponivel) {
+            arteReduzidaLocal = Aparencia::reduzirEscalaAscii(arteOriginalDoInimigo, 3, 3);
+        }
+        if (static_cast<int>(arteReduzidaLocal.size()) > alturaDisponivel) {
+            arteReduzidaLocal = Aparencia::reduzirEscalaAscii(arteOriginalDoInimigo, 4, 4);
+        }
+        arteDoInimigoPtr = &arteReduzidaLocal;
+    }
+    const std::vector<std::string>& arteDoInimigo = *arteDoInimigoPtr;
+    
     int quantidadeTotalDeInimigosNaHorda = static_cast<int>(listaDeInimigos.size());
     int larguraSeparadaParaCadaColuna = larguraTerminal / quantidadeTotalDeInimigosNaHorda; 
 
