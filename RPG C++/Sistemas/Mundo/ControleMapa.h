@@ -48,12 +48,15 @@ public:
         const std::function<void()>& acaoAposFadeInArte = nullptr
     );
 
+    static void animarFlashbang(int r, int g, int b);
+
     static void calcularCameraVertical(int alturaDoTerminal, int linhaInicial, int posicaoYDoJogador, int tamanhoDoMapa, int& startY, int& endY);
     static void calcularCameraHorizontal(int larguraDoTerminal, int posicaoXDoJogador, int larguraDoMapa, int& startX, int& endX);
     static std::string calcularMargemCentralizada(int larguraDoTerminal, int larguraDoTexto);
     static void padronizarTamanhoDoMapa(std::vector<std::string>& matrizDoMapa);
 
     static bool isExploracao3DAtiva();
+    static void sinalizarTrocaDeMapa3D();
 
     static void renderizarMapa(const std::vector<std::string>& matrizDoMapa, int posicaoXDoJogador, int posicaoYDoJogador, int larguraDoTerminal, int alturaDoTerminal, int linhaInicial, const std::function<std::string(char, int, int)>& formatadorCelula);
 

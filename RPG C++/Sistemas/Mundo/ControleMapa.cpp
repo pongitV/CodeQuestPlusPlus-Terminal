@@ -22,7 +22,8 @@
 namespace {
     std::string extrairCorBaseDoRaycaster(char celula, const std::string& tituloDoMapa, bool isFloresta) {
         // Sampleia a textura no "meio" do bloco (tx=33, ty=33) para evitar as linhas escuras de rejunte/sombra
-        std::string pixelANSI = RaycasterMundo::obterPixelParedeInternal(tituloDoMapa, isFloresta, 0.0f, 10.0f, celula, 33, 0, 64, 33.0f/64.0f, 0.0f);
+        std::vector<std::tuple<int, int, int>> luzesVazias;
+        std::string pixelANSI = RaycasterMundo::obterPixelParedeInternal(tituloDoMapa, isFloresta, 0.0f, 10.0f, celula, 33, 0, 64, 33.0f/64.0f, 0.0f, luzesVazias, 0.0f, 0.0f);
         if (pixelANSI.find("\033[48;2;") == 0) {
             size_t pos_m = pixelANSI.find('m');
             if (pos_m != std::string::npos) {
@@ -48,6 +49,9 @@ namespace {
 }
 
 static bool s_exploracao3DAtiva = true;
+static bool s_recemTrocouDeMapa = false;
+
+void ControleMapa::sinalizarTrocaDeMapa3D() { s_recemTrocouDeMapa = true; }
 
 bool ControleMapa::isExploracao3DAtiva() { return s_exploracao3DAtiva; }
 
@@ -238,6 +242,10 @@ int ControleMapa::animarIntroducaoMapa(
     bool usarAnimacaoBanner,
     const std::function<void()>& acaoAposFadeInArte
 ) {
+    if (ControleMapa::isExploracao3DAtiva()) {
+        return 0; 
+    }
+
     Aparencia::limparTela();
     Aparencia::ocultarCursor();
 
@@ -245,7 +253,7 @@ int ControleMapa::animarIntroducaoMapa(
     int alturaTerminal = Aparencia::obterAlturaTerminal();
 
     if (!animar) {
-        Aparencia::exibirPainelTexto(tituloDoMapa, corTema);
+        Aparencia::exibirPainelTexto(tituloDoMapa, Cor::BRANCO);
         int linhaInicialMapa = Aparencia::obterPosicaoCursorY();
         renderizarMapa(matrizDoMapa, posicaoXDoJogador, posicaoYDoJogador, larguraTerminal, alturaTerminal, linhaInicialMapa, formatadorCelula);
         return linhaInicialMapa;
@@ -256,7 +264,7 @@ int ControleMapa::animarIntroducaoMapa(
         Aparencia::limparTela();
     }
     
-    Aparencia::exibirPainelTexto(tituloDoMapa, corTema);
+    Aparencia::exibirPainelTexto(tituloDoMapa, Cor::BRANCO);
     int linhaInicialMapa = Aparencia::obterPosicaoCursorY();
 
     std::vector<std::string> bannerBase;
@@ -273,7 +281,7 @@ int ControleMapa::animarIntroducaoMapa(
             std::ostringstream buffer;
             std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
             
-            Aparencia::exibirPainelTexto(tituloDoMapa, corTema);
+            Aparencia::exibirPainelTexto(tituloDoMapa, Cor::BRANCO);
             renderizarMapa(matrizDoMapa, posicaoXDoJogador, posicaoYDoJogador, larguraTerminal, alturaTerminal, linhaInicialMapa, formatadorCelula);
             
             std::string escurecedor = "\033[38;2;" + std::to_string(intensidade) + ";" + std::to_string(intensidade) + ";" + std::to_string(intensidade) + "m";
@@ -283,50 +291,38 @@ int ControleMapa::animarIntroducaoMapa(
         });
         
         Aparencia::limparTela();
-        Aparencia::exibirPainelTexto(tituloDoMapa, corTema);
+        Aparencia::exibirPainelTexto(tituloDoMapa, Cor::BRANCO);
         renderizarMapa(matrizDoMapa, posicaoXDoJogador, posicaoYDoJogador, larguraTerminal, alturaTerminal, linhaInicialMapa, formatadorCelula);
         
         return linhaInicialMapa;
     }
 
     std::vector<std::string> banner;
-    int maxW = 0;
     for (const auto& l : bannerBase) {
+        // Remover cores antigas e forcar branco negrito
+        banner.push_back("\033[1;37m" + Aparencia::removerCoresANSI(l) + "\033[0m");
+    }
+    
+    int maxW = 0;
+    for (const auto& l : banner) {
         int w = Aparencia::obterComprimentoVisual(l);
         if (w > maxW) maxW = w;
     }
     
-    int paddingInside = 4;
-    int boxW = maxW + paddingInside;
-    
-    std::string boxColor = Aparencia::cor(corTema);
-    std::string boxBg = "\033[40m"; // Fundo preto para a caixa e o texto
-    
-    std::string topBox = "╔";
-    for(int i=0; i<boxW-2; i++) topBox += "═";
-    topBox += "╗";
-    
-    std::string bottomBox = "╚";
-    for(int i=0; i<boxW-2; i++) bottomBox += "═";
-    bottomBox += "╝";
-    
-    banner.push_back(boxBg + boxColor + topBox + "\033[0m");
-    for (const auto& l : bannerBase) {
-        int w = Aparencia::obterComprimentoVisual(l);
-        int padL = (boxW - 2 - w) / 2;
-        int padR = (boxW - 2 - w) - padL;
-        banner.push_back(boxBg + boxColor + "║" + std::string(padL, ' ') + l + std::string(padR, ' ') + boxColor + "║\033[0m");
-    }
-    banner.push_back(boxBg + boxColor + bottomBox + "\033[0m");
-
     int bannerHeight = banner.size();
-    int startXBox = (larguraTerminal - boxW) / 2;
+    int startXBox = (larguraTerminal - maxW) / 2;
     if (startXBox < 0) startXBox = 0;
 
     // Fazer cache do mapa para double-buffering sem piscar
     int startX, endX;
     calcularCameraHorizontal(larguraTerminal, posicaoXDoJogador, matrizDoMapa.empty() ? 0 : static_cast<int>(matrizDoMapa[0].length()), startX, endX);
     std::string margemEsquerdaDoMapa = calcularMargemCentralizada(larguraTerminal, endX - startX);
+    
+    std::string textoDeControles = "W,A,S,D: Mover | V: Visao | I: Inventario | C: Ficha | B: Diario | M: Mapa";
+    std::string margemEsquerdaControles = calcularMargemCentralizada(larguraTerminal, textoDeControles.length());
+    
+    // O Controle de mapa usa 2 linhas de offset (texto na linha 0, \n vai pra 1, \n vai pra 2)
+    int offsetMapaReal = 2;
     
     int startY, endY;
     calcularCameraVertical(alturaTerminal, linhaInicialMapa, posicaoYDoJogador, static_cast<int>(matrizDoMapa.size()), startY, endY);
@@ -341,57 +337,87 @@ int ControleMapa::animarIntroducaoMapa(
         linhasDoMapaCache.push_back(linhaStr);
     }
 
-    // Desenha o mapa inteiro APENAS UMA VEZ antes da animacao
+    // Desenha os controles e o mapa inteiro APENAS UMA VEZ antes da animacao
     std::ostringstream initialMap;
+    initialMap << "\033[" << (linhaInicialMapa + 1) << ";1H\033[K" << margemEsquerdaControles << Aparencia::cor(Cor::CINZA) << textoDeControles << Aparencia::cor(Cor::RESET) << "\n\033[K\n";
     for (int i = 0; i < (int)linhasDoMapaCache.size(); i++) {
-        initialMap << "\033[" << (linhaInicialMapa + 1 + i) << ";1H" << linhasDoMapaCache[i] << "\033[K";
+        initialMap << "\033[" << (linhaInicialMapa + 1 + offsetMapaReal + i) << ";1H" << linhasDoMapaCache[i] << "\033[K";
     }
     std::cout << initialMap.str() << std::flush;
 
     // 1. Dropdown animation (Desce sobrepondo o mapa)
-    for (int offset = -bannerHeight; offset <= 0; offset++) {
+    int destinoY = (alturaTerminal - linhaInicialMapa) / 6; // Desce um pouco, igual ao 3D
+    int maxPassos = 8;
+    for (int passo = 0; passo <= maxPassos; passo++) {
         std::ostringstream telaFrame;
+        int currentY = -bannerHeight + (passo * (bannerHeight + destinoY)) / maxPassos;
         
-        // Desenha apenas as linhas do banner
+        // Restaura o mapa e os controles em cima da caixa de desenho do frame
+        telaFrame << "\033[" << (linhaInicialMapa + 1) << ";1H\033[K" << margemEsquerdaControles << Aparencia::cor(Cor::CINZA) << textoDeControles << Aparencia::cor(Cor::RESET);
+        telaFrame << "\033[" << (linhaInicialMapa + 2) << ";1H\033[K";
+        telaFrame << "\033[" << (linhaInicialMapa + 3) << ";1H\033[K";
+        
+        // Redesenha as linhas do mapa desde o topo ate o limite inferior do banner
+        // Isso apaga o "rastro" que o banner deixa ao descer
+        int endDrawY = currentY + bannerHeight + 2;
+        for (int drawY = offsetMapaReal; drawY <= endDrawY; drawY++) {
+            if (drawY - offsetMapaReal >= 0 && drawY - offsetMapaReal < (int)linhasDoMapaCache.size()) {
+                telaFrame << "\033[" << (linhaInicialMapa + 1 + drawY) << ";1H\033[K" << linhasDoMapaCache[drawY - offsetMapaReal];
+            }
+        }
+        
+        // Desenha o banner
         for (int i = 0; i < bannerHeight; i++) {
-            int drawY = linhaInicialMapa + offset + i;
+            int drawY = linhaInicialMapa + currentY + i;
             if (drawY >= linhaInicialMapa && drawY < alturaTerminal) {
                 telaFrame << "\033[" << (drawY + 1) << ";" << (startXBox + 1) << "H" << banner[i];
             }
         }
         std::cout << telaFrame.str() << std::flush;
-        std::this_thread::sleep_for(std::chrono::milliseconds(30));
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(2500));
-
-    // 2. Retract animation (Sobe revelando o mapa)
-    for (int offset = 0; offset >= -bannerHeight; offset--) {
-        std::ostringstream telaFrame;
-        
-        // Restaura APENAS a linha do mapa que foi revelada (logo abaixo da ultima linha do banner)
-        int exposedY = offset + bannerHeight; // offset is negative, so this goes up
-        if (exposedY >= 0 && exposedY < (int)linhasDoMapaCache.size()) {
-            telaFrame << "\033[" << (linhaInicialMapa + 1 + exposedY) << ";1H" << linhasDoMapaCache[exposedY] << "\033[K";
-        }
-        
-        // Desenha apenas as linhas do banner
-        for (int i = 0; i < bannerHeight; i++) {
-            int drawY = linhaInicialMapa + offset + i;
-            if (drawY >= linhaInicialMapa && drawY < alturaTerminal) {
-                telaFrame << "\033[" << (drawY + 1) << ";" << (startXBox + 1) << "H" << banner[i];
-            }
-        }
-        std::cout << telaFrame.str() << std::flush;
-        std::this_thread::sleep_for(std::chrono::milliseconds(30));
-    }
-
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     ControleDeInput::limparBuffer();
     
     // Assegura que o mapa esta totalmente renderizado ao final
     renderizarMapa(matrizDoMapa, posicaoXDoJogador, posicaoYDoJogador, larguraTerminal, alturaTerminal, linhaInicialMapa, formatadorCelula);
     
     return linhaInicialMapa;
+}
+
+
+void ControleMapa::animarFlashbang(int r, int g, int b) {
+    int LARGURA_TELA = Aparencia::obterLarguraTerminal();
+    int ALTURA_TELA = Aparencia::obterAlturaTerminal();
+    if (LARGURA_TELA <= 0) LARGURA_TELA = 120;
+    if (ALTURA_TELA <= 0) ALTURA_TELA = 30;
+
+    std::cout << "\033[?25l"; // Hide cursor
+    std::string colorPrefix = "\033[48;2;" + std::to_string(r) + ";" + std::to_string(g) + ";" + std::to_string(b) + "m";
+    
+    // Lista de caracteres de dithering para o fade out
+    std::vector<std::string> fadeChars = {"█", "▓", "▒", "░", " "};
+    
+    for (int passo = 0; passo < (int)fadeChars.size(); passo++) {
+        std::string buffer = "\033[H";
+        buffer.reserve(LARGURA_TELA * ALTURA_TELA * 20);
+        
+        for (int y = 0; y < ALTURA_TELA; y++) {
+            for (int x = 0; x < LARGURA_TELA; x++) {
+                if (y == ALTURA_TELA - 1 && x == LARGURA_TELA - 1) break; // prevent scroll
+                if (fadeChars[passo] == " ") {
+                    buffer += "\033[40m \033[0m"; // Preto final
+                } else {
+                    buffer += colorPrefix + "\033[38;2;255;255;255m" + fadeChars[passo] + "\033[0m";
+                }
+            }
+            if (y < ALTURA_TELA - 1) buffer += "\n";
+        }
+        std::cout << buffer << std::flush;
+        std::this_thread::sleep_for(std::chrono::milliseconds(40));
+    }
+    Aparencia::limparTela();
 }
 
 void ControleMapa::calcularCameraVertical(int alturaDoTerminal, int linhaInicial, int posicaoYDoJogador, int tamanhoDoMapa, int& startY, int& endY) {
@@ -461,6 +487,11 @@ std::string ControleMapa::formatarCelula(char celula, int x, int y, const std::s
         }
         if (isTrunk) return Aparencia::cor(Cor::MADEIRA) + "█" + Aparencia::cor(Cor::RESET);
         return Aparencia::cor(Cor::VERDE) + "▲" + Aparencia::cor(Cor::RESET);
+    }
+    
+    // Verifica se é uma letra de placa de chão (Label) ANTES de checar as entidades
+    if (RaycasterMundo::isMapLabel(x, y, matrizDoMapa)) {
+        return Aparencia::cor(Cor::CINZA) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
     }
     
     // Entidades
@@ -562,6 +593,14 @@ std::string ControleMapa::formatarCelula(char celula, int x, int y, const std::s
                 return corLabirinto + "┼" + Aparencia::cor(Cor::RESET);
             }
         }
+        else if (tituloUpper.find("CAVERNA") != std::string::npos) {
+            std::string corCaverna = extrairCorBaseDoRaycaster('#', tituloUpper, isFloresta);
+            if (celula == '#') return corCaverna + "█" + Aparencia::cor(Cor::RESET);
+            if (celula == '.') {
+                if (isMinimapa) return "\033[38;2;50;50;50m.\033[0m";
+                return "\033[38;2;40;40;40m·\033[0m";
+            }
+        }
     }
     
     // Chão / Labels
@@ -655,7 +694,22 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
         }
 
         if (s_exploracao3DAtiva || (processarInput && (teclaPressionadaPeloJogador == 'v' || teclaPressionadaPeloJogador == 'V'))) {
-            bool recemEntrouEm3D = !s_exploracao3DAtiva;
+            static std::string tituloAnterior = "";
+            int tipoAnimacao = 0;
+            
+            if (!s_exploracao3DAtiva) {
+                tipoAnimacao = 1; // Olho abrindo (entrou via 'V')
+            }
+            if (s_recemTrocouDeMapa) {
+                tipoAnimacao = 2; // Porta + Banner
+            }
+            
+            if (tituloAnterior != tituloDoMapaAtual) {
+                if (tituloAnterior != "") tipoAnimacao = 2;
+                tituloAnterior = tituloDoMapaAtual;
+            }
+
+            s_recemTrocouDeMapa = false;
             s_exploracao3DAtiva = true;
 
                 if (posCamera3DX == -1.0f || static_cast<int>(posCamera3DX) != posicaoXDoJogador || static_cast<int>(posCamera3DY) != posicaoYDoJogador) {
@@ -664,7 +718,7 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
                 }
                 
                 int hitX = -1, hitY = -1;
-                char acaoPendente = Raycaster::iniciarExploracao3D(matrizDoMapaAtual, posCamera3DX, posCamera3DY, anguloCamera3D, tituloDoMapaAtual, jogadorAtual, hitX, hitY, recemEntrouEm3D);
+                char acaoPendente = Raycaster::iniciarExploracao3D(matrizDoMapaAtual, posCamera3DX, posCamera3DY, anguloCamera3D, tituloDoMapaAtual, jogadorAtual, hitX, hitY, tipoAnimacao);
                 
                 posicaoXDoJogador = static_cast<int>(posCamera3DX);
                 posicaoYDoJogador = static_cast<int>(posCamera3DY);
@@ -686,9 +740,6 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
                 if (acaoPendente == 'M') {
                     teclaPressionadaPeloJogador = 'M';
                     processarInput = true;
-                    s_exploracao3DAtiva = false; // Pausa a visao 3D para exibir o Mapa Mundial
-                    restaurarTela();
-                    precisaRenderizar = true;
                 } else if (!isTrigger) {
                     s_exploracao3DAtiva = false;
                     restaurarTela();
@@ -731,8 +782,10 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
                     break;
                 }
                 // Se nenhum destino foi escolhido, apenas restaura a tela e continua a exploração.
-                restaurarTela();
-                precisaRenderizar = true;
+                if (!s_exploracao3DAtiva) {
+                    restaurarTela();
+                    precisaRenderizar = true;
+                }
                 continue;
             }
 

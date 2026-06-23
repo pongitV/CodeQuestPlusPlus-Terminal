@@ -123,7 +123,7 @@ ProximaTransicaoMapa Mapa3Reino::iniciarLoopDeExploracao()
         auto it = interacoes.find(celulaDestino);
         if (it != interacoes.end()) {
             it->second(px, py, larg);
-        } else if ((celulaDestino != '#' && celulaDestino != '=' && celulaDestino != '|' && celulaDestino != '[' && celulaDestino != ']' && celulaDestino != 'A' && celulaDestino != 'S' && celulaDestino != 'E' && celulaDestino != 'L' && celulaDestino != 'O' && celulaDestino != ' ') || jogadorAtual->isNoclip()) {
+        } else if ((celulaDestino != '*' && celulaDestino != '#' && celulaDestino != '=' && celulaDestino != '|' && celulaDestino != '[' && celulaDestino != ']' && celulaDestino != 'A' && celulaDestino != 'S' && celulaDestino != 'E' && celulaDestino != 'L' && celulaDestino != 'O' && celulaDestino != ' ') || jogadorAtual->isNoclip()) {
             posicaoXDoJogador = px;
             posicaoYDoJogador = py;
         }

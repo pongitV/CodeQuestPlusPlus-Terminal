@@ -86,7 +86,7 @@ namespace {
             Diario::instancia().registrarNPC("Morgana (Bruxa)");
             ctx.self->posicaoXDoJogador = 123;
             ctx.self->posicaoYDoJogador = 10;
-            if (ctx.self->exploracaoEstaAtiva && !ControleMapa::isExploracao3DAtiva()) ctx.restaurarTela();
+            if (ctx.self->exploracaoEstaAtiva && !ControleMapa::isExploracao3DAtiva()) if (!ControleMapa::isExploracao3DAtiva()) ctx.restaurarTela();
         }
     };
 
@@ -140,7 +140,7 @@ namespace {
                 ctx.self->posicaoXDoJogador = ctx.proximaPosicaoX;
                 ctx.self->posicaoYDoJogador = ctx.proximaPosicaoY;
 
-                if (ctx.self->exploracaoEstaAtiva && !ControleMapa::isExploracao3DAtiva()) ctx.restaurarTela();
+                if (ctx.self->exploracaoEstaAtiva && !ControleMapa::isExploracao3DAtiva()) if (!ControleMapa::isExploracao3DAtiva()) ctx.restaurarTela();
             } else {
                 ctx.self->posicaoXDoJogador = ctx.proximaPosicaoX;
                 ctx.self->posicaoYDoJogador = ctx.proximaPosicaoY;
@@ -180,7 +180,7 @@ namespace {
                     Aparencia::exibirPopup("PASSAGEM BLOQUEADA", msg, Cor::MAGENTA);
                     ctx.self->posicaoXDoJogador = 129;
                     ctx.self->posicaoYDoJogador = 10;
-                    ctx.restaurarTela();
+                    if (!ControleMapa::isExploracao3DAtiva()) ctx.restaurarTela();
                     return;
                 }
 
@@ -213,7 +213,7 @@ namespace {
                     ctx.self->jogadorEstaDentroDeUmSubMapa = false;
                     ctx.self->tituloDoMapaAtual = "FLORESTA";
                 }
-                if (!ControleMapa::isExploracao3DAtiva()) ctx.restaurarTela();
+                if (!ControleMapa::isExploracao3DAtiva()) if (!ControleMapa::isExploracao3DAtiva()) ctx.restaurarTela();
             }
             // 7. Fim do Labirinto (Escadaria para Boss)
             else if ((px == 77 || px == 78) && py == 11 && titulo == "LABIRINTO SUBTERRANEO") {
@@ -252,7 +252,7 @@ namespace {
                         ctx.self->posicaoXDoJogador = 53;
                         ctx.self->posicaoYDoJogador = 53;
                         ctx.self->tituloDoMapaAtual = "SALA DO CHEFE";
-                        if (!ControleMapa::isExploracao3DAtiva()) ctx.restaurarTela();
+                        if (!ControleMapa::isExploracao3DAtiva()) if (!ControleMapa::isExploracao3DAtiva()) ctx.restaurarTela();
                     } else {
                         ctx.self->matrizDoMapaDoLabirintoSalva = ctx.self->matrizDoMapaAtual;
                         ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaPrincipalSalva;
@@ -269,7 +269,7 @@ namespace {
                     ctx.self->jogadorEstaDentroDeUmSubMapa = false;
                     ctx.self->tituloDoMapaAtual = "FLORESTA";
                 }
-                if (ctx.self->exploracaoEstaAtiva && !ControleMapa::isExploracao3DAtiva()) ctx.restaurarTela();
+                if (ctx.self->exploracaoEstaAtiva && !ControleMapa::isExploracao3DAtiva()) if (!ControleMapa::isExploracao3DAtiva()) ctx.restaurarTela();
             } else {
                 ctx.self->posicaoXDoJogador = ctx.proximaPosicaoX;
                 ctx.self->posicaoYDoJogador = ctx.proximaPosicaoY;
@@ -376,7 +376,7 @@ ProximaTransicaoMapa Mapa2Floresta::iniciarLoopDeExploracao()
             } else if (tituloDoMapaAtual == "SALA DO CHEFE") {
                 ehParede = (celulaDestinoDoMapa == ' ');
             } else {
-                std::string caracteresParede = "#|_[]{}-=";
+                std::string caracteresParede = "*#|_[]{}-=";
                 ehParede = (caracteresParede.find(celulaDestinoDoMapa) != std::string::npos);
             }
             if (!ehParede || jogadorAtual->isNoclip()) {

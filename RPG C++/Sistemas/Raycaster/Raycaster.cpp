@@ -19,8 +19,12 @@
 #include <thread>
 
 #ifdef _WIN32
-    #include <windows.h>
+#include <windows.h>
 #endif
+
+#include "../Mundo/Vila/Mapa1VilaLayout.h"
+#include "../Mundo/Floresta/Mapa2FlorestaLayout.h"
+#include "../Mundo/Reino/Mapa3ReinoLayout.h"
 
 using namespace std;
 
@@ -54,7 +58,7 @@ struct MouseHider {
 };
 #endif
 
-char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& jogadorX, float& jogadorY, float& anguloVisao, const string& tituloMapa, Personagem* jogador, int& outHitX, int& outHitY, bool animarEntrada) {
+char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& jogadorX, float& jogadorY, float& anguloVisao, const string& tituloMapa, Personagem* jogador, int& outHitX, int& outHitY, int tipoAnimacaoEntrada) {
     outHitX = -1;
     outHitY = -1;
     if (matrizDoMapa.empty() || !jogador) return 0;
@@ -76,6 +80,8 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
     map<char, SpriteCache> cacheSprites;
     RaycasterInimigos::inicializarSprites(cacheSprites);
     RaycasterNPCs::inicializarSprites(cacheSprites);
+
+
 
     float profundidadeMaxima = 150.0f;  // Profundidade infinita/maxima do mapa
     float velocidadeMovimento = 5.0f;
@@ -194,11 +200,115 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
         }
     };
 
+    
+    
+    auto animarPortaAbrindo = [&]() {
+        int maxPassos = 11;
+        for (int passo = 0; passo <= maxPassos; passo++) {
+            float percent = (float)passo / maxPassos;
+            string bufferFrame = "\033[?25l\033[H";
+            bufferFrame.reserve(LARGURA_TELA * ALTURA_TELA * 15);
+            
+            int portaLeftOffset = (int)(LARGURA_TELA * percent); 
+            
+            for (int y = 0; y < ALTURA_TELA; y++) {
+                for (int x = 0; x < LARGURA_TELA; x++) {
+                    if (y == ALTURA_TELA - 1 && x == LARGURA_TELA - 1) break;
+                    
+                    if (x < LARGURA_TELA - portaLeftOffset) {
+                        bufferFrame += "\033[48;2;10;10;10m \033[0m";
+                    } else {
+                        bufferFrame += tela[y * LARGURA_TELA + x];
+                    }
+                }
+                if (y < ALTURA_TELA - 1) bufferFrame += "\n";
+            }
+            cout << bufferFrame << flush;
+            std::this_thread::sleep_for(std::chrono::milliseconds(22));
+        }
+    };
+
+    auto animarBanner3D = [&](const string& titulo) {
+        vector<string> banner;
+        string upper = titulo;
+        for(char& c : upper) c = toupper((unsigned char)c);
+        
+        if (upper.find("VILA") != string::npos) banner = Mapa1VilaLayouts::obterLogoVila();
+        else if (upper.find("INICIO") != string::npos) banner = Mapa1VilaLayouts::obterLogoSpawn();
+        else if (upper.find("FLORESTA") != string::npos) banner = Mapa2FlorestaLayouts::obterLogoFloresta();
+        else if (upper.find("REINO") != string::npos) banner = Mapa3ReinoLayouts::obterLogoReino();
+        else {
+            banner = {
+                "==================================",
+                "   " + titulo,
+                "=================================="
+            };
+        }
+        
+        for (auto& l : banner) {
+            l = Aparencia::removerCoresANSI(l);
+        }
+        
+        int bannerWidth = 0;
+        for (const auto& l : banner) {
+            int w = Aparencia::obterComprimentoVisual(l);
+            if (w > bannerWidth) bannerWidth = w;
+        }
+        
+        int startX = (LARGURA_TELA - bannerWidth) / 2;
+        if (startX < 0) startX = 0;
+        
+        int maxPassos = 10;
+        for (int passo = 0; passo <= maxPassos; passo++) {
+            std::vector<std::string> frameAtual = tela;
+            int bannerY = (passo * (ALTURA_TELA / 4)) / maxPassos; 
+            
+            for (size_t i = 0; i < banner.size(); i++) {
+                int drawY = bannerY + i;
+                if (drawY < ALTURA_TELA) {
+                    int curX = startX;
+                    string line = banner[i];
+                    for (size_t j = 0; j < line.length(); ) {
+                        int len = 1;
+                        unsigned char c = line[j];
+                        if ((c & 0x80) == 0) len = 1;
+                        else if ((c & 0xE0) == 0xC0) len = 2;
+                        else if ((c & 0xF0) == 0xE0) len = 3;
+                        else if ((c & 0xF8) == 0xF0) len = 4;
+                        
+                        string charStr = line.substr(j, len);
+                        if (charStr != " " && curX >= 0 && curX < LARGURA_TELA) {
+                            frameAtual[drawY * LARGURA_TELA + curX] = "\033[1;37m" + charStr + "\033[0m"; // White
+                        }
+                        curX++;
+                        j += len;
+                    }
+                }
+            }
+            
+            string bufferFrame = "\033[?25l\033[H";
+            bufferFrame.reserve(LARGURA_TELA * ALTURA_TELA * 15);
+            for (int y = 0; y < ALTURA_TELA; y++) {
+                for (int x = 0; x < LARGURA_TELA; x++) {
+                    if (y == ALTURA_TELA - 1 && x == LARGURA_TELA - 1) break;
+                    bufferFrame += frameAtual[y * LARGURA_TELA + x];
+                }
+                if (y < ALTURA_TELA - 1) bufferFrame += "\n";
+            }
+            std::cout << bufferFrame << std::flush;
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    };
+
     RaycasterRenderer::renderizar3D(tela3D, LARGURA_TELA, ALTURA_INTERNA, jogadorX, jogadorY, anguloVisao, (ALTURA_INTERNA / 2.0f), 0, profundidadeMaxima, 0.0f, matrizDoMapa, tituloMapa, temaFloresta, temaCeu, cacheSprites);
     downsampleTela();
     RaycasterHUD::desenhar(tela, LARGURA_TELA, ALTURA_TELA, jogadorX, jogadorY, anguloVisao, matrizDoMapa, tituloMapa, temaFloresta, jogador);
-    if (animarEntrada) {
+    if (tipoAnimacaoEntrada == 1) {
         animarOlho(true, tela);
+    } else if (tipoAnimacaoEntrada == 2) {
+        animarPortaAbrindo();
+        animarBanner3D(tituloMapa);
     }
 
 #ifdef _WIN32
@@ -309,7 +419,6 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
             mouseHider.show();
             while (GetAsyncKeyState('M') & 0x8000) std::this_thread::sleep_for(std::chrono::milliseconds(10));
             ControleDeInput::limparBuffer();
-            animarOlho(false, tela);
             Aparencia::limparTela();
             return 'M';
         }
@@ -390,7 +499,9 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
         // --- RENDERIZACAO RAYCASTING (3D) ---
         float horizonteInterno = (ALTURA_INTERNA / 2.0f) + (bobbingOffset * 2) + (pitchOffset * 2.0f);
         int offsetGeral = (bobbingOffset * 2) + (int)(pitchOffset * 2.0f);
-        RaycasterRenderer::renderizar3D(tela3D, LARGURA_TELA, ALTURA_INTERNA, jogadorX, jogadorY, anguloVisao, horizonteInterno, offsetGeral, profundidadeMaxima, tempoAbsoluto, matrizDoMapa, tituloMapa, temaFloresta, temaCeu, cacheSprites);
+        
+
+    RaycasterRenderer::renderizar3D(tela3D, LARGURA_TELA, ALTURA_INTERNA, jogadorX, jogadorY, anguloVisao, horizonteInterno, offsetGeral, profundidadeMaxima, tempoAbsoluto, matrizDoMapa, tituloMapa, temaFloresta, temaCeu, cacheSprites);
         downsampleTela();
 
         // --- RENDERIZACAO HUD E OVERLAYS (2D) ---

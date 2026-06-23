@@ -6,6 +6,24 @@
 #include <vector>
 #include <string>
 
+
+static SpriteCache criarPortaMadeira() {
+    return RaycasterSprites::parseArte({
+        "  ~~~~~~~~  ",
+        " ~\033[38;2;40;20;10m/||||||\\\033[0m~ ",
+        " ~\033[38;2;40;20;10m||||||||\033[0m~ ",
+        " ~\033[38;2;30;15;5m||||||||\033[0m~ ",
+        " ~\033[38;2;40;20;10m||||||||\033[0m~ ",
+        " ~\033[38;2;30;15;5m||||||||\033[0m~ ",
+        " ~\033[38;2;40;20;10m||||||\033[38;2;255;215;0mOO\033[0m~ ",
+        " ~\033[38;2;30;15;5m||||||\033[38;2;255;215;0mOO\033[0m~ ",
+        " ~\033[38;2;40;20;10m||||||||\033[0m~ ",
+        " ~\033[38;2;30;15;5m||||||||\033[0m~ ",
+        " ~\033[38;2;40;20;10m||||||||\033[0m~ ",
+        " ~\033[38;2;30;15;5m||||||||\033[0m~ ",
+    });
+}
+
 void RaycasterNPCs::inicializarSprites(std::map<char, SpriteCache>& cache) {
     cache['B'] = RaycasterSprites::parseSprite(NPCBjornLayouts::arteBjorn, 100, 200, 255); // Ciano Bjorn
     cache['W'] = RaycasterSprites::parseSprite(NPCMorganaLayouts::arteMorgana, 200, 100, 255); // Roxo Morgana
@@ -19,11 +37,12 @@ void RaycasterNPCs::inicializarSprites(std::map<char, SpriteCache>& cache) {
         " \\____/ "
     }, 200, 150, 50); // Bau de Tesouro
     
-    cache['^'] = RaycasterSprites::parseArte({
-        "\033[38;2;255;255;50m  ( )  \033[0m",
-        "\033[38;2;255;150;0m (   ) \033[0m",
-        "\033[38;2;255;200;25m  ( )  \033[0m"
-    }); // Portal
+    cache['^'] = criarPortaMadeira();
+    cache['1'] = criarPortaMadeira();
+    cache['2'] = criarPortaMadeira();
+    cache['3'] = criarPortaMadeira();
+    cache['4'] = criarPortaMadeira();
+    cache['5'] = criarPortaMadeira();
 
     cache['C'] = RaycasterSprites::parseSprite(NPCCavaleiroGenericoLayouts::arteCavaleiro, 200, 200, 220); // Cavaleiro Real
 

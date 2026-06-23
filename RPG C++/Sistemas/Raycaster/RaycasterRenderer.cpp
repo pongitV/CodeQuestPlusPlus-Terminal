@@ -18,6 +18,20 @@ void RaycasterRenderer::renderizar3D(vector<string>& tela, int LARGURA_TELA, int
     int larguraMapa = matrizDoMapa.empty() ? 0 : matrizDoMapa[0].size();
     int alturaMapa = matrizDoMapa.size();
 
+    std::vector<std::tuple<int, int, int>> luzes;
+    for (int ly = 0; ly < alturaMapa; ly++) {
+        for (int lx = 0; lx < larguraMapa; lx++) {
+            char c = matrizDoMapa[ly][lx];
+            if (RaycasterMundo::isMapLabel(lx, ly, matrizDoMapa)) continue;
+
+            if (c == '^') {
+                luzes.push_back({lx, ly, 1}); // White
+            } else if (c == 'P' || c == 'F' || c == 'B') {
+                luzes.push_back({lx, ly, 0}); // Orange
+            }
+        }
+    }
+
     std::string tituloUpper = tituloMapa;
     for (char& ch : tituloUpper) ch = std::toupper(static_cast<unsigned char>(ch));
     bool isReino = (tituloUpper.find("CASTELO") != std::string::npos || tituloUpper.find("REINO") != std::string::npos);
@@ -32,7 +46,7 @@ void RaycasterRenderer::renderizar3D(vector<string>& tela, int LARGURA_TELA, int
             int startX = t * chunk;
             int endX = (t == numThreads - 1) ? LARGURA_TELA : (t + 1) * chunk;
 
-            threads.emplace_back([&, startX, endX]() {
+            threads.emplace_back([&, startX, endX, luzes]() {
                 for (int x = startX; x < endX; x++) {
                     float raioAngulo = (anguloVisao - campoVisao / 2.0f) + ((float)x / (float)LARGURA_TELA) * campoVisao;
                     float distanciaAteParede = 0.0f;
@@ -63,7 +77,7 @@ void RaycasterRenderer::renderizar3D(vector<string>& tela, int LARGURA_TELA, int
                                         if (testeX != lastEntX || testeY != lastEntY) {
                                             lastEntX = testeX;
                                             lastEntY = testeY;
-                                            char spriteChar = RaycasterMundo::obterSpriteChar(c, tituloMapa);
+                                            char spriteChar = RaycasterMundo::obterSpriteChar(testeX, testeY, c, tituloMapa);
 
                                             float centerX = testeX + 0.5f;
                                             float centerY = testeY + 0.5f;
@@ -125,7 +139,7 @@ void RaycasterRenderer::renderizar3D(vector<string>& tela, int LARGURA_TELA, int
                         if (y < teto) {
                             tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(temaCeu, raioAngulo, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
                         } else if (y >= teto && y <= chao) {
-                            std::string pixel = RaycasterMundo::obterPixelParede(tituloMapa, temaFloresta, distanciaAteParede, profundidadeMaxima, charParede, y, teto, chao, texXParede, tempoAbsoluto, isSideWall);
+                            std::string pixel = RaycasterMundo::obterPixelParede(tituloMapa, temaFloresta, distanciaAteParede, profundidadeMaxima, charParede, y, teto, chao, texXParede, tempoAbsoluto, isSideWall, luzes, hitX, hitY);
                             if (pixel == "FUNDO") {
                                 if (y <= horizonte) tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(temaCeu, raioAngulo, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
                                 else drawFloor = true;
@@ -144,8 +158,8 @@ void RaycasterRenderer::renderizar3D(vector<string>& tela, int LARGURA_TELA, int
                             if (currentX >= 0 && currentX < larguraMapa && currentY >= 0 && currentY < alturaMapa) {
                                 floorChar = matrizDoMapa[(int)currentY][(int)currentX];
                             }
-                            if (floorChar == '~') tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelAgua(currentX, currentY, currentDist, profundidadeMaxima);
-                            else tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelChao(tituloMapa, currentX, currentY, currentDist, profundidadeMaxima);
+                            if (floorChar == '~') tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelAgua(currentX, currentY, currentDist, profundidadeMaxima, raioAngulo, tempoAbsoluto, temaCeu);
+                            else tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelChao(tituloMapa, currentX, currentY, currentDist, profundidadeMaxima, luzes);
                         }
                     }
 
@@ -163,29 +177,7 @@ void RaycasterRenderer::renderizar3D(vector<string>& tela, int LARGURA_TELA, int
 
                         int altEnt = chaoEnt - tetoEnt;
                         if (altEnt > 0) {
-                            if (ent.c == '^') {
-                                for (int y = tetoEnt; y <= chaoEnt; y++) {
-                                    if (y >= 0 && y < ALTURA_TELA) {
-                                        float texY = (float)(y - tetoEnt) / altEnt;
-                                        float dx = ent.texX - 0.5f;
-                                        float dy = texY - 0.5f;
-                                        float distFromCenter = sqrt(dx * dx + dy * dy);
-                                        float pulse = sinf(tempoAbsoluto * 5.0f) * 0.03f;
-                                        float baseRadius = 0.25f + pulse;
-
-                                        if (distFromCenter < baseRadius * 0.4f) tela[y * LARGURA_TELA + x] = "\033[48;2;255;255;255m \033[0m"; 
-                                        else if (distFromCenter < baseRadius * 0.8f) tela[y * LARGURA_TELA + x] = "\033[48;2;255;255;50m \033[0m";  
-                                        else if (distFromCenter < baseRadius) tela[y * LARGURA_TELA + x] = "\033[48;2;255;150;0m \033[0m";   
-                                        else {
-                                            float particleY = dy + tempoAbsoluto * 0.5f;
-                                            int noise = ((int)(dx * 80) * 17 + (int)(particleY * 80) * 23) % 47;
-                                            float angle = atan2f(dy, dx);
-                                            float limitDist = baseRadius + 0.15f + sinf(angle * 6.0f + tempoAbsoluto * 3.0f) * 0.05f;
-                                            if (distFromCenter < limitDist && noise < 2) tela[y * LARGURA_TELA + x] = "\033[48;2;255;200;25m \033[0m"; 
-                                        }
-                                    }
-                                }
-                            } else if (cacheSprites.count(ent.c)) {
+                            if (cacheSprites.count(ent.c)) {
                                 auto& sc = cacheSprites.at(ent.c);
                                 int spriteX = (int)(ent.texX * sc.width);
                                 if (spriteX < 0) spriteX = 0;
@@ -196,6 +188,13 @@ void RaycasterRenderer::renderizar3D(vector<string>& tela, int LARGURA_TELA, int
                                         int spriteY = ((y - tetoEnt) * sc.height) / altEnt;
                                         if (spriteY >= 0 && spriteY < sc.height && spriteX < (int)sc.pixels[spriteY].size()) {
                                             string p = sc.pixels[spriteY][spriteX];
+                                            if (p == " \033[0m" && (ent.c == '^' || (ent.c >= '1' && ent.c <= '5'))) {
+                                                float wave = sinf(tempoAbsoluto * 6.0f + y * 0.2f + spriteX * 0.2f);
+                                                int r = 210 + (int)(wave * 45); // Oscila
+                                                int g = 190 + (int)(wave * 65); // Oscila
+                                                int b = 255;
+                                                p = "\033[48;2;" + to_string(r) + ";" + to_string(g) + ";" + to_string(b) + "m \033[0m";
+                                            }
                                             if (p != "") tela[y * LARGURA_TELA + x] = p; 
                                         }
                                     }
