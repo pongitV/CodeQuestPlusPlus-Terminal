@@ -538,3 +538,96 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
     }
     return 0;
 }
+
+void Raycaster::piscarTelaCor(Cor cor, int duracaoMs) {
+    int LARGURA_TELA = Aparencia::obterLarguraTerminal();
+    int ALTURA_TELA = Aparencia::obterAlturaTerminal();
+    if (LARGURA_TELA <= 0) LARGURA_TELA = 120;
+    if (ALTURA_TELA <= 0) ALTURA_TELA = 40;
+
+    std::string colorCode = Aparencia::bgRGB(255, 50, 50);
+    if (cor == Cor::BRANCO) colorCode = Aparencia::bgRGB(255, 255, 255);
+    else if (cor == Cor::VERDE) colorCode = Aparencia::bgRGB(50, 255, 50);
+
+    std::string resetCode = "\033[0m";
+    std::string blankLine = colorCode + std::string(LARGURA_TELA, ' ') + resetCode;
+
+    std::string bufferFrame = "\033[?25l\033[H";
+    for (int y = 0; y < ALTURA_TELA; y++) {
+        if (y == ALTURA_TELA - 1) {
+            bufferFrame += blankLine.substr(0, blankLine.length() - resetCode.length() - 1) + resetCode; 
+        } else {
+            bufferFrame += blankLine + "\n";
+        }
+    }
+    std::cout << bufferFrame << std::flush;
+    std::this_thread::sleep_for(std::chrono::milliseconds(duracaoMs));
+}
+
+std::vector<std::string> Raycaster::desenharQuadroEstatico3D(const std::vector<std::string>& matrizDoMapa, float jogadorX, float jogadorY, float anguloVisao, const std::string& tituloMapa, Personagem* jogador, int alturaOverride) {
+    int LARGURA_TELA = Aparencia::obterLarguraTerminal();
+    int ALTURA_TELA = (alturaOverride > 0) ? alturaOverride : Aparencia::obterAlturaTerminal();
+    if (LARGURA_TELA <= 0) LARGURA_TELA = 120;
+    if (ALTURA_TELA <= 0) ALTURA_TELA = 40;
+
+    bool temaFloresta = RaycasterMundo::isTemaFloresta(tituloMapa);
+    int temaCeu = RaycasterMundo::obterTemaCeu(tituloMapa);
+
+    std::map<char, SpriteCache> cacheSprites;
+    RaycasterInimigos::inicializarSprites(cacheSprites);
+    RaycasterNPCs::inicializarSprites(cacheSprites);
+
+    int ALTURA_INTERNA = ALTURA_TELA * 2;
+    std::vector<std::string> tela3D(LARGURA_TELA * ALTURA_INTERNA, " ");
+    std::vector<std::string> tela(LARGURA_TELA * ALTURA_TELA, " ");
+
+    RaycasterRenderer::renderizar3D(tela3D, LARGURA_TELA, ALTURA_INTERNA, jogadorX, jogadorY, anguloVisao, (ALTURA_INTERNA / 2.0f), 0, 150.0f, 0.0f, matrizDoMapa, tituloMapa, temaFloresta, temaCeu, cacheSprites);
+
+    for (int y = 0; y < ALTURA_TELA; y++) {
+        for (int x = 0; x < LARGURA_TELA; x++) {
+            std::string top = tela3D[(y * 2) * LARGURA_TELA + x];
+            std::string bot = tela3D[(y * 2 + 1) * LARGURA_TELA + x];
+
+            auto getBg = [](const std::string& s) {
+                size_t pos = s.find("\033[48;2;");
+                if (pos != std::string::npos) {
+                    size_t end = s.find('m', pos);
+                    if (end != std::string::npos) return s.substr(pos, end - pos + 1);
+                }
+                return std::string("\033[48;2;0;0;0m");
+            };
+
+            auto getChar = [](const std::string& s) {
+                size_t firstM = s.find('m');
+                if (firstM != std::string::npos && firstM + 1 < s.size()) {
+                    char c = s[firstM + 1];
+                    if (c != '\033' && c != ' ') return c;
+                    if (c == '\033') {
+                        size_t secondM = s.find('m', firstM + 1);
+                        if (secondM != std::string::npos && secondM + 1 < s.size()) {
+                            c = s[secondM + 1];
+                            if (c != '\033' && c != ' ') return c;
+                        }
+                    }
+                }
+                return ' ';
+            };
+
+            char topC = getChar(top);
+            char botC = getChar(bot);
+
+            if (topC == ' ' && botC == ' ') {
+                std::string bgTop = getBg(top);
+                std::string bgBot = getBg(bot);
+                if (bgTop.size() > 3) bgTop[2] = '3';
+                tela[y * LARGURA_TELA + x] = bgBot + bgTop + "\xE2\x96\x80\033[0m";
+            } else if (topC != ' ') {
+                tela[y * LARGURA_TELA + x] = top;
+            } else {
+                tela[y * LARGURA_TELA + x] = bot;
+            }
+        }
+    }
+
+    return tela;
+}

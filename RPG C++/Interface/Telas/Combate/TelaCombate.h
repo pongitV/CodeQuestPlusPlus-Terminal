@@ -25,6 +25,14 @@ public:
     static void adicionarMensagemFixa(const std::string& msg);
     static void limparMensagensFixas();
 
+    static bool isModo3D;
+    static std::vector<std::string> matrizDoMapaAtual;
+    static float jogadorPosX;
+    static float jogadorPosY;
+    static float jogadorAngulo;
+    static std::string tituloMapaAtual;
+    static void configurarContexto3D(bool modo3D, const std::vector<std::string>& matriz, float posX, float posY, float angulo, const std::string& titulo);
+
     static int turnoAtualVisivel;
     static std::string nomeTurnoVisivel;
     static int selecaoAcaoAtual;

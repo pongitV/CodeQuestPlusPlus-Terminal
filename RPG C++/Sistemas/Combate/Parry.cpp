@@ -1,5 +1,6 @@
 #include "Parry.h"
-
+#include <iomanip>
+#include <cctype>
 #include <algorithm>
 #include <chrono>
 #include <iostream>
@@ -17,86 +18,168 @@ bool Parry::tentarParry(Personagem* atacante, Personagem* defensor, int danoMiti
     int destrezaDoAtacante = atacante ? std::max(1, atacante->obterDestreza()) : 1;
     int destrezaDoDefensor = defensor ? std::max(1, defensor->obterDestreza()) : 1;
 
-    if (destrezaDoAtacante > destrezaDoDefensor) 
+    if (destrezaDoAtacante > destrezaDoDefensor * 2) 
     {
         std::string msgAgil = "O inimigo e agil demais para voce efetivar o parry!";
         std::cout << "\n" << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgCombate(msgAgil, Cor::FUNDO_VERMELHO) << "\n";
-        std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         quantidadeDeDanoReduzido = 0;
         return false;
     }
 
-    // Quantidade de numeros: Relacionado puramente ao dano do monstro (1/3 do dano)
-    // Limitamos a 15 digitos no maximo para o minigame nao se tornar humanamente impossivel
-    int quantidadeDeNumerosDoParry = std::clamp(danoMitigado / 3, 3, 15); 
-    
-    // Tempo em segundos: Tempo humano base + Relacao estrita com a diferenca de Destreza
-    int tempoBaseParaDigitar = std::max(2, quantidadeDeNumerosDoParry / 2);
-    int bonusDeDestreza = (destrezaDoDefensor - destrezaDoAtacante) / 5;
-    int tempoLimiteParaParryEmSegundos = std::max(1, tempoBaseParaDigitar + bonusDeDestreza);
+    int dificuldade = std::clamp(danoMitigado / 5 + (destrezaDoAtacante / 10), 1, 20);
 
-    bool sucesso = executarMinigame(quantidadeDeNumerosDoParry, tempoLimiteParaParryEmSegundos, quantidadeDeDanoReduzido);
-    if (sucesso) 
-    {
-        // Balanceamento da recompensa: Multiplicamos a soma dos numeros pelo nivel do ataque
-        // Isso garante que o parry continue eficiente e recompensador contra grandes danos (Chefes)
-        int fatorMultiplicador = std::max(1, (danoMitigado / 15) + 1);
-        quantidadeDeDanoReduzido *= fatorMultiplicador;
-    }
-    else 
-    {
-        quantidadeDeDanoReduzido = 0;
+    bool sucesso = false;
+    if (defensor && defensor->obterParryModerno()) {
+        sucesso = executarMinigameMovimento(dificuldade, danoMitigado, quantidadeDeDanoReduzido);
+    } else {
+        sucesso = executarMinigameDigitacao(dificuldade, danoMitigado, quantidadeDeDanoReduzido);
     }
     return sucesso;
 }
 
-bool Parry::executarMinigame(int quantidadeDeNumerosParaDigitar, int tempoLimiteEmSegundos, int& quantidadeDeDanoReduzido) 
+bool Parry::executarMinigameMovimento(int dificuldade, int danoMitigado, int& quantidadeDeDanoReduzido) 
 {
-    std::string sequenciaGeradaPeloSistema = "";
-    quantidadeDeDanoReduzido = 0;
+    std::cout << "\n" << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgCombate("O inimigo ataca! Pressione [ESPACO] no momento exato!", Cor::AMARELO) << "\n";
     
-    for (int indiceAtual = 0; indiceAtual < quantidadeDeNumerosParaDigitar; ++indiceAtual) 
-    {
-        int numeroAleatorio = GeradorAleatorio::obterInteiro(1, 9);
-        sequenciaGeradaPeloSistema += std::to_string(numeroAleatorio);
-        quantidadeDeDanoReduzido += numeroAleatorio;
-    }
-
-    std::cout << "\n" << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgCombate("O inimigo ataca! Digite a sequencia rapidamente para defender!", Cor::VERMELHO) << "\n";
+    int tamanhoBarra = 60;
+    int sweetSpotCentro = 48;
+    int tamanhoSweetSpot = std::clamp(6 - (dificuldade / 3), 1, 4); 
     
-    std::cout << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgCombate("Sequencia: ", Cor::VERMELHO) << Aparencia::cor(Cor::AMARELO) << sequenciaGeradaPeloSistema << Aparencia::cor(Cor::RESET) << "\n";
-
-    std::string tempoMsg = "Tempo Limite: " + Aparencia::cor(Cor::BRANCO) + std::to_string(tempoLimiteEmSegundos) + Aparencia::cor(Cor::VERMELHO) + " segundos!";
-    std::cout << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgCombate(tempoMsg, Cor::VERMELHO) << "\n";
-    std::cout << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgCombate("Digite: ", Cor::VERMELHO) << Aparencia::cor(Cor::BRANCO) << std::flush;
-
-    std::string entradaDigitadaPeloJogador = "";
+    int posicaoAtual = 0;
+    bool espacoPressionado = false;
+    int posicaoPressionada = -1;
     
-    ControleDeInput::limparBuffer(); // Evita que o jogador trapaceie digitando antes da animacao terminar
-    auto tempoInicial = std::chrono::steady_clock::now();
-    while (true) {
-        auto tempoAtual = std::chrono::steady_clock::now();
-        std::chrono::duration<double> tempoDecorrido = tempoAtual - tempoInicial;
-        if (tempoDecorrido.count() > tempoLimiteEmSegundos) {
-            std::string timeoutMsg = "TEMPO ESGOTADO (" + std::to_string(static_cast<int>(tempoDecorrido.count())) + "s)!";
-            std::cout << "\n" << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgCombate(timeoutMsg, Cor::FUNDO_VERMELHO) << "\n";
-            return false;
+    ControleDeInput::limparBuffer();
+    
+    int delayMs = std::clamp(20 - dificuldade, 5, 25);
+
+    while (posicaoAtual <= tamanhoBarra) {
+        std::string barra = "[";
+        for (int i = 0; i < tamanhoBarra; i++) {
+            bool noSweetSpot = (i >= sweetSpotCentro - tamanhoSweetSpot/2 && i <= sweetSpotCentro + tamanhoSweetSpot/2);
+            
+            if (i == posicaoAtual) {
+                barra += "\033[48;2;255;255;255m>\033[0m"; // Cursor branco
+            } else if (noSweetSpot) {
+                barra += "\033[38;2;50;255;50m█\033[0m"; // Zona Verde
+            } else if (i < posicaoAtual) {
+                barra += "░"; // Rastro
+            } else {
+                barra += " ";
+            }
         }
-        if (ControleDeInput::teclaPressionada()) 
-        {
-            char teclaPressionada = ControleDeInput::lerTecla();
-            if (teclaPressionada == '\r' || teclaPressionada == '\n') 
-            {
-                std::cout << "\n";
+        barra += "]";
+
+        std::cout << "\r" << Aparencia::margemCombate() << "Parry: " << barra << std::flush;
+
+        if (ControleDeInput::teclaPressionada()) {
+            char tecla = ControleDeInput::lerTecla();
+            if (tecla == ' ' || tecla == '\n' || tecla == '\r') {
+                espacoPressionado = true;
+                posicaoPressionada = posicaoAtual;
                 break;
-            } 
-            else if (teclaPressionada == '\b' || teclaPressionada == 127) 
-            {
-                if (!entradaDigitadaPeloJogador.empty()) { entradaDigitadaPeloJogador.pop_back(); std::cout << "\b \b"; }
-            } 
-            else { entradaDigitadaPeloJogador += teclaPressionada; std::cout << teclaPressionada; }
+            }
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(delayMs));
+        posicaoAtual++;
     }
-    return entradaDigitadaPeloJogador == sequenciaGeradaPeloSistema;
+
+    std::cout << "\n";
+    
+    if (espacoPressionado) {
+        bool noSweetSpot = (posicaoPressionada >= sweetSpotCentro - tamanhoSweetSpot/2 && posicaoPressionada <= sweetSpotCentro + tamanhoSweetSpot/2);
+        if (noSweetSpot) {
+            int distancia = std::abs(posicaoPressionada - sweetSpotCentro);
+            if (distancia <= 1) {
+                // Parry Perfeito!
+                quantidadeDeDanoReduzido = danoMitigado; 
+            } else {
+                // Parry Efetivo
+                quantidadeDeDanoReduzido = std::max(1, danoMitigado / 2); 
+            }
+            return true;
+        }
+    }
+    
+    quantidadeDeDanoReduzido = 0;
+    return false;
+}
+
+bool Parry::executarMinigameDigitacao(int dificuldade, int danoMitigado, int& quantidadeDeDanoReduzido) 
+{
+    int tamanhoSequencia = std::clamp(4 + dificuldade / 5, 4, 8);
+    std::string sequencia = "";
+    for (int i = 0; i < tamanhoSequencia; ++i) {
+        sequencia += std::to_string(GeradorAleatorio::obterInteiro(0, 9));
+    }
+
+    double tempoLimite = std::max(1.5, 4.0 - (dificuldade / 6.0));
+
+    std::cout << "\n" << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgCombate("DIGITE RAPIDO: " + sequencia, Cor::AMARELO) << "\n";
+    std::cout << Aparencia::margemCombate() << "Sua resposta: " << std::flush;
+
+    std::string resposta = "";
+    auto inicio = std::chrono::steady_clock::now();
+    bool tempoEsgotado = false;
+    bool concluido = false;
+
+    ControleDeInput::limparBuffer();
+
+    while (true) {
+        auto agora = std::chrono::steady_clock::now();
+        double decorrido = std::chrono::duration<double>(agora - inicio).count();
+
+        if (decorrido >= tempoLimite) {
+            tempoEsgotado = true;
+            break;
+        }
+
+        std::cout << "\r" << Aparencia::margemCombate() << "Parry [Tempo: " 
+                  << std::fixed << std::setprecision(1) << (tempoLimite - decorrido) << "s]: " 
+                  << resposta << "\033[K" << std::flush;
+
+        if (ControleDeInput::teclaPressionada()) {
+            char c = ControleDeInput::lerTecla();
+            if (c == '\r' || c == '\n') {
+                concluido = true;
+                break;
+            } else if (c == '\b' || c == 127) { // Backspace
+                if (!resposta.empty()) {
+                    resposta.pop_back();
+                }
+            } else if (std::isdigit(static_cast<unsigned char>(c))) {
+                resposta += c;
+            }
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    }
+
+    std::cout << "\n";
+
+    if (tempoEsgotado) {
+        std::cout << Aparencia::margemCombate() << "\033[1;38;2;255;50;50mTEMPO ESGOTADO!\033[0m\n";
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        quantidadeDeDanoReduzido = 0;
+        return false;
+    }
+
+    auto fim = std::chrono::steady_clock::now();
+    double tempoTotal = std::chrono::duration<double>(fim - inicio).count();
+
+    if (concluido && resposta == sequencia) {
+        if (tempoTotal <= tempoLimite * 0.5) {
+            // Parry Perfeito!
+            quantidadeDeDanoReduzido = danoMitigado;
+        } else {
+            // Parry Efetivo!
+            quantidadeDeDanoReduzido = std::max(1, danoMitigado / 2);
+        }
+        return true;
+    }
+
+    quantidadeDeDanoReduzido = 0;
+    return false;
 }

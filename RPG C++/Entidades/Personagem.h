@@ -106,6 +106,7 @@ private:
         bool labirintoDesbloqueado = false;
         bool podeReviver = true;
         bool parryAtivado = false;
+        bool parryModerno = true;
         bool possuiRegeneracaoTroll = false;
         bool godModeAtivo = false;
         bool noclipAtivo = false;
@@ -294,6 +295,8 @@ public:
 
     void definirParryAtivado(bool p) { sistema.parryAtivado = p; }
     bool obterParryAtivado() const { return sistema.parryAtivado; }
+    void definirParryModerno(bool m) { sistema.parryModerno = m; }
+    bool obterParryModerno() const { return sistema.parryModerno; }
 
     void setAsMinion(bool minion) { sistema.isMinion = minion; }
     bool isMinion() const { return sistema.isMinion; }

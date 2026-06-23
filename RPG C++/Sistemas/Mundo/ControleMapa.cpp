@@ -50,6 +50,10 @@ namespace {
 
 static bool s_exploracao3DAtiva = true;
 static bool s_recemTrocouDeMapa = false;
+static float s_posCamera3DX = -1.0f;
+static float s_posCamera3DY = -1.0f;
+static float s_anguloCamera3D = 0.0f;
+static std::string s_tituloMapaAtual = "";
 
 void ControleMapa::sinalizarTrocaDeMapa3D() { s_recemTrocouDeMapa = true; }
 
@@ -124,6 +128,9 @@ void ControleMapa::processarCombate(
 
     if (opcaoEscolhidaPeloJogador == 1) {
         Combate combate(jogadorAtual, std::move(inimigosParaBatalha));
+        if (s_exploracao3DAtiva) {
+            combate.setContexto3D(true, matrizDoMapaAtual, s_posCamera3DX, s_posCamera3DY, s_anguloCamera3D, s_tituloMapaAtual);
+        }
         combate.iniciarCombate();
 
         if (jogadorAtual->obterVida() > 0) {
@@ -660,12 +667,15 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
 ) {
     auto ultimoMovimentoInimigos = std::chrono::steady_clock::now();
     ProximaTransicaoMapa destinoViagemRapida = ProximaTransicaoMapa::Nenhuma;
-    float anguloCamera3D = 0.0f; // Persiste a direcao da visao do jogador enquanto ele estiver no mapa
-    float posCamera3DX = -1.0f;
-    float posCamera3DY = -1.0f;
+    s_anguloCamera3D = 0.0f;
+    s_posCamera3DX = -1.0f;
+    s_posCamera3DY = -1.0f;
+    s_tituloMapaAtual = tituloDoMapaAtual;
 
     while (exploracaoEstaAtiva && jogadorAtual->obterVida() > 0)
     {
+        s_tituloMapaAtual = tituloDoMapaAtual;
+        
         auto agora = std::chrono::steady_clock::now();
         bool tempoDeMoverInimigos = std::chrono::duration_cast<std::chrono::milliseconds>(agora - ultimoMovimentoInimigos).count() >= 800;
 
@@ -697,31 +707,34 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
             static std::string tituloAnterior = "";
             int tipoAnimacao = 0;
             
-            if (!s_exploracao3DAtiva) {
+            bool trocandoDePerspectiva = !s_exploracao3DAtiva;
+            if (trocandoDePerspectiva) {
                 tipoAnimacao = 1; // Olho abrindo (entrou via 'V')
             }
-            if (s_recemTrocouDeMapa) {
+            if (s_recemTrocouDeMapa && !trocandoDePerspectiva) {
                 tipoAnimacao = 2; // Porta + Banner
             }
             
             if (tituloAnterior != tituloDoMapaAtual) {
-                if (tituloAnterior != "") tipoAnimacao = 2;
+                if (tituloAnterior != "" && !trocandoDePerspectiva) {
+                    tipoAnimacao = 2;
+                }
                 tituloAnterior = tituloDoMapaAtual;
             }
 
             s_recemTrocouDeMapa = false;
             s_exploracao3DAtiva = true;
 
-                if (posCamera3DX == -1.0f || static_cast<int>(posCamera3DX) != posicaoXDoJogador || static_cast<int>(posCamera3DY) != posicaoYDoJogador) {
-                    posCamera3DX = static_cast<float>(posicaoXDoJogador) + 0.5f;
-                    posCamera3DY = static_cast<float>(posicaoYDoJogador) + 0.5f;
+                if (s_posCamera3DX == -1.0f || static_cast<int>(s_posCamera3DX) != posicaoXDoJogador || static_cast<int>(s_posCamera3DY) != posicaoYDoJogador) {
+                    s_posCamera3DX = static_cast<float>(posicaoXDoJogador) + 0.5f;
+                    s_posCamera3DY = static_cast<float>(posicaoYDoJogador) + 0.5f;
                 }
                 
                 int hitX = -1, hitY = -1;
-                char acaoPendente = Raycaster::iniciarExploracao3D(matrizDoMapaAtual, posCamera3DX, posCamera3DY, anguloCamera3D, tituloDoMapaAtual, jogadorAtual, hitX, hitY, tipoAnimacao);
+                char acaoPendente = Raycaster::iniciarExploracao3D(matrizDoMapaAtual, s_posCamera3DX, s_posCamera3DY, s_anguloCamera3D, tituloDoMapaAtual, jogadorAtual, hitX, hitY, tipoAnimacao);
                 
-                posicaoXDoJogador = static_cast<int>(posCamera3DX);
-                posicaoYDoJogador = static_cast<int>(posCamera3DY);
+                posicaoXDoJogador = static_cast<int>(s_posCamera3DX);
+                posicaoYDoJogador = static_cast<int>(s_posCamera3DY);
                 
                 bool isTrigger = false;
                 if (hitX != -1 && hitY != -1) {

@@ -43,10 +43,12 @@ void TelaPause::exibir(Personagem* jogador) {
                 }
                 
                 std::string statusParry = jogador->obterParryAtivado() ? Aparencia::cor(Cor::VERDE) + "LIGADO" + Aparencia::cor(Cor::RESET) : Aparencia::cor(Cor::VERMELHO) + "DESLIGADO" + Aparencia::cor(Cor::RESET);
+                std::string tipoParryStr = jogador->obterParryModerno() ? Aparencia::cor(Cor::CIANO) + "Movimento (Moderno)" + Aparencia::cor(Cor::RESET) : Aparencia::cor(Cor::VERMELHO) + "Digitacao (Antigo)" + Aparencia::cor(Cor::RESET);
                 
                 std::vector<std::string> opcoesConfig = {
                     "Dificuldade do Mundo: " + difStr,
                     "Sistema de PARRY: " + statusParry,
+                    "Metodo do PARRY: " + tipoParryStr,
                     "Aparencia do Jogador no Mapa",
                     "Cor de Fundo do Terminal",
                     "Sensibilidade do Mouse",
@@ -62,6 +64,8 @@ void TelaPause::exibir(Personagem* jogador) {
                 } else if (confEscolha == 1) {
                     jogador->definirParryAtivado(!jogador->obterParryAtivado());
                 } else if (confEscolha == 2) {
+                    jogador->definirParryModerno(!jogador->obterParryModerno());
+                } else if (confEscolha == 3) {
                     bool aparenciaAberta = true;
                     while (aparenciaAberta) {
                         Aparencia::limparTela();
@@ -111,7 +115,7 @@ void TelaPause::exibir(Personagem* jogador) {
                             aparenciaAberta = false;
                         }
                     }
-                } else if (confEscolha == 3) {
+                } else if (confEscolha == 4) {
                     bool fundoAberto = true;
                     while (fundoAberto) {
                         Aparencia::limparTela();
@@ -143,7 +147,7 @@ void TelaPause::exibir(Personagem* jogador) {
                             fundoAberto = false;
                         }
                     }
-                } else if (confEscolha == 4) {
+                } else if (confEscolha == 5) {
                     bool sensibilidadeAberta = true;
                     while (sensibilidadeAberta) {
                         Aparencia::limparTela();

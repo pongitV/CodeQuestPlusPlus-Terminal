@@ -33,7 +33,14 @@ private:
     int totalDeDanoRecebido;
     int contadorDoTurnoAtual;
     std::vector<std::string> itensObtidos;
-    
+
+    // Contexto de Visao 3D
+    bool isModo3D;
+    std::vector<std::string> matrizDoMapaAtual;
+    float jogadorPosX;
+    float jogadorPosY;
+    float jogadorAngulo;
+    std::string tituloMapaAtual;    
     // Estatisticas Avancadas da Sessao
     static int stats_parriesTentados;
     static int stats_parriesEfetivos;
@@ -66,6 +73,8 @@ private:
 public:
     Combate(Personagem* jogadorParaOCombate, std::vector<std::unique_ptr<Personagem>>&& inimigosParaOCombate);
     virtual ~Combate();
+
+    void setContexto3D(bool modo3D, const std::vector<std::string>& matriz, float posX, float posY, float angulo, const std::string& titulo);
 
     std::vector<Personagem*> obterAliadosVivosRaw() const;
     bool executarTurnoJogadorOuAliado(Personagem* personagem, bool& primeiraRenderizacao, bool processarEfeitosInicio = true);

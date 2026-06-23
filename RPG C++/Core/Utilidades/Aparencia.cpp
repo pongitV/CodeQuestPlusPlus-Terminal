@@ -236,14 +236,12 @@ std::string Aparencia::gerarBarraGradiente(double pct, int tamanho, Cor corFinal
     if (pct < 0.0) pct = 0.0;
     if (pct > 1.0) pct = 1.0;
     int qtdReal = static_cast<int>(pct * tamanho * 8);
-    std::string blocos[] = {" ", "▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"};
     std::string barra = "";
     for (int i = 0; i < tamanho; ++i) {
         int intensidade = 130 + (125 * i) / std::max(1, tamanho - 1);
         std::string corAtual = Aparencia::obterCorRGBFade(corFinal, intensidade);
         int charIdx = i * 8;
-        if (qtdReal >= charIdx + 8) barra += corAtual + "█";
-        else if (qtdReal > charIdx) barra += corAtual + blocos[qtdReal - charIdx];
+        if (qtdReal >= charIdx + 4) barra += corAtual + "█";
         else barra += Aparencia::cor(Cor::CINZA) + "░";
     }
     return barra;

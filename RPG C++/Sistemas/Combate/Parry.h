@@ -9,6 +9,6 @@ public:
     static bool tentarParry(Personagem* atacante, Personagem* defensor, int danoMitigado, int& quantidadeDeDanoReduzido);
 
 private:
-    // Lida puramente com a logica em tempo real, I/O e RNG (Isolado do Combate)
-    static bool executarMinigame(int quantidadeDeNumerosParaDigitar, int tempoLimiteEmSegundos, int& quantidadeDeDanoReduzido);
+    static bool executarMinigameMovimento(int dificuldade, int danoMitigado, int& quantidadeDeDanoReduzido);
+    static bool executarMinigameDigitacao(int dificuldade, int danoMitigado, int& quantidadeDeDanoReduzido);
 };

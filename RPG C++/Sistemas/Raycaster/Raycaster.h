@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include "../../Entidades/Personagem.h"
+#include "../../Core/Utilidades/Aparencia.h"
 
 class Raycaster {
 public:
@@ -14,4 +15,6 @@ public:
     // Retorna (encerra) quando o jogador pressiona a tecla ESC.
     // Utiliza referencias para atualizar a posicao X e Y reais do jogador no mapa top-down.
     static char iniciarExploracao3D(const std::vector<std::string>& matrizDoMapa, float& jogadorX, float& jogadorY, float& anguloVisao, const std::string& tituloMapa, Personagem* jogador, int& outHitX, int& outHitY, int tipoAnimacaoEntrada = 0);
+    static void piscarTelaCor(Cor cor, int duracaoMs);
+    static std::vector<std::string> desenharQuadroEstatico3D(const std::vector<std::string>& matrizDoMapa, float jogadorX, float jogadorY, float anguloVisao, const std::string& tituloMapa, Personagem* jogador, int alturaOverride = -1);
 };

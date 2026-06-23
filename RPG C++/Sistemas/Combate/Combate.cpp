@@ -60,7 +60,8 @@ void Combate::resetarEstatisticasAvancadas() {
 }
 
 Combate::Combate(Personagem* jogadorParaOCombate, std::vector<std::unique_ptr<Personagem>>&& inimigosParaOCombate) 
-    : jogadorAtual(jogadorParaOCombate), listaDeInimigos(std::move(inimigosParaOCombate)), quantidadeDeOuroObtido(0), quantidadeDeXpObtido(0), totalDeDanoCausado(0), totalDeDanoRecebido(0), contadorDoTurnoAtual(1)
+    : jogadorAtual(jogadorParaOCombate), listaDeInimigos(std::move(inimigosParaOCombate)), quantidadeDeOuroObtido(0), quantidadeDeXpObtido(0), totalDeDanoCausado(0), totalDeDanoRecebido(0), contadorDoTurnoAtual(1),
+      isModo3D(false), jogadorPosX(0.0f), jogadorPosY(0.0f), jogadorAngulo(0.0f), tituloMapaAtual("")
 {
 
     int nivelDeDificuldade = static_cast<int>(jogadorAtual->obterDificuldade());
@@ -77,6 +78,15 @@ Combate::Combate(Personagem* jogadorParaOCombate, std::vector<std::unique_ptr<Pe
         inimigoAtualPtr->aplicarMultiplicadorDificuldade(multiplicadorDeDificuldadeDosInimigos);
         inimigoAtualPtr->prepararParaNovaBatalha();
     }
+}
+
+void Combate::setContexto3D(bool modo3D, const std::vector<std::string>& matriz, float posX, float posY, float angulo, const std::string& titulo) {
+    this->isModo3D = modo3D;
+    this->matrizDoMapaAtual = matriz;
+    this->jogadorPosX = posX;
+    this->jogadorPosY = posY;
+    this->jogadorAngulo = angulo;
+    this->tituloMapaAtual = titulo;
 }
 
 void Combate::adicionarAliados(std::vector<std::unique_ptr<Personagem>> aliados)
@@ -120,6 +130,7 @@ std::vector<Personagem*> Combate::obterInimigosRaw() const
 
 void Combate::exibirTelaDeCombate(bool animarEntrada) const
 {
+    TelaCombate::configurarContexto3D(isModo3D, matrizDoMapaAtual, jogadorPosX, jogadorPosY, jogadorAngulo, tituloMapaAtual);
     TelaCombate::atualizarTelaEstatica(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual, obterAliadosVivosRaw(), animarEntrada);
 }
 

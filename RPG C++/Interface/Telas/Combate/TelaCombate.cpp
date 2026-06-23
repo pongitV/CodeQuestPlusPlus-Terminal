@@ -17,6 +17,7 @@
 #include "../../../Sistemas/Inventario/Item.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"
 #include "TelaCombateLayout.h"
+#include "../../../Sistemas/Combate/Combate3DRenderer.h"
 
 extern Personagem* g_inimigoAtacanteParry;
 extern int g_parryStatus;
@@ -31,6 +32,7 @@ namespace {
         long long tempoUltimaRecompensaXp = 0;
     };
     static std::unordered_map<Personagem*, PlayerHUDVisualState> hudStates;
+
 
     std::string gerarBarraDeXp(Personagem* jogadorAtual, const std::string& corXp, const std::string& corReset) {
         int tamanho = 8;
@@ -185,12 +187,39 @@ namespace {
             (void)titulo;
             std::cout << "\n";
 
-            TelaCombate::exibirHordaDeInimigosLadoALado(inimigos, alvoAnimacao, frame, isCura, animarEntrada, isMorte, arma, danoAnimacao, dropsAnimacao);
-            
-            std::cout << Aparencia::cor(Cor::BRANCO);
+            // Separacao da renderizacao superior: 2D ou 3D
+            if (TelaCombate::isModo3D) {
+                int framesDanoJog = 0;
+                if (alvoDanoJogador != nullptr && danoAnimacao > 0 && !isCura) {
+                    framesDanoJog = frame;
+                }
+
+                std::vector<std::string> quadro3D = Combate3DRenderer::renderizarQuadro(
+                    TelaCombate::tituloMapaAtual, 
+                    jogadorAtual, 
+                    inimigos,
+                    alvoAnimacao,
+                    frame,
+                    framesDanoJog,
+                    danoAnimacao,
+                    isCura,
+                    tempoMs,
+                    isMorte,
+                    dropsAnimacao
+                );
+
+                for (const auto& linha : quadro3D) {
+                    std::cout << linha << "\n";
+                }
+            } else {
+                // Desenha a horda classicamente (que imprime no std::cout e será interceptada pelo buffer)
+                TelaCombate::exibirHordaDeInimigosLadoALado(inimigos, alvoAnimacao, frame, isCura, animarEntrada, isMorte, arma, danoAnimacao, dropsAnimacao);
+            }
+
             Aparencia::imprimirLinhaDivisoria('=');
             std::cout << Aparencia::cor(Cor::RESET);
 
+            // === HUD de Combate (Painéis separados, modo clássico) ===
             std::vector<std::string> painelEsquerdo;
             
             Personagem* destaque = jogadorAtual;
@@ -277,9 +306,9 @@ namespace {
             Cor corDoTurno = (TelaCombate::nomeTurnoVisivel == "INIMIGOS") ? Cor::VERMELHO : Cor::VERDE;
             std::string corBordaEsqDir;
             if (TelaCombate::nomeTurnoVisivel == "INIMIGOS") {
-                corBordaEsqDir = "\033[38;2;120;0;0m"; // Vermelho estatico
+                corBordaEsqDir = "\033[38;2;120;0;0m";
             } else {
-                corBordaEsqDir = "\033[38;2;0;120;0m"; // Verde estatico
+                corBordaEsqDir = "\033[38;2;0;120;0m";
             }
             std::cout << "\n" << corBordaEsqDir << linhaEsq << Aparencia::cor(corDoTurno) << textoDoTurno << corBordaEsqDir << linhaDir << Aparencia::cor(Cor::RESET) << "\n";
 
@@ -302,7 +331,7 @@ namespace {
                 std::string mensagemDano = nomeAtacante + " causou " + std::to_string(danoAnimacao) + " de dano em " + alvoDanoJogador->obterNome() + "!";
 
                 std::cout << "\n";
-                if (frame % 2 == 0) std::cout << "\n"; // Tremor vertical da mensagem
+                if (frame % 2 == 0) std::cout << "\n";
                 
                 int espacosCentralizar = std::max(0, (larguraTerminal - Aparencia::obterComprimentoVisual(mensagemDano)) / 2);
                 std::cout << padEsq << std::string(espacosCentralizar, ' ') << "\033[1;38;2;255;50;50m" << mensagemDano << Aparencia::cor(Cor::RESET) << padDir << "\n";
@@ -344,6 +373,22 @@ void TelaCombate::adicionarMensagemFixa(const std::string& msg) {
     if (mensagensFixasCombate.size() > 6) { // Limita o numero de logs para nao empurrar o HUD para baixo demais
         mensagensFixasCombate.erase(mensagensFixasCombate.begin());
     }
+}
+
+bool TelaCombate::isModo3D = false;
+std::vector<std::string> TelaCombate::matrizDoMapaAtual;
+float TelaCombate::jogadorPosX = 0.0f;
+float TelaCombate::jogadorPosY = 0.0f;
+float TelaCombate::jogadorAngulo = 0.0f;
+std::string TelaCombate::tituloMapaAtual = "";
+
+void TelaCombate::configurarContexto3D(bool modo3D, const std::vector<std::string>& matriz, float posX, float posY, float angulo, const std::string& titulo) {
+    isModo3D = modo3D;
+    matrizDoMapaAtual = matriz;
+    jogadorPosX = posX;
+    jogadorPosY = posY;
+    jogadorAngulo = angulo;
+    tituloMapaAtual = titulo;
 }
 
 void TelaCombate::limparMensagensFixas() {
@@ -476,20 +521,14 @@ std::vector<std::string> TelaCombate::obterLinhasBarraDeStatusDoJogador(Personag
     std::string barraHP = "";
     std::string corFantasma = "\033[38;2;255;100;100m";
     std::string corFundoHP = Aparencia::cor(Cor::CINZA);
-    std::string blocos[] = {" ", "▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"};
     Cor baseCorVida = (porcentagemDeVida > 0.70) ? Cor::VERDE : (porcentagemDeVida > 0.30) ? Cor::AMARELO : Cor::VERMELHO;
     for (int i = 0; i < tamanhoBarra; ++i) {
         int intensidade = 130 + (125 * i) / std::max(1, tamanhoBarra - 1);
         std::string corAtual = Aparencia::obterCorRGBFade(baseCorVida, intensidade);
         int charIdx = i * 8;
-        if (qtdReal >= charIdx + 8) barraHP += corAtual + "█";
-        else if (qtdFantasma >= charIdx + 8) {
-            if (qtdReal > charIdx) barraHP += corAtual + blocos[qtdReal - charIdx];
-            else barraHP += corFantasma + "█";
-        } else if (qtdFantasma > charIdx) {
-            if (qtdReal > charIdx) barraHP += corAtual + blocos[qtdReal - charIdx];
-            else barraHP += corFantasma + blocos[qtdFantasma - charIdx];
-        } else barraHP += corFundoHP + "░";
+        if (qtdReal >= charIdx + 4) barraHP += corAtual + "█";
+        else if (qtdFantasma >= charIdx + 4) barraHP += corFantasma + "█";
+        else barraHP += corFundoHP + "░";
     }
 
     int ouroAtual = jogadorAtual->obterInventario()->obterOuro();
@@ -535,8 +574,7 @@ std::vector<std::string> TelaCombate::obterLinhasBarraDeStatusDoJogador(Personag
 
     std::string playerTag = (corDestaque != Cor::RESET) ? Aparencia::cor(corDestaque) + jogadorAtual->obterNome() + Aparencia::cor(Cor::RESET) : jogadorAtual->obterNome();
 
-    std::vector<std::string> linhasParaImprimir = 
-    {
+    std::vector<std::string> linhasParaImprimir = {
         "║ " + arteDoCoracao[0] + " ║ " + playerTag + " (" + jogadorAtual->obterRaca()->obterNomeRaca() + "/" + jogadorAtual->obterNomeClasse() + ") ║ HP: [" + barraHP + corReset + "] " + corVida + std::to_string(jogadorAtual->obterVida()) + corReset + "/" + std::to_string(jogadorAtual->obterVidaMaxima()) + parryPrint + fctPrint + emptyPad,
         "║ " + arteDoCoracao[1] + " ║ NIVEL: " + std::to_string(jogadorAtual->obterNivel()) + " ║ XP: " + arteDeBarraDeXp + " ║ OURO: " + corOuro + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G" + corReset + emptyPad,
         "║ " + arteDoCoracao[2] + " ║ ARMA: " + nomeDaArma + " ║ CURA RAP.: " + nomeCuraRapida + emptyPad,

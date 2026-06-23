@@ -165,6 +165,7 @@ void Salvamento::salvarJogo(Personagem* jogador) {
     arquivo << (jogador->podeUsarRessurreicao() ? 1 : 0) << "\n";
     arquivo << jogador->obterIconeJogador() << "\n";
     arquivo << static_cast<uint32_t>(jogador->obterCorJogador()) << "\n";
+    arquivo << (jogador->obterParryModerno() ? 1 : 0) << "\n";
 
     Progressao::instancia().salvar(arquivo);
 
@@ -294,6 +295,9 @@ std::unique_ptr<Personagem> Salvamento::carregarJogo(const std::string& nomeArqu
         
         uint32_t cor = static_cast<uint32_t>(Cor::VERDE);
         if (arquivo >> cor) jogador->definirCorJogador(static_cast<Cor>(cor));
+        
+        int parryModernoVal = 1;
+        if (arquivo >> parryModernoVal) jogador->definirParryModerno(parryModernoVal == 1);
 
         Progressao::instancia().carregar(arquivo);
     } else {
