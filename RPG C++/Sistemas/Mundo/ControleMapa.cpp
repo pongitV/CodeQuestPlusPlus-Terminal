@@ -12,6 +12,7 @@
 #include "../../Core/Utilidades/ControleDeInput.h"
 #include "../../Core/Utilidades/GeradorAleatorio.h"
 #include "../Raycaster/Raycaster.h"
+#include "../Raycaster/RaycasterMundo.h"
 #include <iostream>
 #include <algorithm>
 #include <thread>
@@ -19,6 +20,18 @@
 #include <sstream>
 
 namespace {
+    std::string extrairCorBaseDoRaycaster(char celula, const std::string& tituloDoMapa, bool isFloresta) {
+        // Sampleia a textura no "meio" do bloco (tx=33, ty=33) para evitar as linhas escuras de rejunte/sombra
+        std::string pixelANSI = RaycasterMundo::obterPixelParedeInternal(tituloDoMapa, isFloresta, 0.0f, 10.0f, celula, 33, 0, 64, 33.0f/64.0f, 0.0f);
+        if (pixelANSI.find("\033[48;2;") == 0) {
+            size_t pos_m = pixelANSI.find('m');
+            if (pos_m != std::string::npos) {
+                return "\033[38;2;" + pixelANSI.substr(7, pos_m - 7) + "m";
+            }
+        }
+        return Aparencia::cor(Cor::CINZA);
+    }
+
     void calcularCameraAxis(int maxVisivel, int posicaoJogador, int tamanhoMapa, int& start, int& end) {
         start = 0;
         end = tamanhoMapa;
@@ -34,7 +47,7 @@ namespace {
     }
 }
 
-static bool s_exploracao3DAtiva = false;
+static bool s_exploracao3DAtiva = true;
 
 bool ControleMapa::isExploracao3DAtiva() { return s_exploracao3DAtiva; }
 
@@ -222,6 +235,7 @@ int ControleMapa::animarIntroducaoMapa(
     int posicaoYDoJogador,
     const std::function<std::string(char, int, int)>& formatadorCelula,
     bool animar,
+    bool usarAnimacaoBanner,
     const std::function<void()>& acaoAposFadeInArte
 ) {
     Aparencia::limparTela();
@@ -230,10 +244,9 @@ int ControleMapa::animarIntroducaoMapa(
     int larguraTerminal = Aparencia::obterLarguraTerminal();
     int alturaTerminal = Aparencia::obterAlturaTerminal();
 
-    Aparencia::exibirPainelTexto(tituloDoMapa, corTema);
-    int linhaInicialMapa = Aparencia::obterPosicaoCursorY();
-
     if (!animar) {
+        Aparencia::exibirPainelTexto(tituloDoMapa, corTema);
+        int linhaInicialMapa = Aparencia::obterPosicaoCursorY();
         renderizarMapa(matrizDoMapa, posicaoXDoJogador, posicaoYDoJogador, larguraTerminal, alturaTerminal, linhaInicialMapa, formatadorCelula);
         return linhaInicialMapa;
     }
@@ -241,18 +254,38 @@ int ControleMapa::animarIntroducaoMapa(
     if (acaoAposFadeInArte) {
         acaoAposFadeInArte();
         Aparencia::limparTela();
-        Aparencia::exibirPainelTexto(tituloDoMapa, corTema);
     }
+    
+    Aparencia::exibirPainelTexto(tituloDoMapa, corTema);
+    int linhaInicialMapa = Aparencia::obterPosicaoCursorY();
 
     std::vector<std::string> bannerBase;
-    if (!arteDoMapa.empty()) {
-        bannerBase = arteDoMapa;
-    } else if (!arteTransicao.empty()) {
-        bannerBase = arteTransicao;
+    if (usarAnimacaoBanner) {
+        if (!arteDoMapa.empty()) {
+            bannerBase = arteDoMapa;
+        } else if (!arteTransicao.empty()) {
+            bannerBase = arteTransicao;
+        }
     }
 
-    if (bannerBase.empty()) {
+    if (bannerBase.empty() || !usarAnimacaoBanner) {
+        Aparencia::animarFadeIn(20, 25, [&](int /*frame*/, int intensidade) {
+            std::ostringstream buffer;
+            std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
+            
+            Aparencia::exibirPainelTexto(tituloDoMapa, corTema);
+            renderizarMapa(matrizDoMapa, posicaoXDoJogador, posicaoYDoJogador, larguraTerminal, alturaTerminal, linhaInicialMapa, formatadorCelula);
+            
+            std::string escurecedor = "\033[38;2;" + std::to_string(intensidade) + ";" + std::to_string(intensidade) + ";" + std::to_string(intensidade) + "m";
+            
+            std::cout.rdbuf(oldCout);
+            std::cout << "\033[H" << escurecedor << buffer.str() << "\033[0m" << std::flush;
+        });
+        
+        Aparencia::limparTela();
+        Aparencia::exibirPainelTexto(tituloDoMapa, corTema);
         renderizarMapa(matrizDoMapa, posicaoXDoJogador, posicaoYDoJogador, larguraTerminal, alturaTerminal, linhaInicialMapa, formatadorCelula);
+        
         return linhaInicialMapa;
     }
 
@@ -262,59 +295,100 @@ int ControleMapa::animarIntroducaoMapa(
         int w = Aparencia::obterComprimentoVisual(l);
         if (w > maxW) maxW = w;
     }
-    int paddingLeft = std::max(0, (larguraTerminal - maxW) / 2);
-    std::string bgBanner = "\033[49m"; // Default terminal background
     
-    std::string linhaBorda = "";
-    for (int i = 0; i < maxW; i++) linhaBorda += "═";
-    bannerBase.push_back(linhaBorda);
-
-    for (auto& l : bannerBase) {
-        std::string linhaCentralizada = std::string(paddingLeft, ' ') + Aparencia::cor(corTema) + l + "\033[0m";
-        int visW = Aparencia::obterComprimentoVisual(linhaCentralizada);
-        if (visW < larguraTerminal) linhaCentralizada += std::string(larguraTerminal - visW, ' ');
-        banner.push_back(bgBanner + linhaCentralizada + "\033[0m");
+    int paddingInside = 4;
+    int boxW = maxW + paddingInside;
+    
+    std::string boxColor = Aparencia::cor(corTema);
+    std::string boxBg = "\033[40m"; // Fundo preto para a caixa e o texto
+    
+    std::string topBox = "╔";
+    for(int i=0; i<boxW-2; i++) topBox += "═";
+    topBox += "╗";
+    
+    std::string bottomBox = "╚";
+    for(int i=0; i<boxW-2; i++) bottomBox += "═";
+    bottomBox += "╝";
+    
+    banner.push_back(boxBg + boxColor + topBox + "\033[0m");
+    for (const auto& l : bannerBase) {
+        int w = Aparencia::obterComprimentoVisual(l);
+        int padL = (boxW - 2 - w) / 2;
+        int padR = (boxW - 2 - w) - padL;
+        banner.push_back(boxBg + boxColor + "║" + std::string(padL, ' ') + l + std::string(padR, ' ') + boxColor + "║\033[0m");
     }
+    banner.push_back(boxBg + boxColor + bottomBox + "\033[0m");
 
     int bannerHeight = banner.size();
+    int startXBox = (larguraTerminal - boxW) / 2;
+    if (startXBox < 0) startXBox = 0;
 
-    // 1. Dropdown animation
+    // Fazer cache do mapa para double-buffering sem piscar
+    int startX, endX;
+    calcularCameraHorizontal(larguraTerminal, posicaoXDoJogador, matrizDoMapa.empty() ? 0 : static_cast<int>(matrizDoMapa[0].length()), startX, endX);
+    std::string margemEsquerdaDoMapa = calcularMargemCentralizada(larguraTerminal, endX - startX);
+    
+    int startY, endY;
+    calcularCameraVertical(alturaTerminal, linhaInicialMapa, posicaoYDoJogador, static_cast<int>(matrizDoMapa.size()), startY, endY);
+    
+    std::vector<std::string> linhasDoMapaCache;
+    for (int y = startY; y < endY; y++) {
+        std::string linhaStr = margemEsquerdaDoMapa;
+        linhaStr.reserve(margemEsquerdaDoMapa.size() + (endX - startX) * 10);
+        for (int x = startX; x < endX; x++) {
+            linhaStr += formatadorCelula(matrizDoMapa[y][x], x, y);
+        }
+        linhasDoMapaCache.push_back(linhaStr);
+    }
+
+    // Desenha o mapa inteiro APENAS UMA VEZ antes da animacao
+    std::ostringstream initialMap;
+    for (int i = 0; i < (int)linhasDoMapaCache.size(); i++) {
+        initialMap << "\033[" << (linhaInicialMapa + 1 + i) << ";1H" << linhasDoMapaCache[i] << "\033[K";
+    }
+    std::cout << initialMap.str() << std::flush;
+
+    // 1. Dropdown animation (Desce sobrepondo o mapa)
     for (int offset = -bannerHeight; offset <= 0; offset++) {
-        renderizarMapa(matrizDoMapa, posicaoXDoJogador, posicaoYDoJogador, larguraTerminal, alturaTerminal, linhaInicialMapa, formatadorCelula);
+        std::ostringstream telaFrame;
+        
+        // Desenha apenas as linhas do banner
         for (int i = 0; i < bannerHeight; i++) {
             int drawY = linhaInicialMapa + offset + i;
             if (drawY >= linhaInicialMapa && drawY < alturaTerminal) {
-                Aparencia::moverCursor(0, drawY);
-                std::cout << banner[i] << "\033[K";
+                telaFrame << "\033[" << (drawY + 1) << ";" << (startXBox + 1) << "H" << banner[i];
             }
         }
-        std::cout << std::flush;
+        std::cout << telaFrame.str() << std::flush;
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(2500));
 
-    // 2. Retract animation
+    // 2. Retract animation (Sobe revelando o mapa)
     for (int offset = 0; offset >= -bannerHeight; offset--) {
-        renderizarMapa(matrizDoMapa, posicaoXDoJogador, posicaoYDoJogador, larguraTerminal, alturaTerminal, linhaInicialMapa, formatadorCelula);
+        std::ostringstream telaFrame;
+        
+        // Restaura APENAS a linha do mapa que foi revelada (logo abaixo da ultima linha do banner)
+        int exposedY = offset + bannerHeight; // offset is negative, so this goes up
+        if (exposedY >= 0 && exposedY < (int)linhasDoMapaCache.size()) {
+            telaFrame << "\033[" << (linhaInicialMapa + 1 + exposedY) << ";1H" << linhasDoMapaCache[exposedY] << "\033[K";
+        }
+        
+        // Desenha apenas as linhas do banner
         for (int i = 0; i < bannerHeight; i++) {
             int drawY = linhaInicialMapa + offset + i;
             if (drawY >= linhaInicialMapa && drawY < alturaTerminal) {
-                Aparencia::moverCursor(0, drawY);
-                std::cout << banner[i] << "\033[K";
+                telaFrame << "\033[" << (drawY + 1) << ";" << (startXBox + 1) << "H" << banner[i];
             }
         }
-        // Apaga a linha excedente deixada pela animacao
-        int bottomY = linhaInicialMapa + offset + bannerHeight;
-        if (bottomY >= linhaInicialMapa && bottomY < alturaTerminal) {
-            Aparencia::moverCursor(0, bottomY);
-            std::cout << "\033[K";
-        }
-        std::cout << std::flush;
+        std::cout << telaFrame.str() << std::flush;
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
 
     ControleDeInput::limparBuffer();
+    
+    // Assegura que o mapa esta totalmente renderizado ao final
     renderizarMapa(matrizDoMapa, posicaoXDoJogador, posicaoYDoJogador, larguraTerminal, alturaTerminal, linhaInicialMapa, formatadorCelula);
     
     return linhaInicialMapa;
@@ -351,6 +425,150 @@ void ControleMapa::padronizarTamanhoDoMapa(std::vector<std::string>& matrizDoMap
     for (auto& linha : matrizDoMapa) {
         if (linha.length() < maxLength) linha.append(maxLength - linha.length(), ' ');
     }
+}
+
+std::string ControleMapa::formatarCelula(char celula, int x, int y, const std::string& tituloDoMapa, const std::vector<std::string>& matrizDoMapa, bool isMinimapa) {
+    std::string tituloUpper = tituloDoMapa;
+    for (char& ch : tituloUpper) ch = std::toupper(static_cast<unsigned char>(ch));
+    
+    bool isReino = (tituloUpper.find("CASTELO") != std::string::npos || tituloUpper.find("REINO") != std::string::npos);
+    bool isInterior = (tituloUpper.find("LABIRINTO") != std::string::npos || tituloUpper.find("CHEFE") != std::string::npos || tituloUpper.find("CORACAO") != std::string::npos || tituloUpper.find("CAVERNA") != std::string::npos);
+    bool isFloresta = (tituloUpper.find("FLORESTA") != std::string::npos);
+    bool isVila = (tituloUpper.find("VILA") != std::string::npos);
+    
+    bool isSpawn = (tituloUpper.find("INICIO") != std::string::npos);
+    
+    // Teleporte
+    if (celula == '^') return Aparencia::cor(Cor::NEGRITO, Cor::TELEPORTE) + "^" + Aparencia::cor(Cor::RESET);
+    
+    // Água
+    if (celula == '~') return Aparencia::corRGB(50, 150, 255) + "≈" + Aparencia::cor(Cor::RESET);
+    
+    // Árvores
+    if (celula == '*') {
+        bool isTrunk = false;
+        if (y > 0 && matrizDoMapa[y-1][x] == '*') {
+            int countHorizontal = 0;
+            if (x > 0 && matrizDoMapa[y][x-1] == '*') countHorizontal++;
+            if (x + 1 < static_cast<int>(matrizDoMapa[y].length()) && matrizDoMapa[y][x+1] == '*') countHorizontal++;
+            if (countHorizontal <= 1) isTrunk = true;
+        }
+        if (isTrunk) return Aparencia::cor(Cor::MADEIRA) + "█" + Aparencia::cor(Cor::RESET);
+        return Aparencia::cor(Cor::VERDE) + "▲" + Aparencia::cor(Cor::RESET);
+    }
+    
+    // Entidades
+    if (isVila || isSpawn) {
+        if (celula == 'G' || celula == 'O') return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + std::string(1, celula) + Aparencia::cor(Cor::RESET); // Inimigos Vermelhos
+        if (celula == 'B') return Aparencia::cor(Cor::NEGRITO, Cor::CIANO) + "B" + Aparencia::cor(Cor::RESET); // Bjorn Ciano
+        if (celula == 'F' && x > 0 && matrizDoMapa[y][x-1] == '{') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "F" + Aparencia::cor(Cor::RESET); // Franchesco Amarelo
+        if (celula == 'P') return Aparencia::cor(Cor::NEGRITO, Cor::MARROM) + "P" + Aparencia::cor(Cor::RESET); // Placa Marrom
+    } else if (isFloresta) {
+        if (celula == 'S' && (!isInterior || tituloUpper.find("CHEFE") != std::string::npos)) return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + "S" + Aparencia::cor(Cor::RESET);
+        if (celula == 'F' || celula == 'A') return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
+        if (celula == 'M') return Aparencia::cor(Cor::NEGRITO, Cor::MAGENTA) + "M" + Aparencia::cor(Cor::RESET);
+        if (celula == 'B') return Aparencia::cor(Cor::NEGRITO, Cor::DOURADO) + "B" + Aparencia::cor(Cor::RESET);
+    } else if (isReino) {
+        if (celula == 'T') return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + "T" + Aparencia::cor(Cor::RESET);
+        if (celula == 'G') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "G" + Aparencia::cor(Cor::RESET);
+        if (celula == 'C') return Aparencia::cor(Cor::NEGRITO, Cor::PRATA) + "C" + Aparencia::cor(Cor::RESET);
+    }
+    
+    if (tituloUpper == "SALA DO CHEFE" && (celula == 'M' || celula == 'A' || celula == 'H' || celula == 'O' || celula == 'R' || celula == 'G')) {
+        return Aparencia::cor(Cor::NEGRITO, Cor::BRANCO) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
+    }
+    
+    // Casas e Estruturas
+    if (!isInterior && !isReino) {
+        std::string corEstrutura = extrairCorBaseDoRaycaster('|', tituloUpper, isFloresta);
+        
+        if (celula == '_') return corEstrutura + "▄" + Aparencia::cor(Cor::RESET);
+        if (celula == '|' || celula == '[' || celula == ']') return corEstrutura + "█" + Aparencia::cor(Cor::RESET);
+        std::string estruturas = "{}/\\<>;=-:+";
+        if (estruturas.find(celula) != std::string::npos) return corEstrutura + std::string(1, celula) + Aparencia::cor(Cor::RESET);
+        
+        if (celula == '#') {
+            if (isFloresta) return Aparencia::cor(Cor::VERDE) + "█" + Aparencia::cor(Cor::RESET); // Arvores continuam verdes
+            std::string corMuro = extrairCorBaseDoRaycaster('#', tituloUpper, isFloresta);
+            return corMuro + "█" + Aparencia::cor(Cor::RESET);
+        }
+    }
+    
+    // Castelo
+    if (isReino) {
+        if (celula == '|') return Aparencia::cor(Cor::MADEIRA) + "█" + Aparencia::cor(Cor::RESET); // Portao de madeira
+        std::string estruturas = "_[]{}/\\<>;=-+#";
+        if (estruturas.find(celula) != std::string::npos) {
+            std::string corCastelo = extrairCorBaseDoRaycaster(celula, tituloUpper, isFloresta);
+            return corCastelo + "█" + Aparencia::cor(Cor::RESET);
+        }
+    }
+    
+    // Labirinto
+    if (isInterior) {
+        if (tituloUpper.find("LABIRINTO") != std::string::npos) {
+            std::string corLabirinto = extrairCorBaseDoRaycaster('|', tituloUpper, isFloresta);
+            auto isHWall = [](char c) { return c == '=' || c == '.' || c == '\''; };
+            auto isVWall = [](char c) { return c == '|' || c == '+' || c == 'S' || c == 'E'; };
+
+            if (celula == '=') return corLabirinto + "─" + Aparencia::cor(Cor::RESET);
+            if (celula == '|') {
+                bool right = (x + 1 < static_cast<int>(matrizDoMapa[y].length()) && isHWall(matrizDoMapa[y][x+1]));
+                bool left = (x > 0 && isHWall(matrizDoMapa[y][x-1]));
+                if (right && left) return corLabirinto + "┼" + Aparencia::cor(Cor::RESET);
+                if (right) return corLabirinto + "├" + Aparencia::cor(Cor::RESET);
+                if (left) return corLabirinto + "┤" + Aparencia::cor(Cor::RESET);
+                return corLabirinto + "│" + Aparencia::cor(Cor::RESET);
+            }
+            if (celula == '.') {
+                bool right = (x + 1 < static_cast<int>(matrizDoMapa[y].length()) && isHWall(matrizDoMapa[y][x+1]));
+                bool left = (x > 0 && isHWall(matrizDoMapa[y][x-1]));
+                bool down = (y + 1 < static_cast<int>(matrizDoMapa.size()) && isVWall(matrizDoMapa[y+1][x]));
+                
+                if (left && right && down) return corLabirinto + "┬" + Aparencia::cor(Cor::RESET);
+                if (right && down) return corLabirinto + "┌" + Aparencia::cor(Cor::RESET);
+                if (left && down) return corLabirinto + "┐" + Aparencia::cor(Cor::RESET);
+                if (left && right) return corLabirinto + "─" + Aparencia::cor(Cor::RESET);
+                return corLabirinto + "█" + Aparencia::cor(Cor::RESET);
+            }
+            if (celula == '\'') {
+                bool right = (x + 1 < static_cast<int>(matrizDoMapa[y].length()) && isHWall(matrizDoMapa[y][x+1]));
+                bool left = (x > 0 && isHWall(matrizDoMapa[y][x-1]));
+                bool up = (y > 0 && isVWall(matrizDoMapa[y-1][x]));
+                
+                if (left && right && up) return corLabirinto + "┴" + Aparencia::cor(Cor::RESET);
+                if (right && up) return corLabirinto + "└" + Aparencia::cor(Cor::RESET);
+                if (left && up) return corLabirinto + "┘" + Aparencia::cor(Cor::RESET);
+                if (left && right) return corLabirinto + "─" + Aparencia::cor(Cor::RESET);
+                return corLabirinto + "█" + Aparencia::cor(Cor::RESET);
+            }
+            if (celula == '+') {
+                bool right = (x + 1 < static_cast<int>(matrizDoMapa[y].length()) && isHWall(matrizDoMapa[y][x+1]));
+                bool left = (x > 0 && isHWall(matrizDoMapa[y][x-1]));
+                bool down = (y + 1 < static_cast<int>(matrizDoMapa.size()) && isVWall(matrizDoMapa[y+1][x]));
+                bool up = (y > 0 && isVWall(matrizDoMapa[y-1][x]));
+                
+                if (left && right && down && up) return corLabirinto + "┼" + Aparencia::cor(Cor::RESET);
+                if (left && right && down) return corLabirinto + "┬" + Aparencia::cor(Cor::RESET);
+                if (left && right && up) return corLabirinto + "┴" + Aparencia::cor(Cor::RESET);
+                if (up && down && left) return corLabirinto + "┤" + Aparencia::cor(Cor::RESET);
+                if (up && down && right) return corLabirinto + "├" + Aparencia::cor(Cor::RESET);
+                return corLabirinto + "┼" + Aparencia::cor(Cor::RESET);
+            }
+        }
+    }
+    
+    // Chão / Labels
+    if (celula == '.' && (!isInterior || tituloUpper.find("CHEFE") != std::string::npos || tituloUpper.find("CORACAO") != std::string::npos)) {
+        if (isMinimapa) return "\033[38;2;50;50;50m.\033[0m";
+        return "\033[38;2;40;40;40m·\033[0m";
+    }
+    
+    if (std::isalpha(celula) && celula != ' ' && celula != 'S' && celula != 'F' && celula != 'A' && celula != 'M' && celula != 'B' && celula != 'T' && celula != 'G' && celula != 'C') {
+        return Aparencia::cor(Cor::CINZA) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
+    }
+    
+    return std::string(1, celula);
 }
 
 void ControleMapa::renderizarMapa(const std::vector<std::string>& matrizDoMapa, int posicaoXDoJogador, int posicaoYDoJogador, int larguraDoTerminal, int alturaDoTerminal, int linhaInicial, const std::function<std::string(char, int, int)>& formatadorCelula) {

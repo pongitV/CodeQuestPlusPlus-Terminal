@@ -314,89 +314,10 @@ ProximaTransicaoMapa Mapa2Floresta::iniciarLoopDeExploracao()
     auto formatador = [&](char celula, int x, int y) -> std::string {
         if (x == posicaoXDoJogador && y == posicaoYDoJogador) {
             char ic = jogadorAtual->obterIconeJogador();
-            if (ic <= 32 || ic > 126) ic = '@'; // Garante que o icone seja um caractere visivel
+            if (ic <= 32 || ic > 126) ic = '@'; 
             return Aparencia::cor(jogadorAtual->obterCorJogador()) + std::string(1, ic) + Aparencia::cor(Cor::RESET);
         }
-        if (celula == 'S' && (x == 0 || matrizDoMapaAtual[y][x-1] != '^')) return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + "S" + Aparencia::cor(Cor::RESET);
-        if (celula == 'F' || celula == 'A') return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
-        if (celula == 'M') return Aparencia::cor(Cor::NEGRITO, Cor::MAGENTA) + "M" + Aparencia::cor(Cor::RESET);
-        if (celula == 'B') return Aparencia::cor(Cor::NEGRITO, Cor::DOURADO) + "B" + Aparencia::cor(Cor::RESET);
-        if (tituloDoMapaAtual == "SALA DO CHEFE" && (celula == 'M' || celula == 'A' || celula == 'H' || celula == 'O' || celula == 'R' || celula == 'G')) return Aparencia::cor(Cor::NEGRITO, Cor::BRANCO) + std::string(1, celula) + Aparencia::cor(Cor::RESET);
-        if (celula == '^') return Aparencia::cor(Cor::NEGRITO, Cor::TELEPORTE) + "^" + Aparencia::cor(Cor::RESET);
-        
-        if (celula == '*') {
-            bool isTrunk = false;
-            if (y > 0 && matrizDoMapaAtual[y-1][x] == '*') {
-                int countHorizontal = 0;
-                if (x > 0 && matrizDoMapaAtual[y][x-1] == '*') countHorizontal++;
-                if (x + 1 < static_cast<int>(matrizDoMapaAtual[y].length()) && matrizDoMapaAtual[y][x+1] == '*') countHorizontal++;
-                if (countHorizontal <= 1) isTrunk = true;
-            }
-            if (isTrunk) return Aparencia::cor(Cor::MADEIRA) + "*" + Aparencia::cor(Cor::RESET); // Tronco Marrom
-            return Aparencia::cor(Cor::VERDE) + "*" + Aparencia::cor(Cor::RESET); // Folhas Verdes
-        }
-        if (celula == '~') return Aparencia::corRGB(50, 150, 255) + "~" + Aparencia::cor(Cor::RESET); // Agua
-
-        if (tituloDoMapaAtual != "LABIRINTO SUBTERRANEO") {
-            std::string estruturas = "|_[]{}/\\<>;=-:+";
-            if (estruturas.find(celula) != std::string::npos) return Aparencia::cor(Cor::MADEIRA) + std::string(1, celula) + Aparencia::cor(Cor::RESET); // Madeira Estruturas
-            if (celula == '#') return Aparencia::cor(Cor::VERDE) + std::string(1, celula) + Aparencia::cor(Cor::RESET); // Bordas Floresta (Verdes)
-        }
-
-        // Remove a exibicao visual dos pontos (chao) para deixar o mapa mais limpo, sem quebrar a logica de colisao original
-        if (celula == '.' && tituloDoMapaAtual != "LABIRINTO SUBTERRANEO") return " ";
-        
-        if (tituloDoMapaAtual == "LABIRINTO SUBTERRANEO") {
-            auto isHWall = [](char c) { return c == '=' || c == '.' || c == '\''; };
-            auto isVWall = [](char c) { return c == '|' || c == '+' || c == 'S' || c == 'E'; };
-
-            if (celula == '=') return Aparencia::cor(Cor::CINZA) + "─" + Aparencia::cor(Cor::RESET);
-            if (celula == '|') {
-                bool right = (x + 1 < static_cast<int>(matrizDoMapaAtual[y].length()) && isHWall(matrizDoMapaAtual[y][x+1]));
-                bool left = (x > 0 && isHWall(matrizDoMapaAtual[y][x-1]));
-                if (right && left) return Aparencia::cor(Cor::CINZA) + "┼" + Aparencia::cor(Cor::RESET);
-                if (right) return Aparencia::cor(Cor::CINZA) + "├" + Aparencia::cor(Cor::RESET);
-                if (left) return Aparencia::cor(Cor::CINZA) + "┤" + Aparencia::cor(Cor::RESET);
-                return Aparencia::cor(Cor::CINZA) + "│" + Aparencia::cor(Cor::RESET);
-            }
-            if (celula == '.') {
-                bool right = (x + 1 < static_cast<int>(matrizDoMapaAtual[y].length()) && isHWall(matrizDoMapaAtual[y][x+1]));
-                bool left = (x > 0 && isHWall(matrizDoMapaAtual[y][x-1]));
-                bool down = (y + 1 < static_cast<int>(matrizDoMapaAtual.size()) && isVWall(matrizDoMapaAtual[y+1][x]));
-                
-                if (left && right && down) return Aparencia::cor(Cor::CINZA) + "┬" + Aparencia::cor(Cor::RESET);
-                if (right && down) return Aparencia::cor(Cor::CINZA) + "┌" + Aparencia::cor(Cor::RESET);
-                if (left && down) return Aparencia::cor(Cor::CINZA) + "┐" + Aparencia::cor(Cor::RESET);
-                if (left && right) return Aparencia::cor(Cor::CINZA) + "─" + Aparencia::cor(Cor::RESET);
-                return Aparencia::cor(Cor::CINZA) + "█" + Aparencia::cor(Cor::RESET);
-            }
-            if (celula == '\'') {
-                bool right = (x + 1 < static_cast<int>(matrizDoMapaAtual[y].length()) && isHWall(matrizDoMapaAtual[y][x+1]));
-                bool left = (x > 0 && isHWall(matrizDoMapaAtual[y][x-1]));
-                bool up = (y > 0 && isVWall(matrizDoMapaAtual[y-1][x]));
-                
-                if (left && right && up) return Aparencia::cor(Cor::CINZA) + "┴" + Aparencia::cor(Cor::RESET);
-                if (right && up) return Aparencia::cor(Cor::CINZA) + "└" + Aparencia::cor(Cor::RESET);
-                if (left && up) return Aparencia::cor(Cor::CINZA) + "┘" + Aparencia::cor(Cor::RESET);
-                if (left && right) return Aparencia::cor(Cor::CINZA) + "─" + Aparencia::cor(Cor::RESET);
-                return Aparencia::cor(Cor::CINZA) + "█" + Aparencia::cor(Cor::RESET);
-            }
-            if (celula == '+') {
-                bool right = (x + 1 < static_cast<int>(matrizDoMapaAtual[y].length()) && isHWall(matrizDoMapaAtual[y][x+1]));
-                bool left = (x > 0 && isHWall(matrizDoMapaAtual[y][x-1]));
-                bool down = (y + 1 < static_cast<int>(matrizDoMapaAtual.size()) && isVWall(matrizDoMapaAtual[y+1][x]));
-                bool up = (y > 0 && isVWall(matrizDoMapaAtual[y-1][x]));
-                
-                if (left && right && down && up) return Aparencia::cor(Cor::CINZA) + "┼" + Aparencia::cor(Cor::RESET);
-                if (left && right && down) return Aparencia::cor(Cor::CINZA) + "┬" + Aparencia::cor(Cor::RESET);
-                if (left && right && up) return Aparencia::cor(Cor::CINZA) + "┴" + Aparencia::cor(Cor::RESET);
-                if (up && down && left) return Aparencia::cor(Cor::CINZA) + "┤" + Aparencia::cor(Cor::RESET);
-                if (up && down && right) return Aparencia::cor(Cor::CINZA) + "├" + Aparencia::cor(Cor::RESET);
-                return Aparencia::cor(Cor::CINZA) + "┼" + Aparencia::cor(Cor::RESET);
-            }
-        }
-        
-        return std::string(1, celula);
+        return ControleMapa::formatarCelula(celula, x, y, tituloDoMapaAtual, matrizDoMapaAtual, false);
     };
 
     bool precisaRenderizar = false;

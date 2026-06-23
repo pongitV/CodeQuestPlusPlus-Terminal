@@ -78,6 +78,8 @@ public:
     // --- ANIMACOES E EFEITOS ---
     static std::string obterCorRGBFade(Cor corTema, int intensidade);
     static void animarFadeIn(int framesTotais, int tempoPorFrameMs, const std::function<void(int frame, int intensidade)>& renderFrame);
+    static void animarFadeOut(int framesTotais, int tempoPorFrameMs, const std::function<void(int frame, int intensidade)>& renderFrame);
+    static void exibirTelaIntro(const std::vector<std::string>& arteLogo, const std::vector<std::string>& textoNarracao, Cor corTema);
 
     // --- EXIBICAO DE TEXTO (DIGITACAO E DELAY) ---
     static int atrasoDigitacaoMS; // Variável estática para a velocidade padrão

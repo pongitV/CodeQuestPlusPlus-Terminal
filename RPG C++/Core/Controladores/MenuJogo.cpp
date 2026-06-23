@@ -36,6 +36,11 @@
 #include "../../Entidades/Racas/Humano.h"
 #include "../../Entidades/Racas/Orc.h"
 #include "../../Entidades/Racas/RacaBase.h"
+#include "../../Entidades/Inimigos/Goblin.h"
+#include "../../Entidades/Inimigos/Slime.h"
+#include "../../Entidades/Inimigos/Troll.h"
+#include "../../Entidades/Inimigos/Fada.h"
+#include "../../Entidades/Inimigos/Mimico.h"
 #include "../../Sistemas/Progresso/Diario.h"
 #include "../../Sistemas/Progresso/Salvamento.h"
 #include "../../Interface/Telas/Atributos/TelaAtributos.h"
@@ -209,9 +214,32 @@ namespace {
 
 std::unique_ptr<Personagem> MenuJogo::menuPrincipal() 
 {
+    std::vector<std::vector<std::string>> artesClasses = {
+        Arqueiro().obterAparenciaClasseMenu(),
+        Bardo().obterAparenciaClasseMenu(),
+        Guerreiro().obterAparenciaClasseMenu(),
+        Mago().obterAparenciaClasseMenu(),
+        Necromante().obterAparenciaClasseMenu()
+    };
+    
+    std::vector<std::vector<std::string>> artesRacas = {
+        Dwarf().obterAparenciaRaca(),
+        Elfo().obterAparenciaRaca(),
+        Humano().obterAparenciaRaca(),
+        Ork().obterAparenciaRaca()
+    };
+    
+    std::vector<std::vector<std::string>> artesInimigos = {
+        Goblin().obterAparenciaCombate(),
+        Slime().obterAparenciaCombate(),
+        Troll().obterAparenciaCombate(),
+        Fada().obterAparenciaCombate(),
+        Mimico().obterAparenciaCombate()
+    };
+
     while (true) {
         bool temSave = Salvamento::saveExiste();
-        int selecao = TelaMenu::exibirOpcoesMenuPrincipal(temSave);
+        int selecao = TelaMenu::exibirOpcoesMenuPrincipal(temSave, artesClasses, artesRacas, artesInimigos);
         
         std::string opcaoSelecionada;
         if (selecao == 0) opcaoSelecionada = "Novo Jogo";

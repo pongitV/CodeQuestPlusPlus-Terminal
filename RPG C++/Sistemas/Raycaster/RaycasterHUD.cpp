@@ -2,6 +2,7 @@
 #include "RaycasterMundo.h"
 #include "../../Interface/Telas/Combate/TelaCombate.h"
 #include "../../Core/Utilidades/Aparencia.h"
+#include "../Mundo/ControleMapa.h"
 #include <cmath>
 
 using namespace std;
@@ -74,90 +75,8 @@ void RaycasterHUD::desenharMinimapa(vector<string>& tela, int LARGURA_TELA, int 
                     tela[screenY * LARGURA_TELA + screenX] = bgMini + corJogadorAnsi + string(1, iconeDoJogador) + "\033[0m"; // Jogador
                 } else if (mx == larguraMiniMapa/2 + dirX && my == alturaMiniMapa/2 + dirY) {
                     tela[screenY * LARGURA_TELA + screenX] = bgMini + "\033[1;38;2;255;255;255m" + direcaoArrow + "\033[0m"; // Indicador Visao Branco
-                } else if (isParedeMini) {
-                    if (c == '~') {
-                        tela[screenY * LARGURA_TELA + screenX] = bgMini + "\033[38;2;50;150;255m~\033[0m";
-                    } else if (isReino) {
-                        if (c == '|') tela[screenY * LARGURA_TELA + screenX] = bgMini + "\033[38;2;101;67;33m|\033[0m";
-                        else tela[screenY * LARGURA_TELA + screenX] = bgMini + "\033[38;2;140;140;140m" + string(1, c) + "\033[0m";
-                    } else if (isInterior) {
-                        if (tituloUpper.find("LABIRINTO") != std::string::npos) {
-                            string strC = string(1, c);
-                            auto isHWall = [](char ch) { return ch == '=' || ch == '.' || ch == '\''; };
-                            auto isVWall = [](char ch) { return ch == '|' || ch == '+' || ch == 'S' || ch == 'E'; };
-                            
-                            if (c == '=') strC = "─";
-                            else if (c == '|') {
-                                bool right = (mapX + 1 < larguraMapa && isHWall(matrizDoMapa[mapY][mapX+1]));
-                                bool left = (mapX > 0 && isHWall(matrizDoMapa[mapY][mapX-1]));
-                                if (right && left) strC = "┼";
-                                else if (right) strC = "├";
-                                else if (left) strC = "┤";
-                                else strC = "│";
-                            }
-                            else if (c == '.') {
-                                bool right = (mapX + 1 < larguraMapa && isHWall(matrizDoMapa[mapY][mapX+1]));
-                                bool left = (mapX > 0 && isHWall(matrizDoMapa[mapY][mapX-1]));
-                                bool down = (mapY + 1 < alturaMapa && isVWall(matrizDoMapa[mapY+1][mapX]));
-                                if (left && right && down) strC = "┬";
-                                else if (right && down) strC = "┌";
-                                else if (left && down) strC = "┐";
-                                else if (left && right) strC = "─";
-                            }
-                            else if (c == '\'') {
-                                bool right = (mapX + 1 < larguraMapa && isHWall(matrizDoMapa[mapY][mapX+1]));
-                                bool left = (mapX > 0 && isHWall(matrizDoMapa[mapY][mapX-1]));
-                                bool up = (mapY > 0 && isVWall(matrizDoMapa[mapY-1][mapX]));
-                                if (left && right && up) strC = "┴";
-                                else if (right && up) strC = "└";
-                                else if (left && up) strC = "┘";
-                                else if (left && right) strC = "─";
-                            }
-                            else if (c == '+') {
-                                bool right = (mapX + 1 < larguraMapa && isHWall(matrizDoMapa[mapY][mapX+1]));
-                                bool left = (mapX > 0 && isHWall(matrizDoMapa[mapY][mapX-1]));
-                                bool down = (mapY + 1 < alturaMapa && isVWall(matrizDoMapa[mapY+1][mapX]));
-                                bool up = (mapY > 0 && isVWall(matrizDoMapa[mapY-1][mapX]));
-                                if (left && right && down && up) strC = "┼";
-                                else if (left && right && down) strC = "┬";
-                                else if (left && right && up) strC = "┴";
-                                else if (up && down && left) strC = "┤";
-                                else if (up && down && right) strC = "├";
-                                else strC = "┼";
-                            }
-                            tela[screenY * LARGURA_TELA + screenX] = bgMini + "\033[38;2;150;130;90m" + strC + "\033[0m";
-                        } else {
-                            tela[screenY * LARGURA_TELA + screenX] = bgMini + "\033[38;2;140;140;140m" + string(1, c) + "\033[0m";
-                        }
-                    } else {
-                        std::string estruturas = "|_[]{}/\\<>;=-:+";
-                        if (estruturas.find(c) != std::string::npos) {
-                            tela[screenY * LARGURA_TELA + screenX] = bgMini + (temaFloresta ? "\033[38;2;101;67;33m" + string(1, c) + "\033[0m" : "\033[38;2;160;60;40m" + string(1, c) + "\033[0m");
-                        } else if (c == '#') {
-                            tela[screenY * LARGURA_TELA + screenX] = bgMini + (temaFloresta ? "\033[38;2;34;139;34m" + string(1, c) + "\033[0m" : "\033[38;2;140;140;140m" + string(1, c) + "\033[0m");
-                        } else {
-                            tela[screenY * LARGURA_TELA + screenX] = bgMini + "\033[38;2;140;140;140m" + string(1, c) + "\033[0m";
-                        }
-                    }
-                } else if (isTeleportMini) {
-                    tela[screenY * LARGURA_TELA + screenX] = bgMini + "\033[1;38;2;255;255;50m^\033[0m"; // Mostra os teleportes em amarelo brilhante
-                } else if (isEntityMini) {
-                    string corMinimapaEnt = RaycasterMundo::obterCorMinimapaEntidade(c, tituloMapa);
-                    if (c == '*') {
-                        bool isTrunk = false;
-                        if (mapY > 0 && matrizDoMapa[mapY-1][mapX] == '*') {
-                            int countHorizontal = 0;
-                            if (mapX > 0 && matrizDoMapa[mapY][mapX-1] == '*') countHorizontal++;
-                            if (mapX + 1 < larguraMapa && matrizDoMapa[mapY][mapX+1] == '*') countHorizontal++;
-                            if (countHorizontal <= 1) isTrunk = true;
-                        }
-                        if (isTrunk) corMinimapaEnt = "\033[38;2;101;67;33m"; // Tronco Marrom
-                    }
-                    tela[screenY * LARGURA_TELA + screenX] = bgMini + corMinimapaEnt + string(1, c) + "\033[0m";
-                } else if (isLabel) {
-                    tela[screenY * LARGURA_TELA + screenX] = bgMini + "\033[38;2;150;150;150m" + string(1, c) + "\033[0m"; // Renderiza a letra da palavra no minimapa
                 } else {
-                    tela[screenY * LARGURA_TELA + screenX] = bgMini + "\033[38;2;50;50;50m.\033[0m";
+                    tela[screenY * LARGURA_TELA + screenX] = bgMini + ControleMapa::formatarCelula(c, mapX, mapY, tituloMapa, matrizDoMapa, true) + "\033[0m";
                 }
             } else {
                 if (screenY >= 0 && screenY < ALTURA_TELA && screenX >= 0 && screenX < LARGURA_TELA) {

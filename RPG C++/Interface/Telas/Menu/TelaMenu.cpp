@@ -237,7 +237,7 @@ std::vector<std::string> TelaMenu::comporQuadroDeAtributos(const Atributos& stat
     return resultado;
 }
 
-int TelaMenu::exibirOpcoesMenuPrincipal(bool temSave) {
+int TelaMenu::exibirOpcoesMenuPrincipal(bool temSave, const std::vector<std::vector<std::string>>& artesClasses, const std::vector<std::vector<std::string>>& artesRacas, const std::vector<std::vector<std::string>>& artesInimigos) {
     static bool animacaoAberturaConcluida = false;
     bool recemConcluida = false;
 
@@ -280,6 +280,22 @@ int TelaMenu::exibirOpcoesMenuPrincipal(bool temSave) {
         });
         
         int frame = 0;
+        int estadoAnimacao = 0; // 0: Fade in, 1: Hold, 2: Fade out
+        int intensidadeCor = 0; // De 0 a 255
+        int stepFade = 15; // Velocidade do fade
+        int arteAtual = 0;
+        int holdCounter = 0;
+        
+        // Agrupa todas as artes em um unico ciclo
+        std::vector<std::vector<std::string>> todasAsArtes;
+        for (const auto& a : artesClasses) todasAsArtes.push_back(a);
+        for (const auto& a : artesRacas) todasAsArtes.push_back(a);
+        for (const auto& a : artesInimigos) todasAsArtes.push_back(a);
+        
+        if (todasAsArtes.empty()) {
+            todasAsArtes.push_back(ArtesMenu::animacaoRpg[0]); // fallback if empty
+        }
+
         ControleDeInput::limparBuffer();
         while (!ControleDeInput::teclaPressionada()) {
             std::ostringstream buffer;
@@ -287,7 +303,6 @@ int TelaMenu::exibirOpcoesMenuPrincipal(bool temSave) {
             
             std::string corBranco = "\033[38;2;255;255;255m";
             std::string corLaranja = "\033[38;2;255;165;0m";
-            std::string corAmarelo = "\033[38;2;255;255;0m";
             
             buffer << "\n\n";
             for (size_t i = 0; i < ArtesMenu::logoTexto.size(); ++i) {
@@ -295,24 +310,80 @@ int TelaMenu::exibirOpcoesMenuPrincipal(bool temSave) {
             }
             
             buffer << "\n\n\n";
-            // Alterna a cor entre branco e cinza escuro para fazer o texto piscar
-            std::string corOpcao = (frame % 4 < 2) ? "\033[38;2;255;255;255m" : "\033[38;2;120;120;120m";
+            std::string corOpcao = (frame % 8 < 4) ? "\033[38;2;255;255;255m" : "\033[38;2;120;120;120m";
             std::string textoOpcao = "-> PRESSIONE QUALQUER TECLA PARA INICIAR <-";
             int espacosMenu = std::max(0, (larguraConsole - static_cast<int>(textoOpcao.length())) / 2);
             buffer << std::string(espacosMenu, ' ') << corOpcao << textoOpcao << "\033[0m\n\n\n";
 
-            // Desenha a animacao de RPG lado a lado centralizada
-            int step = frame % 4; // 4 frames de animacao por classe
-            int larguraAnimacaoTotal = 18 * 5; // 5 classes com 18 caracteres de largura cada
-            int espacosAnim = std::max(0, (larguraConsole - larguraAnimacaoTotal) / 2);
+            if (estadoAnimacao == 0) {
+                intensidadeCor += stepFade;
+                if (intensidadeCor >= 255) {
+                    intensidadeCor = 255;
+                    estadoAnimacao = 1;
+                    holdCounter = 0;
+                }
+            } else if (estadoAnimacao == 1) {
+                holdCounter++;
+                if (holdCounter > 30) {
+                    estadoAnimacao = 2;
+                }
+            } else if (estadoAnimacao == 2) {
+                intensidadeCor -= stepFade;
+                if (intensidadeCor <= 0) {
+                    intensidadeCor = 0;
+                    estadoAnimacao = 0;
+                    arteAtual = (arteAtual + 3) % todasAsArtes.size();
+                }
+            }
 
-            for (size_t i = 0; i < 5; ++i) { // Cada arte tem 5 linhas de altura
-                buffer << std::string(espacosAnim, ' ') 
-                       << "\033[38;2;255;100;100m" << ArtesMenu::animacaoRpg[0 + step][i] 
-                       << "\033[38;2;100;255;100m" << ArtesMenu::animacaoRpg[4 + step][i] 
-                       << "\033[38;2;255;255;100m" << ArtesMenu::animacaoRpg[8 + step][i] 
-                       << "\033[38;2;100;200;255m" << ArtesMenu::animacaoRpg[12 + step][i] 
-                       << "\033[38;2;200;100;255m" << ArtesMenu::animacaoRpg[16 + step][i] << "\033[0m\n";
+            if (intensidadeCor > 0) {
+                std::string corFade = "\033[38;2;" + std::to_string(intensidadeCor) + ";" + std::to_string(intensidadeCor) + ";" + std::to_string(intensidadeCor) + "m";
+                
+                const auto& arteEsq = todasAsArtes[arteAtual % todasAsArtes.size()];
+                const auto& arteCen = todasAsArtes[(arteAtual + 1) % todasAsArtes.size()];
+                const auto& arteDir = todasAsArtes[(arteAtual + 2) % todasAsArtes.size()];
+                
+                int wEsq = 0; for(const auto& l : arteEsq) wEsq = std::max(wEsq, Aparencia::obterComprimentoVisual(l));
+                int wCen = 0; for(const auto& l : arteCen) wCen = std::max(wCen, Aparencia::obterComprimentoVisual(l));
+                int wDir = 0; for(const auto& l : arteDir) wDir = std::max(wDir, Aparencia::obterComprimentoVisual(l));
+                
+                int centerEsq = larguraConsole / 6;
+                int centerCen = larguraConsole / 2;
+                int centerDir = 5 * larguraConsole / 6;
+                
+                int startEsq = std::max(0, centerEsq - wEsq / 2);
+                int startCen = std::max(0, centerCen - wCen / 2);
+                int startDir = std::max(0, centerDir - wDir / 2);
+                
+                int maxLinhasArte = std::max(0, alturaConsole - 18);
+                int maxL = std::max({static_cast<int>(arteEsq.size()), static_cast<int>(arteCen.size()), static_cast<int>(arteDir.size())});
+                int linhasImprimir = std::min(maxL, maxLinhasArte);
+                
+                for (int i = 0; i < linhasImprimir; ++i) {
+                    std::string strEsq = (i < arteEsq.size()) ? arteEsq[i] : "";
+                    std::string strCen = (i < arteCen.size()) ? arteCen[i] : "";
+                    std::string strDir = (i < arteDir.size()) ? arteDir[i] : "";
+                    
+                    std::string linhaFinal = "";
+                    int cursor = 0;
+                    
+                    auto printCol = [&](int start, const std::string& texto) {
+                        if (texto.empty()) return;
+                        int padding = start - cursor;
+                        if (padding > 0) {
+                            linhaFinal += std::string(padding, ' ');
+                            cursor += padding;
+                        }
+                        linhaFinal += corFade + texto + "\033[0m";
+                        cursor += Aparencia::obterComprimentoVisual(texto);
+                    };
+                    
+                    printCol(startEsq, strEsq);
+                    printCol(startCen, strCen);
+                    printCol(startDir, strDir);
+                    
+                    buffer << linhaFinal << "\033[K\n";
+                }
             }
 
             buffer << "\033[J"; // Limpa o restante da tela abaixo
@@ -323,7 +394,7 @@ int TelaMenu::exibirOpcoesMenuPrincipal(bool temSave) {
             std::cout.rdbuf(oldCout);
             std::cout << "\033[H" << buffer.str() << std::flush;
             
-            std::this_thread::sleep_for(std::chrono::milliseconds(250));
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
             frame++;
         }
         

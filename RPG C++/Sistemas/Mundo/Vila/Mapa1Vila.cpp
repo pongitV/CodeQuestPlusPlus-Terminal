@@ -241,36 +241,10 @@ ProximaTransicaoMapa Mapa1Vila::iniciarLoopDeExploracao()
     auto formatador = [&](char celula, int x, int y) -> std::string {
         if (x == posicaoXDoJogador && y == posicaoYDoJogador) {
             char ic = jogadorAtual->obterIconeJogador();
-            if (ic <= 32 || ic > 126) ic = '@'; // Garante que o icone seja um caractere visivel
+            if (ic <= 32 || ic > 126) ic = '@'; 
             return Aparencia::cor(jogadorAtual->obterCorJogador()) + std::string(1, ic) + Aparencia::cor(Cor::RESET);
         }
-        if (celula == 'G' || celula == 'O') return Aparencia::cor(Cor::NEGRITO, Cor::VERMELHO) + std::string(1, celula) + Aparencia::cor(Cor::RESET); // Inimigos Vermelho
-        if (celula == 'B') return Aparencia::cor(Cor::NEGRITO, Cor::CIANO) + "B" + Aparencia::cor(Cor::RESET); // Bjorn Ciano
-        if (celula == 'F' && x > 0 && matrizDoMapaAtual[y][x-1] == '{') return Aparencia::cor(Cor::NEGRITO, Cor::AMARELO) + "F" + Aparencia::cor(Cor::RESET); // Franchesco Amarelo
-        if (celula == 'P') return Aparencia::cor(Cor::NEGRITO, Cor::MARROM) + "P" + Aparencia::cor(Cor::RESET); // Placa Marrom
-        if (celula == '^') return Aparencia::cor(Cor::NEGRITO, Cor::TELEPORTE) + "^" + Aparencia::cor(Cor::RESET); // Teleporte
-        
-        if (celula == '*') {
-            bool isTrunk = false;
-            if (y > 0 && matrizDoMapaAtual[y-1][x] == '*') {
-                int countHorizontal = 0;
-                if (x > 0 && matrizDoMapaAtual[y][x-1] == '*') countHorizontal++;
-                if (x + 1 < static_cast<int>(matrizDoMapaAtual[y].length()) && matrizDoMapaAtual[y][x+1] == '*') countHorizontal++;
-                if (countHorizontal <= 1) isTrunk = true;
-            }
-            if (isTrunk) return Aparencia::cor(Cor::MADEIRA) + "*" + Aparencia::cor(Cor::RESET); // Tronco Marrom
-            return Aparencia::cor(Cor::VERDE) + "*" + Aparencia::cor(Cor::RESET); // Folhas Verdes
-        }
-        if (celula == '~') return Aparencia::corRGB(50, 150, 255) + "~" + Aparencia::cor(Cor::RESET); // Agua
-
-        std::string estruturas = "|_[]{}/\\<>;=-:+";
-        if (estruturas.find(celula) != std::string::npos) return Aparencia::cor(Cor::TIJOLO) + std::string(1, celula) + Aparencia::cor(Cor::RESET); // Tijolos de Estruturas
-        if (celula == '#') return Aparencia::cor(Cor::CINZA) + std::string(1, celula) + Aparencia::cor(Cor::RESET); // Bordas Claras
-
-        // Remove a exibicao visual dos pontos (chao) para deixar o mapa mais limpo
-        if (celula == '.') return " ";
-        
-        return std::string(1, celula);
+        return ControleMapa::formatarCelula(celula, x, y, tituloDoMapaAtual, matrizDoMapaAtual, false);
     };
 
     bool precisaRenderizar = false;
@@ -287,6 +261,7 @@ ProximaTransicaoMapa Mapa1Vila::iniciarLoopDeExploracao()
         std::vector<std::string> arteTrans;
         int larguraTrans = 0;
         std::function<void()> acaoNarracao = nullptr;
+        bool usarAnimacaoBanner = true;
 
         if (tituloDoMapaAtual == "VILA INICIAL") {
             arteTitulo = Mapa1VilaLayouts::obterLogoVila();
@@ -297,21 +272,18 @@ ProximaTransicaoMapa Mapa1Vila::iniciarLoopDeExploracao()
             arteTitulo = Mapa1VilaLayouts::obterLogoSpawn();
             larguraArte = 105;
             if (matrizDoMapaDoSpawnSalva.empty()) {
-                acaoNarracao = []() {
-                    std::cout << "\n\n";
-                    std::vector<std::string> dialogoInicio = {
-                        FuncoesDialogo::formatarMsgNarracao("Voce desperta nos arredores de um lugar desconhecido..."),
-                        FuncoesDialogo::formatarMsgNarracao("Na sua vista, uma pequena vila sendo atacada por monstros."),
-                        FuncoesDialogo::formatarMsgNarracao("Empunhando seu equipamento, voce sente que seu destino o aguarda."),
-                        FuncoesDialogo::formatarMsgNarracao("Um novo capitulo se inicia agora.")
-                    };
-                    Aparencia::imprimirBlocoCentralizadoDigitando(dialogoInicio);
-                    ControleDeInput::aguardarEnter("Pressione ENTER para iniciar...");
+                usarAnimacaoBanner = false;
+                std::vector<std::string> dialogoInicio = {
+                    FuncoesDialogo::formatarMsgNarracao("Voce desperta nos arredores de um lugar desconhecido..."),
+                    FuncoesDialogo::formatarMsgNarracao("Na sua vista, uma pequena vila sendo atacada por monstros."),
+                    FuncoesDialogo::formatarMsgNarracao("Empunhando seu equipamento, voce sente que seu destino o aguarda."),
+                    FuncoesDialogo::formatarMsgNarracao("Um novo capitulo se inicia agora.")
                 };
+                Aparencia::exibirTelaIntro(arteTitulo, dialogoInicio, Cor::AMARELO);
             }
         }
         
-        linhaInicialParaDesenharOMapa = ControleMapa::animarIntroducaoMapa(tituloDoMapaAtual, arteTitulo, larguraArte, arteTrans, larguraTrans, Cor::AMARELO, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, true, acaoNarracao);
+        linhaInicialParaDesenharOMapa = ControleMapa::animarIntroducaoMapa(tituloDoMapaAtual, arteTitulo, larguraArte, arteTrans, larguraTrans, Cor::AMARELO, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, true, usarAnimacaoBanner, acaoNarracao);
         precisaRenderizar = false;
     };
 

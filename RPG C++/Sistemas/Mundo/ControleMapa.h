@@ -44,7 +44,9 @@ public:
         int posicaoYDoJogador,
         const std::function<std::string(char, int, int)>& formatadorCelula,
         bool animar = true,
-        const std::function<void()>& acaoAposFadeInArte = nullptr);
+        bool usarAnimacaoBanner = true,
+        const std::function<void()>& acaoAposFadeInArte = nullptr
+    );
 
     static void calcularCameraVertical(int alturaDoTerminal, int linhaInicial, int posicaoYDoJogador, int tamanhoDoMapa, int& startY, int& endY);
     static void calcularCameraHorizontal(int larguraDoTerminal, int posicaoXDoJogador, int larguraDoMapa, int& startX, int& endX);
@@ -54,6 +56,8 @@ public:
     static bool isExploracao3DAtiva();
 
     static void renderizarMapa(const std::vector<std::string>& matrizDoMapa, int posicaoXDoJogador, int posicaoYDoJogador, int larguraDoTerminal, int alturaDoTerminal, int linhaInicial, const std::function<std::string(char, int, int)>& formatadorCelula);
+
+    static std::string formatarCelula(char celula, int x, int y, const std::string& tituloDoMapa, const std::vector<std::string>& matrizDoMapa, bool isMinimapa = false);
 
     static ProximaTransicaoMapa executarLoopDeExploracao(
         Personagem* jogadorAtual,

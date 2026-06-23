@@ -361,6 +361,99 @@ void Aparencia::animarFadeIn(int framesTotais, int tempoPorFrameMs, const std::f
     }
 }
 
+void Aparencia::animarFadeOut(int framesTotais, int tempoPorFrameMs, const std::function<void(int frame, int intensidade)>& renderFrame) {
+    for (int frame = 1; frame <= framesTotais; ++frame) {
+        auto inicioFrame = std::chrono::steady_clock::now();
+
+        int intensidade = 255 - ((255 * frame) / framesTotais);
+        renderFrame(frame, intensidade);
+
+        auto fimFrame = std::chrono::steady_clock::now();
+        auto duracaoFrame = std::chrono::duration_cast<std::chrono::milliseconds>(fimFrame - inicioFrame).count();
+        int tempoEspera = std::max(0, tempoPorFrameMs - static_cast<int>(duracaoFrame));
+        std::this_thread::sleep_for(std::chrono::milliseconds(tempoEspera));
+    }
+}
+
+void Aparencia::exibirTelaIntro(const std::vector<std::string>& arteLogo, const std::vector<std::string>& textoNarracao, Cor corTema) {
+    int larguraConsole = obterLarguraTerminal();
+    int alturaConsole = obterAlturaTerminal();
+    
+    // Calcula margem para arte
+    int larguraArte = 0;
+    for (const auto& linha : arteLogo) {
+        int comp = obterComprimentoVisual(linha);
+        if (comp > larguraArte) larguraArte = comp;
+    }
+    int espacosArte = std::max(0, (larguraConsole - larguraArte) / 2);
+    std::string margemArte(espacosArte, ' ');
+
+    int linhasEmBrancoAntesDoTexto = 3;
+
+    ocultarCursor();
+    limparTela();
+
+    animarFadeIn(30, 30, [&](int /*frame*/, int intensidade) {
+        std::ostringstream buffer;
+        std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
+        
+        std::string corRGB = obterCorRGBFade(corTema, intensidade);
+        
+        buffer << "\n\n";
+        for (const auto& linha : arteLogo) {
+            buffer << margemArte << corRGB << linha << "\033[0m\n";
+        }
+        
+        buffer << "\033[J"; // Limpa o restante da tela abaixo
+        
+        std::cout.rdbuf(oldCout);
+        std::cout << "\033[H" << buffer.str() << std::flush;
+    });
+
+    for(int i = 0; i < linhasEmBrancoAntesDoTexto; ++i) std::cout << "\n";
+
+    imprimirBlocoCentralizadoDigitando(textoNarracao);
+    
+    std::cout << "\n";
+    std::string pressEnter = "[ PRESSIONE ENTER PARA INICIAR ]";
+    imprimirCentralizado(pressEnter, cor(Cor::CINZA));
+    
+    ControleDeInput::aguardarEnter();
+    
+    animarFadeOut(30, 30, [&](int /*frame*/, int intensidade) {
+        std::ostringstream buffer;
+        std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
+        
+        std::string corArteRGB = obterCorRGBFade(corTema, intensidade);
+        std::string corTextoRGB = obterCorRGBFade(Cor::BRANCO, intensidade);
+        std::string corCinzaRGB = obterCorRGBFade(Cor::CINZA, intensidade);
+        
+        buffer << "\n\n";
+        for (const auto& linha : arteLogo) {
+            buffer << margemArte << corArteRGB << removerCoresANSI(linha) << "\033[0m\n";
+        }
+        
+        for(int i = 0; i < linhasEmBrancoAntesDoTexto; ++i) buffer << "\n";
+        
+        int tamanhoDaLinhaMaisLonga = 0;
+        for (const std::string& linha : textoNarracao) {
+            tamanhoDaLinhaMaisLonga = std::max(tamanhoDaLinhaMaisLonga, obterComprimentoVisual(linha));
+        }
+        std::string margemTexto = espacosParaCentralizar(tamanhoDaLinhaMaisLonga);
+        for (const std::string& linha : textoNarracao) {
+            buffer << margemTexto << corTextoRGB << removerCoresANSI(linha) << "\033[0m\n";
+        }
+        
+        buffer << "\n" << espacosParaCentralizar(obterComprimentoVisual(pressEnter)) << corCinzaRGB << pressEnter << "\033[0m\n";
+        
+        buffer << "\033[J";
+        std::cout.rdbuf(oldCout);
+        std::cout << "\033[H" << buffer.str() << std::flush;
+    });
+
+    limparTela();
+}
+
 void Aparencia::imprimirBlocoCentralizado(const std::vector<std::string>& linhas, const std::string& corAnsi, int atrasoLinhaMs) {
     int tamanhoDaLinhaMaisLonga = 0;
     for (const std::string& linha : linhas) {
@@ -388,7 +481,7 @@ void Aparencia::imprimirCentralizadoDigitando(const std::string& texto, int atra
 void Aparencia::imprimirDigitando(const std::string& texto, int atrasoMs, bool addNewline) {
     int linhaMsg = Aparencia::obterAlturaTerminal() - 1; // Subtrai 1 para evitar scroll na ultima linha
     if (linhaMsg < 1) linhaMsg = 1;
-    std::cout << "\033[s\033[" << linhaMsg << ";1H" << cor(Cor::NEGRITO, Cor::CINZA) << "[Pressione 'k' para pular]" << cor(Cor::RESET) << "\033[u";
+    std::cout << "\033[s\033[" << linhaMsg << ";1H" << cor(Cor::NEGRITO, Cor::CINZA) << "[Pressione ENTER para pular]" << cor(Cor::RESET) << "\033[u";
 
     size_t i = 0;
     while (i < texto.length() && texto[i] == ' ') {
@@ -413,7 +506,7 @@ void Aparencia::imprimirDigitando(const std::string& texto, int atrasoMs, bool a
 
         if (ControleDeInput::teclaPressionada()) { 
             char tecla = ControleDeInput::lerTecla(); 
-            if (tecla == 'k' || tecla == 'K') { 
+            if (tecla == '\r' || tecla == '\n') { 
                 std::cout << "\033[s\033[" << linhaMsg << ";1H\033[K\033[u" << texto.substr(i) << std::flush; 
                 if (addNewline) {
                     std::cout << std::endl;
