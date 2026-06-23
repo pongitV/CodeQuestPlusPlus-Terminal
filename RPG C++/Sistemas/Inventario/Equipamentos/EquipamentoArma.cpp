@@ -11,7 +11,7 @@
 #include <unordered_map>
 #include "../FabricaItens.h"
 
-EquipamentoArma::EquipamentoArma(std::string nome, int danoFisico, int danoMagico, int reqForca, int reqDestreza, int reqInteligencia, int reqSabedoria, int preco)
+EquipamentoArma::EquipamentoArma(const std::string& nome, int danoFisico, int danoMagico, int reqForca, int reqDestreza, int reqInteligencia, int reqSabedoria, int preco)
     : Item(preco), nome(nome), danoFisico(danoFisico), danoMagico(danoMagico), reqForca(reqForca), reqDestreza(reqDestreza), reqInteligencia(reqInteligencia), reqSabedoria(reqSabedoria), efeitoSangramento(false), efeitoLentidao(false)
 {
 }

@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include "../FabricaItens.h"
 
-ItemConsumivel::ItemConsumivel(std::string nome, int preco) : Item(preco), nome(nome)
+ItemConsumivel::ItemConsumivel(const std::string& nome, int preco) : Item(preco), nome(nome)
 {
 }
 

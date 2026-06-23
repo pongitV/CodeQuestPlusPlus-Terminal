@@ -166,7 +166,7 @@ protected:
 
 public:
     Personagem(const Personagem& other);
-    Personagem(std::string nome, std::unique_ptr<RacaBase> r, std::unique_ptr<ClasseBase> c);
+    Personagem(const std::string& nome, std::unique_ptr<RacaBase> r, std::unique_ptr<ClasseBase> c);
     virtual ~Personagem();
 
     static bool isValido(Personagem* p);

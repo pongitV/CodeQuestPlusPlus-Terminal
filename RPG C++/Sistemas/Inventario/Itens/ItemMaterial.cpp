@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include "../FabricaItens.h"
 
-ItemMaterial::ItemMaterial(std::string nome, int preco) : Item(preco), nome(nome)
+ItemMaterial::ItemMaterial(const std::string& nome, int preco) : Item(preco), nome(nome)
 {
 }
 

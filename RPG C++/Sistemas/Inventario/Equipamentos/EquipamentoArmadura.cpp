@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include "../FabricaItens.h"
 
-EquipamentoArmadura::EquipamentoArmadura(std::string nome, int reducaoFixa, int reqResistencia, int reqConstituicao, int preco) 
+EquipamentoArmadura::EquipamentoArmadura(const std::string& nome, int reducaoFixa, int reqResistencia, int reqConstituicao, int preco) 
     : Item(preco), nome(nome), reducaoFixa(reducaoFixa), reqResistencia(reqResistencia), reqConstituicao(reqConstituicao), penalidadeDestreza(reducaoFixa / 3)
 {
 }

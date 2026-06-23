@@ -428,15 +428,21 @@ void ControleMapa::padronizarTamanhoDoMapa(std::vector<std::string>& matrizDoMap
 }
 
 std::string ControleMapa::formatarCelula(char celula, int x, int y, const std::string& tituloDoMapa, const std::vector<std::string>& matrizDoMapa, bool isMinimapa) {
-    std::string tituloUpper = tituloDoMapa;
-    for (char& ch : tituloUpper) ch = std::toupper(static_cast<unsigned char>(ch));
-    
-    bool isReino = (tituloUpper.find("CASTELO") != std::string::npos || tituloUpper.find("REINO") != std::string::npos);
-    bool isInterior = (tituloUpper.find("LABIRINTO") != std::string::npos || tituloUpper.find("CHEFE") != std::string::npos || tituloUpper.find("CORACAO") != std::string::npos || tituloUpper.find("CAVERNA") != std::string::npos);
-    bool isFloresta = (tituloUpper.find("FLORESTA") != std::string::npos);
-    bool isVila = (tituloUpper.find("VILA") != std::string::npos);
-    
-    bool isSpawn = (tituloUpper.find("INICIO") != std::string::npos);
+    thread_local std::string ultimoTitulo = "";
+    thread_local std::string tituloUpper = "";
+    thread_local bool isReino = false, isInterior = false, isFloresta = false, isVila = false, isSpawn = false;
+
+    if (ultimoTitulo != tituloDoMapa) {
+        ultimoTitulo = tituloDoMapa;
+        tituloUpper = tituloDoMapa;
+        for (char& ch : tituloUpper) ch = std::toupper(static_cast<unsigned char>(ch));
+        
+        isReino = (tituloUpper.find("CASTELO") != std::string::npos || tituloUpper.find("REINO") != std::string::npos);
+        isInterior = (tituloUpper.find("LABIRINTO") != std::string::npos || tituloUpper.find("CHEFE") != std::string::npos || tituloUpper.find("CORACAO") != std::string::npos || tituloUpper.find("CAVERNA") != std::string::npos);
+        isFloresta = (tituloUpper.find("FLORESTA") != std::string::npos);
+        isVila = (tituloUpper.find("VILA") != std::string::npos);
+        isSpawn = (tituloUpper.find("INICIO") != std::string::npos);
+    }
     
     // Teleporte
     if (celula == '^') return Aparencia::cor(Cor::NEGRITO, Cor::TELEPORTE) + "^" + Aparencia::cor(Cor::RESET);

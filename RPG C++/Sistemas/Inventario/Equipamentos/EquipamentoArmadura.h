@@ -16,7 +16,7 @@ private:
     int penalidadeDestreza;
 
 public:
-    EquipamentoArmadura(std::string nome, int reducaoFixa, int reqResistencia, int reqConstituicao, int preco = 3);
+    EquipamentoArmadura(const std::string& nome, int reducaoFixa, int reqResistencia, int reqConstituicao, int preco = 3);
     
     int obterReqResistencia() const;
     int obterReqConstituicao() const;

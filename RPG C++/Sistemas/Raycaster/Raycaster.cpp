@@ -79,7 +79,7 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
 
     float profundidadeMaxima = 150.0f;  // Profundidade infinita/maxima do mapa
     float velocidadeMovimento = 5.0f;
-    float velocidadeRotacao = 2.0f;
+
 
     Aparencia::limparTela();
     cout << "\033[?25l"; // Oculta o cursor piscante
@@ -96,51 +96,66 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
     vector<string> tela(LARGURA_TELA * ALTURA_TELA, " ");
 
     auto downsampleTela = [&]() {
-        for (int y = 0; y < ALTURA_TELA; y++) {
-            for (int x = 0; x < LARGURA_TELA; x++) {
-                string top = tela3D[(y * 2) * LARGURA_TELA + x];
-                string bot = tela3D[(y * 2 + 1) * LARGURA_TELA + x];
-                
-                auto getBg = [](const string& s) {
-                    size_t pos = s.find("\033[48;2;");
-                    if (pos != string::npos) {
-                        size_t end = s.find('m', pos);
-                        if (end != string::npos) return s.substr(pos, end - pos + 1);
-                    }
-                    return string("\033[48;2;0;0;0m");
-                };
+        unsigned int numThreads = std::thread::hardware_concurrency();
+        if (numThreads == 0) numThreads = 4;
+        std::vector<std::thread> threads;
+        int chunk = ALTURA_TELA / numThreads;
+        if (chunk == 0) chunk = 1;
 
-                auto getChar = [](const string& s) {
-                    size_t firstM = s.find('m');
-                    if (firstM != string::npos && firstM + 1 < s.size()) {
-                        char c = s[firstM + 1];
-                        if (c != '\033' && c != ' ') return c;
-                        if (c == '\033') {
-                            size_t secondM = s.find('m', firstM + 1);
-                            if (secondM != string::npos && secondM + 1 < s.size()) {
-                                c = s[secondM + 1];
-                                if (c != '\033' && c != ' ') return c;
+        for (unsigned int t = 0; t < numThreads; ++t) {
+            int startY = t * chunk;
+            int endY = (t == numThreads - 1) ? ALTURA_TELA : (t + 1) * chunk;
+            if (startY >= ALTURA_TELA) break;
+
+            threads.emplace_back([&, startY, endY]() {
+                for (int y = startY; y < endY; y++) {
+                    for (int x = 0; x < LARGURA_TELA; x++) {
+                        string top = tela3D[(y * 2) * LARGURA_TELA + x];
+                        string bot = tela3D[(y * 2 + 1) * LARGURA_TELA + x];
+                        
+                        auto getBg = [](const string& s) {
+                            size_t pos = s.find("\033[48;2;");
+                            if (pos != string::npos) {
+                                size_t end = s.find('m', pos);
+                                if (end != string::npos) return s.substr(pos, end - pos + 1);
                             }
+                            return string("\033[48;2;0;0;0m");
+                        };
+
+                        auto getChar = [](const string& s) {
+                            size_t firstM = s.find('m');
+                            if (firstM != string::npos && firstM + 1 < s.size()) {
+                                char c = s[firstM + 1];
+                                if (c != '\033' && c != ' ') return c;
+                                if (c == '\033') {
+                                    size_t secondM = s.find('m', firstM + 1);
+                                    if (secondM != string::npos && secondM + 1 < s.size()) {
+                                        c = s[secondM + 1];
+                                        if (c != '\033' && c != ' ') return c;
+                                    }
+                                }
+                            }
+                            return ' ';
+                        };
+
+                        char topC = getChar(top);
+                        char botC = getChar(bot);
+                        
+                        if (topC == ' ' && botC == ' ') {
+                            string bgTop = getBg(top);
+                            string bgBot = getBg(bot);
+                            if (bgTop.size() > 3) bgTop[2] = '3'; // Transforma 48 (bg) em 38 (fg) trocando o '4' pelo '3' no indice 2
+                            tela[y * LARGURA_TELA + x] = bgBot + bgTop + "\xE2\x96\x80\033[0m"; // ▀ (Half-Block superior)
+                        } else if (topC != ' ') {
+                            tela[y * LARGURA_TELA + x] = top;
+                        } else {
+                            tela[y * LARGURA_TELA + x] = bot;
                         }
                     }
-                    return ' ';
-                };
-
-                char topC = getChar(top);
-                char botC = getChar(bot);
-                
-                if (topC == ' ' && botC == ' ') {
-                    string bgTop = getBg(top);
-                    string bgBot = getBg(bot);
-                    if (bgTop.size() > 3) bgTop[2] = '3'; // Transforma 48 (bg) em 38 (fg) trocando o '4' pelo '3' no indice 2
-                    tela[y * LARGURA_TELA + x] = bgBot + bgTop + "\xE2\x96\x80\033[0m"; // ▀ (Half-Block superior)
-                } else if (topC != ' ') {
-                    tela[y * LARGURA_TELA + x] = top;
-                } else {
-                    tela[y * LARGURA_TELA + x] = bot;
                 }
-            }
+            });
         }
+        for (auto& th : threads) th.join();
     };
 
     auto animarOlho = [&](bool abrindo, const vector<string>& frameBase) {
@@ -191,7 +206,7 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
     while (GetAsyncKeyState('V') & 0x8000) std::this_thread::sleep_for(std::chrono::milliseconds(10));
 #endif
 
-    bool primeiraRenderizacao = animarEntrada;
+
     bool primeiraIteracaoMouse = true;
     bool rodando = true;
 #ifdef _WIN32
@@ -351,7 +366,7 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
             }
         }
         int bobbingOffset = (int)(sinf(bobbingTime) * bobbingAmplitude * (ALTURA_TELA * 0.02f));
-        float horizonte = (ALTURA_TELA / 2.0f) + bobbingOffset;
+
 
         // Verifica se o jogador pisou em um trigger (Inimigo ou Teleporte) para acionar a transicao de mapa/combate
         int newCellX = (int)jogadorX;

@@ -9,7 +9,7 @@ private:
     std::string nome;
 
 public:
-    ItemConsumivel(std::string nome, int preco = 3);
+    ItemConsumivel(const std::string& nome, int preco = 3);
 
     std::string obterNomeItem() const override;
     TipoEquipamento obterTipo() const override;

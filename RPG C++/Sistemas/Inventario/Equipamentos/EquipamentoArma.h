@@ -19,7 +19,7 @@ private:
     bool efeitoLentidao;
 
 public:
-    EquipamentoArma(std::string nome, int danoFisico, int danoMagico, int reqForca, int reqDestreza, int reqInteligencia, int reqSabedoria, int preco = 3);
+    EquipamentoArma(const std::string& nome, int danoFisico, int danoMagico, int reqForca, int reqDestreza, int reqInteligencia, int reqSabedoria, int preco = 3);
     
     int obterReqForca() const;
     int obterReqDestreza() const;

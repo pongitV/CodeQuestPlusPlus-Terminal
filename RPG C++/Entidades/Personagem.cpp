@@ -61,8 +61,8 @@ Personagem::Personagem(const Personagem& other)
     atualizarCacheSeNecessario();
 }
 
-Personagem::Personagem(std::string nome, std::unique_ptr<RacaBase> racaEscolhida, std::unique_ptr<ClasseBase> classeEscolhida)
-    : nomePersonagem(std::move(nome)),
+Personagem::Personagem(const std::string& nome, std::unique_ptr<RacaBase> racaEscolhida, std::unique_ptr<ClasseBase> classeEscolhida)
+    : nomePersonagem(nome),
       vidaAtual(0),
       raca(std::move(racaEscolhida)),
       classe(std::move(classeEscolhida)),

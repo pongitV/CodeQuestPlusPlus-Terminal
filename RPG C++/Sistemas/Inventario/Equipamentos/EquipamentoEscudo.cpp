@@ -8,7 +8,7 @@
 #include "../../../Interface/Telas/Combate/TelaCombate.h"
 #include "../FabricaItens.h"
 
-EquipamentoEscudo::EquipamentoEscudo(std::string nome, int reducaoFixa, int durabilidade, int reqResistencia, int reqSecundario, TipoAtributo tipoSecundario, int preco)
+EquipamentoEscudo::EquipamentoEscudo(const std::string& nome, int reducaoFixa, int durabilidade, int reqResistencia, int reqSecundario, TipoAtributo tipoSecundario, int preco)
     : Item(preco), nome(nome), reducaoFixa(reducaoFixa), durabilidade(durabilidade), durabilidadeMaxima(durabilidade), reqResistencia(reqResistencia), reqSecundario(reqSecundario), tipoSecundario(tipoSecundario)
 {
 }

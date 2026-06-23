@@ -18,7 +18,7 @@ private:
     TipoAtributo tipoSecundario;
 
 public:
-    EquipamentoEscudo(std::string nome, int reducaoFixa, int durabilidade, int reqResistencia, int reqSecundario, TipoAtributo tipoSecundario, int preco = 3);
+    EquipamentoEscudo(const std::string& nome, int reducaoFixa, int durabilidade, int reqResistencia, int reqSecundario, TipoAtributo tipoSecundario, int preco = 3);
     
     int obterReqResistencia() const;
     int obterReqSecundario() const;
