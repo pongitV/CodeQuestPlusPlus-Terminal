@@ -51,16 +51,22 @@ O jogo é programado para interagir profundamente com as propriedades do termina
    ```bash
    cmake --build build
    ```
-3. O executável `JogoRPG.exe` será gerado dentro da pasta `build/`. Você pode iniciá-lo com:
+3. O executável `JogoRPG.exe` será gerado dentro da pasta `bin/` na raiz do projeto. Você pode iniciá-lo com:
    ```bash
-   ./build/JogoRPG.exe
+   ./bin/JogoRPG.exe
    ```
+
+**Compilação Direta via GCC (Alternativa sem CMake):**
+Caso queira compilar rapidamente usando apenas o `g++` via PowerShell no Windows:
+```powershell
+g++ -O2 -std=c++23 (Get-ChildItem -Path "src" -Filter "*.cpp" -Recurse | Select-Object -ExpandProperty FullName) -o "bin\JogoRPG.exe" -static -static-libgcc -static-libstdc++ -lwinmm
+```
 
 **Compilação via VS Code (Recomendado):**
 *   Instale a extensão **CMake Tools** no VS Code.
 *   Abra a pasta raiz do projeto. A extensão detectará automaticamente o arquivo `CMakeLists.txt`.
 *   Selecione o seu compilador C++23 (Kit).
-*   Clique no botão de build na barra de status inferior ou pressione `F7`. O executável será compilado e você poderá executá-lo ou depurá-lo diretamente pela extensão.
+*   Clique no botão de build na barra de status inferior ou pressione `F7`. O executável será compilado e salvo na pasta `bin/`. Você poderá executá-lo ou depurá-lo diretamente pela extensão.
 
 ## Previews Visuals (Screenshots)
 
