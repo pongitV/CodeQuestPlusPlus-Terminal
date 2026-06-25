@@ -54,10 +54,15 @@ static float s_posCamera3DX = -1.0f;
 static float s_posCamera3DY = -1.0f;
 static float s_anguloCamera3D = 0.0f;
 static std::string s_tituloMapaAtual = "";
+static std::vector<std::string> s_matrizDoMapaAtual;
 
 void ControleMapa::sinalizarTrocaDeMapa3D() { s_recemTrocouDeMapa = true; }
-
 bool ControleMapa::isExploracao3DAtiva() { return s_exploracao3DAtiva; }
+float ControleMapa::obterPosCamera3DX() { return s_posCamera3DX; }
+float ControleMapa::obterPosCamera3DY() { return s_posCamera3DY; }
+float ControleMapa::obterAnguloCamera3D() { return s_anguloCamera3D; }
+std::string ControleMapa::obterTituloMapaAtual() { return s_tituloMapaAtual; }
+std::vector<std::string> ControleMapa::obterMatrizDoMapaAtual() { return s_matrizDoMapaAtual; }
 
 bool ControleMapa::processarInputEComandos(char tecla, Personagem* jogador, int& proximaPosicaoX, int& proximaPosicaoY, const std::function<void()>& restaurarTela)
 {
@@ -671,6 +676,7 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
     s_posCamera3DX = -1.0f;
     s_posCamera3DY = -1.0f;
     s_tituloMapaAtual = tituloDoMapaAtual;
+    s_matrizDoMapaAtual = matrizDoMapaAtual;
 
     while (exploracaoEstaAtiva && jogadorAtual->obterVida() > 0)
     {

@@ -355,6 +355,110 @@ namespace {
         }
         renderFim();
     }
+
+    std::string fadarLinhaAnsi(const std::string& linha, float ratio) {
+        std::string res;
+        res.reserve(linha.size());
+        size_t i = 0;
+        while (i < linha.size()) {
+            if (i + 7 < linha.size() && linha[i] == '\033' && linha[i+1] == '[') {
+                bool isBg = false;
+                bool isFg = false;
+                size_t startColor = i + 2;
+                if (linha.compare(startColor, 5, "48;2;") == 0) {
+                    isBg = true;
+                } else if (linha.compare(startColor, 5, "38;2;") == 0) {
+                    isFg = true;
+                }
+                
+                if (isBg || isFg) {
+                    size_t p = startColor + 5;
+                    int r = 0, g = 0, b = 0;
+                    while (p < linha.size() && linha[p] >= '0' && linha[p] <= '9') {
+                        r = r * 10 + (linha[p] - '0');
+                        p++;
+                    }
+                    if (p < linha.size() && linha[p] == ';') {
+                        p++;
+                        while (p < linha.size() && linha[p] >= '0' && linha[p] <= '9') {
+                            g = g * 10 + (linha[p] - '0');
+                            p++;
+                        }
+                        if (p < linha.size() && linha[p] == ';') {
+                            p++;
+                            while (p < linha.size() && linha[p] >= '0' && linha[p] <= '9') {
+                                b = b * 10 + (linha[p] - '0');
+                                p++;
+                            }
+                        }
+                    }
+                    
+                    if (p < linha.size() && linha[p] == 'm') {
+                        int fr = static_cast<int>(r * ratio);
+                        int fg = static_cast<int>(g * ratio);
+                        int fb = static_cast<int>(b * ratio);
+                        res += "\033[";
+                        if (isBg) res += "48;2;";
+                        else res += "38;2;";
+                        res += std::to_string(fr) + ";" + std::to_string(fg) + ";" + std::to_string(fb) + "m";
+                        i = p + 1;
+                        continue;
+                    }
+                }
+            }
+            res.push_back(linha[i]);
+            i++;
+        }
+        return res;
+    }
+
+    std::vector<std::string> decomporLinhaAnsi(const std::string& linha, int larguraTerminal) {
+        std::vector<std::string> cells;
+        cells.reserve(larguraTerminal);
+        
+        std::string activeStyles = "";
+        size_t i = 0;
+        while (i < linha.size()) {
+            if (linha[i] == '\033' && i + 1 < linha.size() && linha[i+1] == '[') {
+                size_t end = linha.find('m', i);
+                if (end != std::string::npos) {
+                    std::string esc = linha.substr(i, end - i + 1);
+                    if (esc == "\033[0m") {
+                        activeStyles = "";
+                    } else {
+                        activeStyles += esc;
+                    }
+                    i = end + 1;
+                    continue;
+                }
+            }
+            
+            int len = 1;
+            unsigned char c = static_cast<unsigned char>(linha[i]);
+            if ((c & 0x80) == 0) len = 1;
+            else if ((c & 0xE0) == 0xC0) len = 2;
+            else if ((c & 0xF0) == 0xE0) len = 3;
+            else if ((c & 0xF8) == 0xF0) len = 4;
+            
+            std::string charStr = linha.substr(i, len);
+            cells.push_back(activeStyles + charStr + "\033[0m");
+            i += len;
+        }
+        
+        while (static_cast<int>(cells.size()) < larguraTerminal) {
+            cells.push_back(" ");
+        }
+        return cells;
+    }
+
+    std::string obterBg(const std::string& cell) {
+        size_t pos = cell.find("\033[48;2;");
+        if (pos != std::string::npos) {
+            size_t end = cell.find('m', pos);
+            if (end != std::string::npos) return cell.substr(pos, end - pos + 1);
+        }
+        return std::string("");
+    }
 }
 
 int TelaCombate::turnoAtualVisivel = 1;
@@ -404,55 +508,211 @@ void TelaCombate::exibirLogoParaTelaDeCombate(const std::string& tituloDaTela, b
     Aparencia::exibirPainelArte(TelaCombateLayouts::obterLogoCombate(), 95, Cor::VERMELHO, tituloDaTela, animar);
 }
 
-void TelaCombate::animarIntroducaoCombate(const std::string& titulo, const std::vector<Personagem*>& inimigos) {
+void TelaCombate::animarIntroducaoCombate(const std::string& titulo, const std::vector<Personagem*>& inimigos, Personagem* jogadorAtual) {
     Aparencia::limparTela();
     Aparencia::ocultarCursor();
 
-    // Captura o estado final do titulo
-    std::ostringstream bufferTitulo;
-    std::streambuf* oldCout = std::cout.rdbuf(bufferTitulo.rdbuf());
-    exibirLogoParaTelaDeCombate(titulo, false);
-    std::cout.rdbuf(oldCout);
-    std::string tituloFinalComCores = bufferTitulo.str();
-    std::string tituloFinalSemCores = Aparencia::removerCoresANSI(tituloFinalComCores);
+    if (isModo3D && jogadorAtual != nullptr) {
+        int larguraTerminal = Aparencia::obterLarguraTerminal();
+        int alturaTerminal = Aparencia::obterAlturaTerminal();
+        if (larguraTerminal <= 0) larguraTerminal = 120;
+        if (alturaTerminal <= 0) alturaTerminal = 40;
+        int alturaHUD = 16;
+        int altura3D = std::max(10, alturaTerminal - alturaHUD);
 
-    // Captura o estado final dos inimigos
-    std::ostringstream bufferInimigos;
-    oldCout = std::cout.rdbuf(bufferInimigos.rdbuf());
-    exibirHordaDeInimigosLadoALado(inimigos, nullptr, 0, false, false);
-    std::cout.rdbuf(oldCout);
-    std::string inimigosFinalComCores = bufferInimigos.str();
-    std::string inimigosFinalSemCores = Aparencia::removerCoresANSI(inimigosFinalComCores);
+        // ═══════════════════════════════════════════════════════════════════
+        //  Fase 1: Fundo 3D em Fade In (sem inimigos)
+        // ═══════════════════════════════════════════════════════════════════
+        std::vector<std::string> quadroBackground = Combate3DRenderer::renderizarQuadro(
+            TelaCombate::tituloMapaAtual, 
+            jogadorAtual, 
+            {}, // Nenhum inimigo
+            nullptr, 0, 0, -1, false, 0, false, {}, 1.0f
+        );
 
-    // 1. Loop de animacao de Fade-in do Titulo
-    Aparencia::animarFadeIn(15, 100, [&](int frame, int intensidade) {
-        std::string conteudoFrame;
-        if (frame < 15) {
-            std::string corRGB = Aparencia::obterCorRGBFade(Cor::BRANCO, intensidade);
-            conteudoFrame = corRGB + tituloFinalSemCores + Aparencia::cor(Cor::RESET);
-        } else {
-            conteudoFrame = tituloFinalComCores;
+        Aparencia::animarFadeIn(15, 30, [&](int /*frame*/, int intensidade) {
+            float ratio = intensidade / 255.0f;
+            renderizarFrameBufferizado([&](){
+                for (const auto& linha : quadroBackground) {
+                    std::cout << fadarLinhaAnsi(linha, ratio) << "\n";
+                }
+            });
+        });
+
+        // ═══════════════════════════════════════════════════════════════════
+        //  Fase 2: Titulo de Combate caindo em ASCII (Branco)
+        // ═══════════════════════════════════════════════════════════════════
+        std::vector<std::string> logo = TelaCombateLayouts::obterLogoCombate();
+        int logoWidth = 95;
+        int logoHeight = static_cast<int>(logo.size());
+        int startX = (larguraTerminal - logoWidth) / 2;
+        if (startX < 0) startX = 0;
+
+        int maxPassos = 15;
+        int targetY = 2; // Posição Y de repouso no 3D
+
+        for (int passo = 0; passo <= maxPassos; passo++) {
+            // Drop down de -logoHeight a targetY
+            int posY = -logoHeight + (passo * (targetY - (-logoHeight))) / maxPassos;
+
+            std::vector<std::string> frameLinhas;
+            frameLinhas.reserve(altura3D);
+
+            for (int y = 0; y < altura3D; y++) {
+                std::vector<std::string> cells = decomporLinhaAnsi(quadroBackground[y], larguraTerminal);
+
+                int logoRowIdx = y - posY;
+                if (logoRowIdx >= 0 && logoRowIdx < logoHeight) {
+                    const std::string& logoRow = logo[logoRowIdx];
+                    std::vector<std::string> logoChars;
+                    for (size_t j = 0; j < logoRow.length(); ) {
+                        int len = 1;
+                        unsigned char c = logoRow[j];
+                        if ((c & 0x80) == 0) len = 1;
+                        else if ((c & 0xE0) == 0xC0) len = 2;
+                        else if ((c & 0xF0) == 0xE0) len = 3;
+                        else if ((c & 0xF8) == 0xF0) len = 4;
+                        logoChars.push_back(logoRow.substr(j, len));
+                        j += len;
+                    }
+
+                    for (size_t x = 0; x < logoChars.size(); ++x) {
+                        int drawX = startX + x;
+                        if (drawX >= 0 && drawX < larguraTerminal) {
+                            std::string charStr = logoChars[x];
+                            if (charStr != " ") {
+                                std::string bgCode = obterBg(cells[drawX]);
+                                cells[drawX] = bgCode + "\033[1;37m" + charStr + "\033[0m"; // Branco
+                            }
+                        }
+                    }
+                }
+
+                std::string novaLinha = "";
+                for (const auto& cell : cells) {
+                    novaLinha += cell;
+                }
+                frameLinhas.push_back(novaLinha);
+            }
+
+            renderizarFrameBufferizado([&](){
+                for (const auto& linha : frameLinhas) {
+                    std::cout << linha << "\n";
+                }
+            });
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(30));
         }
 
-        renderizarFrameBufferizado([&](){
-            std::cout << conteudoFrame;
-        });
-    });
+        // ═══════════════════════════════════════════════════════════════════
+        //  Fase 3: Inimigos aparecendo com fade-in e titulo ficando vermelho
+        // ═══════════════════════════════════════════════════════════════════
+        Aparencia::animarFadeIn(15, 40, [&](int frame, int /*intensidade*/) {
+            float opacity = frame / 15.0f;
+            auto agora = std::chrono::steady_clock::now();
+            int tempoMs = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(agora.time_since_epoch()).count());
 
-    // 2. Loop de animacao de Fade-in dos Inimigos
-    Aparencia::animarFadeIn(15, 100, [&](int frame, int intensidade) {
-        std::string conteudoFrame = tituloFinalComCores;
-        if (frame < 15) {
-            std::string corRGB = Aparencia::obterCorRGBFade(Cor::BRANCO, intensidade);
-            conteudoFrame += corRGB + inimigosFinalSemCores + Aparencia::cor(Cor::RESET);
-        } else {
-            conteudoFrame += inimigosFinalComCores;
-        }
+            std::vector<std::string> quadroComInimigos = Combate3DRenderer::renderizarQuadro(
+                TelaCombate::tituloMapaAtual, 
+                jogadorAtual, 
+                inimigos,
+                nullptr, 0, 0, -1, false, tempoMs, false, {}, opacity
+            );
 
-        renderizarFrameBufferizado([&](){
-            std::cout << conteudoFrame;
+            std::vector<std::string> frameLinhas;
+            frameLinhas.reserve(altura3D);
+
+            for (int y = 0; y < altura3D; y++) {
+                std::vector<std::string> cells = decomporLinhaAnsi(quadroComInimigos[y], larguraTerminal);
+
+                int logoRowIdx = y - targetY;
+                if (logoRowIdx >= 0 && logoRowIdx < logoHeight) {
+                    const std::string& logoRow = logo[logoRowIdx];
+                    std::vector<std::string> logoChars;
+                    for (size_t j = 0; j < logoRow.length(); ) {
+                        int len = 1;
+                        unsigned char c = logoRow[j];
+                        if ((c & 0x80) == 0) len = 1;
+                        else if ((c & 0xE0) == 0xC0) len = 2;
+                        else if ((c & 0xF0) == 0xE0) len = 3;
+                        else if ((c & 0xF8) == 0xF0) len = 4;
+                        logoChars.push_back(logoRow.substr(j, len));
+                        j += len;
+                    }
+
+                    for (size_t x = 0; x < logoChars.size(); ++x) {
+                        int drawX = startX + x;
+                        if (drawX >= 0 && drawX < larguraTerminal) {
+                            std::string charStr = logoChars[x];
+                            if (charStr != " ") {
+                                std::string bgCode = obterBg(cells[drawX]);
+                                cells[drawX] = bgCode + "\033[1;31m" + charStr + "\033[0m"; // Vermelho
+                            }
+                        }
+                    }
+                }
+
+                std::string novaLinha = "";
+                for (const auto& cell : cells) {
+                    novaLinha += cell;
+                }
+                frameLinhas.push_back(novaLinha);
+            }
+
+            renderizarFrameBufferizado([&](){
+                for (const auto& linha : frameLinhas) {
+                    std::cout << linha << "\n";
+                }
+            });
         });
-    });
+
+    } else {
+        // Captura o estado final do titulo (2D)
+        std::ostringstream bufferTitulo;
+        std::streambuf* oldCout = std::cout.rdbuf(bufferTitulo.rdbuf());
+        exibirLogoParaTelaDeCombate(titulo, false);
+        std::cout.rdbuf(oldCout);
+        std::string tituloFinalComCores = bufferTitulo.str();
+        std::string tituloFinalSemCores = Aparencia::removerCoresANSI(tituloFinalComCores);
+
+        // Captura o estado final dos inimigos (2D)
+        std::ostringstream bufferInimigos;
+        oldCout = std::cout.rdbuf(bufferInimigos.rdbuf());
+        exibirHordaDeInimigosLadoALado(inimigos, nullptr, 0, false, false);
+        std::cout.rdbuf(oldCout);
+        std::string inimigosFinalComCores = bufferInimigos.str();
+        std::string inimigosFinalSemCores = Aparencia::removerCoresANSI(inimigosFinalComCores);
+
+        // 1. Loop de animacao de Fade-in do Titulo (2D)
+        Aparencia::animarFadeIn(15, 100, [&](int frame, int intensidade) {
+            std::string conteudoFrame;
+            if (frame < 15) {
+                std::string corRGB = Aparencia::obterCorRGBFade(Cor::BRANCO, intensidade);
+                conteudoFrame = corRGB + tituloFinalSemCores + Aparencia::cor(Cor::RESET);
+            } else {
+                conteudoFrame = tituloFinalComCores;
+            }
+
+            renderizarFrameBufferizado([&](){
+                std::cout << conteudoFrame;
+            });
+        });
+
+        // 2. Loop de animacao de Fade-in dos Inimigos (2D)
+        Aparencia::animarFadeIn(15, 100, [&](int frame, int intensidade) {
+            std::string conteudoFrame = tituloFinalComCores;
+            if (frame < 15) {
+                std::string corRGB = Aparencia::obterCorRGBFade(Cor::BRANCO, intensidade);
+                conteudoFrame += corRGB + inimigosFinalSemCores + Aparencia::cor(Cor::RESET);
+            } else {
+                conteudoFrame += inimigosFinalComCores;
+            }
+
+            renderizarFrameBufferizado([&](){
+                std::cout << conteudoFrame;
+            });
+        });
+    }
 
     std::cout << "\n";
     Aparencia::imprimirCentralizado("Prepare-se! O combate esta prestes a comecar...", Aparencia::cor(Cor::VERMELHO));

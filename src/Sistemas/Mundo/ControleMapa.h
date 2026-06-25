@@ -57,6 +57,11 @@ public:
 
     static bool isExploracao3DAtiva();
     static void sinalizarTrocaDeMapa3D();
+    static float obterPosCamera3DX();
+    static float obterPosCamera3DY();
+    static float obterAnguloCamera3D();
+    static std::string obterTituloMapaAtual();
+    static std::vector<std::string> obterMatrizDoMapaAtual();
 
     static void renderizarMapa(const std::vector<std::string>& matrizDoMapa, int posicaoXDoJogador, int posicaoYDoJogador, int larguraDoTerminal, int alturaDoTerminal, int linhaInicial, const std::function<std::string(char, int, int)>& formatadorCelula);
 

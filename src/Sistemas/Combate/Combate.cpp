@@ -207,7 +207,8 @@ void Combate::iniciarCombate()
         aliado->prepararParaNovaBatalha();
     }
 
-    TelaCombate::animarIntroducaoCombate(obterTituloDoCombate(), obterInimigosRaw());
+    TelaCombate::configurarContexto3D(isModo3D, matrizDoMapaAtual, jogadorPosX, jogadorPosY, jogadorAngulo, tituloMapaAtual);
+    TelaCombate::animarIntroducaoCombate(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual);
 
     Aparencia::limparTela();
 

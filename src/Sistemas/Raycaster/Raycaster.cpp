@@ -12,6 +12,7 @@
 #include "RaycasterMundo.h"
 #include "RaycasterHUD.h"
 #include "RaycasterRenderer.h"
+#include "../../Core/Controladores/Debug.h"
 #include <map>
 #include <iostream>
 #include <cmath>
@@ -106,19 +107,25 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
     auto downsampleTela = [&]() {
         for (int y = 0; y < ALTURA_TELA; y++) {
             for (int x = 0; x < LARGURA_TELA; x++) {
-                string top = tela3D[(y * 2) * LARGURA_TELA + x];
-                string bot = tela3D[(y * 2 + 1) * LARGURA_TELA + x];
+                const string& top = tela3D[(y * 2) * LARGURA_TELA + x];
+                const string& bot = tela3D[(y * 2 + 1) * LARGURA_TELA + x];
                 
-                auto getBg = [](const string& s) {
+                auto getBg = [](const string& s) -> std::string_view {
+                    if (s.size() >= 7 && s[0] == '\033' && s[1] == '[' && s[2] == '4' && s[3] == '8' && s[4] == ';' && s[5] == '2' && s[6] == ';') {
+                        size_t end = s.find('m', 7);
+                        if (end != string::npos) return std::string_view(s.data(), end + 1);
+                    }
                     size_t pos = s.find("\033[48;2;");
                     if (pos != string::npos) {
                         size_t end = s.find('m', pos);
-                        if (end != string::npos) return s.substr(pos, end - pos + 1);
+                        if (end != string::npos) return std::string_view(s.data() + pos, end - pos + 1);
                     }
-                    return string("\033[48;2;0;0;0m");
+                    return "\033[48;2;0;0;0m";
                 };
 
-                auto getChar = [](const string& s) {
+                auto getChar = [](const string& s) -> char {
+                    if (s.empty()) return ' ';
+                    if (s[0] != '\033') return s[0] == ' ' ? ' ' : s[0];
                     size_t firstM = s.find('m');
                     if (firstM != string::npos && firstM + 1 < s.size()) {
                         char c = s[firstM + 1];
@@ -138,10 +145,19 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
                 char botC = getChar(bot);
                 
                 if (topC == ' ' && botC == ' ') {
-                    string bgTop = getBg(top);
-                    string bgBot = getBg(bot);
-                    if (bgTop.size() > 3) bgTop[2] = '3'; // Transforma 48 (bg) em 38 (fg) trocando o '4' pelo '3' no indice 2
-                    tela[y * LARGURA_TELA + x] = bgBot + bgTop + "\xE2\x96\x80"; // ▀ (Half-Block superior)
+                    std::string_view bgTop = getBg(top);
+                    std::string_view bgBot = getBg(bot);
+                    std::string combined;
+                    combined.reserve(bgBot.size() + bgTop.size() + 10);
+                    combined.append(bgBot);
+                    if (bgTop.size() > 4) {
+                        combined.append("\033[38");
+                        combined.append(bgTop.substr(4));
+                    } else {
+                        combined.append(bgTop);
+                    }
+                    combined.append("\xE2\x96\x80");
+                    tela[y * LARGURA_TELA + x] = std::move(combined);
                 } else if (topC != ' ') {
                     tela[y * LARGURA_TELA + x] = top;
                 } else {
@@ -321,6 +337,11 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
         // Limitador de delta para nao "pular" paredes ou quebrar o mapa se a thread travar
         if (tempoDelta > 0.1f) tempoDelta = 0.1f;
 
+        if (jogador->obterVida() <= 0 || jogador->obterVoltarProMenu()) {
+            rodando = false;
+            break;
+        }
+
         float oldPlayerX = jogadorX;
         float oldPlayerY = jogadorY;
         int oldCellX = (int)jogadorX;
@@ -408,6 +429,17 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
             ControleDeInput::limparBuffer();
             Aparencia::limparTela();
             return 'M';
+        }
+        if ((GetAsyncKeyState(VK_OEM_3) & 0x8000) || (GetAsyncKeyState(VK_OEM_5) & 0x8000) || (GetAsyncKeyState(VK_OEM_PLUS) & 0x8000) || (GetAsyncKeyState(VK_OEM_102) & 0x8000)) {
+            primeiraIteracaoMouse = true;
+            mouseHider.show();
+            while ((GetAsyncKeyState(VK_OEM_3) & 0x8000) || (GetAsyncKeyState(VK_OEM_5) & 0x8000) || (GetAsyncKeyState(VK_OEM_PLUS) & 0x8000) || (GetAsyncKeyState(VK_OEM_102) & 0x8000)) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
+            ControleDeInput::limparBuffer();
+            Debug::exibirMenuDebug(jogador);
+            Aparencia::limparTela();
+            tp1 = chrono::system_clock::now();
         }
 
         // Movimento e Strafing (Com sistema de Sliding)
@@ -608,6 +640,7 @@ void Raycaster::piscarTelaCor(Cor cor, int duracaoMs) {
 }
 
 std::vector<std::string> Raycaster::desenharQuadroEstatico3D(const std::vector<std::string>& matrizDoMapa, float jogadorX, float jogadorY, float anguloVisao, const std::string& tituloMapa, Personagem* jogador, int alturaOverride) {
+    (void)jogador;
     int LARGURA_TELA = Aparencia::obterLarguraTerminal();
     int ALTURA_TELA = (alturaOverride > 0) ? alturaOverride : Aparencia::obterAlturaTerminal();
     if (LARGURA_TELA <= 0) LARGURA_TELA = 120;
@@ -628,19 +661,25 @@ std::vector<std::string> Raycaster::desenharQuadroEstatico3D(const std::vector<s
 
     for (int y = 0; y < ALTURA_TELA; y++) {
         for (int x = 0; x < LARGURA_TELA; x++) {
-            std::string top = tela3D[(y * 2) * LARGURA_TELA + x];
-            std::string bot = tela3D[(y * 2 + 1) * LARGURA_TELA + x];
+            const std::string& top = tela3D[(y * 2) * LARGURA_TELA + x];
+            const std::string& bot = tela3D[(y * 2 + 1) * LARGURA_TELA + x];
 
-            auto getBg = [](const std::string& s) {
+            auto getBg = [](const std::string& s) -> std::string_view {
+                if (s.size() >= 7 && s[0] == '\033' && s[1] == '[' && s[2] == '4' && s[3] == '8' && s[4] == ';' && s[5] == '2' && s[6] == ';') {
+                    size_t end = s.find('m', 7);
+                    if (end != std::string::npos) return std::string_view(s.data(), end + 1);
+                }
                 size_t pos = s.find("\033[48;2;");
                 if (pos != std::string::npos) {
                     size_t end = s.find('m', pos);
-                    if (end != std::string::npos) return s.substr(pos, end - pos + 1);
+                    if (end != std::string::npos) return std::string_view(s.data() + pos, end - pos + 1);
                 }
-                return std::string("\033[48;2;0;0;0m");
+                return "\033[48;2;0;0;0m";
             };
 
-            auto getChar = [](const std::string& s) {
+            auto getChar = [](const std::string& s) -> char {
+                if (s.empty()) return ' ';
+                if (s[0] != '\033') return s[0] == ' ' ? ' ' : s[0];
                 size_t firstM = s.find('m');
                 if (firstM != std::string::npos && firstM + 1 < s.size()) {
                     char c = s[firstM + 1];
@@ -660,10 +699,19 @@ std::vector<std::string> Raycaster::desenharQuadroEstatico3D(const std::vector<s
             char botC = getChar(bot);
 
             if (topC == ' ' && botC == ' ') {
-                std::string bgTop = getBg(top);
-                std::string bgBot = getBg(bot);
-                if (bgTop.size() > 3) bgTop[2] = '3';
-                tela[y * LARGURA_TELA + x] = bgBot + bgTop + "\xE2\x96\x80\033[0m";
+                std::string_view bgTop = getBg(top);
+                std::string_view bgBot = getBg(bot);
+                std::string combined;
+                combined.reserve(bgBot.size() + bgTop.size() + 15);
+                combined.append(bgBot);
+                if (bgTop.size() > 4) {
+                    combined.append("\033[38");
+                    combined.append(bgTop.substr(4));
+                } else {
+                    combined.append(bgTop);
+                }
+                combined.append("\xE2\x96\x80\033[0m");
+                tela[y * LARGURA_TELA + x] = std::move(combined);
             } else if (topC != ' ') {
                 tela[y * LARGURA_TELA + x] = top;
             } else {

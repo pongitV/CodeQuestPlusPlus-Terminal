@@ -51,7 +51,7 @@ SpriteCache RaycasterSprites::parseArte(const std::vector<std::string>& raw) {
     return sc;
 }
 
-SpriteCache RaycasterSprites::parseSprite(const std::vector<std::string>& raw, int r, int g, int b) {
+SpriteCache RaycasterSprites::parseSprite(const std::vector<std::string>& raw, int r, int g, int b, bool isMahoraga) {
     SpriteCache sc;
     sc.height = raw.size();
     sc.width = 0;
@@ -113,13 +113,21 @@ SpriteCache RaycasterSprites::parseSprite(const std::vector<std::string>& raw, i
                     sc.pixels[i].push_back("");
                 } else {
                     char c = pixelChar[0];
-                    int rMod = r, gMod = g, bMod = b;
-                    if (c == '@' || c == 'M' || c == 'W' || c == '#' || c == '&' || c == '8') { rMod = r * 0.4; gMod = g * 0.4; bMod = b * 0.4; } // Sombra Profunda
-                    else if (c == '%' || c == 'O' || c == 'X' || c == 'S' || c == 'Q') { rMod = r * 0.6; gMod = g * 0.6; bMod = b * 0.6; } // Sombra
-                    else if (c == '*' || c == '+' || c == 'x' || c == 'o' || c == '=' || c == 'H') { rMod = r * 0.8; gMod = g * 0.8; bMod = b * 0.8; } // Cor Base
-                    else if (c == '-' || c == '~' || c == ':' || c == ';') { rMod = std::min(255, (int)(r * 1.2)); gMod = std::min(255, (int)(g * 1.2)); bMod = std::min(255, (int)(b * 1.2)); } // Iluminado
-                    else if (c == '.' || c == ',' || c == '\'') { rMod = std::min(255, (int)(r * 1.5)); gMod = std::min(255, (int)(g * 1.5)); bMod = std::min(255, (int)(b * 1.5)); } // Brilho Forte
-                    else if (c == '_' || c == '|' || c == '\\' || c == '/' || c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '<' || c == '>') { rMod = r * 0.5; gMod = g * 0.5; bMod = b * 0.5; } // Contornos internos
+                    int currentBaseR = r;
+                    int currentBaseG = g;
+                    int currentBaseB = b;
+                    if (isMahoraga && i < 24) {
+                        currentBaseR = 255;
+                        currentBaseG = 215;
+                        currentBaseB = 0; // Amarelo/Dourado para a roda
+                    }
+                    int rMod = currentBaseR, gMod = currentBaseG, bMod = currentBaseB;
+                    if (c == '@' || c == 'M' || c == 'W' || c == '#' || c == '&' || c == '8') { rMod = currentBaseR * 0.4; gMod = currentBaseG * 0.4; bMod = currentBaseB * 0.4; } // Sombra Profunda
+                    else if (c == '%' || c == 'O' || c == 'X' || c == 'S' || c == 'Q') { rMod = currentBaseR * 0.6; gMod = currentBaseG * 0.6; bMod = currentBaseB * 0.6; } // Sombra
+                    else if (c == '*' || c == '+' || c == 'x' || c == 'o' || c == '=' || c == 'H') { rMod = currentBaseR * 0.8; gMod = currentBaseG * 0.8; bMod = currentBaseB * 0.8; } // Cor Base
+                    else if (c == '-' || c == '~' || c == ':' || c == ';') { rMod = std::min(255, (int)(currentBaseR * 1.2)); gMod = std::min(255, (int)(currentBaseG * 1.2)); bMod = std::min(255, (int)(currentBaseB * 1.2)); } // Iluminado
+                    else if (c == '.' || c == ',' || c == '\'') { rMod = std::min(255, (int)(currentBaseR * 1.5)); gMod = std::min(255, (int)(currentBaseG * 1.5)); bMod = std::min(255, (int)(currentBaseB * 1.5)); } // Brilho Forte
+                    else if (c == '_' || c == '|' || c == '\\' || c == '/' || c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '<' || c == '>') { rMod = currentBaseR * 0.5; gMod = currentBaseG * 0.5; bMod = currentBaseB * 0.5; } // Contornos internos
                     
                     sc.pixels[i].push_back("\033[48;2;" + std::to_string(rMod) + ";" + std::to_string(gMod) + ";" + std::to_string(bMod) + "m \033[0m");
                 }

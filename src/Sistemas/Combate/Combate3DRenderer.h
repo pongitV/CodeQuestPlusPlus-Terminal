@@ -20,7 +20,8 @@ public:
         bool isCura = false,
         int tempoMs = 0,
         bool isMorte = false,
-        const std::vector<std::string>& dropsAnimacao = {}
+        const std::vector<std::string>& dropsAnimacao = {},
+        float spriteOpacity = 1.0f
     );
 
     // Gera uma mini-arena baseada no titulo do mapa (bioma)
@@ -48,6 +49,7 @@ private:
         bool isMorte = false, 
         int frameMorte = 0, 
         const std::vector<std::string>& dropsAnimacao = {}, 
-        bool isSelecionado = false
+        bool isSelecionado = false,
+        float spriteOpacity = 1.0f
     );
 };

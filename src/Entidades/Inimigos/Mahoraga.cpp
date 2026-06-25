@@ -264,7 +264,7 @@ const std::vector<std::string>& Mahoraga::obterAparenciaCombate() const
     if (aparenciaReduzida.empty())
     {
         // Fator de compressão (X e Y) definido localmente para este inimigo
-        aparenciaReduzida = Aparencia::reduzirEscalaAscii(obterAparenciaRaca(), 3, 4);
+        aparenciaReduzida = Aparencia::reduzirEscalaAscii(obterAparenciaRaca(), 4, 5);
     }
     return aparenciaReduzida;
 }

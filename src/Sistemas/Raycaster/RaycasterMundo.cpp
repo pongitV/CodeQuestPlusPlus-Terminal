@@ -3,7 +3,48 @@
 #include <cctype>
 #include <cmath>
 
-static std::string aplicarNevoa(int r, int g, int b, float distancia, float profundidadeMaxima, int temaCeu, const std::vector<std::tuple<int, int, int>>& luzes, float hitX, float hitY) {
+struct MapFlags {
+    std::string tituloUpper;
+    bool isReino = false;
+    bool isCaverna = false;
+    bool isLabirinto = false;
+    bool isSalaChefe = false;
+    bool isSpawn = false;
+    bool isTerra = false;
+    int temaCeu = 0;
+};
+
+static const MapFlags& obterFlagsMapa(const std::string& tituloMapa) {
+    static thread_local std::string lastTitulo;
+    static thread_local MapFlags flags;
+    if (tituloMapa != lastTitulo) {
+        lastTitulo = tituloMapa;
+        std::string upper = tituloMapa;
+        for (char& ch : upper) ch = std::toupper(static_cast<unsigned char>(ch));
+        flags.tituloUpper = upper;
+        flags.isReino = (upper.find("CASTELO") != std::string::npos || upper.find("REINO") != std::string::npos);
+        flags.isCaverna = (upper.find("CAVERNA") != std::string::npos || upper.find("CORACAO") != std::string::npos);
+        flags.isLabirinto = (upper.find("LABIRINTO") != std::string::npos);
+        flags.isSalaChefe = (upper.find("CHEFE") != std::string::npos);
+        flags.isSpawn = (upper.find("INICIO") != std::string::npos);
+        flags.isTerra = (upper.find("FLORESTA") != std::string::npos || 
+                         upper.find("BOSQUE") != std::string::npos ||
+                         upper.find("VILA") != std::string::npos ||
+                         upper.find("INICIO") != std::string::npos);
+        
+        // temaCeu logic
+        if (flags.isCaverna || flags.isLabirinto || flags.isSalaChefe) {
+            flags.temaCeu = 0;
+        } else if (upper.find("FLORESTA") != std::string::npos || upper.find("BOSQUE") != std::string::npos) {
+            flags.temaCeu = 1;
+        } else {
+            flags.temaCeu = 2;
+        }
+    }
+    return flags;
+}
+
+static std::string aplicarNevoa(int r, int g, int b, float distancia, float profundidadeMaxima, int temaCeu, const std::vector<std::tuple<int, int, int>>& luzes, float hitX, float hitY, bool escurecer = false) {
     float nevoaPercent = distancia / (profundidadeMaxima * 0.8f);
     if (nevoaPercent < 0.0f) nevoaPercent = 0.0f;
     if (nevoaPercent > 1.0f) nevoaPercent = 1.0f;
@@ -20,10 +61,12 @@ static std::string aplicarNevoa(int r, int g, int b, float distancia, float prof
     for (const auto& luz : luzes) {
         float dx = hitX - (std::get<0>(luz) + 0.5f);
         float dy = hitY - (std::get<1>(luz) + 0.5f);
+        float distLuzSq = dx*dx + dy*dy;
         int tipoLuz = std::get<2>(luz);
         float maxDist = (tipoLuz == 1) ? 6.0f : 5.0f; // White aura slightly larger
-        float distLuz = std::sqrt(dx*dx + dy*dy);
-        if (distLuz < maxDist) {
+        float maxDistSq = maxDist * maxDist;
+        if (distLuzSq < maxDistSq) {
+            float distLuz = std::sqrt(distLuzSq);
             float intensity = 1.0f - (distLuz / maxDist);
             intensity = intensity * intensity; 
             if (tipoLuz == 0) { // Orange
@@ -46,6 +89,12 @@ static std::string aplicarNevoa(int r, int g, int b, float distancia, float prof
     finalG = finalG + (fogG - finalG) * nevoaPercent;
     finalB = finalB + (fogB - finalB) * nevoaPercent;
     
+    if (escurecer) {
+        finalR = (int)(finalR * 0.65f);
+        finalG = (int)(finalG * 0.65f);
+        finalB = (int)(finalB * 0.65f);
+    }
+    
     if (finalR > 255) finalR = 255;
     if (finalG > 255) finalG = 255;
     if (finalB > 255) finalB = 255;
@@ -57,9 +106,8 @@ static std::string aplicarNevoa(int r, int g, int b, float distancia, float prof
 }
 
 bool RaycasterMundo::isTemaFloresta(const std::string& tituloMapa) {
-    std::string tituloUpper = tituloMapa;
-    for (char& c : tituloUpper) c = std::toupper(static_cast<unsigned char>(c));
-    return (tituloUpper.find("FLORESTA") != std::string::npos || tituloUpper.find("BOSQUE") != std::string::npos);
+    const auto& flags = obterFlagsMapa(tituloMapa);
+    return (flags.tituloUpper.find("FLORESTA") != std::string::npos || flags.tituloUpper.find("BOSQUE") != std::string::npos);
 }
 
 bool RaycasterMundo::isEntity(char c) {
@@ -80,14 +128,31 @@ bool RaycasterMundo::isWalkable(int mapX, int mapY, const std::vector<std::strin
 }
 
 bool RaycasterMundo::isMapLabel(int mapX, int mapY, const std::vector<std::string>& matrizDoMapa) {
+    static thread_local std::vector<std::string> lastMap;
+    static thread_local std::vector<std::vector<char>> cachedLabels;
+
+    int height = matrizDoMapa.size();
+    if (height == 0) return false;
+    int width = matrizDoMapa[0].size();
+    if (mapY < 0 || mapY >= height || mapX < 0 || mapX >= width) return false;
+
+    if (matrizDoMapa != lastMap) {
+        lastMap = matrizDoMapa;
+        cachedLabels.assign(height, std::vector<char>(width, 2));
+    }
+
+    if (cachedLabels[mapY][mapX] != 2) {
+        return cachedLabels[mapY][mapX] == 1;
+    }
+
     char c = matrizDoMapa[mapY][mapX];
+    bool result = false;
     if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
         if (isEntity(c)) {
             bool hasAdjacentText = false;
-            // Checa Horizontal (procura ^ ou letras minusculas do resto da palavra)
             for (int dx = -1; dx <= 1; dx += 2) {
                 int nx = mapX + dx;
-                if (mapY >= 0 && mapY < (int)matrizDoMapa.size() && nx >= 0 && nx < (int)matrizDoMapa[mapY].size()) {
+                if (mapY >= 0 && mapY < height && nx >= 0 && nx < (int)matrizDoMapa[mapY].size()) {
                     char adj = matrizDoMapa[mapY][nx];
                     if (adj == '^' || (adj >= 'a' && adj <= 'z')) {
                         hasAdjacentText = true;
@@ -95,11 +160,10 @@ bool RaycasterMundo::isMapLabel(int mapX, int mapY, const std::vector<std::strin
                     }
                 }
             }
-            // Checa Vertical (procura APENAS ^, para evitar bugar NPCs acima de textos)
             if (!hasAdjacentText) {
                 for (int dy = -1; dy <= 1; dy += 2) {
                     int ny = mapY + dy;
-                    if (ny >= 0 && ny < (int)matrizDoMapa.size() && mapX >= 0 && mapX < (int)matrizDoMapa[ny].size()) {
+                    if (ny >= 0 && ny < height && mapX >= 0 && mapX < (int)matrizDoMapa[ny].size()) {
                         char adj = matrizDoMapa[ny][mapX];
                         if (adj == '^') {
                             hasAdjacentText = true;
@@ -108,51 +172,50 @@ bool RaycasterMundo::isMapLabel(int mapX, int mapY, const std::vector<std::strin
                     }
                 }
             }
-            if (!hasAdjacentText) return false;
-            return true;
+            result = hasAdjacentText;
         } else {
             for (int dy = -1; dy <= 1; dy++) {
                 for (int dx = -1; dx <= 1; dx++) {
                     if (dx == 0 && dy == 0) continue;
                     int nx = mapX + dx;
                     int ny = mapY + dy;
-                    if (ny >= 0 && ny < (int)matrizDoMapa.size() && nx >= 0 && nx < (int)matrizDoMapa[ny].size()) {
+                    if (ny >= 0 && ny < height && nx >= 0 && nx < (int)matrizDoMapa[ny].size()) {
                         char adj = matrizDoMapa[ny][nx];
-                        if (adj == '^' || (adj >= 'a' && adj <= 'z')) return true;
+                        if (adj == '^' || (adj >= 'a' && adj <= 'z')) {
+                            result = true;
+                            break;
+                        }
                     }
                 }
+                if (result) break;
             }
         }
     }
-    return false;
+    cachedLabels[mapY][mapX] = result ? 1 : 0;
+    return result;
 }
 
-std::string RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMapa, bool temaFloresta, float distanciaAteParede, float profundidadeMaxima, char charParede, int y, int teto, int chao, float texX, float tempoAnimacao, const std::vector<std::tuple<int, int, int>>& luzes, float hitX, float hitY) {
-    int temaCeu = obterTemaCeu(tituloMapa);
+std::string RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMapa, bool temaFloresta, float distanciaAteParede, float profundidadeMaxima, char charParede, int y, int teto, int chao, float texX, float tempoAnimacao, const std::vector<std::tuple<int, int, int>>& luzes, float hitX, float hitY, bool isSideWall) {
+    const auto& flags = obterFlagsMapa(tituloMapa);
+    int temaCeu = flags.temaCeu;
     int baseR=0, baseG=0, baseB=0;
-    // Reduz o peso da distancia para empurrar a escuridao (fog) mais para longe
-    // Isso melhora drasticamente a clareza visual a medias e longas distancias
     distanciaAteParede *= 0.55f;
 
     int alturaParede = chao - teto;
-    int metadeParede = teto + (alturaParede / 2);
     
     float texY = 0.0f;
     if (alturaParede > 0) texY = (float)(y - teto) / (float)alturaParede;
-    if (texY > 0.999f) texY = 0.999f; // Impede o "wrapping" (loop) da textura no ultimo pixel tocando o chao
+    if (texY > 0.999f) texY = 0.999f;
     int tx = (int)(texX * 64.0f) % 64;
     int ty = (int)(texY * 64.0f) % 64;
 
-    std::string tituloUpper = tituloMapa;
-    for (char& ch : tituloUpper) ch = std::toupper(static_cast<unsigned char>(ch));
-    bool isReino = (tituloUpper.find("CASTELO") != std::string::npos || tituloUpper.find("REINO") != std::string::npos);
+    bool isReino = flags.isReino;
 
     bool isEstrutura = false;
     std::string charsEstrutura = "|_[]{}/\\<>;=-:+";
     if (charsEstrutura.find(charParede) != std::string::npos) isEstrutura = true;
 
-    if (tituloUpper.find("LABIRINTO") != std::string::npos) {
-        // Textura de casa tradicional japonesa (Shoji) para TODAS as paredes do Labirinto
+    if (flags.isLabirinto) {
         bool isWoodBase = (ty > 54);
         bool isWoodenPillar = (tx % 32 < 4);
         bool isWoodenFrameX = (tx % 16 < 2);
@@ -167,7 +230,6 @@ std::string RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMa
 
     if (isReino && (isEstrutura || charParede == '#')) {
         if (charParede == '|') {
-            // Textura de Madeira HD para o Portao do Reino
             bool isTabua = (tx % 8 == 0); 
             if (isTabua) {
                 baseR = 45; baseG = 25; baseB = 10;
@@ -180,12 +242,10 @@ std::string RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMa
                 }
             }
         } else {
-            // Muros do Castelo com Degraus (Battlements)
             bool isBattlementGap = (ty < 12 && (tx % 32) >= 16);
             if (isBattlementGap) {
                 return "FUNDO";
             }
-            // Tijolos Cinzas
             bool isJunta = (ty % 4 == 0) || (((ty / 4) % 2 == 0) && tx % 8 == 0) || (((ty / 4) % 2 == 1) && (tx + 4) % 8 == 0); 
             if (isJunta) {
                 baseR = 60; baseG = 60; baseB = 60;
@@ -200,7 +260,6 @@ std::string RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMa
         }
     } else if (isEstrutura) {
         if (temaFloresta) {
-            // Textura de Madeira HD para a Cabana da Bruxa
             bool isTabua = (tx % 8 == 0); 
             if (isTabua) {
                 baseR = 45; baseG = 25; baseB = 10;
@@ -213,12 +272,11 @@ std::string RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMa
                 }
             }
         } else {
-            // Vermelho/Marrom com Textura de Tijolos HD (O dobro de tijolos na malha 32x32)
             bool isJunta = (ty % 4 == 0) || (((ty / 4) % 2 == 0) && tx % 8 == 0) || (((ty / 4) % 2 == 1) && (tx + 4) % 8 == 0); 
             if (isJunta) {
                 baseR = 120; baseG = 120; baseB = 120;
             } else {
-                bool hasGrain = ((tx * 7 + ty * 13) % 10) < 3; // Ruido denso para textura HD
+                bool hasGrain = ((tx * 7 + ty * 13) % 10) < 3;
                 if (hasGrain) {
                     baseR = 140; baseG = 50; baseB = 30;
                 } else {
@@ -230,10 +288,9 @@ std::string RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMa
 
     if (!isReino && temaFloresta && charParede == '#') {
         int folhaTx = tx;
-        int limiteFolhas = 28 + ((tx * 7) % 10); // Borda organica variando de 28 a 37 de altura
+        int limiteFolhas = 28 + ((tx * 7) % 10);
 
         if (ty < limiteFolhas) {
-            // Animacao de vento suave com seno nas folhas do topo
             int animOffset = (int)(std::sin(tempoAnimacao * 1.5f + texX * 10.0f) * 4.0f);
             folhaTx = (tx + animOffset) % 64;
             if (folhaTx < 0) folhaTx += 64;
@@ -245,7 +302,6 @@ std::string RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMa
                 baseR = 34; baseG = 139; baseB = 34;
             }
         } else {
-            // Tronco macico de arvore antiga cobrindo todo o bloco na base
             bool isBordaEscura = (tx < 6 || tx > 57);
             bool isSombra = (tx >= 6 && tx <= 12) || (tx >= 51 && tx <= 57);
             bool hasWoodGrain = ((tx * 3 + ty * 7) % 5) == 0;
@@ -263,12 +319,11 @@ std::string RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMa
             }
         }
     } else if (!isReino) {
-        bool isSpawn = (tituloUpper.find("INICIO") != std::string::npos);
-        bool isSalaChefe = (tituloUpper.find("CHEFE") != std::string::npos);
-        bool isCaverna = (tituloUpper.find("CAVERNA") != std::string::npos || tituloUpper.find("CORACAO") != std::string::npos);
+        bool isSpawn = flags.isSpawn;
+        bool isSalaChefe = flags.isSalaChefe;
+        bool isCaverna = flags.isCaverna;
         
         if (isSpawn) {
-            // Tijolos brancos originais para o Spawn
             bool isJuntaBranca = (ty % 4 == 0) || (((ty / 4) % 2 == 0) && tx % 8 == 0) || (((ty / 4) % 2 == 1) && (tx + 4) % 8 == 0); 
             if (isJuntaBranca) {
                 baseR = 140; baseG = 140; baseB = 140;
@@ -281,7 +336,6 @@ std::string RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMa
                 }
             }
         } else if (isSalaChefe) {
-            // Fundo preto com espirais cinza escuro
             float cx = (tx - 32.0f);
             float cy = (ty - 32.0f);
             float dist = std::sqrt(cx*cx + cy*cy);
@@ -294,7 +348,6 @@ std::string RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMa
                 baseR = 15; baseG = 15; baseB = 15;
             }
         } else if (isCaverna) {
-            // Textura de Rochas Escuras e Umidas para Cavernas
             bool isJuntaPedra = ((tx * 3 + ty * 7) % 9) < 2 || ((tx * 11 + ty * 5) % 13) < 2;
             if (isJuntaPedra) {
                 baseR = 30; baseG = 30; baseB = 30;
@@ -307,7 +360,6 @@ std::string RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMa
                 }
             }
         } else {
-            // Textura natural de Rochas Irregulares para a Vila
             bool isJuntaPedra = ((tx * 3 + ty * 7) % 9) < 2 || ((tx * 11 + ty * 5) % 13) < 2;
             if (isJuntaPedra) {
                 baseR = 50; baseG = 50; baseB = 50;
@@ -321,71 +373,39 @@ std::string RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMa
             }
         }
     }
-    return aplicarNevoa(baseR, baseG, baseB, distanciaAteParede, profundidadeMaxima, temaCeu, luzes, hitX, hitY);
+    return aplicarNevoa(baseR, baseG, baseB, distanciaAteParede, profundidadeMaxima, temaCeu, luzes, hitX, hitY, isSideWall);
 }
 
 std::string RaycasterMundo::obterPixelParede(const std::string& tituloMapa, bool temaFloresta, float distanciaAteParede, float profundidadeMaxima, char charParede, int y, int teto, int chao, float texX, float tempoAnimacao, bool isSideWall, const std::vector<std::tuple<int, int, int>>& luzes, float hitX, float hitY) {
-    std::string pixel = obterPixelParedeInternal(tituloMapa, temaFloresta, distanciaAteParede, profundidadeMaxima, charParede, y, teto, chao, texX, tempoAnimacao, luzes, hitX, hitY);
-    if (!isSideWall || pixel == "FUNDO") return pixel;
-    
-    // Analisa a string ANSI padrao: "\033[48;2;R;G;Bm \033[0m"
-    if (pixel.find("\033[48;2;") == 0) {
-        size_t pos1 = 7;
-        size_t pos2 = pixel.find(';', pos1);
-        size_t pos3 = pixel.find(';', pos2 + 1);
-        size_t pos4 = pixel.find('m', pos3 + 1);
-        if (pos2 != std::string::npos && pos3 != std::string::npos && pos4 != std::string::npos) {
-            try {
-                int r = std::stoi(pixel.substr(pos1, pos2 - pos1));
-                int g = std::stoi(pixel.substr(pos2 + 1, pos3 - pos2 - 1));
-                int b = std::stoi(pixel.substr(pos3 + 1, pos4 - pos3 - 1));
-                
-                // Escurece a face lateral da parede em 35% para criar contraste na quina (Directional Shading)
-                r = (int)(r * 0.65f);
-                g = (int)(g * 0.65f);
-                b = (int)(b * 0.65f);
-                
-                return "\033[48;2;" + std::to_string(r) + ";" + std::to_string(g) + ";" + std::to_string(b) + "m \033[0m";
-            } catch(...) {
-                return pixel;
-            }
-        }
-    }
-    return pixel;
+    return obterPixelParedeInternal(tituloMapa, temaFloresta, distanciaAteParede, profundidadeMaxima, charParede, y, teto, chao, texX, tempoAnimacao, luzes, hitX, hitY, isSideWall);
 }
 
 std::string RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float currentX, float currentY, float currentDist, float profundidadeMaxima, const std::vector<std::tuple<int, int, int>>& luzes) {
-    int temaCeu = obterTemaCeu(tituloMapa);
-    int baseR=0, baseG=0, baseB=0;
-    currentDist *= 0.55f; // Empurra o sombreamento do chao mais para o fundo
+    const auto& flags = obterFlagsMapa(tituloMapa);
+    int temaCeu = flags.temaCeu;
+    currentDist *= 0.55f;
 
-    std::string tituloUpper = tituloMapa;
-    for (char& ch : tituloUpper) ch = std::toupper(static_cast<unsigned char>(ch));
-
-    bool isTerra = (tituloUpper.find("FLORESTA") != std::string::npos || 
-                    tituloUpper.find("BOSQUE") != std::string::npos ||
-                    tituloUpper.find("VILA") != std::string::npos ||
-                    tituloUpper.find("INICIO") != std::string::npos);
-    bool isLabirinto = (tituloUpper.find("LABIRINTO") != std::string::npos);
-    bool isSalaChefe = (tituloUpper.find("CHEFE") != std::string::npos);
+    bool isTerra = flags.isTerra;
+    bool isLabirinto = flags.isLabirinto;
+    bool isSalaChefe = flags.isSalaChefe;
 
     unsigned int globX = static_cast<unsigned int>(std::abs(currentX * 32.0f));
     unsigned int globY = static_cast<unsigned int>(std::abs(currentY * 32.0f));
 
-    std::string bg;
     std::string fg;
     char c = ' ';
+    int r = 0, g = 0, b = 0;
 
     if (isLabirinto) {
         fg = "\033[38;2;150;130;90m";
         bool bordaX = (globX % 64 < 2) || (globX % 64 > 61);
         bool bordaY = (globY % 32 < 2) || (globY % 32 > 29);
         if (bordaX || bordaY) {
-            bg = "\033[48;2;40;40;30m";
+            r = 40; g = 40; b = 30;
             c = ' ';
         } else {
-            if ((globX + globY) % 2 == 0) bg = "\033[48;2;180;160;110m";
-            else bg = "\033[48;2;160;140;95m";
+            if ((globX + globY) % 2 == 0) { r = 180; g = 160; b = 110; }
+            else                          { r = 160; g = 140; b = 95; }
             c = ((globX * 3 + globY * 7) % 5 < 2) ? '-' : '=';
         }
     } else if (isSalaChefe) {
@@ -395,7 +415,7 @@ std::string RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float 
         float angle = std::atan2(cy, cx);
         float spiral = std::sin(dist * 0.4f - angle * 3.0f);
 
-        bg = "\033[48;2;5;5;5m"; 
+        r = 5; g = 5; b = 5;
         fg = "\033[38;2;50;50;50m"; 
         if (spiral > 0.3f) c = '@';
         else if (spiral > 0.0f) c = '%';
@@ -403,46 +423,30 @@ std::string RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float 
         else c = ' ';
     } else if (isTerra) {
         fg = "\033[38;2;45;25;10m";
-        if ((globX + globY) % 2 == 0) bg = "\033[48;2;28;18;8m";
-        else if ((globX * 3 + globY * 5) % 7 < 2) bg = "\033[48;2;22;12;4m";
-        else bg = "\033[48;2;25;15;5m";
+        if ((globX + globY) % 2 == 0) { r = 28; g = 18; b = 8; }
+        else if ((globX * 3 + globY * 5) % 7 < 2) { r = 22; g = 12; b = 4; }
+        else { r = 25; g = 15; b = 5; }
         
         if ((globX * 17 + globY * 23) % 47 < 4) c = '.';
         else if ((globX * globX + globY * 13) % 53 < 3) c = '-';
         else if ((globX * 3 + globY * 7) % 31 < 2) c = '`';
     } else {
         fg = "\033[38;2;60;60;60m";
-        if ((globX + globY) % 2 == 0) bg = "\033[48;2;24;24;24m";
-        else if ((globX * 3 + globY * 5) % 7 < 2) bg = "\033[48;2;16;16;16m";
-        else bg = "\033[48;2;20;20;20m";
+        if ((globX + globY) % 2 == 0) { r = 24; g = 24; b = 24; }
+        else if ((globX * 3 + globY * 5) % 7 < 2) { r = 16; g = 16; b = 16; }
+        else { r = 20; g = 20; b = 20; }
         
         if ((globX * 17 + globY * 23) % 47 < 4) c = '.';
         else if ((globX * globX + globY * 13) % 53 < 3) c = '-';
         else if ((globX * 3 + globY * 7) % 31 < 2) c = '`';
     }
     
-    int r = 0, g = 0, b = 0;
-    size_t pos1 = bg.find(";2;");
-    if (pos1 != std::string::npos) {
-        pos1 += 3;
-        size_t pos2 = bg.find(';', pos1);
-        size_t pos3 = bg.find(';', pos2 + 1);
-        size_t pos4 = bg.find('m', pos3 + 1);
-        r = std::stoi(bg.substr(pos1, pos2 - pos1));
-        g = std::stoi(bg.substr(pos2 + 1, pos3 - pos2 - 1));
-        b = std::stoi(bg.substr(pos3 + 1, pos4 - pos3 - 1));
-    }
-    
     std::string newBg = aplicarNevoa(r, g, b, currentDist, profundidadeMaxima, temaCeu, luzes, currentX, currentY);
     if (c == ' ') return newBg;
     
-    // fg fog logic (simple darken)
-    float nevoaPercent = currentDist / (profundidadeMaxima * 0.8f);
-    if (nevoaPercent > 1.0f) nevoaPercent = 1.0f;
-    // ... we can just return the fg as is but it might stand out. Let's just return space for floor at distance.
     if (currentDist > profundidadeMaxima * 0.5f) return newBg;
     
-    newBg = newBg.substr(0, newBg.find(" \033[0m")); // remove the space and reset
+    newBg = newBg.substr(0, newBg.find(" \033[0m")); // remove space and reset
     return newBg + fg + std::string(1, c) + "\033[0m";
 }
 
@@ -472,23 +476,8 @@ std::string RaycasterMundo::obterPixelAgua(float currentX, float currentY, float
 }
 
 int RaycasterMundo::obterTemaCeu(const std::string& tituloMapa) {
-    std::string tituloUpper = tituloMapa;
-    for (char& ch : tituloUpper) ch = std::toupper(static_cast<unsigned char>(ch));
-
-    if (tituloUpper.find("CAVERNA") != std::string::npos ||
-        tituloUpper.find("LABIRINTO") != std::string::npos ||
-        tituloUpper.find("CHEFE") != std::string::npos ||
-        tituloUpper.find("CORACAO") != std::string::npos) {
-        return 0; // Preto normal para cavernas e interiores
-    }
-
-    if (tituloUpper.find("FLORESTA") != std::string::npos || 
-        tituloUpper.find("BOSQUE") != std::string::npos) {
-        return 1; // Laranja/Fim de tarde
-    }
-    
-    // Default: Vila, Caminho do Inicio, Reino (Azul Dia)
-    return 2; 
+    const auto& flags = obterFlagsMapa(tituloMapa);
+    return flags.temaCeu;
 }
 
 std::string RaycasterMundo::obterPixelTeto(int temaCeu, float raioAngulo, int y, int alturaTela, float tempoAnimacao) {
@@ -600,52 +589,48 @@ std::string RaycasterMundo::obterPixelTeto(int temaCeu, float raioAngulo, int y,
 
 char RaycasterMundo::obterSpriteChar(int mapX, int mapY, char c, const std::string& tituloMapa) {
     if (c == '^') {
-        std::string upper = tituloMapa;
-        for (char& ch : upper) ch = std::toupper((unsigned char)ch);
-        
-        if (upper.find("VILA") != std::string::npos) return '2';
-        if (upper.find("FLORESTA") != std::string::npos) {
+        const auto& flags = obterFlagsMapa(tituloMapa);
+        if (flags.tituloUpper.find("VILA") != std::string::npos) return '2';
+        if (flags.tituloUpper.find("FLORESTA") != std::string::npos) {
             if (mapY > 15) return '1'; 
             return '5'; 
         }
-        if (upper.find("REINO") != std::string::npos) return '1';
+        if (flags.tituloUpper.find("REINO") != std::string::npos) return '1';
         return '^';
     }
 
-    std::string tituloUpper = tituloMapa;
-    for (char& ch : tituloUpper) ch = std::toupper(static_cast<unsigned char>(ch));
+    const auto& flags = obterFlagsMapa(tituloMapa);
 
-    if (tituloUpper.find("VILA") != std::string::npos && c == 'F') {
+    if (flags.tituloUpper.find("VILA") != std::string::npos && c == 'F') {
         return 'V'; // Franchesco
     }
-    if (tituloUpper.find("SALA DO CHEFE") != std::string::npos && (c == 'M' || c == 'A' || c == 'H' || c == 'O' || c == 'R' || c == 'G')) {
+    if (flags.tituloUpper.find("SALA DO CHEFE") != std::string::npos && (c == 'M' || c == 'A' || c == 'H' || c == 'O' || c == 'R' || c == 'G')) {
         return 'H'; // Mahoraga
     }
-    if ((tituloUpper.find("CABANA") != std::string::npos || tituloUpper.find("FLORESTA") != std::string::npos) && c == 'M') {
+    if ((flags.tituloUpper.find("CABANA") != std::string::npos || flags.tituloUpper.find("FLORESTA") != std::string::npos) && c == 'M') {
         return 'W'; // Morgana
     }
-    if (tituloUpper.find("LABIRINTO") != std::string::npos && c == 'B') {
+    if (flags.tituloUpper.find("LABIRINTO") != std::string::npos && c == 'B') {
         return 'X'; // Bau
     }
 
-    bool isReino = (tituloUpper.find("CASTELO") != std::string::npos || tituloUpper.find("REINO") != std::string::npos);
+    bool isReino = flags.isReino;
     if (isReino && (c == 'C' || c == 'G')) return 'C'; // Cavaleiro Real
     return c; // Default
 }
 
 std::string RaycasterMundo::obterCorMinimapaEntidade(char c, const std::string& tituloMapa) {
-    std::string tituloUpper = tituloMapa;
-    for (char& ch : tituloUpper) ch = std::toupper(static_cast<unsigned char>(ch));
+    const auto& flags = obterFlagsMapa(tituloMapa);
 
-    if (tituloUpper.find("VILA") != std::string::npos && c == 'F') return "\033[1;38;2;255;200;50m"; // Amarelo para Franchesco (Brilhante)
-    if ((tituloUpper.find("VILA") != std::string::npos || tituloUpper.find("CAVERNA") != std::string::npos) && c == 'B') return "\033[1;38;2;100;200;255m"; // Ciano para Bjorn
-    if (tituloUpper.find("SALA DO CHEFE") != std::string::npos) return "\033[1;38;2;255;255;255m"; // Branco para Boss
-    if ((tituloUpper.find("CABANA") != std::string::npos || tituloUpper.find("FLORESTA") != std::string::npos) && c == 'M') return "\033[1;38;2;200;100;255m"; // Morgana Roxa
-    if (tituloUpper.find("LABIRINTO") != std::string::npos && c == 'B') return "\033[1;38;2;200;150;50m"; // Bau Dourado
+    if (flags.tituloUpper.find("VILA") != std::string::npos && c == 'F') return "\033[1;38;2;255;200;50m"; // Amarelo para Franchesco (Brilhante)
+    if ((flags.tituloUpper.find("VILA") != std::string::npos || flags.tituloUpper.find("CAVERNA") != std::string::npos) && c == 'B') return "\033[1;38;2;100;200;255m"; // Ciano para Bjorn
+    if (flags.tituloUpper.find("SALA DO CHEFE") != std::string::npos) return "\033[1;38;2;255;255;255m"; // Branco para Boss
+    if ((flags.tituloUpper.find("CABANA") != std::string::npos || flags.tituloUpper.find("FLORESTA") != std::string::npos) && c == 'M') return "\033[1;38;2;200;100;255m"; // Morgana Roxa
+    if (flags.tituloUpper.find("LABIRINTO") != std::string::npos && c == 'B') return "\033[1;38;2;200;150;50m"; // Bau Dourado
     if (c == 'P') return "\033[1;38;2;139;69;19m"; // Placa (Brilhante)
     if (c == '*') return "\033[38;2;34;139;34m"; // Verde para arvore
     
-    bool isReino = (tituloUpper.find("CASTELO") != std::string::npos || tituloUpper.find("REINO") != std::string::npos);
+    bool isReino = flags.isReino;
     if (isReino && c == 'C') return "\033[1;38;2;200;200;220m"; // Prata para Cavaleiro
     if (isReino && c == 'G') return "\033[1;38;2;255;200;50m"; // Amarelo para Guarda do Reino
     return "\033[1;38;2;255;50;50m"; // Vermelho base para Inimigos (Brilhante)

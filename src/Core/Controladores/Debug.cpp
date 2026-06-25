@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <string>
+#include <thread>
+#include <chrono>
 #include <vector>
 #include <map>
 #include <algorithm>
@@ -16,6 +18,8 @@
 #include "../../Interface/Telas/TelaBase.h"
 #include "../../Sistemas/Progresso/Progressao.h"
 #include "../../Sistemas/Progresso/ProgressaoFlags.h"
+#include "../../Sistemas/Combate/Combate.h"
+#include "../../Sistemas/Mundo/ControleMapa.h"
 
 namespace {
     void ativarGodMode(Personagem* jogador) {
@@ -208,6 +212,75 @@ namespace {
             }
         );
     }
+    void menuIniciarCombate(Personagem* jogador) {
+        TelaBase::executarLoopPadrao(
+            "INICIAR COMBATE (SELECIONAR INIMIGO)", Cor::AMARELO,
+            nullptr,
+            []() {
+                return std::vector<std::string>{
+                    "Goblin",
+                    "Slime",
+                    "Fada",
+                    "Ork Exilado",
+                    "Abominacao da Floresta",
+                    "Troll",
+                    "Mimico",
+                    "Mahoraga",
+                    "Voltar"
+                };
+            },
+            [jogador](int escolhaInimigo) {
+                if (escolhaInimigo == 8 || escolhaInimigo == -1) return false;
+                
+                std::string nomesInimigos[] = {
+                    "Goblin", "Slime", "Fada", "Ork Exilado", 
+                    "Abominacao da Floresta", "Troll", "Mimico", "Mahoraga"
+                };
+                std::string inimigoNome = nomesInimigos[escolhaInimigo];
+                
+                std::cout << "\n";
+                int quantidade = ControleDeInput::lerInteiroComLimites("Quantidade (1 a 5): ", 1, 5);
+                
+                std::vector<std::unique_ptr<Personagem>> inimigos;
+                switch (escolhaInimigo) {
+                    case 0: inimigos = CriadorInimigos::criarInimigoGoblin(quantidade); break;
+                    case 1: inimigos = CriadorInimigos::criarInimigoSlime(quantidade); break;
+                    case 2: inimigos = CriadorInimigos::criarInimigoFada(quantidade); break;
+                    case 3: inimigos = CriadorInimigos::criarInimigoOrkExilado(quantidade); break;
+                    case 4: inimigos = CriadorInimigos::criarInimigoAbominacaoFloresta(quantidade); break;
+                    case 5: inimigos = CriadorInimigos::criarInimigoTroll(quantidade); break;
+                    case 6: inimigos = CriadorInimigos::criarInimigoMimico(quantidade); break;
+                    case 7: inimigos = CriadorInimigos::criarInimigoMahoraga(quantidade); break;
+                }
+                
+                if (inimigos.empty()) {
+                    std::cout << "\n";
+                    Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("Erro ao instanciar os inimigos.", Cor::VERMELHO));
+                    ControleDeInput::aguardarEnter();
+                    return true;
+                }
+                
+                std::cout << "\n";
+                Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("Iniciando combate com " + std::to_string(quantidade) + "x " + inimigoNome + "...", Cor::AMARELO));
+                std::this_thread::sleep_for(std::chrono::milliseconds(800));
+                
+                Combate combate(jogador, std::move(inimigos));
+                if (ControleMapa::isExploracao3DAtiva()) {
+                    combate.setContexto3D(
+                        true, 
+                        ControleMapa::obterMatrizDoMapaAtual(), 
+                        ControleMapa::obterPosCamera3DX(), 
+                        ControleMapa::obterPosCamera3DY(), 
+                        ControleMapa::obterAnguloCamera3D(), 
+                        ControleMapa::obterTituloMapaAtual()
+                    );
+                }
+                combate.iniciarCombate();
+                
+                return false;
+            }
+        );
+    }
 }
 
 void Debug::exibirMenuDebug(Personagem* jogador) {
@@ -222,6 +295,7 @@ void Debug::exibirMenuDebug(Personagem* jogador) {
                 "Definir Ouro e XP",
                 "Liberar Todos os Mapas (Fast Travel)",
                 std::string("Noclip (Atravessar paredes): ") + (jogador->isNoclip() ? Aparencia::cor(Cor::VERDE) + "LIGADO" + Aparencia::cor(Cor::RESET) : Aparencia::cor(Cor::VERMELHO) + "DESLIGADO" + Aparencia::cor(Cor::RESET)),
+                "Iniciar Combate com Qualquer Inimigo",
                 "Fechar Debug Menu"
             };
         },
@@ -261,6 +335,9 @@ void Debug::exibirMenuDebug(Personagem* jogador) {
                     jogador->alternarNoclip();
                     break;
                 case 6:
+                    menuIniciarCombate(jogador);
+                    break;
+                case 7:
                 case -1:
                     return false;
             }

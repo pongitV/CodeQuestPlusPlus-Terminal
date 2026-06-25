@@ -7,11 +7,14 @@
 #include <memory>
 
 namespace {
+    // getArte is currently unused but kept for reference if needed in future sprite scaling
+    /*
     std::vector<std::string> getArte(std::vector<std::unique_ptr<Personagem>> (*func)(int)) {
         auto vec = func(1);
         if (!vec.empty() && vec[0]) return vec[0]->obterRaca()->obterAparenciaCombate();
         return {"?"};
     }
+    */
 
     std::vector<std::string> getArteFull(std::vector<std::unique_ptr<Personagem>> (*func)(int)) {
         auto vec = func(1);
@@ -29,5 +32,5 @@ void RaycasterInimigos::inicializarSprites(std::map<char, SpriteCache>& cache) {
     cache['T'] = RaycasterSprites::parseSprite(getArteFull(CriadorInimigos::criarInimigoTroll), 150, 150, 160); // Cinza Troll
     cache['M'] = RaycasterSprites::parseSprite(getArteFull(CriadorInimigos::criarInimigoMimico), 200, 150, 50); // Dourado Mimico
     
-    cache['H'] = RaycasterSprites::parseSprite(getArteFull(CriadorInimigos::criarInimigoMahoraga), 255, 255, 255); // Branco Mahoraga
+    cache['H'] = RaycasterSprites::parseSprite(getArteFull(CriadorInimigos::criarInimigoMahoraga), 255, 255, 255, true); // Branco Mahoraga
 }

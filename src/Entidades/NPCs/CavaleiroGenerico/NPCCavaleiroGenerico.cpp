@@ -133,6 +133,16 @@ void NPCCavaleiroGenerico::interagir(Personagem* jogadorAtual, bool& trollDerrot
             
             Combate combate(jogadorAtual, std::move(inimigos));
             combate.adicionarAliados(std::move(aliados));
+            if (ControleMapa::isExploracao3DAtiva()) {
+                combate.setContexto3D(
+                    true, 
+                    matrizDoMapaAtual, 
+                    ControleMapa::obterPosCamera3DX(), 
+                    ControleMapa::obterPosCamera3DY(), 
+                    ControleMapa::obterAnguloCamera3D(), 
+                    ControleMapa::obterTituloMapaAtual()
+                );
+            }
             combate.iniciarCombate();
             
             if (jogadorAtual->obterVida() > 0) {

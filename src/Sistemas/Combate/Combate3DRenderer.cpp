@@ -156,7 +156,8 @@ std::vector<std::string> Combate3DRenderer::renderizarQuadro(
     bool isCura,
     int tempoMs,
     bool isMorte,
-    const std::vector<std::string>& dropsAnimacao
+    const std::vector<std::string>& dropsAnimacao,
+    float spriteOpacity
 ) {
     // Gera uma arena dedicada ao bioma
     std::vector<std::string> arena = obterArenaPorTitulo(tituloMapa);
@@ -200,7 +201,7 @@ std::vector<std::string> Combate3DRenderer::renderizarQuadro(
             int frameMorteIni = isMorteIni ? frame : 0;
             bool isSel = (TelaCombate::selecaoAlvoAtual == i);
             
-            sobreporSprite(tela, inimigo, i, numInimigos, larguraTela, altura3D, framesDano, danoAmount, isCura, tempoMs, isMorteIni, frameMorteIni, dropsAnimacao, isSel);
+            sobreporSprite(tela, inimigo, i, numInimigos, larguraTela, altura3D, framesDano, danoAmount, isCura, tempoMs, isMorteIni, frameMorteIni, dropsAnimacao, isSel, spriteOpacity);
         }
     }
 
@@ -234,7 +235,8 @@ void Combate3DRenderer::sobreporSprite(
     bool isMorte, 
     int frameMorte, 
     const std::vector<std::string>& dropsAnimacao, 
-    bool isSelecionado
+    bool isSelecionado,
+    float spriteOpacity
 ) {
     // Usa a arte de MAPA (mesma do raycaster) em vez da arte de combate 2D
     const std::vector<std::string>& arteOriginalInimigo = inimigo->obterRaca()->obterAparenciaRaca();
@@ -253,8 +255,15 @@ void Combate3DRenderer::sobreporSprite(
     std::vector<std::string> arteUsada = arteOriginalInimigo;
     
     int alturaArte = static_cast<int>(arteUsada.size());
+    int fator = 1;
     if (alturaArte > alturaVisivel * 0.7f) {
-        arteUsada = Aparencia::reduzirEscalaAscii(arteUsada, 2, 2);
+        fator = 2;
+    }
+    if (inimigo->obterNome().find("Mahoraga") != std::string::npos) {
+        fator = std::max(2, fator + 1);
+    }
+    if (fator > 1) {
+        arteUsada = Aparencia::reduzirEscalaAscii(arteUsada, fator, fator);
         alturaArte = static_cast<int>(arteUsada.size());
     }
 
@@ -288,34 +297,68 @@ void Combate3DRenderer::sobreporSprite(
         return std::string("\033[48;2;0;0;0m");
     };
 
-    // Texturiza cada caractere da arte com cores baseadas no caractere (igual RaycasterSprites::parseSprite)
-    auto texturizar = [&](char c, int rx, int ry) -> std::string {
-        int rMod = baseR, gMod = baseG, bMod = baseB;
-        if (c == '@' || c == 'M' || c == 'W' || c == '#' || c == '&' || c == '8') { rMod = baseR * 0.4; gMod = baseG * 0.4; bMod = baseB * 0.4; }
-        else if (c == '%' || c == 'O' || c == 'X' || c == 'S' || c == 'Q') { rMod = baseR * 0.6; gMod = baseG * 0.6; bMod = baseB * 0.6; }
-        else if (c == '*' || c == '+' || c == 'x' || c == 'o' || c == '=' || c == 'H') { rMod = baseR * 0.8; gMod = baseG * 0.8; bMod = baseB * 0.8; }
-        else if (c == '-' || c == '~' || c == ':' || c == ';') { rMod = std::min(255, (int)(baseR * 1.2)); gMod = std::min(255, (int)(baseG * 1.2)); bMod = std::min(255, (int)(baseB * 1.2)); }
-        else if (c == '.' || c == ',' || c == '\'') { rMod = std::min(255, (int)(baseR * 1.5)); gMod = std::min(255, (int)(baseG * 1.5)); bMod = std::min(255, (int)(baseB * 1.5)); }
-        else if (c == '_' || c == '|' || c == '\\' || c == '/' || c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '<' || c == '>') { rMod = baseR * 0.5; gMod = baseG * 0.5; bMod = baseB * 0.5; }
-        
-        // Efeito de Sangue removido por solicitação do usuário
+    auto parseAnsiRGB = [](const std::string& str) -> std::tuple<int,int,int> {
+        int r = 0, g = 0, b = 0;
+        size_t pos = str.find("48;2;");
+        if (pos == std::string::npos) {
+            pos = str.find("38;2;");
+        }
+        if (pos != std::string::npos) {
+            pos += 5;
+            while (pos < str.size() && str[pos] >= '0' && str[pos] <= '9') {
+                r = r * 10 + (str[pos] - '0');
+                pos++;
+            }
+            if (pos < str.size() && str[pos] == ';') {
+                pos++;
+                while (pos < str.size() && str[pos] >= '0' && str[pos] <= '9') {
+                    g = g * 10 + (str[pos] - '0');
+                    pos++;
+                }
+                if (pos < str.size() && str[pos] == ';') {
+                    pos++;
+                    while (pos < str.size() && str[pos] >= '0' && str[pos] <= '9') {
+                        b = b * 10 + (str[pos] - '0');
+                        pos++;
+                    }
+                }
+            }
+        }
+        return {r, g, b};
+    };
 
+    // Texturiza cada caractere da arte com cores baseadas no caractere
+    auto obterTgtRGB = [&](char c, int /*rx*/, int ry) -> std::tuple<int,int,int> {
+        int currentBaseR = baseR;
+        int currentBaseG = baseG;
+        int currentBaseB = baseB;
+        if (inimigo->obterNome().find("Mahoraga") != std::string::npos && (ry * fator) < 24) {
+            currentBaseR = 255;
+            currentBaseG = 215;
+            currentBaseB = 0; // Amarelo/Dourado
+        }
+        int rMod = currentBaseR, gMod = currentBaseG, bMod = currentBaseB;
+        if (c == '@' || c == 'M' || c == 'W' || c == '#' || c == '&' || c == '8') { rMod = currentBaseR * 0.4; gMod = currentBaseG * 0.4; bMod = currentBaseB * 0.4; }
+        else if (c == '%' || c == 'O' || c == 'X' || c == 'S' || c == 'Q') { rMod = currentBaseR * 0.6; gMod = currentBaseG * 0.6; bMod = currentBaseB * 0.6; }
+        else if (c == '*' || c == '+' || c == 'x' || c == 'o' || c == '=' || c == 'H') { rMod = currentBaseR * 0.8; gMod = currentBaseG * 0.8; bMod = currentBaseB * 0.8; }
+        else if (c == '-' || c == '~' || c == ':' || c == ';') { rMod = std::min(255, (int)(currentBaseR * 1.2)); gMod = std::min(255, (int)(currentBaseG * 1.2)); bMod = std::min(255, (int)(currentBaseB * 1.2)); }
+        else if (c == '.' || c == ',' || c == '\'') { rMod = std::min(255, (int)(currentBaseR * 1.5)); gMod = std::min(255, (int)(currentBaseG * 1.5)); bMod = std::min(255, (int)(currentBaseB * 1.5)); }
+        else if (c == '_' || c == '|' || c == '\\' || c == '/' || c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '<' || c == '>') { rMod = currentBaseR * 0.5; gMod = currentBaseG * 0.5; bMod = currentBaseB * 0.5; }
+        
         if (flashDanoInimigo > 0 && flashDanoInimigo % 2 == 0) {
             if (isCura) {
-                rMod = 50; gMod = 255; bMod = 50; // Flash de cura verde
+                rMod = 50; gMod = 255; bMod = 50;
             } else {
-                rMod = 255; gMod = 50; bMod = 50; // Flash de dano vermelho
+                rMod = 255; gMod = 50; bMod = 50;
             }
         } else if (inimigo == g_inimigoAtacanteParry) {
-            rMod = 255; gMod = 140; bMod = 0; // Laranja ao atacar
+            rMod = 255; gMod = 140; bMod = 0;
         } else if (isSelecionado) {
             if (TelaCombate::piscarSelecao) {
-                // Mistura com amarelo brilhante
                 rMod = (rMod + 255) / 2;
                 gMod = (gMod + 255) / 2;
                 bMod = bMod / 2;
             } else {
-                // Tom mais cinza / apagado
                 int cinza = (rMod + gMod + bMod) / 3;
                 rMod = (rMod + cinza) / 2;
                 gMod = (gMod + cinza) / 2;
@@ -323,7 +366,6 @@ void Combate3DRenderer::sobreporSprite(
             }
         }
 
-        // Aplica o fade de morte (suave escurecimento)
         if (isMorte) {
             double fade = 1.0 - progresso;
             rMod = static_cast<int>(rMod * fade);
@@ -331,7 +373,7 @@ void Combate3DRenderer::sobreporSprite(
             bMod = static_cast<int>(bMod * fade);
         }
         
-        return "\033[48;2;" + std::to_string(rMod) + ";" + std::to_string(gMod) + ";" + std::to_string(bMod) + "m \033[0m";
+        return {rMod, gMod, bMod};
     };
 
     // Auto-crop horizontal
@@ -352,7 +394,7 @@ void Combate3DRenderer::sobreporSprite(
     int centroColunaX = inimigoIdx * larguraColuna + larguraColuna / 2;
     startX = centroColunaX - croppedWidth / 2 + swayOff;
 
-    // Desenha contorno preto (borda do sprite) + corpo texturizado
+    // Desenha contorno preto (borda do sprite) + corpo texturizado (mesclando fundo via spriteOpacity)
     for (int y = 0; y < alturaArte; y++) {
         int telaY = startY + y;
         if (telaY >= 0 && telaY < alturaVisivel) {
@@ -395,11 +437,22 @@ void Combate3DRenderer::sobreporSprite(
                             }
                         }
                         
+                        std::string bgStr = getBg(tela[telaY * larguraTela + telaX]);
+                        auto [bgR, bgG, bgB] = parseAnsiRGB(bgStr);
+                        int tgtR = 0, tgtG = 0, tgtB = 0;
+                        
                         if (isEdge) {
-                            tela[telaY * larguraTela + telaX] = "\033[48;2;0;0;0m \033[0m";
+                            tgtR = 0; tgtG = 0; tgtB = 0;
                         } else {
-                            tela[telaY * larguraTela + telaX] = texturizar(c, rawX, y);
+                            auto [tr, tg, tb] = obterTgtRGB(c, rawX, y);
+                            tgtR = tr; tgtG = tg; tgtB = tb;
                         }
+                        
+                        int blendedR = static_cast<int>(bgR + (tgtR - bgR) * spriteOpacity);
+                        int blendedG = static_cast<int>(bgG + (tgtG - bgG) * spriteOpacity);
+                        int blendedB = static_cast<int>(bgB + (tgtB - bgB) * spriteOpacity);
+                        
+                        tela[telaY * larguraTela + telaX] = "\033[48;2;" + std::to_string(blendedR) + ";" + std::to_string(blendedG) + ";" + std::to_string(blendedB) + "m \033[0m";
                     }
                 }
             }
@@ -451,8 +504,8 @@ void Combate3DRenderer::sobreporSprite(
         }
     };
 
-    // Só desenha nameplate/HP bar se não estiver morrendo
-    if (!isMorte) {
+    // Só desenha nameplate/HP bar se não estiver morrendo e se spriteOpacity >= 1.0f
+    if (!isMorte && spriteOpacity >= 1.0f) {
         int nameY = startY - 2;
         if (nameY >= 0) {
             std::string nameplate = inimigo->obterNome();

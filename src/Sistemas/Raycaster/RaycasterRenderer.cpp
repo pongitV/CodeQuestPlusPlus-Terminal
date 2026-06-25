@@ -18,19 +18,26 @@ void RaycasterRenderer::renderizar3D(vector<string>& tela, int LARGURA_TELA, int
     int larguraMapa = matrizDoMapa.empty() ? 0 : matrizDoMapa[0].size();
     int alturaMapa = matrizDoMapa.size();
 
-    std::vector<std::tuple<int, int, int>> luzes;
-    for (int ly = 0; ly < alturaMapa; ly++) {
-        for (int lx = 0; lx < larguraMapa; lx++) {
-            char c = matrizDoMapa[ly][lx];
-            if (RaycasterMundo::isMapLabel(lx, ly, matrizDoMapa)) continue;
+    static thread_local std::vector<std::string> lastMapForLuzes;
+    static thread_local std::vector<std::tuple<int, int, int>> cachedLuzes;
 
-            if (c == '^') {
-                luzes.push_back({lx, ly, 1}); // White
-            } else if (c == 'P' || c == 'F' || c == 'B') {
-                luzes.push_back({lx, ly, 0}); // Orange
+    if (matrizDoMapa != lastMapForLuzes) {
+        lastMapForLuzes = matrizDoMapa;
+        cachedLuzes.clear();
+        for (int ly = 0; ly < alturaMapa; ly++) {
+            for (int lx = 0; lx < larguraMapa; lx++) {
+                char c = matrizDoMapa[ly][lx];
+                if (RaycasterMundo::isMapLabel(lx, ly, matrizDoMapa)) continue;
+
+                if (c == '^') {
+                    cachedLuzes.push_back({lx, ly, 1}); // White
+                } else if (c == 'P' || c == 'F' || c == 'B') {
+                    cachedLuzes.push_back({lx, ly, 0}); // Orange
+                }
             }
         }
     }
+    const auto& luzes = cachedLuzes;
 
     std::string tituloUpper = tituloMapa;
     for (char& ch : tituloUpper) ch = std::toupper(static_cast<unsigned char>(ch));
@@ -48,28 +55,66 @@ void RaycasterRenderer::renderizar3D(vector<string>& tela, int LARGURA_TELA, int
         int lastEntX = -1, lastEntY = -1;
         char charParede = '#';
 
-        while (!bateuNaParede && distanciaAteParede < profundidadeMaxima) {
-            distanciaAteParede += 0.1f;
+        // DDA algorithm setup
+        float rayDirX = olhoX;
+        float rayDirY = olhoY;
 
-            int testeX = (int)(jogadorX + olhoX * distanciaAteParede);
-            int testeY = (int)(jogadorY + olhoY * distanciaAteParede);
-            if (testeX < 0 || testeX >= larguraMapa || testeY < 0 || testeY >= alturaMapa) {
+        int mapX = (int)jogadorX;
+        int mapY = (int)jogadorY;
+
+        float deltaDistX = (rayDirX == 0.0f) ? 1e30f : std::abs(1.0f / rayDirX);
+        float deltaDistY = (rayDirY == 0.0f) ? 1e30f : std::abs(1.0f / rayDirY);
+
+        int stepX, stepY;
+        float sideDistX, sideDistY;
+
+        if (rayDirX < 0) {
+            stepX = -1;
+            sideDistX = (jogadorX - mapX) * deltaDistX;
+        } else {
+            stepX = 1;
+            sideDistX = (mapX + 1.0f - jogadorX) * deltaDistX;
+        }
+        if (rayDirY < 0) {
+            stepY = -1;
+            sideDistY = (jogadorY - mapY) * deltaDistY;
+        } else {
+            stepY = 1;
+            sideDistY = (mapY + 1.0f - jogadorY) * deltaDistY;
+        }
+
+        int side = 0;
+
+        while (!bateuNaParede && distanciaAteParede < profundidadeMaxima) {
+            if (sideDistX < sideDistY) {
+                distanciaAteParede = sideDistX;
+                sideDistX += deltaDistX;
+                mapX += stepX;
+                side = 0;
+            } else {
+                distanciaAteParede = sideDistY;
+                sideDistY += deltaDistY;
+                mapY += stepY;
+                side = 1;
+            }
+
+            if (mapX < 0 || mapX >= larguraMapa || mapY < 0 || mapY >= alturaMapa) {
                 bateuNaParede = true;
                 distanciaAteParede = profundidadeMaxima;
             } else {
-                char c = matrizDoMapa[testeY][testeX];
+                char c = matrizDoMapa[mapY][mapX];
                 if (c != '.' && c != ' ' && c != '~') {
-                    bool isLabel = RaycasterMundo::isMapLabel(testeX, testeY, matrizDoMapa);
+                    bool isLabel = RaycasterMundo::isMapLabel(mapX, mapY, matrizDoMapa);
                     if (!isLabel) {
                         bool isEntity = RaycasterMundo::isEntity(c);
                         if (isEntity) {
-                            if (testeX != lastEntX || testeY != lastEntY) {
-                                lastEntX = testeX;
-                                lastEntY = testeY;
-                                char spriteChar = RaycasterMundo::obterSpriteChar(testeX, testeY, c, tituloMapa);
+                            if (mapX != lastEntX || mapY != lastEntY) {
+                                lastEntX = mapX;
+                                lastEntY = mapY;
+                                char spriteChar = RaycasterMundo::obterSpriteChar(mapX, mapY, c, tituloMapa);
 
-                                float centerX = testeX + 0.5f;
-                                float centerY = testeY + 0.5f;
+                                float centerX = mapX + 0.5f;
+                                float centerY = mapY + 0.5f;
 
                                 if (spriteChar == 'H') { centerX = 54.0f; centerY = 28.5f; }
 
@@ -103,11 +148,10 @@ void RaycasterRenderer::renderizar3D(vector<string>& tela, int LARGURA_TELA, int
 
         float hitX = jogadorX + olhoX * distanciaAteParede;
         float hitY = jogadorY + olhoY * distanciaAteParede;
-        float hitXAnterior = jogadorX + olhoX * (distanciaAteParede - 0.1f);
 
         float texXParede = 0.0f;
         bool isSideWall = false;
-        if ((int)hitXAnterior != (int)hitX) {
+        if (side == 0) {
             texXParede = hitY - floorf(hitY); 
             isSideWall = true;
         } else {
