@@ -13,6 +13,7 @@
 #include "RaycasterHUD.h"
 #include "RaycasterRenderer.h"
 #include "../../Core/Controladores/Debug.h"
+#include "RaycasterControls.h"
 #include <map>
 #include <iostream>
 #include <cmath>
@@ -34,40 +35,83 @@ using namespace std;
 float Raycaster::sensibilidadeX = 0.0008f; // Original: 0.002f (40%)
 float Raycaster::sensibilidadeY = 0.048f;  // Original: 0.08f (60%)
 
-#ifdef _WIN32
-struct MouseHider {
-    bool isHidden;
-    MouseHider() : isHidden(false) {}
-    void hide() {
-        if (!isHidden) {
-            BYTE ANDmaskCursor[] = { 0xFF };
-            BYTE XORmaskCursor[] = { 0x00 };
-            HCURSOR hCursor1 = CreateCursor(NULL, 0, 0, 1, 1, ANDmaskCursor, XORmaskCursor);
-            SetSystemCursor(hCursor1, 32512); // OCR_NORMAL
-            HCURSOR hCursor2 = CreateCursor(NULL, 0, 0, 1, 1, ANDmaskCursor, XORmaskCursor);
-            SetSystemCursor(hCursor2, 32513); // OCR_IBEAM
-            isHidden = true;
+static inline char* writeByteFast(char* p, uint8_t val) {
+    if (val >= 100) {
+        *p++ = '0' + (val / 100);
+        *p++ = '0' + ((val / 10) % 10);
+        *p++ = '0' + (val % 10);
+    } else if (val >= 10) {
+        *p++ = '0' + (val / 10);
+        *p++ = '0' + (val % 10);
+    } else {
+        *p++ = '0' + val;
+    }
+    return p;
+}
+
+static inline char* writeAnsiColorFast(char* p, int type, uint8_t r, uint8_t g, uint8_t b) {
+    *p++ = '\033';
+    *p++ = '[';
+    if (type == 38) {
+        *p++ = '3';
+        *p++ = '8';
+    } else {
+        *p++ = '4';
+        *p++ = '8';
+    }
+    *p++ = ';';
+    *p++ = '2';
+    *p++ = ';';
+    p = writeByteFast(p, r);
+    *p++ = ';';
+    p = writeByteFast(p, g);
+    *p++ = ';';
+    p = writeByteFast(p, b);
+    *p++ = 'm';
+    return p;
+}
+
+static inline void writeAnsiPixel(std::string& s, const Pixel3D& px) {
+    char buf[64];
+    char* p = buf;
+    p = writeAnsiColorFast(p, 48, px.r, px.g, px.b);
+    if (px.hasFg) {
+        p = writeAnsiColorFast(p, 38, px.fgR, px.fgG, px.fgB);
+    }
+    *p++ = px.ch;
+    s.assign(buf, p - buf);
+}
+
+static void downsampleTelaBuffer(const vector<Pixel3D>& tela3D, vector<string>& tela, int LARGURA_TELA, int ALTURA_TELA) {
+    for (int y = 0; y < ALTURA_TELA; y++) {
+        for (int x = 0; x < LARGURA_TELA; x++) {
+            const Pixel3D& top = tela3D[(y * 2) * LARGURA_TELA + x];
+            const Pixel3D& bot = tela3D[(y * 2 + 1) * LARGURA_TELA + x];
+            
+            std::string& combined = tela[y * LARGURA_TELA + x];
+            
+            if (top.ch == ' ' && bot.ch == ' ') {
+                char buf[64];
+                char* p = buf;
+                p = writeAnsiColorFast(p, 48, bot.r, bot.g, bot.b);
+                p = writeAnsiColorFast(p, 38, top.r, top.g, top.b);
+                *p++ = '\xE2';
+                *p++ = '\x96';
+                *p++ = '\x80';
+                combined.assign(buf, p - buf);
+            } else if (top.ch != ' ') {
+                writeAnsiPixel(combined, top);
+            } else {
+                writeAnsiPixel(combined, bot);
+            }
         }
     }
-    void show() {
-        if (isHidden) {
-            SystemParametersInfo(SPI_SETCURSORS, 0, NULL, 0);
-            isHidden = false;
-        }
-    }
-    ~MouseHider() {
-        show();
-    }
-};
-#endif
+}
 
 char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& jogadorX, float& jogadorY, float& anguloVisao, const string& tituloMapa, Personagem* jogador, int& outHitX, int& outHitY, int tipoAnimacaoEntrada) {
     outHitX = -1;
     outHitY = -1;
     if (matrizDoMapa.empty() || !jogador) return 0;
-
-    int larguraMapa = matrizDoMapa[0].size();
-    int alturaMapa = matrizDoMapa.size();
 
     bool temaFloresta = RaycasterMundo::isTemaFloresta(tituloMapa);
     int temaCeu = RaycasterMundo::obterTemaCeu(tituloMapa);
@@ -93,78 +137,20 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
     Aparencia::limparTela();
     cout << "\033[?25l"; // Oculta o cursor piscante
 
-    auto tp1 = chrono::system_clock::now();
-    auto tp2 = chrono::system_clock::now();
-    auto tempoInicio = chrono::system_clock::now();
+    auto tp1 = chrono::steady_clock::now();
+    auto tp2 = chrono::steady_clock::now();
+    auto tempoInicio = chrono::steady_clock::now();
     float bobbingTime = 0.0f;
     float bobbingAmplitude = 0.0f;
     float pitchOffset = 0.0f;
+    int bobbingOffset = 0;
 
     int ALTURA_INTERNA = ALTURA_TELA * 2;
-    vector<string> tela3D(LARGURA_TELA * ALTURA_INTERNA, " ");
+    vector<Pixel3D> tela3D(LARGURA_TELA * ALTURA_INTERNA);
     vector<string> tela(LARGURA_TELA * ALTURA_TELA, " ");
 
     auto downsampleTela = [&]() {
-        for (int y = 0; y < ALTURA_TELA; y++) {
-            for (int x = 0; x < LARGURA_TELA; x++) {
-                const string& top = tela3D[(y * 2) * LARGURA_TELA + x];
-                const string& bot = tela3D[(y * 2 + 1) * LARGURA_TELA + x];
-                
-                auto getBg = [](const string& s) -> std::string_view {
-                    if (s.size() >= 7 && s[0] == '\033' && s[1] == '[' && s[2] == '4' && s[3] == '8' && s[4] == ';' && s[5] == '2' && s[6] == ';') {
-                        size_t end = s.find('m', 7);
-                        if (end != string::npos) return std::string_view(s.data(), end + 1);
-                    }
-                    size_t pos = s.find("\033[48;2;");
-                    if (pos != string::npos) {
-                        size_t end = s.find('m', pos);
-                        if (end != string::npos) return std::string_view(s.data() + pos, end - pos + 1);
-                    }
-                    return "\033[48;2;0;0;0m";
-                };
-
-                auto getChar = [](const string& s) -> char {
-                    if (s.empty()) return ' ';
-                    if (s[0] != '\033') return s[0] == ' ' ? ' ' : s[0];
-                    size_t firstM = s.find('m');
-                    if (firstM != string::npos && firstM + 1 < s.size()) {
-                        char c = s[firstM + 1];
-                        if (c != '\033' && c != ' ') return c;
-                        if (c == '\033') {
-                            size_t secondM = s.find('m', firstM + 1);
-                            if (secondM != string::npos && secondM + 1 < s.size()) {
-                                c = s[secondM + 1];
-                                if (c != '\033' && c != ' ') return c;
-                            }
-                        }
-                    }
-                    return ' ';
-                };
-
-                char topC = getChar(top);
-                char botC = getChar(bot);
-                
-                if (topC == ' ' && botC == ' ') {
-                    std::string_view bgTop = getBg(top);
-                    std::string_view bgBot = getBg(bot);
-                    std::string combined;
-                    combined.reserve(bgBot.size() + bgTop.size() + 10);
-                    combined.append(bgBot);
-                    if (bgTop.size() > 4) {
-                        combined.append("\033[38");
-                        combined.append(bgTop.substr(4));
-                    } else {
-                        combined.append(bgTop);
-                    }
-                    combined.append("\xE2\x96\x80");
-                    tela[y * LARGURA_TELA + x] = std::move(combined);
-                } else if (topC != ' ') {
-                    tela[y * LARGURA_TELA + x] = top;
-                } else {
-                    tela[y * LARGURA_TELA + x] = bot;
-                }
-            }
-        }
+        downsampleTelaBuffer(tela3D, tela, LARGURA_TELA, ALTURA_TELA);
     };
 
     auto animarOlho = [&](bool abrindo, const vector<string>& frameBase) {
@@ -173,7 +159,7 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
             int p = abrindo ? passo : (maxPassos - passo);
             float aberturaPercent = (float)p / maxPassos;
             
-            string bufferFrame = "\033[?25l\033[H";
+            string bufferFrame = "\033[?2026h\033[?25l\033[H";
             bufferFrame.reserve(LARGURA_TELA * ALTURA_TELA * 15);
             int centroY = ALTURA_TELA / 2;
             int centroX = LARGURA_TELA / 2;
@@ -198,7 +184,7 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
                 }
                 if (y < ALTURA_TELA - 1) bufferFrame += "\n";
             }
-            cout << bufferFrame << flush;
+            cout << bufferFrame << "\033[?2026l" << flush;
             std::this_thread::sleep_for(std::chrono::milliseconds(30));
         }
     };
@@ -209,7 +195,7 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
         int maxPassos = 11;
         for (int passo = 0; passo <= maxPassos; passo++) {
             float percent = (float)passo / maxPassos;
-            string bufferFrame = "\033[?25l\033[H";
+            string bufferFrame = "\033[?2026h\033[?25l\033[H";
             bufferFrame.reserve(LARGURA_TELA * ALTURA_TELA * 15);
             
             int portaLeftOffset = (int)(LARGURA_TELA * percent); 
@@ -226,7 +212,7 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
                 }
                 if (y < ALTURA_TELA - 1) bufferFrame += "\n";
             }
-            cout << bufferFrame << flush;
+            cout << bufferFrame << "\033[?2026l" << flush;
             std::this_thread::sleep_for(std::chrono::milliseconds(22));
         }
     };
@@ -289,7 +275,7 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
                 }
             }
             
-            string bufferFrame = "\033[?25l\033[H";
+            string bufferFrame = "\033[?2026h\033[?25l\033[H";
             bufferFrame.reserve(LARGURA_TELA * ALTURA_TELA * 15);
             for (int y = 0; y < ALTURA_TELA; y++) {
                 for (int x = 0; x < LARGURA_TELA; x++) {
@@ -298,7 +284,7 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
                 }
                 if (y < ALTURA_TELA - 1) bufferFrame += "\n";
             }
-            std::cout << bufferFrame << std::flush;
+            std::cout << bufferFrame << "\033[?2026l" << std::flush;
             std::this_thread::sleep_for(std::chrono::milliseconds(20));
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -326,7 +312,7 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
     MouseHider mouseHider;
 #endif
     while (rodando) {
-        tp2 = chrono::system_clock::now();
+        tp2 = chrono::steady_clock::now();
         chrono::duration<float> elapsedTime = tp2 - tp1;
         tp1 = tp2;
         float tempoDelta = elapsedTime.count();
@@ -342,178 +328,35 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
             break;
         }
 
-        float oldPlayerX = jogadorX;
-        float oldPlayerY = jogadorY;
-        int oldCellX = (int)jogadorX;
-        int oldCellY = (int)jogadorY;
         bool isMoving = false;
-
+        char acaoRetorno = RaycasterControls::processarInputEControles(
+            jogador,
+            jogadorX,
+            jogadorY,
+            anguloVisao,
+            pitchOffset,
+            tempoDelta,
+            velocidadeMovimento,
+            matrizDoMapa,
+            ALTURA_TELA,
+            sensibilidadeX,
+            sensibilidadeY,
+            primeiraIteracaoMouse,
+            outHitX,
+            outHitY,
+            rodando,
+            tp1,
 #ifdef _WIN32
-        // --- CONTROLES ASSINCRONOS E MOUSE ---
-        HWND hwnd = GetConsoleWindow();
-        if (hwnd && GetForegroundWindow() == hwnd) {
-            mouseHider.hide(); // Oculta 100% o cursor do mouse
-            RECT rect;
-            GetWindowRect(hwnd, &rect);
-            int centerX = rect.left + (rect.right - rect.left) / 2;
-            int centerY = rect.top + (rect.bottom - rect.top) / 2; 
-            
-            if (primeiraIteracaoMouse) {
-                SetCursorPos(centerX, centerY);
-                primeiraIteracaoMouse = false;
-            } else {
-                POINT p;
-                if (GetCursorPos(&p)) {
-                    int deltaX = p.x - centerX;
-                    int deltaY = p.y - centerY;
-                    
-                    if (deltaX != 0 || deltaY != 0) {
-                        anguloVisao += deltaX * sensibilidadeX; // Yaw (Esquerda/Direita)
-                        pitchOffset -= deltaY * sensibilidadeY;  // Pitch corrigido: multiplicador drasticamente menor pois mexe com as linhas do console
-                        
-                        // Limitar o angulo de olhar para cima/baixo
-                        float maxPitch = ALTURA_TELA * 0.7f;
-                        if (pitchOffset > maxPitch) pitchOffset = maxPitch;
-                        if (pitchOffset < -maxPitch) pitchOffset = -maxPitch;
-                        
-                        SetCursorPos(centerX, centerY); 
-                    }
-                }
-            }
-        } else {
-            mouseHider.show(); // Mostra se a janela perder o foco
-        }
-
-        if (GetAsyncKeyState(VK_ESCAPE) & 0x8000) {
-            primeiraIteracaoMouse = true;
-            mouseHider.show();
-            ControleDeInput::limparBuffer(); // Previne buffer sujo ("dead input") ao abrir o menu
-            TelaPause::exibir(jogador);
-            Aparencia::limparTela();
-            tp1 = chrono::system_clock::now();
-        }
-
-        if (GetAsyncKeyState('V') & 0x8000) {
-            mouseHider.show();
-            rodando = false;
-            while (GetAsyncKeyState('V') & 0x8000) std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        }
-        if (GetAsyncKeyState('I') & 0x8000) {
-            primeiraIteracaoMouse = true;
-            mouseHider.show();
-            ControleDeInput::limparBuffer();
-            InventarioCombate::gerenciarInventario(jogador);
-            Aparencia::limparTela();
-            tp1 = chrono::system_clock::now();
-        }
-        if (GetAsyncKeyState('C') & 0x8000) {
-            primeiraIteracaoMouse = true;
-            mouseHider.show();
-            ControleDeInput::limparBuffer();
-            TelaAtributos::gerenciarFichaDoJogador(jogador);
-            Aparencia::limparTela();
-            tp1 = chrono::system_clock::now();
-        }
-        if (GetAsyncKeyState('B') & 0x8000) {
-            primeiraIteracaoMouse = true;
-            mouseHider.show();
-            ControleDeInput::limparBuffer();
-            TelaDiario::exibir(jogador);
-            Aparencia::limparTela();
-            tp1 = chrono::system_clock::now();
-        }
-        if (GetAsyncKeyState('M') & 0x8000) {
-            primeiraIteracaoMouse = true;
-            mouseHider.show();
-            while (GetAsyncKeyState('M') & 0x8000) std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            ControleDeInput::limparBuffer();
-            Aparencia::limparTela();
-            return 'M';
-        }
-        if ((GetAsyncKeyState(VK_OEM_3) & 0x8000) || (GetAsyncKeyState(VK_OEM_5) & 0x8000) || (GetAsyncKeyState(VK_OEM_PLUS) & 0x8000) || (GetAsyncKeyState(VK_OEM_102) & 0x8000)) {
-            primeiraIteracaoMouse = true;
-            mouseHider.show();
-            while ((GetAsyncKeyState(VK_OEM_3) & 0x8000) || (GetAsyncKeyState(VK_OEM_5) & 0x8000) || (GetAsyncKeyState(VK_OEM_PLUS) & 0x8000) || (GetAsyncKeyState(VK_OEM_102) & 0x8000)) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            }
-            ControleDeInput::limparBuffer();
-            Debug::exibirMenuDebug(jogador);
-            Aparencia::limparTela();
-            tp1 = chrono::system_clock::now();
-        }
-
-        // Movimento e Strafing (Com sistema de Sliding)
-        float moveX = 0.0f;
-        float moveY = 0.0f;
-
-        if (GetAsyncKeyState('W') & 0x8000) {
-            isMoving = true;
-            moveX += cosf(anguloVisao) * velocidadeMovimento * tempoDelta;
-            moveY += sinf(anguloVisao) * velocidadeMovimento * tempoDelta;
-        }
-        if (GetAsyncKeyState('S') & 0x8000) {
-            isMoving = true;
-            moveX -= cosf(anguloVisao) * velocidadeMovimento * tempoDelta;
-            moveY -= sinf(anguloVisao) * velocidadeMovimento * tempoDelta;
-        }
-        if (GetAsyncKeyState('A') & 0x8000) { // Strafe Esquerda (-90 graus)
-            isMoving = true;
-            moveX += cosf(anguloVisao - 1.5708f) * velocidadeMovimento * tempoDelta;
-            moveY += sinf(anguloVisao - 1.5708f) * velocidadeMovimento * tempoDelta;
-        }
-        if (GetAsyncKeyState('D') & 0x8000) { // Strafe Direita (+90 graus)
-            isMoving = true;
-            moveX += cosf(anguloVisao + 1.5708f) * velocidadeMovimento * tempoDelta;
-            moveY += sinf(anguloVisao + 1.5708f) * velocidadeMovimento * tempoDelta;
-        }
-
-        if (isMoving) {
-            float novoX = jogadorX + moveX;
-            float novoY = jogadorY + moveY;
-            
-            if (novoY >= 0 && novoY < alturaMapa && jogadorX >= 0 && jogadorX < larguraMapa) {
-                if (RaycasterMundo::isWalkable((int)jogadorX, (int)novoY, matrizDoMapa)) jogadorY = novoY;
-            }
-            if (jogadorY >= 0 && jogadorY < alturaMapa && novoX >= 0 && novoX < larguraMapa) {
-                if (RaycasterMundo::isWalkable((int)novoX, (int)jogadorY, matrizDoMapa)) jogadorX = novoX;
-            }
-        }
-
-        // Efeito de Head Bobbing (Balanco da Camera)
-        if (isMoving) {
-            bobbingTime += tempoDelta * 12.0f;
-            bobbingAmplitude += tempoDelta * 5.0f; // Aumenta a forca do passo
-            if (bobbingAmplitude > 1.0f) bobbingAmplitude = 1.0f;
-        } else {
-            bobbingAmplitude -= tempoDelta * 5.0f; // Suaviza a parada em 0.2 segundos
-            if (bobbingAmplitude < 0.0f) {
-                bobbingAmplitude = 0.0f;
-                bobbingTime = 0.0f;
-            } else {
-                bobbingTime += tempoDelta * 12.0f;
-            }
-        }
-        int bobbingOffset = (int)(sinf(bobbingTime) * bobbingAmplitude * (ALTURA_TELA * 0.02f));
-
-
-        // Verifica se o jogador pisou em um trigger (Inimigo ou Teleporte) para acionar a transicao de mapa/combate
-        int newCellX = (int)jogadorX;
-        int newCellY = (int)jogadorY;
-        if (newCellX != oldCellX || newCellY != oldCellY) {
-            char cell = matrizDoMapa[newCellY][newCellX];
-            bool isLabel = RaycasterMundo::isMapLabel(newCellX, newCellY, matrizDoMapa);
-            if (!isLabel && (RaycasterMundo::isTeleport(cell) || RaycasterMundo::isEntity(cell))) {
-                outHitX = newCellX;
-                outHitY = newCellY;
-                jogadorX = oldPlayerX; // Retorna para a exata posicao anterior flutuante
-                jogadorY = oldPlayerY;
-                rodando = false; // Sai do loop 3D e devolve o controle pro mapa top-down processar o evento!
-            }
-        }
-#else
-        // Fallback previne loop infinito caso compilado fora do windows
-        rodando = false; 
+            mouseHider,
 #endif
+            isMoving,
+            bobbingTime,
+            bobbingAmplitude,
+            bobbingOffset
+        );
+        if (acaoRetorno != '\0') {
+            return acaoRetorno;
+        }
 
         // --- RENDERIZACAO RAYCASTING (3D) ---
         float horizonteInterno = (ALTURA_INTERNA / 2.0f) + (bobbingOffset * 2) + (pitchOffset * 2.0f);
@@ -528,7 +371,7 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
 
         // Envia o frame processado para o terminal de uma vez de forma linear (Zero Flickering!)
         // Otimização de Transmissão ANSI Baseada em Ponteiros (Zero Alocações de Memória)
-        string bufferFrame = "\033[?25l\033[H"; 
+        string bufferFrame = "\033[?2026h\033[?25l\033[H"; 
         bufferFrame.reserve(LARGURA_TELA * ALTURA_TELA * 15); 
 
         string activeBg = "";
@@ -592,11 +435,11 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
             }
             if (y < ALTURA_TELA - 1) bufferFrame += "\n";
         }
-        bufferFrame += "\033[0m"; // Reset final das cores ao terminar o frame
+        bufferFrame += "\033[0m\033[?2026l"; // Reset final das cores ao terminar o frame e desliga atualizacao sincronizada
         cout << bufferFrame << flush;
 
         // Frame Pacing dinâmico para cravar ~60 FPS reais
-        auto frameEnd = chrono::system_clock::now();
+        auto frameEnd = chrono::steady_clock::now();
         auto frameDuration = chrono::duration_cast<chrono::milliseconds>(frameEnd - tp2).count();
         int sleepTime = 16 - static_cast<int>(frameDuration);
         if (sleepTime > 0) {
@@ -654,71 +497,12 @@ std::vector<std::string> Raycaster::desenharQuadroEstatico3D(const std::vector<s
     RaycasterNPCs::inicializarSprites(cacheSprites);
 
     int ALTURA_INTERNA = ALTURA_TELA * 2;
-    std::vector<std::string> tela3D(LARGURA_TELA * ALTURA_INTERNA, " ");
+    std::vector<Pixel3D> tela3D(LARGURA_TELA * ALTURA_INTERNA);
     std::vector<std::string> tela(LARGURA_TELA * ALTURA_TELA, " ");
 
     RaycasterRenderer::renderizar3D(tela3D, LARGURA_TELA, ALTURA_INTERNA, jogadorX, jogadorY, anguloVisao, (ALTURA_INTERNA / 2.0f), 0, 150.0f, 0.0f, matrizDoMapa, tituloMapa, temaFloresta, temaCeu, cacheSprites);
 
-    for (int y = 0; y < ALTURA_TELA; y++) {
-        for (int x = 0; x < LARGURA_TELA; x++) {
-            const std::string& top = tela3D[(y * 2) * LARGURA_TELA + x];
-            const std::string& bot = tela3D[(y * 2 + 1) * LARGURA_TELA + x];
-
-            auto getBg = [](const std::string& s) -> std::string_view {
-                if (s.size() >= 7 && s[0] == '\033' && s[1] == '[' && s[2] == '4' && s[3] == '8' && s[4] == ';' && s[5] == '2' && s[6] == ';') {
-                    size_t end = s.find('m', 7);
-                    if (end != std::string::npos) return std::string_view(s.data(), end + 1);
-                }
-                size_t pos = s.find("\033[48;2;");
-                if (pos != std::string::npos) {
-                    size_t end = s.find('m', pos);
-                    if (end != std::string::npos) return std::string_view(s.data() + pos, end - pos + 1);
-                }
-                return "\033[48;2;0;0;0m";
-            };
-
-            auto getChar = [](const std::string& s) -> char {
-                if (s.empty()) return ' ';
-                if (s[0] != '\033') return s[0] == ' ' ? ' ' : s[0];
-                size_t firstM = s.find('m');
-                if (firstM != std::string::npos && firstM + 1 < s.size()) {
-                    char c = s[firstM + 1];
-                    if (c != '\033' && c != ' ') return c;
-                    if (c == '\033') {
-                        size_t secondM = s.find('m', firstM + 1);
-                        if (secondM != std::string::npos && secondM + 1 < s.size()) {
-                            c = s[secondM + 1];
-                            if (c != '\033' && c != ' ') return c;
-                        }
-                    }
-                }
-                return ' ';
-            };
-
-            char topC = getChar(top);
-            char botC = getChar(bot);
-
-            if (topC == ' ' && botC == ' ') {
-                std::string_view bgTop = getBg(top);
-                std::string_view bgBot = getBg(bot);
-                std::string combined;
-                combined.reserve(bgBot.size() + bgTop.size() + 15);
-                combined.append(bgBot);
-                if (bgTop.size() > 4) {
-                    combined.append("\033[38");
-                    combined.append(bgTop.substr(4));
-                } else {
-                    combined.append(bgTop);
-                }
-                combined.append("\xE2\x96\x80\033[0m");
-                tela[y * LARGURA_TELA + x] = std::move(combined);
-            } else if (topC != ' ') {
-                tela[y * LARGURA_TELA + x] = top;
-            } else {
-                tela[y * LARGURA_TELA + x] = bot;
-            }
-        }
-    }
+    downsampleTelaBuffer(tela3D, tela, LARGURA_TELA, ALTURA_TELA);
 
     return tela;
 }

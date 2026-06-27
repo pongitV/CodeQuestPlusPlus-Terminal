@@ -23,14 +23,8 @@ namespace {
     std::string extrairCorBaseDoRaycaster(char celula, const std::string& tituloDoMapa, bool isFloresta) {
         // Sampleia a textura no "meio" do bloco (tx=33, ty=33) para evitar as linhas escuras de rejunte/sombra
         std::vector<std::tuple<int, int, int>> luzesVazias;
-        std::string pixelANSI = RaycasterMundo::obterPixelParedeInternal(tituloDoMapa, isFloresta, 0.0f, 10.0f, celula, 33, 0, 64, 33.0f/64.0f, 0.0f, luzesVazias, 0.0f, 0.0f);
-        if (pixelANSI.find("\033[48;2;") == 0) {
-            size_t pos_m = pixelANSI.find('m');
-            if (pos_m != std::string::npos) {
-                return "\033[38;2;" + pixelANSI.substr(7, pos_m - 7) + "m";
-            }
-        }
-        return Aparencia::cor(Cor::CINZA);
+        Pixel3D px = RaycasterMundo::obterPixelParedeInternal(tituloDoMapa, isFloresta, 0.0f, 10.0f, celula, 33, 0, 64, 33.0f/64.0f, 0.0f, luzesVazias, 0.0f, 0.0f);
+        return "\033[38;2;" + std::to_string(px.r) + ";" + std::to_string(px.g) + ";" + std::to_string(px.b) + "m";
     }
 
     void calcularCameraAxis(int maxVisivel, int posicaoJogador, int tamanhoMapa, int& start, int& end) {

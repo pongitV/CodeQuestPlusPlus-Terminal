@@ -2,10 +2,28 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <cstdint>
+
+struct Pixel3D {
+    uint8_t r = 0, g = 0, b = 0;
+    uint8_t fgR = 0, fgG = 0, fgB = 0;
+    char ch = ' ';
+    bool hasFg = false;
+    bool isFundo = false;
+};
+
+struct SpritePixel {
+    uint8_t r = 0, g = 0, b = 0;
+    uint8_t fgR = 0, fgG = 0, fgB = 0;
+    char ch = ' ';
+    bool hasBg = false;
+    bool hasFg = false;
+    bool isTransparente = true;
+};
 
 struct SpriteCache {
     int width = 0, height = 0;
-    std::vector<std::vector<std::string>> pixels;
+    std::vector<std::vector<SpritePixel>> pixels;
 };
 
 class RaycasterSprites {

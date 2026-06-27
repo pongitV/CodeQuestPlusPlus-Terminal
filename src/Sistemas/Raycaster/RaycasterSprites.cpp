@@ -1,6 +1,115 @@
 #include "RaycasterSprites.h"
 #include <vector>
 #include <string>
+#include <algorithm>
+#include <stdexcept>
+
+static void parseAnsiColors(const std::string& ansi, SpritePixel& pixel) {
+    size_t i = 0;
+    while (i < ansi.size()) {
+        if (ansi[i] == '\033' && i + 1 < ansi.size() && ansi[i+1] == '[') {
+            i += 2;
+            size_t start = i;
+            while (i < ansi.size() && ansi[i] != 'm') {
+                i++;
+            }
+            if (i < ansi.size()) { // Found 'm'
+                std::string content = ansi.substr(start, i - start);
+                size_t p = 0;
+                while (p < content.size()) {
+                    if (p + 4 < content.size() && content.substr(p, 5) == "48;2;") {
+                        pixel.hasBg = true;
+                        p += 5;
+                        size_t next = content.find(';', p);
+                        if (next != std::string::npos) {
+                            try {
+                                pixel.r = std::stoi(content.substr(p, next - p));
+                            } catch(...) { pixel.r = 0; }
+                            p = next + 1;
+                            next = content.find(';', p);
+                            if (next != std::string::npos) {
+                                try {
+                                    pixel.g = std::stoi(content.substr(p, next - p));
+                                } catch(...) { pixel.g = 0; }
+                                p = next + 1;
+                                size_t nextB = content.find(';', p);
+                                if (nextB == std::string::npos) nextB = content.size();
+                                try {
+                                    pixel.b = std::stoi(content.substr(p, nextB - p));
+                                } catch(...) { pixel.b = 0; }
+                                p = nextB;
+                            }
+                        }
+                    } else if (p + 4 < content.size() && content.substr(p, 5) == "38;2;") {
+                        pixel.hasFg = true;
+                        p += 5;
+                        size_t next = content.find(';', p);
+                        if (next != std::string::npos) {
+                            try {
+                                pixel.fgR = std::stoi(content.substr(p, next - p));
+                            } catch(...) { pixel.fgR = 0; }
+                            p = next + 1;
+                            next = content.find(';', p);
+                            if (next != std::string::npos) {
+                                try {
+                                    pixel.fgG = std::stoi(content.substr(p, next - p));
+                                } catch(...) { pixel.fgG = 0; }
+                                p = next + 1;
+                                size_t nextB = content.find(';', p);
+                                if (nextB == std::string::npos) nextB = content.size();
+                                try {
+                                    pixel.fgB = std::stoi(content.substr(p, nextB - p));
+                                } catch(...) { pixel.fgB = 0; }
+                                p = nextB;
+                            }
+                        }
+                    } else {
+                        // Parse standard code
+                        int val = 0;
+                        size_t endCode = content.find(';', p);
+                        if (endCode == std::string::npos) endCode = content.size();
+                        try {
+                            val = std::stoi(content.substr(p, endCode - p));
+                        } catch(...) { val = -1; }
+                        p = endCode + 1;
+
+                        if (val == 0) {
+                            pixel.hasBg = false;
+                            pixel.hasFg = false;
+                        } else if (val >= 30 && val <= 37) {
+                            pixel.hasFg = true;
+                            uint8_t base = 180;
+                            pixel.fgR = (val == 31 || val == 33 || val == 35 || val == 37) ? base : 0;
+                            pixel.fgG = (val == 32 || val == 33 || val == 36 || val == 37) ? base : 0;
+                            pixel.fgB = (val == 34 || val == 35 || val == 36 || val == 37) ? base : 0;
+                        } else if (val >= 40 && val <= 47) {
+                            pixel.hasBg = true;
+                            uint8_t base = 180;
+                            pixel.r = (val == 41 || val == 43 || val == 45 || val == 47) ? base : 0;
+                            pixel.g = (val == 42 || val == 43 || val == 46 || val == 47) ? base : 0;
+                            pixel.b = (val == 44 || val == 45 || val == 46 || val == 47) ? base : 0;
+                        } else if (val >= 90 && val <= 97) {
+                            pixel.hasFg = true;
+                            uint8_t base = 255;
+                            pixel.fgR = (val == 91 || val == 93 || val == 95 || val == 97) ? base : 0;
+                            pixel.fgG = (val == 92 || val == 93 || val == 96 || val == 97) ? base : 0;
+                            pixel.fgB = (val == 94 || val == 95 || val == 96 || val == 97) ? base : 0;
+                        } else if (val >= 100 && val <= 107) {
+                            pixel.hasBg = true;
+                            uint8_t base = 255;
+                            pixel.r = (val == 101 || val == 103 || val == 105 || val == 107) ? base : 0;
+                            pixel.g = (val == 102 || val == 103 || val == 106 || val == 107) ? base : 0;
+                            pixel.b = (val == 104 || val == 105 || val == 106 || val == 107) ? base : 0;
+                        }
+                    }
+                }
+                i++; // Skip 'm'
+            }
+        } else {
+            i++;
+        }
+    }
+}
 
 SpriteCache RaycasterSprites::parseArte(const std::vector<std::string>& raw) {
     SpriteCache sc;
@@ -29,21 +138,21 @@ SpriteCache RaycasterSprites::parseArte(const std::vector<std::string>& raw) {
             else if ((c & 0xF8) == 0xF0) len = 4;
             
             std::string pixelChar = line.substr(j, len);
-            if (pixelChar == " " || pixelChar == "") sc.pixels[i].push_back(""); // Transparencia
-            else {
-                std::string bgAnsi = currentAnsi;
-                size_t pos = 0;
-                while ((pos = bgAnsi.find("\033[3", pos)) != std::string::npos) {
-                    bgAnsi.replace(pos, 3, "\033[4"); // Converte cor de Frente (Foreground) para cor de Fundo (Background)
-                    pos += 3;
+            SpritePixel sp;
+            if (pixelChar == " " || pixelChar == "") {
+                sp.isTransparente = true;
+            } else {
+                sp.isTransparente = false;
+                parseAnsiColors(currentAnsi, sp);
+                if (sp.hasFg && !sp.hasBg) {
+                    sp.r = sp.fgR;
+                    sp.g = sp.fgG;
+                    sp.b = sp.fgB;
+                    sp.hasBg = true;
                 }
-                pos = 0;
-                while ((pos = bgAnsi.find("\033[1;3", pos)) != std::string::npos) {
-                    bgAnsi.replace(pos, 5, "\033[1;4"); // Converte cor de Frente (Negrito) para cor de Fundo (Background)
-                    pos += 5;
-                }
-                sc.pixels[i].push_back(bgAnsi + " \033[0m"); // Substitui o simbolo ASCII por um espaco em branco solido ("blank")
+                sp.ch = ' ';
             }
+            sc.pixels[i].push_back(sp);
             j += len;
         }
         if((int)sc.pixels[i].size() > sc.width) sc.width = sc.pixels[i].size();
@@ -58,7 +167,6 @@ SpriteCache RaycasterSprites::parseSprite(const std::vector<std::string>& raw, i
     
     int minX = 999999, maxX = -1;
     
-    // Auto-Crop
     for (int i = 0; i < sc.height; ++i) {
         std::string line = raw[i];
         int j_char = 0;
@@ -90,7 +198,6 @@ SpriteCache RaycasterSprites::parseSprite(const std::vector<std::string>& raw, i
     sc.width = maxX - minX + 1;
     sc.pixels.resize(sc.height);
     
-    // Texturizacao com base no Caractere
     for (int i = 0; i < sc.height; ++i) {
         std::string line = raw[i];
         int j_char = 0;
@@ -109,8 +216,9 @@ SpriteCache RaycasterSprites::parseSprite(const std::vector<std::string>& raw, i
             std::string pixelChar = line.substr(j, len);
             
             if (j_char >= minX && j_char <= maxX) {
+                SpritePixel sp;
                 if (pixelChar == " " || pixelChar == "") {
-                    sc.pixels[i].push_back("");
+                    sp.isTransparente = true;
                 } else {
                     char c = pixelChar[0];
                     int currentBaseR = r;
@@ -119,25 +227,35 @@ SpriteCache RaycasterSprites::parseSprite(const std::vector<std::string>& raw, i
                     if (isMahoraga && i < 24) {
                         currentBaseR = 255;
                         currentBaseG = 215;
-                        currentBaseB = 0; // Amarelo/Dourado para a roda
+                        currentBaseB = 0;
                     }
                     int rMod = currentBaseR, gMod = currentBaseG, bMod = currentBaseB;
-                    if (c == '@' || c == 'M' || c == 'W' || c == '#' || c == '&' || c == '8') { rMod = currentBaseR * 0.4; gMod = currentBaseG * 0.4; bMod = currentBaseB * 0.4; } // Sombra Profunda
-                    else if (c == '%' || c == 'O' || c == 'X' || c == 'S' || c == 'Q') { rMod = currentBaseR * 0.6; gMod = currentBaseG * 0.6; bMod = currentBaseB * 0.6; } // Sombra
-                    else if (c == '*' || c == '+' || c == 'x' || c == 'o' || c == '=' || c == 'H') { rMod = currentBaseR * 0.8; gMod = currentBaseG * 0.8; bMod = currentBaseB * 0.8; } // Cor Base
-                    else if (c == '-' || c == '~' || c == ':' || c == ';') { rMod = std::min(255, (int)(currentBaseR * 1.2)); gMod = std::min(255, (int)(currentBaseG * 1.2)); bMod = std::min(255, (int)(currentBaseB * 1.2)); } // Iluminado
-                    else if (c == '.' || c == ',' || c == '\'') { rMod = std::min(255, (int)(currentBaseR * 1.5)); gMod = std::min(255, (int)(currentBaseG * 1.5)); bMod = std::min(255, (int)(currentBaseB * 1.5)); } // Brilho Forte
-                    else if (c == '_' || c == '|' || c == '\\' || c == '/' || c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '<' || c == '>') { rMod = currentBaseR * 0.5; gMod = currentBaseG * 0.5; bMod = currentBaseB * 0.5; } // Contornos internos
+                    if (c == '@' || c == 'M' || c == 'W' || c == '#' || c == '&' || c == '8') { rMod = currentBaseR * 0.4; gMod = currentBaseG * 0.4; bMod = currentBaseB * 0.4; }
+                    else if (c == '%' || c == 'O' || c == 'X' || c == 'S' || c == 'Q') { rMod = currentBaseR * 0.6; gMod = currentBaseG * 0.6; bMod = currentBaseB * 0.6; }
+                    else if (c == '*' || c == '+' || c == 'x' || c == 'o' || c == '=' || c == 'H') { rMod = currentBaseR * 0.8; gMod = currentBaseG * 0.8; bMod = currentBaseB * 0.8; }
+                    else if (c == '-' || c == '~' || c == ':' || c == ';') { rMod = std::min(255, (int)(currentBaseR * 1.2)); gMod = std::min(255, (int)(currentBaseG * 1.2)); bMod = std::min(255, (int)(currentBaseB * 1.2)); }
+                    else if (c == '.' || c == ',' || c == '\'') { rMod = std::min(255, (int)(currentBaseR * 1.5)); gMod = std::min(255, (int)(currentBaseG * 1.5)); bMod = std::min(255, (int)(currentBaseB * 1.5)); }
+                    else if (c == '_' || c == '|' || c == '\\' || c == '/' || c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '<' || c == '>') { rMod = currentBaseR * 0.5; gMod = currentBaseG * 0.5; bMod = currentBaseB * 0.5; }
                     
-                    sc.pixels[i].push_back("\033[48;2;" + std::to_string(rMod) + ";" + std::to_string(gMod) + ";" + std::to_string(bMod) + "m \033[0m");
+                    sp.isTransparente = false;
+                    sp.r = rMod;
+                    sp.g = gMod;
+                    sp.b = bMod;
+                    sp.ch = ' ';
+                    sp.hasBg = true;
                 }
+                sc.pixels[i].push_back(sp);
             }
             j_char++;
             j += len;
         }
         
         while (j_char <= maxX) {
-            if (j_char >= minX) sc.pixels[i].push_back("");
+            if (j_char >= minX) {
+                SpritePixel sp;
+                sp.isTransparente = true;
+                sc.pixels[i].push_back(sp);
+            }
             j_char++;
         }
     }
@@ -149,8 +267,10 @@ SpriteCache RaycasterSprites::parseSprite(const std::vector<std::string>& raw, i
     
     for (int y = 0; y < sc.height; ++y) {
         for (int x = 0; x < sc.width; ++x) {
-            if (sc.pixels[y][x] == "") {
-                finalSc.pixels[y].push_back("");
+            if (sc.pixels[y][x].isTransparente) {
+                SpritePixel sp;
+                sp.isTransparente = true;
+                finalSc.pixels[y].push_back(sp);
             } else {
                 bool isEdge = false;
                 for (int dy = -1; dy <= 1; ++dy) {
@@ -159,11 +279,19 @@ SpriteCache RaycasterSprites::parseSprite(const std::vector<std::string>& raw, i
                         int ny = y + dy;
                         int nx = x + dx;
                         if (ny < 0 || ny >= sc.height || nx < 0 || nx >= sc.width) isEdge = true;
-                        else if (sc.pixels[ny][nx] == "") isEdge = true;
+                        else if (sc.pixels[ny][nx].isTransparente) isEdge = true;
                     }
                 }
-                if (isEdge) finalSc.pixels[y].push_back("\033[48;2;0;0;0m \033[0m");
-                else finalSc.pixels[y].push_back(sc.pixels[y][x]);
+                if (isEdge) {
+                    SpritePixel sp;
+                    sp.isTransparente = false;
+                    sp.r = 0; sp.g = 0; sp.b = 0;
+                    sp.ch = ' ';
+                    sp.hasBg = true;
+                    finalSc.pixels[y].push_back(sp);
+                } else {
+                    finalSc.pixels[y].push_back(sc.pixels[y][x]);
+                }
             }
         }
     }

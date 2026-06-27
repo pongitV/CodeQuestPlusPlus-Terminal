@@ -13,7 +13,7 @@ struct EntidadeAtingida {
     float texX;
 };
 
-void RaycasterRenderer::renderizar3D(vector<string>& tela, int LARGURA_TELA, int ALTURA_TELA, float jogadorX, float jogadorY, float anguloVisao, float horizonte, int bobbingOffset, float profundidadeMaxima, float tempoAbsoluto, const vector<string>& matrizDoMapa, const string& tituloMapa, bool temaFloresta, int temaCeu, const map<char, SpriteCache>& cacheSprites) {
+void RaycasterRenderer::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA, int ALTURA_TELA, float jogadorX, float jogadorY, float anguloVisao, float horizonte, int bobbingOffset, float profundidadeMaxima, float tempoAbsoluto, const vector<string>& matrizDoMapa, const string& tituloMapa, bool temaFloresta, int temaCeu, const map<char, SpriteCache>& cacheSprites) {
     float campoVisao = 3.14159f / 4.0f; // FOV 45 graus
     int larguraMapa = matrizDoMapa.empty() ? 0 : matrizDoMapa[0].size();
     int alturaMapa = matrizDoMapa.size();
@@ -43,6 +43,9 @@ void RaycasterRenderer::renderizar3D(vector<string>& tela, int LARGURA_TELA, int
     for (char& ch : tituloUpper) ch = std::toupper(static_cast<unsigned char>(ch));
     bool isReino = (tituloUpper.find("CASTELO") != std::string::npos || tituloUpper.find("REINO") != std::string::npos);
 
+    // Mover o vetor para fora do loop horizontal para evitar alocações constantes na heap
+    vector<EntidadeAtingida> entidadesAtingidas;
+
     for (int x = 0; x < LARGURA_TELA; x++) {
         float raioAngulo = (anguloVisao - campoVisao / 2.0f) + ((float)x / (float)LARGURA_TELA) * campoVisao;
         float distanciaAteParede = 0.0f;
@@ -51,7 +54,7 @@ void RaycasterRenderer::renderizar3D(vector<string>& tela, int LARGURA_TELA, int
         float olhoX = cosf(raioAngulo);
         float olhoY = sinf(raioAngulo);
         
-        vector<EntidadeAtingida> entidadesAtingidas;
+        entidadesAtingidas.clear();
         int lastEntX = -1, lastEntY = -1;
         char charParede = '#';
 
@@ -172,8 +175,8 @@ void RaycasterRenderer::renderizar3D(vector<string>& tela, int LARGURA_TELA, int
             if (y < teto) {
                 tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(temaCeu, raioAngulo, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
             } else if (y >= teto && y <= chao) {
-                std::string pixel = RaycasterMundo::obterPixelParede(tituloMapa, temaFloresta, distanciaAteParede, profundidadeMaxima, charParede, y, teto, chao, texXParede, tempoAbsoluto, isSideWall, luzes, hitX, hitY);
-                if (pixel == "FUNDO") {
+                Pixel3D pixel = RaycasterMundo::obterPixelParede(tituloMapa, temaFloresta, distanciaAteParede, profundidadeMaxima, charParede, y, teto, chao, texXParede, tempoAbsoluto, isSideWall, luzes, hitX, hitY);
+                if (pixel.isFundo) {
                     if (y <= horizonte) tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(temaCeu, raioAngulo, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
                     else drawFloor = true;
                 } else {
@@ -220,15 +223,27 @@ void RaycasterRenderer::renderizar3D(vector<string>& tela, int LARGURA_TELA, int
                         if (y >= 0 && y < ALTURA_TELA) {
                             int spriteY = ((y - tetoEnt) * sc.height) / altEnt;
                             if (spriteY >= 0 && spriteY < sc.height && spriteX < (int)sc.pixels[spriteY].size()) {
-                                string p = sc.pixels[spriteY][spriteX];
-                                if (p == " \033[0m" && (ent.c == '^' || (ent.c >= '1' && ent.c <= '5'))) {
-                                    float wave = sinf(tempoAbsoluto * 6.0f + y * 0.2f + spriteX * 0.2f);
-                                    int r = 210 + (int)(wave * 45); // Oscila
-                                    int g = 190 + (int)(wave * 65); // Oscila
-                                    int b = 255;
-                                    p = "\033[48;2;" + to_string(r) + ";" + to_string(g) + ";" + to_string(b) + "m \033[0m";
+                                SpritePixel sp = sc.pixels[spriteY][spriteX];
+                                if (!sp.isTransparente) {
+                                    Pixel3D px;
+                                    px.r = sp.r;
+                                    px.g = sp.g;
+                                    px.b = sp.b;
+                                    px.ch = sp.ch;
+                                    px.fgR = sp.fgR;
+                                    px.fgG = sp.fgG;
+                                    px.fgB = sp.fgB;
+                                    px.hasFg = sp.hasFg;
+                                    px.isFundo = false;
+                                    
+                                    if (sp.ch == ' ' && (ent.c == '^' || (ent.c >= '1' && ent.c <= '5'))) {
+                                        float wave = sinf(tempoAbsoluto * 6.0f + y * 0.2f + spriteX * 0.2f);
+                                        px.r = static_cast<uint8_t>(210 + (int)(wave * 45));
+                                        px.g = static_cast<uint8_t>(190 + (int)(wave * 65));
+                                        px.b = 255;
+                                    }
+                                    tela[y * LARGURA_TELA + x] = px; 
                                 }
-                                if (p != "") tela[y * LARGURA_TELA + x] = p; 
                             }
                         }
                     }
