@@ -47,6 +47,7 @@ Mapa2Floresta::Mapa2Floresta(Personagem* personagemJogador) :
     proximoMapa(ProximaTransicaoMapa::Nenhuma)
 {
     matrizDoMapaAtual = Mapa2FlorestaLayouts::obterLayoutFloresta();
+    ControleMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
 }
 
 Mapa2Floresta::~Mapa2Floresta() = default;

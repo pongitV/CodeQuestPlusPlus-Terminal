@@ -18,24 +18,26 @@ void TelaVitoria::exibir(Personagem* jogadorAtual, int quantidadeDeOuroObtido, i
     if (!TelaCombate::isModo3D) {
         Aparencia::limparTela();
     }
-    int frames = 20;
+    std::map<std::string, int> contagem;
+    for (const std::string& item : itensObtidos) contagem[item]++;
+    std::vector<std::pair<std::string, int>> dropsUnicos;
+    for (auto const& [nome, qtd] : contagem) dropsUnicos.push_back({nome, qtd});
 
-    for (int frame = 0; frame <= frames; ++frame) {
-        int curOuro = (quantidadeDeOuroObtido * frame) / frames;
-        int curXp = (quantidadeDeXpObtido * frame) / frames;
+    int framesXP = 20;
+    int framesTotal = framesXP + (dropsUnicos.empty() ? 0 : dropsUnicos.size()) + 1;
+
+    for (int frame = 0; frame <= framesTotal; ++frame) {
+        int curOuro = (quantidadeDeOuroObtido * std::min(frame, framesXP)) / framesXP;
+        int curXp = (quantidadeDeXpObtido * std::min(frame, framesXP)) / framesXP;
 
         std::ostringstream buffer;
         std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
 
+        std::vector<Personagem*> vazio;
+        std::vector<std::string> tela3D;
+
         if (TelaCombate::isModo3D) {
-            std::vector<Personagem*> vazio;
-            std::vector<std::string> tela3D = Combate3DRenderer::renderizarQuadro(TelaCombate::tituloMapaAtual, jogadorAtual, vazio);
-            std::string renderStr = "";
-            for (const auto& linha : tela3D) {
-                renderStr += linha + "\n";
-            }
-            std::cout << "\033[H" << renderStr;
-            // Nao volta o cursor aqui, senao os textos nao HUD serao perdidos, nos posicionaremos flutuante depois
+            tela3D = Combate3DRenderer::renderizarQuadro(TelaCombate::tituloMapaAtual, jogadorAtual, vazio);
         } else {
             Aparencia::exibirPainelArte(ArtesVitoria::logoVitoria, 85, Cor::VERDE, "", frame == 0);
         }
@@ -57,78 +59,121 @@ void TelaVitoria::exibir(Personagem* jogadorAtual, int quantidadeDeOuroObtido, i
         estLinhas.push_back("");
         std::vector<std::string> caixaEst = Aparencia::criarCaixa(estLinhas, "ESTATISTICAS DE DESEMPENHO", 40, Cor::CIANO);
 
-        std::vector<std::string> lootLinhas;
-        lootLinhas.push_back(frame == frames ? " Recompensas da Batalha:" : " Calculando recompensas...");
-        lootLinhas.push_back("");
+        std::vector<std::string> progressoLinhas;
+        progressoLinhas.push_back(" Evolucao do Personagem:");
+        progressoLinhas.push_back("");
         
         double xpPct = static_cast<double>(jogadorAtual->obterXpAtual()) / std::max(1, jogadorAtual->obterXpParaSubir());
         std::string barraXp = Aparencia::gerarBarraGradiente(xpPct, 12, Cor::CIANO);
-        lootLinhas.push_back(" XP: [" + barraXp + Aparencia::cor(Cor::RESET) + "] " + Aparencia::cor(Cor::CIANO) + "+" + std::to_string(curXp) + Aparencia::cor(Cor::RESET));
+        progressoLinhas.push_back(" XP: [" + barraXp + Aparencia::cor(Cor::RESET) + "] " + Aparencia::cor(Cor::CIANO) + "+" + std::to_string(curXp) + Aparencia::cor(Cor::RESET));
         
         int totalAnimadoOuro = jogadorAtual->obterInventario()->obterOuro() - quantidadeDeOuroObtido + curOuro;
-        lootLinhas.push_back(" Ouro Total: " + Aparencia::cor(Cor::AMARELO) + std::to_string(totalAnimadoOuro) + "G " + Aparencia::cor(Cor::RESET) + "(+" + std::to_string(curOuro) + ")");
-        lootLinhas.push_back("");
-        
-        lootLinhas.push_back(" Itens Dropados:");
+        progressoLinhas.push_back(" Ouro Total: " + Aparencia::cor(Cor::AMARELO) + std::to_string(totalAnimadoOuro) + "G " + Aparencia::cor(Cor::RESET) + "(+" + std::to_string(curOuro) + ")");
+        progressoLinhas.push_back("");
+
+        std::vector<std::string> caixaProgresso = Aparencia::criarCaixa(progressoLinhas, "PROGRESSAO DE BATALHA", 40, Cor::AMARELO);
+
+        std::vector<std::string> dropsLinhas;
         if (itensObtidos.empty()) {
-            lootLinhas.push_back(Aparencia::cor(Cor::CINZA) + " > Nenhum item dropado." + Aparencia::cor(Cor::RESET));
-        } else {
-            if (frame == frames) {
-                std::map<std::string, int> contagem;
-                for (const std::string& item : itensObtidos) contagem[item]++;
-                for (auto const& [nome, qtd] : contagem) lootLinhas.push_back(" > " + std::to_string(qtd) + "x " + nome);
+            if (frame >= framesXP) {
+                dropsLinhas.push_back(Aparencia::cor(Cor::CINZA) + " Nenhum item dropado." + Aparencia::cor(Cor::RESET));
             } else {
-                lootLinhas.push_back(Aparencia::cor(Cor::CINZA) + " > ???" + Aparencia::cor(Cor::RESET));
+                dropsLinhas.push_back(Aparencia::cor(Cor::CINZA) + " ???" + Aparencia::cor(Cor::RESET));
+            }
+        } else {
+            if (frame <= framesXP) {
+                dropsLinhas.push_back(Aparencia::cor(Cor::CINZA) + " ???" + Aparencia::cor(Cor::RESET));
+            } else {
+                int itensMostrar = std::min((int)dropsUnicos.size(), frame - framesXP);
+                for (int i = 0; i < itensMostrar; ++i) {
+                    dropsLinhas.push_back(" " + std::to_string(dropsUnicos[i].second) + "x " + dropsUnicos[i].first);
+                }
             }
         }
-        std::vector<std::string> caixaLoot = Aparencia::criarCaixa(lootLinhas, "PROGRESSAO & SAQUE", 40, Cor::AMARELO);
+
+        if (frame == framesTotal) {
+            if (!Combate::obterNovasDescobertas().empty()) {
+                dropsLinhas.push_back("");
+                for (const auto& desc : Combate::obterNovasDescobertas()) {
+                    dropsLinhas.push_back(Aparencia::cor(Cor::CIANO) + " [!] " + desc + Aparencia::cor(Cor::RESET));
+                }
+            }
+            if (jogadorAtual->podeSubirDeNivel()) {
+                dropsLinhas.push_back("");
+                dropsLinhas.push_back(Aparencia::cor(Cor::VERDE) + " *** VOCE PODE SUBIR DE NIVEL! ***" + Aparencia::cor(Cor::RESET));
+            }
+
+            dropsLinhas.push_back("");
+            std::string enterMsg = "\033[5m[ PRESSIONE ENTER PARA CONTINUAR ]\033[0m";
+            int paddingSize = (80 - 34) / 2; // 84 box width -> 80 inner width. 34 visual length of enterMsg
+            std::string padding(paddingSize > 0 ? paddingSize : 0, ' ');
+            dropsLinhas.push_back(padding + Aparencia::cor(Cor::VERDE) + enterMsg + Aparencia::cor(Cor::RESET));
+        }
+
+        std::vector<std::string> caixaDrops = Aparencia::criarCaixa(dropsLinhas, "SAQUE & DESCOBERTAS", 84, Cor::MAGENTA);
 
         if (TelaCombate::isModo3D) {
-            auto imprimirFlutuante = [](const std::vector<std::string>& arte, int startY, int startX) {
+            auto overlayPanel = [](std::vector<std::string>& fundo, const std::vector<std::string>& arte, int startY, int startX) {
                 for (size_t i = 0; i < arte.size(); ++i) {
-                    std::cout << "\033[" << (startY + i) << ";" << startX << "H" << arte[i];
+                    int y = startY + i;
+                    if (y >= 0 && y < static_cast<int>(fundo.size())) {
+                        fundo[y] = Aparencia::sobreporPainelNaLinhaAnsi(fundo[y], arte[i], startX);
+                    }
                 }
             };
-            imprimirFlutuante(ArtesVitoria::logoVitoria, 3, 20); // Centraliza a logo no topo
-            imprimirFlutuante(caixaEst, 12, 10);
-            imprimirFlutuante(caixaLoot, 12, 65);
+            
+            std::vector<std::string> logoColorida = ArtesVitoria::logoVitoria;
+            for (auto& l : logoColorida) l = Aparencia::cor(Cor::VERDE) + l + Aparencia::cor(Cor::RESET);
+
+            int larguraTerminal = Aparencia::obterLarguraTerminal();
+            
+            int logoWidth = logoColorida.empty() ? 0 : Aparencia::obterComprimentoVisual(logoColorida[0]);
+            int logoX = (larguraTerminal - logoWidth) / 2;
+            if (logoX < 0) logoX = 0;
+
+            int estWidth = 40;
+            int progWidth = 40;
+            int gap = 4;
+            int totalTopWidth = estWidth + gap + progWidth;
+            
+            int startEstX = (larguraTerminal - totalTopWidth) / 2;
+            if (startEstX < 0) startEstX = 0;
+            int startProgX = startEstX + estWidth + gap;
+
+            int startDropsX = (larguraTerminal - 84) / 2;
+            if (startDropsX < 0) startDropsX = 0;
+
+            overlayPanel(tela3D, logoColorida, 2, logoX);
+            overlayPanel(tela3D, caixaEst, 11, startEstX);
+            overlayPanel(tela3D, caixaProgresso, 11, startProgX);
+            
+            int yDrops = 11 + caixaProgresso.size() + 1;
+            overlayPanel(tela3D, caixaDrops, yDrops, startDropsX);
         } else {
-            Aparencia::exibirPainelArte(ArtesVitoria::logoVitoria, 85, Cor::VERDE, "", frame == 0);
-            Aparencia::imprimirLadoALado(caixaEst, caixaLoot, 43, 4);
+            Aparencia::imprimirLadoALado(caixaEst, caixaProgresso, 43, 4);
+            std::cout << "\n";
+            Aparencia::imprimirCentralizadoMultilinha(caixaDrops);
         }
 
-        std::cout << "\n";
-        std::vector<std::string> linhasDeRodape;
-        
-        if (frame == frames) {
-            if (!Combate::obterNovasDescobertas().empty()) {
-                linhasDeRodape.push_back("");
-                for (const auto& desc : Combate::obterNovasDescobertas()) {
-                    linhasDeRodape.push_back("\033[5m" + Aparencia::cor(Cor::CIANO) + "[!] " + desc + Aparencia::cor(Cor::RESET));
-                }
-            }
-            
-            if (jogadorAtual->podeSubirDeNivel()) {
-                linhasDeRodape.push_back("");
-                linhasDeRodape.push_back(Aparencia::cor(Cor::VERDE) + "*** VOCE PODE SUBIR DE NIVEL! ***" + Aparencia::cor(Cor::RESET));
-            }
+        if (!TelaCombate::isModo3D) {
+            std::cout << "\n";
         }
         
         if (TelaCombate::isModo3D) {
-            if (!linhasDeRodape.empty()) {
-                for (size_t i = 0; i < linhasDeRodape.size(); i++) {
-                    std::cout << "\033[" << (28 + i) << ";" << 30 << "H" << linhasDeRodape[i];
+            std::string renderStr = "";
+            for (size_t i = 0; i < tela3D.size(); ++i) {
+                renderStr += tela3D[i];
+                if (i < tela3D.size() - 1) {
+                    renderStr += "\n";
                 }
             }
-            std::cout << "\033[32;1H"; // Posiciona embaixo para nao bugar o input
-        } else {
-            Aparencia::imprimirCentralizadoMultilinha(linhasDeRodape);
+            std::cout << "\033[H" << renderStr;
         }
 
         std::cout.rdbuf(oldCout);
         std::cout << "\033[H" << buffer.str() << "\033[J" << std::flush;
         
-        if (frame < frames) {
+        if (frame < framesTotal) {
             std::this_thread::sleep_for(std::chrono::milliseconds(40));
         }
     }
@@ -136,5 +181,5 @@ void TelaVitoria::exibir(Personagem* jogadorAtual, int quantidadeDeOuroObtido, i
     if (TelaCombate::isModo3D) {
         std::cout << "\033[33;1H"; 
     }
-    ControleDeInput::aguardarEnter();
+    ControleDeInput::aguardarEnter("");
 }

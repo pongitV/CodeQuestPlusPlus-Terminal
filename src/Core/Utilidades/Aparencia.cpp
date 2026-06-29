@@ -320,7 +320,9 @@ std::string Aparencia::espacosParaCentralizar(int comprimentoTexto) {
 }
 
 std::string Aparencia::centralizarTexto(const std::string& texto) {
-    return espacosParaCentralizar(obterComprimentoVisual(texto)) + texto;
+    size_t end = texto.find_last_not_of(' ');
+    std::string trimmed = (end != std::string::npos) ? texto.substr(0, end + 1) : "";
+    return espacosParaCentralizar(obterComprimentoVisual(trimmed)) + texto;
 }
 
 std::vector<std::string> Aparencia::criarCaixa(const std::vector<std::string>& linhas, const std::string& titulo, int larguraMinima, Cor corCaixa) {
@@ -381,7 +383,9 @@ void Aparencia::imprimirLinhaDivisoria(char caractere) {
 }
 
 void Aparencia::imprimirCentralizado(const std::string& texto, const std::string& corAnsi) {
-    std::cout << "\033[0m" << espacosParaCentralizar(obterComprimentoVisual(texto)) << corAnsi << texto << "\033[0m\n";
+    size_t end = texto.find_last_not_of(' ');
+    std::string trimmed = (end != std::string::npos) ? texto.substr(0, end + 1) : "";
+    std::cout << "\033[0m" << espacosParaCentralizar(obterComprimentoVisual(trimmed)) << corAnsi << texto << "\033[0m\n";
 }
 
 void Aparencia::imprimirCentralizadoMultilinha(const std::vector<std::string>& linhas, int larguraVisual, const std::string& corAnsi, int atrasoLinhaMs) {
@@ -521,7 +525,9 @@ void Aparencia::exibirTelaIntro(const std::vector<std::string>& arteLogo, const 
 void Aparencia::imprimirBlocoCentralizado(const std::vector<std::string>& linhas, const std::string& corAnsi, int atrasoLinhaMs) {
     int tamanhoDaLinhaMaisLonga = 0;
     for (const std::string& linha : linhas) {
-        tamanhoDaLinhaMaisLonga = std::max(tamanhoDaLinhaMaisLonga, obterComprimentoVisual(linha));
+        size_t end = linha.find_last_not_of(' ');
+        std::string trimmed = (end != std::string::npos) ? linha.substr(0, end + 1) : "";
+        tamanhoDaLinhaMaisLonga = std::max(tamanhoDaLinhaMaisLonga, obterComprimentoVisual(trimmed));
     }
     imprimirCentralizadoMultilinha(linhas, tamanhoDaLinhaMaisLonga, corAnsi, atrasoLinhaMs);
 }
@@ -529,7 +535,9 @@ void Aparencia::imprimirBlocoCentralizado(const std::vector<std::string>& linhas
 void Aparencia::imprimirBlocoCentralizadoDigitando(const std::vector<std::string>& linhas, int atrasoMs) {
     int tamanhoDaLinhaMaisLonga = 0;
     for (const std::string& linha : linhas) {
-        tamanhoDaLinhaMaisLonga = std::max(tamanhoDaLinhaMaisLonga, obterComprimentoVisual(linha));
+        size_t end = linha.find_last_not_of(' ');
+        std::string trimmed = (end != std::string::npos) ? linha.substr(0, end + 1) : "";
+        tamanhoDaLinhaMaisLonga = std::max(tamanhoDaLinhaMaisLonga, obterComprimentoVisual(trimmed));
     }
     std::string margem = espacosParaCentralizar(tamanhoDaLinhaMaisLonga);
     for (const std::string& linha : linhas) {
@@ -1022,7 +1030,15 @@ void Aparencia::exibirHistoricoCompleto() {
 std::vector<std::string> Aparencia::converterStringBrutaParaVetor(const std::string& textoBruto) {
     std::vector<std::string> linhas;
     std::string linha;
-    for (char c : textoBruto) {
+    
+    // Pular a primeira quebra de linha se a string começar com uma (comum no uso de R"( )")
+    size_t startIndex = 0;
+    if (textoBruto.length() > 0 && textoBruto[0] == '\n') {
+        startIndex = 1;
+    }
+
+    for (size_t i = startIndex; i < textoBruto.length(); ++i) {
+        char c = textoBruto[i];
         if (c == '\n') {
             if (!linha.empty() && linha.back() == '\r') linha.pop_back();
             linhas.push_back(linha);
@@ -1031,9 +1047,114 @@ std::vector<std::string> Aparencia::converterStringBrutaParaVetor(const std::str
             linha += c;
         }
     }
+    
     if (!linha.empty()) {
         if (linha.back() == '\r') linha.pop_back();
         linhas.push_back(linha);
     }
+    
+    // Pular a última linha se ela for estritamente vazia e for causada pela quebra de linha final de R"( )"
+    if (!linhas.empty() && linhas.back().empty() && textoBruto.back() == '\n') {
+        linhas.pop_back();
+    }
+    
     return linhas;
+}
+
+void Aparencia::padronizarTamanhoVetor(std::vector<std::string>& linhas) {
+    if (linhas.empty()) return;
+    size_t maxLen = 0;
+    for (const auto& l : linhas)
+        if (l.length() > maxLen) maxLen = l.length();
+    for (auto& l : linhas)
+        if (l.length() < maxLen) l.append(maxLen - l.length(), ' ');
+}
+
+std::string Aparencia::sobreporPainelNaLinhaAnsi(const std::string& backgroundLine, const std::string& panelLine, int startX) {
+    std::string result = "";
+    result.reserve(backgroundLine.size() + panelLine.size() + 50);
+
+    int panelWidth = Aparencia::obterComprimentoVisual(panelLine);
+    int endX = startX + panelWidth;
+
+    int visualX = 0;
+    size_t i = 0;
+
+    std::string currentBg = "";
+    std::string currentFg = "";
+
+    while (i < backgroundLine.size() && visualX < startX) {
+        if (backgroundLine[i] == '\033' && i + 1 < backgroundLine.size() && backgroundLine[i+1] == '[') {
+            size_t end = backgroundLine.find('m', i);
+            if (end != std::string::npos) {
+                std::string esc = backgroundLine.substr(i, end - i + 1);
+                if (esc == "\033[0m") {
+                    currentBg = "";
+                    currentFg = "";
+                } else if (esc.find("\033[48;2;") == 0 || esc == "\033[49m") {
+                    currentBg = (esc == "\033[49m") ? "" : esc;
+                } else if (esc.find("\033[38;2;") == 0 || esc == "\033[39m" || esc == "\033[1;37m" || esc == "\033[1;31m") {
+                    currentFg = (esc == "\033[39m") ? "" : esc;
+                }
+                result += esc;
+                i = end + 1;
+                continue;
+            }
+        }
+
+        int len = 1;
+        unsigned char c = static_cast<unsigned char>(backgroundLine[i]);
+        if ((c & 0x80) == 0) len = 1;
+        else if ((c & 0xE0) == 0xC0) len = 2;
+        else if ((c & 0xF0) == 0xE0) len = 3;
+        else if ((c & 0xF8) == 0xF0) len = 4;
+
+        result += backgroundLine.substr(i, len);
+        visualX++;
+        i += len;
+    }
+
+    while (visualX < startX) {
+        result += " ";
+        visualX++;
+    }
+
+    result += panelLine;
+
+    while (i < backgroundLine.size() && visualX < endX) {
+        if (backgroundLine[i] == '\033' && i + 1 < backgroundLine.size() && backgroundLine[i+1] == '[') {
+            size_t end = backgroundLine.find('m', i);
+            if (end != std::string::npos) {
+                std::string esc = backgroundLine.substr(i, end - i + 1);
+                if (esc == "\033[0m") {
+                    currentBg = "";
+                    currentFg = "";
+                } else if (esc.find("\033[48;2;") == 0 || esc == "\033[49m") {
+                    currentBg = (esc == "\033[49m") ? "" : esc;
+                } else if (esc.find("\033[38;2;") == 0 || esc == "\033[39m" || esc == "\033[1;37m" || esc == "\033[1;31m") {
+                    currentFg = (esc == "\033[39m") ? "" : esc;
+                }
+                i = end + 1;
+                continue;
+            }
+        }
+
+        int len = 1;
+        unsigned char c = static_cast<unsigned char>(backgroundLine[i]);
+        if ((c & 0x80) == 0) len = 1;
+        else if ((c & 0xE0) == 0xC0) len = 2;
+        else if ((c & 0xF0) == 0xE0) len = 3;
+        else if ((c & 0xF8) == 0xF0) len = 4;
+
+        visualX++;
+        i += len;
+    }
+
+    result += "\033[0m" + currentBg + currentFg;
+
+    if (i < backgroundLine.size()) {
+        result += backgroundLine.substr(i);
+    }
+
+    return result;
 }

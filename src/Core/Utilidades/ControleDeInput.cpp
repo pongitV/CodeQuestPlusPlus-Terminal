@@ -356,7 +356,9 @@ void ControleDeInput::aguardarEnter(const std::string& mensagem) {
         ControleDeInput::enterPromptText = "";
         ControleDeInput::onAguardarEnterUpdate();
     } else {
-        std::cout << "\n\033[0m" << Aparencia::espacosParaCentralizar(Aparencia::obterComprimentoVisual(mensagem)) << "\033[5m" << mensagem << "\033[0m\n";
+        if (!mensagem.empty()) {
+            std::cout << "\n\033[0m" << Aparencia::espacosParaCentralizar(Aparencia::obterComprimentoVisual(mensagem)) << "\033[5m" << mensagem << "\033[0m\n";
+        }
         ControleDeInput::limparBuffer();
         while (true) {
             char c = ControleDeInput::lerTecla();

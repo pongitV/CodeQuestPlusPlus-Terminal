@@ -110,7 +110,9 @@ bool ControleMapa::processarInputEComandos(char tecla, Personagem* jogador, int&
 
 void ControleMapa::aplicarLimitesDeMapa(int& posicaoX, int& posicaoY, const std::vector<std::string>& matrizDoMapa) {
     if (posicaoY < 0) posicaoY = 0; else if (posicaoY >= static_cast<int>(matrizDoMapa.size())) posicaoY = static_cast<int>(matrizDoMapa.size()) - 1;
-    if (posicaoX < 0) posicaoX = 0; else if (posicaoX >= static_cast<int>(matrizDoMapa[0].size())) posicaoX = static_cast<int>(matrizDoMapa[0].size()) - 1;
+    if (matrizDoMapa.empty()) return;
+    int maxCols = static_cast<int>(matrizDoMapa[posicaoY].length());
+    if (posicaoX < 0) posicaoX = 0; else if (posicaoX >= maxCols) posicaoX = std::max(0, maxCols - 1);
 }
 
 void ControleMapa::processarCombate(
@@ -250,9 +252,11 @@ int ControleMapa::animarIntroducaoMapa(
     const std::function<void()>& acaoAposFadeInArte
 ) {
     if (ControleMapa::isExploracao3DAtiva()) {
+        RaycasterMundo::atualizarMapHash(matrizDoMapa);
         return 0; 
     }
 
+    RaycasterMundo::atualizarMapHash(matrizDoMapa);
     Aparencia::limparTela();
     Aparencia::ocultarCursor();
 
@@ -339,10 +343,12 @@ int ControleMapa::animarIntroducaoMapa(
         std::string linhaStr = margemEsquerdaDoMapa;
         linhaStr.reserve(margemEsquerdaDoMapa.size() + (endX - startX) * 10);
         for (int x = startX; x < endX; x++) {
-            linhaStr += formatadorCelula(matrizDoMapa[y][x], x, y);
+            char c = (x < static_cast<int>(matrizDoMapa[y].length())) ? matrizDoMapa[y][x] : ' ';
+            linhaStr += formatadorCelula(c, x, y);
         }
         linhasDoMapaCache.push_back(linhaStr);
     }
+
 
     // Desenha os controles e o mapa inteiro APENAS UMA VEZ antes da animacao
     std::ostringstream initialMap;
@@ -351,6 +357,7 @@ int ControleMapa::animarIntroducaoMapa(
         initialMap << "\033[" << (linhaInicialMapa + 1 + offsetMapaReal + i) << ";1H" << linhasDoMapaCache[i] << "\033[K";
     }
     std::cout << initialMap.str() << std::flush;
+
 
     // 1. Dropdown animation (Desce sobrepondo o mapa)
     int destinoY = (alturaTerminal - linhaInicialMapa) / 6; // Desce um pouco, igual ao 3D
@@ -443,15 +450,7 @@ std::string ControleMapa::calcularMargemCentralizada(int larguraDoTerminal, int 
 }
 
 void ControleMapa::padronizarTamanhoDoMapa(std::vector<std::string>& matrizDoMapa) {
-    size_t maxLength = 0;
-    // Primeiro encontramos a largura real (maxima) do mapa sem remover os espacos intencionais
-    for (auto& linha : matrizDoMapa) {
-        if (linha.length() > maxLength) maxLength = linha.length();
-    }
-    // Depois preenchemos todas as linhas ate o maxLength com espacos para formar a matriz
-    for (auto& linha : matrizDoMapa) {
-        if (linha.length() < maxLength) linha.append(maxLength - linha.length(), ' ');
-    }
+    Aparencia::padronizarTamanhoVetor(matrizDoMapa);
 }
 
 std::string ControleMapa::formatarCelula(char celula, int x, int y, const std::string& tituloDoMapa, const std::vector<std::string>& matrizDoMapa, bool isMinimapa) {
@@ -637,7 +636,8 @@ void ControleMapa::renderizarMapa(const std::vector<std::string>& matrizDoMapa, 
         std::string linhaSendoRenderizada = margemEsquerdaDoMapa;
         linhaSendoRenderizada.reserve(margemEsquerdaDoMapa.size() + (endX - startX) * 10);
         for (int x = startX; x < endX; x++) {
-            linhaSendoRenderizada += formatadorCelula(matrizDoMapa[y][x], x, y);
+            char c = (x < static_cast<int>(matrizDoMapa[y].length())) ? matrizDoMapa[y][x] : ' ';
+            linhaSendoRenderizada += formatadorCelula(c, x, y);
         }
         std::cout << linhaSendoRenderizada << "\033[K\n";
     }
@@ -742,9 +742,12 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
                         isTrigger = true;
                     }
                     
+                    int posXantes = posicaoXDoJogador;
+                    int posYantes = posicaoYDoJogador;
                     processarInteracao(hitX, hitY, larguraDoTerminal); // Aciona o combate/NPC caso o jogador tenha parado em cima de um
                     
-                    if (isTrigger && s_exploracao3DAtiva) {
+                    // So empurra o jogador para tras se a posicao nao mudou (evita sobrescrever teleportes)
+                    if (isTrigger && s_exploracao3DAtiva && posicaoXDoJogador == posXantes && posicaoYDoJogador == posYantes) {
                         // Empurra o jogador para tras em 1 casa para evitar que ele fique preso no NPC
                         // E previne loops onde ele volta pro jogo ja interagindo
                         s_posCamera3DX = static_cast<float>(hitX) + 0.5f - cos(s_anguloCamera3D) * 1.5f;

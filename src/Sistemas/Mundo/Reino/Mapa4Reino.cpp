@@ -31,6 +31,8 @@ Mapa4Reino::Mapa4Reino(Personagem* personagemJogador) :
     igrejaJaFoiVisitada(false)
 {
     matrizDoMapaAtual = Mapa4ReinoLayouts::obterLayoutReino();
+    ControleMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
+    matrizDoMapaPrincipalSalva = matrizDoMapaAtual; // Caso necessário
 }
 
 Mapa4Reino::~Mapa4Reino() = default;

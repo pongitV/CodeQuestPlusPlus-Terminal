@@ -411,7 +411,9 @@ int TelaMenu::exibirOpcoesMenuPrincipal(bool temSave, const std::vector<std::vec
 
             buffer << "\n\n";
             for (size_t i = 0; i < ArtesMenu::logoTexto.size(); ++i) {
-                buffer << margem << corRGB << ArtesMenu::logoTexto[i] << corRGBPlus << ArtesMenu::logoPlus[i] << "\033[0m\n";
+                buffer << margem << corRGB << ArtesMenu::logoTexto[i];
+                if (i < ArtesMenu::logoPlus.size()) buffer << corRGBPlus << ArtesMenu::logoPlus[i];
+                buffer << "\033[0m\n";
             }
             
             buffer << "\n\n\n";
@@ -456,7 +458,9 @@ int TelaMenu::exibirOpcoesMenuPrincipal(bool temSave, const std::vector<std::vec
             
             buffer << "\n\n";
             for (size_t i = 0; i < ArtesMenu::logoTexto.size(); ++i) {
-                buffer << margem << corBranco << ArtesMenu::logoTexto[i] << corLaranja << ArtesMenu::logoPlus[i] << "\033[0m\n";
+                buffer << margem << corBranco << ArtesMenu::logoTexto[i];
+                if (i < ArtesMenu::logoPlus.size()) buffer << corLaranja << ArtesMenu::logoPlus[i];
+                buffer << "\033[0m\n";
             }
             
             buffer << "\n\n\n";

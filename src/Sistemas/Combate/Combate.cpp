@@ -883,6 +883,7 @@ bool Combate::verificarCondicaoDeVitoriaOuDerrota()
     if (isVitoria || isDerrota) 
     { 
         jogadorAtual->limparEfeitos(); // Remove buffs e debuffs ao final da batalha
+        ControleDeInput::onAguardarEnterUpdate = nullptr; // Impede que o aguardarEnter da tela de vitoria/derrota redesenhe o combate
         if (isVitoria) {
             TelaVitoria::exibir(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, jogadorAtual->obterCuraTotalRecebida(), contadorDoTurnoAtual, itensObtidos);
         } else {

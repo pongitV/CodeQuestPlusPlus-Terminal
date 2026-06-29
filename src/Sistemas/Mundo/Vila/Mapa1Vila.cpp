@@ -45,8 +45,13 @@ Mapa1Vila::Mapa1Vila(Personagem* personagemJogador) :
     veioDaFloresta(false)
 {
     matrizDoMapaPrincipalSalva = Mapa1VilaLayouts::obterLayoutVilaInicial();
+    ControleMapa::padronizarTamanhoDoMapa(matrizDoMapaPrincipalSalva);
+
     matrizDoMapaAtual = Mapa1VilaLayouts::obterLayoutSpawn();
+    ControleMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
+
     mapaBaseDaVila = Mapa1VilaLayouts::obterLayoutVilaInicial();
+    ControleMapa::padronizarTamanhoDoMapa(mapaBaseDaVila);
 
     if (!bjornResgatado) {
         for (auto& linha : matrizDoMapaPrincipalSalva) {
@@ -155,16 +160,18 @@ namespace {
                 }
 
                 ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaPrincipalSalva;
+                ControleMapa::padronizarTamanhoDoMapa(ctx.self->matrizDoMapaAtual);
                 ctx.self->posicaoXDoJogador = ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa;
                 ctx.self->posicaoYDoJogador = ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa;
                 ctx.self->jogadorEstaDentroDeUmSubMapa = false;
                 ctx.self->tituloDoMapaAtual = "VILA INICIAL";
-                if (!ControleMapa::isExploracao3DAtiva()) if (!ControleMapa::isExploracao3DAtiva()) ctx.restaurarTela();
+                if (!ControleMapa::isExploracao3DAtiva()) ctx.restaurarTela();
             }
             // 3. Voltar para a Vila Inicial a partir do Caminho do Inicio (X=54, Y=6)
             else if (px == 54 && py == 6 && ctx.self->tituloDoMapaAtual == "CAMINHO DO INICIO") {
                 ctx.self->matrizDoMapaDoSpawnSalva = ctx.self->matrizDoMapaAtual;
                 ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaPrincipalSalva;
+                ControleMapa::padronizarTamanhoDoMapa(ctx.self->matrizDoMapaAtual);
                 ctx.self->posicaoXDoJogador = 10;
                 ctx.self->posicaoYDoJogador = 4;
                 ctx.self->jogadorEstaDentroDeUmSubMapa = false;

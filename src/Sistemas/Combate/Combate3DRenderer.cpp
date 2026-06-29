@@ -256,16 +256,21 @@ void Combate3DRenderer::sobreporSprite(
 
     std::vector<std::string> arteUsada = arteOriginalInimigo;
     
+    // Reserve space for HUD (~7 lines) + message box (~4 lines) + borders
+    int reservedBottom = 14;
+    
     int alturaArte = static_cast<int>(arteUsada.size());
     int fator = 1;
-    if (alturaArte > alturaVisivel * 0.7f) {
-        fator = 2;
+    if (alturaArte > alturaVisivel * 0.7f || alturaArte > alturaVisivel - reservedBottom) {
+        for (fator = 2; fator <= 12; ++fator) {
+            arteUsada = Aparencia::reduzirEscalaAscii(arteOriginalInimigo, fator, fator);
+            alturaArte = static_cast<int>(arteUsada.size());
+            if (alturaArte <= alturaVisivel - reservedBottom) break;
+        }
     }
     if (inimigo->obterNome().find("Mahoraga") != std::string::npos) {
-        fator = std::max(2, fator + 1);
-    }
-    if (fator > 1) {
-        arteUsada = Aparencia::reduzirEscalaAscii(arteUsada, fator, fator);
+        if (fator < 3) fator = 3;
+        arteUsada = Aparencia::reduzirEscalaAscii(arteOriginalInimigo, fator, fator);
         alturaArte = static_cast<int>(arteUsada.size());
     }
 
@@ -284,8 +289,11 @@ void Combate3DRenderer::sobreporSprite(
         swayOff = swayPattern[stepSway] * 2;
     }
     
+    int maxStartY = alturaVisivel - alturaArte - reservedBottom;
     int startY = (alturaVisivel - alturaArte) / 2;
     startY += alturaVisivel / 10;
+    if (startY > maxStartY) startY = maxStartY;
+    if (startY < 0) startY = 0;
     
     int startX = 0; // Será recalculado após obter o croppedWidth
 

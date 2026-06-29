@@ -49,8 +49,11 @@ public:
 
     // --- CONFIGURACOES E CORES ---
     static void inicializarConsole();
+    static std::string converterVetorParaStringBruta(const std::vector<std::string>& vetor);
+    static std::string sobreporPainelNaLinhaAnsi(const std::string& backgroundLine, const std::string& panelLine, int startX);
     static std::string cor(Cor codigo);
     static std::vector<std::string> converterStringBrutaParaVetor(const std::string& textoBruto);
+    static void padronizarTamanhoVetor(std::vector<std::string>& linhas);
     static std::vector<std::string> carregarArte(const std::string& caminhoArquivo);
     static std::string cor(Cor estilo, Cor codigo);
     static std::string corRGB(uint8_t r, uint8_t g, uint8_t b, bool negrito = false);

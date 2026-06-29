@@ -25,6 +25,7 @@ Mapa3PonteReino::Mapa3PonteReino(Personagem* personagemJogador) :
     proximoMapa(ProximaTransicaoMapa::Nenhuma)
 {
     matrizDoMapaAtual = Mapa3PonteReinoLayouts::obterLayoutPonteReino();
+    ControleMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
 }
 
 Mapa3PonteReino::~Mapa3PonteReino() = default;
