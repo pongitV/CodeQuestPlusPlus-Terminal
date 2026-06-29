@@ -21,6 +21,7 @@ public:
     // Cálculos dinâmicos de progresso combinando dados do jogador com as flags salvas
     int obterProgressoVila(Personagem* jogadorAtual) const;
     int obterProgressoFloresta(Personagem* jogadorAtual) const;
+    int obterProgressoPonteReino(Personagem* jogadorAtual) const;
     int obterProgressoReino(Personagem* jogadorAtual) const;
 
     // Funções para ligar ao sistema de salvamento

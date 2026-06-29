@@ -560,6 +560,7 @@ int TelaMenu::exibirOpcoesMenuPrincipal(bool temSave, const std::vector<std::vec
     
     std::vector<std::string> opcoes = { "Novo Jogo" };
     if (temSave) opcoes.push_back("Continuar Jogo");
+    opcoes.push_back("Debug");
     opcoes.push_back("Opcoes de save");
     opcoes.push_back("Sair do jogo");
 

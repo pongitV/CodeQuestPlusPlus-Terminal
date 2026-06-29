@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <map>
 
-#include "NPCMorgana.h"
+#include "NPCMaga.h"
 #include "../../../Interface/Telas/Menu/TelaMenu.h"
 #include "../../../Sistemas/Inventario/Item.h"
 #include "../../../Sistemas/Inventario/FabricaItens.h"
@@ -19,7 +19,7 @@
 #include "../../../Sistemas/Progresso/Progressao.h"
 #include "../../../Sistemas/Progresso/ProgressaoFlags.h"
 #include "../../../Interface/Telas/TelaBase.h"
-#include "NPCMorganaLayout.h"
+#include "NPCMagaLayout.h"
 
 namespace {
     std::map<int, ProdutoLoja> estoquePocoesBuff = {
@@ -111,7 +111,7 @@ namespace {
     void processarMenuMissoes(Personagem* jogadorAtual);
 
     void dialogoMorgana(const std::vector<std::string>& linhas) {
-        Aparencia::exibirPopup("MORGANA", linhas, Cor::MAGENTA, NPCMorganaLayouts::arteMorgana);
+        Aparencia::exibirPopup("MORGANA", linhas, Cor::MAGENTA, NPCMagaLayouts::arteMaga);
     }
     
     void dialogoMorganaUnico(const std::string& msg) {
@@ -120,24 +120,24 @@ namespace {
 }
 
 // --- INFORMACOES DO LUGAR ---
-std::string NPCMorgana::obterNomeDoLugar() const {
+std::string NPCMaga::obterNomeDoLugar() const {
     return "CABANA DA BRUXA";
 }
 
-Cor NPCMorgana::obterCorDoCabecalho() const {
+Cor NPCMaga::obterCorDoCabecalho() const {
     return Cor::MAGENTA;
 }
 
-Cor NPCMorgana::obterCorDaArte() const {
+Cor NPCMaga::obterCorDaArte() const {
     return Cor::MAGENTA;
 }
 
-const std::vector<std::string>& NPCMorgana::obterArteASCII() const {
-    return NPCMorganaLayouts::arteMorgana;
+const std::vector<std::string>& NPCMaga::obterArteASCII() const {
+    return NPCMagaLayouts::arteMaga;
 }
 
 // --- INTERACAO E MENU ---
-void NPCMorgana::interagir(Personagem* jogador) {
+void NPCMaga::interagir(Personagem* jogador) {
     ControleDeInput::executarLoopMenuPopup(
         [this, jogador]() { this->exibirDialogo(jogador); },
         [this, jogador]() { return this->obterOpcoesMenu(jogador, Aparencia::obterLarguraTerminal()); },
@@ -146,7 +146,7 @@ void NPCMorgana::interagir(Personagem* jogador) {
     );
 }
 
-void NPCMorgana::exibirDialogo(Personagem* /*jogador*/) {
+void NPCMaga::exibirDialogo(Personagem* /*jogador*/) {
     if (Progressao::instancia().obterFlag(Flags::Floresta_MissaoMorgana)) {
         dialogoMorgana(std::vector<std::string>{
             "O Labirinto o aguarda..."
@@ -159,7 +159,7 @@ void NPCMorgana::exibirDialogo(Personagem* /*jogador*/) {
     }
 }
 
-std::vector<std::string> NPCMorgana::obterOpcoesMenu(Personagem* /*jogador*/, int /*larguraDoTerminal*/) {
+std::vector<std::string> NPCMaga::obterOpcoesMenu(Personagem* /*jogador*/, int /*larguraDoTerminal*/) {
     return {
         "ENCANTAR Armas (Universais)",
         "ENCANTAR Armas (Especificas)",
@@ -170,7 +170,7 @@ std::vector<std::string> NPCMorgana::obterOpcoesMenu(Personagem* /*jogador*/, in
     };
 }
 
-void NPCMorgana::processarOpcao(Personagem* jogador, const std::string& opcao, int /*larguraDoTerminal*/) {
+void NPCMaga::processarOpcao(Personagem* jogador, const std::string& opcao, int /*larguraDoTerminal*/) {
     if (opcao == "ENCANTAR Armas (Universais)") {
         processarEncantamentos(jogador, true);
     }
@@ -207,7 +207,7 @@ namespace {
                 {"Escolha um encantamento:"},
                 linhas,
                 Cor::MAGENTA,
-                NPCMorganaLayouts::arteMorgana
+                NPCMagaLayouts::arteMaga
             );
 
             if (id == static_cast<int>(opsAtuais.size()) || id == -1) {
@@ -234,7 +234,7 @@ namespace {
             if (opcoesItem.empty()) { dialogoMorganaUnico("Voce nao tem armas para encantar!"); continue; }
             opcoesItem.push_back("VOLTAR");
             
-            int escolhaArma = ControleDeInput::lerSelecaoMenuEmPopup("ESCOLHA UMA ARMA", {"Qual arma deseja encantar?"}, opcoesItem, Cor::MAGENTA, NPCMorganaLayouts::arteCaldeirao);
+            int escolhaArma = ControleDeInput::lerSelecaoMenuEmPopup("ESCOLHA UMA ARMA", {"Qual arma deseja encantar?"}, opcoesItem, Cor::MAGENTA, NPCMagaLayouts::arteCaldeirao);
             if (escolhaArma == -1 || escolhaArma == static_cast<int>(opcoesItem.size()) - 1) continue;
             
             EquipamentoArma* armaEscolhida = dynamic_cast<EquipamentoArma*>(itensValidos[escolhaArma]);
@@ -258,7 +258,7 @@ namespace {
             std::string novoNome = op.aplicar(jogadorAtual, armaEscolhida);
             
             std::string equacao = "[" + nomeAntigoArma + "] + " + std::to_string(op.qtd) + "x [" + itemNecessario + "] = [" + novoNome + "]";
-            Aparencia::exibirPopup("ENCANTAMENTO SUCESSO", {equacao, "", "Feito! A magia flui pela sua arma..."}, Cor::MAGENTA, NPCMorganaLayouts::arteCaldeirao);
+            Aparencia::exibirPopup("ENCANTAMENTO SUCESSO", {equacao, "", "Feito! A magia flui pela sua arma..."}, Cor::MAGENTA, NPCMagaLayouts::arteCaldeirao);
         }
     }
 
@@ -293,7 +293,7 @@ namespace {
             "Use a entrada [^L] para explorar o meu Labirinto Subterraneo.",
             "E um lugar perigoso, mergulhado em uma nevoa de cor roxa, mas guarda grandes tesouros."
         };
-        Aparencia::exibirPopup("MISSAO CONCLUIDA", dialogo, Cor::MAGENTA, NPCMorganaLayouts::arteMorgana);
+        Aparencia::exibirPopup("MISSAO CONCLUIDA", dialogo, Cor::MAGENTA, NPCMagaLayouts::arteMaga);
     }
 
     void processarMenuMissoes(Personagem* jogadorAtual) {
@@ -318,7 +318,7 @@ namespace {
                 {"Escolha uma missao:"},
                 missoes,
                 Cor::MAGENTA,
-                NPCMorganaLayouts::arteMorgana
+                NPCMagaLayouts::arteMaga
             );
 
             if (!jogadorAtual->obterLabirintoDesbloqueado() && id == 0) {

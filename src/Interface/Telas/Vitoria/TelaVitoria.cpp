@@ -11,10 +11,13 @@
 #include "TelaVitoriaLayout.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"
 #include "../../../Sistemas/Combate/Combate.h"
-
+#include "../Combate/TelaCombate.h"
+#include "../../../Sistemas/Combate/Combate3DRenderer.h"
 void TelaVitoria::exibir(Personagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido, int curaTotalRecebida, int turnosCombate, const std::vector<std::string>& itensObtidos)
 {
-    Aparencia::limparTela();
+    if (!TelaCombate::isModo3D) {
+        Aparencia::limparTela();
+    }
     int frames = 20;
 
     for (int frame = 0; frame <= frames; ++frame) {
@@ -24,7 +27,18 @@ void TelaVitoria::exibir(Personagem* jogadorAtual, int quantidadeDeOuroObtido, i
         std::ostringstream buffer;
         std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
 
-        Aparencia::exibirPainelArte(ArtesVitoria::logoVitoria, 85, Cor::VERDE, "", frame == 0);
+        if (TelaCombate::isModo3D) {
+            std::vector<Personagem*> vazio;
+            std::vector<std::string> tela3D = Combate3DRenderer::renderizarQuadro(TelaCombate::tituloMapaAtual, jogadorAtual, vazio);
+            std::string renderStr = "";
+            for (const auto& linha : tela3D) {
+                renderStr += linha + "\n";
+            }
+            std::cout << "\033[H" << renderStr;
+            // Nao volta o cursor aqui, senao os textos nao HUD serao perdidos, nos posicionaremos flutuante depois
+        } else {
+            Aparencia::exibirPainelArte(ArtesVitoria::logoVitoria, 85, Cor::VERDE, "", frame == 0);
+        }
 
         std::vector<std::string> estLinhas;
         estLinhas.push_back("");
@@ -69,7 +83,19 @@ void TelaVitoria::exibir(Personagem* jogadorAtual, int quantidadeDeOuroObtido, i
         }
         std::vector<std::string> caixaLoot = Aparencia::criarCaixa(lootLinhas, "PROGRESSAO & SAQUE", 40, Cor::AMARELO);
 
-        Aparencia::imprimirLadoALado(caixaEst, caixaLoot, 43, 4);
+        if (TelaCombate::isModo3D) {
+            auto imprimirFlutuante = [](const std::vector<std::string>& arte, int startY, int startX) {
+                for (size_t i = 0; i < arte.size(); ++i) {
+                    std::cout << "\033[" << (startY + i) << ";" << startX << "H" << arte[i];
+                }
+            };
+            imprimirFlutuante(ArtesVitoria::logoVitoria, 3, 20); // Centraliza a logo no topo
+            imprimirFlutuante(caixaEst, 12, 10);
+            imprimirFlutuante(caixaLoot, 12, 65);
+        } else {
+            Aparencia::exibirPainelArte(ArtesVitoria::logoVitoria, 85, Cor::VERDE, "", frame == 0);
+            Aparencia::imprimirLadoALado(caixaEst, caixaLoot, 43, 4);
+        }
 
         std::cout << "\n";
         std::vector<std::string> linhasDeRodape;
@@ -88,7 +114,16 @@ void TelaVitoria::exibir(Personagem* jogadorAtual, int quantidadeDeOuroObtido, i
             }
         }
         
-        Aparencia::imprimirCentralizadoMultilinha(linhasDeRodape);
+        if (TelaCombate::isModo3D) {
+            if (!linhasDeRodape.empty()) {
+                for (size_t i = 0; i < linhasDeRodape.size(); i++) {
+                    std::cout << "\033[" << (28 + i) << ";" << 30 << "H" << linhasDeRodape[i];
+                }
+            }
+            std::cout << "\033[32;1H"; // Posiciona embaixo para nao bugar o input
+        } else {
+            Aparencia::imprimirCentralizadoMultilinha(linhasDeRodape);
+        }
 
         std::cout.rdbuf(oldCout);
         std::cout << "\033[H" << buffer.str() << "\033[J" << std::flush;
@@ -98,5 +133,8 @@ void TelaVitoria::exibir(Personagem* jogadorAtual, int quantidadeDeOuroObtido, i
         }
     }
 
+    if (TelaCombate::isModo3D) {
+        std::cout << "\033[33;1H"; 
+    }
     ControleDeInput::aguardarEnter();
 }

@@ -28,7 +28,8 @@
 
 #include "../Mundo/Vila/Mapa1VilaLayout.h"
 #include "../Mundo/Floresta/Mapa2FlorestaLayout.h"
-#include "../Mundo/Reino/Mapa3ReinoLayout.h"
+#include "../Mundo/Reino/Mapa3PonteReinoLayout.h"
+#include "../Mundo/Reino/Mapa4ReinoLayout.h"
 
 using namespace std;
 
@@ -225,7 +226,8 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
         if (upper.find("VILA") != string::npos) banner = Mapa1VilaLayouts::obterLogoVila();
         else if (upper.find("INICIO") != string::npos) banner = Mapa1VilaLayouts::obterLogoSpawn();
         else if (upper.find("FLORESTA") != string::npos) banner = Mapa2FlorestaLayouts::obterLogoFloresta();
-        else if (upper.find("REINO") != string::npos) banner = Mapa3ReinoLayouts::obterLogoReino();
+        else if (upper.find("PONTE DO REINO") != string::npos || upper.find("PONTE") != string::npos) banner = Mapa3PonteReinoLayouts::obterLogoPonteReino();
+        else if (upper.find("REINO") != string::npos) banner = Mapa4ReinoLayouts::obterLogoReino();
         else {
             banner = {
                 "==================================",
@@ -374,8 +376,8 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
         string bufferFrame = "\033[?2026h\033[?25l\033[H"; 
         bufferFrame.reserve(LARGURA_TELA * ALTURA_TELA * 15); 
 
-        string activeBg = "";
-        string activeFg = "";
+        std::string_view activeBg = "";
+        std::string_view activeFg = "";
 
         for (int y = 0; y < ALTURA_TELA; y++) {
             for (int x = 0; x < LARGURA_TELA; x++) {
@@ -396,6 +398,7 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
                         }
                         if (m < end) {
                             size_t len = m - p + 1;
+                            std::string_view esc(p, len);
                             if (len == 4 && p[1] == '[' && p[2] == '0' && p[3] == 'm') {
                                 // É um \033[0m. Nós o emitimos para garantir que cores do HUD e textos voltem ao padrão
                                 activeBg = "";
@@ -403,14 +406,14 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
                                 bufferFrame.append(p, len);
                             } else if (len >= 7 && std::strncmp(p, "\033[48;2;", 7) == 0) {
                                 // Código de Background RGB (\033[48;2;...)
-                                if (activeBg.size() != len || std::strncmp(activeBg.c_str(), p, len) != 0) {
-                                    activeBg.assign(p, len); // Copia sem alocação caso o buffer já tenha capacidade
+                                if (activeBg != esc) {
+                                    activeBg = esc;
                                     bufferFrame.append(p, len);
                                 }
                             } else if (len >= 7 && std::strncmp(p, "\033[38;2;", 7) == 0) {
                                 // Código de Foreground RGB (\033[38;2;...)
-                                if (activeFg.size() != len || std::strncmp(activeFg.c_str(), p, len) != 0) {
-                                    activeFg.assign(p, len); // Copia sem alocação caso o buffer já tenha capacidade
+                                if (activeFg != esc) {
+                                    activeFg = esc;
                                     bufferFrame.append(p, len);
                                 }
                             } else {

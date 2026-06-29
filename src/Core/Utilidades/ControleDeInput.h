@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "Aparencia.h"
+#include <functional>
 
 enum class ComandoMapa {
     Cima,
@@ -38,4 +39,6 @@ public:
         Cor corTema,
         const std::vector<std::string>& arteAscii
     );
+    static std::function<void()> onAguardarEnterUpdate;
+    static std::string enterPromptText;
 };

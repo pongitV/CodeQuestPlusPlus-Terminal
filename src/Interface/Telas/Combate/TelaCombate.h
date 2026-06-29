@@ -38,6 +38,8 @@ public:
     static int selecaoAcaoAtual;
     static int selecaoAlvoAtual;
     static bool piscarSelecao;
+    static Personagem* g_inimigoMortoComDrops;
+    static std::vector<std::string> g_dropsAtivos;
     static void definirTurnoVisivel(int turno, const std::string& nome);
     static std::vector<std::string> opcoesMenuAtual;
     static Personagem* personagemHUD;

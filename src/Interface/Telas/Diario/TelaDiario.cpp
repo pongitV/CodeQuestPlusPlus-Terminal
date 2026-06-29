@@ -26,9 +26,9 @@
 #include "../../../Entidades/Classes/Guerreiro.h"
 #include "../../../Entidades/Classes/Mago.h"
 #include "../../../Entidades/Classes/Necromante.h"
-#include "../../../Entidades/NPCs/Bjorn/NPCBjornLayout.h"
-#include "../../../Entidades/NPCs/Franchesco/NPCFranchescoLayout.h"
-#include "../../../Entidades/NPCs/Morgana/NPCMorganaLayout.h"
+#include "../../../Entidades/NPCs/Ferreiro/NPCFerreiroLayout.h"
+#include "../../../Entidades/NPCs/Mercador/NPCMercadorLayout.h"
+#include "../../../Entidades/NPCs/Maga/NPCMagaLayout.h"
 #include "../../../Entidades/NPCs/CavaleiroGenerico/NPCCavaleiroGenericoLayout.h"
 #include "../Inventario/TelaInventario.h"
 
@@ -48,11 +48,11 @@ namespace {
     const std::vector<ItemProgresso> itensDeProgresso = {
         // NPCs
         {Flags::Vila_BjornResgatado, "O Salvador da Forja", "Resgatou o ferreiro Bjorn encurralado por um Orc.", CategoriaProgresso::NPC},
-        {Flags::Vila_ConviteReal, "Passe Real", "Ajudou os cavaleiros a se livrarem dos Trolls e recebeu um convite para o castelo.", CategoriaProgresso::NPC},
+        {Flags::Vila_ConviteReal, "Passe Real", "Ajudou os cavaleiros a se livrarem dos Trolls e recebeu um convite para o Reino.", CategoriaProgresso::NPC},
         {Flags::Floresta_MissaoMorgana, "Pacto com a Bruxa", "Entregou os Coracoes da Floresta para Morgana e recebeu a chave para o Labirinto.", CategoriaProgresso::NPC},
         // Monstros
         {Flags::Floresta_MahoragaDerrotado, "Ritual concluido", "Derrotou Mahoraga pela primeira vez.", CategoriaProgresso::MONSTRO},
-        {Flags::Reino_TrollDerrotado, "Pacificador do Reino", "Derrotou todos os Trolls que invadiram a entrada do Reino.", CategoriaProgresso::MONSTRO}
+        {Flags::PonteReino_TrollDerrotado, "Pacificador do Reino", "Derrotou todos os Trolls que invadiram a entrada do Reino.", CategoriaProgresso::MONSTRO}
     };
 
     struct MissaoRegistro {
@@ -70,7 +70,7 @@ namespace {
         {
             "cavaleiro_trolls",
             "Reportar Trolls derrotados (Cavaleiro Real)",
-            [](Personagem*) { return Progressao::instancia().obterFlag(Flags::Reino_TrollDerrotado); }
+            [](Personagem*) { return Progressao::instancia().obterFlag(Flags::PonteReino_TrollDerrotado); }
         }
     };
 
@@ -327,13 +327,13 @@ void TelaDiario::inspecionarNPC(const std::string& nomeNPC) {
     std::string lore;
     
     if (nomeNPC.find("Bjorn") != std::string::npos) {
-        arte = NPCBjornLayouts::arteBjorn;
+        arte = NPCFerreiroLayouts::arteFerreiro;
         lore = "Bjorn, o Ferreiro da Vila.\nUm anao robusto de poucas palavras, deixa o ferro a forja falarem por ele.\nSempre disposto a melhorar seus equipamentos por materiais da regiao.";
     } else if (nomeNPC.find("Franchesco") != std::string::npos) {
-        arte = NPCFranchescoLayouts::arteFranchesco;
+        arte = NPCMercadorLayouts::arteMercador;
         lore = "Franchesco, o Mercador Ambulante.\nSempre com um sorriso no rosto, ainda mais se ver sua carteira cheia.\nGosta de moedas de ouro mais do que da propria vida.";
     } else if (nomeNPC.find("Morgana") != std::string::npos) {
-        arte = NPCMorganaLayouts::arteMorgana;
+        arte = NPCMagaLayouts::arteMaga;
         lore = "Morgana, a Bruxa da Floresta.\nUm misterio, domina as artes da alquimia e encantamento.\nSeu labirinto guarda segredos que poucos ousam buscar.";
     } else if (nomeNPC.find("Cavaleiro Real") != std::string::npos) {
         arte = NPCCavaleiroGenericoLayouts::arteCavaleiro;

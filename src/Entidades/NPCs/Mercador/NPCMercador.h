@@ -1,12 +1,11 @@
 #pragma once
 
 #include "../../Personagem.h"
-#include "../InteracaoNPC.h"
 #include <string>
 #include <vector>
+#include "../InteracaoNPC.h"
 
-class NPCBjorn : public InteracaoNPC
-{
+class NPCMercador : public InteracaoNPC {
 public:
     void interagir(Personagem* jogador);
 

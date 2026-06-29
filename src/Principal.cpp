@@ -16,7 +16,8 @@
 #include "Core/Controladores/MenuJogo.h"
 #include "Sistemas/Mundo/Vila/Mapa1Vila.h"
 #include "Sistemas/Mundo/Floresta/Mapa2Floresta.h"
-#include "Sistemas/Mundo/Reino/Mapa3Reino.h"
+#include "Sistemas/Mundo/Reino/Mapa3PonteReino.h"
+#include "Sistemas/Mundo/Reino/Mapa4Reino.h"
 #include "Entidades/Racas/Anao.h"
 #include "Entidades/Racas/Elfo.h"
 #include "Entidades/Racas/Humano.h"
@@ -140,7 +141,8 @@ void EstadoExploracao::executar(Jogo& jogo, ContextoJogo& ctx) {
 
     auto mapaVila = std::make_unique<Mapa1Vila>(jogador);
     auto mapaFloresta = std::make_unique<Mapa2Floresta>(jogador);
-    auto mapaReino = std::make_unique<Mapa3Reino>(jogador);
+    auto mapaPonteReino = std::make_unique<Mapa3PonteReino>(jogador);
+    auto mapaReino = std::make_unique<Mapa4Reino>(jogador);
 
     IMapa* mapaAtual = mapaVila.get();
     while (mapaAtual) {
@@ -157,6 +159,11 @@ void EstadoExploracao::executar(Jogo& jogo, ContextoJogo& ctx) {
             mapaAtual = mapaFloresta.get();
             mapaFloresta->exploracaoEstaAtiva = true;
             if (!Progressao::instancia().obterFlag(Flags::Visitou_Floresta)) Progressao::instancia().definirFlag(Flags::Visitou_Floresta, true);
+        }
+        else if (transicao == ProximaTransicaoMapa::PonteReino) {
+            mapaAtual = mapaPonteReino.get();
+            mapaPonteReino->exploracaoEstaAtiva = true;
+            if (!Progressao::instancia().obterFlag(Flags::Visitou_PonteReino)) Progressao::instancia().definirFlag(Flags::Visitou_PonteReino, true);
         }
         else if (transicao == ProximaTransicaoMapa::Reino) {
             mapaAtual = mapaReino.get();

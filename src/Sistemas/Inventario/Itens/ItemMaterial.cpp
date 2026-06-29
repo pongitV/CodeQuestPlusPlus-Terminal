@@ -39,7 +39,7 @@ std::unique_ptr<Item> fabricarItemMaterial(ItemID id) {
         {ItemID::MadeiraEnfeiticada, [criarMaterial]() { return criarMaterial(ItemID::MadeiraEnfeiticada, 3, "Pode ser usada na Cabana da Bruxa para encantar o Arco ou o Violao (Requer 1x)."); }},
         {ItemID::CoracaoFloresta, [criarMaterial]() { return criarMaterial(ItemID::CoracaoFloresta, 3, "Usado na Cabana da Bruxa para encantar o Cajado ou para desbloquear a passagem do labirinto (Requer 3x)."); }},
         {ItemID::PedraUpgrade, [criarMaterial]() { return criarMaterial(ItemID::PedraUpgrade, 3, "Uma pedra extremamente rara. Pode ser usada na Forja de Bjorn para conceder +3 de Defesa (Resistencia) a uma armadura."); }},
-        {ItemID::ConviteReal, [criarMaterial]() { return criarMaterial(ItemID::ConviteReal, 1, "Permite o acesso livre aos portoes do Castelo Real."); }}
+        {ItemID::ConviteReal, [criarMaterial]() { return criarMaterial(ItemID::ConviteReal, 1, "Permite o acesso livre aos portoes do Reino Real."); }}
     };
     auto it = construtores.find(id);
     if (it != construtores.end()) return it->second();

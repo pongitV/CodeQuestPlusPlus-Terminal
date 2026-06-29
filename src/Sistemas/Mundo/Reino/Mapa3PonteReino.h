@@ -6,7 +6,7 @@
 #include "../../../Entidades/Personagem.h"
 #include "../MapaInteracao.h"
 
-class Mapa3Reino final : public IMapa 
+class Mapa3PonteReino final : public IMapa 
 {
 public:
     std::vector<std::string> matrizDoMapaAtual;
@@ -19,8 +19,8 @@ public:
     ProximaTransicaoMapa proximoMapa;
 
 public:
-    explicit Mapa3Reino(Personagem* personagemJogador);
-    ~Mapa3Reino() override;
+    explicit Mapa3PonteReino(Personagem* personagemJogador);
+    ~Mapa3PonteReino() override;
 
     std::string obterTitulo() const override { return tituloDoMapaAtual; }
     ProximaTransicaoMapa iniciarLoopDeExploracao() override;

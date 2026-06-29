@@ -115,6 +115,7 @@ private:
         double dificuldadeMultiplicador = 1.0;
         char iconeJogador = '@';
         Cor corJogador = Cor::VERDE;
+        Cor corFundoTerminal = Cor::RESET;
     };
 
     static std::unordered_set<Personagem*> personagensAtivos;
@@ -310,6 +311,9 @@ public:
 
     void definirCorJogador(Cor cor) { sistema.corJogador = cor; }
     Cor obterCorJogador() const { return sistema.corJogador; }
+
+    void definirCorFundoTerminal(Cor cor) { sistema.corFundoTerminal = cor; Aparencia::corFundoAtiva = cor; }
+    Cor obterCorFundoTerminal() const { return sistema.corFundoTerminal; }
 
     TipoAtaque obterTipoAtaque() const;
     bool habilidadeDaClasseConsomeTurno() const;

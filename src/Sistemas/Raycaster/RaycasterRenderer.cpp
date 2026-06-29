@@ -18,11 +18,14 @@ void RaycasterRenderer::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA, in
     int larguraMapa = matrizDoMapa.empty() ? 0 : matrizDoMapa[0].size();
     int alturaMapa = matrizDoMapa.size();
 
-    static thread_local std::vector<std::string> lastMapForLuzes;
+    RaycasterMundo::atualizarMapHash(matrizDoMapa);
+
+    static thread_local size_t lastMapForLuzesHash = 0;
     static thread_local std::vector<std::tuple<int, int, int>> cachedLuzes;
 
-    if (matrizDoMapa != lastMapForLuzes) {
-        lastMapForLuzes = matrizDoMapa;
+    size_t currentHash = RaycasterMundo::obterMapHash();
+    if (currentHash != lastMapForLuzesHash) {
+        lastMapForLuzesHash = currentHash;
         cachedLuzes.clear();
         for (int ly = 0; ly < alturaMapa; ly++) {
             for (int lx = 0; lx < larguraMapa; lx++) {
@@ -31,7 +34,7 @@ void RaycasterRenderer::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA, in
 
                 if (c == '^') {
                     cachedLuzes.push_back({lx, ly, 1}); // White
-                } else if (c == 'P' || c == 'F' || c == 'B') {
+                } else if (c == 'P' || c == 'F' || c == 'B' || c == 'A' || c == 'Q') {
                     cachedLuzes.push_back({lx, ly, 0}); // Orange
                 }
             }
@@ -41,7 +44,7 @@ void RaycasterRenderer::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA, in
 
     std::string tituloUpper = tituloMapa;
     for (char& ch : tituloUpper) ch = std::toupper(static_cast<unsigned char>(ch));
-    bool isReino = (tituloUpper.find("CASTELO") != std::string::npos || tituloUpper.find("REINO") != std::string::npos);
+    bool isReino = (tituloUpper.find("PATIO DO REINO") != std::string::npos || tituloUpper.find("REINO") != std::string::npos);
 
     // Mover o vetor para fora do loop horizontal para evitar alocações constantes na heap
     vector<EntidadeAtingida> entidadesAtingidas;
@@ -166,6 +169,7 @@ void RaycasterRenderer::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA, in
         int chao = (int)(horizonte + ALTURA_TELA / ((float)distanciaAteParede));
 
         if (temaFloresta && charParede == '#') teto -= (int)(ALTURA_TELA / ((float)distanciaAteParede) * 1.5f); 
+        if (temaFloresta && RaycasterMundo::obterNPCProximo(tituloMapa, (int)hitX, (int)hitY) == 'M') teto -= (int)(ALTURA_TELA / ((float)distanciaAteParede) * 1.2f);
         if (charParede == '*') teto -= (int)(ALTURA_TELA / ((float)distanciaAteParede) * 1.5f); 
         if (isReino && charParede == '|') teto -= (int)(ALTURA_TELA / ((float)distanciaAteParede) * 3.0f); // Portao super alto
 

@@ -325,6 +325,7 @@ void Debug::exibirMenuDebug(Personagem* jogador) {
                     Progressao::instancia().definirFlag(Flags::Vila_BjornResgatado, true);
                     Progressao::instancia().definirFlag(Flags::Floresta_MissaoMorgana, true);
                     Progressao::instancia().definirFlag(Flags::Floresta_MahoragaDerrotado, true);
+                    Progressao::instancia().definirFlag(Flags::Visitou_Reino, true);
                     Progressao::instancia().definirFlag(Flags::Mapas_Descobertos, true);
                     std::cout << "\n";
                     Aparencia::imprimirCentralizado(FuncoesDialogo::formatarMsgSistema("Todos os mapas e submapas liberados para Viagem Rapida (Tecla M)!", Cor::AMARELO));

@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <memory>
 
-#include "NPCBjorn.h"
+#include "NPCFerreiro.h"
 #include "../../../Sistemas/Inventario/Item.h"
 #include "../../../Sistemas/Inventario/FabricaItens.h"
 #include "../../../Sistemas/Inventario/Equipamentos/EquipamentoArmadura.h"
@@ -16,7 +16,7 @@
 #include "../../../Core/Utilidades/ControleDeInput.h"
 #include "../../../Core/Controladores/Loja.h"
 #include "../../../Core/Utilidades/FuncoesDialogo.h"
-#include "NPCBjornLayout.h"
+#include "NPCFerreiroLayout.h"
 
 namespace {
     // --- DADOS DO ESTOQUE ---
@@ -41,7 +41,7 @@ namespace {
 
     // --- APARENCIA E DIALOGOS ---
     void dialogoBjorn(const std::vector<std::string>& linhas) {
-        Aparencia::exibirPopup("BJORN", linhas, Cor::CIANO, NPCBjornLayouts::arteBjorn);
+        Aparencia::exibirPopup("BJORN", linhas, Cor::CIANO, NPCFerreiroLayouts::arteFerreiro);
     }
     
     void dialogoBjornUnico(const std::string& msg) {
@@ -50,24 +50,24 @@ namespace {
 }
 
 // --- INFORMACOES DO LUGAR ---
-std::string NPCBjorn::obterNomeDoLugar() const {
+std::string NPCFerreiro::obterNomeDoLugar() const {
     return "FORJA DO BJORN";
 }
 
-Cor NPCBjorn::obterCorDoCabecalho() const {
+Cor NPCFerreiro::obterCorDoCabecalho() const {
     return Cor::CIANO;
 }
 
-Cor NPCBjorn::obterCorDaArte() const {
+Cor NPCFerreiro::obterCorDaArte() const {
     return Cor::CIANO;
 }
 
-const std::vector<std::string>& NPCBjorn::obterArteASCII() const {
-    return NPCBjornLayouts::arteBjorn;
+const std::vector<std::string>& NPCFerreiro::obterArteASCII() const {
+    return NPCFerreiroLayouts::arteFerreiro;
 }
 
 // --- INTERACAO E MENU ---
-void NPCBjorn::interagir(Personagem* jogador) {
+void NPCFerreiro::interagir(Personagem* jogador) {
     ControleDeInput::executarLoopMenuPopup(
         [this, jogador]() { this->exibirDialogo(jogador); },
         [this, jogador]() { return this->obterOpcoesMenu(jogador, Aparencia::obterLarguraTerminal()); },
@@ -76,14 +76,14 @@ void NPCBjorn::interagir(Personagem* jogador) {
     );
 }
 
-void NPCBjorn::exibirDialogo(Personagem* /*jogador*/) {
+void NPCFerreiro::exibirDialogo(Personagem* /*jogador*/) {
     dialogoBjorn(std::vector<std::string>{
         "Bem-vindo a minha forja, salvador!",
         "O que vai ser hoje?"
     });
 }
 
-std::vector<std::string> NPCBjorn::obterOpcoesMenu(Personagem* /*jogador*/, int /*larguraDoTerminal*/) {
+std::vector<std::string> NPCFerreiro::obterOpcoesMenu(Personagem* /*jogador*/, int /*larguraDoTerminal*/) {
     return {
         "COMPRAR Armas das Classes",
         "COMPRAR Armaduras das Classes",
@@ -94,7 +94,7 @@ std::vector<std::string> NPCBjorn::obterOpcoesMenu(Personagem* /*jogador*/, int 
     };
 }
 
-void NPCBjorn::processarOpcao(Personagem* jogador, const std::string& opcao, int /*larguraDoTerminal*/) {
+void NPCFerreiro::processarOpcao(Personagem* jogador, const std::string& opcao, int /*larguraDoTerminal*/) {
     if (opcao == "COMPRAR Armas das Classes" || opcao == "COMPRAR Armaduras das Classes") {
         processarCompraDeEquipamento(jogador, opcao == "COMPRAR Armas das Classes");
     } else if (opcao == "MELHORAR POR FUSAO") {
@@ -115,7 +115,7 @@ namespace {
         std::string tituloLoja = comprandoArmas ? "FORJA - ARMAS" : "FORJA - ARMADURAS";
 
         Loja::processarCompra(jogadorAtual, tituloLoja, Cor::CIANO, estoqueAtual, 
-            [](const std::string& msg) { dialogoBjornUnico(msg); }, InteracaoNPC::obterFormatadorStatusItem, NPCBjornLayouts::arteBjorn);
+            [](const std::string& msg) { dialogoBjornUnico(msg); }, InteracaoNPC::obterFormatadorStatusItem, NPCFerreiroLayouts::arteFerreiro);
     }
 
     void processarMelhoriaNaBigorna(Personagem* jogadorAtual) {
@@ -132,7 +132,7 @@ namespace {
             if (opcoesItem.empty()) { dialogoBjornUnico("Voce nao tem nenhum equipamento que eu possa melhorar!"); break; }
             opcoesItem.push_back("VOLTAR");
             
-            int escolha = ControleDeInput::lerSelecaoMenuEmPopup("FUSAO DE EQUIPAMENTO", {"Qual item deseja fundir? (Requer copia no inventario)"}, opcoesItem, Cor::CIANO, NPCBjornLayouts::arteBigorna);
+            int escolha = ControleDeInput::lerSelecaoMenuEmPopup("FUSAO DE EQUIPAMENTO", {"Qual item deseja fundir? (Requer copia no inventario)"}, opcoesItem, Cor::CIANO, NPCFerreiroLayouts::arteBigorna);
             if (escolha == -1 || escolha == static_cast<int>(opcoesItem.size()) - 1) break;
             
             Item* itemBase = itensValidos[escolha];
@@ -156,7 +156,7 @@ namespace {
                 jogadorAtual->obterInventario()->adicionarItem(std::move(novoItem));
 
                 std::string equacao = "[" + nomeAntigo + "] + [" + nomeAntigo + "] = [" + novoNome + "]";
-            Aparencia::exibirPopup("FORJA - SUCESSO", {equacao, "", "Ha! Trabalho feito! Seu equipamento esta mais forte do que nunca!"}, Cor::CIANO, NPCBjornLayouts::arteBigorna);
+            Aparencia::exibirPopup("FORJA - SUCESSO", {equacao, "", "Ha! Trabalho feito! Seu equipamento esta mais forte do que nunca!"}, Cor::CIANO, NPCFerreiroLayouts::arteBigorna);
             }
         } while (true);
     }
@@ -179,7 +179,7 @@ namespace {
             if (opcoesItem.empty()) { dialogoBjornUnico("Voce nao tem armaduras validas para imbuir!"); break; }
             opcoesItem.push_back("VOLTAR");
             
-            int escolha = ControleDeInput::lerSelecaoMenuEmPopup("IMBUIR ARMADURA", {"Qual armadura imbuir com a Pedra? (+3 Defesa)"}, opcoesItem, Cor::CIANO, NPCBjornLayouts::arteBigorna);
+            int escolha = ControleDeInput::lerSelecaoMenuEmPopup("IMBUIR ARMADURA", {"Qual armadura imbuir com a Pedra? (+3 Defesa)"}, opcoesItem, Cor::CIANO, NPCFerreiroLayouts::arteBigorna);
             if (escolha == -1 || escolha == static_cast<int>(opcoesItem.size()) - 1) break;
 
             Item* itemParaUpgrade = itensValidos[escolha];
@@ -212,7 +212,7 @@ namespace {
             jogadorAtual->obterInventario()->adicionarItem(std::move(novaArmadura));
 
             std::string equacao = "[" + nomeAntigo + "] + [Pedra magica] = [" + novoNome + "]";
-            Aparencia::exibirPopup("FORJA - SUCESSO", {equacao, "", "Impressionante! A armadura agora possui +3 de defesa!"}, Cor::CIANO, NPCBjornLayouts::arteBigorna);
+            Aparencia::exibirPopup("FORJA - SUCESSO", {equacao, "", "Impressionante! A armadura agora possui +3 de defesa!"}, Cor::CIANO, NPCFerreiroLayouts::arteBigorna);
         } while (true);
     }
 
@@ -237,7 +237,7 @@ namespace {
             
             opcoesEscudo.push_back("VOLTAR");
             
-            int escolha = ControleDeInput::lerSelecaoMenuEmPopup("CONSERTAR ESCUDO", {"Qual escudo deseja consertar? (5g por ponto perdido)"}, opcoesEscudo, Cor::CIANO, NPCBjornLayouts::arteBigorna);
+            int escolha = ControleDeInput::lerSelecaoMenuEmPopup("CONSERTAR ESCUDO", {"Qual escudo deseja consertar? (5g por ponto perdido)"}, opcoesEscudo, Cor::CIANO, NPCFerreiroLayouts::arteBigorna);
             if (escolha == -1 || escolha == static_cast<int>(opcoesEscudo.size()) - 1) break;
 
             EquipamentoEscudo* escudoParaConsertar = escudosDanificados[escolha];

@@ -1,6 +1,7 @@
 #include "Progressao.h"
 #include "../../Entidades/Personagem.h"
 #include "ProgressaoFlags.h"
+#include "Diario.h"
 
 Progressao& Progressao::instancia() {
     static Progressao inst;
@@ -37,10 +38,17 @@ int Progressao::obterProgressoFloresta(Personagem* jogadorAtual) const {
     return (florestaNpcsEncontrados ? 33 : 0) + (florestaInimigosDerrotados ? 33 : 0) + (florestaMissaoConcluida ? 34 : 0);
 }
 
+int Progressao::obterProgressoPonteReino(Personagem* jogadorAtual) const {
+    if (!jogadorAtual) return 0;
+    bool trollDerrotado = obterFlag(Flags::PonteReino_TrollDerrotado);
+    return (trollDerrotado ? 34 : 0) + (obterFlag(Flags::PonteReino_NPCs) ? 33 : 0) + (obterFlag(Flags::PonteReino_Inimigos) ? 33 : 0);
+}
+
 int Progressao::obterProgressoReino(Personagem* jogadorAtual) const {
     if (!jogadorAtual) return 0;
-    bool trollDerrotado = obterFlag(Flags::Reino_TrollDerrotado);
-    return (trollDerrotado ? 34 : 0) + (obterFlag(Flags::Reino_NPCs) ? 33 : 0) + (obterFlag(Flags::Reino_Inimigos) ? 33 : 0);
+    bool visitou = obterFlag(Flags::Visitou_Reino);
+    bool conversouPadre = Diario::instancia().npcDescoberto("Padre Benedito");
+    return (visitou ? 50 : 0) + (conversouPadre ? 50 : 0);
 }
 
 void Progressao::salvar(std::ofstream& out) const {
@@ -61,9 +69,9 @@ void Progressao::carregar(std::ifstream& in) {
     // --- RETROCOMPATIBILIDADE DE SAVES ANTIGOS ---
     // Evita que saves antigos (anteriores a atualizacao) percam o acesso a Viagem Rapida
     auto itFloresta = flags.find("Visitou_Floresta");
-    auto itReino = flags.find("Visitou_Reino");
+    auto itPonteReino = flags.find("Visitou_PonteReino");
     if ((itFloresta != flags.end() && itFloresta->second) || 
-        (itReino != flags.end() && itReino->second)) {
+        (itPonteReino != flags.end() && itPonteReino->second)) {
         flags["Mapas_Descobertos"] = true;
     }
 }

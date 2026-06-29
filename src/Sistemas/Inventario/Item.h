@@ -56,6 +56,8 @@ enum class ItemID {
     // Consumiveis
     PocaoCura30, PocaoFuria, ElixirArcano, FrascoGosma, FrascoFraqueza, OrgaoRegenerador,
     TalismaUrso, TalismaCorvo, TalismaLeopardo, TalismaCoruja,
+    Maca, Pao, Queijo, CarneSeca,
+    PocaoCuraGrande, PocaoForcaAlquimica, PocaoVenenoAlquimica, PocaoLentidaoAlquimica,
     
     // Materiais
     GosmaAcida, DenteGoblin, NucleoPegajoso, PoMagico, MadeiraEnfeiticada, CoracaoFloresta, PedraUpgrade, ConviteReal,

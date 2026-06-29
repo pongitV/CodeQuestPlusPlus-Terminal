@@ -18,6 +18,7 @@
 #include <thread>
 #include <chrono>
 #include <sstream>
+#include <cmath>
 
 namespace {
     std::string extrairCorBaseDoRaycaster(char celula, const std::string& tituloDoMapa, bool isFloresta) {
@@ -443,14 +444,8 @@ std::string ControleMapa::calcularMargemCentralizada(int larguraDoTerminal, int 
 
 void ControleMapa::padronizarTamanhoDoMapa(std::vector<std::string>& matrizDoMapa) {
     size_t maxLength = 0;
-    // Primeiro removemos os espacos em branco a direita para encontrar a largura real do mapa
+    // Primeiro encontramos a largura real (maxima) do mapa sem remover os espacos intencionais
     for (auto& linha : matrizDoMapa) {
-        size_t lastChar = linha.find_last_not_of(" \t\r\n");
-        if (lastChar != std::string::npos) {
-            linha.erase(lastChar + 1);
-        } else {
-            linha.clear(); // A linha eh apenas espacos
-        }
         if (linha.length() > maxLength) maxLength = linha.length();
     }
     // Depois preenchemos todas as linhas ate o maxLength com espacos para formar a matriz
@@ -469,7 +464,7 @@ std::string ControleMapa::formatarCelula(char celula, int x, int y, const std::s
         tituloUpper = tituloDoMapa;
         for (char& ch : tituloUpper) ch = std::toupper(static_cast<unsigned char>(ch));
         
-        isReino = (tituloUpper.find("CASTELO") != std::string::npos || tituloUpper.find("REINO") != std::string::npos);
+        isReino = (tituloUpper.find("Reino") != std::string::npos || tituloUpper.find("REINO") != std::string::npos);
         isInterior = (tituloUpper.find("LABIRINTO") != std::string::npos || tituloUpper.find("CHEFE") != std::string::npos || tituloUpper.find("CORACAO") != std::string::npos || tituloUpper.find("CAVERNA") != std::string::npos);
         isFloresta = (tituloUpper.find("FLORESTA") != std::string::npos);
         isVila = (tituloUpper.find("VILA") != std::string::npos);
@@ -537,13 +532,13 @@ std::string ControleMapa::formatarCelula(char celula, int x, int y, const std::s
         }
     }
     
-    // Castelo
+    // Reino
     if (isReino) {
         if (celula == '|') return Aparencia::cor(Cor::MADEIRA) + "█" + Aparencia::cor(Cor::RESET); // Portao de madeira
         std::string estruturas = "_[]{}/\\<>;=-+#";
         if (estruturas.find(celula) != std::string::npos) {
-            std::string corCastelo = extrairCorBaseDoRaycaster(celula, tituloUpper, isFloresta);
-            return corCastelo + "█" + Aparencia::cor(Cor::RESET);
+            std::string corReino = extrairCorBaseDoRaycaster(celula, tituloUpper, isFloresta);
+            return corReino + "█" + Aparencia::cor(Cor::RESET);
         }
     }
     
@@ -742,12 +737,21 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
                     
                     char cell = matrizDoMapaAtual[hitY][hitX];
                     // Verifica se o jogador parou em um trigger (Inimigos ou Teleportes)
-                    std::string triggers = "^GOBFSAMTHRPC";
+                    std::string triggers = "^GOBFSAMTHRPCIQ";
                     if (triggers.find(cell) != std::string::npos) {
                         isTrigger = true;
                     }
                     
                     processarInteracao(hitX, hitY, larguraDoTerminal); // Aciona o combate/NPC caso o jogador tenha parado em cima de um
+                    
+                    if (isTrigger && s_exploracao3DAtiva) {
+                        // Empurra o jogador para tras em 1 casa para evitar que ele fique preso no NPC
+                        // E previne loops onde ele volta pro jogo ja interagindo
+                        s_posCamera3DX = static_cast<float>(hitX) + 0.5f - cos(s_anguloCamera3D) * 1.5f;
+                        s_posCamera3DY = static_cast<float>(hitY) + 0.5f - sin(s_anguloCamera3D) * 1.5f;
+                        posicaoXDoJogador = static_cast<int>(s_posCamera3DX);
+                        posicaoYDoJogador = static_cast<int>(s_posCamera3DY);
+                    }
                 }
                 
                 if (acaoPendente == 'M') {
@@ -779,15 +783,18 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
                     tituloUpper.find("CHEFE") != std::string::npos ||
                     tituloUpper.find("ARVORE") != std::string::npos) {
                     loc = LocalizacaoMapa::Floresta;
-                } else if (tituloUpper.find("REINO") != std::string::npos || tituloUpper.find("CASTELO") != std::string::npos) {
+                } else if (tituloUpper.find("Reino") != std::string::npos) {
+                    loc = LocalizacaoMapa::Reino;
+                } else if (tituloUpper.find("REINO") != std::string::npos) {
                     loc = LocalizacaoMapa::Reino;
                 }
                 
                 int progressoVila = Progressao::instancia().obterProgressoVila(jogadorAtual);
                 int progressoFloresta = Progressao::instancia().obterProgressoFloresta(jogadorAtual);
+                int progressoPonteReino = Progressao::instancia().obterProgressoPonteReino(jogadorAtual);
                 int progressoReino = Progressao::instancia().obterProgressoReino(jogadorAtual);
 
-                ProximaTransicaoMapa destino = TelaMapaMundial::exibir(loc, progressoVila, progressoFloresta, progressoReino);
+                ProximaTransicaoMapa destino = TelaMapaMundial::exibir(loc, progressoVila, progressoFloresta, progressoPonteReino, progressoReino);
 
                 if (destino != ProximaTransicaoMapa::Nenhuma) {
                     destinoViagemRapida = destino;

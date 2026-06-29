@@ -56,7 +56,7 @@ std::vector<std::string> Combate3DRenderer::obterArenaPorTitulo(const std::strin
             "################################"
         };
     }
-    if (upper.find("CASTELO") != std::string::npos || upper.find("REINO") != std::string::npos) {
+    if (upper.find("PATIO DO REINO") != std::string::npos || upper.find("REINO") != std::string::npos) {
         return {
             "#|||||||||||||||||||||||||||||||#",
             "#..............................#",
@@ -172,7 +172,7 @@ std::vector<std::string> Combate3DRenderer::renderizarQuadro(
     if (larguraTela <= 0) larguraTela = 120;
     if (alturaTerminal <= 0) alturaTerminal = 40;
 
-    int alturaHUD = 16;
+    int alturaHUD = 0;
     int altura3D = std::max(10, alturaTerminal - alturaHUD);
 
     // Renderiza o fundo 3D em um vetor achatado (LARGURA x ALTURA) com altura reduzida
@@ -241,6 +241,8 @@ void Combate3DRenderer::sobreporSprite(
     // Usa a arte de MAPA (mesma do raycaster) em vez da arte de combate 2D
     const std::vector<std::string>& arteOriginalInimigo = inimigo->obterRaca()->obterAparenciaRaca();
     if (arteOriginalInimigo.empty()) return;
+
+    (void)dropsAnimacao;
 
     double progresso = 0.0;
     int totalFramesMorte = 0;
@@ -394,65 +396,69 @@ void Combate3DRenderer::sobreporSprite(
     int centroColunaX = inimigoIdx * larguraColuna + larguraColuna / 2;
     startX = centroColunaX - croppedWidth / 2 + swayOff;
 
-    // Desenha contorno preto (borda do sprite) + corpo texturizado (mesclando fundo via spriteOpacity)
-    for (int y = 0; y < alturaArte; y++) {
-        int telaY = startY + y;
-        if (telaY >= 0 && telaY < alturaVisivel) {
-            std::string linhaSemCor = Aparencia::removerCoresANSI(arteUsada[y]);
-            
-            for (int rawX = minX; rawX <= maxX; rawX++) {
-                int x = rawX - minX;
-                int telaX = startX + x;
-                if (telaX >= 0 && telaX < larguraTela && rawX < static_cast<int>(linhaSemCor.length())) {
-                    char c = linhaSemCor[rawX];
-                    
-                    if (c != ' ') {
-                        if (isMorte) {
-                            // Efeito de desintegração dithered (virando poeira)
-                            int hash = (rawX * 37 + y * 57) % 100;
-                            if (hash < progresso * 100) {
-                                // Renderiza partículas de poeira '.' flutuantes ou some o pixel
-                                if (progresso < 0.8 && (hash % 3 == 0)) {
-                                    std::string bg = getBg(tela[telaY * larguraTela + telaX]);
-                                    int dustIntensity = static_cast<int>(100 * (1.0 - progresso));
-                                    std::string corDust = "\033[38;2;" + std::to_string(dustIntensity) + ";" + std::to_string(dustIntensity) + ";" + std::to_string(dustIntensity) + "m";
-                                    tela[telaY * larguraTela + telaX] = bg + corDust + "." + "\033[0m";
-                                }
-                                continue;
-                            }
-                        }
+    bool desenharCorpo = (inimigo->obterVida() > 0 || !inimigo->obterMorteAnimada());
 
-                        // Checa se eh borda (pixel adjacente a espaço ou borda da arte)
-                        bool isEdge = false;
-                        for (int dy = -1; dy <= 1; ++dy) {
-                            for (int dx = -1; dx <= 1; ++dx) {
-                                  if (dx == 0 && dy == 0) continue;
-                                  int ny = y + dy;
-                                  int nx = rawX + dx;
-                                  if (ny < 0 || ny >= alturaArte || nx < minX || nx > maxX) { isEdge = true; }
-                                  else {
-                                      std::string adjLinha = Aparencia::removerCoresANSI(arteUsada[ny]);
-                                      if (nx >= static_cast<int>(adjLinha.length()) || adjLinha[nx] == ' ') isEdge = true;
-                                  }
+    if (desenharCorpo) {
+        // Desenha contorno preto (borda do sprite) + corpo texturizado (mesclando fundo via spriteOpacity)
+        for (int y = 0; y < alturaArte; y++) {
+            int telaY = startY + y;
+            if (telaY >= 0 && telaY < alturaVisivel) {
+                std::string linhaSemCor = Aparencia::removerCoresANSI(arteUsada[y]);
+                
+                for (int rawX = minX; rawX <= maxX; rawX++) {
+                    int x = rawX - minX;
+                    int telaX = startX + x;
+                    if (telaX >= 0 && telaX < larguraTela && rawX < static_cast<int>(linhaSemCor.length())) {
+                        char c = linhaSemCor[rawX];
+                        
+                        if (c != ' ') {
+                            if (isMorte) {
+                                // Efeito de desintegração dithered (virando poeira)
+                                int hash = (rawX * 37 + y * 57) % 100;
+                                if (hash < progresso * 100) {
+                                    // Renderiza partículas de poeira '.' flutuantes ou some o pixel
+                                    if (progresso < 0.8 && (hash % 3 == 0)) {
+                                        std::string bg = getBg(tela[telaY * larguraTela + telaX]);
+                                        int dustIntensity = static_cast<int>(100 * (1.0 - progresso));
+                                        std::string corDust = "\033[38;2;" + std::to_string(dustIntensity) + ";" + std::to_string(dustIntensity) + ";" + std::to_string(dustIntensity) + "m";
+                                        tela[telaY * larguraTela + telaX] = bg + corDust + "." + "\033[0m";
+                                    }
+                                    continue;
+                                }
                             }
+
+                            // Checa se eh borda (pixel adjacente a espaço ou borda da arte)
+                            bool isEdge = false;
+                            for (int dy = -1; dy <= 1; ++dy) {
+                                for (int dx = -1; dx <= 1; ++dx) {
+                                      if (dx == 0 && dy == 0) continue;
+                                      int ny = y + dy;
+                                      int nx = rawX + dx;
+                                      if (ny < 0 || ny >= alturaArte || nx < minX || nx > maxX) { isEdge = true; }
+                                      else {
+                                          std::string adjLinha = Aparencia::removerCoresANSI(arteUsada[ny]);
+                                          if (nx >= static_cast<int>(adjLinha.length()) || adjLinha[nx] == ' ') isEdge = true;
+                                      }
+                                }
+                            }
+                            
+                            std::string bgStr = getBg(tela[telaY * larguraTela + telaX]);
+                            auto [bgR, bgG, bgB] = parseAnsiRGB(bgStr);
+                            int tgtR = 0, tgtG = 0, tgtB = 0;
+                            
+                            if (isEdge) {
+                                tgtR = 0; tgtG = 0; tgtB = 0;
+                            } else {
+                                auto [tr, tg, tb] = obterTgtRGB(c, rawX, y);
+                                tgtR = tr; tgtG = tg; tgtB = tb;
+                            }
+                            
+                            int blendedR = static_cast<int>(bgR + (tgtR - bgR) * spriteOpacity);
+                            int blendedG = static_cast<int>(bgG + (tgtG - bgG) * spriteOpacity);
+                            int blendedB = static_cast<int>(bgB + (tgtB - bgB) * spriteOpacity);
+                            
+                            tela[telaY * larguraTela + telaX] = "\033[48;2;" + std::to_string(blendedR) + ";" + std::to_string(blendedG) + ";" + std::to_string(blendedB) + "m \033[0m";
                         }
-                        
-                        std::string bgStr = getBg(tela[telaY * larguraTela + telaX]);
-                        auto [bgR, bgG, bgB] = parseAnsiRGB(bgStr);
-                        int tgtR = 0, tgtG = 0, tgtB = 0;
-                        
-                        if (isEdge) {
-                            tgtR = 0; tgtG = 0; tgtB = 0;
-                        } else {
-                            auto [tr, tg, tb] = obterTgtRGB(c, rawX, y);
-                            tgtR = tr; tgtG = tg; tgtB = tb;
-                        }
-                        
-                        int blendedR = static_cast<int>(bgR + (tgtR - bgR) * spriteOpacity);
-                        int blendedG = static_cast<int>(bgG + (tgtG - bgG) * spriteOpacity);
-                        int blendedB = static_cast<int>(bgB + (tgtB - bgB) * spriteOpacity);
-                        
-                        tela[telaY * larguraTela + telaX] = "\033[48;2;" + std::to_string(blendedR) + ";" + std::to_string(blendedG) + ";" + std::to_string(blendedB) + "m \033[0m";
                     }
                 }
             }
@@ -505,7 +511,7 @@ void Combate3DRenderer::sobreporSprite(
     };
 
     // Só desenha nameplate/HP bar se não estiver morrendo e se spriteOpacity >= 1.0f
-    if (!isMorte && spriteOpacity >= 1.0f) {
+    if (desenharCorpo && !isMorte && spriteOpacity >= 1.0f) {
         int nameY = startY - 2;
         if (nameY >= 0) {
             std::string nameplate = inimigo->obterNome();
@@ -586,48 +592,5 @@ void Combate3DRenderer::sobreporSprite(
         }
     }
 
-    // Caixa de Drops (Exibida no final da animação de morte)
-    if (isMorte && frameMorte >= totalFramesMorte && !dropsAnimacao.empty()) {
-        int maxTextLen = 10; // Tamanho de "DERROTADO!"
-        for (const auto& d : dropsAnimacao) {
-            int compVisual = Aparencia::obterComprimentoVisual(d);
-            if (compVisual > maxTextLen) maxTextLen = compVisual;
-        }
-        
-        int totalBoxLines = static_cast<int>(dropsAnimacao.size()) + 3; // +1 "DERROTADO!", +2 bordas
-        int boxStartY = startY + (alturaArte - totalBoxLines) / 2;
-        int boxStartX = startX + croppedWidth / 2; // Centro X do inimigo
-        
-        for (int i = 0; i < totalBoxLines; ++i) {
-            int drawY = boxStartY + i;
-            if (drawY < 0 || drawY >= alturaVisivel) continue;
-            
-            if (i == 0) {
-                std::string border = "╔";
-                for (int k = 0; k < maxTextLen + 2; ++k) border += "═";
-                border += "╗";
-                paintStr(boxStartX, drawY, border, Aparencia::cor(Cor::CINZA), Aparencia::bgRGB(15, 15, 15));
-            } else if (i == totalBoxLines - 1) {
-                std::string border = "╚";
-                for (int k = 0; k < maxTextLen + 2; ++k) border += "═";
-                border += "╝";
-                paintStr(boxStartX, drawY, border, Aparencia::cor(Cor::CINZA), Aparencia::bgRGB(15, 15, 15));
-            } else {
-                int textIdx = i - 1;
-                std::string innerTxt = (textIdx == 0) ? "DERROTADO!" : dropsAnimacao[textIdx - 1];
-                std::string corDrop = Aparencia::cor(Cor::BRANCO);
-                if (textIdx == 0) corDrop = "\033[5m" + Aparencia::cor(Cor::VERMELHO); // Piscar Vermelho
-                else if (innerTxt.find("XP") != std::string::npos) corDrop = Aparencia::cor(Cor::CIANO);
-                else if (innerTxt.find("G") != std::string::npos) corDrop = Aparencia::cor(Cor::AMARELO);
-                
-                int txtLen = Aparencia::obterComprimentoVisual(innerTxt);
-                int pEsq = (maxTextLen - txtLen) / 2;
-                int pDir = maxTextLen - txtLen - pEsq;
-                
-                std::string content = "║ " + std::string(pEsq, ' ') + Aparencia::removerCoresANSI(innerTxt) + std::string(pDir, ' ') + " ║";
-                paintStr(boxStartX, drawY, content, Aparencia::cor(Cor::CINZA), Aparencia::bgRGB(15, 15, 15));
-                paintStr(boxStartX, drawY, Aparencia::removerCoresANSI(innerTxt), corDrop, Aparencia::bgRGB(15, 15, 15));
-            }
-        }
-    }
+
 }

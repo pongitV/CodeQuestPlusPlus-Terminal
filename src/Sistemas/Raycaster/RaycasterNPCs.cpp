@@ -1,8 +1,11 @@
 #include "RaycasterNPCs.h"
-#include "../../Entidades/NPCs/Morgana/NPCMorganaLayout.h"
-#include "../../Entidades/NPCs/Bjorn/NPCBjornLayout.h"
-#include "../../Entidades/NPCs/Franchesco/NPCFranchescoLayout.h"
+#include "../../Entidades/NPCs/Maga/NPCMagaLayout.h"
+#include "../../Entidades/NPCs/Padre/NPCPadreLayout.h"
+#include "../../Entidades/NPCs/Ferreiro/NPCFerreiroLayout.h"
+#include "../../Entidades/NPCs/Mercador/NPCMercadorLayout.h"
+#include "../../Entidades/NPCs/Aparencia/NPCAparenciaLayout.h"
 #include "../../Entidades/NPCs/CavaleiroGenerico/NPCCavaleiroGenericoLayout.h"
+#include "../../Entidades/NPCs/Alquimista/NPCAlquimistaLayout.h"
 #include <vector>
 #include <string>
 
@@ -25,10 +28,10 @@ static SpriteCache criarPortaMadeira() {
 }
 
 void RaycasterNPCs::inicializarSprites(std::map<char, SpriteCache>& cache) {
-    cache['B'] = RaycasterSprites::parseSprite(NPCBjornLayouts::arteBjorn, 100, 200, 255); // Ciano Bjorn
-    cache['W'] = RaycasterSprites::parseSprite(NPCMorganaLayouts::arteMorgana, 200, 100, 255); // Roxo Morgana
+    cache['B'] = RaycasterSprites::parseSprite(NPCFerreiroLayouts::arteFerreiro, 100, 200, 255); // Ciano Bjorn
+    cache['W'] = RaycasterSprites::parseSprite(NPCMagaLayouts::arteMaga, 200, 100, 255); // Roxo Morgana
     
-    cache['V'] = RaycasterSprites::parseSprite(NPCFranchescoLayouts::arteFranchesco, 255, 200, 50); // Amarelo Franchesco
+    cache['V'] = RaycasterSprites::parseSprite(NPCMercadorLayouts::arteMercador, 255, 200, 50); // Amarelo Franchesco
     
     cache['X'] = RaycasterSprites::parseSprite({
         "  ____  ",
@@ -45,6 +48,34 @@ void RaycasterNPCs::inicializarSprites(std::map<char, SpriteCache>& cache) {
     cache['5'] = criarPortaMadeira();
 
     cache['C'] = RaycasterSprites::parseSprite(NPCCavaleiroGenericoLayouts::arteCavaleiro, 200, 200, 220); // Cavaleiro Real
+
+    // Sprites customizados para o PATIO DO REINO e Igreja
+    cache['A'] = RaycasterSprites::parseSprite(NPCAparenciaLayouts::arteAparencia, 120, 50, 200); // Anok (Roxo Estiloso)
+
+    cache['Q'] = RaycasterSprites::parseSprite(NPCAlquimistaLayouts::arteAlquimista, 180, 50, 200); // Alquimista (Roxo)
+
+    cache['K'] = RaycasterSprites::parseSprite({
+        "  /==\\  ",
+        " [ oo ] ",
+        " [####] ",
+        "  ||||  "
+    }, 220, 180, 100); // Barraquinha de comida (Marrom claro)
+
+    cache['Y'] = RaycasterSprites::parseSprite({
+        "   /\\   ",
+        "  /  \\  ",
+        " /_||_\\ ",
+        " | || | ",
+        " | || | "
+    }, 230, 230, 250); // Capela (Branco Mármore)
+
+    cache['J'] = RaycasterSprites::parseSprite({
+        "   ()   ",
+        "  /||\\  ",
+        "  \\||/  ",
+        "  /||\\  ",
+        "  /||\\  "
+    }, 255, 215, 0); // Padre Benedito (Dourado)
 
     cache['P'] = RaycasterSprites::parseSprite({
         "  ____  ",

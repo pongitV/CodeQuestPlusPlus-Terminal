@@ -100,6 +100,8 @@ void Combate::adicionarAliadoEmCombate(std::unique_ptr<Personagem> aliado) {
 
 Combate::~Combate()
 {
+    Parry::onUpdateScreen = nullptr;
+    ControleDeInput::onAguardarEnterUpdate = nullptr;
 }
 
 std::string Combate::obterTituloDoCombate() const
@@ -198,6 +200,12 @@ bool Combate::executarTurnoJogadorOuAliado(Personagem* personagem, bool& primeir
 
 void Combate::iniciarCombate() 
 {
+    Parry::onUpdateScreen = [this]() {
+        this->exibirTelaDeCombate(false);
+    };
+    ControleDeInput::onAguardarEnterUpdate = [this]() {
+        this->exibirTelaDeCombate(false);
+    };
     resetarEstatisticasAvancadas();
     jogadorAtual->prepararParaNovaBatalha();
     Aparencia::limparLogBatalha();
@@ -462,8 +470,14 @@ void Combate::limparInimigosMortos()
 
                 std::vector<Personagem*> aliadosVivos = obterAliadosVivosRaw();
                 TelaCombate::animarMorteInimigo(obterTituloDoCombate(), obterInimigosRaw(), inimigoPtr.get(), jogadorAtual, aliadosVivos, dropsDaMorte);
-            ControleDeInput::aguardarEnter();
-            inimigoPtr->definirMorteAnimada(true);
+                inimigoPtr->definirMorteAnimada(true);
+                if (listaDeInimigos.size() > 1) {
+                    ControleDeInput::aguardarEnter();
+                } else {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                }
+                TelaCombate::g_inimigoMortoComDrops = nullptr;
+                TelaCombate::g_dropsAtivos.clear();
         }
     }
 
@@ -539,6 +553,8 @@ void Combate::executarTurnoDeTodosOsInimigos()
 
             if (agiu && i < listaDeInimigos.size() - 1 && jogadorAtual->obterVida() > 0) {
                 ControleDeInput::aguardarEnter("... o ataque continua ...");
+                std::this_thread::sleep_for(std::chrono::milliseconds(200));
+                ControleDeInput::limparBuffer();
             }
         }
     }
@@ -770,8 +786,20 @@ void Combate::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* pers
 
         int danoRefletido = std::max(1, (quantidadeDeDanoBruto + danoPerfurante) / 2);
         personagemAtacante->modificarVida(-danoRefletido);
+        std::string atacanteReflexao = personagemAtacante->obterNome();
+        auto inimigosRaw = obterInimigosRaw();
+        int inimigoIdx = -1;
+        for (size_t k = 0; k < inimigosRaw.size(); ++k) {
+            if (inimigosRaw[k] == personagemAtacante) {
+                inimigoIdx = static_cast<int>(k) + 1;
+                break;
+            }
+        }
+        if (inimigoIdx != -1) {
+            atacanteReflexao += "(" + std::to_string(inimigoIdx) + ")";
+        }
         
-        std::string msgReflexao = FuncoesDialogo::formatarMsgCombate("Parry Perfeito! Reflexao! " + personagemAtacante->obterNome() + " sofreu " + std::to_string(danoRefletido) + " de dano de volta!", Cor::AMARELO);
+        std::string msgReflexao = FuncoesDialogo::formatarMsgCombate("Parry Perfeito! Reflexao! " + atacanteReflexao + " recebeu " + std::to_string(danoRefletido) + " de dano de reflexao", Cor::AMARELO);
         registrarLog(msgReflexao);
         TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + msgReflexao + "\n");
         

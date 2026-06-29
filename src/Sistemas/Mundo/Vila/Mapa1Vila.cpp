@@ -15,8 +15,8 @@
 #include "../../Inventario/InventarioCombate.h"
 #include "../../../Interface/Telas/Atributos/TelaAtributos.h"
 #include "../../../Interface/Telas/Bestiario/TelaBestiario.h"
-#include "../../../Entidades/NPCs/Bjorn/NPCBjorn.h"
-#include "../../../Entidades/NPCs/Franchesco/NPCFranchesco.h"
+#include "../../../Entidades/NPCs/Ferreiro/NPCFerreiro.h"
+#include "../../../Entidades/NPCs/Mercador/NPCMercador.h"
 #include "../../../Entidades/Inimigos/OrcExilado.h"
 #include "../../../Core/Utilidades/Aparencia.h"
 #include "../../../Core/Utilidades/FuncoesDialogo.h"
@@ -75,7 +75,7 @@ namespace {
         }
     };
 
-    class InteracaoNPCBjorn : public InteracaoVila {
+    class InteracaoNPCFerreiro : public InteracaoVila {
     public:
         void processar(ContextoInteracaoVila& ctx) override {
             if (ctx.self->tituloDoMapaAtual == "CAVERNA DO ORK") {
@@ -99,11 +99,9 @@ namespace {
                     std::replace(linha.begin(), linha.end(), 'P', 'B');
                 }
             } else if (ctx.self->tituloDoMapaAtual == "VILA INICIAL") {
-                NPCBjorn interacaoBjorn;
+                NPCFerreiro interacaoBjorn;
                 interacaoBjorn.interagir(ctx.self->jogadorAtual);
                 Diario::instancia().registrarNPC("Bjorn (Ferreiro)");
-                ctx.self->posicaoXDoJogador = 50;
-                ctx.self->posicaoYDoJogador = 9;
             } else {
                 ctx.self->posicaoXDoJogador = ctx.proximaPosicaoX;
                 ctx.self->posicaoYDoJogador = ctx.proximaPosicaoY;
@@ -112,14 +110,12 @@ namespace {
         }
     };
 
-    class InteracaoNPCFranchesco : public InteracaoVila {
+    class InteracaoNPCMercador : public InteracaoVila {
     public:
         void processar(ContextoInteracaoVila& ctx) override {
-            NPCFranchesco interacaoFranchesco;
+            NPCMercador interacaoFranchesco;
             interacaoFranchesco.interagir(ctx.self->jogadorAtual);
             Diario::instancia().registrarNPC("Franchesco (Mercador)");
-            ctx.self->posicaoXDoJogador = 37;
-            ctx.self->posicaoYDoJogador = 13;
             if (ctx.self->exploracaoEstaAtiva && !ControleMapa::isExploracao3DAtiva()) if (!ControleMapa::isExploracao3DAtiva()) ctx.restaurarTela();
         }
     };
@@ -133,8 +129,6 @@ namespace {
                 "Uma placa diz: 'Fui a caverna a leste'."
             };
             Aparencia::exibirPopup("PLACA", msg, Cor::MARROM);
-            ctx.self->posicaoXDoJogador = 50;
-            ctx.self->posicaoYDoJogador = 9;
             if (ctx.self->exploracaoEstaAtiva && !ControleMapa::isExploracao3DAtiva()) if (!ControleMapa::isExploracao3DAtiva()) ctx.restaurarTela();
         }
     };
@@ -219,8 +213,8 @@ namespace {
 void Mapa1Vila::inicializarInteracoes() {
     interacoes['G'] = std::make_unique<InteracaoCombateGoblin>();
     interacoes['O'] = std::make_unique<InteracaoCombateOrk>();
-    interacoes['B'] = std::make_unique<InteracaoNPCBjorn>();
-    interacoes['F'] = std::make_unique<InteracaoNPCFranchesco>();
+    interacoes['B'] = std::make_unique<InteracaoNPCFerreiro>();
+    interacoes['F'] = std::make_unique<InteracaoNPCMercador>();
     interacoes['P'] = std::make_unique<InteracaoPlaca>();
     interacoes['^'] = std::make_unique<InteracaoTeleporte>();
 }

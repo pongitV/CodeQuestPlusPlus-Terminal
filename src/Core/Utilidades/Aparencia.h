@@ -26,7 +26,9 @@ enum class Cor : uint32_t {
 
     // Novas Cores da Paleta do Mundo 3D
     MARROM = 0x8B4513,   // 139, 69, 19
+    MARROM_CLARO = 0xD2B48C, // 210, 180, 140 (Tan)
     MADEIRA = 0x654321,  // 101, 67, 33
+    VERDE_ESCURO = 0x006400, // 0, 100, 0
     TIJOLO = 0xA03C28,   // 160, 60, 40
     PRATA = 0xC8C8DC,    // 200, 200, 220
     DOURADO = 0xC89632,  // 200, 150, 50
@@ -43,9 +45,13 @@ enum class Cor : uint32_t {
 
 class Aparencia {
 public:
+    static Cor corFundoAtiva;
+
     // --- CONFIGURACOES E CORES ---
     static void inicializarConsole();
     static std::string cor(Cor codigo);
+    static std::vector<std::string> converterStringBrutaParaVetor(const std::string& textoBruto);
+    static std::vector<std::string> carregarArte(const std::string& caminhoArquivo);
     static std::string cor(Cor estilo, Cor codigo);
     static std::string corRGB(uint8_t r, uint8_t g, uint8_t b, bool negrito = false);
     static std::string bgRGB(uint8_t r, uint8_t g, uint8_t b);

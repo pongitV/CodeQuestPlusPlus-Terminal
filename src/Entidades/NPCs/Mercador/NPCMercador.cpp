@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <map>
 
-#include "NPCFranchesco.h"
+#include "NPCMercador.h"
 #include "../../../Interface/Telas/Menu/TelaMenu.h"
 #include "../../../Sistemas/Inventario/Item.h"
 #include "../../../Sistemas/Inventario/FabricaItens.h"
@@ -14,7 +14,7 @@
 #include "../../../Core/Utilidades/ControleDeInput.h"
 #include "../../../Core/Controladores/Loja.h"
 #include "../../../Core/Utilidades/FuncoesDialogo.h"
-#include "NPCFranchescoLayout.h"
+#include "NPCMercadorLayout.h"
 
 namespace {
     std::map<int, ProdutoLoja> estoquePocoes = {
@@ -39,7 +39,7 @@ namespace {
     void processarVendaDeItens(Personagem* jogadorAtual);
 
     void dialogoFranchesco(const std::vector<std::string>& linhas) {
-        Aparencia::exibirPopup("FRANCHESCO", linhas, Cor::AMARELO, NPCFranchescoLayouts::arteFranchesco);
+        Aparencia::exibirPopup("FRANCHESCO", linhas, Cor::AMARELO, NPCMercadorLayouts::arteMercador);
     }
     
     void dialogoFranchescoUnico(const std::string& msg) {
@@ -48,24 +48,24 @@ namespace {
 }
 
 // --- INFORMACOES DO LUGAR ---
-std::string NPCFranchesco::obterNomeDoLugar() const {
+std::string NPCMercador::obterNomeDoLugar() const {
     return "MERCADOR AMBULANTE";
 }
 
-Cor NPCFranchesco::obterCorDoCabecalho() const {
+Cor NPCMercador::obterCorDoCabecalho() const {
     return Cor::AMARELO;
 }
 
-Cor NPCFranchesco::obterCorDaArte() const {
+Cor NPCMercador::obterCorDaArte() const {
     return Cor::AMARELO;
 }
 
-const std::vector<std::string>& NPCFranchesco::obterArteASCII() const {
-    return NPCFranchescoLayouts::arteFranchesco;
+const std::vector<std::string>& NPCMercador::obterArteASCII() const {
+    return NPCMercadorLayouts::arteMercador;
 }
 
 // --- INTERACAO E MENU ---
-void NPCFranchesco::interagir(Personagem* jogador) {
+void NPCMercador::interagir(Personagem* jogador) {
     ControleDeInput::executarLoopMenuPopup(
         [this, jogador]() { this->exibirDialogo(jogador); },
         [this, jogador]() { return this->obterOpcoesMenu(jogador, Aparencia::obterLarguraTerminal()); },
@@ -74,14 +74,14 @@ void NPCFranchesco::interagir(Personagem* jogador) {
     );
 }
 
-void NPCFranchesco::exibirDialogo(Personagem* jogador) {
+void NPCMercador::exibirDialogo(Personagem* jogador) {
     dialogoFranchesco(std::vector<std::string>{
         "Bem-vindo! De uma olhada nas",
         "minhas mercadorias."
     });
 }
 
-std::vector<std::string> NPCFranchesco::obterOpcoesMenu(Personagem* jogador, int larguraDoTerminal) {
+std::vector<std::string> NPCMercador::obterOpcoesMenu(Personagem* jogador, int larguraDoTerminal) {
     return {
         "COMPRAR Pocoes",
         "COMPRAR Talismas",
@@ -92,7 +92,7 @@ std::vector<std::string> NPCFranchesco::obterOpcoesMenu(Personagem* jogador, int
     };
 }
 
-void NPCFranchesco::processarOpcao(Personagem* jogador, const std::string& opcao, int larguraDoTerminal) {
+void NPCMercador::processarOpcao(Personagem* jogador, const std::string& opcao, int larguraDoTerminal) {
     if (opcao == "COMPRAR Pocoes") {
         processarCompraPocoes(jogador);
     }
@@ -114,17 +114,17 @@ namespace {
     // --- PROCESSAMENTO DE OPCOES ---
     void processarCompraPocoes(Personagem* jogadorAtual) {
         Loja::processarCompra(jogadorAtual, "LOJA - POCOES", Cor::AMARELO, estoquePocoes, 
-            [](const std::string& msg) { dialogoFranchescoUnico(msg); }, InteracaoNPC::obterFormatadorStatusItem, NPCFranchescoLayouts::arteFranchesco);
+            [](const std::string& msg) { dialogoFranchescoUnico(msg); }, InteracaoNPC::obterFormatadorStatusItem, NPCMercadorLayouts::arteMercador);
     }
 
     void processarCompraTalismas(Personagem* jogadorAtual) {
         Loja::processarCompra(jogadorAtual, "LOJA - TALISMAS", Cor::AMARELO, estoqueTalismas, 
-            [](const std::string& msg) { dialogoFranchescoUnico(msg); }, InteracaoNPC::obterFormatadorStatusItem, NPCFranchescoLayouts::arteFranchesco);
+            [](const std::string& msg) { dialogoFranchescoUnico(msg); }, InteracaoNPC::obterFormatadorStatusItem, NPCMercadorLayouts::arteMercador);
     }
 
     void processarCompraIguarias(Personagem* jogadorAtual) {
         Loja::processarCompra(jogadorAtual, "LOJA - IGUARIAS", Cor::AMARELO, estoqueIguarias, 
-            [](const std::string& msg) { dialogoFranchescoUnico(msg); }, InteracaoNPC::obterFormatadorStatusItem, NPCFranchescoLayouts::arteFranchesco);
+            [](const std::string& msg) { dialogoFranchescoUnico(msg); }, InteracaoNPC::obterFormatadorStatusItem, NPCMercadorLayouts::arteMercador);
     }
 
     void processarVendaDeItens(Personagem* jogadorAtual) {
@@ -170,7 +170,7 @@ namespace {
             if (opcoesItem.empty()) { dialogoFranchescoUnico("Voce nao tem nada que me interesse!"); break; }
             opcoesItem.push_back("VOLTAR");
             
-            int escolha = ControleDeInput::lerSelecaoMenuEmPopup("VENDER ITENS", {"Seu Ouro: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G", "Escolha um item para vender:"}, opcoesItem, Cor::AMARELO, NPCFranchescoLayouts::arteFranchesco);
+            int escolha = ControleDeInput::lerSelecaoMenuEmPopup("VENDER ITENS", {"Seu Ouro: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + "G", "Escolha um item para vender:"}, opcoesItem, Cor::AMARELO, NPCMercadorLayouts::arteMercador);
             if (escolha == -1 || escolha == static_cast<int>(opcoesItem.size()) - 1) break;
             
             std::vector<Item*> itensEscolhidos = itensValidos[escolha];
@@ -192,7 +192,7 @@ namespace {
                     {"Voce possui " + std::to_string(itensEscolhidos.size()) + " unidades deste item."},
                     opcoesQtd, 
                     Cor::AMARELO, 
-                    NPCFranchescoLayouts::arteFranchesco
+                    NPCMercadorLayouts::arteMercador
                 );
                 
                 if (escolhaQtd == 0) {

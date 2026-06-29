@@ -15,6 +15,8 @@
     #include <unistd.h>
 #endif
 #include "ControleDeInput.h"
+#include <fstream>
+
 
 namespace {
     int popupMinLarguraAtual = 0;
@@ -36,6 +38,7 @@ namespace {
 }
 
 int Aparencia::atrasoDigitacaoMS = 25; // Inicialização da velocidade padrão (50ms)
+Cor Aparencia::corFundoAtiva = Cor::RESET;
 
 void Aparencia::inicializarConsole() {
 #ifdef _WIN32
@@ -55,8 +58,50 @@ void Aparencia::inicializarConsole() {
 #endif
 }
 
+std::vector<std::string> Aparencia::carregarArte(const std::string& caminhoArquivo) {
+    std::vector<std::string> arte;
+    
+    // Tenta diferentes diretorios base para encontrar o arquivo
+    std::vector<std::string> caminhosBase = {
+        "",
+        "../",
+        "../../",
+        "../../../"
+    };
+
+    std::ifstream arquivo;
+    std::string caminhoSucesso;
+    for (const auto& base : caminhosBase) {
+        arquivo.open(base + caminhoArquivo);
+        if (arquivo.is_open()) {
+            caminhoSucesso = base + caminhoArquivo;
+            break;
+        }
+    }
+
+    if (arquivo.is_open()) {
+        std::string linha;
+        while (std::getline(arquivo, linha)) {
+            // Remove \r no final da linha (caso o arquivo txt tenha sido salvo com CRLF)
+            if (!linha.empty() && linha.back() == '\r') {
+                linha.pop_back();
+            }
+            arte.push_back(linha);
+        }
+    } else {
+        arte.push_back("ERRO: Nao foi possivel carregar a arte.");
+        arte.push_back("Caminho procurado: " + caminhoArquivo);
+    }
+    return arte;
+}
+
 std::string Aparencia::cor(Cor codigo) {
-    if (codigo == Cor::RESET) return "\033[0m";
+    if (codigo == Cor::RESET) {
+        if (corFundoAtiva != Cor::RESET) {
+            return "\033[0m" + cor(corFundoAtiva);
+        }
+        return "\033[0m";
+    }
     if (codigo == Cor::NEGRITO) return "\033[1m";
 
     uint32_t val = static_cast<uint32_t>(codigo);
@@ -74,7 +119,12 @@ std::string Aparencia::cor(Cor estilo, Cor codigo) {
     if (estilo == Cor::NEGRITO) estiloStr = "1;";
     else if (estilo == Cor::RESET) estiloStr = "0;";
 
-    if (codigo == Cor::RESET) return "\033[" + estiloStr + "0m";
+    if (codigo == Cor::RESET) {
+        if (corFundoAtiva != Cor::RESET) {
+            return "\033[" + estiloStr + "0m" + cor(corFundoAtiva);
+        }
+        return "\033[" + estiloStr + "0m";
+    }
     if (codigo == Cor::NEGRITO) return "\033[" + estiloStr + "1m";
 
     uint32_t val = static_cast<uint32_t>(codigo);
@@ -164,6 +214,9 @@ void Aparencia::ocultarCursor() {
 }
 
 void Aparencia::limparTela() {
+    if (corFundoAtiva != Cor::RESET) {
+        std::cout << cor(corFundoAtiva);
+    }
     std::cout << "\033[2J\033[3J\033[H" << std::flush;
 }
 
@@ -328,7 +381,7 @@ void Aparencia::imprimirLinhaDivisoria(char caractere) {
 }
 
 void Aparencia::imprimirCentralizado(const std::string& texto, const std::string& corAnsi) {
-    std::cout << espacosParaCentralizar(obterComprimentoVisual(texto)) << corAnsi << texto << (corAnsi.empty() ? "" : cor(Cor::RESET)) << "\n";
+    std::cout << "\033[0m" << espacosParaCentralizar(obterComprimentoVisual(texto)) << corAnsi << texto << "\033[0m\n";
 }
 
 void Aparencia::imprimirCentralizadoMultilinha(const std::vector<std::string>& linhas, int larguraVisual, const std::string& corAnsi, int atrasoLinhaMs) {
@@ -964,4 +1017,23 @@ void Aparencia::exibirHistoricoCompleto() {
         }
     }
     std::cout << "\n";
+}
+
+std::vector<std::string> Aparencia::converterStringBrutaParaVetor(const std::string& textoBruto) {
+    std::vector<std::string> linhas;
+    std::string linha;
+    for (char c : textoBruto) {
+        if (c == '\n') {
+            if (!linha.empty() && linha.back() == '\r') linha.pop_back();
+            linhas.push_back(linha);
+            linha.clear();
+        } else {
+            linha += c;
+        }
+    }
+    if (!linha.empty()) {
+        if (linha.back() == '\r') linha.pop_back();
+        linhas.push_back(linha);
+    }
+    return linhas;
 }

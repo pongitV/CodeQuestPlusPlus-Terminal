@@ -19,7 +19,7 @@ void RaycasterHUD::desenharMinimapa(vector<string>& tela, int LARGURA_TELA, int 
 
     std::string tituloUpper = tituloMapa;
     for (char& ch : tituloUpper) ch = std::toupper(static_cast<unsigned char>(ch));
-    bool isReino = (tituloUpper.find("CASTELO") != std::string::npos || tituloUpper.find("REINO") != std::string::npos);
+    bool isReino = (tituloUpper.find("PATIO DO REINO") != std::string::npos || tituloUpper.find("REINO") != std::string::npos);
     bool isInterior = (tituloUpper.find("LABIRINTO") != std::string::npos || tituloUpper.find("CHEFE") != std::string::npos || tituloUpper.find("CORACAO") != std::string::npos || tituloUpper.find("CAVERNA") != std::string::npos);
 
     // HUD: Mini-mapa sobreposto no topo-esquerdo
@@ -29,7 +29,7 @@ void RaycasterHUD::desenharMinimapa(vector<string>& tela, int LARGURA_TELA, int 
     int offsetY = 1; // Topo
 
     // 1. Desenha a borda do mini-mapa
-    string corBorda = "\033[38;2;150;150;150m"; // Cinza claro
+    string corBorda = "\033[38;2;255;255;255m"; // Branco
     string bgMini = "\033[48;2;25;25;25m"; // Fundo pseudo-transparente cinza escuro
     for (int y = offsetY - 1; y <= offsetY + alturaMiniMapa; y++) {
         for (int x = offsetX - 1; x <= offsetX + larguraMiniMapa; x++) {
@@ -102,7 +102,7 @@ void RaycasterHUD::desenharBarraStatus(vector<string>& tela, int LARGURA_TELA, i
     if (hudOffsetX < 0) hudOffsetX = 0;
     int hudOffsetY = ALTURA_TELA - boxHeight - 1; 
 
-    string corHudBorda = "\033[38;2;150;150;150m"; 
+    string corHudBorda = "\033[38;2;255;255;255m"; 
     string bgHud = "\033[48;2;25;25;25m"; 
 
     if (hudOffsetY >= 0 && hudOffsetY < ALTURA_TELA) {

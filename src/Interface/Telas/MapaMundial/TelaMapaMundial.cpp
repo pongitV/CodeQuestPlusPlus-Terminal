@@ -9,7 +9,7 @@
 #include "../../../Sistemas/Progresso/Progressao.h"
 #include "../../../Sistemas/Progresso/ProgressaoFlags.h"
 
-ProximaTransicaoMapa TelaMapaMundial::exibir(LocalizacaoMapa localAtual, int progressoVila, int progressoFloresta, int progressoReino) {
+ProximaTransicaoMapa TelaMapaMundial::exibir(LocalizacaoMapa localAtual, int progressoVila, int progressoFloresta, int progressoPonteReino, int progressoReino) {
     static const std::vector<std::string> arteMapa = {
         "   ╔═══════════════════════════════════════════════╗   ",
         "   ║                                               ║   ",
@@ -22,8 +22,12 @@ ProximaTransicaoMapa TelaMapaMundial::exibir(LocalizacaoMapa localAtual, int pro
         "   ║                          ╚══════════╝         ║   ",
         "   ║                               ║║              ║   ",
         "   ║               ╔═══════╗       ║║              ║   ",
-        "   ║               ║ REINO ╠═══════╣║ [R]%         ║   ",
-        "   ║               ╚═══════╝                       ║   ",
+        "   ║               ║ PonteReino ╠═══════╣║ [R]%         ║   ",
+        "   ║               ╚═══╦═══╝                       ║   ",
+        "   ║                   ║║                          ║   ",
+        "   ║               ╔═══╩═════╗                     ║   ",
+        "   ║               ║ Reino ║ [C]%                ║   ",
+        "   ║               ╚═════════╝                     ║   ",
         "   ║                                               ║   ",
         "   ╚═══════════════════════════════════════════════╝   "
     };
@@ -63,16 +67,20 @@ ProximaTransicaoMapa TelaMapaMundial::exibir(LocalizacaoMapa localAtual, int pro
 
                 formatarProgresso(linha, "[V]", progressoVila, true); // Vila sempre fica descoberta
                 formatarProgresso(linha, "[F]", progressoFloresta, mapasDescobertos);
-                formatarProgresso(linha, "[R]", progressoReino, mapasDescobertos);
+                formatarProgresso(linha, "[R]", progressoPonteReino, mapasDescobertos);
+                formatarProgresso(linha, "[C]", progressoReino, mapasDescobertos);
 
-                std::string palavra;
+                std::string palavra = "";
                 if (localAtual == LocalizacaoMapa::VilaInicial) palavra = "VILA";
                 else if (localAtual == LocalizacaoMapa::Floresta) palavra = "FLORESTA";
-                else if (localAtual == LocalizacaoMapa::Reino) palavra = "REINO";
+                else if (localAtual == LocalizacaoMapa::PonteReino) palavra = "Ponte do Reino";
+                else if (localAtual == LocalizacaoMapa::Reino) palavra = "Reino";
                 
-                size_t pos = linha.find(palavra);
-                if (pos != std::string::npos) {
-                    linha.replace(pos, palavra.length(), Aparencia::cor(Cor::VERDE) + palavra + Aparencia::cor(Cor::RESET));
+                if (!palavra.empty()) {
+                    size_t pos = linha.find(palavra);
+                    if (pos != std::string::npos) {
+                        linha.replace(pos, palavra.length(), Aparencia::cor(Cor::VERDE) + palavra + Aparencia::cor(Cor::RESET));
+                    }
                 }
 
                 if (!mapasDescobertos) {
@@ -88,8 +96,12 @@ ProximaTransicaoMapa TelaMapaMundial::exibir(LocalizacaoMapa localAtual, int pro
                     substituirExato("╚══════════╝", "  ╚═════╝   ");
 
                     substituirExato("╔═══════╗", "  ╔═════╗");
-                    substituirExato("║ REINO ╠", "  ║ ??? ╠");
+                    substituirExato("║ PonteReino ╠", "  ║ ??? ╠");
                     substituirExato("╚═══════╝", "  ╚═════╝");
+
+                    substituirExato("╔═════════╗", "  ╔═════╗  ");
+                    substituirExato("║ Reino ║", "  ║ ??? ║  ");
+                    substituirExato("╚═════════╝", "  ╚═════╝  ");
                 }
                 
                 std::cout << margem << linha << "\n";
@@ -113,6 +125,9 @@ ProximaTransicaoMapa TelaMapaMundial::exibir(LocalizacaoMapa localAtual, int pro
             if (mapasDescobertos) opcoes.push_back("Floresta");
             else opcoes.push_back(Aparencia::cor(Cor::CINZA) + "???" + Aparencia::cor(Cor::RESET));
             
+            if (mapasDescobertos) opcoes.push_back("Ponte do Reino");
+            else opcoes.push_back(Aparencia::cor(Cor::CINZA) + "???" + Aparencia::cor(Cor::RESET));
+
             if (mapasDescobertos) opcoes.push_back("Reino");
             else opcoes.push_back(Aparencia::cor(Cor::CINZA) + "???" + Aparencia::cor(Cor::RESET));
             
@@ -121,7 +136,7 @@ ProximaTransicaoMapa TelaMapaMundial::exibir(LocalizacaoMapa localAtual, int pro
         },
         // process choice
         [&](int id) {
-            if (id == -1 || id == 3) {
+            if (id == -1 || id == 4) {
                 destinoEscolhido = ProximaTransicaoMapa::Nenhuma;
                 return false;
             }
@@ -136,9 +151,19 @@ ProximaTransicaoMapa TelaMapaMundial::exibir(LocalizacaoMapa localAtual, int pro
                 msgExtra = "Local ainda nao descoberto!";
                 return true;
             }
+            if (id == 3 && !mapasDescobertos) {
+                msgExtra = "Local ainda nao descoberto!";
+                return true;
+            }
 
-            ProximaTransicaoMapa destinoCandidato = (id == 0) ? ProximaTransicaoMapa::Vila : (id == 1) ? ProximaTransicaoMapa::Floresta : ProximaTransicaoMapa::Reino;
-            LocalizacaoMapa locCandidata = (id == 0) ? LocalizacaoMapa::VilaInicial : (id == 1) ? LocalizacaoMapa::Floresta : LocalizacaoMapa::Reino;
+            ProximaTransicaoMapa destinoCandidato = (id == 0) ? ProximaTransicaoMapa::Vila : 
+                                                    (id == 1) ? ProximaTransicaoMapa::Floresta : 
+                                                    (id == 2) ? ProximaTransicaoMapa::PonteReino : 
+                                                                ProximaTransicaoMapa::Reino;
+            LocalizacaoMapa locCandidata = (id == 0) ? LocalizacaoMapa::VilaInicial : 
+                                           (id == 1) ? LocalizacaoMapa::Floresta : 
+                                           (id == 2) ? LocalizacaoMapa::PonteReino : 
+                                                       LocalizacaoMapa::Reino;
 
             if (locCandidata == localAtual) {
                 msgExtra = "Voce ja esta neste local!";

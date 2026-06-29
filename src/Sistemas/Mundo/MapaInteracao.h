@@ -8,6 +8,7 @@ enum class ProximaTransicaoMapa {
     VoltarMenu,
     Vila,
     Floresta,
+    PonteReino,
     Reino
 };
 

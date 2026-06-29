@@ -11,6 +11,10 @@ public:
     static bool isTeleport(char c);
     static bool isWalkable(int mapX, int mapY, const std::vector<std::string>& matrizDoMapa);
     static bool isMapLabel(int mapX, int mapY, const std::vector<std::string>& matrizDoMapa);
+    static void atualizarMapHash(const std::vector<std::string>& matrizDoMapa);
+    static size_t obterMapHash();
+    
+    static char obterNPCProximo(const std::string& tituloMapa, int mapX, int mapY);
     
     static Pixel3D obterPixelParedeInternal(const std::string& tituloMapa, bool temaFloresta, float distanciaAteParede, float profundidadeMaxima, char charParede, int y, int teto, int chao, float texX, float tempoAnimacao, const std::vector<std::tuple<int, int, int>>& luzes, float hitX, float hitY, bool isSideWall = false);
     static Pixel3D obterPixelParede(const std::string& tituloMapa, bool temaFloresta, float distanciaAteParede, float profundidadeMaxima, char charParede, int y, int teto, int chao, float texX, float tempoAnimacao = 0.0f, bool isSideWall = false, const std::vector<std::tuple<int, int, int>>& luzes = {}, float hitX = 0.0f, float hitY = 0.0f);

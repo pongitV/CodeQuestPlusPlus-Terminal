@@ -20,7 +20,7 @@
 #include "../../Combate/Combate.h"
 #include "../../../Entidades/Inimigos/Fada.h"
 #include "../../../Entidades/Inimigos/ClasseBaseInimigo.h"
-#include "../../../Entidades/NPCs/Morgana/NPCMorgana.h"
+#include "../../../Entidades/NPCs/Maga/NPCMaga.h"
 #include "../../../Entidades/Inimigos/AbominacaoFloresta.h"
 #include "../../../Entidades/Inimigos/Mahoraga.h"
 #include "../../../Core/Utilidades/Aparencia.h"
@@ -29,7 +29,7 @@
 #include "../ControleMapa.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"
 #include "../../../Core/Utilidades/GeradorAleatorio.h"
-#include "../Reino/Mapa3Reino.h"
+#include "../Reino/Mapa3PonteReino.h"
 #include "Mapa2FlorestaLayout.h"
 
 Mapa2Floresta::Mapa2Floresta(Personagem* personagemJogador) :
@@ -81,11 +81,9 @@ namespace {
     class InteracaoMorgana : public InteracaoFloresta {
     public:
         void processar(ContextoInteracaoFloresta& ctx) override {
-            NPCMorgana interacaoMorgana;
+            NPCMaga interacaoMorgana;
             interacaoMorgana.interagir(ctx.self->jogadorAtual);
             Diario::instancia().registrarNPC("Morgana (Bruxa)");
-            ctx.self->posicaoXDoJogador = 123;
-            ctx.self->posicaoYDoJogador = 10;
             if (ctx.self->exploracaoEstaAtiva && !ControleMapa::isExploracao3DAtiva()) if (!ControleMapa::isExploracao3DAtiva()) ctx.restaurarTela();
         }
     };

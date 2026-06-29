@@ -244,7 +244,8 @@ std::unique_ptr<Personagem> MenuJogo::menuPrincipal()
         std::string opcaoSelecionada;
         if (selecao == 0) opcaoSelecionada = "Novo Jogo";
         else if (temSave && selecao == 1) opcaoSelecionada = "Continuar Jogo";
-        else if ((temSave && selecao == 2) || (!temSave && selecao == 1)) opcaoSelecionada = "Opcoes";
+        else if ((temSave && selecao == 2) || (!temSave && selecao == 1)) opcaoSelecionada = "Debug";
+        else if ((temSave && selecao == 3) || (!temSave && selecao == 2)) opcaoSelecionada = "Opcoes";
         else opcaoSelecionada = "Sair";
         
         if (opcaoSelecionada == "Novo Jogo") {
@@ -270,6 +271,25 @@ std::unique_ptr<Personagem> MenuJogo::menuPrincipal()
                     ControleDeInput::aguardarEnter();
                 }
             }
+        } else if (opcaoSelecionada == "Debug") {
+            auto raca = std::make_unique<Humano>();
+            auto classe = std::make_unique<Mago>();
+            auto personagemCriado = std::make_unique<Personagem>("Debug", std::move(raca), std::move(classe));
+            personagemCriado->definirParryAtivado(true);
+            personagemCriado->definirDificuldade(DificuldadeJogo::Facil);
+
+            Diario::instancia().registrarRaca(personagemCriado->obterRaca()->obterNomeRaca());
+            Diario::instancia().registrarClasse(personagemCriado->obterNomeClasse());
+            for (Item* item : personagemCriado->obterInventario()->obterTodosOsItens()) {
+                Diario::instancia().registrarItem(Aparencia::removerCoresANSI(item->obterNomeItem()));
+            }
+
+            std::string statusParry = Aparencia::cor(Cor::VERDE) + "Ligado" + Aparencia::cor(Cor::RESET);
+            std::string nomeDificuldade = Aparencia::cor(Cor::VERDE) + "Facil" + Aparencia::cor(Cor::RESET);
+            std::string infoBox = "| JOGADOR: Debug | RACA: Humano | CLASSE: Mago | DIFICULDADE: " + nomeDificuldade + " | PARRY: " + statusParry + " |";
+            TelaMenu::exibirIntroducaoJornada(infoBox);
+
+            return personagemCriado;
         } else if (opcaoSelecionada == "Opcoes") {
             auto jogador = lidarMenuDeOpcoes();
             if (jogador) return jogador;

@@ -14,6 +14,9 @@
 #endif
 #include "Aparencia.h"
 
+std::function<void()> ControleDeInput::onAguardarEnterUpdate = nullptr;
+std::string ControleDeInput::enterPromptText = "";
+
 bool ControleDeInput::teclaPressionada() 
 {
 #ifdef _WIN32
@@ -339,10 +342,25 @@ void ControleDeInput::executarLoopMenuPopup(
 
 void ControleDeInput::aguardarEnter(const std::string& mensagem) {
     Aparencia::ocultarCursor();
-    std::cout << "\n" << Aparencia::espacosParaCentralizar(Aparencia::obterComprimentoVisual(mensagem)) << "\033[5m" << mensagem << "\033[0m\n";
-    ControleDeInput::limparBuffer();
-    while (true) {
-        char c = ControleDeInput::lerTecla();
-        if (c == '\r' || c == '\n') break;
+    if (ControleDeInput::onAguardarEnterUpdate) {
+        ControleDeInput::enterPromptText = mensagem;
+        ControleDeInput::limparBuffer();
+        while (true) {
+            ControleDeInput::onAguardarEnterUpdate();
+            if (ControleDeInput::teclaPressionada()) {
+                char c = ControleDeInput::lerTecla();
+                if (c == '\r' || c == '\n') break;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(33));
+        }
+        ControleDeInput::enterPromptText = "";
+        ControleDeInput::onAguardarEnterUpdate();
+    } else {
+        std::cout << "\n\033[0m" << Aparencia::espacosParaCentralizar(Aparencia::obterComprimentoVisual(mensagem)) << "\033[5m" << mensagem << "\033[0m\n";
+        ControleDeInput::limparBuffer();
+        while (true) {
+            char c = ControleDeInput::lerTecla();
+            if (c == '\r' || c == '\n') break;
+        }
     }
 }

@@ -154,7 +154,7 @@ void NPCCavaleiroGenerico::interagir(Personagem* jogadorAtual, bool& trollDerrot
                 }
                 if (trollsRestantes == 0) {
                     trollDerrotado = true;
-                    Progressao::instancia().definirFlag(Flags::Reino_TrollDerrotado, true);
+                    Progressao::instancia().definirFlag(Flags::PonteReino_TrollDerrotado, true);
                 }
             }
         }
@@ -180,7 +180,7 @@ void NPCCavaleiroGenerico::interagir(Personagem* jogadorAtual, bool& trollDerrot
                 if (!conviteRecebido) {
                     Aparencia::exibirPopup("CAVALEIRO REAL", { "Obrigado por nos ajudar com os Trolls!" }, Cor::CINZA);
                 } else {
-                    Aparencia::exibirPopup("CAVALEIRO REAL", { "O Rei o aguarda no castelo. Siga em frente!" }, Cor::CINZA);
+                    Aparencia::exibirPopup("CAVALEIRO REAL", { "O Rei o aguarda no Reino. Siga em frente!" }, Cor::CINZA);
                 }
             } else if (escolha == 1) {
                 Aparencia::iniciarInteracaoPopup();

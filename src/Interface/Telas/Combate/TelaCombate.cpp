@@ -18,6 +18,7 @@
 #include "../../../Core/Utilidades/ControleDeInput.h"
 #include "TelaCombateLayout.h"
 #include "../../../Sistemas/Combate/Combate3DRenderer.h"
+#include "../../../Sistemas/Combate/Parry.h"
 
 extern Personagem* g_inimigoAtacanteParry;
 extern int g_parryStatus;
@@ -77,6 +78,8 @@ namespace {
     }
 
     std::vector<std::string> mensagensFixasCombate;
+    std::string overlayLogoOnAnsiLine(const std::string& backgroundLine, const std::vector<std::string>& logoChars, int startX, const std::string& fgColor, int larguraTerminal);
+    std::string overlayPanelOnAnsiLine(const std::string& backgroundLine, const std::string& panelLine, int startX, int larguraTerminal);
 
     void renderizarFrameBufferizado(const std::function<void()>& renderFunc) {
         std::ostringstream buffer;
@@ -176,50 +179,19 @@ namespace {
             if (i < linhas.size() - 1) finalOutput += "\n";
         }
         
-        std::cout << "\033[?25l\033[H" << finalOutput << "\033[J" << std::flush;
+        std::cout << "\033[?25l\033[H" << finalOutput << "\033[J\033[0m" << std::flush;
     }
 
     void renderizarCenaPadrao(const std::string& titulo, const std::vector<Personagem*>& inimigos, Personagem* alvoAnimacao, int frame, bool isCura, bool isMorte, Item* arma, Personagem* jogadorAtual, const std::vector<Personagem*>& aliados, Personagem* alvoDanoJogador = nullptr, Cor corDanoJogador = Cor::RESET, int danoAnimacao = -1, const std::vector<std::string>& dropsAnimacao = {}, bool animarEntrada = false) {
         auto agora = std::chrono::steady_clock::now();
         int tempoMs = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(agora.time_since_epoch()).count());
-
         renderizarFrameBufferizado([&]() {
             (void)titulo;
             std::cout << "\n";
 
-            // Separacao da renderizacao superior: 2D ou 3D
-            if (TelaCombate::isModo3D) {
-                int framesDanoJog = 0;
-                if (alvoDanoJogador != nullptr && danoAnimacao > 0 && !isCura) {
-                    framesDanoJog = frame;
-                }
+            int larguraTerminal = Aparencia::obterLarguraTerminal();
 
-                std::vector<std::string> quadro3D = Combate3DRenderer::renderizarQuadro(
-                    TelaCombate::tituloMapaAtual, 
-                    jogadorAtual, 
-                    inimigos,
-                    alvoAnimacao,
-                    frame,
-                    framesDanoJog,
-                    danoAnimacao,
-                    isCura,
-                    tempoMs,
-                    isMorte,
-                    dropsAnimacao
-                );
-
-                for (const auto& linha : quadro3D) {
-                    std::cout << linha << "\n";
-                }
-            } else {
-                // Desenha a horda classicamente (que imprime no std::cout e será interceptada pelo buffer)
-                TelaCombate::exibirHordaDeInimigosLadoALado(inimigos, alvoAnimacao, frame, isCura, animarEntrada, isMorte, arma, danoAnimacao, dropsAnimacao);
-            }
-
-            Aparencia::imprimirLinhaDivisoria('=');
-            std::cout << Aparencia::cor(Cor::RESET);
-
-            // === HUD de Combate (Painéis separados, modo clássico) ===
+            // === Preparar dados do HUD (Comum para ambos os modos) ===
             std::vector<std::string> painelEsquerdo;
             
             Personagem* destaque = jogadorAtual;
@@ -277,72 +249,416 @@ namespace {
                     padLinhaDireita(linhaDir);
                     painelDireito.push_back(linhaDir);
                 }
+                std::string emptyLine = "";
+                padLinhaDireita(emptyLine);
+                painelDireito.push_back(emptyLine);
             } else if (TelaCombate::selecaoAlvoAtual != -1) {
                 std::vector<std::string> linhasAlvo = {
                     "═══ ESCOLHA UM ALVO ═══",
                     "   < / > : Selecionar",
                     "   ENTER : Confirmar",
-                    "   ESC   : Cancelar"
+                    "   ESC   : Cancelar",
+                    ""
                 };
                 for(auto& linha : linhasAlvo) {
                     padLinhaDireita(linha);
                     painelDireito.push_back(linha);
                 }
             } else {
-                for (int i = 0; i < 4; ++i) painelDireito.push_back(std::string(LARGURA_PAINEL_DIREITO, ' '));
+                for (int i = 0; i < 5; ++i) {
+                    std::string emptyLine = "";
+                    padLinhaDireita(emptyLine);
+                    painelDireito.push_back(emptyLine);
+                }
             }
-            
-            Aparencia::imprimirLadoALado(painelEsquerdo, painelDireito, 0, 5, Cor::RESET, Cor::RESET, 0);
 
-            int larguraTerminal = Aparencia::obterLarguraTerminal();
-            std::string textoDoTurno = " ╣ TURNO " + std::to_string(TelaCombate::turnoAtualVisivel) + " │ VEZ DE " + TelaCombate::nomeTurnoVisivel + " ╠ ";
-            int comprimentoVisual = Aparencia::obterComprimentoVisual(textoDoTurno);
-            int tracosEsq = (larguraTerminal - comprimentoVisual) / 2;
-            int tracosDir = larguraTerminal - tracosEsq - comprimentoVisual;
-            
-            std::string linhaEsq = "";
-            for (int i = 0; i < tracosEsq; ++i) linhaEsq += "═";
-            std::string linhaDir = "";
-            for (int i = 0; i < tracosDir; ++i) linhaDir += "═";
-            
-            Cor corDoTurno = (TelaCombate::nomeTurnoVisivel == "INIMIGOS") ? Cor::VERMELHO : Cor::VERDE;
-            std::string corBordaEsqDir;
-            if (TelaCombate::nomeTurnoVisivel == "INIMIGOS") {
-                corBordaEsqDir = "\033[38;2;120;0;0m";
-            } else {
-                corBordaEsqDir = "\033[38;2;0;120;0m";
-            }
-            std::cout << "\n" << corBordaEsqDir << linhaEsq << Aparencia::cor(corDoTurno) << textoDoTurno << corBordaEsqDir << linhaDir << Aparencia::cor(Cor::RESET) << "\n";
-
-            if (alvoDanoJogador != nullptr && danoAnimacao > 0 && frame > 0 && !isCura) {
-                int shakeX = (frame % 2 == 0) ? 4 : -4;
-                std::string padEsq = (shakeX > 0) ? std::string(shakeX, ' ') : "";
-                std::string padDir = (shakeX < 0) ? std::string(-shakeX, ' ') : "";
-
-                std::string nomeAtacante = "Desconhecido";
-                if (g_inimigoAtacanteParry != nullptr) {
-                    for (size_t i = 0; i < inimigos.size(); ++i) {
-                        if (inimigos[i] == g_inimigoAtacanteParry) {
-                            nomeAtacante = inimigos[i]->obterNome() + " (" + std::to_string(i + 1) + ")";
-                            break;
-                        }
-                    }
-                    if (nomeAtacante == "Desconhecido") nomeAtacante = g_inimigoAtacanteParry->obterNome();
+            if (TelaCombate::isModo3D) {
+                int framesDanoJog = 0;
+                if (alvoDanoJogador != nullptr && danoAnimacao > 0 && !isCura) {
+                    framesDanoJog = frame;
                 }
 
-                std::string mensagemDano = nomeAtacante + " causou " + std::to_string(danoAnimacao) + " de dano em " + alvoDanoJogador->obterNome() + "!";
+                std::vector<std::string> quadro3D = Combate3DRenderer::renderizarQuadro(
+                    TelaCombate::tituloMapaAtual, 
+                    jogadorAtual, 
+                    inimigos,
+                    alvoAnimacao,
+                    frame,
+                    framesDanoJog,
+                    danoAnimacao,
+                    isCura,
+                    tempoMs,
+                    isMorte,
+                    dropsAnimacao
+                );
 
-                std::cout << "\n";
-                if (frame % 2 == 0) std::cout << "\n";
+                int altura3D = quadro3D.size();
+
+                // Wrap HUD panels with white UTF-8 border and black background
+                std::string bgPreto = "\033[48;2;0;0;0m";
+                std::string corBordaBranca = "\033[38;2;255;255;255m";
+
+                // 1. painelEsquerdo
+                int maxEsqW = 0;
+                for (const auto& l : painelEsquerdo) {
+                    int len = Aparencia::obterComprimentoVisual(l);
+                    if (len > maxEsqW) maxEsqW = len;
+                }
+                std::vector<std::string> painelEsquerdoBordado;
                 
-                int espacosCentralizar = std::max(0, (larguraTerminal - Aparencia::obterComprimentoVisual(mensagemDano)) / 2);
-                std::cout << padEsq << std::string(espacosCentralizar, ' ') << "\033[1;38;2;255;50;50m" << mensagemDano << Aparencia::cor(Cor::RESET) << padDir << "\n";
-            }
+                std::string topo = bgPreto + corBordaBranca + "╔";
+                for (int k = 0; k < maxEsqW - 1; ++k) topo += "═";
+                topo += "╗\033[0m";
+                painelEsquerdoBordado.push_back(topo);
+                
+                for (auto& l : painelEsquerdo) {
+                    std::string linha = l;
+                    size_t pos = 0;
+                    while ((pos = linha.find("\033[0m", pos)) != std::string::npos) {
+                        linha.replace(pos, 4, "\033[0m" + bgPreto);
+                        pos += 4 + bgPreto.length();
+                    }
+                    
+                    std::string linhaProcessada = bgPreto + linha;
+                    size_t posV = linhaProcessada.find("║");
+                    if (posV != std::string::npos) {
+                        linhaProcessada.replace(posV, 3, corBordaBranca + "║\033[0m" + bgPreto);
+                    }
+                    
+                    int len = Aparencia::obterComprimentoVisual(linhaProcessada);
+                    int pad = maxEsqW - len;
+                    if (pad > 0) linhaProcessada += std::string(pad, ' ');
+                    linhaProcessada += corBordaBranca + "║\033[0m";
+                    painelEsquerdoBordado.push_back(linhaProcessada);
+                }
+                
+                std::string base = bgPreto + corBordaBranca + "╚";
+                for (int k = 0; k < maxEsqW - 1; ++k) base += "═";
+                base += "╝\033[0m";
+                painelEsquerdoBordado.push_back(base);
+                painelEsquerdo = std::move(painelEsquerdoBordado);
 
-            if (!mensagensFixasCombate.empty()) {
-                std::cout << "\n";
-                for (const auto& msg : mensagensFixasCombate) {
-                    std::cout << msg;
+                // 2. painelDireito
+                int maxDirW = LARGURA_PAINEL_DIREITO + 4;
+                std::vector<std::string> painelDireitoBordado;
+                
+                std::string topoDir = bgPreto + corBordaBranca + "╔";
+                for (int k = 0; k < maxDirW - 2; ++k) topoDir += "═";
+                topoDir += "╗\033[0m";
+                painelDireitoBordado.push_back(topoDir);
+                
+                for (auto& l : painelDireito) {
+                    std::string linha = l;
+                    size_t pos = 0;
+                    while ((pos = linha.find("\033[0m", pos)) != std::string::npos) {
+                        linha.replace(pos, 4, "\033[0m" + bgPreto);
+                        pos += 4 + bgPreto.length();
+                    }
+                    
+                    std::string linhaProcessada = bgPreto + corBordaBranca + "║\033[0m" + bgPreto + " " + linha;
+                    int len = Aparencia::obterComprimentoVisual(linhaProcessada);
+                    int pad = maxDirW - len - 1;
+                    if (pad > 0) linhaProcessada += std::string(pad, ' ');
+                    linhaProcessada += corBordaBranca + "║\033[0m";
+                    painelDireitoBordado.push_back(linhaProcessada);
+                }
+                
+                std::string baseDir = bgPreto + corBordaBranca + "╚";
+                for (int k = 0; k < maxDirW - 2; ++k) baseDir += "═";
+                baseDir += "╝\033[0m";
+                painelDireitoBordado.push_back(baseDir);
+                painelDireito = std::move(painelDireitoBordado);
+
+                // Compile floating messages
+                std::vector<std::string> painelMensagens;
+
+                auto limparMsg = [](const std::string& msg) -> std::string {
+                    std::string clean = msg;
+                    while (!clean.empty() && (clean.back() == '\n' || clean.back() == '\r')) {
+                        clean.pop_back();
+                    }
+                    size_t first = clean.find_first_not_of(" \t");
+                    if (first != std::string::npos) {
+                        clean = clean.substr(first);
+                    } else {
+                        return "";
+                    }
+                    size_t last = clean.find_last_not_of(" \t");
+                    if (last != std::string::npos) {
+                        clean = clean.substr(0, last + 1);
+                    }
+                    return clean;
+                };
+
+                if (TelaCombate::selecaoAlvoAtual != -1 && TelaCombate::selecaoAlvoAtual < static_cast<int>(inimigos.size())) {
+                    std::string feedbackAlvo = "-> SELECIONADO: Inimigo (" + std::to_string(TelaCombate::selecaoAlvoAtual + 1) + ") - " + inimigos[TelaCombate::selecaoAlvoAtual]->obterNome() + " <-";
+                    painelMensagens.push_back("\033[1;33m" + feedbackAlvo + "\033[0m");
+                }
+
+                std::string textoDoTurno = "TURNO " + std::to_string(TelaCombate::turnoAtualVisivel) + " │ VEZ DE " + TelaCombate::nomeTurnoVisivel;
+                painelMensagens.push_back(textoDoTurno);
+
+                if (!ControleDeInput::enterPromptText.empty()) {
+                    std::string prompt = limparMsg(ControleDeInput::enterPromptText);
+                    if (!prompt.empty()) painelMensagens.push_back("\033[5m" + prompt + "\033[0m");
+                }
+
+                if (!Parry::minigameMessage.empty()) {
+                    std::string msg = limparMsg(Parry::minigameMessage);
+                    if (!msg.empty()) painelMensagens.push_back(msg);
+                }
+                if (!Parry::minigameBar.empty()) {
+                    std::string msg = limparMsg(Parry::minigameBar);
+                    if (!msg.empty()) painelMensagens.push_back(msg);
+                }
+
+                if (alvoDanoJogador != nullptr && danoAnimacao > 0 && frame > 0 && !isCura) {
+                    std::string nomeAtacante = "Desconhecido";
+                    if (g_inimigoAtacanteParry != nullptr) {
+                        for (size_t i = 0; i < inimigos.size(); ++i) {
+                            if (inimigos[i] == g_inimigoAtacanteParry) {
+                                nomeAtacante = inimigos[i]->obterNome() + " (" + std::to_string(i + 1) + ")";
+                                break;
+                            }
+                        }
+                        if (nomeAtacante == "Desconhecido") nomeAtacante = g_inimigoAtacanteParry->obterNome();
+                    }
+                    std::string mensagemDano = nomeAtacante + " causou " + std::to_string(danoAnimacao) + " de dano em " + alvoDanoJogador->obterNome() + "!";
+                    painelMensagens.push_back(mensagemDano);
+                }
+
+                if (!mensagensFixasCombate.empty()) {
+                    for (const auto& msg : mensagensFixasCombate) {
+                        std::string msgLimpa = limparMsg(msg);
+                        if (!msgLimpa.empty()) {
+                            painelMensagens.push_back(msgLimpa);
+                        }
+                    }
+                }
+
+                std::vector<std::string> painelMensagensBordado;
+                int maxMsgW = 0;
+                if (!painelMensagens.empty()) {
+                    for (const auto& l : painelMensagens) {
+                        int len = Aparencia::obterComprimentoVisual(l);
+                        if (len > maxMsgW) maxMsgW = len;
+                    }
+                    if (maxMsgW < 40) maxMsgW = 40;
+                    int boxMsgW = maxMsgW + 6; // 6 para margens internas e bordas
+
+                    std::string topoMsg = bgPreto + corBordaBranca + "╔";
+                    for (int k = 0; k < boxMsgW - 2; ++k) topoMsg += "═";
+                    topoMsg += "╗\033[0m";
+                    painelMensagensBordado.push_back(topoMsg);
+
+                    for (const auto& l : painelMensagens) {
+                        std::string linha = l;
+                        size_t pos = 0;
+                        while ((pos = linha.find("\033[0m", pos)) != std::string::npos) {
+                            linha.replace(pos, 4, "\033[0m" + bgPreto);
+                            pos += 4 + bgPreto.length();
+                        }
+
+                        int visualLen = Aparencia::obterComprimentoVisual(linha);
+                        int totalPadding = (boxMsgW - 2) - visualLen;
+                        int padEsq = std::max(0, totalPadding / 2);
+                        int padDir = std::max(0, totalPadding - padEsq);
+
+                        std::string linhaProcessada = bgPreto + corBordaBranca + "║\033[0m" + bgPreto + std::string(padEsq, ' ') + linha + std::string(padDir, ' ') + corBordaBranca + "║\033[0m";
+                        painelMensagensBordado.push_back(linhaProcessada);
+                    }
+
+                    std::string baseMsg = bgPreto + corBordaBranca + "╚";
+                    for (int k = 0; k < boxMsgW - 2; ++k) baseMsg += "═";
+                    baseMsg += "╝\033[0m";
+                    painelMensagensBordado.push_back(baseMsg);
+                }
+
+                // Layout math for centered HUD panels at the bottom and message box directly above it
+                int totalHUDWidth = maxEsqW + 6 + maxDirW;
+                int startHUDX = (larguraTerminal - totalHUDWidth) / 2;
+                if (startHUDX < 0) startHUDX = 0;
+
+                int startEsqX = startHUDX;
+                int startDirX = startHUDX + maxEsqW + 6;
+
+                int startHUDY = altura3D - painelEsquerdo.size() - 1;
+                int startMsgY = startHUDY - painelMensagensBordado.size();
+
+                for (size_t row = 0; row < painelEsquerdo.size(); ++row) {
+                    int y = startHUDY + row;
+                    if (y >= 0 && y < altura3D) {
+                        quadro3D[y] = overlayPanelOnAnsiLine(quadro3D[y], painelEsquerdo[row], startEsqX, larguraTerminal);
+                        quadro3D[y] = overlayPanelOnAnsiLine(quadro3D[y], painelDireito[row], startDirX, larguraTerminal);
+                    }
+                }
+
+                if (!painelMensagensBordado.empty()) {
+                    int startMsgX = (larguraTerminal - (maxMsgW + 6)) / 2;
+                    if (startMsgX < 0) startMsgX = 0;
+
+                    for (size_t row = 0; row < painelMensagensBordado.size(); ++row) {
+                        int y = startMsgY + row;
+                        if (y >= 0 && y < altura3D) {
+                            quadro3D[y] = overlayPanelOnAnsiLine(quadro3D[y], painelMensagensBordado[row], startMsgX, larguraTerminal);
+                        }
+                    }
+                }
+
+                // Compile and overlay drops panel centered in the remaining 3D scene area above HUD/messages
+                std::vector<std::string> dropsUsados = dropsAnimacao.empty() ? TelaCombate::g_dropsAtivos : dropsAnimacao;
+                std::vector<std::string> painelDrops;
+                if (!dropsUsados.empty()) {
+                    int maxDropsW = 12; // "DERROTADO!" length is 10
+                    for (const auto& d : dropsUsados) {
+                        std::string cleanD = d;
+                        size_t first = cleanD.find_first_not_of(" \t");
+                        if (first != std::string::npos) cleanD = cleanD.substr(first);
+                        size_t last = cleanD.find_last_not_of(" \t\r\n");
+                        if (last != std::string::npos) cleanD = cleanD.substr(0, last + 1);
+                        int len = Aparencia::obterComprimentoVisual(cleanD);
+                        if (len > maxDropsW) maxDropsW = len;
+                    }
+                    int boxW = maxDropsW + 6; // margens e bordas
+                    
+                    std::string topoDrops = bgPreto + corBordaBranca + "╔";
+                    for (int k = 0; k < boxW - 2; ++k) topoDrops += "═";
+                    topoDrops += "╗\033[0m";
+                    painelDrops.push_back(topoDrops);
+                    
+                    // Row for "DERROTADO!"
+                    {
+                        std::string label = "DERROTADO!";
+                        std::string innerTxt = "\033[5;1;38;2;255;50;50m" + label + "\033[0m";
+                        int txtLen = label.length();
+                        int totalPadding = (boxW - 2) - txtLen;
+                        int pEsq = totalPadding / 2;
+                        int pDir = totalPadding - pEsq;
+                        std::string line = bgPreto + corBordaBranca + "║\033[0m" + bgPreto + std::string(pEsq, ' ') + innerTxt + std::string(pDir, ' ') + corBordaBranca + "║\033[0m";
+                        painelDrops.push_back(line);
+                    }
+                    
+                    // Rows for drops
+                    for (const auto& d : dropsUsados) {
+                        std::string cleanD = d;
+                        size_t first = cleanD.find_first_not_of(" \t");
+                        if (first != std::string::npos) cleanD = cleanD.substr(first);
+                        size_t last = cleanD.find_last_not_of(" \t\r\n");
+                        if (last != std::string::npos) cleanD = cleanD.substr(0, last + 1);
+
+                        std::string color = Aparencia::cor(Cor::BRANCO);
+                        if (cleanD.find("XP") != std::string::npos) color = Aparencia::cor(Cor::CIANO);
+                        else if (cleanD.find("G") != std::string::npos) color = Aparencia::cor(Cor::AMARELO);
+                        
+                        std::string innerTxt = color + cleanD + "\033[0m";
+                        int txtLen = Aparencia::obterComprimentoVisual(cleanD);
+                        int totalPadding = (boxW - 2) - txtLen;
+                        int pEsq = totalPadding / 2;
+                        int pDir = totalPadding - pEsq;
+                        std::string line = bgPreto + corBordaBranca + "║\033[0m" + bgPreto + std::string(pEsq, ' ') + innerTxt + std::string(pDir, ' ') + corBordaBranca + "║\033[0m";
+                        painelDrops.push_back(line);
+                    }
+                    
+                    std::string baseDrops = bgPreto + corBordaBranca + "╚";
+                    for (int k = 0; k < boxW - 2; ++k) baseDrops += "═";
+                    baseDrops += "╝\033[0m";
+                    painelDrops.push_back(baseDrops);
+
+                    // Find index of dead enemy to position the drops box on its column
+                    Personagem* deadEnemy = (alvoAnimacao != nullptr && isMorte) ? alvoAnimacao : TelaCombate::g_inimigoMortoComDrops;
+                    int deadIdx = -1;
+                    if (deadEnemy != nullptr) {
+                        for (size_t k = 0; k < inimigos.size(); ++k) {
+                            if (inimigos[k] == deadEnemy) {
+                                deadIdx = static_cast<int>(k);
+                                break;
+                            }
+                        }
+                    }
+
+                    int startDropsX = (larguraTerminal - boxW) / 2; // center screen fallback
+                    if (deadIdx != -1 && !inimigos.empty()) {
+                        int numInimigos = static_cast<int>(inimigos.size());
+                        int larguraColuna = larguraTerminal / numInimigos;
+                        int centroX = deadIdx * larguraColuna + larguraColuna / 2;
+                        startDropsX = centroX - boxW / 2;
+                    }
+                    if (startDropsX < 0) startDropsX = 0;
+                    if (startDropsX + boxW > larguraTerminal) startDropsX = larguraTerminal - boxW;
+                    
+                    int areaDisponivelY = startMsgY; // area above message box and HUD
+                    int startDropsY = (areaDisponivelY - painelDrops.size()) / 2;
+                    if (startDropsY < 0) startDropsY = 0;
+                    
+                    for (size_t row = 0; row < painelDrops.size(); ++row) {
+                        int y = startDropsY + row;
+                        if (y >= 0 && y < altura3D) {
+                            quadro3D[y] = overlayPanelOnAnsiLine(quadro3D[y], painelDrops[row], startDropsX, larguraTerminal);
+                        }
+                    }
+                }
+
+                for (const auto& linha : quadro3D) {
+                    std::cout << linha << "\n";
+                }
+            } else {
+                // Desenha a horda classicamente (que imprime no std::cout e será interceptada pelo buffer)
+                TelaCombate::exibirHordaDeInimigosLadoALado(inimigos, alvoAnimacao, frame, isCura, animarEntrada, isMorte, arma, danoAnimacao, dropsAnimacao);
+
+                Aparencia::imprimirLinhaDivisoria('=');
+                std::cout << Aparencia::cor(Cor::RESET);
+
+                Aparencia::imprimirLadoALado(painelEsquerdo, painelDireito, 0, 5, Cor::RESET, Cor::RESET, 0);
+
+                std::string textoDoTurno = " ╣ TURNO " + std::to_string(TelaCombate::turnoAtualVisivel) + " │ VEZ DE " + TelaCombate::nomeTurnoVisivel + " ╠ ";
+                int comprimentoVisual = Aparencia::obterComprimentoVisual(textoDoTurno);
+                int tracosEsq = (larguraTerminal - comprimentoVisual) / 2;
+                int tracosDir = larguraTerminal - tracosEsq - comprimentoVisual;
+                
+                std::string linhaEsq = "";
+                for (int i = 0; i < tracosEsq; ++i) linhaEsq += "═";
+                std::string linhaDir = "";
+                for (int i = 0; i < tracosDir; ++i) linhaDir += "═";
+                
+                Cor corDoTurno = (TelaCombate::nomeTurnoVisivel == "INIMIGOS") ? Cor::VERMELHO : Cor::VERDE;
+                std::string corBordaEsqDir;
+                if (TelaCombate::nomeTurnoVisivel == "INIMIGOS") {
+                    corBordaEsqDir = "\033[38;2;120;0;0m";
+                } else {
+                    corBordaEsqDir = "\033[38;2;0;120;0m";
+                }
+                std::cout << "\n" << corBordaEsqDir << linhaEsq << Aparencia::cor(corDoTurno) << textoDoTurno << corBordaEsqDir << linhaDir << Aparencia::cor(Cor::RESET) << "\n";
+
+                if (alvoDanoJogador != nullptr && danoAnimacao > 0 && frame > 0 && !isCura) {
+                    int shakeX = (frame % 2 == 0) ? 4 : -4;
+                    std::string padEsq = (shakeX > 0) ? std::string(shakeX, ' ') : "";
+                    std::string padDir = (shakeX < 0) ? std::string(-shakeX, ' ') : "";
+
+                    std::string nomeAtacante = "Desconhecido";
+                    if (g_inimigoAtacanteParry != nullptr) {
+                        for (size_t i = 0; i < inimigos.size(); ++i) {
+                            if (inimigos[i] == g_inimigoAtacanteParry) {
+                                nomeAtacante = inimigos[i]->obterNome() + " (" + std::to_string(i + 1) + ")";
+                                break;
+                            }
+                        }
+                        if (nomeAtacante == "Desconhecido") nomeAtacante = g_inimigoAtacanteParry->obterNome();
+                    }
+
+                    std::string mensagemDano = nomeAtacante + " causou " + std::to_string(danoAnimacao) + " de dano em " + alvoDanoJogador->obterNome() + "!";
+
+                    std::cout << "\n";
+                    if (frame % 2 == 0) std::cout << "\n";
+                    
+                    int espacosCentralizar = std::max(0, (larguraTerminal - Aparencia::obterComprimentoVisual(mensagemDano)) / 2);
+                    std::cout << padEsq << std::string(espacosCentralizar, ' ') << "\033[1;38;2;255;50;50m" << mensagemDano << Aparencia::cor(Cor::RESET) << padDir << "\n";
+                }
+
+                if (!mensagensFixasCombate.empty()) {
+                    std::cout << "\n";
+                    for (const auto& msg : mensagensFixasCombate) {
+                        std::cout << msg;
+                    }
                 }
             }
         });
@@ -412,52 +728,156 @@ namespace {
         return res;
     }
 
-    std::vector<std::string> decomporLinhaAnsi(const std::string& linha, int larguraTerminal) {
-        std::vector<std::string> cells;
-        cells.reserve(larguraTerminal);
-        
-        std::string activeStyles = "";
+    std::string overlayLogoOnAnsiLine(const std::string& backgroundLine, const std::vector<std::string>& logoChars, int startX, const std::string& fgColor, int larguraTerminal) {
+        std::string result = "";
+        result.reserve(backgroundLine.size() + 200);
+
+        std::string currentBg = "";
+        std::string currentFg = "";
+
+        int visualX = 0;
         size_t i = 0;
-        while (i < linha.size()) {
-            if (linha[i] == '\033' && i + 1 < linha.size() && linha[i+1] == '[') {
-                size_t end = linha.find('m', i);
+
+        while (i < backgroundLine.size() && visualX < larguraTerminal) {
+            if (backgroundLine[i] == '\033' && i + 1 < backgroundLine.size() && backgroundLine[i+1] == '[') {
+                size_t end = backgroundLine.find('m', i);
                 if (end != std::string::npos) {
-                    std::string esc = linha.substr(i, end - i + 1);
+                    std::string esc = backgroundLine.substr(i, end - i + 1);
                     if (esc == "\033[0m") {
-                        activeStyles = "";
-                    } else {
-                        activeStyles += esc;
+                        currentBg = "";
+                        currentFg = "";
+                    } else if (esc.find("\033[48;2;") == 0 || esc == "\033[49m") {
+                        currentBg = (esc == "\033[49m") ? "" : esc;
+                    } else if (esc.find("\033[38;2;") == 0 || esc == "\033[39m" || esc == "\033[1;37m" || esc == "\033[1;31m") {
+                        currentFg = (esc == "\033[39m") ? "" : esc;
+                    }
+                    result += esc;
+                    i = end + 1;
+                    continue;
+                }
+            }
+
+            int len = 1;
+            unsigned char c = static_cast<unsigned char>(backgroundLine[i]);
+            if ((c & 0x80) == 0) len = 1;
+            else if ((c & 0xE0) == 0xC0) len = 2;
+            else if ((c & 0xF0) == 0xE0) len = 3;
+            else if ((c & 0xF8) == 0xF0) len = 4;
+
+            std::string charStr = backgroundLine.substr(i, len);
+
+            int logoCol = visualX - startX;
+            if (logoCol >= 0 && logoCol < static_cast<int>(logoChars.size()) && logoChars[logoCol] != " ") {
+                result += "\033[0m" + currentBg + fgColor + logoChars[logoCol] + "\033[0m" + currentBg + currentFg;
+            } else {
+                result += charStr;
+            }
+
+            visualX++;
+            i += len;
+        }
+
+        while (visualX < larguraTerminal) {
+            int logoCol = visualX - startX;
+            if (logoCol >= 0 && logoCol < static_cast<int>(logoChars.size()) && logoChars[logoCol] != " ") {
+                result += fgColor + logoChars[logoCol] + "\033[0m";
+            } else {
+                result += " ";
+            }
+            visualX++;
+        }
+
+        return result;
+    }
+
+    std::string overlayPanelOnAnsiLine(const std::string& backgroundLine, const std::string& panelLine, int startX, int larguraTerminal) {
+        (void)larguraTerminal;
+        std::string result = "";
+        result.reserve(backgroundLine.size() + panelLine.size() + 50);
+
+        int panelWidth = Aparencia::obterComprimentoVisual(panelLine);
+        int endX = startX + panelWidth;
+
+        int visualX = 0;
+        size_t i = 0;
+
+        std::string currentBg = "";
+        std::string currentFg = "";
+
+        while (i < backgroundLine.size() && visualX < startX) {
+            if (backgroundLine[i] == '\033' && i + 1 < backgroundLine.size() && backgroundLine[i+1] == '[') {
+                size_t end = backgroundLine.find('m', i);
+                if (end != std::string::npos) {
+                    std::string esc = backgroundLine.substr(i, end - i + 1);
+                    if (esc == "\033[0m") {
+                        currentBg = "";
+                        currentFg = "";
+                    } else if (esc.find("\033[48;2;") == 0 || esc == "\033[49m") {
+                        currentBg = (esc == "\033[49m") ? "" : esc;
+                    } else if (esc.find("\033[38;2;") == 0 || esc == "\033[39m" || esc == "\033[1;37m" || esc == "\033[1;31m") {
+                        currentFg = (esc == "\033[39m") ? "" : esc;
+                    }
+                    result += esc;
+                    i = end + 1;
+                    continue;
+                }
+            }
+
+            int len = 1;
+            unsigned char c = static_cast<unsigned char>(backgroundLine[i]);
+            if ((c & 0x80) == 0) len = 1;
+            else if ((c & 0xE0) == 0xC0) len = 2;
+            else if ((c & 0xF0) == 0xE0) len = 3;
+            else if ((c & 0xF8) == 0xF0) len = 4;
+
+            result += backgroundLine.substr(i, len);
+            visualX++;
+            i += len;
+        }
+
+        while (visualX < startX) {
+            result += " ";
+            visualX++;
+        }
+
+        result += panelLine;
+
+        while (i < backgroundLine.size() && visualX < endX) {
+            if (backgroundLine[i] == '\033' && i + 1 < backgroundLine.size() && backgroundLine[i+1] == '[') {
+                size_t end = backgroundLine.find('m', i);
+                if (end != std::string::npos) {
+                    std::string esc = backgroundLine.substr(i, end - i + 1);
+                    if (esc == "\033[0m") {
+                        currentBg = "";
+                        currentFg = "";
+                    } else if (esc.find("\033[48;2;") == 0 || esc == "\033[49m") {
+                        currentBg = (esc == "\033[49m") ? "" : esc;
+                    } else if (esc.find("\033[38;2;") == 0 || esc == "\033[39m" || esc == "\033[1;37m" || esc == "\033[1;31m") {
+                        currentFg = (esc == "\033[39m") ? "" : esc;
                     }
                     i = end + 1;
                     continue;
                 }
             }
-            
+
             int len = 1;
-            unsigned char c = static_cast<unsigned char>(linha[i]);
+            unsigned char c = static_cast<unsigned char>(backgroundLine[i]);
             if ((c & 0x80) == 0) len = 1;
             else if ((c & 0xE0) == 0xC0) len = 2;
             else if ((c & 0xF0) == 0xE0) len = 3;
             else if ((c & 0xF8) == 0xF0) len = 4;
-            
-            std::string charStr = linha.substr(i, len);
-            cells.push_back(activeStyles + charStr + "\033[0m");
+
+            visualX++;
             i += len;
         }
-        
-        while (static_cast<int>(cells.size()) < larguraTerminal) {
-            cells.push_back(" ");
-        }
-        return cells;
-    }
 
-    std::string obterBg(const std::string& cell) {
-        size_t pos = cell.find("\033[48;2;");
-        if (pos != std::string::npos) {
-            size_t end = cell.find('m', pos);
-            if (end != std::string::npos) return cell.substr(pos, end - pos + 1);
+        result += "\033[0m" + currentBg + currentFg;
+
+        if (i < backgroundLine.size()) {
+            result += backgroundLine.substr(i);
         }
-        return std::string("");
+
+        return result;
     }
 }
 
@@ -482,6 +902,8 @@ void TelaCombate::adicionarMensagemFixa(const std::string& msg) {
 }
 
 bool TelaCombate::isModo3D = false;
+Personagem* TelaCombate::g_inimigoMortoComDrops = nullptr;
+std::vector<std::string> TelaCombate::g_dropsAtivos = {};
 std::vector<std::string> TelaCombate::matrizDoMapaAtual;
 float TelaCombate::jogadorPosX = 0.0f;
 float TelaCombate::jogadorPosY = 0.0f;
@@ -548,6 +970,22 @@ void TelaCombate::animarIntroducaoCombate(const std::string& titulo, const std::
         int startX = (larguraTerminal - logoWidth) / 2;
         if (startX < 0) startX = 0;
 
+        // Pré-decompor o logo em caracteres individuais para evitar re-análise
+        std::vector<std::vector<std::string>> decomposedLogo(logoHeight);
+        for (int i = 0; i < logoHeight; i++) {
+            const std::string& logoRow = logo[i];
+            for (size_t j = 0; j < logoRow.length(); ) {
+                int len = 1;
+                unsigned char c = logoRow[j];
+                if ((c & 0x80) == 0) len = 1;
+                else if ((c & 0xE0) == 0xC0) len = 2;
+                else if ((c & 0xF0) == 0xE0) len = 3;
+                else if ((c & 0xF8) == 0xF0) len = 4;
+                decomposedLogo[i].push_back(logoRow.substr(j, len));
+                j += len;
+            }
+        }
+
         int maxPassos = 15;
         int targetY = 2; // Posição Y de repouso no 3D
 
@@ -559,40 +997,13 @@ void TelaCombate::animarIntroducaoCombate(const std::string& titulo, const std::
             frameLinhas.reserve(altura3D);
 
             for (int y = 0; y < altura3D; y++) {
-                std::vector<std::string> cells = decomporLinhaAnsi(quadroBackground[y], larguraTerminal);
-
                 int logoRowIdx = y - posY;
                 if (logoRowIdx >= 0 && logoRowIdx < logoHeight) {
-                    const std::string& logoRow = logo[logoRowIdx];
-                    std::vector<std::string> logoChars;
-                    for (size_t j = 0; j < logoRow.length(); ) {
-                        int len = 1;
-                        unsigned char c = logoRow[j];
-                        if ((c & 0x80) == 0) len = 1;
-                        else if ((c & 0xE0) == 0xC0) len = 2;
-                        else if ((c & 0xF0) == 0xE0) len = 3;
-                        else if ((c & 0xF8) == 0xF0) len = 4;
-                        logoChars.push_back(logoRow.substr(j, len));
-                        j += len;
-                    }
-
-                    for (size_t x = 0; x < logoChars.size(); ++x) {
-                        int drawX = startX + x;
-                        if (drawX >= 0 && drawX < larguraTerminal) {
-                            std::string charStr = logoChars[x];
-                            if (charStr != " ") {
-                                std::string bgCode = obterBg(cells[drawX]);
-                                cells[drawX] = bgCode + "\033[1;37m" + charStr + "\033[0m"; // Branco
-                            }
-                        }
-                    }
+                    std::string novaLinha = overlayLogoOnAnsiLine(quadroBackground[y], decomposedLogo[logoRowIdx], startX, "\033[1;37m", larguraTerminal);
+                    frameLinhas.push_back(std::move(novaLinha));
+                } else {
+                    frameLinhas.push_back(quadroBackground[y]);
                 }
-
-                std::string novaLinha = "";
-                for (const auto& cell : cells) {
-                    novaLinha += cell;
-                }
-                frameLinhas.push_back(novaLinha);
             }
 
             renderizarFrameBufferizado([&](){
@@ -623,40 +1034,13 @@ void TelaCombate::animarIntroducaoCombate(const std::string& titulo, const std::
             frameLinhas.reserve(altura3D);
 
             for (int y = 0; y < altura3D; y++) {
-                std::vector<std::string> cells = decomporLinhaAnsi(quadroComInimigos[y], larguraTerminal);
-
                 int logoRowIdx = y - targetY;
                 if (logoRowIdx >= 0 && logoRowIdx < logoHeight) {
-                    const std::string& logoRow = logo[logoRowIdx];
-                    std::vector<std::string> logoChars;
-                    for (size_t j = 0; j < logoRow.length(); ) {
-                        int len = 1;
-                        unsigned char c = logoRow[j];
-                        if ((c & 0x80) == 0) len = 1;
-                        else if ((c & 0xE0) == 0xC0) len = 2;
-                        else if ((c & 0xF0) == 0xE0) len = 3;
-                        else if ((c & 0xF8) == 0xF0) len = 4;
-                        logoChars.push_back(logoRow.substr(j, len));
-                        j += len;
-                    }
-
-                    for (size_t x = 0; x < logoChars.size(); ++x) {
-                        int drawX = startX + x;
-                        if (drawX >= 0 && drawX < larguraTerminal) {
-                            std::string charStr = logoChars[x];
-                            if (charStr != " ") {
-                                std::string bgCode = obterBg(cells[drawX]);
-                                cells[drawX] = bgCode + "\033[1;31m" + charStr + "\033[0m"; // Vermelho
-                            }
-                        }
-                    }
+                    std::string novaLinha = overlayLogoOnAnsiLine(quadroComInimigos[y], decomposedLogo[logoRowIdx], startX, "\033[1;31m", larguraTerminal);
+                    frameLinhas.push_back(std::move(novaLinha));
+                } else {
+                    frameLinhas.push_back(quadroComInimigos[y]);
                 }
-
-                std::string novaLinha = "";
-                for (const auto& cell : cells) {
-                    novaLinha += cell;
-                }
-                frameLinhas.push_back(novaLinha);
             }
 
             renderizarFrameBufferizado([&](){
@@ -714,7 +1098,7 @@ void TelaCombate::animarIntroducaoCombate(const std::string& titulo, const std::
         });
     }
 
-    std::cout << "\n";
+    std::cout << "\n\033[0m";
     Aparencia::imprimirCentralizado("Prepare-se! O combate esta prestes a comecar...", Aparencia::cor(Cor::VERMELHO));
     ControleDeInput::aguardarEnter();
 }
@@ -1362,12 +1746,18 @@ int TelaCombate::obterAlvoAtaque(const std::string& tituloCombate, const std::ve
     piscarSelecao = true;
     atualizarTelaEstatica(tituloCombate, inimigos, jogadorAtual, aliados);
     auto tempoBlink = std::chrono::steady_clock::now();
+    auto ultimoUpdate = std::chrono::steady_clock::now();
 
     while (true) {
         auto agora = std::chrono::steady_clock::now();
+        
         if (std::chrono::duration_cast<std::chrono::milliseconds>(agora - tempoBlink).count() >= 150) {
             piscarSelecao = !piscarSelecao;
             tempoBlink = agora;
+        }
+
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(agora - ultimoUpdate).count() >= 33) {
+            ultimoUpdate = agora;
             atualizarTelaEstatica(tituloCombate, inimigos, jogadorAtual, aliados);
         }
 
@@ -1418,7 +1808,7 @@ int TelaCombate::obterAlvoAtaque(const std::string& tituloCombate, const std::ve
                 return -1;
             }
         } else {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
         }
     }
 }
@@ -1520,6 +1910,9 @@ void TelaCombate::atualizarTelaEstatica(const std::string& tituloCombate, const 
 void TelaCombate::animarMorteInimigo(const std::string& tituloCombate, const std::vector<Personagem*>& listaDeInimigos, Personagem* inimigoMorto, Personagem* jogadorAtual, const std::vector<Personagem*>& listaDeAliados, const std::vector<std::string>& drops)
 {
     if (listaDeInimigos.empty()) return;
+    
+    g_inimigoMortoComDrops = inimigoMorto;
+    g_dropsAtivos = drops;
     
     int totalLinhas = 0;
     int stepAnim = 1;
