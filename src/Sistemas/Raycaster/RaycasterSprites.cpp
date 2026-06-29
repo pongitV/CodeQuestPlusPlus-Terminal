@@ -115,7 +115,8 @@ SpriteCache RaycasterSprites::parseArte(const std::vector<std::string>& raw) {
     SpriteCache sc;
     sc.height = raw.size();
     sc.width = 0;
-    sc.pixels.resize(sc.height);
+    std::vector<std::vector<SpritePixel>> tempPixels;
+    tempPixels.resize(sc.height);
     for(int i=0; i<sc.height; ++i) {
         std::string currentAnsi = "";
         std::string line = raw[i];
@@ -152,11 +153,25 @@ SpriteCache RaycasterSprites::parseArte(const std::vector<std::string>& raw) {
                 }
                 sp.ch = ' ';
             }
-            sc.pixels[i].push_back(sp);
+            tempPixels[i].push_back(sp);
             j += len;
         }
-        if((int)sc.pixels[i].size() > sc.width) sc.width = sc.pixels[i].size();
+        if((int)tempPixels[i].size() > sc.width) sc.width = tempPixels[i].size();
     }
+    
+    sc.pixels.resize(sc.width * sc.height);
+    for (int y = 0; y < sc.height; ++y) {
+        for (int x = 0; x < sc.width; ++x) {
+            if (x < (int)tempPixels[y].size()) {
+                sc.pixels[y * sc.width + x] = tempPixels[y][x];
+            } else {
+                SpritePixel blank;
+                blank.isTransparente = true;
+                sc.pixels[y * sc.width + x] = blank;
+            }
+        }
+    }
+    
     return sc;
 }
 
@@ -196,7 +211,8 @@ SpriteCache RaycasterSprites::parseSprite(const std::vector<std::string>& raw, i
     if (minX > maxX) { minX = 0; maxX = sc.width - 1; }
     
     sc.width = maxX - minX + 1;
-    sc.pixels.resize(sc.height);
+    std::vector<std::vector<SpritePixel>> tempPixels;
+    tempPixels.resize(sc.height);
     
     for (int i = 0; i < sc.height; ++i) {
         std::string line = raw[i];
@@ -244,7 +260,7 @@ SpriteCache RaycasterSprites::parseSprite(const std::vector<std::string>& raw, i
                     sp.ch = ' ';
                     sp.hasBg = true;
                 }
-                sc.pixels[i].push_back(sp);
+                tempPixels[i].push_back(sp);
             }
             j_char++;
             j += len;
@@ -254,23 +270,51 @@ SpriteCache RaycasterSprites::parseSprite(const std::vector<std::string>& raw, i
             if (j_char >= minX) {
                 SpritePixel sp;
                 sp.isTransparente = true;
-                sc.pixels[i].push_back(sp);
+                tempPixels[i].push_back(sp);
             }
             j_char++;
         }
     }
     
-    SpriteCache finalSc;
-    finalSc.width = sc.width;
-    finalSc.height = sc.height;
-    finalSc.pixels.resize(sc.height);
+    // Compressão de resolução (downsampling) para melhorar o desempenho
+    std::vector<std::vector<SpritePixel>> compressedTempPixels;
+    int scale = 4; // Fator de compressão menor para equilibrar performance e qualidade visual
+    int compWidth = std::max(1, sc.width / scale);
+    int compHeight = std::max(1, sc.height / scale);
+    compressedTempPixels.resize(compHeight);
     
-    for (int y = 0; y < sc.height; ++y) {
-        for (int x = 0; x < sc.width; ++x) {
-            if (sc.pixels[y][x].isTransparente) {
+    for (int y = 0; y < compHeight; ++y) {
+        for (int x = 0; x < compWidth; ++x) {
+            SpritePixel bestPixel;
+            bestPixel.isTransparente = true;
+            for(int dy = 0; dy < scale; ++dy) {
+                for(int dx = 0; dx < scale; ++dx) {
+                    int oy = y * scale + dy;
+                    int ox = x * scale + dx;
+                    if (oy < sc.height && ox < sc.width) {
+                        if (!tempPixels[oy][ox].isTransparente) {
+                            bestPixel = tempPixels[oy][ox];
+                            goto foundSprite;
+                        }
+                    }
+                }
+            }
+            foundSprite:
+            compressedTempPixels[y].push_back(bestPixel);
+        }
+    }
+    
+    SpriteCache finalSc;
+    finalSc.width = compWidth;
+    finalSc.height = compHeight;
+    finalSc.pixels.resize(compWidth * compHeight);
+    
+    for (int y = 0; y < compHeight; ++y) {
+        for (int x = 0; x < compWidth; ++x) {
+            if (compressedTempPixels[y][x].isTransparente) {
                 SpritePixel sp;
                 sp.isTransparente = true;
-                finalSc.pixels[y].push_back(sp);
+                finalSc.pixels[y * compWidth + x] = sp;
             } else {
                 bool isEdge = false;
                 for (int dy = -1; dy <= 1; ++dy) {
@@ -278,8 +322,8 @@ SpriteCache RaycasterSprites::parseSprite(const std::vector<std::string>& raw, i
                         if (dx == 0 && dy == 0) continue;
                         int ny = y + dy;
                         int nx = x + dx;
-                        if (ny < 0 || ny >= sc.height || nx < 0 || nx >= sc.width) isEdge = true;
-                        else if (sc.pixels[ny][nx].isTransparente) isEdge = true;
+                        if (ny < 0 || ny >= compHeight || nx < 0 || nx >= compWidth) isEdge = true;
+                        else if (compressedTempPixels[ny][nx].isTransparente) isEdge = true;
                     }
                 }
                 if (isEdge) {
@@ -288,9 +332,9 @@ SpriteCache RaycasterSprites::parseSprite(const std::vector<std::string>& raw, i
                     sp.r = 0; sp.g = 0; sp.b = 0;
                     sp.ch = ' ';
                     sp.hasBg = true;
-                    finalSc.pixels[y].push_back(sp);
+                    finalSc.pixels[y * compWidth + x] = sp;
                 } else {
-                    finalSc.pixels[y].push_back(sc.pixels[y][x]);
+                    finalSc.pixels[y * compWidth + x] = compressedTempPixels[y][x];
                 }
             }
         }

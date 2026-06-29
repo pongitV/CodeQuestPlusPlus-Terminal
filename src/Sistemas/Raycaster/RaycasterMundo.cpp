@@ -23,6 +23,20 @@ struct MapFlags {
 };
 
 char RaycasterMundo::obterNPCProximo(const std::string& tituloMapa, int mapX, int mapY) {
+    static thread_local std::string lastTitulo = "";
+    static thread_local std::map<std::pair<int, int>, char> npcCache;
+    
+    if (tituloMapa != lastTitulo) {
+        lastTitulo = tituloMapa;
+        npcCache.clear();
+    }
+    
+    std::pair<int, int> coords = {mapX, mapY};
+    auto it = npcCache.find(coords);
+    if (it != npcCache.end()) {
+        return it->second;
+    }
+
     std::vector<std::string> layout;
     std::string upper = tituloMapa;
     for (char& c : upper) c = std::toupper(static_cast<unsigned char>(c));
@@ -41,7 +55,10 @@ char RaycasterMundo::obterNPCProximo(const std::string& tituloMapa, int mapX, in
         layout = Mapa1VilaLayouts::obterLayoutCaverna(false);
     }
 
-    if (layout.empty()) return ' ';
+    if (layout.empty()) {
+        npcCache[coords] = ' ';
+        return ' ';
+    }
 
     int height = layout.size();
     int searchRadius = 12; // Procurar em um raio de até 12 células
@@ -64,6 +81,8 @@ char RaycasterMundo::obterNPCProximo(const std::string& tituloMapa, int mapX, in
             }
         }
     }
+    
+    npcCache[coords] = npcEncontrado;
     return npcEncontrado;
 }
 

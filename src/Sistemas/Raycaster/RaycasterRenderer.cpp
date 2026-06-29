@@ -223,30 +223,37 @@ void RaycasterRenderer::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA, in
                     if (spriteX < 0) spriteX = 0;
                     if (spriteX >= sc.width) spriteX = sc.width - 1;
                     
-                    for (int y = tetoEnt; y <= chaoEnt; y++) {
-                        if (y >= 0 && y < ALTURA_TELA) {
-                            int spriteY = ((y - tetoEnt) * sc.height) / altEnt;
-                            if (spriteY >= 0 && spriteY < sc.height && spriteX < (int)sc.pixels[spriteY].size()) {
-                                SpritePixel sp = sc.pixels[spriteY][spriteX];
-                                if (!sp.isTransparente) {
-                                    Pixel3D px;
-                                    px.r = sp.r;
-                                    px.g = sp.g;
-                                    px.b = sp.b;
-                                    px.ch = sp.ch;
-                                    px.fgR = sp.fgR;
-                                    px.fgG = sp.fgG;
-                                    px.fgB = sp.fgB;
-                                    px.hasFg = sp.hasFg;
-                                    px.isFundo = false;
-                                    
-                                    if (sp.ch == ' ' && (ent.c == '^' || (ent.c >= '1' && ent.c <= '5'))) {
-                                        float wave = sinf(tempoAbsoluto * 6.0f + y * 0.2f + spriteX * 0.2f);
-                                        px.r = static_cast<uint8_t>(210 + (int)(wave * 45));
-                                        px.g = static_cast<uint8_t>(190 + (int)(wave * 65));
-                                        px.b = 255;
-                                    }
-                                    tela[y * LARGURA_TELA + x] = px; 
+                    int startY = std::max(0, tetoEnt);
+                    int endY = std::min(ALTURA_TELA - 1, chaoEnt);
+                    
+                    float stepY = (float)sc.height / (float)altEnt;
+                    float texY = (startY - tetoEnt) * stepY;
+                    
+                    bool isAnimated = (ent.c == '^' || (ent.c >= '1' && ent.c <= '5'));
+                    
+                    for (int y = startY; y <= endY; y++) {
+                        int spriteY = (int)texY;
+                        texY += stepY;
+                        
+                        if (spriteY >= 0 && spriteY < sc.height && spriteX >= 0 && spriteX < sc.width) {
+                            const SpritePixel& sp = sc.pixels[spriteY * sc.width + spriteX];
+                            if (!sp.isTransparente) {
+                                Pixel3D& px = tela[y * LARGURA_TELA + x];
+                                px.r = sp.r;
+                                px.g = sp.g;
+                                px.b = sp.b;
+                                px.ch = sp.ch;
+                                px.fgR = sp.fgR;
+                                px.fgG = sp.fgG;
+                                px.fgB = sp.fgB;
+                                px.hasFg = sp.hasFg;
+                                px.isFundo = false;
+                                
+                                if (sp.ch == ' ' && isAnimated) {
+                                    float wave = sinf(tempoAbsoluto * 6.0f + y * 0.2f + spriteX * 0.2f);
+                                    px.r = static_cast<uint8_t>(210 + (int)(wave * 45));
+                                    px.g = static_cast<uint8_t>(190 + (int)(wave * 65));
+                                    px.b = 255;
                                 }
                             }
                         }

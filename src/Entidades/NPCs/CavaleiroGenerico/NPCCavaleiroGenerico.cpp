@@ -46,6 +46,13 @@ namespace {
         }
     };
 
+    class RacaCavaleiro : public Humano {
+    public:
+        const std::vector<std::string>& obterAparenciaRaca() const override {
+            return NPCCavaleiroGenericoLayouts::arteCavaleiro;
+        }
+    };
+
     // Comentario adicionado para forcar a recompilacao e resolver erros de linkagem do Guerreiro
     // --- APARENCIA E DIALOGOS ---
     void dialogoCavaleiro(const std::vector<std::string>& linhas) {
@@ -76,7 +83,7 @@ namespace {
 
 // --- CRIACAO DO NPC ---
 std::unique_ptr<Personagem> NPCCavaleiroGenerico::criarCavaleiro(const std::string& nome) {
-    auto cavaleiro = std::make_unique<Personagem>(nome, std::make_unique<Humano>(), std::make_unique<ClasseCavaleiro>());
+    auto cavaleiro = std::make_unique<Personagem>(nome, std::make_unique<RacaCavaleiro>(), std::make_unique<ClasseCavaleiro>());
     std::string nomeArmadura = FabricaItens::obterNomeDeID(ItemID::ArmaduraCavaleiro);
     std::string nomeEspada = FabricaItens::obterNomeDeID(ItemID::EspadaCavaleiro);
     cavaleiro->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::ArmaduraCavaleiro));
