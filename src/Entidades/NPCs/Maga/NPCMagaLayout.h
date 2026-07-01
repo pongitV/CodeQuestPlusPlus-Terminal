@@ -1,11 +1,12 @@
-﻿#pragma once
+﻿#include "../../../Core/Utilidades/ConversorString.h"
+#pragma once
 
 #include <vector>
 #include <string>
 #include "../../../Core/Utilidades/Aparencia.h"
 
 namespace NPCMagaLayouts {
-    inline const std::vector<std::string> arteMaga = Aparencia::converterStringBrutaParaVetor(R"(                                                                           
+    inline const std::vector<std::string> arteMaga = ConversorString::converterStringBrutaParaVetor(R"(                                                                           
                                                                                :*@@@@=                                                                  
                                                                              -%%%@@#                                                                    
                                                                             #%@%@@-                                                                     
@@ -86,7 +87,7 @@ namespace NPCMagaLayouts {
                                                 . .-==::                                                                                                
                                                      .  ..                                                                                              
     )");
-    inline const std::vector<std::string> arteCaldeirao = Aparencia::converterStringBrutaParaVetor(R"( 
+    inline const std::vector<std::string> arteCaldeirao = ConversorString::converterStringBrutaParaVetor(R"( 
         "",
         "â €â €â£¤â£¤â£¤â£€â£€â£€â €â €â €â €â €â €â €â €â €â €â €â €â €â €â¢€â£€â£€â£ â£¤â£¤â¡€â €",
         "â €â €â¢¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â¡¿â â €",

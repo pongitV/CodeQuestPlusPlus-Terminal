@@ -14,10 +14,10 @@
 #include "Entidades/Classes/Guerreiro.h"
 #include "Entidades/Classes/Mago.h"
 #include "Core/Controladores/MenuJogo.h"
-#include "Sistemas/Mundo/Vila/Mapa1Vila.h"
-#include "Sistemas/Mundo/Floresta/Mapa2Floresta.h"
-#include "Sistemas/Mundo/Reino/Mapa3PonteReino.h"
-#include "Sistemas/Mundo/Reino/Mapa4Reino.h"
+#include "Mundo/Vila/Mapa1Vila.h"
+#include "Mundo/Floresta/Mapa2Floresta.h"
+#include "Mundo/Reino/Mapa3PonteReino.h"
+#include "Mundo/Reino/Mapa4Reino.h"
 #include "Entidades/Racas/Anao.h"
 #include "Entidades/Racas/Elfo.h"
 #include "Entidades/Racas/Humano.h"
@@ -26,6 +26,7 @@
 #include "Sistemas/Progresso/Progressao.h"
 #include "Sistemas/Progresso/ProgressaoFlags.h"
 #include "Core/Utilidades/Aparencia.h"
+#include "Visoes/GerenciadorVisao.h"
 
 // Funcao para garantir que o jogo rode como Administrador
 bool garantirAdmin() noexcept 
@@ -197,6 +198,9 @@ int main()
     Aparencia::inicializarConsole();
     Aparencia::maximizarJanelaTerminal(); 
     Aparencia::limparTela();
+    
+    // 3. Inicializa os renders do Gerenciador de Visoes (Seta o RendererProvider)
+    GerenciadorVisao::obterInstancia().inicializar();
 
     // 3. Inicia o fluxo do jogo usando o State Pattern
     Jogo rpg(std::make_unique<EstadoMenu>());

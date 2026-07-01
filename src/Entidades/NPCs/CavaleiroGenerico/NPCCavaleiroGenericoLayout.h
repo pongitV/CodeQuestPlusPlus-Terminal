@@ -1,3 +1,4 @@
+﻿#include "../../../Core/Utilidades/ConversorString.h"
 #pragma once
 
 #include <vector>
@@ -5,7 +6,7 @@
 
 namespace NPCCavaleiroGenericoLayouts {
 
-    inline const std::vector<std::string> arteCavaleiro = Aparencia::converterStringBrutaParaVetor(R"(                                                                                                            
+    inline const std::vector<std::string> arteCavaleiro = ConversorString::converterStringBrutaParaVetor(R"(                                                                                                            
                                                  .#+###+*                                                       
                                                  .-+****###:                                                    
                                                   =#*###*###-                                                   

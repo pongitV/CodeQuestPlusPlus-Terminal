@@ -1,4 +1,4 @@
-#include "Personagem.h"
+﻿#include "Personagem.h"
 
 #include <algorithm>
 #include <cctype>

@@ -1,4 +1,4 @@
-#include "NPCComida.h"
+﻿#include "NPCComida.h"
 #include "NPCComidaLayout.h"
 #include "../../../Core/Controladores/MenuJogo.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"

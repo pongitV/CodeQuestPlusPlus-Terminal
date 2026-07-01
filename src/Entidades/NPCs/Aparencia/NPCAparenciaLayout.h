@@ -1,11 +1,12 @@
-﻿#pragma once
+﻿#include "../../../Core/Utilidades/ConversorString.h"
+#pragma once
 
 #include <vector>
 #include <string>
 #include "../../../Core/Utilidades/Aparencia.h"
 
 namespace NPCAparenciaLayouts {
-    inline const std::vector<std::string> arteAparencia = Aparencia::converterStringBrutaParaVetor(R"(                                                                                                                                                                                                                                                                            
+    inline const std::vector<std::string> arteAparencia = ConversorString::converterStringBrutaParaVetor(R"(                                                                                                                                                                                                                                                                            
                                                                         %##*++++###                                                         
                                                                       %%**+*++++=--#%                                                       
                                                                      %%***+++++**+-#@%                                                      

@@ -1,4 +1,4 @@
-﻿#include "NPCAlquimista.h"
+#include "NPCAlquimista.h"
 #include "NPCAlquimistaLayout.h"
 #include "../../../Core/Controladores/MenuJogo.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"
@@ -27,8 +27,7 @@ Cor NPCAlquimista::obterCorDaArte() const {
 }
 
 const std::vector<std::string>& NPCAlquimista::obterArteASCII() const {
-    static std::vector<std::string> arteComprimida = Aparencia::reduzirEscalaAscii(NPCAlquimistaLayouts::arteAlquimista, 2, 2);
-    return arteComprimida;
+    return NPCAlquimistaLayouts::arteAlquimista;
 }
 
 void NPCAlquimista::exibirDialogo(Personagem* jogador) {

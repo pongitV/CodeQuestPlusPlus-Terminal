@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "../Personagem.h"
 #include "../../Sistemas/Inventario/Inventario.h"
@@ -6,7 +6,7 @@
 #include "../../Sistemas/Inventario/FabricaItens.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Utilidades/ControleDeInput.h"
-#include "../../Interface/Telas/Combate/TelaCombate.h"
+#include "../../Visoes/TelasBase/Combate/TelaCombate.h"
 #include <memory>
 #include <functional>
 #include <iostream>

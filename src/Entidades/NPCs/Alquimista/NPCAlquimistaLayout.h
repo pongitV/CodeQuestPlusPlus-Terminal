@@ -1,3 +1,4 @@
+﻿#include "../../../Core/Utilidades/ConversorString.h"
 #pragma once
 
 #include <vector>
@@ -6,7 +7,7 @@
 #include "../../../Core/Utilidades/Aparencia.h"
 
 namespace NPCAlquimistaLayouts {
-    inline const std::vector<std::string> arteAlquimista = Aparencia::converterStringBrutaParaVetor(R"(
+    inline const std::vector<std::string> arteAlquimista = ConversorString::converterStringBrutaParaVetor(R"(
                                                                                                             
                                                                 :+%%%%##*#+:.                               
                                                                #%%%%%%%%#****#%%%#-                         

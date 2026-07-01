@@ -1,4 +1,4 @@
-#include "Necromante.h"
+﻿#include "Necromante.h"
 
 #include <iostream>
 #include <memory>

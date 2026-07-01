@@ -40,7 +40,7 @@ public:
     virtual std::string obterNomeRaca() const = 0;
     virtual TipoRaca obterTipoRaca() const = 0;
     virtual const std::vector<std::string>& obterAparenciaRaca() const = 0;
-    virtual const std::vector<std::string>& obterAparenciaCombate() const { return obterAparenciaRaca(); }
+
     virtual Atributos obterAtributosRaca() const = 0;
 
     virtual std::string obterNomeHabilidadeRaca() const = 0;

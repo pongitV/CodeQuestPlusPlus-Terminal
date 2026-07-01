@@ -1,11 +1,11 @@
-#include "AbominacaoFloresta.h"
+﻿#include "AbominacaoFloresta.h"
 #include <iostream>
 #include "../Personagem.h"
 #include "../../Sistemas/Inventario/FabricaItens.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Controladores/Drops.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
-#include "../../Interface/Telas/Combate/TelaCombate.h"
+#include "../../Visoes/TelasBase/Combate/TelaCombate.h"
 
 // --- INFORMACOES DA RACA ---
 std::string AbominacaoFloresta::obterNomeRaca() const 
@@ -181,15 +181,6 @@ const std::vector<std::string>& AbominacaoFloresta::obterAparenciaRaca() const
     return aparencia;
 }
 
-const std::vector<std::string>& AbominacaoFloresta::obterAparenciaCombate() const
-{
-    static std::vector<std::string> aparenciaReduzida;
-    if (aparenciaReduzida.empty())
-    {
-        aparenciaReduzida = Aparencia::reduzirEscalaAscii(obterAparenciaRaca(), 3, 3);
-    }
-    return aparenciaReduzida;
-}
 
 // --- BESTIARIO E DROPS ---
 InfoBestiario AbominacaoFloresta::obterInfoBestiario() const {

@@ -1,3 +1,4 @@
+#include "ConversorString.h"
 #include "Aparencia.h"
 #include <iostream>
 #include <limits>
@@ -5,7 +6,11 @@
 #include <thread>
 #include <algorithm>
 #include <cctype>
+#include <ctime>
 #include <sstream>
+
+#include "ControleDeInput.h"
+#include "../../Visoes/GerenciadorVisao.h"
 
 #ifdef _WIN32
     #include <windows.h>
@@ -17,6 +22,9 @@
 #include "ControleDeInput.h"
 #include <fstream>
 
+
+// Variável global para padronização da compressão de sprites
+int Aparencia::FATOR_COMPRESSAO_GLOBAL = 2;
 
 namespace {
     int popupMinLarguraAtual = 0;
@@ -336,6 +344,42 @@ std::vector<std::string> Aparencia::criarCaixa(const std::vector<std::string>& l
     std::string corStr = cor(corCaixa);
     std::string resetStr = cor(Cor::RESET);
 
+    bool isEngineIDE = !GerenciadorVisao::obterInstancia().isVisao3DAtiva();
+    if (isEngineIDE) {
+        std::string tituloIDE = titulo.empty() ? "Info" : titulo;
+        std::replace(tituloIDE.begin(), tituloIDE.end(), ' ', '_'); // Remove espaços
+        
+        caixa.push_back("\033[38;2;86;156;214mstruct\033[0m \033[38;2;78;201;176m" + tituloIDE + "\033[0m {");
+        for (const auto& linha : linhas) {
+            std::string linhaLimpa = linha;
+            if (linhaLimpa.find(":") != std::string::npos) {
+                // Tenta estilizar chave-valor como tipo variavel = valor
+                size_t pos = linhaLimpa.find(":");
+                std::string chave = linhaLimpa.substr(0, pos);
+                std::string valor = linhaLimpa.substr(pos + 1);
+                
+                // Limpa espaços da chave para nome de variável
+                std::string chaveVar = removerCoresANSI(chave);
+                chaveVar.erase(std::remove(chaveVar.begin(), chaveVar.end(), ' '), chaveVar.end());
+                
+                linhaLimpa = "    \033[38;2;86;156;214mauto\033[0m " + chaveVar + " = " + valor + ";";
+            } else {
+                linhaLimpa = "    " + linha + ";";
+            }
+            
+            // Garantir que a linha tenha padding para manter a larguraMinima se necessário (opcional no IDE)
+            int comp = obterComprimentoVisual(linhaLimpa);
+            int padding = maxLargura - comp;
+            if (padding > 0) linhaLimpa += std::string(padding, ' ');
+            
+            caixa.push_back(linhaLimpa);
+        }
+        caixa.push_back("};");
+        return caixa;
+    }
+
+    std::string padBg = !isEngineIDE ? "\033[48;2;0;0;0m" : "";
+
     std::string top = "╔";
     int tituloLen = obterComprimentoVisual(titulo);
     if (tituloLen > 0) {
@@ -351,12 +395,12 @@ std::vector<std::string> Aparencia::criarCaixa(const std::vector<std::string>& l
         }
     }
     top += "╗";
-    caixa.push_back(corStr + top + resetStr);
+    caixa.push_back(padBg + corStr + top + resetStr);
 
     for (const auto& linha : linhas) {
         int comp = obterComprimentoVisual(linha);
         int padding = maxLargura - comp;
-        caixa.push_back(corStr + "║ " + resetStr + linha + std::string(padding > 0 ? padding : 0, ' ') + corStr + " ║" + resetStr);
+        caixa.push_back(padBg + corStr + "║ " + resetStr + padBg + linha + padBg + std::string(padding > 0 ? padding : 0, ' ') + corStr + padBg + " ║" + resetStr);
     }
 
     std::string bottom = "╚";
@@ -364,7 +408,20 @@ std::vector<std::string> Aparencia::criarCaixa(const std::vector<std::string>& l
         bottom += "═";
     }
     bottom += "╝";
-    caixa.push_back(corStr + bottom + resetStr);
+    caixa.push_back(padBg + corStr + bottom + resetStr);
+
+    if (!isEngineIDE) {
+        for (auto& c : caixa) {
+            std::string toReplace = "\033[0m";
+            std::string replaceWith = "\033[0m\033[48;2;0;0;0m";
+            size_t pos = c.find(toReplace);
+            while (pos != std::string::npos) {
+                c.replace(pos, toReplace.length(), replaceWith);
+                pos = c.find(toReplace, pos + replaceWith.length());
+            }
+            c += "\033[0m"; // Reset no final da linha
+        }
+    }
 
     return caixa;
 }
@@ -372,6 +429,16 @@ std::vector<std::string> Aparencia::criarCaixa(const std::vector<std::string>& l
 void Aparencia::imprimirLinhaDivisoria(char caractere) {
     std::string linha = "";
     int largura = obterLarguraTerminal();
+    
+    bool isEngineIDE = !GerenciadorVisao::obterInstancia().isVisao3DAtiva();
+    if (isEngineIDE) {
+        linha = "\033[38;2;96;139;78m// ";
+        for (int i = 0; i < largura - 3; ++i) linha += "=";
+        linha += "\033[0m";
+        std::cout << linha << "\n";
+        return;
+    }
+
     if (caractere == '=') {
         for (int i = 0; i < largura; ++i) linha += "═";
     } else if (caractere == '-') {
@@ -429,24 +496,9 @@ void Aparencia::animarFadeIn(int framesTotais, int tempoPorFrameMs, const std::f
     }
 }
 
-void Aparencia::animarFadeOut(int framesTotais, int tempoPorFrameMs, const std::function<void(int frame, int intensidade)>& renderFrame) {
-    for (int frame = 1; frame <= framesTotais; ++frame) {
-        auto inicioFrame = std::chrono::steady_clock::now();
-
-        int intensidade = 255 - ((255 * frame) / framesTotais);
-        renderFrame(frame, intensidade);
-
-        auto fimFrame = std::chrono::steady_clock::now();
-        auto duracaoFrame = std::chrono::duration_cast<std::chrono::milliseconds>(fimFrame - inicioFrame).count();
-        int tempoEspera = std::max(0, tempoPorFrameMs - static_cast<int>(duracaoFrame));
-        std::this_thread::sleep_for(std::chrono::milliseconds(tempoEspera));
-    }
-}
-
 void Aparencia::exibirTelaIntro(const std::vector<std::string>& arteLogo, const std::vector<std::string>& textoNarracao, Cor corTema) {
     int larguraConsole = obterLarguraTerminal();
-    int alturaConsole = obterAlturaTerminal();
-    
+
     // Calcula margem para arte
     int larguraArte = 0;
     for (const auto& linha : arteLogo) {
@@ -487,37 +539,6 @@ void Aparencia::exibirTelaIntro(const std::vector<std::string>& arteLogo, const 
     imprimirCentralizado(pressEnter, cor(Cor::CINZA));
     
     ControleDeInput::aguardarEnter();
-    
-    animarFadeOut(30, 30, [&](int /*frame*/, int intensidade) {
-        std::ostringstream buffer;
-        std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
-        
-        std::string corArteRGB = obterCorRGBFade(corTema, intensidade);
-        std::string corTextoRGB = obterCorRGBFade(Cor::BRANCO, intensidade);
-        std::string corCinzaRGB = obterCorRGBFade(Cor::CINZA, intensidade);
-        
-        buffer << "\n\n";
-        for (const auto& linha : arteLogo) {
-            buffer << margemArte << corArteRGB << removerCoresANSI(linha) << "\033[0m\n";
-        }
-        
-        for(int i = 0; i < linhasEmBrancoAntesDoTexto; ++i) buffer << "\n";
-        
-        int tamanhoDaLinhaMaisLonga = 0;
-        for (const std::string& linha : textoNarracao) {
-            tamanhoDaLinhaMaisLonga = std::max(tamanhoDaLinhaMaisLonga, obterComprimentoVisual(linha));
-        }
-        std::string margemTexto = espacosParaCentralizar(tamanhoDaLinhaMaisLonga);
-        for (const std::string& linha : textoNarracao) {
-            buffer << margemTexto << corTextoRGB << removerCoresANSI(linha) << "\033[0m\n";
-        }
-        
-        buffer << "\n" << espacosParaCentralizar(obterComprimentoVisual(pressEnter)) << corCinzaRGB << pressEnter << "\033[0m\n";
-        
-        buffer << "\033[J";
-        std::cout.rdbuf(oldCout);
-        std::cout << "\033[H" << buffer.str() << std::flush;
-    });
 
     limparTela();
 }
@@ -621,48 +642,72 @@ void Aparencia::exibirPainel(
     std::string linhaDivisoria = "";
     for(int i = 0; i < larguraTerminal; ++i) linhaDivisoria += "═";
 
+    bool isEngineIDE = !GerenciadorVisao::obterInstancia().isVisao3DAtiva();
+
+    if (isEngineIDE) {
+        std::cout << "\n\n";
+        std::string classDef = "\033[38;2;86;156;214mclass\033[0m \033[38;2;78;201;176m" + tituloUpper + "\033[0m {";
+        std::string publ = "\033[38;2;86;156;214mpublic:\033[0m";
+        
+        if (!artePrincipal.empty()) {
+            int recuo = std::max(0, (larguraTerminal - larguraArte) / 2);
+            std::string margem(recuo, ' ');
+            std::cout << margem << "\033[38;2;96;139;78m/* ==========================================================\033[0m\n";
+            for (size_t i = 0; i < artePrincipal.size(); ++i) {
+                std::cout << margem << "\033[38;2;96;139;78m * \033[0m" << artePrincipal[i];
+                if (!arteSecundaria.empty() && i < arteSecundaria.size()) {
+                    std::cout << arteSecundaria[i];
+                }
+                std::cout << "\n";
+            }
+            std::cout << margem << "\033[38;2;96;139;78m ========================================================== */\033[0m\n\n";
+        }
+        
+        imprimirCentralizado(classDef);
+        std::cout << "\n";
+        imprimirCentralizado(publ);
+        std::cout << "\n";
+        return;
+    }
+
     bool temArte = !artePrincipal.empty();
     bool temArteSecundaria = !arteSecundaria.empty();
     bool temTitulo = !tituloUpper.empty();
 
     if (animarFadeIn) {
-        uint32_t val1 = static_cast<uint32_t>(corPrincipal);
-        uint8_t r1 = (val1 >> 16) & 0xFF, g1 = (val1 >> 8) & 0xFF, b1 = val1 & 0xFF;
-        
-        uint32_t val2 = static_cast<uint32_t>(corSecundaria != Cor::RESET ? corSecundaria : corPrincipal);
-        uint8_t r2 = (val2 >> 16) & 0xFF, g2 = (val2 >> 8) & 0xFF, b2 = val2 & 0xFF;
+        int targetY = 2;
 
-        int passos = 4;
-        for (int step = 1; step <= passos; ++step) {
-            double pct = static_cast<double>(step) / passos;
-            std::string corRGB1 = "\033[38;2;" + std::to_string(static_cast<int>(r1 * pct)) + ";" + std::to_string(static_cast<int>(g1 * pct)) + ";" + std::to_string(static_cast<int>(b1 * pct)) + "m";
-            std::string corRGB2 = "\033[38;2;" + std::to_string(static_cast<int>(r2 * pct)) + ";" + std::to_string(static_cast<int>(g2 * pct)) + ";" + std::to_string(static_cast<int>(b2 * pct)) + "m";
-            
-            std::ostringstream buffer;
-            buffer << "\n\n";
-
-            if (temArte) {
-                int recuo = std::max(0, (larguraTerminal - larguraArte) / 2);
-                std::string margem(recuo, ' ');
-                for (size_t i = 0; i < artePrincipal.size(); ++i) {
-                    buffer << margem << corRGB1 << artePrincipal[i];
-                    if (temArteSecundaria && i < arteSecundaria.size()) {
-                        buffer << corRGB2 << arteSecundaria[i];
-                    }
-                    buffer << "\n";
+        // Pre-renderiza as linhas finais para usar no fade
+        std::vector<std::string> linhasFinais;
+        if (temArte) {
+            int recuo = std::max(0, (larguraTerminal - larguraArte) / 2);
+            std::string margem(recuo, ' ');
+            for (size_t i = 0; i < artePrincipal.size(); ++i) {
+                std::string linha = margem + cor(corPrincipal) + artePrincipal[i];
+                if (temArteSecundaria && i < arteSecundaria.size()) {
+                    linha += cor(corSecundaria) + arteSecundaria[i];
                 }
-                buffer << "\n" << corRGB1 << linhaDivisoria << "\n";
+                linhasFinais.push_back(linha);
             }
+            linhasFinais.push_back(cor(corPrincipal) + linhaDivisoria);
+        }
+        if (temTitulo) {
+            linhasFinais.push_back(espacosParaCentralizar(obterComprimentoVisual(tituloUpper)) + cor(corPrincipal) + tituloUpper);
+            linhasFinais.push_back(cor(corPrincipal) + linhaDivisoria);
+        }
 
-            if (temTitulo) {
-                buffer << espacosParaCentralizar(obterComprimentoVisual(tituloUpper)) << corRGB1 << tituloUpper << "\n";
-                buffer << corRGB1 << linhaDivisoria << "\n";
+        // Fade in lento sem trailing \n (evita scroll bounce)
+        Aparencia::animarFadeIn(30, 40, [&](int /*frame*/, int intensidade) {
+            float pct = intensidade / 255.0f;
+            std::ostringstream buffer;
+            for (size_t i = 0; i < linhasFinais.size(); ++i) {
+                int y = targetY + static_cast<int>(i);
+                buffer << "\033[" << (y + 1) << ";1H" << fadarLinhaAnsi(linhasFinais[i], pct) << "\033[K";
+                if (i < linhasFinais.size() - 1) buffer << "\n";
             }
             buffer << "\033[0m";
-            
-            std::cout << "\033[?25l\033[H" << buffer.str() << std::flush;
-            if (step < passos) std::this_thread::sleep_for(std::chrono::milliseconds(20));
-        }
+            std::cout << buffer.str() << std::flush;
+        });
     } else {
         std::cout << "\n\n";
         
@@ -688,6 +733,42 @@ void Aparencia::exibirPainel(
 
 void Aparencia::exibirPainelTexto(const std::string& titulo, Cor corDoCabecalho, bool animarFadeIn) {
     exibirPainel(titulo, corDoCabecalho, {}, 0, {}, Cor::RESET, animarFadeIn);
+}
+
+void Aparencia::exibirTituloPadrao(const std::string& titulo, Cor corTema) {
+    std::string tituloUpper = titulo;
+    std::transform(tituloUpper.begin(), tituloUpper.end(), tituloUpper.begin(), [](unsigned char c){ return std::toupper(c); });
+    
+    int larguraTerminal = obterLarguraTerminal();
+    std::string linhaDivisoriaStr = "";
+    for(int i = 0; i < larguraTerminal; ++i) linhaDivisoriaStr += "═";
+
+    std::string linhaTitulo = espacosParaCentralizar(obterComprimentoVisual(tituloUpper)) + cor(corTema) + tituloUpper + cor(Cor::RESET);
+    std::string linhaDiv = cor(corTema) + linhaDivisoriaStr + cor(Cor::RESET);
+
+    std::vector<std::string> linhasFinais = { linhaTitulo, linhaDiv };
+    int targetY = 2;
+
+    // Fade in lento sem trailing \n (evita scroll bounce)
+    Aparencia::animarFadeIn(30, 40, [&](int /*frame*/, int intensidade) {
+        float pct = intensidade / 255.0f;
+        std::ostringstream buffer;
+        for (size_t i = 0; i < linhasFinais.size(); ++i) {
+            int y = targetY + static_cast<int>(i);
+            buffer << "\033[" << (y + 1) << ";1H" << fadarLinhaAnsi(linhasFinais[i], pct) << "\033[K";
+            if (i < linhasFinais.size() - 1) buffer << "\n";
+        }
+        buffer << "\033[0m";
+        std::cout << buffer.str() << std::flush;
+    });
+
+    // Renderiza final sem trailing \n
+    for (size_t i = 0; i < linhasFinais.size(); ++i) {
+        int y = targetY + static_cast<int>(i);
+        std::cout << "\033[" << (y + 1) << ";1H" << linhasFinais[i] << "\033[K";
+        if (i < linhasFinais.size() - 1) std::cout << "\n";
+    }
+    std::cout << "\033[J" << std::flush;
 }
 
 int Aparencia::imprimirLadoALado(const std::vector<std::string>& colunaEsquerda, const std::vector<std::string>& colunaDireita, int minLarguraEsquerda, int espacamento, Cor corEsquerda, Cor corDireita, int atrasoLinhaMs) {
@@ -757,12 +838,9 @@ int Aparencia::obterMinLarguraPopup() { return popupMinLarguraAtual; }
 int Aparencia::obterMinAlturaPopup() { return popupMinAlturaAtual; }
 
 void Aparencia::exibirPopup(const std::string& titulo, const std::vector<std::string>& texto, Cor corTema, const std::vector<std::string>& arteOriginal) {
-    int maxLinhasArte = obterAlturaTerminal() - 6;
     std::vector<std::string> arte = arteOriginal;
-    if (static_cast<int>(arte.size()) > maxLinhasArte) {
-        arte = reduzirEscalaAscii(arte, 2, 2);
-        if (static_cast<int>(arte.size()) > maxLinhasArte) arte = reduzirEscalaAscii(arteOriginal, 3, 3);
-        if (static_cast<int>(arte.size()) > maxLinhasArte) arte = reduzirEscalaAscii(arteOriginal, 4, 4);
+    if (static_cast<int>(arte.size()) > 10) {
+        arte = reduzirEscalaAscii(arteOriginal, FATOR_COMPRESSAO_GLOBAL, FATOR_COMPRESSAO_GLOBAL);
     }
 
     int larguraArte = 0;
@@ -1027,39 +1105,6 @@ void Aparencia::exibirHistoricoCompleto() {
     std::cout << "\n";
 }
 
-std::vector<std::string> Aparencia::converterStringBrutaParaVetor(const std::string& textoBruto) {
-    std::vector<std::string> linhas;
-    std::string linha;
-    
-    // Pular a primeira quebra de linha se a string começar com uma (comum no uso de R"( )")
-    size_t startIndex = 0;
-    if (textoBruto.length() > 0 && textoBruto[0] == '\n') {
-        startIndex = 1;
-    }
-
-    for (size_t i = startIndex; i < textoBruto.length(); ++i) {
-        char c = textoBruto[i];
-        if (c == '\n') {
-            if (!linha.empty() && linha.back() == '\r') linha.pop_back();
-            linhas.push_back(linha);
-            linha.clear();
-        } else {
-            linha += c;
-        }
-    }
-    
-    if (!linha.empty()) {
-        if (linha.back() == '\r') linha.pop_back();
-        linhas.push_back(linha);
-    }
-    
-    // Pular a última linha se ela for estritamente vazia e for causada pela quebra de linha final de R"( )"
-    if (!linhas.empty() && linhas.back().empty() && textoBruto.back() == '\n') {
-        linhas.pop_back();
-    }
-    
-    return linhas;
-}
 
 void Aparencia::padronizarTamanhoVetor(std::vector<std::string>& linhas) {
     if (linhas.empty()) return;
@@ -1157,4 +1202,182 @@ std::string Aparencia::sobreporPainelNaLinhaAnsi(const std::string& backgroundLi
     }
 
     return result;
+}
+
+std::string Aparencia::sobreporLogoAnsi(const std::string& backgroundLine, const std::vector<std::string>& logoChars, int startX, const std::string& fgColor, int larguraTerminal) {
+    std::string result = "";
+    result.reserve(backgroundLine.size() + 200);
+
+    std::string currentBg = "";
+    std::string currentFg = "";
+
+    int visualX = 0;
+    size_t i = 0;
+
+    while (i < backgroundLine.size() && visualX < larguraTerminal) {
+        if (backgroundLine[i] == '\033' && i + 1 < backgroundLine.size() && backgroundLine[i+1] == '[') {
+            size_t end = backgroundLine.find('m', i);
+            if (end != std::string::npos) {
+                std::string esc = backgroundLine.substr(i, end - i + 1);
+                if (esc == "\033[0m") {
+                    currentBg = "";
+                    currentFg = "";
+                } else if (esc.find("\033[48;2;") == 0 || esc == "\033[49m") {
+                    currentBg = (esc == "\033[49m") ? "" : esc;
+                } else if (esc.find("\033[38;2;") == 0 || esc == "\033[39m" || esc == "\033[1;37m" || esc == "\033[1;31m") {
+                    currentFg = (esc == "\033[39m") ? "" : esc;
+                }
+                result += esc;
+                i = end + 1;
+                continue;
+            }
+        }
+
+        int len = 1;
+        unsigned char c = static_cast<unsigned char>(backgroundLine[i]);
+        if ((c & 0x80) == 0) len = 1;
+        else if ((c & 0xE0) == 0xC0) len = 2;
+        else if ((c & 0xF0) == 0xE0) len = 3;
+        else if ((c & 0xF8) == 0xF0) len = 4;
+
+        std::string charStr = backgroundLine.substr(i, len);
+
+        int logoCol = visualX - startX;
+        if (logoCol >= 0 && logoCol < static_cast<int>(logoChars.size()) && logoChars[logoCol] != " ") {
+            result += "\033[0m" + currentBg + fgColor + logoChars[logoCol] + "\033[0m" + currentBg + currentFg;
+        } else {
+            result += charStr;
+        }
+
+        visualX++;
+        i += len;
+    }
+    return result;
+}
+
+
+void Aparencia::animarTransicaoCena3D(
+    const std::vector<std::string>& logoBase,
+    const std::string& corFinalLogo,
+    const std::vector<std::string>& fundoLivre,
+    std::function<std::vector<std::string>(float)> getFundoFinal,
+    int targetY
+) {
+    int larguraTerminal = obterLarguraTerminal();
+    int altura3D = static_cast<int>(fundoLivre.size());
+    int logoHeight = static_cast<int>(logoBase.size());
+    
+    int logoWidth = 0;
+    for(const auto& l : logoBase) {
+        logoWidth = std::max(logoWidth, obterComprimentoVisual(l));
+    }
+    int logoX = (larguraTerminal - logoWidth) / 2;
+    if (logoX < 0) logoX = 0;
+
+    std::vector<std::vector<std::string>> decomposedLogo(logoHeight);
+    for (int i = 0; i < logoHeight; i++) {
+        const std::string& logoRow = logoBase[i];
+        for (size_t j = 0; j < logoRow.length(); ) {
+            int len = 1;
+            unsigned char c = logoRow[j];
+            if ((c & 0x80) == 0) len = 1;
+            else if ((c & 0xE0) == 0xC0) len = 2;
+            else if ((c & 0xF0) == 0xE0) len = 3;
+            else if ((c & 0xF8) == 0xF0) len = 4;
+            decomposedLogo[i].push_back(logoRow.substr(j, len));
+            j += len;
+        }
+    }
+
+    // Renderiza cena completa uma unica vez (sem logo, com todos elementos em opacidade 100%)
+    std::vector<std::string> cenaBase = getFundoFinal(1.0f);
+    {
+        std::ostringstream buffer;
+        buffer << "\033[H";
+        for (int y = 0; y < altura3D; y++) {
+            buffer << cenaBase[y];
+            if (y < altura3D - 1) buffer << "\n";
+        }
+        std::cout << buffer.str() << std::flush;
+    }
+
+    // Fade in apenas o logo (sem redesenharl a cena inteira)
+    Aparencia::animarFadeIn(30, 40, [&](int frame, int /*intensidade*/) {
+        float opacity = frame / 30.0f;
+        
+        std::string fadedCorLogo = corFinalLogo;
+        if (corFinalLogo == "\033[1;31m") {
+            fadedCorLogo = "\033[38;2;" + std::to_string((int)(255 * opacity)) + ";0;0m";
+        } else if (corFinalLogo == "\033[1;32m") {
+            fadedCorLogo = "\033[38;2;0;" + std::to_string((int)(255 * opacity)) + ";0m";
+        } else if (corFinalLogo == "\033[1;37m" || corFinalLogo == "\033[37m") {
+            int c = (int)(255 * opacity);
+            fadedCorLogo = "\033[38;2;" + std::to_string(c) + ";" + std::to_string(c) + ";" + std::to_string(c) + "m";
+        }
+        
+        std::ostringstream buffer;
+        for (int y = targetY; y < targetY + logoHeight && y < altura3D; y++) {
+            int logoRowIdx = y - targetY;
+            std::string linhaLogo = sobreporLogoAnsi(cenaBase[y], decomposedLogo[logoRowIdx], logoX, fadedCorLogo, larguraTerminal);
+            buffer << "\033[" << (y + 1) << ";1H" << linhaLogo << "\033[K";
+        }
+        std::cout << buffer.str() << std::flush;
+    });
+
+}
+
+std::string Aparencia::fadarLinhaAnsi(const std::string& linha, float ratio) {
+    std::string res;
+    res.reserve(linha.size());
+    size_t i = 0;
+    while (i < linha.size()) {
+        if (i + 7 < linha.size() && linha[i] == '\033' && linha[i+1] == '[') {
+            bool isBg = false;
+            bool isFg = false;
+            size_t startColor = i + 2;
+            if (linha.compare(startColor, 5, "48;2;") == 0) {
+                isBg = true;
+            } else if (linha.compare(startColor, 5, "38;2;") == 0) {
+                isFg = true;
+            }
+            
+            if (isBg || isFg) {
+                size_t p = startColor + 5;
+                int r = 0, g = 0, b = 0;
+                while (p < linha.size() && linha[p] >= '0' && linha[p] <= '9') {
+                    r = r * 10 + (linha[p] - '0');
+                    p++;
+                }
+                if (p < linha.size() && linha[p] == ';') {
+                    p++;
+                    while (p < linha.size() && linha[p] >= '0' && linha[p] <= '9') {
+                        g = g * 10 + (linha[p] - '0');
+                        p++;
+                    }
+                    if (p < linha.size() && linha[p] == ';') {
+                        p++;
+                        while (p < linha.size() && linha[p] >= '0' && linha[p] <= '9') {
+                            b = b * 10 + (linha[p] - '0');
+                            p++;
+                        }
+                    }
+                }
+                
+                if (p < linha.size() && linha[p] == 'm') {
+                    int fr = static_cast<int>(r * ratio);
+                    int fg = static_cast<int>(g * ratio);
+                    int fb = static_cast<int>(b * ratio);
+                    res += "\033[";
+                    if (isBg) res += "48;2;";
+                    else res += "38;2;";
+                    res += std::to_string(fr) + ";" + std::to_string(fg) + ";" + std::to_string(fb) + "m";
+                    i = p + 1;
+                    continue;
+                }
+            }
+        }
+        res.push_back(linha[i]);
+        i++;
+    }
+    return res;
 }

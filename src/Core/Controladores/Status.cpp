@@ -1,4 +1,4 @@
-#include "Status.h"
+﻿#include "Status.h"
 
 #include <iostream>
 
@@ -6,7 +6,7 @@
 #include "../../Entidades/Personagem.h"
 #include "../Utilidades/Aparencia.h"
 #include "../Utilidades/FuncoesDialogo.h"
-#include "../../Interface/Telas/Combate/TelaCombate.h"
+#include "../../Visoes/TelasBase/Combate/TelaCombate.h"
 
 void EfeitoSugaSangue::aplicarInicioTurno(Personagem* alvo) {
     if (!Personagem::isValido(atacante) || atacante->obterVida() <= 0) return;

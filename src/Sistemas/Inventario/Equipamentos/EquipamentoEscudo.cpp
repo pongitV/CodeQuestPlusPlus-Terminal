@@ -1,11 +1,11 @@
-#include "EquipamentoEscudo.h"
+﻿#include "EquipamentoEscudo.h"
 #include <memory>
 #include "../../../Entidades/Personagem.h"
 #include "../../../Core/Utilidades/Aparencia.h"
 #include <vector>
 #include <functional>
 #include <unordered_map>
-#include "../../../Interface/Telas/Combate/TelaCombate.h"
+#include "../../../Visoes/TelasBase/Combate/TelaCombate.h"
 #include "../FabricaItens.h"
 
 EquipamentoEscudo::EquipamentoEscudo(const std::string& nome, int reducaoFixa, int durabilidade, int reqResistencia, int reqSecundario, TipoAtributo tipoSecundario, int preco)

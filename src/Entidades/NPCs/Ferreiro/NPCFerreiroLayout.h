@@ -1,11 +1,12 @@
-﻿#pragma once
+﻿#include "../../../Core/Utilidades/ConversorString.h"
+#pragma once
 
 #include <vector>
 #include <string>
 #include "../../../Core/Utilidades/Aparencia.h"
 
 namespace NPCFerreiroLayouts {
-    inline const std::vector<std::string> arteFerreiro = Aparencia::converterStringBrutaParaVetor(R"(                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+    inline const std::vector<std::string> arteFerreiro = ConversorString::converterStringBrutaParaVetor(R"(                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
                                                                                                                                              .+=#@@%@%@                                                                                                               
                                                                                                                                             =%*@@@@@@%#%@                                                                                                             
                                                                                                                                            %$$$$$....==%%#@                                                                                                            
@@ -104,7 +105,7 @@ namespace NPCFerreiroLayouts {
                                                                                      -    . .*@@@@%++=.#%%%%%@%%%%%@@#.                               .--+*##%####%#%%@=                                                                                              
                                                                                                  %%%%#%%%@@@#+:=    -                                 %%%*#%%%%%%%@@@-                                                                                                
                                                                                                   +=                                                  +%###%%@@@#                                                                                                     )");
-    inline const std::vector<std::string> arteBigorna = Aparencia::converterStringBrutaParaVetor(R"(        "â €â €â €â €â €â €â €â¢°â£¶â£¶â£¶â£¶â£¶â£¶â£¶â£¶â£¶â£¶â£¶â£¶â£¶â£¶â£¶â£¶â¡„â €â €â €â €â €",
+    inline const std::vector<std::string> arteBigorna = ConversorString::converterStringBrutaParaVetor(R"(        "â €â €â €â €â €â €â €â¢°â£¶â£¶â£¶â£¶â£¶â£¶â£¶â£¶â£¶â£¶â£¶â£¶â£¶â£¶â£¶â£¶â¡„â €â €â €â €â €",
         "â €â ¹â£¿â£¿â£¿â£¿â¡‡â¢¸â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â¡‡â¢ â£„â¡€â €â €",
         "â €â €â ™â¢¿â£¿â£¿â¡‡â¢¸â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â¡‡â¢¸â£¿â£¿â¡¶â €",
         "â €â €â €â €â ‰â ›â ‡â¢¸â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â£¿â¡‡â ¸â Ÿâ ‹â €â €",

@@ -1,9 +1,9 @@
 #include "Combate3DRenderer.h"
-#include "../Raycaster/Raycaster.h"
-#include "../Raycaster/RaycasterSprites.h"
+#include "../../Visoes/Raycaster/Engine3D/Raycaster.h"
+#include "../../Visoes/Raycaster/Engine3D/RaycasterSprites.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Entidades/Racas/RacaBase.h"
-#include "../../Interface/Telas/Combate/TelaCombate.h"
+#include "../../Visoes/TelasBase/Combate/TelaCombate.h"
 #include <algorithm>
 #include <cctype>
 #include <cmath>
@@ -67,6 +67,19 @@ std::vector<std::string> Combate3DRenderer::obterArenaPorTitulo(const std::strin
             "#..............................#",
             "#..............................#",
             "#|||||||||||||||||||||||||||||||#"
+        };
+    }
+    if (upper.find("CEMITERIO") != std::string::npos) {
+        return {
+            "################################",
+            "#..............................#",
+            "#..............................#",
+            "#..............................#",
+            "#..............................#",
+            "#..............................#",
+            "#..............................#",
+            "#..............................#",
+            "################################"
         };
     }
     if (upper.find("FLORESTA") != std::string::npos || upper.find("BOSQUE") != std::string::npos) {
@@ -256,23 +269,15 @@ void Combate3DRenderer::sobreporSprite(
 
     std::vector<std::string> arteUsada = arteOriginalInimigo;
     
-    // Reserve space for HUD (~7 lines) + message box (~4 lines) + borders
-    int reservedBottom = 14;
-    
     int alturaArte = static_cast<int>(arteUsada.size());
-    int fator = 1;
-    if (alturaArte > alturaVisivel * 0.7f || alturaArte > alturaVisivel - reservedBottom) {
-        for (fator = 2; fator <= 12; ++fator) {
-            arteUsada = Aparencia::reduzirEscalaAscii(arteOriginalInimigo, fator, fator);
-            alturaArte = static_cast<int>(arteUsada.size());
-            if (alturaArte <= alturaVisivel - reservedBottom) break;
-        }
-    }
-    if (inimigo->obterNome().find("Mahoraga") != std::string::npos) {
-        if (fator < 3) fator = 3;
+    int fator = Aparencia::FATOR_COMPRESSAO_GLOBAL;
+    
+    if (alturaArte > 10) {
         arteUsada = Aparencia::reduzirEscalaAscii(arteOriginalInimigo, fator, fator);
         alturaArte = static_cast<int>(arteUsada.size());
     }
+    
+    int reservedBottom = 14;
 
     int larguraArte = 0;
     for (const auto& linha : arteUsada) {

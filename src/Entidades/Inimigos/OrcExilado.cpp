@@ -1,4 +1,4 @@
-#include "OrcExilado.h"
+﻿#include "OrcExilado.h"
 #include <iostream>
 #include "../Personagem.h"
 #include "../../Sistemas/Inventario/FabricaItens.h"
@@ -150,15 +150,6 @@ const std::vector<std::string>& OrkExilado::obterAparenciaRaca() const
     return aparencia;
 }
 
-const std::vector<std::string>& OrkExilado::obterAparenciaCombate() const
-{
-    static std::vector<std::string> aparenciaReduzida;
-    if (aparenciaReduzida.empty())
-    {
-        aparenciaReduzida = Aparencia::reduzirEscalaAscii(obterAparenciaRaca(), 3, 3);
-    }
-    return aparenciaReduzida;
-}
 
 // --- BESTIARIO E DROPS ---
 InfoBestiario OrkExilado::obterInfoBestiario() const {

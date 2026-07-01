@@ -1,4 +1,4 @@
-#include <iostream>
+﻿#include <iostream>
 #include <vector>
 #include <string>
 #include <iomanip>
@@ -6,10 +6,10 @@
 #include <map>
 
 #include "NPCMercador.h"
-#include "../../../Interface/Telas/Menu/TelaMenu.h"
+#include "../../../Visoes/TelasBase/Menu/TelaMenu.h"
 #include "../../../Sistemas/Inventario/Item.h"
 #include "../../../Sistemas/Inventario/FabricaItens.h"
-#include "../../../Interface/Telas/Inventario/TelaInventario.h"
+#include "../../../Visoes/TelasBase/Inventario/TelaInventario.h"
 #include "../../../Core/Utilidades/Aparencia.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"
 #include "../../../Core/Controladores/Loja.h"

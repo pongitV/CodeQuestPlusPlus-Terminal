@@ -1,4 +1,4 @@
-#include "Bardo.h"
+﻿#include "Bardo.h"
 
 #include <array>
 #include <functional>

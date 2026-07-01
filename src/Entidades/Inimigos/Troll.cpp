@@ -1,4 +1,4 @@
-#include "Troll.h"
+﻿#include "Troll.h"
 #include <iostream>
 #include "../Personagem.h"
 #include "../../Sistemas/Inventario/FabricaItens.h"
@@ -132,15 +132,6 @@ const std::vector<std::string>& Troll::obterAparenciaRaca() const
     return aparencia;
 }
 
-const std::vector<std::string>& Troll::obterAparenciaCombate() const
-{
-    static std::vector<std::string> aparenciaReduzida;
-    if (aparenciaReduzida.empty())
-    {
-        aparenciaReduzida = Aparencia::reduzirEscalaAscii(obterAparenciaRaca(), 3, 3);
-    }
-    return aparenciaReduzida;
-}
 
 // --- BESTIARIO E DROPS ---
 InfoBestiario Troll::obterInfoBestiario() const {

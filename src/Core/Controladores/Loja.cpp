@@ -1,11 +1,11 @@
-#include "Loja.h"
+﻿#include "Loja.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>
 #include "../../Sistemas/Inventario/FabricaItens.h"
 #include "../Utilidades/ControleDeInput.h"
 #include "../../Sistemas/Progresso/Diario.h"
-#include "../../Interface/Telas/TelaBase.h"
+#include "../../Visoes/TelasBase/TelaBase.h"
 
 void Loja::processarCompra(Personagem* jogadorAtual, const std::string& tituloLoja, Cor corLoja, 
                                       std::map<int, ProdutoLoja>& estoqueAtual, 

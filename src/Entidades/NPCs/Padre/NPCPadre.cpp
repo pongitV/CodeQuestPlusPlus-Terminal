@@ -1,4 +1,4 @@
-#include "NPCPadre.h"
+﻿#include "NPCPadre.h"
 #include "NPCPadreLayout.h"
 #include "../../../Core/Controladores/MenuJogo.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"

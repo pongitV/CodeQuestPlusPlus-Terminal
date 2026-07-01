@@ -43,14 +43,14 @@
 #include "../../Entidades/Inimigos/Mimico.h"
 #include "../../Sistemas/Progresso/Diario.h"
 #include "../../Sistemas/Progresso/Salvamento.h"
-#include "../../Interface/Telas/Atributos/TelaAtributos.h"
-#include "../../Interface/Telas/Inventario/TelaInventario.h"
-#include "../../Interface/Telas/Menu/TelaMenu.h"
+#include "../../Visoes/TelasBase/Atributos/TelaAtributos.h"
+#include "../../Visoes/TelasBase/Inventario/TelaInventario.h"
+#include "../../Visoes/TelasBase/Menu/TelaMenu.h"
 #include "../Utilidades/Aparencia.h"
 #include "../Utilidades/FuncoesDialogo.h"
 #include "../Utilidades/ControleDeInput.h"
 #include "../Utilidades/GeradorAleatorio.h"
-#include "../../Interface/Telas/TelaBase.h"
+#include "../../Visoes/TelasBase/TelaBase.h"
 
 namespace {
     std::vector<std::string> lerInfoSavesLocal(const std::vector<std::string>& saves) {
@@ -230,11 +230,11 @@ std::unique_ptr<Personagem> MenuJogo::menuPrincipal()
     };
     
     std::vector<std::vector<std::string>> artesInimigos = {
-        Goblin().obterAparenciaCombate(),
-        Slime().obterAparenciaCombate(),
-        Troll().obterAparenciaCombate(),
-        Fada().obterAparenciaCombate(),
-        Mimico().obterAparenciaCombate()
+        Goblin().obterAparenciaRaca(),
+        Slime().obterAparenciaRaca(),
+        Troll().obterAparenciaRaca(),
+        Fada().obterAparenciaRaca(),
+        Mimico().obterAparenciaRaca()
     };
 
     while (true) {

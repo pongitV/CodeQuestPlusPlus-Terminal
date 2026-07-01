@@ -1,4 +1,4 @@
-#include "FabricaItens.h"
+﻿#include "FabricaItens.h"
 #include "Equipamentos/EquipamentoArma.h"
 #include "Equipamentos/EquipamentoEscudo.h"
 #include "Equipamentos/EquipamentoArmadura.h"

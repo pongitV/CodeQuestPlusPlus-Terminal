@@ -1,4 +1,4 @@
-#include "FuncoesDialogo.h"
+﻿#include "FuncoesDialogo.h"
 #include "Aparencia.h"
 #include <iostream>
 

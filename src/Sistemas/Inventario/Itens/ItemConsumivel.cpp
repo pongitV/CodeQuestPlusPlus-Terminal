@@ -1,8 +1,8 @@
-#include "ItemConsumivel.h"
+﻿#include "ItemConsumivel.h"
 #include "../../../Core/Controladores/Status.h"
 #include "../../../Entidades/Personagem.h"
 #include "../../../Core/Utilidades/Aparencia.h"
-#include "../../../Interface/Telas/Combate/TelaCombate.h"
+#include "../../../Visoes/TelasBase/Combate/TelaCombate.h"
 #include <functional>
 #include <unordered_map>
 #include "../FabricaItens.h"

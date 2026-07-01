@@ -1,4 +1,4 @@
-#include "Combate.h"
+﻿#include "Combate.h"
 
 #include <algorithm>
 #include <iostream>
@@ -19,15 +19,15 @@
 #include "../Progresso/Progressao.h"
 #include "../Progresso/ProgressaoFlags.h"
 #include "Parry.h"
-#include "../../Interface/Telas/Bestiario/TelaBestiario.h"
-#include "../../Interface/Telas/Diario/TelaDiario.h"
-#include "../../Interface/Telas/Atributos/TelaAtributos.h"
-#include "../../Interface/Telas/Combate/TelaCombate.h"
-#include "../../Interface/Telas/Derrota/TelaDerrota.h"
-#include "../../Interface/Telas/Vitoria/TelaVitoria.h"
+#include "../../Visoes/TelasBase/Bestiario/TelaBestiario.h"
+#include "../../Visoes/TelasBase/Diario/TelaDiario.h"
+#include "../../Visoes/TelasBase/Atributos/TelaAtributos.h"
+#include "../../Visoes/TelasBase/Combate/TelaCombate.h"
+#include "../../Visoes/TelasBase/Derrota/TelaDerrota.h"
+#include "../../Visoes/TelasBase/Vitoria/TelaVitoria.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Utilidades/GeradorAleatorio.h"
-#include "../../Interface/Telas/Menu/TelaMenu.h"
+#include "../../Visoes/TelasBase/Menu/TelaMenu.h"
 #include "../../Entidades/Classes/ClasseBase.h"
 #include "../../Core/Utilidades/ControleDeInput.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"

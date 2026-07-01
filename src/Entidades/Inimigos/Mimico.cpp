@@ -1,11 +1,11 @@
-#include "Mimico.h"
+﻿#include "Mimico.h"
 #include <iostream>
 #include "../Personagem.h"
 #include "../../Sistemas/Inventario/FabricaItens.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Controladores/Drops.h"
 #include "../../Core/Utilidades/GeradorAleatorio.h"
-#include "../../Interface/Telas/Combate/TelaCombate.h"
+#include "../../Visoes/TelasBase/Combate/TelaCombate.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
 #include "../../Sistemas/Progresso/Bestiario.h"
 
@@ -121,15 +121,6 @@ const std::vector<std::string>& Mimico::obterAparenciaRaca() const
     return aparencia;
 }
 
-const std::vector<std::string>& Mimico::obterAparenciaCombate() const
-{
-    static std::vector<std::string> aparenciaReduzida;
-    if (aparenciaReduzida.empty())
-    {
-        aparenciaReduzida = Aparencia::reduzirEscalaAscii(obterAparenciaRaca(), 3, 3);
-    }
-    return aparenciaReduzida;
-}
 
 // --- LOGICA DE ROUBO ---
 void Mimico::aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCausado) {

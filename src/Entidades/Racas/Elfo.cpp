@@ -1,10 +1,10 @@
-#include "Elfo.h"
+﻿#include "Elfo.h"
 
 #include <iostream>
 
 #include "../../Core/Utilidades/GeradorAleatorio.h"
 #include "../../Core/Utilidades/Aparencia.h"
-#include "../../Interface/Telas/Combate/TelaCombate.h"
+#include "../../Visoes/TelasBase/Combate/TelaCombate.h"
 
 // --- INFORMACOES DA RACA ---
 std::string Elfo::obterNomeRaca() const 

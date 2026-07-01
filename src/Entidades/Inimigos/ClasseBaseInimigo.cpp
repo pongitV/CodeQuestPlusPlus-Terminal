@@ -1,4 +1,4 @@
-#include "ClasseBaseInimigo.h"
+﻿#include "ClasseBaseInimigo.h"
 
 // --- INFORMACOES DA CLASSE ---
 std::string ClasseBaseInimigo::obterNomeClasse() const 

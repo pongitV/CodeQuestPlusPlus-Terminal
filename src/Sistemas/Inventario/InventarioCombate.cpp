@@ -1,4 +1,4 @@
-#include <iostream>
+﻿#include <iostream>
 #include <string>
 #include <vector>
 #include <memory>
@@ -9,11 +9,11 @@
 #include "Equipamentos/EquipamentoArma.h"
 #include "Equipamentos/EquipamentoEscudo.h"
 #include "Equipamentos/EquipamentoArmadura.h"
-#include "../../Interface/Telas/Inventario/TelaInventario.h"
-#include "../../Interface/Telas/Menu/TelaMenu.h"
+#include "../../Visoes/TelasBase/Inventario/TelaInventario.h"
+#include "../../Visoes/TelasBase/Menu/TelaMenu.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Utilidades/ControleDeInput.h"
-#include "../../Interface/Telas/TelaBase.h"
+#include "../../Visoes/TelasBase/TelaBase.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
 
 namespace {

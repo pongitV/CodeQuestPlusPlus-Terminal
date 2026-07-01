@@ -198,12 +198,9 @@ int ControleDeInput::lerSelecaoMenuComSetas(const std::vector<std::string>& opco
 int ControleDeInput::lerSelecaoMenuEmPopup(const std::string& titulo, const std::vector<std::string>& texto, const std::vector<std::string>& opcoes, Cor corTema, const std::vector<std::string>& arteOriginal, bool animarEntrada) {
     if (opcoes.empty()) return -1;
         
-    int maxLinhasArte = Aparencia::obterAlturaTerminal() - 6;
     std::vector<std::string> arte = arteOriginal;
-    if (static_cast<int>(arte.size()) > maxLinhasArte) {
-        arte = Aparencia::reduzirEscalaAscii(arte, 2, 2);
-        if (static_cast<int>(arte.size()) > maxLinhasArte) arte = Aparencia::reduzirEscalaAscii(arteOriginal, 3, 3);
-        if (static_cast<int>(arte.size()) > maxLinhasArte) arte = Aparencia::reduzirEscalaAscii(arteOriginal, 4, 4);
+    if (static_cast<int>(arte.size()) > 10) {
+        arte = Aparencia::reduzirEscalaAscii(arteOriginal, Aparencia::FATOR_COMPRESSAO_GLOBAL, Aparencia::FATOR_COMPRESSAO_GLOBAL);
     }
 
     int larguraArte = 0;

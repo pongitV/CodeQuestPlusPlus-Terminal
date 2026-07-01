@@ -14,7 +14,6 @@ public:
     std::string obterNomeHabilidadeRaca() const override;
     std::string obterDescricaoHabilidadeRaca() const override;
     const std::vector<std::string>& obterAparenciaRaca() const override;
-    const std::vector<std::string>& obterAparenciaCombate() const override;
 
     InfoBestiario obterInfoBestiario() const override;
 

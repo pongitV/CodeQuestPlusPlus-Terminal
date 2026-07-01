@@ -1,11 +1,11 @@
-#include "Mahoraga.h"
+﻿#include "Mahoraga.h"
 #include <iostream>
 #include "../Personagem.h"
 #include "../../Sistemas/Inventario/FabricaItens.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Controladores/Drops.h"
 #include "../../Core/Utilidades/GeradorAleatorio.h"
-#include "../../Interface/Telas/Combate/TelaCombate.h"
+#include "../../Visoes/TelasBase/Combate/TelaCombate.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
 #include <memory>
 
@@ -258,16 +258,6 @@ const std::vector<std::string>& Mahoraga::obterAparenciaRaca() const
     return aparenciaOriginal;
 }
 
-const std::vector<std::string>& Mahoraga::obterAparenciaCombate() const
-{
-    static std::vector<std::string> aparenciaReduzida;
-    if (aparenciaReduzida.empty())
-    {
-        // Fator de compressão (X e Y) definido localmente para este inimigo
-        aparenciaReduzida = Aparencia::reduzirEscalaAscii(obterAparenciaRaca(), 4, 5);
-    }
-    return aparenciaReduzida;
-}
 
 // --- BESTIARIO E DROPS ---
 InfoBestiario Mahoraga::obterInfoBestiario() const {

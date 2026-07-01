@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "../../Personagem.h"
 #include "../InteracaoNPC.h"

@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <iostream>
 #include <functional>
 #include <algorithm>
 
@@ -87,7 +88,6 @@ public:
     // --- ANIMACOES E EFEITOS ---
     static std::string obterCorRGBFade(Cor corTema, int intensidade);
     static void animarFadeIn(int framesTotais, int tempoPorFrameMs, const std::function<void(int frame, int intensidade)>& renderFrame);
-    static void animarFadeOut(int framesTotais, int tempoPorFrameMs, const std::function<void(int frame, int intensidade)>& renderFrame);
     static void exibirTelaIntro(const std::vector<std::string>& arteLogo, const std::vector<std::string>& textoNarracao, Cor corTema);
 
     // --- EXIBICAO DE TEXTO (DIGITACAO E DELAY) ---
@@ -101,6 +101,7 @@ public:
     static void exibirPainel(const std::string& titulo, Cor corPrincipal = Cor::BRANCO, const std::vector<std::string>& artePrincipal = {}, int larguraArte = 0, const std::vector<std::string>& arteSecundaria = {}, Cor corSecundaria = Cor::RESET, bool animarFadeIn = false);
     static void exibirPainelTexto(const std::string& titulo, Cor corDoCabecalho = Cor::BRANCO, bool animarFadeIn = false);
     static void exibirPainelArte(const std::vector<std::string>& arteAscii, int larguraVisual, Cor corDaArte, const std::string& tituloSecundario = "", bool animarFadeIn = false);
+    static void exibirTituloPadrao(const std::string& titulo, Cor corTema = Cor::BRANCO);
     static void exibirPrompt(const std::string& mensagem);
     static void exibirPopup(const std::string& titulo, const std::vector<std::string>& texto, Cor corTema = Cor::BRANCO, const std::vector<std::string>& arteAscii = {});
     static void renderizarCaixaPopupAnimada(const std::vector<std::string>& caixa, int startX, int startY, bool animar);
@@ -111,6 +112,19 @@ public:
     static int lerInteiroEmPopupFlutuante(const std::string& mensagem, int limiteMin, int limiteMax, Cor corTema = Cor::BRANCO);
     static std::string margemCombate();
     static std::vector<std::string> reduzirEscalaAscii(const std::vector<std::string>& arteOriginal, int fatorX = 2, int fatorY = 2);
+    static std::string sobreporLogoAnsi(const std::string& backgroundLine, const std::vector<std::string>& logoChars, int startX, const std::string& fgColor, int larguraTerminal);
+    static std::string fadarLinhaAnsi(const std::string& linha, float ratio);
+    
+    static void animarTransicaoCena3D(
+        const std::vector<std::string>& logoBase,
+        const std::string& corFinalLogo,
+        const std::vector<std::string>& fundoLivre,
+        std::function<std::vector<std::string>(float)> getFundoFinal,
+        int targetY = 2
+    );
+
+    // --- CONFIGURACOES GLOBAIS ---
+    static int FATOR_COMPRESSAO_GLOBAL;
 
     // --- SISTEMA DE LOGS ---
     static void registrarLogBatalha(const std::string& texto);

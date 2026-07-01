@@ -1,4 +1,4 @@
-#include "Bestiario.h"
+﻿#include "Bestiario.h"
 #include <algorithm>
 #include "../../Entidades/Personagem.h"
 #include "../../Entidades/Inimigos/Goblin.h"

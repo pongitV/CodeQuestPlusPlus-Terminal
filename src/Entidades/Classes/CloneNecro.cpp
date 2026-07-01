@@ -1,4 +1,4 @@
-#include "CloneNecro.h"
+﻿#include "CloneNecro.h"
 
 RacaClone::RacaClone(const std::string& n, const std::vector<std::string>& a) : nomeOriginal(n), aparenciaOriginal(a) {}
 std::string RacaClone::obterNomeRaca() const { return nomeOriginal; }

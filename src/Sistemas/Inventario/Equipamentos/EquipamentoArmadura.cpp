@@ -1,4 +1,4 @@
-#include "EquipamentoArmadura.h"
+﻿#include "EquipamentoArmadura.h"
 #include "../../../Entidades/Personagem.h"
 #include "../../../Core/Utilidades/Aparencia.h"
 #include <vector>

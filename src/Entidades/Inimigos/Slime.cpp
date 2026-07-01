@@ -6,7 +6,7 @@
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Controladores/Drops.h"
 #include "../../Core/Utilidades/GeradorAleatorio.h"
-#include "../../Interface/Telas/Combate/TelaCombate.h"
+#include "../../Visoes/TelasBase/Combate/TelaCombate.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
 
 // --- INFORMACOES DA RACA ---
@@ -108,15 +108,7 @@ const std::vector<std::string>& Slime::obterAparenciaRaca() const
     return aparencia;
 }
 
-const std::vector<std::string>& Slime::obterAparenciaCombate() const
-{
-    static std::vector<std::string> aparenciaReduzida;
-    if (aparenciaReduzida.empty())
-    {
-        aparenciaReduzida = Aparencia::reduzirEscalaAscii(obterAparenciaRaca(), 3, 3);
-    }
-    return aparenciaReduzida;
-}
+
 
 // --- BESTIARIO E DROPS ---
 InfoBestiario Slime::obterInfoBestiario() const {

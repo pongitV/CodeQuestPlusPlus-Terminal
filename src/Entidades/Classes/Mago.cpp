@@ -1,4 +1,4 @@
-#include "Mago.h"
+﻿#include "Mago.h"
 
 #include <iostream>
 #include <memory>
@@ -7,7 +7,7 @@
 #include "../../Sistemas/Inventario/FabricaItens.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
-#include "../../Interface/Telas/Combate/TelaCombate.h"
+#include "../../Visoes/TelasBase/Combate/TelaCombate.h"
 
 // --- INFORMACOES DA CLASSE ---
 std::string Mago::obterNomeClasse() const 

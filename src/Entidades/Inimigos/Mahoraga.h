@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "../Racas/RacaBase.h"
 
@@ -12,7 +12,6 @@ public:
     Atributos obterAtributosRaca() const override;
     std::vector<std::unique_ptr<Item>> obterEquipamentoRaca() const override;
     const std::vector<std::string>& obterAparenciaRaca() const override;
-    const std::vector<std::string>& obterAparenciaCombate() const override;
 
     std::string obterNomeHabilidadeRaca() const override;
     std::string obterDescricaoHabilidadeRaca() const override;
