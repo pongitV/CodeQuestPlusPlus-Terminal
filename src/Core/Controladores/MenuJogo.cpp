@@ -293,209 +293,85 @@ std::unique_ptr<Personagem> MenuJogo::menuPrincipal()
 
 std::unique_ptr<Personagem> MenuJogo::iniciarCriacaoDeSistemaPersonagem() 
 {
-    std::string nomeDoPersonagem = "";
+    std::string nomeDoPersonagem;
     std::unique_ptr<RacaBase> racaEscolhida;
     std::unique_ptr<ClasseBase> classeEscolhida;
     bool sistemaDeParryAtivado = false;
     int nivelDeDificuldadeEscolhido = 2;
-    EtapaCriacao etapaDeCriacaoAtual = EtapaCriacao::Nome; 
+    bool fazerTutorial = false;
 
-    while (etapaDeCriacaoAtual != EtapaCriacao::Concluido) 
-    {
-        switch (etapaDeCriacaoAtual) 
+    for (;;) {
         {
-            case EtapaCriacao::Nome: 
-                etapaEscolherNome(nomeDoPersonagem, etapaDeCriacaoAtual); 
-                if (nomeDoPersonagem == "0") return nullptr;
-                break;
-            case EtapaCriacao::Raca: etapaEscolherRaca(nomeDoPersonagem, racaEscolhida, etapaDeCriacaoAtual); break;
-            case EtapaCriacao::Classe: etapaEscolherClasse(nomeDoPersonagem, racaEscolhida.get(), classeEscolhida, etapaDeCriacaoAtual); break;
-            case EtapaCriacao::Dificuldade: etapaEscolherDificuldade(nomeDoPersonagem, racaEscolhida.get(), classeEscolhida.get(), nivelDeDificuldadeEscolhido, etapaDeCriacaoAtual); break;
-            case EtapaCriacao::Parry: etapaConfigurarParry(nomeDoPersonagem, racaEscolhida.get(), classeEscolhida.get(), nivelDeDificuldadeEscolhido, sistemaDeParryAtivado, etapaDeCriacaoAtual); break;
+            auto resultado = TelaNome::exibir();
+            if (resultado.voltou) return nullptr;
+            nomeDoPersonagem = resultado.nome;
         }
-    }
-    auto personagemCriado = std::make_unique<Personagem>(nomeDoPersonagem, std::move(racaEscolhida), std::move(classeEscolhida));
-    personagemCriado->definirParryAtivado(sistemaDeParryAtivado);
-    personagemCriado->definirDificuldade(static_cast<DificuldadeJogo>(nivelDeDificuldadeEscolhido));
-    
-    Diario::instancia().registrarRaca(personagemCriado->obterRaca()->obterNomeRaca());
-    Diario::instancia().registrarClasse(personagemCriado->obterNomeClasse());
-    
-    for (Item* item : personagemCriado->obterInventario()->obterTodosOsItens()) {
-        Diario::instancia().registrarItem(Aparencia::removerCoresANSI(item->obterNomeItem()));
-    }
 
-    std::string nomeDificuldade = Aparencia::cor(Cor::AMARELO) + "Normal" + Aparencia::cor(Cor::RESET);
-    if (nivelDeDificuldadeEscolhido == 1) nomeDificuldade = Aparencia::cor(Cor::VERDE) + "Facil" + Aparencia::cor(Cor::RESET);
-    else if (nivelDeDificuldadeEscolhido == 3) nomeDificuldade = Aparencia::cor(Cor::VERMELHO) + "Dificil" + Aparencia::cor(Cor::RESET);
-
-    std::string statusParry = sistemaDeParryAtivado ? (Aparencia::cor(Cor::VERDE) + "Ligado" + Aparencia::cor(Cor::RESET)) : (Aparencia::cor(Cor::CINZA) + "Desligado" + Aparencia::cor(Cor::RESET));
-    std::string infoBox = "| JOGADOR: " + personagemCriado->obterNome() + " | RACA: " + personagemCriado->obterRaca()->obterNomeRaca() + " | CLASSE: " + personagemCriado->obterNomeClasse() + " | DIFICULDADE: " + nomeDificuldade + " | PARRY: " + statusParry + " |";
-
-    TelaMenu::exibirIntroducaoJornada(infoBox);
-
-    return personagemCriado;
-}
-
-void MenuJogo::etapaEscolherNome(std::string& nomeDoPersonagem, EtapaCriacao& etapaAtual)
-{
-    TelaMenu::exibirPromptNome();
-    
-    std::string entrada = ControleDeInput::lerEntradaProtegida();
-
-    if (entrada == "0") {
-        nomeDoPersonagem = "0";
-        return;
-    }
-    nomeDoPersonagem = entrada;
-    if (!nomeDoPersonagem.empty()) etapaAtual = EtapaCriacao::Raca;
-}
-
-void MenuJogo::etapaEscolherRaca(const std::string& nome, std::unique_ptr<RacaBase>& racaEscolhida, EtapaCriacao& etapaAtual)
-{
-    int escolha = TelaMenu::exibirPromptRaca(nome);
-    
-    std::vector<std::string> racas = {"Dwarf", "Elfo", "Humano", "Ork"};
-    Aparencia::ordenarAlfabeticamente(racas);
-    
-    if (escolha == static_cast<int>(racas.size()) || escolha == -1) { etapaAtual = EtapaCriacao::Nome; return; }
-
-    std::unique_ptr<RacaBase> racaTemporaria;
-    std::string racaSelecionada = racas[escolha];
-    
-    if (racaSelecionada == "Dwarf") racaTemporaria = std::make_unique<Dwarf>();
-    else if (racaSelecionada == "Elfo") racaTemporaria = std::make_unique<Elfo>();
-    else if (racaSelecionada == "Humano") racaTemporaria = std::make_unique<Humano>();
-    else if (racaSelecionada == "Ork") racaTemporaria = std::make_unique<Ork>();
-
-    if (racaTemporaria) 
-    {
-        std::vector<std::string> info = TelaMenu::comporQuadroDeAtributos(racaTemporaria->obterAtributosRaca(), "[ ATRIBUTOS BASE DE RAÇA ]", "[ HABILIDADE PASSIVA ]", racaTemporaria->obterNomeHabilidadeRaca(), racaTemporaria->obterDescricaoHabilidadeRaca());
-        
-        if (TelaMenu::exibirConfirmacaoDeEscolhaComArteLadoALado("RACA", racaTemporaria->obterNomeRaca(), info, racaTemporaria->obterAparenciaRaca())) 
+        std::string nomeRaca;
         {
-            racaEscolhida = std::move(racaTemporaria); 
-            etapaAtual = EtapaCriacao::Classe;
-        }
-    }
-}
+            auto resultado = TelaRaca::exibir(nomeDoPersonagem);
+            if (resultado.voltou) continue;
 
-void MenuJogo::etapaEscolherClasse(const std::string& nome, RacaBase* raca, std::unique_ptr<ClasseBase>& classeEscolhida, EtapaCriacao& etapaAtual)
-{
-    int escolha = TelaMenu::exibirPromptClasse(nome, raca->obterNomeRaca());
-    
-    std::vector<std::string> classes = {"Arqueiro", "Bardo", "Guerreiro", "Mago", "Necromante"};
-    Aparencia::ordenarAlfabeticamente(classes);
-    
-    if (escolha == static_cast<int>(classes.size()) || escolha == -1) { etapaAtual = EtapaCriacao::Raca; return; }
+            std::vector<std::string> racas = {"Dwarf", "Elfo", "Humano", "Ork"};
+            Aparencia::ordenarAlfabeticamente(racas);
+            std::string racaSelecionada = racas[resultado.indice];
+            nomeRaca = racaSelecionada;
 
-    std::unique_ptr<ClasseBase> classeTemporaria;
-    std::string classeSelecionada = classes[escolha];
-    
-    if (classeSelecionada == "Arqueiro") classeTemporaria = std::make_unique<Arqueiro>();
-    else if (classeSelecionada == "Bardo") classeTemporaria = std::make_unique<Bardo>();
-    else if (classeSelecionada == "Guerreiro") classeTemporaria = std::make_unique<Guerreiro>();
-    else if (classeSelecionada == "Mago") classeTemporaria = std::make_unique<Mago>();
-    else if (classeSelecionada == "Necromante") classeTemporaria = std::make_unique<Necromante>();
-
-    if (classeTemporaria) 
-    {
-        std::string descCombatStyle = "";
-        TipoClasse tipo = classeTemporaria->obterTipoClasse();
-
-        if (tipo == TipoClasse::Guerreiro) descCombatStyle = "Estilo de combate: Equilibrado em dano e resistencia.";
-        else if (tipo == TipoClasse::Bardo) descCombatStyle = "Estilo de combate: Focado em buffs e curas.";
-        else if (tipo == TipoClasse::Mago) descCombatStyle = "Estilo de combate: Estilo Glass Cannon.";
-        else if (tipo == TipoClasse::Arqueiro) descCombatStyle = "Estilo de combate: Focado em dano critico e desvios.";
-        else if (tipo == TipoClasse::NECROMANTE) descCombatStyle = "Estilo de combate: Invocacao de lacaios e debuffs mortais.";
-
-        std::vector<std::string> info = TelaMenu::comporQuadroDeAtributos(classeTemporaria->obterAtributosClasse(), "[ ATRIBUTOS BONUS DA CLASSE ]", "[ HABILIDADE PASSIVA DA CLASSE ]", classeTemporaria->obterNomePassivaClasse(), classeTemporaria->obterDescricaoPassivaClasse());
-        
-        info.insert(info.begin(), "");
-        info.insert(info.begin(), Aparencia::cor(Cor::CINZA) + descCombatStyle + Aparencia::cor(Cor::RESET));
-
-        info.push_back("");
-        info.insert(info.end(), {
-            Aparencia::cor(Cor::BRANCO) + "[ HABILIDADE ATIVA DA CLASSE ]" + Aparencia::cor(Cor::RESET),
-            " " + Aparencia::cor(Cor::CIANO) + classeTemporaria->obterNomeHabilidadeClasse() + Aparencia::cor(Cor::RESET),
-            " - " + Aparencia::cor(Cor::CINZA) + classeTemporaria->obterDescricaoHabilidadeClasse() + Aparencia::cor(Cor::RESET),
-            " - " + Aparencia::cor(Cor::CINZA) + classeTemporaria->obterRecargaHabilidadeClasse() + Aparencia::cor(Cor::RESET),
-            "",
-            Aparencia::cor(Cor::BRANCO) + "[ EQUIPAMENTO INICIAL DA CLASSE ]" + Aparencia::cor(Cor::RESET)
-        });
-        
-        auto kit = classeTemporaria->obterEquipamentoClasse();
-        std::map<std::string, std::pair<int, TipoEquipamento>> contagem;
-        for (const auto& itemDoKit : kit) {
-            if (itemDoKit) {
-                std::string nomeCompleto = itemDoKit->obterNomeItem() + itemDoKit->obterInfoStatus();
-                
-                if (itemDoKit->obterTipo() == TipoEquipamento::ARMA) {
-                    if (auto* arma = dynamic_cast<EquipamentoArma*>(itemDoKit.get())) {
-                        int dFis = arma->obterDanoFisico();
-                        int dMag = arma->obterDanoMagico();
-                        if (dFis > 0 && dMag > 0) nomeCompleto += Aparencia::cor(Cor::CINZA) + " [" + std::to_string(dFis) + " Fis | " + std::to_string(dMag) + " Mag]" + Aparencia::cor(Cor::RESET);
-                        else if (dFis > 0) nomeCompleto += Aparencia::cor(Cor::CINZA) + " [" + std::to_string(dFis) + " Dano Fis]" + Aparencia::cor(Cor::RESET);
-                        else if (dMag > 0) nomeCompleto += Aparencia::cor(Cor::CINZA) + " [" + std::to_string(dMag) + " Dano Mag]" + Aparencia::cor(Cor::RESET);
-                    }
-                } else if (itemDoKit->obterTipo() == TipoEquipamento::ARMADURA) {
-                    if (auto* armadura = dynamic_cast<EquipamentoArmadura*>(itemDoKit.get())) {
-                        nomeCompleto += Aparencia::cor(Cor::CINZA) + " [" + std::to_string(armadura->obterReducaoFixa()) + " Defesa]" + Aparencia::cor(Cor::RESET);
-                    }
-                } else if (itemDoKit->obterTipo() == TipoEquipamento::ESCUDO) {
-                    if (auto* escudo = dynamic_cast<EquipamentoEscudo*>(itemDoKit.get())) {
-                        nomeCompleto += Aparencia::cor(Cor::CINZA) + " [" + std::to_string(escudo->obterReducaoDanoFixaEscudo()) + " Bloqueio]" + Aparencia::cor(Cor::RESET);
-                    }
-                }
-
-                contagem[nomeCompleto].first++;
-                contagem[nomeCompleto].second = itemDoKit->obterTipo();
-            }
-        }
-        
-        std::vector<TipoEquipamento> ordemPrioridade = { TipoEquipamento::ARMA, TipoEquipamento::ESCUDO, TipoEquipamento::ARMADURA, TipoEquipamento::CONSUMIVEL };
-        for (TipoEquipamento tipo : ordemPrioridade) {
-            for (auto const& [nomeDoItem, dadosDoItem] : contagem) {
-                if (dadosDoItem.second == tipo) {
-                    info.push_back(" - " + std::to_string(dadosDoItem.first) + "x " + nomeDoItem);
-                }
-            }
+            if (racaSelecionada == "Dwarf") racaEscolhida = std::make_unique<Dwarf>();
+            else if (racaSelecionada == "Elfo") racaEscolhida = std::make_unique<Elfo>();
+            else if (racaSelecionada == "Humano") racaEscolhida = std::make_unique<Humano>();
+            else if (racaSelecionada == "Ork") racaEscolhida = std::make_unique<Ork>();
         }
 
-        if (TelaMenu::exibirConfirmacaoDeEscolhaComArteLadoALado("CLASSE", classeTemporaria->obterNomeClasse(), info, classeTemporaria->obterAparenciaClasseMenu())) 
+        std::string nomeClasse;
         {
-            classeEscolhida = std::move(classeTemporaria); 
-            etapaAtual = EtapaCriacao::Dificuldade;
+            auto resultado = TelaClasse::exibir(nomeDoPersonagem, nomeRaca);
+            if (resultado.voltou) continue;
+
+            std::vector<std::string> classes = {"Arqueiro", "Bardo", "Guerreiro", "Mago", "Necromante"};
+            Aparencia::ordenarAlfabeticamente(classes);
+            std::string classeSelecionada = classes[resultado.indice];
+            nomeClasse = classeSelecionada;
+
+            if (classeSelecionada == "Arqueiro") classeEscolhida = std::make_unique<Arqueiro>();
+            else if (classeSelecionada == "Bardo") classeEscolhida = std::make_unique<Bardo>();
+            else if (classeSelecionada == "Guerreiro") classeEscolhida = std::make_unique<Guerreiro>();
+            else if (classeSelecionada == "Mago") classeEscolhida = std::make_unique<Mago>();
+            else if (classeSelecionada == "Necromante") classeEscolhida = std::make_unique<Necromante>();
         }
+
+        {
+            auto resultado = TelaDificuldade::exibir(nomeDoPersonagem, nomeRaca, nomeClasse);
+            if (resultado.voltou) continue;
+            nivelDeDificuldadeEscolhido = resultado.indice + 1;
+        }
+
+        {
+            auto resultado = TelaParry::exibir(nomeDoPersonagem, nomeRaca, nomeClasse);
+            if (resultado.voltou) continue;
+            sistemaDeParryAtivado = resultado.parryAtivado;
+            fazerTutorial = resultado.fazerTutorial;
+        }
+
+        auto personagemCriado = std::make_unique<Personagem>(nomeDoPersonagem, std::move(racaEscolhida), std::move(classeEscolhida));
+        personagemCriado->definirParryAtivado(sistemaDeParryAtivado);
+        personagemCriado->definirDificuldade(static_cast<DificuldadeJogo>(nivelDeDificuldadeEscolhido));
+
+        Diario::instancia().registrarRaca(personagemCriado->obterRaca()->obterNomeRaca());
+        Diario::instancia().registrarClasse(personagemCriado->obterNomeClasse());
+
+        for (Item* item : personagemCriado->obterInventario()->obterTodosOsItens()) {
+            Diario::instancia().registrarItem(Aparencia::removerCoresANSI(item->obterNomeItem()));
+        }
+
+        if (fazerTutorial) {
+            TelaMenu::exibirTutorialDeParry("");
+        }
+
+        TelaIntroducao::exibir();
+
+        return personagemCriado;
     }
 }
 
-void MenuJogo::etapaConfigurarParry(const std::string& nome, RacaBase* raca, ClasseBase* classe, int dificuldade, bool& parry, EtapaCriacao& etapaAtual)
-{
-    std::string nomeDificuldade = Aparencia::cor(Cor::AMARELO) + "Normal" + Aparencia::cor(Cor::RESET);
-    if (dificuldade == 1) nomeDificuldade = Aparencia::cor(Cor::VERDE) + "Facil" + Aparencia::cor(Cor::RESET);
-    else if (dificuldade == 3) nomeDificuldade = Aparencia::cor(Cor::VERMELHO) + "Dificil" + Aparencia::cor(Cor::RESET);
 
-    int escolha = TelaMenu::exibirPromptParry(nome, raca->obterNomeRaca(), classe->obterNomeClasse() + " | DIFICULDADE: " + nomeDificuldade);
-    if (escolha == 2) { etapaAtual = EtapaCriacao::Dificuldade; return; }
-
-    if (escolha == 0) {
-        parry = true;
-        std::string statusParry = Aparencia::cor(Cor::VERDE) + "Ligado" + Aparencia::cor(Cor::RESET);
-        std::string infoBox = "| JOGADOR: " + nome + " | RACA: " + raca->obterNomeRaca() + " | CLASSE: " + classe->obterNomeClasse() + " | DIFICULDADE: " + nomeDificuldade + " | PARRY: " + statusParry + " |";
-        TelaMenu::exibirTutorialDeParry(infoBox);
-        etapaAtual = EtapaCriacao::Concluido;
-    } else if (escolha == 1) {
-        parry = false;
-        etapaAtual = EtapaCriacao::Concluido;
-    }
-}
-
-void MenuJogo::etapaEscolherDificuldade(const std::string& nome, RacaBase* raca, ClasseBase* classe, int& dificuldade, EtapaCriacao& etapaAtual)
-{
-    int escolha = TelaMenu::exibirPromptDificuldade(nome, raca->obterNomeRaca(), classe->obterNomeClasse());
-    if (escolha == 3) { etapaAtual = EtapaCriacao::Classe; return; }
-
-    dificuldade = escolha + 1;
-    etapaAtual = EtapaCriacao::Parry;
-}
