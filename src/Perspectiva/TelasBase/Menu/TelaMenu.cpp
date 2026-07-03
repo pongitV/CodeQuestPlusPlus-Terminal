@@ -40,50 +40,6 @@ int TelaMenu::exibirMenuCarregarJogo(const std::vector<std::string>& informacoes
     return TelaMenuIDE::exibirMenuCarregarJogo(informacoesSaves);
 }
 
-void TelaMenu::exibirPromptNome() {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        TelaMenuRaycaster::exibirPromptNome();
-    } else {
-        TelaMenuIDE::exibirPromptNome();
-    }
-}
-
-int TelaMenu::exibirPromptRaca(const std::string& nome) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        return TelaMenuRaycaster::exibirPromptRaca(nome);
-    }
-    return TelaMenuIDE::exibirPromptRaca(nome);
-}
-
-int TelaMenu::exibirPromptClasse(const std::string& nome, const std::string& nomeRaca) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        return TelaMenuRaycaster::exibirPromptClasse(nome, nomeRaca);
-    }
-    return TelaMenuIDE::exibirPromptClasse(nome, nomeRaca);
-}
-
-int TelaMenu::exibirPromptParry(const std::string& nome, const std::string& nomeRaca, const std::string& nomeClasse) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        return TelaMenuRaycaster::exibirPromptParry(nome, nomeRaca, nomeClasse);
-    }
-    return TelaMenuIDE::exibirPromptParry(nome, nomeRaca, nomeClasse);
-}
-
-int TelaMenu::exibirPromptDificuldade(const std::string& nome, const std::string& nomeRaca, const std::string& nomeClasse) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        return TelaMenuRaycaster::exibirPromptDificuldade(nome, nomeRaca, nomeClasse);
-    }
-    return TelaMenuIDE::exibirPromptDificuldade(nome, nomeRaca, nomeClasse);
-}
-
 void TelaMenu::exibirTutorialDeParry(const std::string& infoBox) {
     TelaTutorial::exibirTutorialDeParry(infoBox);
-}
-
-void TelaMenu::exibirIntroducaoJornada(const std::string& infoBox) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        TelaMenuRaycaster::exibirIntroducaoJornada(infoBox);
-    } else {
-        TelaMenuIDE::exibirIntroducaoJornada(infoBox);
-    }
 }

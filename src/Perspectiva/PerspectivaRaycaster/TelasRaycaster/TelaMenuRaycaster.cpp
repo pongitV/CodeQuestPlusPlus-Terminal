@@ -18,24 +18,4 @@ int TelaMenuRaycaster::exibirMenuCarregarJogo(const std::vector<std::string>&) {
     return 0;
 }
 
-void TelaMenuRaycaster::exibirPromptNome() {}
-
-int TelaMenuRaycaster::exibirPromptRaca(const std::string&) {
-    return 0;
-}
-
-int TelaMenuRaycaster::exibirPromptClasse(const std::string&, const std::string&) {
-    return 0;
-}
-
-int TelaMenuRaycaster::exibirPromptParry(const std::string&, const std::string&, const std::string&) {
-    return 0;
-}
-
-int TelaMenuRaycaster::exibirPromptDificuldade(const std::string&, const std::string&, const std::string&) {
-    return 0;
-}
-
 void TelaMenuRaycaster::exibirTutorialDeParry(const std::string&) {}
-
-void TelaMenuRaycaster::exibirIntroducaoJornada(const std::string&) {}

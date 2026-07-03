@@ -270,10 +270,7 @@ std::unique_ptr<Personagem> MenuJogo::menuPrincipal()
                 Diario::instancia().registrarItem(Aparencia::removerCoresANSI(item->obterNomeItem()));
             }
 
-            std::string statusParry = Aparencia::cor(Cor::VERDE) + "Ligado" + Aparencia::cor(Cor::RESET);
-            std::string nomeDificuldade = Aparencia::cor(Cor::VERDE) + "Facil" + Aparencia::cor(Cor::RESET);
-            std::string infoBox = "| JOGADOR: Debug | RACA: Humano | CLASSE: Mago | DIFICULDADE: " + nomeDificuldade + " | PARRY: " + statusParry + " |";
-            TelaMenu::exibirIntroducaoJornada(infoBox);
+            TelaIntroducao::exibir();
 
             return personagemCriado;
         } else if (opcaoSelecionada == "Opcoes") {
