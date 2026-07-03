@@ -1,10 +1,10 @@
-﻿#include "InteracaoNPC.h"
+#include "InteracaoNPC.h"
 #include <iostream>
 #include "../../Core/Utilidades/ControleDeInput.h"
-#include "../../Visoes/TelasBase/Inventario/TelaInventario.h"
+#include "../../Perspectiva/TelasBase/Inventario/TelaInventario.h"
 #include "../../Sistemas/Inventario/FabricaItens.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
-#include "../../Visoes/TelasBase/TelaBase.h"
+#include "../../Perspectiva/TelasBase/TelaBase.h"
 
 // --- INTERACAO PRINCIPAL ---
 void InteracaoNPC::interagir(Personagem* jogadorAtual) {

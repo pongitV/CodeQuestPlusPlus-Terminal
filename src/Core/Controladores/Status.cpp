@@ -1,4 +1,4 @@
-﻿#include "Status.h"
+#include "Status.h"
 
 #include <iostream>
 
@@ -6,7 +6,7 @@
 #include "../../Entidades/Personagem.h"
 #include "../Utilidades/Aparencia.h"
 #include "../Utilidades/FuncoesDialogo.h"
-#include "../../Visoes/TelasBase/Combate/TelaCombate.h"
+#include "../../Perspectiva/TelasBase/Combate/TelaCombate.h"
 
 void EfeitoSugaSangue::aplicarInicioTurno(Personagem* alvo) {
     if (!Personagem::isValido(atacante) || atacante->obterVida() <= 0) return;
@@ -100,7 +100,7 @@ void EfeitoRodaAdaptacao::aplicarInicioTurno(Personagem* alvo) {
     int cura = alvo->obterVidaMaxima() * 0.05;
     if (cura > 0) {
         alvo->modificarVida(cura);
-        TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + Aparencia::cor(Cor::VERDE) + ">> A Roda gira... Regenerou " + std::to_string(cura) + " HP!" + Aparencia::cor(Cor::RESET) + "\n");
+        TelaCombate::adicionarMensagemFixa(TelaCombate::margemCombate() + Aparencia::cor(Cor::VERDE) + ">> A Roda gira... Regenerou " + std::to_string(cura) + " HP!" + Aparencia::cor(Cor::RESET) + "\n");
         Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("A Roda gira... Regenerou " + std::to_string(cura) + " HP!", Cor::VERDE));
     }
 }
@@ -163,6 +163,6 @@ void EfeitoRodaAdaptacao::adaptar(Personagem* alvo, Personagem* inimigo) {
         msgAtaque = "poder hibrido";
     }
 
-    TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + "\033[5m" + Aparencia::cor(Cor::AMARELO) + "* KLINK! *" + Aparencia::cor(Cor::RESET) + " A Roda adapta " + msgDefesa + " e " + msgAtaque + " (+2)!\n");
+    TelaCombate::adicionarMensagemFixa(TelaCombate::margemCombate() + "\033[5m" + Aparencia::cor(Cor::AMARELO) + "* KLINK! *" + Aparencia::cor(Cor::RESET) + " A Roda adapta " + msgDefesa + " e " + msgAtaque + " (+2)!\n");
 }
 void EfeitoInviolavel::aoSair(Personagem* alvo) { alvo->adicionarEfeito(std::make_unique<EfeitoMiraCerteira>(99)); }

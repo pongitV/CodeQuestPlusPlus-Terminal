@@ -1,10 +1,10 @@
-﻿#include "Anao.h"
+#include "Anao.h"
 
 #include <iostream>
 
 #include "../../Core/Utilidades/GeradorAleatorio.h"
 #include "../../Core/Utilidades/Aparencia.h"
-#include "../../Visoes/TelasBase/Combate/TelaCombate.h"
+#include "../../Perspectiva/TelasBase/Combate/TelaCombate.h"
 
 // --- INFORMACOES DA RACA ---
 std::string Dwarf::obterNomeRaca() const
@@ -87,7 +87,7 @@ int Dwarf::processarDanoDefensivo(int danoFinal, Personagem* defensor)
         if (GeradorAleatorio::rolarChance(50)) 
         {
             defensor->obterEscudo()->aumentarDurabilidade(1);
-            std::string msg = Aparencia::margemCombate() + "[PASSIVA]: Forjado com determinacao poupou a durabilidade do escudo!\n";
+            std::string msg = TelaCombate::margemCombate() + "[PASSIVA]: Forjado com determinacao poupou a durabilidade do escudo!\n";
             TelaCombate::adicionarMensagemFixa(msg);
         }
     }

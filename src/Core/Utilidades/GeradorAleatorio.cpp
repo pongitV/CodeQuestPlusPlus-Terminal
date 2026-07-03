@@ -1,4 +1,4 @@
-﻿#include "GeradorAleatorio.h"
+#include "GeradorAleatorio.h"
 #include <random>
 #include <chrono>
 

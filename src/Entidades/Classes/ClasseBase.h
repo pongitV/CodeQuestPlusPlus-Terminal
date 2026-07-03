@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "../Personagem.h"
 #include "../../Sistemas/Inventario/Inventario.h"
@@ -6,7 +6,7 @@
 #include "../../Sistemas/Inventario/FabricaItens.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Utilidades/ControleDeInput.h"
-#include "../../Visoes/TelasBase/Combate/TelaCombate.h"
+#include "../../Perspectiva/TelasBase/Combate/TelaCombate.h"
 #include <memory>
 #include <functional>
 #include <iostream>
@@ -64,14 +64,14 @@ public:
 protected:
     void notificarMensagemCombate(const std::string& msgComCor, const std::string& /*msgSemCor*/) const {
         // A mensagem na UI foi removida para priorizar o combate limpo
-        // std::string msgFinal = Aparencia::margemCombate() + msgComCor + "\n";
+        // std::string msgFinal = TelaCombate::margemCombate() + msgComCor + "\n";
         // TelaCombate::adicionarMensagemFixa(msgFinal);
         Aparencia::registrarLogBatalha(msgComCor);
     }
 
     bool verificarEReportarRecarga(Personagem* personagemUsuario, int turnosRestantes, const std::string& nomeHabilidade) const {
         if (turnosRestantes > 0) {
-            std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERMELHO) << "[SISTEMA]: A habilidade " << nomeHabilidade << " esta em recarga (" << turnosRestantes << " turnos)!" << Aparencia::cor(Cor::RESET) << "\n";
+            std::cout << "\n" << TelaCombate::margemCombate() << Aparencia::cor(Cor::VERMELHO) << "[SISTEMA]: A habilidade " << nomeHabilidade << " esta em recarga (" << turnosRestantes << " turnos)!" << Aparencia::cor(Cor::RESET) << "\n";
             Aparencia::registrarLogBatalha("[SISTEMA]: A habilidade " + nomeHabilidade + " esta em recarga (" + std::to_string(turnosRestantes) + " turnos)!");
             ControleDeInput::aguardarEnter();
             personagemUsuario->definirHabilidadeCancelada(true);

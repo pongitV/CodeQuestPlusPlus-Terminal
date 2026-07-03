@@ -1,4 +1,4 @@
-﻿#include "Debug.h"
+#include "Debug.h"
 
 #include <iostream>
 #include <string>
@@ -15,11 +15,11 @@
 #include "../../Core/Controladores/CriadorInimigos.h"
 #include "../../Sistemas/Progresso/Diario.h"
 #include "../Utilidades/FuncoesDialogo.h"
-#include "../../Visoes/TelasBase/TelaBase.h"
+#include "../../Perspectiva/TelasBase/TelaBase.h"
 #include "../../Sistemas/Progresso/Progressao.h"
 #include "../../Sistemas/Progresso/ProgressaoFlags.h"
 #include "../../Sistemas/Combate/Combate.h"
-#include "../../Mundo/ControleMapa.h"
+#include "../../Mapas/ControleMapa.h"
 
 namespace {
     void ativarGodMode(Personagem* jogador) {

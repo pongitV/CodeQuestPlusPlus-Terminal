@@ -1,8 +1,8 @@
-﻿#include "ItemConsumivel.h"
+#include "ItemConsumivel.h"
 #include "../../../Core/Controladores/Status.h"
 #include "../../../Entidades/Personagem.h"
 #include "../../../Core/Utilidades/Aparencia.h"
-#include "../../../Visoes/TelasBase/Combate/TelaCombate.h"
+#include "../../../Perspectiva/TelasBase/Combate/TelaCombate.h"
 #include <functional>
 #include <unordered_map>
 #include "../FabricaItens.h"
@@ -33,7 +33,7 @@ std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
         cura->definirDescricaoInspecao("Restaura 30% da sua Vida Maxima.");
         cura->definirAcaoInventario([](Item* item, Personagem* usuario, bool* turnoFoiConsumido) {
             if (usuario->obterVida() >= usuario->obterVidaMaxima()) {
-                std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Sua vida ja esta cheia!\n";
+                std::cout << "\n" << TelaCombate::margemCombate() << "[SISTEMA]: Sua vida ja esta cheia!\n";
                 return true;
             }
             int vidaAntes = usuario->obterVida();
@@ -41,7 +41,7 @@ std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
             usuario->modificarVida(curaEstimada);
             int vidaDepois = usuario->obterVida();
             int curaReal = vidaDepois - vidaAntes;
-            std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE) << "[SISTEMA]: " << item->obterNomeItem() << " usada! +" << curaReal << " HP. (Vida atual: " << vidaDepois << "/" << usuario->obterVidaMaxima() << ")" << Aparencia::cor(Cor::RESET) << "\n";
+            std::cout << "\n" << TelaCombate::margemCombate() << Aparencia::cor(Cor::VERDE) << "[SISTEMA]: " << item->obterNomeItem() << " usada! +" << curaReal << " HP. (Vida atual: " << vidaDepois << "/" << usuario->obterVidaMaxima() << ")" << Aparencia::cor(Cor::RESET) << "\n";
             Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERDE) + "[SISTEMA]: " + item->obterNomeItem() + " usada! +" + std::to_string(curaReal) + " HP." + Aparencia::cor(Cor::RESET));
             
             if (usuario->obterConsumivelRapido() == item) {
@@ -69,7 +69,7 @@ std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
         t->definirAcaoInventario([buffAtr, debuffAtr](Item* item, Personagem* usuario, bool* turnoFoiConsumido) {
             usuario->alterarAtributoEstatico(buffAtr, 5);
             usuario->alterarAtributoEstatico(debuffAtr, -5);
-            std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << item->obterNomeItem() << " consumido!\n";
+            std::cout << "\n" << TelaCombate::margemCombate() << "[SISTEMA]: " << item->obterNomeItem() << " consumido!\n";
             
             if (usuario->obterConsumivelRapido() == item) {
                 usuario->desequiparConsumivel();
@@ -94,10 +94,10 @@ std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
         buff->adicionarPropriedade(Propriedade::ConsumivelBuff);
         buff->definirDescricaoInspecao("Aumenta seus atributos em 1.5x por 2 turnos.");
         buff->definirAcaoInventario([](Item* item, Personagem* usuario, bool* turnoFoiConsumido) {
-            if (!turnoFoiConsumido) { std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Pocoes de buff so podem ser usadas em combate!\n"; return true; }
+            if (!turnoFoiConsumido) { std::cout << "\n" << TelaCombate::margemCombate() << "[SISTEMA]: Pocoes de buff so podem ser usadas em combate!\n"; return true; }
             usuario->adicionarEfeito(std::make_unique<EfeitoBuffAtributos>(2));
             usuario->definirMultiplicador(1.5);
-            std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE_CLARO) << "[SISTEMA]: " << item->obterNomeItem() << " consumida! Atributos ampliados em 1.5x por 2 turnos!" << Aparencia::cor(Cor::RESET) << "\n";
+            std::cout << "\n" << TelaCombate::margemCombate() << Aparencia::cor(Cor::VERDE_CLARO) << "[SISTEMA]: " << item->obterNomeItem() << " consumida! Atributos ampliados em 1.5x por 2 turnos!" << Aparencia::cor(Cor::RESET) << "\n";
             Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERDE_CLARO) + "[SISTEMA]: " + item->obterNomeItem() + " consumida! Atributos ampliados em 1.5x por 2 turnos!" + Aparencia::cor(Cor::RESET));
             
             if (usuario->obterConsumivelRapido() == item) {
@@ -124,14 +124,14 @@ std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
         comida->definirDescricaoInspecao(desc);
         comida->definirAcaoInventario([curaHP](Item* item, Personagem* usuario, bool* turnoFoiConsumido) {
             if (usuario->obterVida() >= usuario->obterVidaMaxima()) {
-                std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Sua vida ja esta cheia!\n";
+                std::cout << "\n" << TelaCombate::margemCombate() << "[SISTEMA]: Sua vida ja esta cheia!\n";
                 return true;
             }
             int vidaAntes = usuario->obterVida();
             usuario->modificarVida(curaHP);
             int vidaDepois = usuario->obterVida();
             int curaReal = vidaDepois - vidaAntes;
-            std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE) << "[SISTEMA]: " << item->obterNomeItem() << " consumido(a)! +" << curaReal << " HP. (Vida atual: " << vidaDepois << "/" << usuario->obterVidaMaxima() << ")" << Aparencia::cor(Cor::RESET) << "\n";
+            std::cout << "\n" << TelaCombate::margemCombate() << Aparencia::cor(Cor::VERDE) << "[SISTEMA]: " << item->obterNomeItem() << " consumido(a)! +" << curaReal << " HP. (Vida atual: " << vidaDepois << "/" << usuario->obterVidaMaxima() << ")" << Aparencia::cor(Cor::RESET) << "\n";
             
             if (usuario->obterConsumivelRapido() == item) {
                 usuario->desequiparConsumivel();
@@ -149,7 +149,7 @@ std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
         cura->definirDescricaoInspecao("Restaura 50% da sua Vida Maxima.");
         cura->definirAcaoInventario([](Item* item, Personagem* usuario, bool* turnoFoiConsumido) {
             if (usuario->obterVida() >= usuario->obterVidaMaxima()) {
-                std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Sua vida ja esta cheia!\n";
+                std::cout << "\n" << TelaCombate::margemCombate() << "[SISTEMA]: Sua vida ja esta cheia!\n";
                 return true;
             }
             int vidaAntes = usuario->obterVida();
@@ -157,7 +157,7 @@ std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
             usuario->modificarVida(curaEstimada);
             int vidaDepois = usuario->obterVida();
             int curaReal = vidaDepois - vidaAntes;
-            std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE) << "[SISTEMA]: " << item->obterNomeItem() << " usada! +" << curaReal << " HP. (Vida atual: " << vidaDepois << "/" << usuario->obterVidaMaxima() << ")" << Aparencia::cor(Cor::RESET) << "\n";
+            std::cout << "\n" << TelaCombate::margemCombate() << Aparencia::cor(Cor::VERDE) << "[SISTEMA]: " << item->obterNomeItem() << " usada! +" << curaReal << " HP. (Vida atual: " << vidaDepois << "/" << usuario->obterVidaMaxima() << ")" << Aparencia::cor(Cor::RESET) << "\n";
             
             if (usuario->obterConsumivelRapido() == item) {
                 usuario->desequiparConsumivel();
@@ -174,9 +174,9 @@ std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
         buff->adicionarPropriedade(Propriedade::ConsumivelBuff);
         buff->definirDescricaoInspecao("Aumenta Forca em +5 e Destreza em +3 por 3 turnos em combate.");
         buff->definirAcaoInventario([](Item* item, Personagem* usuario, bool* turnoFoiConsumido) {
-            if (!turnoFoiConsumido) { std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Pocoes de buff so podem ser usadas em combate!\n"; return true; }
+            if (!turnoFoiConsumido) { std::cout << "\n" << TelaCombate::margemCombate() << "[SISTEMA]: Pocoes de buff so podem ser usadas em combate!\n"; return true; }
             usuario->adicionarEfeito(std::make_unique<EfeitoGritoGuerra>(3, 5, 3));
-            std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE_CLARO) << "[SISTEMA]: " << item->obterNomeItem() << " consumida! +5 Forca e +3 Destreza por 3 turnos!" << Aparencia::cor(Cor::RESET) << "\n";
+            std::cout << "\n" << TelaCombate::margemCombate() << Aparencia::cor(Cor::VERDE_CLARO) << "[SISTEMA]: " << item->obterNomeItem() << " consumida! +5 Forca e +3 Destreza por 3 turnos!" << Aparencia::cor(Cor::RESET) << "\n";
             
             if (usuario->obterConsumivelRapido() == item) {
                 usuario->desequiparConsumivel();
@@ -193,14 +193,14 @@ std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
         debuff->adicionarPropriedade(Propriedade::ConsumivelDebuffFraqueza);
         debuff->definirDescricaoInspecao("Aplica Necrose no alvo por 3 turnos (causa 12 de dano por turno).");
         debuff->definirAcaoInventario([](Item* item, Personagem* usuario, bool* turnoFoiConsumido) {
-            if (!turnoFoiConsumido) { std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Pocoes de arremesso so podem ser usadas em combate!\n"; return true; }
+            if (!turnoFoiConsumido) { std::cout << "\n" << TelaCombate::margemCombate() << "[SISTEMA]: Pocoes de arremesso so podem ser usadas em combate!\n"; return true; }
             usuario->definirItemSelecionadoParaUso(item);
             return true;
         });
         debuff->definirAcaoUsar([](Personagem* /*usuario*/, Personagem* alvo) {
             if (!Personagem::isValido(alvo) || alvo->obterVida() <= 0) return;
             alvo->adicionarEfeito(std::make_unique<EfeitoNecrose>(3, 12));
-            TelaCombate::adicionarMensagemFixa("\n" + Aparencia::margemCombate() + Aparencia::cor(Cor::VERMELHO) + ">> Voce arremessou a pocao! " + alvo->obterNome() + " sofreu necrose (12 dano/turno) por 3 turnos!" + Aparencia::cor(Cor::RESET) + "\n");
+            TelaCombate::adicionarMensagemFixa("\n" + TelaCombate::margemCombate() + Aparencia::cor(Cor::VERMELHO) + ">> Voce arremessou a pocao! " + alvo->obterNome() + " sofreu necrose (12 dano/turno) por 3 turnos!" + Aparencia::cor(Cor::RESET) + "\n");
         });
         return debuff;
     };
@@ -210,14 +210,14 @@ std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
         debuff->adicionarPropriedade(Propriedade::ConsumivelDebuffLentidao);
         debuff->definirDescricaoInspecao("Aplica Lentidao no alvo por 3 turnos (Reduz Destreza).");
         debuff->definirAcaoInventario([](Item* item, Personagem* usuario, bool* turnoFoiConsumido) {
-            if (!turnoFoiConsumido) { std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Pocoes de arremesso so podem ser usadas em combate!\n"; return true; }
+            if (!turnoFoiConsumido) { std::cout << "\n" << TelaCombate::margemCombate() << "[SISTEMA]: Pocoes de arremesso so podem ser usadas em combate!\n"; return true; }
             usuario->definirItemSelecionadoParaUso(item);
             return true;
         });
         debuff->definirAcaoUsar([](Personagem* /*usuario*/, Personagem* alvo) {
             if (!Personagem::isValido(alvo) || alvo->obterVida() <= 0) return;
             alvo->adicionarEfeito(std::make_unique<EfeitoLentidao>(3));
-            TelaCombate::adicionarMensagemFixa("\n" + Aparencia::margemCombate() + Aparencia::cor(Cor::MAGENTA) + ">> Voce arremessou a pocao! " + alvo->obterNome() + " esta sob efeito de Lentidao por 3 turnos!" + Aparencia::cor(Cor::RESET) + "\n");
+            TelaCombate::adicionarMensagemFixa("\n" + TelaCombate::margemCombate() + Aparencia::cor(Cor::MAGENTA) + ">> Voce arremessou a pocao! " + alvo->obterNome() + " esta sob efeito de Lentidao por 3 turnos!" + Aparencia::cor(Cor::RESET) + "\n");
         });
         return debuff;
     };
@@ -239,14 +239,14 @@ std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
             debuff->adicionarPropriedade(Propriedade::ConsumivelDebuffLentidao);
             debuff->definirDescricaoInspecao("Aplica Lentidao no alvo por 3 turnos (Reduz Destreza).");
             debuff->definirAcaoInventario([](Item* item, Personagem* usuario, bool* turnoFoiConsumido) {
-                if (!turnoFoiConsumido) { std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Frascos de debuff so podem ser usados em combate!\n"; return true; }
+                if (!turnoFoiConsumido) { std::cout << "\n" << TelaCombate::margemCombate() << "[SISTEMA]: Frascos de debuff so podem ser usados em combate!\n"; return true; }
                 usuario->definirItemSelecionadoParaUso(item);
                 return true;
             });
             debuff->definirAcaoUsar([](Personagem* /*usuario*/, Personagem* alvo) {
                 if (!Personagem::isValido(alvo) || alvo->obterVida() <= 0) return;
                 alvo->adicionarEfeito(std::make_unique<EfeitoLentidao>(3));
-            TelaCombate::adicionarMensagemFixa("\n" + Aparencia::margemCombate() + Aparencia::cor(Cor::MAGENTA) + ">> Voce jogou o frasco! " + alvo->obterNome() + " esta com lentidao por 3 turnos!" + Aparencia::cor(Cor::RESET) + "\n");
+            TelaCombate::adicionarMensagemFixa("\n" + TelaCombate::margemCombate() + Aparencia::cor(Cor::MAGENTA) + ">> Voce jogou o frasco! " + alvo->obterNome() + " esta com lentidao por 3 turnos!" + Aparencia::cor(Cor::RESET) + "\n");
             });
             return debuff;
         }},
@@ -255,14 +255,14 @@ std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
             debuff->adicionarPropriedade(Propriedade::ConsumivelDebuffFraqueza);
             debuff->definirDescricaoInspecao("Aplica Fraqueza no alvo por 3 turnos (-25% Forca).");
             debuff->definirAcaoInventario([](Item* item, Personagem* usuario, bool* turnoFoiConsumido) {
-                if (!turnoFoiConsumido) { std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Frascos de debuff so podem ser usados em combate!\n"; return true; }
+                if (!turnoFoiConsumido) { std::cout << "\n" << TelaCombate::margemCombate() << "[SISTEMA]: Frascos de debuff so podem ser usados em combate!\n"; return true; }
                 usuario->definirItemSelecionadoParaUso(item);
                 return true;
             });
             debuff->definirAcaoUsar([](Personagem* /*usuario*/, Personagem* alvo) {
                 if (!Personagem::isValido(alvo) || alvo->obterVida() <= 0) return;
                 alvo->adicionarEfeito(std::make_unique<EfeitoFraqueza>(3));
-            TelaCombate::adicionarMensagemFixa("\n" + Aparencia::margemCombate() + Aparencia::cor(Cor::VERMELHO) + ">> Voce jogou o frasco! " + alvo->obterNome() + " teve sua forca reduzida em 25% por 3 turnos!" + Aparencia::cor(Cor::RESET) + "\n");
+            TelaCombate::adicionarMensagemFixa("\n" + TelaCombate::margemCombate() + Aparencia::cor(Cor::VERMELHO) + ">> Voce jogou o frasco! " + alvo->obterNome() + " teve sua forca reduzida em 25% por 3 turnos!" + Aparencia::cor(Cor::RESET) + "\n");
             });
             return debuff;
         }},
@@ -272,11 +272,11 @@ std::unique_ptr<Item> fabricarItemConsumivel(ItemID id) {
             buff->definirDescricaoInspecao("Concede a regeneracao do Troll permanentemente (cura 100% HP apos batalhas).");
             buff->definirAcaoInventario([](Item* item, Personagem* usuario, bool* turnoFoiConsumido) {
                 if (usuario->possuiRegeneracaoTroll()) {
-                    std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: O poder regenerador do Troll ja corre em suas veias!\n";
+                    std::cout << "\n" << TelaCombate::margemCombate() << "[SISTEMA]: O poder regenerador do Troll ja corre em suas veias!\n";
                 } else {
                     usuario->desbloquearRegeneracaoTroll();
                     usuario->modificarVida(usuario->obterVidaMaxima());
-                    std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE) << "[SISTEMA]: " << item->obterNomeItem() << " consumido! Voce agora curara 100% do seu HP apos cada combate!" << Aparencia::cor(Cor::RESET) << "\n";
+                    std::cout << "\n" << TelaCombate::margemCombate() << Aparencia::cor(Cor::VERDE) << "[SISTEMA]: " << item->obterNomeItem() << " consumido! Voce agora curara 100% do seu HP apos cada combate!" << Aparencia::cor(Cor::RESET) << "\n";
                     
                     if (usuario->obterConsumivelRapido() == item) usuario->desequiparConsumivel();
                     

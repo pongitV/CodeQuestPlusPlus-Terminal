@@ -6,7 +6,7 @@
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Controladores/Drops.h"
 #include "../../Core/Utilidades/GeradorAleatorio.h"
-#include "../../Visoes/TelasBase/Combate/TelaCombate.h"
+#include "../../Perspectiva/TelasBase/Combate/TelaCombate.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
 
 // --- INFORMACOES DA RACA ---
@@ -136,7 +136,7 @@ void Slime::aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCausado
         if (!alvo->possuiEfeito(EfeitoID::Lentidao)) {
             alvo->adicionarEfeito(std::make_unique<EfeitoLentidao>(3));
             // A mensagem na UI foi removida para priorizar o combate limpo
-            // std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::MAGENTA) + ">> [PASSIVA SLIME]: Uma gosma esverdeada grudou e deixou " + alvo->obterNome() + " mais lento!" + Aparencia::cor(Cor::RESET) + "\n";
+            // std::string msg = TelaCombate::margemCombate() + Aparencia::cor(Cor::MAGENTA) + ">> [PASSIVA SLIME]: Uma gosma esverdeada grudou e deixou " + alvo->obterNome() + " mais lento!" + Aparencia::cor(Cor::RESET) + "\n";
             // TelaCombate::adicionarMensagemFixa(msg);
             Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("Uma gosma esverdeada grudou e deixou " + alvo->obterNome() + " mais lento!", Cor::MAGENTA));
         }

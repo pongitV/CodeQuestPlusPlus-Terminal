@@ -1,10 +1,10 @@
-﻿#include "Elfo.h"
+#include "Elfo.h"
 
 #include <iostream>
 
 #include "../../Core/Utilidades/GeradorAleatorio.h"
 #include "../../Core/Utilidades/Aparencia.h"
-#include "../../Visoes/TelasBase/Combate/TelaCombate.h"
+#include "../../Perspectiva/TelasBase/Combate/TelaCombate.h"
 
 // --- INFORMACOES DA RACA ---
 std::string Elfo::obterNomeRaca() const 
@@ -83,7 +83,7 @@ int Elfo::processarDanoOfensivo(int danoBase, Personagem* atacante)
 {
     if (GeradorAleatorio::rolarChance(33)) 
     {
-        std::string msg = Aparencia::margemCombate() + "[PASSIVA]: Agil e preciso! Golpe critico.\n";
+        std::string msg = TelaCombate::margemCombate() + "[PASSIVA]: Agil e preciso! Golpe critico.\n";
         TelaCombate::adicionarMensagemFixa(msg);
         return static_cast<int>(danoBase * 1.5);
     }

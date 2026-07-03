@@ -1,8 +1,8 @@
-﻿#include "Humano.h"
+#include "Humano.h"
 
 #include <iostream>
 #include "../../Core/Utilidades/Aparencia.h"
-#include "../../Visoes/TelasBase/Combate/TelaCombate.h"
+#include "../../Perspectiva/TelasBase/Combate/TelaCombate.h"
 
 // --- INFORMACOES DA RACA ---
 std::string Humano::obterNomeRaca() const 
@@ -86,7 +86,7 @@ int Humano::processarDanoDefensivo(int danoFinal, Personagem* defensor)
         defensor->consumirRessurreicao();
         int curaReviver = defensor->obterVidaMaxima() / 2;
         defensor->modificarVida(curaReviver);
-        std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::MAGENTA) + "[PASSIVA]: Espirito indomavel! O humano reviveu com metade de sua vida maxima!" + Aparencia::cor(Cor::RESET) + "\n";
+        std::string msg = TelaCombate::margemCombate() + Aparencia::cor(Cor::MAGENTA) + "[PASSIVA]: Espirito indomavel! O humano reviveu com metade de sua vida maxima!" + Aparencia::cor(Cor::RESET) + "\n";
         TelaCombate::adicionarMensagemFixa(msg);
         Aparencia::registrarLogBatalha(Aparencia::cor(Cor::MAGENTA) + "[PASSIVA]: Espirito indomavel! O humano reviveu com metade de sua vida maxima!" + Aparencia::cor(Cor::RESET));
         return 0; // O dano atual e anulado pois a vida foi resetada

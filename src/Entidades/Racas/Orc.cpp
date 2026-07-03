@@ -1,8 +1,8 @@
-﻿#include "Orc.h"
+#include "Orc.h"
 
 #include <iostream>
 #include "../../Core/Utilidades/Aparencia.h"
-#include "../../Visoes/TelasBase/Combate/TelaCombate.h"
+#include "../../Perspectiva/TelasBase/Combate/TelaCombate.h"
 
 // --- INFORMACOES DA RACA ---
 std::string Ork::obterNomeRaca() const 
@@ -84,7 +84,7 @@ int Ork::processarDanoOfensivo(int danoBase, Personagem* atacante)
     int danoExtra = static_cast<int>(danoBase * percVidaPerdida);
     if (danoExtra > 0) 
     {
-        std::string msg = Aparencia::margemCombate() + "[PASSIVA]: Furia cega aumentou o dano em " + std::to_string(danoExtra) + "!\n";
+        std::string msg = TelaCombate::margemCombate() + "[PASSIVA]: Furia cega aumentou o dano em " + std::to_string(danoExtra) + "!\n";
         TelaCombate::adicionarMensagemFixa(msg);
         return danoBase + danoExtra;
     }

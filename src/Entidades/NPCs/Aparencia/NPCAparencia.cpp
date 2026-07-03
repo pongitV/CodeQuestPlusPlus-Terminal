@@ -1,4 +1,4 @@
-﻿#include "NPCAparencia.h"
+#include "NPCAparencia.h"
 #include "NPCAparenciaLayout.h"
 #include "../../../Core/Controladores/MenuJogo.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"

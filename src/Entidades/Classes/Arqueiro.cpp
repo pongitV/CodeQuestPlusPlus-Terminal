@@ -1,4 +1,4 @@
-﻿#include "Arqueiro.h"
+#include "Arqueiro.h"
 
 #include <iostream>
 #include <memory>

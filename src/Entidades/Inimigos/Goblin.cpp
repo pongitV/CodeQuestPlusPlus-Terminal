@@ -1,4 +1,4 @@
-﻿#include "Goblin.h"
+#include "Goblin.h"
 #include <iostream>
 #include "../Personagem.h"
 #include "../../Sistemas/Inventario/FabricaItens.h"

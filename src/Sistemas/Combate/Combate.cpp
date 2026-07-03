@@ -1,4 +1,4 @@
-﻿#include "Combate.h"
+#include "Combate.h"
 
 #include <algorithm>
 #include <iostream>
@@ -19,15 +19,15 @@
 #include "../Progresso/Progressao.h"
 #include "../Progresso/ProgressaoFlags.h"
 #include "Parry.h"
-#include "../../Visoes/TelasBase/Bestiario/TelaBestiario.h"
-#include "../../Visoes/TelasBase/Diario/TelaDiario.h"
-#include "../../Visoes/TelasBase/Atributos/TelaAtributos.h"
-#include "../../Visoes/TelasBase/Combate/TelaCombate.h"
-#include "../../Visoes/TelasBase/Derrota/TelaDerrota.h"
-#include "../../Visoes/TelasBase/Vitoria/TelaVitoria.h"
+#include "../../Perspectiva/TelasBase/Bestiario/TelaBestiario.h"
+#include "../../Perspectiva/TelasBase/Diario/TelaDiario.h"
+#include "../../Perspectiva/TelasBase/Atributos/TelaAtributos.h"
+#include "../../Perspectiva/TelasBase/Combate/TelaCombate.h"
+#include "../../Perspectiva/TelasBase/Derrota/TelaDerrota.h"
+#include "../../Perspectiva/TelasBase/Vitoria/TelaVitoria.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Utilidades/GeradorAleatorio.h"
-#include "../../Visoes/TelasBase/Menu/TelaMenu.h"
+#include "../../Perspectiva/TelasBase/Menu/TelaMenu.h"
 #include "../../Entidades/Classes/ClasseBase.h"
 #include "../../Core/Utilidades/ControleDeInput.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
@@ -239,7 +239,7 @@ void Combate::iniciarCombate()
         
         if (maxDestrezaInimigos > (jogadorAtual->obterDestreza() * 2)) {
             std::string msg = FuncoesDialogo::formatarMsgSistema("A agilidade extrema dos inimigos (" + std::to_string(maxDestrezaInimigos) + " VS " + std::to_string(jogadorAtual->obterDestreza()) + ") permite que eles ataquem duas vezes seguidas!", Cor::VERMELHO);
-            std::cout << "\n" << Aparencia::margemCombate() << msg << "\n";
+            std::cout << "\n" << TelaCombate::margemCombate() << msg << "\n";
             Aparencia::registrarLogBatalha(msg);
             ControleDeInput::aguardarEnter();
 
@@ -359,7 +359,7 @@ void Combate::processarAcaoDefender(Personagem* personagemAgindo, bool& turnoFoi
     {
         if (escudoEscolhido->obterDurabilidadeAtualEscudo() <= 0) {
             std::string msg = FuncoesDialogo::formatarMsgSistema("O escudo [" + escudoEscolhido->obterNomeItem() + "] esta quebrado e nao pode ser usado!", Cor::VERMELHO);
-            std::cout << "\n" << Aparencia::margemCombate() << msg << "\n";
+            std::cout << "\n" << TelaCombate::margemCombate() << msg << "\n";
             ControleDeInput::aguardarEnter();
             return; // Nao consome o turno
         }
@@ -745,7 +745,7 @@ void Combate::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* pers
         if (ataqueImparavel) {
             std::string msgImparavel = FuncoesDialogo::formatarMsgCombate(personagemAtacante->obterNome() + " desfere um ATAQUE IMPARAVEL! O Parry foi ignorado!", Cor::FUNDO_VERMELHO);
             registrarLog(msgImparavel);
-            TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + msgImparavel + "\n");
+            TelaCombate::adicionarMensagemFixa(TelaCombate::margemCombate() + msgImparavel + "\n");
         } else {
             tentouParry = true;
             parryFoiBemSucedido = Parry::tentarParry(personagemAtacante, personagemAlvo, danoBaseMitigado, quantidadeDeDanoReduzidoPeloParry);
@@ -801,7 +801,7 @@ void Combate::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* pers
         
         std::string msgReflexao = FuncoesDialogo::formatarMsgCombate("Parry Perfeito! Reflexao! " + atacanteReflexao + " recebeu " + std::to_string(danoRefletido) + " de dano de reflexao", Cor::AMARELO);
         registrarLog(msgReflexao);
-        TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + msgReflexao + "\n");
+        TelaCombate::adicionarMensagemFixa(TelaCombate::margemCombate() + msgReflexao + "\n");
         
         std::vector<Personagem*> aliadosVivos = obterAliadosVivosRaw();
         if (!isPersonagemJogadorOuAliado(personagemAtacante)) {
@@ -820,12 +820,12 @@ void Combate::exibirResultadoDoAtaque(Personagem* alvo, int danoFinal, bool tent
 
     if (danoBloqueado > 0) {
         std::string msgDefesa = FuncoesDialogo::formatarMsgCombate("O escudo bloqueou " + std::to_string(danoBloqueado) + " de dano!", Cor::CIANO);
-        msg += Aparencia::margemCombate() + msgDefesa + "\n";
+        msg += TelaCombate::margemCombate() + msgDefesa + "\n";
         registrarLog(msgDefesa);
         
         if (escudoQuebrou) {
             std::string msgQuebra = FuncoesDialogo::formatarMsgCombate("ALERTA: O escudo " + nomeEscudoQuebrado + " foi DESTRUIDO em pedacos e desequipado!", Cor::FUNDO_VERMELHO);
-            msg += Aparencia::margemCombate() + msgQuebra + "\n";
+            msg += TelaCombate::margemCombate() + msgQuebra + "\n";
             registrarLog(msgQuebra);
             
             alvo->desequiparEscudo();

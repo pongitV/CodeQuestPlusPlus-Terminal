@@ -1,4 +1,4 @@
-﻿#include "EquipamentoArma.h"
+#include "EquipamentoArma.h"
 
 #include <iostream>
 #include <vector>
@@ -6,7 +6,7 @@
 #include "../../../Entidades/Personagem.h"
 #include "../../../Core/Utilidades/Aparencia.h"
 #include "../../../Core/Utilidades/GeradorAleatorio.h"
-#include "../../../Visoes/TelasBase/Combate/TelaCombate.h"
+#include "../../../Perspectiva/TelasBase/Combate/TelaCombate.h"
 #include <functional>
 #include <unordered_map>
 #include "../FabricaItens.h"
@@ -108,7 +108,7 @@ void EquipamentoArma::aplicarEfeitoLentidao() { efeitoLentidao = true; }
 void EquipamentoArma::antesDeCausarDano(Personagem* atacante, Personagem* alvo) {
     if (temPropriedade(Propriedade::Penetrante) && !alvo->possuiEfeito(EfeitoID::QuebraResistencia)) {
         alvo->adicionarEfeito(std::make_unique<EfeitoQuebraResistencia>());
-        TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + Aparencia::cor(Cor::CIANO) + ">> A arma de " + atacante->obterNome() + " ativou o po magico! O ataque enfraqueceu " + alvo->obterNome() + " ate o fim do combate!" + Aparencia::cor(Cor::RESET) + "\n");
+        TelaCombate::adicionarMensagemFixa(TelaCombate::margemCombate() + Aparencia::cor(Cor::CIANO) + ">> A arma de " + atacante->obterNome() + " ativou o po magico! O ataque enfraqueceu " + alvo->obterNome() + " ate o fim do combate!" + Aparencia::cor(Cor::RESET) + "\n");
         Aparencia::registrarLogBatalha(Aparencia::cor(Cor::CIANO) + ">> A arma de " + atacante->obterNome() + " ativou o po magico! O ataque enfraqueceu " + alvo->obterNome() + " ate o fim do combate!" + Aparencia::cor(Cor::RESET));
     }
 }
@@ -128,13 +128,13 @@ void EquipamentoArma::aoCausarDano(Personagem* atacante, Personagem* alvo, int d
         int danoSangramento = std::max(1, alvo->obterVidaMaxima() / 10);
         alvo->adicionarEfeito(std::make_unique<EfeitoSangramento>(3, danoSangramento));
         Cor corSangramento = (alvo->obterNomeClasse() != "Monstro") ? Cor::VERMELHO_CLARO : Cor::VERMELHO;
-        TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + Aparencia::cor(corSangramento) + ">> " + alvo->obterNome() + " comecou a sangrar profundamente! (3 turnos)" + Aparencia::cor(Cor::RESET) + "\n");
+        TelaCombate::adicionarMensagemFixa(TelaCombate::margemCombate() + Aparencia::cor(corSangramento) + ">> " + alvo->obterNome() + " comecou a sangrar profundamente! (3 turnos)" + Aparencia::cor(Cor::RESET) + "\n");
         Aparencia::registrarLogBatalha(Aparencia::cor(corSangramento) + ">> " + alvo->obterNome() + " comecou a sangrar profundamente! (3 turnos)" + Aparencia::cor(Cor::RESET));
     }
 
     if (possuiEfeitoLentidao() && !alvo->possuiEfeito(EfeitoID::Lentidao)) {
         alvo->adicionarEfeito(std::make_unique<EfeitoLentidao>(3));
-        TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + Aparencia::cor(Cor::MAGENTA) + ">> " + alvo->obterNome() + " foi coberto por gosma e sua destreza caiu pela metade! (3 turnos)" + Aparencia::cor(Cor::RESET) + "\n");
+        TelaCombate::adicionarMensagemFixa(TelaCombate::margemCombate() + Aparencia::cor(Cor::MAGENTA) + ">> " + alvo->obterNome() + " foi coberto por gosma e sua destreza caiu pela metade! (3 turnos)" + Aparencia::cor(Cor::RESET) + "\n");
         Aparencia::registrarLogBatalha(Aparencia::cor(Cor::MAGENTA) + ">> " + alvo->obterNome() + " foi coberto por gosma e sua destreza caiu pela metade! (3 turnos)" + Aparencia::cor(Cor::RESET));
     }
 }

@@ -1,11 +1,11 @@
-﻿#include "EquipamentoEscudo.h"
+#include "EquipamentoEscudo.h"
 #include <memory>
 #include "../../../Entidades/Personagem.h"
 #include "../../../Core/Utilidades/Aparencia.h"
 #include <vector>
 #include <functional>
 #include <unordered_map>
-#include "../../../Visoes/TelasBase/Combate/TelaCombate.h"
+#include "../../../Perspectiva/TelasBase/Combate/TelaCombate.h"
 #include "../FabricaItens.h"
 
 EquipamentoEscudo::EquipamentoEscudo(const std::string& nome, int reducaoFixa, int durabilidade, int reqResistencia, int reqSecundario, TipoAtributo tipoSecundario, int preco)
@@ -31,7 +31,7 @@ void EquipamentoEscudo::reduzirDurabilidade(int qtd) {
     durabilidade -= qtd; 
     if (durabilidade <= 0) {
         durabilidade = 0;
-        TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + Aparencia::cor(Cor::VERMELHO) + ">> O escudo [" + nome + "] quebrou e perdeu seu poder de bloqueio!" + Aparencia::cor(Cor::RESET) + "\n");
+        TelaCombate::adicionarMensagemFixa(TelaCombate::margemCombate() + Aparencia::cor(Cor::VERMELHO) + ">> O escudo [" + nome + "] quebrou e perdeu seu poder de bloqueio!" + Aparencia::cor(Cor::RESET) + "\n");
         Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERMELHO) + ">> O escudo [" + nome + "] quebrou e perdeu seu poder de bloqueio!" + Aparencia::cor(Cor::RESET));
     }
 }

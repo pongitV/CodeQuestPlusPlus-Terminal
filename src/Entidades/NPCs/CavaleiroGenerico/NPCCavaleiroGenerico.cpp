@@ -1,4 +1,4 @@
-﻿#include "NPCCavaleiroGenerico.h"
+#include "NPCCavaleiroGenerico.h"
 
 #include <iostream>
 #include <iomanip>
@@ -10,14 +10,14 @@
 #include "../../../Sistemas/Inventario/Itens/ItemMaterial.h"
 #include "../../../Sistemas/Combate/Combate.h"
 #include "../../../Core/Controladores/CriadorInimigos.h"
-#include "../../../Visoes/TelasBase/Menu/TelaMenu.h"
+#include "../../../Perspectiva/TelasBase/Menu/TelaMenu.h"
 #include "../../../Core/Utilidades/RendererProvider.h"
 #include "../../../Core/Utilidades/FuncoesDialogo.h"
 #include "../../../Sistemas/Progresso/Diario.h"
 #include "../../../Sistemas/Progresso/Progressao.h"
 #include "../../../Sistemas/Progresso/ProgressaoFlags.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"
-#include "../../../Mundo/ControleMapa.h"
+#include "../../../Mapas/ControleMapa.h"
 #include "NPCCavaleiroGenericoLayout.h"
 
 namespace {

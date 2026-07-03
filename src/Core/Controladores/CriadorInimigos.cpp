@@ -1,4 +1,4 @@
-﻿#include "CriadorInimigos.h"
+#include "CriadorInimigos.h"
 #include <type_traits>
 #include "../../Entidades/Racas/Orc.h"
 #include "../../Entidades/Classes/ClasseBase.h"

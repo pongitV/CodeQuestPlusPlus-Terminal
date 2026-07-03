@@ -1,4 +1,4 @@
-﻿#include "ItemMaterial.h"
+#include "ItemMaterial.h"
 #include "../../../Core/Utilidades/Aparencia.h"
 #include <vector>
 #include <functional>

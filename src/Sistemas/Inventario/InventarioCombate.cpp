@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <string>
 #include <vector>
 #include <memory>
@@ -9,11 +9,12 @@
 #include "Equipamentos/EquipamentoArma.h"
 #include "Equipamentos/EquipamentoEscudo.h"
 #include "Equipamentos/EquipamentoArmadura.h"
-#include "../../Visoes/TelasBase/Inventario/TelaInventario.h"
-#include "../../Visoes/TelasBase/Menu/TelaMenu.h"
+#include "../../Perspectiva/TelasBase/Inventario/TelaInventario.h"
+#include "../../Perspectiva/TelasBase/Menu/TelaMenu.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Utilidades/ControleDeInput.h"
-#include "../../Visoes/TelasBase/TelaBase.h"
+#include "../../Perspectiva/TelasBase/TelaBase.h"
+#include "../../Perspectiva/TelasBase/Combate/TelaCombate.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
 
 namespace {
@@ -99,7 +100,7 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
                                 linhasItem.push_back(" " + p.first); // Adiciona um pequeno recuo interno
                             }
                             
-                            std::vector<std::string> caixa = Aparencia::criarCaixa(linhasItem, titulo, 60, Cor::AMARELO);
+                            std::vector<std::string> caixa = TelaBase::criarCaixa(linhasItem, titulo, 60, Cor::AMARELO);
                             
                             ops.push_back("#HEADER#" + caixa[0]); // Topo da caixa
                             mapIndexParaItem.push_back(nullptr);
@@ -222,7 +223,7 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
                             itensMapeados.push_back(p.second);
                         }
                         if (!linhas.empty()) {
-                            std::vector<std::string> caixa = Aparencia::criarCaixa(linhas, "ITENS", 60, Cor::AMARELO);
+                            std::vector<std::string> caixa = TelaBase::criarCaixa(linhas, "ITENS", 60, Cor::AMARELO);
                             ops.push_back("#HEADER#" + caixa[0]);
                             mapIndexParaItem.push_back(nullptr);
                             for (size_t i = 0; i < itensMapeados.size(); ++i) {
@@ -352,7 +353,7 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
                                         
                                         if (jogadorAtual->obterItemSelecionadoParaUso() != nullptr) {
                                             if (quantidadeParaUsar > 1) {
-                                                std::cout << "\n" << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgSistema("Este item requer selecao de alvo e sera usado apenas uma vez.", Cor::AMARELO) << "\n";
+                                                std::cout << "\n" << TelaCombate::margemCombate() << FuncoesDialogo::formatarMsgSistema("Este item requer selecao de alvo e sera usado apenas uma vez.", Cor::AMARELO) << "\n";
                                                 ControleDeInput::aguardarEnter();
                                             }
                                             break;
@@ -377,10 +378,10 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
                         } else if (subOpcao == 1 && tipo == TipoEquipamento::CONSUMIVEL) {
                                 if (jogadorAtual->obterConsumivelRapido() == itemEncontrado) {
                                     jogadorAtual->desequiparConsumivel();
-                                    std::cout << "\n" << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgSistema(itemEncontrado->obterNomeItem() + " desequipado do acesso rapido!", Cor::AMARELO) << "\n";
+                                    std::cout << "\n" << TelaCombate::margemCombate() << FuncoesDialogo::formatarMsgSistema(itemEncontrado->obterNomeItem() + " desequipado do acesso rapido!", Cor::AMARELO) << "\n";
                                 } else {
                                     jogadorAtual->equiparItem(itemEncontrado);
-                                    std::cout << "\n" << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgSistema(itemEncontrado->obterNomeItem() + " equipado no acesso rapido!", Cor::VERDE) << "\n";
+                                    std::cout << "\n" << TelaCombate::margemCombate() << FuncoesDialogo::formatarMsgSistema(itemEncontrado->obterNomeItem() + " equipado no acesso rapido!", Cor::VERDE) << "\n";
                                 }
                                 ControleDeInput::aguardarEnter();
                                 submenuAberto = false;
@@ -415,7 +416,7 @@ void InventarioCombate::processarUsoDeItem(Personagem* jogadorAtual, Item* itemE
 {
     if (turnoFoiConsumido && *turnoFoiConsumido) 
     {
-        std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Voce ja usou um item neste turno!\n";
+        std::cout << "\n" << TelaCombate::margemCombate() << "[SISTEMA]: Voce ja usou um item neste turno!\n";
         ControleDeInput::aguardarEnter();
         return;
     }
@@ -424,7 +425,7 @@ void InventarioCombate::processarUsoDeItem(Personagem* jogadorAtual, Item* itemE
     {
         if (itemEncontrado->obterTipo() == TipoEquipamento::ESCUDO && itemEncontrado->obterDurabilidadeAtualEscudo() <= 0) {
             std::string msgQuebrado = FuncoesDialogo::formatarMsgSistema("O escudo [" + itemEncontrado->obterNomeItem() + "] esta quebrado e nao pode ser equipado!", Cor::VERMELHO);
-            std::cout << "\n" << Aparencia::margemCombate() << msgQuebrado << "\n";
+            std::cout << "\n" << TelaCombate::margemCombate() << msgQuebrado << "\n";
             if (turnoFoiConsumido && !jogadorAtual->obterItemSelecionadoParaUso()) ControleDeInput::aguardarEnter();
             return; // Retorna cedo, nao alterando 'turnoFoiConsumido' para true
         }
@@ -442,22 +443,22 @@ void InventarioCombate::processarUsoDeItem(Personagem* jogadorAtual, Item* itemE
         }
         
         if (desequipou) {
-            std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << itemEncontrado->obterNomeItem() << " desequipado(a)!\n";
+            std::cout << "\n" << TelaCombate::margemCombate() << "[SISTEMA]: " << itemEncontrado->obterNomeItem() << " desequipado(a)!\n";
         } else {
             if (!itemEncontrado->podeSerEquipadoPor(jogadorAtual)) {
                 std::string msg = itemEncontrado->obterMensagemRequisito();
-                if (msg.substr(0, 1) == "\n") std::cout << "\n" << Aparencia::margemCombate() << msg.substr(1);
-                else std::cout << Aparencia::margemCombate() << msg;
+                if (msg.substr(0, 1) == "\n") std::cout << "\n" << TelaCombate::margemCombate() << msg.substr(1);
+                else std::cout << TelaCombate::margemCombate() << msg;
                 if (turnoFoiConsumido && !jogadorAtual->obterItemSelecionadoParaUso()) ControleDeInput::aguardarEnter();
                 return;
             }
             jogadorAtual->equiparItem(itemEncontrado);
-            std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << itemEncontrado->obterNomeItem() << " equipado(a)!\n";
+            std::cout << "\n" << TelaCombate::margemCombate() << "[SISTEMA]: " << itemEncontrado->obterNomeItem() << " equipado(a)!\n";
         }
 
         if (turnoFoiConsumido) {
             *turnoFoiConsumido = true;
-            std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: Turno gasto alterando um equipamento...\n";
+            std::cout << "\n" << TelaCombate::margemCombate() << "[SISTEMA]: Turno gasto alterando um equipamento...\n";
         }
         ControleDeInput::aguardarEnter();
         return;
@@ -488,6 +489,6 @@ void InventarioCombate::processarUsoDeItem(Personagem* jogadorAtual, Item* itemE
             break;
     }
 
-    std::cout << "\n" << Aparencia::margemCombate() << "[SISTEMA]: " << msgErro << "\n";
+    std::cout << "\n" << TelaCombate::margemCombate() << "[SISTEMA]: " << msgErro << "\n";
     ControleDeInput::aguardarEnter();
 }

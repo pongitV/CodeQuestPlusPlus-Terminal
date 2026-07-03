@@ -43,14 +43,21 @@
 #include "../../Entidades/Inimigos/Mimico.h"
 #include "../../Sistemas/Progresso/Diario.h"
 #include "../../Sistemas/Progresso/Salvamento.h"
-#include "../../Visoes/TelasBase/Atributos/TelaAtributos.h"
-#include "../../Visoes/TelasBase/Inventario/TelaInventario.h"
-#include "../../Visoes/TelasBase/Menu/TelaMenu.h"
+#include "../../Perspectiva/TelasBase/Atributos/TelaAtributos.h"
+#include "../../Perspectiva/TelasBase/Inventario/TelaInventario.h"
+#include "../../Perspectiva/TelasBase/Menu/TelaMenu.h"
+#include "../../Perspectiva/TelasBase/Menu/TelaAbertura.h"
+#include "../../Perspectiva/TelasBase/Menu/TelaNome.h"
+#include "../../Perspectiva/TelasBase/Menu/TelaRaca.h"
+#include "../../Perspectiva/TelasBase/Menu/TelaClasse.h"
+#include "../../Perspectiva/TelasBase/Menu/TelaDificuldade.h"
+#include "../../Perspectiva/TelasBase/Menu/TelaParry.h"
+#include "../../Perspectiva/TelasBase/Menu/TelaIntroducao.h"
 #include "../Utilidades/Aparencia.h"
 #include "../Utilidades/FuncoesDialogo.h"
 #include "../Utilidades/ControleDeInput.h"
 #include "../Utilidades/GeradorAleatorio.h"
-#include "../../Visoes/TelasBase/TelaBase.h"
+#include "../../Perspectiva/TelasBase/TelaBase.h"
 
 namespace {
     std::vector<std::string> lerInfoSavesLocal(const std::vector<std::string>& saves) {
@@ -110,7 +117,7 @@ namespace {
                             "DIFICULDADE:" + std::string(dif == 1 ? " Facil" : (dif == 2 ? " Normal" : " Dificil"))
                         };
                         std::cout << "\n";
-                        Aparencia::imprimirBlocoCentralizado(Aparencia::criarCaixa(painelInfo, "DADOS DO PERSONAGEM", 40, Cor::CIANO));
+                        Aparencia::imprimirBlocoCentralizado(TelaBase::criarCaixa(painelInfo, "DADOS DO PERSONAGEM", 40, Cor::CIANO));
                     } else {
                         std::cout << "\n";
                         Aparencia::imprimirCentralizado("Nao foi possivel ler os dados.", Aparencia::cor(Cor::VERMELHO));

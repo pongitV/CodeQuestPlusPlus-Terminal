@@ -1,4 +1,4 @@
-﻿#include "Parry.h"
+#include "Parry.h"
 #include <iomanip>
 #include <cctype>
 #include <algorithm>
@@ -12,6 +12,8 @@
 #include "../../Core/Utilidades/GeradorAleatorio.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
+#include "../../Perspectiva/GerenciadorPerspectiva.h"
+#include "../../Perspectiva/TelasBase/Combate/TelaCombate.h"
 
 std::function<void()> Parry::onUpdateScreen = nullptr;
 std::string Parry::minigameMessage = "";
@@ -32,7 +34,7 @@ bool Parry::tentarParry(Personagem* atacante, Personagem* defensor, int danoMiti
             Parry::minigameMessage = "";
             Parry::onUpdateScreen();
         } else {
-            std::cout << "\n" << Aparencia::margemCombate() << FuncoesDialogo::formatarMsgCombate(msgAgil, Cor::FUNDO_VERMELHO) << "\n";
+            std::cout << "\n" << TelaCombate::margemCombate() << FuncoesDialogo::formatarMsgCombate(msgAgil, Cor::FUNDO_VERMELHO) << "\n";
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         }
         quantidadeDeDanoReduzido = 0;
@@ -42,10 +44,18 @@ bool Parry::tentarParry(Personagem* atacante, Personagem* defensor, int danoMiti
     int dificuldade = std::clamp(danoMitigado / 5 + (destrezaDoAtacante / 10), 1, 20);
 
     bool sucesso = false;
-    if (defensor && defensor->obterParryModerno()) {
-        sucesso = executarMinigameMovimento(dificuldade, danoMitigado, quantidadeDeDanoReduzido);
-    } else {
+    // Verifica se estamos na visao terminal (IDE)
+    bool isTerminal = !GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva();
+    if (isTerminal) {
+        // Na visao terminal, FORCA o minigame de digitacao
         sucesso = executarMinigameDigitacao(dificuldade, danoMitigado, quantidadeDeDanoReduzido);
+    } else {
+        // Fora da visao terminal, permite alternancia entre movimento e digitacao
+        if (defensor && defensor->obterParryModerno()) {
+            sucesso = executarMinigameMovimento(dificuldade, danoMitigado, quantidadeDeDanoReduzido);
+        } else {
+            sucesso = executarMinigameDigitacao(dificuldade, danoMitigado, quantidadeDeDanoReduzido);
+        }
     }
     return sucesso;
 }
@@ -90,7 +100,7 @@ bool Parry::executarMinigameMovimento(int dificuldade, int danoMitigado, int& qu
         if (Parry::onUpdateScreen) {
             Parry::onUpdateScreen();
         } else {
-            std::cout << "\r" << Aparencia::margemCombate() << Parry::minigameBar << std::flush;
+            std::cout << "\r" << TelaCombate::margemCombate() << Parry::minigameBar << std::flush;
         }
 
         if (ControleDeInput::teclaPressionada()) {
@@ -172,7 +182,7 @@ bool Parry::executarMinigameDigitacao(int dificuldade, int danoMitigado, int& qu
         if (Parry::onUpdateScreen) {
             Parry::onUpdateScreen();
         } else {
-            std::cout << "\r" << Aparencia::margemCombate() << Parry::minigameBar << "\033[K" << std::flush;
+            std::cout << "\r" << TelaCombate::margemCombate() << Parry::minigameBar << "\033[K" << std::flush;
         }
 
         if (ControleDeInput::teclaPressionada()) {
@@ -206,7 +216,7 @@ bool Parry::executarMinigameDigitacao(int dificuldade, int danoMitigado, int& qu
             Parry::minigameMessage = "";
             Parry::onUpdateScreen();
         } else {
-            std::cout << Aparencia::margemCombate() << "\033[1;38;2;255;50;50mTEMPO ESGOTADO!\033[0m\n";
+            std::cout << TelaCombate::margemCombate() << "\033[1;38;2;255;50;50mTEMPO ESGOTADO!\033[0m\n";
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
         }
         quantidadeDeDanoReduzido = 0;

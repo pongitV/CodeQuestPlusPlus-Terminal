@@ -1,11 +1,11 @@
-﻿#include "Mimico.h"
+#include "Mimico.h"
 #include <iostream>
 #include "../Personagem.h"
 #include "../../Sistemas/Inventario/FabricaItens.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Controladores/Drops.h"
 #include "../../Core/Utilidades/GeradorAleatorio.h"
-#include "../../Visoes/TelasBase/Combate/TelaCombate.h"
+#include "../../Perspectiva/TelasBase/Combate/TelaCombate.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
 #include "../../Sistemas/Progresso/Bestiario.h"
 
@@ -136,7 +136,7 @@ void Mimico::aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCausad
     ouroRoubadoTotal += roubo;
     
     // A mensagem na UI foi removida para priorizar o combate limpo
-    // std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::AMARELO) + ">> [MIMICO]: Com uma lingua grotesca, o Mimico roubou " + std::to_string(roubo) + "G do seu bolso!" + Aparencia::cor(Cor::RESET) + "\n";
+    // std::string msg = TelaCombate::margemCombate() + Aparencia::cor(Cor::AMARELO) + ">> [MIMICO]: Com uma lingua grotesca, o Mimico roubou " + std::to_string(roubo) + "G do seu bolso!" + Aparencia::cor(Cor::RESET) + "\n";
     // TelaCombate::adicionarMensagemFixa(msg);
     Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("Com uma lingua grotesca, o Mimico roubou " + std::to_string(roubo) + "G do seu bolso!", Cor::AMARELO));
 }

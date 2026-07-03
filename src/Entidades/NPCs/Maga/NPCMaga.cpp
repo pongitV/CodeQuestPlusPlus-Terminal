@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <vector>
 #include <string>
 #include <iomanip>
@@ -6,10 +6,10 @@
 #include <map>
 
 #include "NPCMaga.h"
-#include "../../../Visoes/TelasBase/Menu/TelaMenu.h"
+#include "../../../Perspectiva/TelasBase/Menu/TelaMenu.h"
 #include "../../../Sistemas/Inventario/Item.h"
 #include "../../../Sistemas/Inventario/FabricaItens.h"
-#include "../../../Visoes/TelasBase/Inventario/TelaInventario.h"
+#include "../../../Perspectiva/TelasBase/Inventario/TelaInventario.h"
 #include "../../../Core/Utilidades/Aparencia.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"
 #include "../../../Sistemas/Inventario/Equipamentos/EquipamentoArma.h"
@@ -18,7 +18,7 @@
 #include "../../../Sistemas/Progresso/Diario.h"
 #include "../../../Sistemas/Progresso/Progressao.h"
 #include "../../../Sistemas/Progresso/ProgressaoFlags.h"
-#include "../../../Visoes/TelasBase/TelaBase.h"
+#include "../../../Perspectiva/TelasBase/TelaBase.h"
 #include "NPCMagaLayout.h"
 
 namespace {

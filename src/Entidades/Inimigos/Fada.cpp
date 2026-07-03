@@ -1,4 +1,4 @@
-﻿#include "Fada.h"
+#include "Fada.h"
 #include <iostream>
 #include "../Personagem.h"
 #include "../../Sistemas/Inventario/FabricaItens.h"

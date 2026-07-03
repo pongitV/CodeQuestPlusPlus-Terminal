@@ -1,4 +1,4 @@
-﻿#include "OrcExilado.h"
+#include "OrcExilado.h"
 #include <iostream>
 #include "../Personagem.h"
 #include "../../Sistemas/Inventario/FabricaItens.h"

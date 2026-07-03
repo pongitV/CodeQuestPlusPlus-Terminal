@@ -1,4 +1,4 @@
-﻿#include "../../../Core/Utilidades/ConversorString.h"
+#include "../../../Core/Utilidades/ConversorString.h"
 #pragma once
 
 #include <vector>

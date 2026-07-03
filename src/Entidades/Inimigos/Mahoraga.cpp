@@ -1,11 +1,11 @@
-﻿#include "Mahoraga.h"
+#include "Mahoraga.h"
 #include <iostream>
 #include "../Personagem.h"
 #include "../../Sistemas/Inventario/FabricaItens.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Controladores/Drops.h"
 #include "../../Core/Utilidades/GeradorAleatorio.h"
-#include "../../Visoes/TelasBase/Combate/TelaCombate.h"
+#include "../../Perspectiva/TelasBase/Combate/TelaCombate.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
 #include <memory>
 
@@ -29,7 +29,7 @@ std::string Mahoraga::obterDescricaoHabilidadeRaca() const { return "Adapta-se a
 // --- MECANICA DE ADAPTACAO ---
 void Mahoraga::aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCausado) {
     // Efeito popup de texto piscante
-    TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + "\033[5m" + Aparencia::cor(Cor::AMARELO) + "* KLINK! *" + Aparencia::cor(Cor::RESET) + " A Roda gira...\n");
+    TelaCombate::adicionarMensagemFixa(TelaCombate::margemCombate() + "\033[5m" + Aparencia::cor(Cor::AMARELO) + "* KLINK! *" + Aparencia::cor(Cor::RESET) + " A Roda gira...\n");
 
     // Adaptacao de Defesa
     int forcaFisica = alvo->obterForca() + alvo->obterDestreza();
@@ -74,7 +74,7 @@ void Mahoraga::aoCausarDano(Personagem* atacante, Personagem* alvo, int danoCaus
 void Mahoraga::aoSofrerParryPerfeito() {
     parrysSofridos++;
     if (parrysSofridos == 10) {
-        TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + "\033[5m" + Aparencia::cor(Cor::AMARELO) + "* KLINK! *" + Aparencia::cor(Cor::RESET) + " A Roda gira...\n");
+        TelaCombate::adicionarMensagemFixa(TelaCombate::margemCombate() + "\033[5m" + Aparencia::cor(Cor::AMARELO) + "* KLINK! *" + Aparencia::cor(Cor::RESET) + " A Roda gira...\n");
         Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("A Roda gira... Mahoraga adaptou-se aos seus reflexos! Seus ataques agora sao IMPARAVEIS!", Cor::FUNDO_VERMELHO));
     }
 }
@@ -83,7 +83,7 @@ void Mahoraga::aoTerAtaqueBloqueadoPorEscudo() {
     if (defesasComEscudoSofridas < 3) {
         defesasComEscudoSofridas++;
         if (defesasComEscudoSofridas == 3) {
-            TelaCombate::adicionarMensagemFixa(Aparencia::margemCombate() + "\033[5m" + Aparencia::cor(Cor::AMARELO) + "* KLINK! *" + Aparencia::cor(Cor::RESET) + " A Roda gira...\n");
+            TelaCombate::adicionarMensagemFixa(TelaCombate::margemCombate() + "\033[5m" + Aparencia::cor(Cor::AMARELO) + "* KLINK! *" + Aparencia::cor(Cor::RESET) + " A Roda gira...\n");
             Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("A Roda gira... Mahoraga adaptou-se a sua defesa! Seus ataques agora perfuram escudos!", Cor::FUNDO_VERMELHO));
         }
     }

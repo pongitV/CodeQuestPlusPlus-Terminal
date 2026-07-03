@@ -1,4 +1,4 @@
-﻿#include "Progressao.h"
+#include "Progressao.h"
 #include "../../Entidades/Personagem.h"
 #include "ProgressaoFlags.h"
 #include "Diario.h"

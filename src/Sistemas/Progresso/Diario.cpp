@@ -1,4 +1,4 @@
-﻿#include "Diario.h"
+#include "Diario.h"
 
 Diario& Diario::instancia() {
     static Diario inst;

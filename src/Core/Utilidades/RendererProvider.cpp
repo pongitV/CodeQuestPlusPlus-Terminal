@@ -1,2 +1,2 @@
-﻿#include "RendererProvider.h"
+#include "RendererProvider.h"
 IVisaoRenderer* RendererProvider::instancia = nullptr;

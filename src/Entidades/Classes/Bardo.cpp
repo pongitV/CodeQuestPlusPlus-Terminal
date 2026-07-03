@@ -1,4 +1,4 @@
-﻿#include "Bardo.h"
+#include "Bardo.h"
 
 #include <array>
 #include <functional>
@@ -11,6 +11,7 @@
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
 #include "../../Core/Utilidades/ControleDeInput.h"
+#include "../../Perspectiva/TelasBase/Combate/TelaCombate.h"
 
 // --- INFORMACOES DA CLASSE ---
 std::string Bardo::obterNomeClasse() const 
@@ -157,7 +158,7 @@ void Bardo::usarHabilidadeClasse(Combate* /*combate*/, Personagem* personagemUsu
         }}
     }};
 
-    std::cout << "\n" << Aparencia::margemCombate() << "--- SINFONIA DO BARDO ---\n\n";
+    std::cout << "\n" << TelaCombate::margemCombate() << "--- SINFONIA DO BARDO ---\n\n";
     std::vector<std::string> opcoesHabilidades;
     for (size_t i = 0; i < habilidades.size(); ++i) {
         int cd = personagemUsuario->obterCooldown(habilidades[i].id);
@@ -165,7 +166,7 @@ void Bardo::usarHabilidadeClasse(Combate* /*combate*/, Personagem* personagemUsu
     }
     opcoesHabilidades.push_back("CANCELAR");
 
-    int escolha = ControleDeInput::lerSelecaoMenuComSetas(opcoesHabilidades, false, Aparencia::margemCombate());
+    int escolha = ControleDeInput::lerSelecaoMenuComSetas(opcoesHabilidades, false, TelaCombate::margemCombate());
 
     if (escolha == static_cast<int>(habilidades.size())) {
         personagemUsuario->definirHabilidadeCancelada(true);

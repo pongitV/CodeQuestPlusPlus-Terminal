@@ -1,4 +1,4 @@
-﻿#include "Salvamento.h"
+#include "Salvamento.h"
 
 #include <filesystem>
 #include <fstream>

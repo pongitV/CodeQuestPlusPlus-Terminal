@@ -1,8 +1,9 @@
-﻿#include "Necromante.h"
+#include "Necromante.h"
 
 #include <iostream>
 #include <memory>
 
+#include "../../Perspectiva/TelasBase/Combate/TelaCombate.h"
 #include "../../Sistemas/Combate/Combate.h"
 #include "../../Core/Controladores/Status.h"
 #include "../../Sistemas/Inventario/FabricaItens.h"
@@ -178,7 +179,7 @@ void Necromante::usarHabilidadeClasse(Combate* combate, Personagem* personagemUs
 
     if (temMiniBoss) {
         std::string msg = FuncoesDialogo::formatarMsgSistema("Seu Morto-Vivo Chefe exige todo o seu controle! Nao e possivel invocar mais lacaios.", Cor::VERMELHO);
-        std::cout << "\n" << Aparencia::margemCombate() << msg << "\n";
+        std::cout << "\n" << TelaCombate::margemCombate() << msg << "\n";
         Aparencia::registrarLogBatalha(msg);
         personagemUsuario->definirHabilidadeCancelada(true);
         return;
@@ -186,7 +187,7 @@ void Necromante::usarHabilidadeClasse(Combate* combate, Personagem* personagemUs
 
     if (minionCount >= 3) {
         std::string msg = FuncoesDialogo::formatarMsgSistema("Limite maximo de 3 lacaios atingido!", Cor::VERMELHO);
-        std::cout << "\n" << Aparencia::margemCombate() << msg << "\n";
+        std::cout << "\n" << TelaCombate::margemCombate() << msg << "\n";
         Aparencia::registrarLogBatalha(msg);
         personagemUsuario->definirHabilidadeCancelada(true);
         return;
@@ -194,7 +195,7 @@ void Necromante::usarHabilidadeClasse(Combate* combate, Personagem* personagemUs
 
     if (personagemUsuario->obterNumeroDeAlmas() == 0) {
         std::string msg = FuncoesDialogo::formatarMsgSistema("Voce nao possui almas para invocar!", Cor::VERMELHO);
-        std::cout << "\n" << Aparencia::margemCombate() << msg << "\n";
+        std::cout << "\n" << TelaCombate::margemCombate() << msg << "\n";
         Aparencia::registrarLogBatalha(msg);
         personagemUsuario->definirHabilidadeCancelada(true);
         return;
@@ -202,7 +203,7 @@ void Necromante::usarHabilidadeClasse(Combate* combate, Personagem* personagemUs
 
     int maxPossivel = std::min(3 - minionCount, static_cast<int>(personagemUsuario->obterNumeroDeAlmas()));
 
-    std::cout << "\n" << Aparencia::margemCombate() << "═══ QUANTIDADE DE INVOCACOES ═══\n";
+    std::cout << "\n" << TelaCombate::margemCombate() << "═══ QUANTIDADE DE INVOCACOES ═══\n";
     std::vector<std::string> opcoesQtd;
     for (int i = 1; i <= maxPossivel; ++i) {
         if (i == 1) opcoesQtd.push_back("1 Morto-Vivo");
@@ -210,7 +211,7 @@ void Necromante::usarHabilidadeClasse(Combate* combate, Personagem* personagemUs
     }
     opcoesQtd.push_back("Cancelar");
 
-    int qtdEscolhida = ControleDeInput::lerSelecaoMenuComSetas(opcoesQtd, false, Aparencia::margemCombate());
+    int qtdEscolhida = ControleDeInput::lerSelecaoMenuComSetas(opcoesQtd, false, TelaCombate::margemCombate());
     if (qtdEscolhida == static_cast<int>(opcoesQtd.size()) - 1 || qtdEscolhida == -1) {
         personagemUsuario->definirHabilidadeCancelada(true);
         return;
@@ -260,8 +261,8 @@ void Necromante::usarHabilidadeClasse(Combate* combate, Personagem* personagemUs
         }
         opcoes.push_back("Cancelar Restante");
 
-        std::cout << "\n" << Aparencia::margemCombate() << "═══ ESCOLHA UMA ALMA PARA INVOCAR (" << (i+1) << "/" << quantidadeParaInvocar << ") ═══\n";
-        int escolha = ControleDeInput::lerSelecaoMenuComSetas(opcoes, false, Aparencia::margemCombate());
+        std::cout << "\n" << TelaCombate::margemCombate() << "═══ ESCOLHA UMA ALMA PARA INVOCAR (" << (i+1) << "/" << quantidadeParaInvocar << ") ═══\n";
+        int escolha = ControleDeInput::lerSelecaoMenuComSetas(opcoes, false, TelaCombate::margemCombate());
 
         if (escolha == static_cast<int>(opcoes.size()) - 1 || escolha == -1) {
             if (i == 0) {
@@ -297,7 +298,7 @@ void Necromante::usarHabilidadeClasse(Combate* combate, Personagem* personagemUs
             if (i < quantidadeParaInvocar - 1) {
                 std::string msgBoss = FuncoesDialogo::formatarMsgSistema("A invocacao de um Chefe consumiu seu foco! Invocacoes adicionais canceladas.", Cor::AMARELO);
                 notificarMensagemCombate(msgBoss, msgBoss);
-                std::cout << "\n" << Aparencia::margemCombate() << msgBoss << "\n";
+                std::cout << "\n" << TelaCombate::margemCombate() << msgBoss << "\n";
             }
             break; // Interrompe o laco, impedindo que os proximos mortos-vivos selecionados sejam invocados no mesmo turno
         }
@@ -307,7 +308,7 @@ void Necromante::usarHabilidadeClasse(Combate* combate, Personagem* personagemUs
     if (minionsRecemInvocados.size() > 1) {
         std::string msg = FuncoesDialogo::formatarMsgSistema("A invocacao multipla exauriu seu controle! O turno inimigo comecara imediatamente!", Cor::VERMELHO_CLARO);
         notificarMensagemCombate(msg, msg);
-        std::cout << "\n" << Aparencia::margemCombate() << msg << "\n";
+        std::cout << "\n" << TelaCombate::margemCombate() << msg << "\n";
         ControleDeInput::aguardarEnter();
         for (auto* m : minionsRecemInvocados) {
             m->adicionarEfeito(std::make_unique<EfeitoAtordoamento>(1));

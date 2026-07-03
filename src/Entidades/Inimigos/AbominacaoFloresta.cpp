@@ -1,11 +1,11 @@
-﻿#include "AbominacaoFloresta.h"
+#include "AbominacaoFloresta.h"
 #include <iostream>
 #include "../Personagem.h"
 #include "../../Sistemas/Inventario/FabricaItens.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Controladores/Drops.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
-#include "../../Visoes/TelasBase/Combate/TelaCombate.h"
+#include "../../Perspectiva/TelasBase/Combate/TelaCombate.h"
 
 // --- INFORMACOES DA RACA ---
 std::string AbominacaoFloresta::obterNomeRaca() const 
@@ -61,7 +61,7 @@ void AbominacaoFloresta::aoCausarDano(Personagem* atacante, Personagem* alvo, in
             {
                 atacante->modificarVida(cura);
                 // A mensagem na UI foi removida para priorizar o combate limpo
-                // std::string msg = Aparencia::margemCombate() + Aparencia::cor(Cor::VERDE) + "[PASSIVA]: Raizes Parasitas! A Abominacao absorveu " + std::to_string(cura) + " de HP!" + Aparencia::cor(Cor::RESET) + "\n";
+                // std::string msg = TelaCombate::margemCombate() + Aparencia::cor(Cor::VERDE) + "[PASSIVA]: Raizes Parasitas! A Abominacao absorveu " + std::to_string(cura) + " de HP!" + Aparencia::cor(Cor::RESET) + "\n";
                 // TelaCombate::adicionarMensagemFixa(msg);
                 Aparencia::registrarLogBatalha(FuncoesDialogo::formatarMsgHabilidade("Raizes Parasitas! A Abominacao absorveu " + std::to_string(cura) + " de HP!", Cor::VERDE));
             }

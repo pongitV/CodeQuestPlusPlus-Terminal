@@ -1,4 +1,4 @@
-﻿#include "Guerreiro.h"
+#include "Guerreiro.h"
 
 #include <iostream>
 #include <memory>
@@ -7,7 +7,7 @@
 #include "../../Sistemas/Inventario/FabricaItens.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
-#include "../../Visoes/TelasBase/Combate/TelaCombate.h"
+#include "../../Perspectiva/TelasBase/Combate/TelaCombate.h"
 
 // --- INFORMACOES DA CLASSE ---
 std::string Guerreiro::obterNomeClasse() const 
@@ -116,7 +116,7 @@ void Guerreiro::usarHabilidadeClasse(Combate* /*combate*/, Personagem* personage
 
     if (personagemUsuario->possuiEfeito(EfeitoID::GritoDeGuerra)) {
         std::string msg = FuncoesDialogo::formatarMsgSistema("A habilidade " + obterNomeHabilidadeClasse() + " ja esta ativa!", Cor::AMARELO);
-        std::cout << "\n" << Aparencia::margemCombate() << msg << "\n";
+        std::cout << "\n" << TelaCombate::margemCombate() << msg << "\n";
         Aparencia::registrarLogBatalha(msg);
         ControleDeInput::aguardarEnter();
         personagemUsuario->definirHabilidadeCancelada(true);

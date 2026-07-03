@@ -1,4 +1,4 @@
-﻿#include "Personagem.h"
+#include "Personagem.h"
 
 #include <algorithm>
 #include <cctype>
@@ -10,6 +10,7 @@
 #include "Racas/RacaBase.h"
 #include "Classes/CloneNecro.h"
 #include "../Core/Utilidades/Constantes.h"
+#include "../Perspectiva/TelasBase/Combate/TelaCombate.h"
 #include "../Core/Utilidades/Aparencia.h"
 
 std::unordered_set<Personagem*> Personagem::personagensAtivos;
@@ -482,7 +483,7 @@ void Personagem::finalizarBatalha() {
     combate.vidaMaximaFixa = 0; 
     if (sistema.possuiRegeneracaoTroll && vidaAtual > 0 && vidaAtual < obterVidaMaxima()) {
         modificarVida(obterVidaMaxima());
-        std::cout << "\n" << Aparencia::margemCombate() << Aparencia::cor(Cor::VERDE) << "[SISTEMA]: Seu Orgao regenerador curou completamente suas feridas apos a batalha!" << Aparencia::cor(Cor::RESET) << "\n";
+        std::cout << "\n" << TelaCombate::margemCombate() << Aparencia::cor(Cor::VERDE) << "[SISTEMA]: Seu Orgao regenerador curou completamente suas feridas apos a batalha!" << Aparencia::cor(Cor::RESET) << "\n";
         ControleDeInput::aguardarEnter();
     }
 }
