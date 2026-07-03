@@ -58,7 +58,7 @@ TelaRaca::Resultado TelaRacaIDE::exibir(const std::string& nomeJogador) {
         "Raca: " + racaNome,
     };
     if (racaNome == "Dwarf") {
-        arteRaca = { "  (")_.-\"\"-.  ", "   `-'      `-.)", "  (o_o)       ", "   /|\\        ", "  _/ \\_       " };
+        arteRaca = { "  (\")_.-\"\"-.  ", "   `-'      `-.)", "  (o_o)       ", "   /|\\        ", "  _/ \\_       " };
         infoRaca.push_back("Resistencia +2");
         infoRaca.push_back("Constituicao +2");
     } else if (racaNome == "Elfo") {

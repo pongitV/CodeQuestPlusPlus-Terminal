@@ -221,32 +221,11 @@ namespace {
 
 std::unique_ptr<Personagem> MenuJogo::menuPrincipal() 
 {
-    std::vector<std::vector<std::string>> artesClasses = {
-        Arqueiro().obterAparenciaClasseMenu(),
-        Bardo().obterAparenciaClasseMenu(),
-        Guerreiro().obterAparenciaClasseMenu(),
-        Mago().obterAparenciaClasseMenu(),
-        Necromante().obterAparenciaClasseMenu()
-    };
-    
-    std::vector<std::vector<std::string>> artesRacas = {
-        Dwarf().obterAparenciaRaca(),
-        Elfo().obterAparenciaRaca(),
-        Humano().obterAparenciaRaca(),
-        Ork().obterAparenciaRaca()
-    };
-    
-    std::vector<std::vector<std::string>> artesInimigos = {
-        Goblin().obterAparenciaRaca(),
-        Slime().obterAparenciaRaca(),
-        Troll().obterAparenciaRaca(),
-        Fada().obterAparenciaRaca(),
-        Mimico().obterAparenciaRaca()
-    };
+    TelaAbertura::exibir();
 
     while (true) {
         bool temSave = Salvamento::saveExiste();
-        int selecao = TelaMenu::exibirOpcoesMenuPrincipal(temSave, artesClasses, artesRacas, artesInimigos);
+        int selecao = TelaMenu::exibirOpcoesMenuPrincipal(temSave, {}, {}, {});
         
         std::string opcaoSelecionada;
         if (selecao == 0) opcaoSelecionada = "Novo Jogo";

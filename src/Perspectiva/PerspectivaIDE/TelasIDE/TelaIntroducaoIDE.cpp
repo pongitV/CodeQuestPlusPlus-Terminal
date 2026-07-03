@@ -2,6 +2,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <thread>
+#include <chrono>
 #include "../../../Core/Utilidades/Aparencia.h"
 #include "../../../Core/Utilidades/FuncoesDialogo.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"
@@ -10,7 +12,6 @@ void TelaIntroducaoIDE::exibir() {
     std::cout << "\033[?25l";
     Aparencia::limparTela();
 
-    int largura = Aparencia::obterLarguraTerminal();
     int altura = Aparencia::obterAlturaTerminal();
 
     std::vector<std::string> dialogo = {
@@ -38,7 +39,9 @@ void TelaIntroducaoIDE::exibir() {
             std::cout << "\n";
         }
 
-        Aparencia::imprimirStringAnimada(linha, 30);
+        if (!linha.empty()) {
+            Aparencia::imprimirCentralizadoDigitando(linha, 30);
+        }
         std::cout << "\n";
 
         if (linha.empty()) {
