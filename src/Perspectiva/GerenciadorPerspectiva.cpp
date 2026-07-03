@@ -3,7 +3,7 @@
 #include "PerspectivaRaycaster/EngineRaycaster/Raycaster.h"
 #include "../Core/Utilidades/RendererProvider.h"
 
-GerenciadorPerspectiva::GerenciadorPerspectiva() : m_visao3DAtiva(true) {
+GerenciadorPerspectiva::GerenciadorPerspectiva() : m_visao3DAtiva(false) {
 }
 
 void GerenciadorPerspectiva::inicializar() {

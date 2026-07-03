@@ -1,5 +1,7 @@
 #include "TelaNomeRaycaster.h"
 
 TelaNome::Resultado TelaNomeRaycaster::exibir() {
-    return {};
+    TelaNome::Resultado r;
+    r.voltou = true;
+    return r;
 }

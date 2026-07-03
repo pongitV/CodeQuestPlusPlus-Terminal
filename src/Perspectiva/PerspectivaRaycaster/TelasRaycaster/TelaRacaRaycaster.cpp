@@ -1,5 +1,7 @@
 #include "TelaRacaRaycaster.h"
 
 TelaRaca::Resultado TelaRacaRaycaster::exibir(const std::string&) {
-    return {};
+    TelaRaca::Resultado r;
+    r.voltou = true;
+    return r;
 }
