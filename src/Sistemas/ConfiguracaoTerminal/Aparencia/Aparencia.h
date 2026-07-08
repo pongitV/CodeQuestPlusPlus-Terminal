@@ -60,7 +60,7 @@ public:
     static void exibirPainelArte(const std::vector<std::string>& arteAscii, int larguraVisual, Cor corDaArte, const std::string& tituloSecundario = "", bool animarFadeIn = false);
     static void exibirTituloPadrao(const std::string& titulo, Cor corTema = Cor::BRANCO);
     static void exibirPrompt(const std::string& mensagem);
-    static void exibirPopup(const std::string& titulo, const std::vector<std::string>& texto, Cor corTema = Cor::BRANCO, const std::vector<std::string>& arteAscii = {});
+    static void exibirPopup(const std::string& titulo, const std::vector<std::string>& texto, Cor corTema = Cor::BRANCO, const std::vector<std::string>& arteAscii = {}, bool mostrarMensagemEnter = true);
     static void renderizarCaixaPopupAnimada(const std::vector<std::string>& caixa, int startX, int startY, bool animar);
     static void removerCaixaPopupAnimada(int finalBoxWidth, int finalBoxHeight, int startX, int startY, bool animar = true);
     static void iniciarInteracaoPopup();
@@ -68,6 +68,8 @@ public:
     static int obterMinLarguraPopup();
     static int obterMinAlturaPopup();
     static int lerInteiroEmPopupFlutuante(const std::string& mensagem, int limiteMin, int limiteMax, Cor corTema = Cor::BRANCO);
+    static void limparPopupAnterior();
+    static void definirUltimoPopup(int x, int y, int w, int h, const std::string& bgAnsi = "\033[48;2;25;25;25m");
     static std::vector<std::string> reduzirEscalaAscii(const std::vector<std::string>& arteOriginal, int fatorX = 2, int fatorY = 2);
     static std::string sobreporLogoAnsi(const std::string& backgroundLine, const std::vector<std::string>& logoChars, int startX, const std::string& fgColor, int larguraTerminal);
     static std::string fadarLinhaAnsi(const std::string& linha, float ratio);

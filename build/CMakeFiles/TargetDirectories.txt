@@ -1,0 +1,5 @@
+D:/git repos fixed/RPG-Cpp/build/CMakeFiles/edit_cache.dir
+D:/git repos fixed/RPG-Cpp/build/CMakeFiles/rebuild_cache.dir
+D:/git repos fixed/RPG-Cpp/build/cmake/CMakeFiles/CodeQuestPlusPlus.dir
+D:/git repos fixed/RPG-Cpp/build/cmake/CMakeFiles/edit_cache.dir
+D:/git repos fixed/RPG-Cpp/build/cmake/CMakeFiles/rebuild_cache.dir

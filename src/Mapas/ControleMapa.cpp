@@ -717,10 +717,10 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
             
             bool trocandoDePerspectiva = !GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva();
             if (trocandoDePerspectiva) {
-                tipoAnimacao = 1; // Olho abrindo (entrou via 'V')
+                tipoAnimacao = 1;
             }
             if (s_recemTrocouDeMapa && !trocandoDePerspectiva) {
-                tipoAnimacao = 2; // Porta + Banner
+                tipoAnimacao = 2;
             }
             
             if (tituloAnterior != tituloDoMapaAtual) {
@@ -793,9 +793,6 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
                     teclaPressionadaPeloJogador = 'M';
                     processarInput = true;
                 } else if (!isTrigger) {
-                    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-                        GerenciadorPerspectiva::obterInstancia().alternarVisao();
-                    }
                     restaurarTela();
                     precisaRenderizar = true;
                     continue;
@@ -806,7 +803,7 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
 
         if (processarInput) {
             if (teclaPressionadaPeloJogador == 'v' || teclaPressionadaPeloJogador == 'V') {
-                continue; // Ja foi tratado acima
+                continue;
             }
 
             if (teclaPressionadaPeloJogador == 'm' || teclaPressionadaPeloJogador == 'M') {

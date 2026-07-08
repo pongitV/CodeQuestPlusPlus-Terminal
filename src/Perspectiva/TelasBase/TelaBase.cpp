@@ -194,6 +194,83 @@ std::vector<std::string> TelaBase::criarCaixa(const std::vector<std::string>& li
     return caixa;
 }
 
+std::vector<std::string> TelaBase::criarCaixaComArte(const std::vector<std::string>& arte, const std::vector<std::string>& linhasTexto, const std::string& titulo, int larguraMinima, Cor corCaixa, const std::string& bgAnsi) {
+    int larguraArte = 0;
+    for (const auto& l : arte) {
+        int len = Aparencia::obterComprimentoVisual(l);
+        if (len > larguraArte) larguraArte = len;
+    }
+
+    int larguraTexto = larguraMinima;
+    for (const auto& l : linhasTexto) {
+        int len = Aparencia::obterComprimentoVisual(l);
+        if (len > larguraTexto) larguraTexto = len;
+    }
+
+    bool temArte = larguraArte > 0;
+    int totalWidth = larguraTexto;
+    if (temArte) totalWidth += larguraArte + 3;
+
+    if (totalWidth < larguraMinima) totalWidth = larguraMinima;
+
+    int boxHeight = std::max(static_cast<int>(arte.size()), static_cast<int>(linhasTexto.size()));
+
+    std::vector<std::string> caixa;
+    std::string corStr = Aparencia::cor(corCaixa);
+    std::string resetStr = Aparencia::cor(Cor::RESET);
+    std::string padBg = bgAnsi.empty() ? "" : bgAnsi;
+
+    std::string top = padBg + corStr + "╔";
+    int tituloLen = Aparencia::obterComprimentoVisual(titulo);
+    if (tituloLen > 0) {
+        top += "══ " + titulo + " ";
+        int restantes = totalWidth + 2 - (tituloLen + 4);
+        if (restantes < 0) restantes = 0;
+        for (int i = 0; i < restantes; ++i) top += "═";
+    } else {
+        for (int i = 0; i < totalWidth + 2; ++i) top += "═";
+    }
+    top += "╗" + resetStr;
+    caixa.push_back(top);
+
+    for (int i = 0; i < boxHeight; ++i) {
+        std::string linhaArte = (i < static_cast<int>(arte.size())) ? arte[i] : "";
+        int compArte = Aparencia::obterComprimentoVisual(linhaArte);
+        int padArte = larguraArte - compArte;
+
+        std::string linhaTexto = (i < static_cast<int>(linhasTexto.size())) ? linhasTexto[i] : "";
+        int compTexto = Aparencia::obterComprimentoVisual(linhaTexto);
+        int padTexto = larguraTexto - compTexto;
+
+        std::string row;
+        if (temArte) {
+            row = padBg + corStr + "║ " + resetStr + padBg + linhaArte + std::string(padArte > 0 ? padArte : 0, ' ') + corStr + padBg + " ║ " + resetStr + padBg + linhaTexto + std::string(padTexto > 0 ? padTexto : 0, ' ') + corStr + padBg + " ║" + resetStr;
+        } else {
+            row = padBg + corStr + "║ " + resetStr + padBg + linhaTexto + std::string(padTexto > 0 ? padTexto : 0, ' ') + corStr + padBg + " ║" + resetStr;
+        }
+        caixa.push_back(row);
+    }
+
+    std::string bottom = padBg + corStr + "╚";
+    for (int i = 0; i < totalWidth + 2; ++i) bottom += "═";
+    bottom += "╝" + resetStr;
+    caixa.push_back(bottom);
+
+    if (!bgAnsi.empty()) {
+        for (auto& c : caixa) {
+            std::string toReplace = "\033[0m";
+            std::string replaceWith = "\033[0m" + bgAnsi;
+            size_t pos = c.find(toReplace);
+            while (pos != std::string::npos) {
+                c.replace(pos, toReplace.length(), replaceWith);
+                pos = c.find(toReplace, pos + replaceWith.length());
+            }
+        }
+    }
+
+    return caixa;
+}
+
 bool TelaBase::deveAnimarEntradaDaTela(std::chrono::steady_clock::time_point& ultimoAcesso, int delayMilissegundos) {
     auto agora = std::chrono::steady_clock::now();
     bool animar = std::chrono::duration_cast<std::chrono::milliseconds>(agora - ultimoAcesso).count() > delayMilissegundos;

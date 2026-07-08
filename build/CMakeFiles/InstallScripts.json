@@ -1,0 +1,8 @@
+{
+	"InstallScripts" : 
+	[
+		"D:/git repos fixed/RPG-Cpp/build/cmake_install.cmake",
+		"D:/git repos fixed/RPG-Cpp/build/cmake/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

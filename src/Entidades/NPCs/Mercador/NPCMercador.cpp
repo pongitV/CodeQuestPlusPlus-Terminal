@@ -39,7 +39,7 @@ namespace {
     void processarVendaDeItens(Personagem* jogadorAtual);
 
     void dialogoFranchesco(const std::vector<std::string>& linhas) {
-        Aparencia::exibirPopup("FRANCHESCO", linhas, Cor::AMARELO, NPCMercadorLayouts::arteMercador);
+        Aparencia::exibirPopup("FRANCHESCO", linhas, Cor::AMARELO, NPCMercadorLayouts::arteMercador, false);
     }
     
     void dialogoFranchescoUnico(const std::string& msg) {
@@ -176,7 +176,10 @@ namespace {
             std::vector<Item*> itensEscolhidos = itensValidos[escolha];
             Item* itemParaVenda = itensEscolhidos.front();
 
-            if (!InteracaoNPC::verificarItemNaoEquipado(jogadorAtual, itemParaVenda, "Franchesco", Cor::AMARELO, "Nao e possivel vender itens que estao equipados!")) continue;
+            if (jogadorAtual->isItemEquipado(itemParaVenda)) {
+                dialogoFranchescoUnico("Nao e possivel vender itens que estao equipados!");
+                continue;
+            }
             
             int qtdParaVender = 1;
             if (itensEscolhidos.size() > 1) {
