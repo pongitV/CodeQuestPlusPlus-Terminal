@@ -93,7 +93,7 @@ void TelaBase::executarLoopPadrao(
     );
 }
 
-std::vector<std::string> TelaBase::criarCaixa(const std::vector<std::string>& linhas, const std::string& titulo, int larguraMinima, Cor corCaixa) {
+std::vector<std::string> TelaBase::criarCaixa(const std::vector<std::string>& linhas, const std::string& titulo, int larguraMinima, Cor corCaixa, const std::string& bgAnsi) {
     int maxLargura = larguraMinima;
     for (const auto& linha : linhas) {
         int comp = Aparencia::obterComprimentoVisual(linha);
@@ -135,10 +135,21 @@ std::vector<std::string> TelaBase::criarCaixa(const std::vector<std::string>& li
         return caixa;
     }
 
-    std::string padBg = !isEngineIDE ? "\033[48;2;0;0;0m" : "";
+    std::string padBg = "";
+    if (!bgAnsi.empty()) {
+        padBg = bgAnsi;
+    } else if (!isEngineIDE) {
+        padBg = "\033[48;2;0;0;0m";
+    }
 
     std::string top = "╔";
     int tituloLen = Aparencia::obterComprimentoVisual(titulo);
+    
+    // Em modo 3D (raycaster), não colocamos o texto na borda, pois um título em ASCII flutua acima!
+    if (!isEngineIDE) {
+        tituloLen = 0;
+    }
+    
     if (tituloLen > 0) {
         top += "══ " + titulo + " ";
         int restantes = maxLargura + 2 - (tituloLen + 4);

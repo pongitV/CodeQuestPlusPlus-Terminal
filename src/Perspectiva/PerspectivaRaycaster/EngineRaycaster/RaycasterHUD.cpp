@@ -4,11 +4,12 @@
 #include "../../../Core/Utilidades/Aparencia.h"
 #include "../../../Mapas/ControleMapa.h"
 #include <cmath>
+#include <chrono>
 
 using namespace std;
 
 void RaycasterHUD::desenhar(vector<string>& tela, int larguraTela, int alturaTela, float jogadorX, float jogadorY, float anguloVisao, const vector<string>& matrizDoMapa, const string& tituloMapa, bool temaFloresta, Personagem* jogador) {
-    desenharBarraStatus(tela, larguraTela, alturaTela, jogador);
+    desenharBarraStatus(tela, larguraTela, alturaTela, jogador, anguloVisao);
     desenharControles(tela, larguraTela, alturaTela);
 }
 
@@ -78,8 +79,11 @@ void RaycasterHUD::desenharMinimapa(vector<string>& tela, int LARGURA_TELA, int 
     }
 }
 
-void RaycasterHUD::desenharBarraStatus(vector<string>& tela, int LARGURA_TELA, int ALTURA_TELA, Personagem* jogador) {
-    vector<string> linhasHUD = TelaCombate::obterLinhasBarraDeStatusDoJogador(jogador, Cor::RESET, -1, 0, false);
+void RaycasterHUD::desenharBarraStatus(vector<string>& tela, int LARGURA_TELA, int ALTURA_TELA, Personagem* jogador, float anguloVisao, const string& tituloBorda, int framesDanoJogador, int danoAmount, bool isCura) {
+    if (tela.empty()) return;
+    bool isModoLinhas = (tela.size() <= (size_t)ALTURA_TELA); // If it's a small vector, it's a vector of lines (strings)
+    
+    vector<string> linhasHUD = TelaCombate::obterLinhasBarraDeStatusDoJogador(jogador, Cor::RESET, danoAmount, framesDanoJogador, isCura);
     int hudHeight = linhasHUD.size();
     int maxHudWidth = 0;
     for (const string& linha : linhasHUD) {
@@ -95,14 +99,45 @@ void RaycasterHUD::desenharBarraStatus(vector<string>& tela, int LARGURA_TELA, i
 
     string corHudBorda = "\033[38;2;255;255;255m"; 
     string bgHud = "\033[48;2;25;25;25m"; 
+    
+    // Pulsing Border (Critical HP)
+    if (jogador && jogador->obterVida() <= jogador->obterVidaMaxima() * 0.25) {
+        auto agora = std::chrono::steady_clock::now();
+        int tempoMs = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(agora.time_since_epoch()).count());
+        int pulse = (tempoMs / 5) % 510;
+        if (pulse > 255) pulse = 510 - pulse;
+        corHudBorda = "\033[38;2;255;" + to_string(100 - (pulse*100)/255) + ";" + to_string(100 - (pulse*100)/255) + "m";
+    }
+    
+
+
+    string centroTop = "";
+    if (tituloBorda.empty()) {
+        if (!TelaCombate::contexto.nomeTurnoVisivel.empty()) {
+            centroTop = "\033[38;2;255;255;255m[ Turno: " + TelaCombate::contexto.nomeTurnoVisivel + " ]" + corHudBorda;
+        } else {
+            centroTop = ""; // Sem titulo
+        }
+    } else {
+        centroTop = tituloBorda;
+    }
 
     if (hudOffsetY >= 0 && hudOffsetY < ALTURA_TELA) {
         string pixelTopo = bgHud + corHudBorda + "╔";
-        for(int k=0; k < boxWidth - 2; ++k) pixelTopo += "═";
+        int lenVisCentro = Aparencia::obterComprimentoVisual(centroTop);
+        int halfLinha = (boxWidth - 2 - lenVisCentro) / 2;
+        for(int k=0; k < halfLinha; ++k) pixelTopo += "═";
+        pixelTopo += centroTop + corHudBorda;
+        for(int k=0; k < (boxWidth - 2 - lenVisCentro - halfLinha); ++k) pixelTopo += "═";
         pixelTopo += "╗\033[0m";
-        tela[hudOffsetY * LARGURA_TELA + hudOffsetX] = pixelTopo;
-        for(int x = 1; x < boxWidth; ++x) {
-            if (hudOffsetX + x < LARGURA_TELA) tela[hudOffsetY * LARGURA_TELA + hudOffsetX + x] = "";
+        
+        if (isModoLinhas) {
+            tela[hudOffsetY] = Aparencia::sobreporPainelNaLinhaAnsi(tela[hudOffsetY], pixelTopo, hudOffsetX);
+        } else {
+            tela[hudOffsetY * LARGURA_TELA + hudOffsetX] = pixelTopo;
+            for(int x = 1; x < boxWidth; ++x) {
+                if (hudOffsetX + x < LARGURA_TELA) tela[hudOffsetY * LARGURA_TELA + hudOffsetX + x] = "";
+            }
         }
     }
 
@@ -110,9 +145,14 @@ void RaycasterHUD::desenharBarraStatus(vector<string>& tela, int LARGURA_TELA, i
         string pixelBase = bgHud + corHudBorda + "╚";
         for(int k=0; k < boxWidth - 2; ++k) pixelBase += "═";
         pixelBase += "╝\033[0m";
-        tela[(hudOffsetY + boxHeight - 1) * LARGURA_TELA + hudOffsetX] = pixelBase;
-        for(int x = 1; x < boxWidth; ++x) {
-            if (hudOffsetX + x < LARGURA_TELA) tela[(hudOffsetY + boxHeight - 1) * LARGURA_TELA + hudOffsetX + x] = "";
+        
+        if (isModoLinhas) {
+            tela[hudOffsetY + boxHeight - 1] = Aparencia::sobreporPainelNaLinhaAnsi(tela[hudOffsetY + boxHeight - 1], pixelBase, hudOffsetX);
+        } else {
+            tela[(hudOffsetY + boxHeight - 1) * LARGURA_TELA + hudOffsetX] = pixelBase;
+            for(int x = 1; x < boxWidth; ++x) {
+                if (hudOffsetX + x < LARGURA_TELA) tela[(hudOffsetY + boxHeight - 1) * LARGURA_TELA + hudOffsetX + x] = "";
+            }
         }
     }
 
@@ -136,25 +176,70 @@ void RaycasterHUD::desenharBarraStatus(vector<string>& tela, int LARGURA_TELA, i
 
         int y = hudOffsetY + 1 + i;
         if (y >= 0 && y < ALTURA_TELA) {
-            tela[y * LARGURA_TELA + hudOffsetX] = linha;
-            for(int x = 1; x < boxWidth; ++x) {
-                if (hudOffsetX + x < LARGURA_TELA) tela[y * LARGURA_TELA + hudOffsetX + x] = "";
+            if (isModoLinhas) {
+                tela[y] = Aparencia::sobreporPainelNaLinhaAnsi(tela[y], linha, hudOffsetX);
+            } else {
+                tela[y * LARGURA_TELA + hudOffsetX] = linha;
+                for(int x = 1; x < boxWidth; ++x) {
+                    if (hudOffsetX + x < LARGURA_TELA) tela[y * LARGURA_TELA + hudOffsetX + x] = "";
+                }
+            }
+        }
+    }
+    
+    // Floating Damage do Jogador
+    if (framesDanoJogador > 0 && danoAmount > 0) {
+        int yOffset = max(0, 10 - framesDanoJogador) / 2; // Sobe ate o final da animacao
+        int fctY = hudOffsetY - 1 - yOffset;
+        if (fctY >= 0 && fctY < ALTURA_TELA) {
+            string txtDano = "-" + to_string(danoAmount);
+            string corDano = "\033[1;38;2;255;50;50m";
+            
+            // Procura onde está o "/" do HP na primeira linha do HUD
+            int hpVisX = boxWidth / 2; // default centro
+            if (linhasHUD.size() > 0) {
+                size_t posHP = linhasHUD[0].find("HP:");
+                if (posHP != string::npos) {
+                    size_t posSlash = linhasHUD[0].find("/", posHP);
+                    if (posSlash != string::npos) {
+                        hpVisX = Aparencia::obterComprimentoVisual(linhasHUD[0].substr(0, posSlash)); 
+                    } else {
+                        hpVisX = Aparencia::obterComprimentoVisual(linhasHUD[0].substr(0, posHP)) + 5; 
+                    }
+                }
+            }
+            
+            int fctX = hudOffsetX + hpVisX;
+            
+            // Sobreposicao simples do dano flutuante no HUD
+            if (isModoLinhas) {
+                tela[fctY] = Aparencia::sobreporPainelNaLinhaAnsi(tela[fctY], corDano + txtDano + "\033[0m", fctX);
+            } else {
+                tela[fctY * LARGURA_TELA + fctX] = corDano + txtDano + "\033[0m";
             }
         }
     }
 }
 
 void RaycasterHUD::desenharControles(vector<string>& tela, int LARGURA_TELA, int ALTURA_TELA) {
-    string textoDeControles = "W,A,S,D: Mover | V: Visao | I: Inventario | C: Ficha | B: Diario | M: Mapa";
-    int startCtrlX = (LARGURA_TELA - static_cast<int>(textoDeControles.length())) / 2;
+    string cF = "\033[38;2;200;200;200m\033[48;2;20;20;20m";
+    string cK = "\033[1;38;2;255;255;255m\033[48;2;20;20;20m"; // Tecla em branco
+    
+    string displayHTML = cF + "[" + cK + "W,A,S,D" + cF + "] Mover   "
+                       + cF + "[" + cK + "V" + cF + "] Visao   "
+                       + cF + "[" + cK + "I" + cF + "] Inventario   "
+                       + cF + "[" + cK + "C" + cF + "] Ficha   "
+                       + cF + "[" + cK + "B" + cF + "] Diario   "
+                       + cF + "[" + cK + "M" + cF + "] Mapa\033[0m";
+
+    int lenVis = 77; // Comprimento visual hardcoded pra formatacao
+    int startCtrlX = (LARGURA_TELA - lenVis) / 2;
     int linhaControles = ALTURA_TELA - 1;
     
-    for (int x = 0; x < LARGURA_TELA; x++) {
-        tela[linhaControles * LARGURA_TELA + x] = "\033[48;2;20;20;20m \033[0m"; 
-    }
     if (startCtrlX > 0) {
-        for (size_t i = 0; i < textoDeControles.length(); ++i) {
-            tela[linhaControles * LARGURA_TELA + startCtrlX + i] = "\033[38;2;150;150;150m\033[48;2;20;20;20m" + string(1, textoDeControles[i]) + "\033[0m";
+        tela[linhaControles * LARGURA_TELA + startCtrlX] = displayHTML;
+        for (int i = 1; i < lenVis; ++i) {
+            tela[linhaControles * LARGURA_TELA + startCtrlX + i] = "";
         }
     }
 }

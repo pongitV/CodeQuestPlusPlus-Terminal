@@ -1,300 +1,446 @@
-#include <iostream>
-#include <string>
-#include <vector>
-#include <memory>
-
 #include "InventarioCombate.h"
+#include "../../Perspectiva/GerenciadorPerspectiva.h"
 #include "../../Entidades/Personagem.h"
 #include "Item.h"
 #include "Equipamentos/EquipamentoArma.h"
 #include "Equipamentos/EquipamentoEscudo.h"
 #include "Equipamentos/EquipamentoArmadura.h"
-#include "../../Perspectiva/TelasBase/Inventario/TelaInventario.h"
-#include "../../Perspectiva/TelasBase/Menu/TelaMenu.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Utilidades/ControleDeInput.h"
 #include "../../Perspectiva/TelasBase/TelaBase.h"
+#include "../../Perspectiva/TelasBase/Inventario/TelaInventario.h"
 #include "../../Perspectiva/TelasBase/Combate/TelaCombate.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
+#include "ControleInventario.h"
+#include "../../Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterQuadro.h"
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <functional>
 
-namespace {
+enum EstadoInventario { PRINCIPAL, ARSENAL, CONSUMIVEIS, ESTOQUE, MISSAO };
+
+static int lerSelecaoPopupInventario(const std::string& titulo, const std::vector<std::string>& texto, const std::vector<std::string>& opcoes) {
+    int selecaoAtual = 0;
+    int totalOpcoes = opcoes.size();
+    bool is3D = GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva();
+    
+    ControleDeInput::limparBuffer();
+
+    while (true) {
+        std::vector<std::string> linhas;
+        for (const auto& t : texto) {
+            linhas.push_back(" " + t + " ");
+        }
+        linhas.push_back("");
+        for (int i = 0; i < totalOpcoes; ++i) {
+            if (i == selecaoAtual) {
+                linhas.push_back(Aparencia::cor(Cor::VERDE) + " > " + opcoes[i] + Aparencia::cor(Cor::BRANCO) + (is3D ? "\033[48;2;25;25;25m" : ""));
+            } else {
+                linhas.push_back("   " + opcoes[i]);
+            }
+        }
+
+        std::vector<std::string> caixaFinal = TelaBase::criarCaixa(linhas, titulo, 0, Cor::AMARELO, is3D ? "\033[48;2;25;25;25m" : "");
+        int outW = Aparencia::obterComprimentoVisual(caixaFinal[0]);
+        int outH = caixaFinal.size();
+        int startX = (Aparencia::obterLarguraTerminal() - outW) / 2;
+        int startY = (Aparencia::obterAlturaTerminal() - outH) / 2;
+        
+        if (startX < 0) startX = 0;
+        if (is3D && startY < 8) startY = 8;
+        
+        std::cout << "\033[?25l";
+        for (size_t i = 0; i < caixaFinal.size(); ++i) {
+            Aparencia::moverCursor(startX, startY + i);
+            std::cout << caixaFinal[i];
+        }
+        std::cout << std::flush;
+
+        char tecla = ControleDeInput::lerTecla();
+        if (tecla == 'w' || tecla == 'W') {
+            selecaoAtual--;
+            if (selecaoAtual < 0) selecaoAtual = totalOpcoes - 1;
+        } else if (tecla == 's' || tecla == 'S') {
+            selecaoAtual++;
+            if (selecaoAtual >= totalOpcoes) selecaoAtual = 0;
+        } else if (tecla == '\r' || tecla == '\n') {
+            return selecaoAtual;
+        }
+    }
+}
+
+static void exibirMensagemPopupInventario(const std::string& titulo, const std::vector<std::string>& texto) {
+    lerSelecaoPopupInventario(titulo, texto, {"[ VOLTAR ]"});
+}
+
+static void exibirResultadoItem(const UsoItemInfo& info, Item* item, bool* turnoFoiConsumido) {
+    switch (info.resultado) {
+        case ResultadoItem::Erro_TurnoJaUsado:
+            exibirMensagemPopupInventario("SISTEMA", {"Voce ja usou um item neste turno!"});
+            break;
+        case ResultadoItem::Erro_EscudoQuebrado: {
+            std::string msg = FuncoesDialogo::formatarMsgSistema("O escudo [" + info.nomeItem + "] esta quebrado e nao pode ser equipado!", Cor::VERMELHO);
+            exibirMensagemPopupInventario("SISTEMA", {msg});
+            break;
+        }
+        case ResultadoItem::Erro_Requisitos:
+            exibirMensagemPopupInventario("SISTEMA", {info.mensagemExtra});
+            break;
+        case ResultadoItem::Desequipou:
+            exibirMensagemPopupInventario("SISTEMA", {info.nomeItem + " desequipado(a)!"});
+            if (turnoFoiConsumido) *turnoFoiConsumido = true;
+            exibirMensagemPopupInventario("SISTEMA", {"Turno gasto alterando um equipamento..."});
+            break;
+        case ResultadoItem::Equipou:
+            exibirMensagemPopupInventario("SISTEMA", {info.nomeItem + " equipado(a)!"});
+            if (turnoFoiConsumido) *turnoFoiConsumido = true;
+            exibirMensagemPopupInventario("SISTEMA", {"Turno gasto alterando um equipamento..."});
+            break;
+        case ResultadoItem::Usou_Turno:
+            if (turnoFoiConsumido) *turnoFoiConsumido = true;
+            break;
+        case ResultadoItem::Usou_SemTurno:
+            break;
+        case ResultadoItem::Erro_NaoPodeUsar:
+            exibirMensagemPopupInventario("SISTEMA", {ControleInventario::obterMensagemErro(item, turnoFoiConsumido != nullptr)});
+            break;
+        default: break;
+    }
+}
+
+static int lerInteiroPopupInventario(const std::string& titulo, const std::string& mensagem, int min, int max) {
+    bool is3D = GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva();
+    std::string currentInput = "";
+
+    while (true) {
+        std::vector<std::string> linhas;
+        linhas.push_back(" " + mensagem + " ");
+        linhas.push_back("");
+        linhas.push_back(Aparencia::cor(Cor::AMARELO) + " >> " + currentInput + "_" + Aparencia::cor(Cor::BRANCO) + (is3D ? "\033[48;2;25;25;25m" : ""));
+        linhas.push_back("");
+        linhas.push_back(" [ENTER para confirmar]");
+
+        std::vector<std::string> caixaFinal = TelaBase::criarCaixa(linhas, titulo, 0, Cor::AMARELO, is3D ? "\033[48;2;25;25;25m" : "");
+        int outW = Aparencia::obterComprimentoVisual(caixaFinal[0]);
+        int outH = caixaFinal.size();
+        int startX = (Aparencia::obterLarguraTerminal() - outW) / 2;
+        int startY = (Aparencia::obterAlturaTerminal() - outH) / 2;
+        
+        if (startX < 0) startX = 0;
+        if (is3D && startY < 8) startY = 8;
+        
+        std::cout << "\033[?25l";
+        for (size_t i = 0; i < caixaFinal.size(); ++i) {
+            Aparencia::moverCursor(startX, startY + i);
+            std::cout << caixaFinal[i];
+        }
+        std::cout << std::flush;
+
+        char tecla = ControleDeInput::lerTecla();
+        if (tecla >= '0' && tecla <= '9') {
+            currentInput += tecla;
+        } else if (tecla == '\b' && !currentInput.empty()) {
+            currentInput.pop_back();
+            if (is3D) RaycasterQuadro::restaurarUltimoQuadro();
+            else Aparencia::limparTela();
+        } else if (tecla == '\r' || tecla == '\n') {
+            if (currentInput.empty()) return min;
+            int val = std::stoi(currentInput);
+            if (val < min) return min;
+            if (val > max) return max;
+            return val;
+        }
+    }
 }
 
 void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turnoFoiConsumido)
 {
     if (jogadorAtual == nullptr) return;
-    TelaBase::executarLoop(
-        [](bool animar) { TelaInventario::exibirCabecalhoInventario(animar); },
-        [jogadorAtual]() {
-            TelaInventario::exibirCaixaEquipados(jogadorAtual);
-            std::cout << "\n";
-            Aparencia::imprimirCentralizado("BOLSO: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + " Moedas de Ouro [$$]", Aparencia::cor(Cor::AMARELO));
-            std::cout << "\n";
-        },
-        [jogadorAtual]() {
-            std::vector<std::string> opcoes;
+    
+    EstadoInventario estado = PRINCIPAL;
+    int selecaoAtual = 0;
+    int selecaoSub = 0;
+    bool executando = true;
+    
+    std::vector<Item*> mapIndexParaItem;
+
+    bool redesenhoCompletoInv = true;
+
+    while (executando) {
+        std::cout << "\033[?25l";
+        bool is3D = GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva();
+        
+        std::vector<std::string> linhas;
+        std::string tituloCaixa = "";
+        std::vector<std::string> interativos;
+        std::vector<int> indicesReais;
+        
+        if (estado == PRINCIPAL) {
+            tituloCaixa = " MENU DE BOLSOS ";
+            std::string strBolso = "BOLSO: " + std::to_string(jogadorAtual->obterInventario()->obterOuro()) + " Moedas de Ouro [$$]";
+            
+            std::vector<std::string> opcoesBase;
             if (jogadorAtual->obterConsumivelRapido()) {
                 int qtd = jogadorAtual->obterInventario()->contarItem(jogadorAtual->obterConsumivelRapido()->obterNomeItem());
-                opcoes.push_back(Aparencia::cor(Cor::VERDE) + "[+] Acesso Rapido: " + jogadorAtual->obterConsumivelRapido()->obterNomeItem() + " (" + std::to_string(qtd) + "x)" + Aparencia::cor(Cor::RESET));
+                opcoesBase.push_back(Aparencia::cor(Cor::VERDE) + "[+] " + Aparencia::cor(Cor::BRANCO) + "Acesso Rapido: " + jogadorAtual->obterConsumivelRapido()->obterNomeItem() + " (" + std::to_string(qtd) + "x)");
             }
-            opcoes.push_back("[X] Arsenal de Equipamentos");
-            opcoes.push_back("[o] Itens Consumiveis");
-            opcoes.push_back("[#] Estoque e Materiais");
-            opcoes.push_back("[!] Itens de Missao");
-            opcoes.push_back("[<] VOLTAR");
-            return opcoes;
-        },
-        [&](int escolha) {
-            int offset = jogadorAtual->obterConsumivelRapido() ? 1 : 0;
-            if (escolha < 0 || escolha == 4 + offset) return false; // VOLTAR
+            opcoesBase.push_back("Arsenal de Equipamentos");
+            opcoesBase.push_back("Itens Consumiveis");
+            opcoesBase.push_back("Estoque e Materiais");
+            opcoesBase.push_back("Itens de Missao");
+            opcoesBase.push_back("");
+            opcoesBase.push_back(strBolso);
+            opcoesBase.push_back("");
+            opcoesBase.push_back("[<] VOLTAR");
             
-            if (offset == 1 && escolha == 0) {
-                Item* rapido = jogadorAtual->obterConsumivelRapido();
-                std::string nomeRapido = rapido->obterNomeItem(); // Salva o nome antes do item ser deletado
-                int countAntes = jogadorAtual->obterInventario()->contarItem(nomeRapido);
-                if (countAntes > 0) {
-                    bool consumiu = false;
-                    processarUsoDeItem(jogadorAtual, rapido, turnoFoiConsumido ? &consumiu : nullptr);
-                    if (consumiu && turnoFoiConsumido) *turnoFoiConsumido = true;
-                    
-                    if (jogadorAtual->obterItemSelecionadoParaUso() != nullptr) {
-                        return false; 
+            for (size_t i = 0; i < opcoesBase.size(); ++i) {
+                if (opcoesBase[i].empty() || opcoesBase[i].find("BOLSO:") != std::string::npos || opcoesBase[i].substr(0, 3) == "   ") {
+                    linhas.push_back("   " + opcoesBase[i]);
+                } else {
+                    interativos.push_back(opcoesBase[i]);
+                    indicesReais.push_back(i);
+                    if (interativos.size() - 1 == selecaoAtual) {
+                        linhas.push_back(Aparencia::cor(Cor::VERDE) + " > " + opcoesBase[i] + Aparencia::cor(Cor::BRANCO) + (is3D ? "\033[48;2;25;25;25m" : ""));
+                    } else {
+                        linhas.push_back("   " + opcoesBase[i]);
                     }
-                    if (jogadorAtual->obterInventario()->contarItem(nomeRapido) == 0) {
-                        jogadorAtual->desequiparConsumivel();
+                }
+            }
+        } else if (estado == ARSENAL) {
+            tituloCaixa = " ARSENAL DE EQUIPAMENTOS ";
+
+            mapIndexParaItem.clear();
+
+            Item* armaEq = jogadorAtual->obterArma();
+            Item* armaduraEq = jogadorAtual->obterArmadura();
+            Item* escudoEq = jogadorAtual->obterEscudo();
+
+            auto todosItens = jogadorAtual->obterInventario()->obterTodosOsItens();
+            std::vector<Item*> armas, armaduras, escudos;
+            for (auto* item : todosItens) {
+                if (item == armaEq || item == armaduraEq || item == escudoEq) continue;
+                TipoEquipamento tipo = item->obterTipo();
+                if (tipo == TipoEquipamento::ARMA) armas.push_back(item);
+                else if (tipo == TipoEquipamento::ARMADURA) armaduras.push_back(item);
+                else if (tipo == TipoEquipamento::ESCUDO) escudos.push_back(item);
+            }
+
+            Aparencia::ordenarAlfabeticamente(armas, [](Item* a) { return a->obterNomeItem(); });
+            Aparencia::ordenarAlfabeticamente(armaduras, [](Item* a) { return a->obterNomeItem(); });
+            Aparencia::ordenarAlfabeticamente(escudos, [](Item* a) { return a->obterNomeItem(); });
+
+            std::string corDiv = Aparencia::cor(Cor::AMARELO);
+            std::string corReset = Aparencia::cor(Cor::RESET);
+
+            auto adicionarItem = [&](const std::string& nome, Item* item) {
+                int idx = (int)interativos.size();
+                interativos.push_back(nome);
+                indicesReais.push_back((int)mapIndexParaItem.size());
+                mapIndexParaItem.push_back(item);
+                if (idx == selecaoSub)
+                    linhas.push_back(Aparencia::cor(Cor::VERDE) + " > " + nome + Aparencia::cor(Cor::BRANCO) + (is3D ? "\033[48;2;25;25;25m" : ""));
+                else
+                    linhas.push_back("   " + nome);
+            };
+
+            auto adicionarGrupo = [&](const std::string& label, std::vector<Item*>& grupo) {
+                if (grupo.empty()) return;
+                linhas.push_back(" " + corDiv + "--- " + label + " ---" + corReset);
+                for (auto* item : grupo) {
+                    auto itensAgrupados = jogadorAtual->obterInventario()->contarItem(item->obterNomeItem());
+                    std::string prefixo = (itensAgrupados > 1) ? std::to_string(itensAgrupados) + "x " : "";
+                    adicionarItem(prefixo + item->obterNomeItem(), item);
+                }
+                linhas.push_back("");
+            };
+
+            // Equipados (non-interactive)
+            linhas.push_back(" " + corDiv + "--- Equipados ---" + corReset);
+            bool temEq = false;
+            auto addEq = [&](const std::string& label, Item* item) {
+                if (!item) return;
+                temEq = true;
+                std::string nome = item->obterNomeItem();
+                // also add to interativos so it can be selected
+                int idx = (int)interativos.size();
+                interativos.push_back("(E) " + nome);
+                indicesReais.push_back((int)mapIndexParaItem.size());
+                mapIndexParaItem.push_back(item);
+                if (idx == selecaoSub)
+                    linhas.push_back(Aparencia::cor(Cor::VERDE) + " > " + Aparencia::cor(Cor::VERDE) + "[E] " + Aparencia::cor(Cor::RESET) + label + ": " + nome + Aparencia::cor(Cor::BRANCO) + (is3D ? "\033[48;2;25;25;25m" : ""));
+                else
+                    linhas.push_back("   " + Aparencia::cor(Cor::VERDE) + "[E] " + Aparencia::cor(Cor::RESET) + label + ": " + nome);
+            };
+            addEq("Arma", armaEq);
+            addEq("Armadura", armaduraEq);
+            addEq("Escudo", escudoEq);
+            if (!temEq) linhas.push_back("   " + Aparencia::cor(Cor::CINZA) + "(Nada equipado)" + corReset);
+            linhas.push_back("");
+
+            adicionarGrupo("Armas", armas);
+            adicionarGrupo("Armaduras", armaduras);
+            adicionarGrupo("Escudos", escudos);
+
+            interativos.push_back("[<] VOLTAR");
+            indicesReais.push_back(-1);
+            if ((int)interativos.size() - 1 == selecaoSub)
+                linhas.push_back(Aparencia::cor(Cor::VERDE) + " > [<] VOLTAR" + Aparencia::cor(Cor::BRANCO) + (is3D ? "\033[48;2;25;25;25m" : ""));
+            else
+                linhas.push_back("   [<] VOLTAR");
+
+        } else {
+            int categoria = 0;
+            if (estado == CONSUMIVEIS) { tituloCaixa = " ITENS CONSUMIVEIS "; categoria = 1; }
+            else if (estado == ESTOQUE) { tituloCaixa = " ESTOQUE E MATERIAIS "; categoria = 2; }
+            else if (estado == MISSAO) { tituloCaixa = " ITENS DE MISSAO "; categoria = 3; }
+
+            auto itens = TelaInventario::obterListaCategoria(jogadorAtual, categoria, false);
+            Aparencia::ordenarAlfabeticamente(itens, [](const auto& par) { return par.first; });
+
+            mapIndexParaItem.clear();
+
+            if (!itens.empty()) {
+                for (const auto& p : itens) {
+                    interativos.push_back(p.first);
+                    indicesReais.push_back((int)mapIndexParaItem.size());
+                    mapIndexParaItem.push_back(p.second);
+
+                    if ((int)interativos.size() - 1 == selecaoSub) {
+                        linhas.push_back(Aparencia::cor(Cor::VERDE) + " > " + p.first + Aparencia::cor(Cor::BRANCO) + (is3D ? "\033[48;2;25;25;25m" : ""));
+                    } else {
+                        linhas.push_back("   " + p.first);
+                    }
+                }
+            } else {
+                linhas.push_back("   " + Aparencia::cor(Cor::CINZA) + "Nenhum item nesta categoria." + Aparencia::cor(Cor::RESET));
+            }
+            linhas.push_back("");
+
+            interativos.push_back("[<] VOLTAR");
+            indicesReais.push_back(-1);
+            if ((int)interativos.size() - 1 == selecaoSub) {
+                linhas.push_back(Aparencia::cor(Cor::VERDE) + " > [<] VOLTAR" + Aparencia::cor(Cor::BRANCO) + (is3D ? "\033[48;2;25;25;25m" : ""));
+            } else {
+                linhas.push_back("   [<] VOLTAR");
+            }
+        }
+        
+        int totalOpcoes = interativos.size();
+        int* selRef = (estado == PRINCIPAL) ? &selecaoAtual : &selecaoSub;
+        if (*selRef >= totalOpcoes && totalOpcoes > 0) *selRef = totalOpcoes - 1;
+        
+        std::vector<std::string> caixaFinal = TelaBase::criarCaixa(linhas, tituloCaixa, 0, Cor::AMARELO, is3D ? "\033[48;2;25;25;25m" : "");
+        int outW = Aparencia::obterComprimentoVisual(caixaFinal[0]);
+        int outH = caixaFinal.size();
+        
+        if (is3D) {
+            if (redesenhoCompletoInv) RaycasterQuadro::restaurarUltimoQuadro();
+            int startX = (Aparencia::obterLarguraTerminal() - outW) / 2;
+            int startY = (Aparencia::obterAlturaTerminal() - outH) / 2;
+            if (startX < 0) startX = 0;
+            if (startY < 8) startY = 8;
+            
+            GerenciadorPerspectiva::obterInventarioUI().exibirCabecalho(false, startY);
+            
+            for (size_t i = 0; i < caixaFinal.size(); ++i) {
+                Aparencia::moverCursor(startX, startY + i);
+                std::cout << caixaFinal[i];
+            }
+        } else {
+            Aparencia::limparTela();
+            TelaInventario::exibirCabecalhoInventario(false);
+            TelaInventario::exibirCaixaEquipados(jogadorAtual);
+            std::cout << "\n";
+            for (const auto& l : caixaFinal) {
+                std::cout << Aparencia::espacosParaCentralizar(Aparencia::obterComprimentoVisual(l)) << l << "\n";
+            }
+        }
+        std::cout << std::flush;
+        
+        redesenhoCompletoInv = false;
+        char tecla = ControleDeInput::lerTecla();
+        if (tecla == 'w' || tecla == 'W') {
+            (*selRef)--;
+            if (*selRef < 0) *selRef = totalOpcoes - 1;
+        } else if (tecla == 's' || tecla == 'S') {
+            (*selRef)++;
+            if (*selRef >= totalOpcoes) *selRef = 0;
+        } else if (tecla == '\n' || tecla == '\r') {
+            redesenhoCompletoInv = true;
+            if (totalOpcoes > 0) {
+                if (estado == PRINCIPAL) {
+                    int offset = jogadorAtual->obterConsumivelRapido() ? 1 : 0;
+                    int escLogica = indicesReais[*selRef];
+                    
+                    if (escLogica == 7 + offset) {
+                        executando = false;
+                    } else if (offset == 1 && escLogica == 0) {
+                        // Consumivel rapido
+                        Item* rapido = jogadorAtual->obterConsumivelRapido();
+                        std::string nomeRapido = rapido->obterNomeItem();
+                        int countAntes = jogadorAtual->obterInventario()->contarItem(nomeRapido);
+                        if (countAntes > 0) {
+                            bool turnoJaUsado = turnoFoiConsumido && *turnoFoiConsumido;
+                            UsoItemInfo info = ControleInventario::usarOuEquipar(jogadorAtual, rapido, turnoJaUsado);
+                            if (turnoFoiConsumido && info.consumiuTurno) *turnoFoiConsumido = true;
+                            if (jogadorAtual->obterItemSelecionadoParaUso() != nullptr) {
+                                executando = false;
+                            }
+                            if (jogadorAtual->obterInventario()->contarItem(nomeRapido) == 0) {
+                                jogadorAtual->desequiparConsumivel();
+                            }
+                        } else {
+                            jogadorAtual->desequiparConsumivel();
+                        }
+                        if (turnoFoiConsumido && *turnoFoiConsumido) executando = false;
+                        
+                        if (is3D) RaycasterQuadro::restaurarUltimoQuadro();
+                    } else {
+                        int cat = escLogica - offset;
+                        if (cat == 0) estado = ARSENAL;
+                        else if (cat == 1) estado = CONSUMIVEIS;
+                        else if (cat == 2) estado = ESTOQUE;
+                        else if (cat == 3) estado = MISSAO;
+                        selecaoSub = 0;
+                        if (is3D) RaycasterQuadro::restaurarUltimoQuadro();
                     }
                 } else {
-                    jogadorAtual->desequiparConsumivel();
-                }
-                if (turnoFoiConsumido && *turnoFoiConsumido) return false;
-                return true;
-            }
-
-            int categoria = escolha - offset;
-            
-            std::vector<Item*> mapIndexParaItem;
-            
-            TelaBase::executarLoop(
-                [](bool animar) { TelaInventario::exibirCabecalhoInventario(animar); },
-                [categoria]() {
-                    std::string titulo = "";
-                    if (categoria == 0) titulo = "=== [X] ARSENAL DE EQUIPAMENTOS [X] ===";
-                    else if (categoria == 1) titulo = "=== [o] ITENS CONSUMIVEIS [o] ===";
-                    else if (categoria == 2) titulo = "=== [#] ESTOQUE E MATERIAIS [#] ===";
-                    else if (categoria == 3) titulo = "=== [!] ITENS DE MISSAO [!] ===";
-                    std::cout << "\n";
-                    Aparencia::imprimirCentralizado(titulo, Aparencia::cor(Cor::AMARELO));
-                    std::cout << "\n";
-                },
-                [jogadorAtual, categoria, &mapIndexParaItem]() {
-                    auto itens = TelaInventario::obterListaCategoria(jogadorAtual, categoria, false);
-                    Aparencia::ordenarAlfabeticamente(itens, [](const auto& par) { return par.first; });
-                    
-                    std::vector<std::string> ops;
-                    mapIndexParaItem.clear();
-
-                    auto adicionarCategoria = [&](const std::string& titulo, const std::vector<std::pair<std::string, Item*>>& lista) {
-                        if (!lista.empty()) {
-                            std::vector<std::string> linhasItem;
-                            for (const auto& p : lista) {
-                                linhasItem.push_back(" " + p.first); // Adiciona um pequeno recuo interno
-                            }
-                            
-                            std::vector<std::string> caixa = TelaBase::criarCaixa(linhasItem, titulo, 60, Cor::AMARELO);
-                            
-                            ops.push_back("#HEADER#" + caixa[0]); // Topo da caixa
-                            mapIndexParaItem.push_back(nullptr);
-                            for (size_t i = 0; i < lista.size(); ++i) {
-                                ops.push_back(caixa[i + 1]); // Linha com o item interativo
-                                mapIndexParaItem.push_back(lista[i].second);
-                            }
-                            ops.push_back("#HEADER#" + caixa.back()); // Fundo da caixa
-                            mapIndexParaItem.push_back(nullptr);
-                            ops.push_back("#HEADER#"); // Separacao visual entre caixas
-                            mapIndexParaItem.push_back(nullptr);
-                        }
-                    };
-
-                    if (categoria == 0) {
-                        std::vector<std::pair<std::string, Item*>> equipados, danoFisico, danoMagico, armaduras, escudos, outros;
-                        std::vector<std::string> nomesProcessados;
-                        for (auto& p : itens) {
-                            Item* it = p.second;
-                            std::string nomeItem = it->obterNomeItem();
-                            
-                            bool jaProcessado = false;
-                            for (const auto& n : nomesProcessados) {
-                                if (n == nomeItem) {
-                                    jaProcessado = true;
-                                    break;
-                                }
-                            }
-                            if (jaProcessado) continue;
-                            nomesProcessados.push_back(nomeItem);
-                            
-                            Item* equipado = nullptr;
-                            for (auto* invIt : jogadorAtual->obterInventario()->obterTodosOsItens()) {
-                                if (invIt->obterNomeItem() == nomeItem && jogadorAtual->isItemEquipado(invIt)) {
-                                    equipado = invIt;
-                                    break;
-                                }
-                            }
-                            
-                            if (equipado) {
-                                equipados.push_back({nomeItem, equipado});
-                                
-                                int total = jogadorAtual->obterInventario()->contarItem(nomeItem);
-                                int sobra = total - 1;
-                                
-                                if (sobra > 0) {
-                                    std::string nomeSobra = nomeItem + (sobra > 1 ? " (" + std::to_string(sobra) + "x)" : "");
-                                    Item* desequipado = nullptr;
-                                    for (auto* invIt : jogadorAtual->obterInventario()->obterTodosOsItens()) {
-                                        if (invIt->obterNomeItem() == nomeItem && !jogadorAtual->isItemEquipado(invIt)) {
-                                            desequipado = invIt;
-                                            break;
-                                        }
-                                    }
-                                    
-                                    if (desequipado) {
-                                        if (desequipado->obterTipo() == TipoEquipamento::ARMA) {
-                                            if (auto* arma = dynamic_cast<EquipamentoArma*>(desequipado)) {
-                                                if (arma->obterDanoMagico() > arma->obterDanoFisico()) danoMagico.push_back({nomeSobra, desequipado});
-                                                else danoFisico.push_back({nomeSobra, desequipado});
-                                            } else {
-                                                outros.push_back({nomeSobra, desequipado});
-                                            }
-                                        } else if (desequipado->obterTipo() == TipoEquipamento::ARMADURA) {
-                                            armaduras.push_back({nomeSobra, desequipado});
-                                        } else if (desequipado->obterTipo() == TipoEquipamento::ESCUDO) {
-                                            escudos.push_back({nomeSobra, desequipado});
-                                        } else {
-                                            outros.push_back({nomeSobra, desequipado});
-                                        }
-                                    }
-                                }
-                            } else {
-                                if (it->obterTipo() == TipoEquipamento::ARMA) {
-                                    if (auto* arma = dynamic_cast<EquipamentoArma*>(it)) {
-                                        if (arma->obterDanoMagico() > arma->obterDanoFisico()) danoMagico.push_back(p);
-                                        else danoFisico.push_back(p);
-                                    } else {
-                                        outros.push_back(p);
-                                    }
-                                } else if (it->obterTipo() == TipoEquipamento::ARMADURA) {
-                                    armaduras.push_back(p);
-                                } else if (it->obterTipo() == TipoEquipamento::ESCUDO) {
-                                    escudos.push_back(p);
-                                } else {
-                                    outros.push_back(p);
-                                }
-                            }
-                        }
-                        adicionarCategoria("EQUIPAMENTOS EM USO", equipados);
-                        adicionarCategoria("ARMAS - DANO FISICO", danoFisico);
-                        adicionarCategoria("ARMAS - DANO MAGICO", danoMagico);
-                        adicionarCategoria("ARMADURAS", armaduras);
-                        adicionarCategoria("ESCUDOS", escudos);
-                        adicionarCategoria("OUTROS EQUIPAMENTOS", outros);
-                    } else if (categoria == 1) {
-                        std::vector<std::pair<std::string, Item*>> equipados, cura, buff, outros;
-                        for (auto& p : itens) {
-                            Item* it = p.second;
-                            if (jogadorAtual->isItemEquipado(it)) {
-                                equipados.push_back(p);
-                            } else if (it->temPropriedade(Propriedade::ConsumivelCura)) {
-                                cura.push_back(p);
-                            } else if (it->temPropriedade(Propriedade::ConsumivelBuff)) {
-                                buff.push_back(p);
-                            } else {
-                                outros.push_back(p);
-                            }
-                        }
-                        adicionarCategoria("EQUIPADO: ACESSO RAPIDO", equipados);
-                        adicionarCategoria("POCOES DE CURA E RESTAURACAO", cura);
-                        adicionarCategoria("ELIXIRES E BUFFS", buff);
-                        adicionarCategoria("OUTROS CONSUMIVEIS", outros);
+                    int idx = indicesReais[*selRef];
+                    if (idx == -1) {
+                        estado = PRINCIPAL;
+                        if (is3D) RaycasterQuadro::restaurarUltimoQuadro();
                     } else {
-                        // Missões e Materiais, apenas listar
-                        std::vector<std::string> linhas;
-                        std::vector<Item*> itensMapeados;
-                        for (auto& p : itens) {
-                            linhas.push_back(" " + p.first);
-                            itensMapeados.push_back(p.second);
-                        }
-                        if (!linhas.empty()) {
-                            std::vector<std::string> caixa = TelaBase::criarCaixa(linhas, "ITENS", 60, Cor::AMARELO);
-                            ops.push_back("#HEADER#" + caixa[0]);
-                            mapIndexParaItem.push_back(nullptr);
-                            for (size_t i = 0; i < itensMapeados.size(); ++i) {
-                                ops.push_back(caixa[i + 1]);
-                                mapIndexParaItem.push_back(itensMapeados[i]);
-                            }
-                            ops.push_back("#HEADER#" + caixa.back());
-                            mapIndexParaItem.push_back(nullptr);
-                            ops.push_back("#HEADER#");
-                            mapIndexParaItem.push_back(nullptr);
-                        }
-                    }
-
-                    ops.push_back("[<] VOLTAR");
-                    mapIndexParaItem.push_back(nullptr);
-                    return ops;
-                },
-                [&](int escolhaItem) {
-                    if (escolhaItem < 0 || escolhaItem >= static_cast<int>(mapIndexParaItem.size())) return false; // Clicou pra voltar via teclado
-                    
-                    Item* itemEncontrado = mapIndexParaItem[escolhaItem];
-                    if (itemEncontrado == nullptr) {
-                        if (escolhaItem == static_cast<int>(mapIndexParaItem.size()) - 1) return false; // Clicou em VOLTAR no fim da lista
-                        return true; // Clicou em cima do titulo da categoria, entao apenas ignora e mantem a tela aberta
-                    }
-                    
-                    bool submenuAberto = true;
-                    while (submenuAberto) {
-                        TipoEquipamento tipo = itemEncontrado->obterTipo();
-                        std::vector<std::string> ops;
-                        if (tipo == TipoEquipamento::ARMA || tipo == TipoEquipamento::ESCUDO || tipo == TipoEquipamento::ARMADURA) {
-                            ops = {"[+] Equipar / Desequipar", "[?] Inspecionar (Atributos, Requisitos, Lore)"};
-                        } else if (tipo == TipoEquipamento::MISSAO) {
-                            ops = {Aparencia::cor(Cor::CINZA) + "[!] Uso em missoes (Automatico)" + Aparencia::cor(Cor::RESET), "[?] Inspecionar (Lore)"};
-                        } else if (tipo == TipoEquipamento::CONSUMIVEL) {
-                            ops = {"[*] Usar item", "[+] Equipar no Acesso Rapido", "[?] Inspecionar Efeitos"};
-                        } else {
-                            ops = {Aparencia::cor(Cor::CINZA) + "[#] Levar para NPC (Forja/Mago)" + Aparencia::cor(Cor::RESET), "[?] Inspecionar Detalhes"};
-                        }
-                        ops.push_back("[<] Cancelar");
+                        Item* itemEncontrado = mapIndexParaItem[idx];
+                        bool ehEquipavel = itemEncontrado->isEquipavel();
                         
-                        Aparencia::iniciarInteracaoPopup();
-                        int subOpcao = ControleDeInput::lerSelecaoMenuEmPopup(
-                            "OPCOES DE ITEM", 
-                            {"O que deseja fazer com:", Aparencia::cor(Cor::AMARELO) + ">> " + itemEncontrado->obterNomeItem() + " <<" + Aparencia::cor(Cor::RESET)}, 
-                            ops, 
-                            Cor::AMARELO
-                        );
-
-                        if (subOpcao == static_cast<int>(ops.size()) - 1 || subOpcao == -1) {
-                            submenuAberto = false;
-                            break;
-                        }
-                        
-                        if (subOpcao == 0) {
-                                int quantidadeParaUsar = 1;
-                                if (tipo == TipoEquipamento::CONSUMIVEL) {
+                        bool submenuAberto = true;
+                        while(submenuAberto) {
+                            int subOpcao = lerSelecaoPopupInventario(
+                                "OPCOES DE ITEM", 
+                                {"O que deseja fazer com:", Aparencia::cor(Cor::AMARELO) + ">> " + itemEncontrado->obterNomeItem() + " <<" + Aparencia::cor(Cor::RESET)}, 
+                                {"Usar / Equipar", "Inspecionar", "[ VOLTAR ]"}
+                            );
+                            
+                            if (subOpcao == 2) { // VOLTAR
+                                submenuAberto = false;
+                                if (is3D) RaycasterQuadro::restaurarUltimoQuadro();
+                                break;
+                            } else if (subOpcao == 0) { // Usar / Equipar
+                                bool turnoJaUsado = turnoFoiConsumido && *turnoFoiConsumido;
+                                if (ehEquipavel) {
+                                    UsoItemInfo info = ControleInventario::usarOuEquipar(jogadorAtual, itemEncontrado, turnoJaUsado);
+                                    exibirResultadoItem(info, itemEncontrado, turnoFoiConsumido);
+                                } else {
                                     int qtdDisponivel = jogadorAtual->obterInventario()->contarItem(itemEncontrado->obterNomeItem());
-                                    if (qtdDisponivel > 1 && turnoFoiConsumido == nullptr) {
-                                        std::vector<std::string> opcoesQtd = {
-                                            "Usar 1 unidade",
-                                            "Usar Todos (" + std::to_string(qtdDisponivel) + " unidades)",
-                                            "Digitar quantidade...",
-                                            "Cancelar"
-                                        };
-                                        
-                                        int escolhaQtd = ControleDeInput::lerSelecaoMenuEmPopup(
+                                    int quantidadeParaUsar = 1;
+                                    
+                                    if (qtdDisponivel > 1) {
+                                        int escolhaQtd = lerSelecaoPopupInventario(
                                             "QUANTIDADE: " + itemEncontrado->obterNomeItem(),
                                             {"Voce possui " + std::to_string(qtdDisponivel) + " unidades deste item."},
-                                            opcoesQtd, 
-                                            Cor::AMARELO
+                                            {"Usar UMA unidade", "Usar TODAS as unidades", "Usar quantidade ESPECIFICA", "[ CANCELAR ]"}
                                         );
                                         
                                         if (escolhaQtd == 0) {
@@ -303,58 +449,30 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
                                             quantidadeParaUsar = qtdDisponivel;
                                         } else if (escolhaQtd == 2) {
                                             std::string msgQtd = "Quantidade (1 a " + std::to_string(qtdDisponivel) + ", 0 cancelar): ";
-                                            quantidadeParaUsar = Aparencia::lerInteiroEmPopupFlutuante(msgQtd, 0, qtdDisponivel, Cor::AMARELO);
+                                            quantidadeParaUsar = lerInteiroPopupInventario("QUANTIDADE", msgQtd, 0, qtdDisponivel);
                                         } else {
-                                            submenuAberto = false;
-                                            break; // Cancelar
-                                        }
-                                    }
-                                }
-                                
-                                if (quantidadeParaUsar == 0) {
-                                    submenuAberto = false;
-                                    break; // Cancelado
-                                }
-
-                                std::string nomeItem = itemEncontrado->obterNomeItem();
-                                bool consumiuAlgumTurno = false;
-                                
-                                for (int i = 0; i < quantidadeParaUsar; ++i) {
-                                    Item* itemAtual = nullptr;
-                                    if (itemEncontrado->isEquipavel()) {
-                                        if (jogadorAtual->isItemEquipado(itemEncontrado)) {
-                                            itemAtual = itemEncontrado;
-                                        } else {
-                                            for (auto* it : jogadorAtual->obterInventario()->obterTodosOsItens()) {
-                                                if (it->obterNomeItem() == nomeItem && !jogadorAtual->isItemEquipado(it)) {
-                                                    itemAtual = it;
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    } else {
-                                        for (auto* it : jogadorAtual->obterInventario()->obterTodosOsItens()) {
-                                            if (it->obterNomeItem() == nomeItem && !jogadorAtual->isItemEquipado(it)) {
-                                                itemAtual = it;
-                                                break;
-                                            }
-                                        }
-                                        if (!itemAtual && jogadorAtual->isItemEquipado(itemEncontrado)) {
-                                            itemAtual = itemEncontrado;
+                                            if (is3D) RaycasterQuadro::restaurarUltimoQuadro();
+                                            continue; 
                                         }
                                     }
                                     
-                                    if (itemAtual) {
-                                        bool ehEquipavel = itemAtual->isEquipavel(); // Salva a informacao antes de consumir
-                                        int countAntes = jogadorAtual->obterInventario()->contarItem(nomeItem);
-                                        bool turnoLocal = false;
-                                        processarUsoDeItem(jogadorAtual, itemAtual, turnoFoiConsumido ? &turnoLocal : nullptr);
-                                        if (turnoLocal) consumiuAlgumTurno = true;
+                                    if (quantidadeParaUsar <= 0) {
+                                        if (is3D) RaycasterQuadro::restaurarUltimoQuadro();
+                                        continue;
+                                    }
+                                    
+                                    std::string nomeItem = itemEncontrado->obterNomeItem();
+                                    int countAntes = jogadorAtual->obterInventario()->contarItem(nomeItem);
+                                    bool consumiuAlgumTurno = false;
+                                    
+                                    for (int i = 0; i < quantidadeParaUsar; ++i) {
+                                        turnoJaUsado = turnoFoiConsumido && *turnoFoiConsumido;
+                                        UsoItemInfo info = ControleInventario::usarOuEquipar(jogadorAtual, itemEncontrado, turnoJaUsado);
+                                        if (info.consumiuTurno) consumiuAlgumTurno = true;
                                         
                                         if (jogadorAtual->obterItemSelecionadoParaUso() != nullptr) {
                                             if (quantidadeParaUsar > 1) {
-                                                std::cout << "\n" << TelaCombate::margemCombate() << FuncoesDialogo::formatarMsgSistema("Este item requer selecao de alvo e sera usado apenas uma vez.", Cor::AMARELO) << "\n";
-                                                ControleDeInput::aguardarEnter();
+                                                exibirMensagemPopupInventario("SISTEMA", {"Este item requer selecao de alvo e", "sera usado apenas uma vez."});
                                             }
                                             break;
                                         }
@@ -364,131 +482,36 @@ void InventarioCombate::gerenciarInventario(Personagem* jogadorAtual, bool* turn
                                             break;
                                         }
                                     }
-                                }
-                                
-                                if (jogadorAtual->obterConsumivelRapido() && jogadorAtual->obterInventario()->contarItem(jogadorAtual->obterConsumivelRapido()->obterNomeItem()) == 0) {
-                                    jogadorAtual->desequiparConsumivel();
-                                }
+                                    
+                                    if (jogadorAtual->obterConsumivelRapido() && jogadorAtual->obterInventario()->contarItem(jogadorAtual->obterConsumivelRapido()->obterNomeItem()) == 0) {
+                                        jogadorAtual->desequiparConsumivel();
+                                    }
 
-                                if (turnoFoiConsumido && consumiuAlgumTurno) {
-                                    *turnoFoiConsumido = true;
+                                    if (turnoFoiConsumido && consumiuAlgumTurno) {
+                                        *turnoFoiConsumido = true;
+                                    }
                                 }
-                                submenuAberto = false; // Sai do Submenu apos o uso
-                                break;
-                        } else if (subOpcao == 1 && tipo == TipoEquipamento::CONSUMIVEL) {
-                                if (jogadorAtual->obterConsumivelRapido() == itemEncontrado) {
-                                    jogadorAtual->desequiparConsumivel();
-                                    std::cout << "\n" << TelaCombate::margemCombate() << FuncoesDialogo::formatarMsgSistema(itemEncontrado->obterNomeItem() + " desequipado do acesso rapido!", Cor::AMARELO) << "\n";
-                                } else {
-                                    jogadorAtual->equiparItem(itemEncontrado);
-                                    std::cout << "\n" << TelaCombate::margemCombate() << FuncoesDialogo::formatarMsgSistema(itemEncontrado->obterNomeItem() + " equipado no acesso rapido!", Cor::VERDE) << "\n";
-                                }
-                                ControleDeInput::aguardarEnter();
-                                submenuAberto = false;
-                                break;
-                        } else if ((subOpcao == 1 && tipo != TipoEquipamento::CONSUMIVEL) || (subOpcao == 2 && tipo == TipoEquipamento::CONSUMIVEL)) {
-                                Aparencia::limparTela();
-                                Aparencia::exibirPainelTexto("INSPECAO DE ITEM", Cor::AMARELO);
-                                TelaInventario::exibirInspecaoItem(itemEncontrado, jogadorAtual);
-                                std::cout << "\n";
-                                ControleDeInput::aguardarEnter();
-                                submenuAberto = false;
-                                break;
+                                submenuAberto = false; 
+                                if (is3D) RaycasterQuadro::restaurarUltimoQuadro();
+                            } else if (subOpcao == 1) { // Inspecionar
+                                std::vector<std::string> detalhes = itemEncontrado->obterDetalhesInspecao(jogadorAtual);
+                                std::vector<std::string> linhasInsp;
+                                linhasInsp.push_back(Aparencia::cor(Cor::AMARELO) + " >> " + itemEncontrado->obterNomeItem() + " <<" + Aparencia::cor(Cor::RESET));
+                                linhasInsp.push_back("");
+                                linhasInsp.insert(linhasInsp.end(), detalhes.begin(), detalhes.end());
+                                
+                                exibirMensagemPopupInventario("INSPECAO DE ITEM", linhasInsp);
+                                if (is3D) RaycasterQuadro::restaurarUltimoQuadro();
+                            }
                         }
                         
-                        submenuAberto = false;
-                        break;
-                    } // Fim do while (submenuAberto)
-
-                    if (turnoFoiConsumido && *turnoFoiConsumido) return false;
-                    return true;
+                        if (turnoFoiConsumido && *turnoFoiConsumido) executando = false;
+                        if (is3D) RaycasterQuadro::restaurarUltimoQuadro();
+                    }
                 }
-            );
-            if (turnoFoiConsumido && *turnoFoiConsumido) {
-                return false;
             }
-            return true;
         }
-    );
+    }
 }
 
-void InventarioCombate::processarUsoDeItem(Personagem* jogadorAtual, Item* itemEncontrado, bool* turnoFoiConsumido)
-{
-    if (turnoFoiConsumido && *turnoFoiConsumido) 
-    {
-        std::cout << "\n" << TelaCombate::margemCombate() << "[SISTEMA]: Voce ja usou um item neste turno!\n";
-        ControleDeInput::aguardarEnter();
-        return;
-    }
 
-    if (itemEncontrado->isEquipavel())
-    {
-        if (itemEncontrado->obterTipo() == TipoEquipamento::ESCUDO && itemEncontrado->obterDurabilidadeAtualEscudo() <= 0) {
-            std::string msgQuebrado = FuncoesDialogo::formatarMsgSistema("O escudo [" + itemEncontrado->obterNomeItem() + "] esta quebrado e nao pode ser equipado!", Cor::VERMELHO);
-            std::cout << "\n" << TelaCombate::margemCombate() << msgQuebrado << "\n";
-            if (turnoFoiConsumido && !jogadorAtual->obterItemSelecionadoParaUso()) ControleDeInput::aguardarEnter();
-            return; // Retorna cedo, nao alterando 'turnoFoiConsumido' para true
-        }
-
-        bool desequipou = false;
-        if (itemEncontrado == jogadorAtual->obterArma()) {
-            jogadorAtual->desequiparArma();
-            desequipou = true;
-        } else if (itemEncontrado == jogadorAtual->obterEscudo()) {
-            jogadorAtual->desequiparEscudo();
-            desequipou = true;
-        } else if (itemEncontrado == jogadorAtual->obterArmadura()) {
-            jogadorAtual->desequiparArmadura();
-            desequipou = true;
-        }
-        
-        if (desequipou) {
-            std::cout << "\n" << TelaCombate::margemCombate() << "[SISTEMA]: " << itemEncontrado->obterNomeItem() << " desequipado(a)!\n";
-        } else {
-            if (!itemEncontrado->podeSerEquipadoPor(jogadorAtual)) {
-                std::string msg = itemEncontrado->obterMensagemRequisito();
-                if (msg.substr(0, 1) == "\n") std::cout << "\n" << TelaCombate::margemCombate() << msg.substr(1);
-                else std::cout << TelaCombate::margemCombate() << msg;
-                if (turnoFoiConsumido && !jogadorAtual->obterItemSelecionadoParaUso()) ControleDeInput::aguardarEnter();
-                return;
-            }
-            jogadorAtual->equiparItem(itemEncontrado);
-            std::cout << "\n" << TelaCombate::margemCombate() << "[SISTEMA]: " << itemEncontrado->obterNomeItem() << " equipado(a)!\n";
-        }
-
-        if (turnoFoiConsumido) {
-            *turnoFoiConsumido = true;
-            std::cout << "\n" << TelaCombate::margemCombate() << "[SISTEMA]: Turno gasto alterando um equipamento...\n";
-        }
-        ControleDeInput::aguardarEnter();
-        return;
-    }
-    
-    if (itemEncontrado->usarDoInventario(jogadorAtual, turnoFoiConsumido))
-    {
-        // Se o item for Debuff (que seta o ponteiro para pedir alvo), ignorar enter
-        if (!jogadorAtual->obterItemSelecionadoParaUso()) {
-            ControleDeInput::aguardarEnter();
-        }
-        return;
-    }
-
-    std::string msgErro;
-    switch (itemEncontrado->obterTipo()) {
-        case TipoEquipamento::MATERIAL:
-            msgErro = "Materiais são utilizados para NPCs especializados.";
-            break;
-        case TipoEquipamento::MISSAO:
-            msgErro = "Itens de missao sao ativados automaticamente no momento ou local certo ou na historia.";
-            break;
-        case TipoEquipamento::CONSUMIVEL:
-            msgErro = "Este consumivel nao pode ser usado " + std::string(turnoFoiConsumido ? "no combate!" : "fora de combate!");
-            break;
-        default:
-            msgErro = "Este item nao possui uso direto no inventario.";
-            break;
-    }
-
-    std::cout << "\n" << TelaCombate::margemCombate() << "[SISTEMA]: " << msgErro << "\n";
-    ControleDeInput::aguardarEnter();
-}

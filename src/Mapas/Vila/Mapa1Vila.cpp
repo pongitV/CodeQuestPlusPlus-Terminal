@@ -275,13 +275,6 @@ ProximaTransicaoMapa Mapa1Vila::iniciarLoopDeExploracao()
             larguraArte = 105;
             if (matrizDoMapaDoSpawnSalva.empty()) {
                 usarAnimacaoBanner = false;
-                std::vector<std::string> dialogoInicio = {
-                    FuncoesDialogo::formatarMsgNarracao("Voce desperta nos arredores de um lugar desconhecido..."),
-                    FuncoesDialogo::formatarMsgNarracao("Na sua vista, uma pequena vila sendo atacada por monstros."),
-                    FuncoesDialogo::formatarMsgNarracao("Empunhando seu equipamento, voce sente que seu destino o aguarda."),
-                    FuncoesDialogo::formatarMsgNarracao("Um novo capitulo se inicia agora.")
-                };
-                Aparencia::exibirTelaIntro(arteTitulo, dialogoInicio, Cor::BRANCO);
             }
         }
         

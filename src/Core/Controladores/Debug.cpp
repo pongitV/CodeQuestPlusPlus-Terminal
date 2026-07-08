@@ -322,9 +322,12 @@ void Debug::exibirMenuDebug(Personagem* jogador) {
                     break;
                 }
                 case 4:
+                    jogador->desbloquearLabirinto();
                     Progressao::instancia().definirFlag(Flags::Vila_BjornResgatado, true);
                     Progressao::instancia().definirFlag(Flags::Floresta_MissaoMorgana, true);
                     Progressao::instancia().definirFlag(Flags::Floresta_MahoragaDerrotado, true);
+                    Progressao::instancia().definirFlag(Flags::Visitou_Floresta, true);
+                    Progressao::instancia().definirFlag(Flags::Visitou_PonteReino, true);
                     Progressao::instancia().definirFlag(Flags::Visitou_Reino, true);
                     Progressao::instancia().definirFlag(Flags::Mapas_Descobertos, true);
                     std::cout << "\n";

@@ -27,6 +27,23 @@ static SpriteCache criarPortaMadeira() {
     });
 }
 
+static SpriteCache criarMochila() {
+    return RaycasterSprites::parseArte({
+        "       __       ",
+        "     /    \\     ",
+        "    |      |    ",
+        "   /\\______/\\   ",
+        "  /  |    |  \\  ",
+        " |   |____|   | ",
+        " |  /      \\  | ",
+        " | | \033[38;2;255;215;0m(oo)\033[0m | | ",
+        " | |        | | ",
+        "  \\ \\______/ /  ",
+        "   \\________/   ",
+        "                "
+    });
+}
+
 void RaycasterNPCs::inicializarSprites(std::map<char, SpriteCache>& cache) {
     cache['B'] = RaycasterSprites::parseSprite(NPCFerreiroLayouts::arteFerreiro, 100, 200, 255); // Ciano Bjorn
     cache['W'] = RaycasterSprites::parseSprite(NPCMagaLayouts::arteMaga, 200, 100, 255); // Roxo Morgana
@@ -39,6 +56,8 @@ void RaycasterNPCs::inicializarSprites(std::map<char, SpriteCache>& cache) {
         " ====== ",
         " \\____/ "
     }, 200, 150, 50); // Bau de Tesouro
+
+    cache['Y'] = criarMochila(); // Mochila aberta
     
     cache['^'] = criarPortaMadeira();
     cache['1'] = criarPortaMadeira();
@@ -61,13 +80,13 @@ void RaycasterNPCs::inicializarSprites(std::map<char, SpriteCache>& cache) {
         "  ||||  "
     }, 220, 180, 100); // Barraquinha de comida (Marrom claro)
 
-    cache['Y'] = RaycasterSprites::parseSprite({
+    cache['L'] = RaycasterSprites::parseSprite({
         "   /\\   ",
         "  /  \\  ",
         " /_||_\\ ",
         " | || | ",
         " | || | "
-    }, 230, 230, 250); // Capela (Branco Mármore)
+    }, 230, 230, 250); // Capela (Branco MArmore)
 
     cache['J'] = RaycasterSprites::parseSprite({
         "   ()   ",

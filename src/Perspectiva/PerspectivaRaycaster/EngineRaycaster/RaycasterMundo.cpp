@@ -1,6 +1,7 @@
 #include "RaycasterMundo.h"
+#include "CacheMapa.h"
+#include "Iluminador.h"
 #include <algorithm>
-#include <cctype>
 #include <cmath>
 #include <string_view>
 #include "../../GerenciadorPerspectiva.h"
@@ -12,182 +13,28 @@
 
 static thread_local size_t g_currentMapHash = 0;
 
-struct MapFlags {
-    std::string tituloUpper;
-    bool isReino = false;
-    bool isCaverna = false;
-    bool isLabirinto = false;
-    bool isSalaChefe = false;
-    bool isSpawn = false;
-    bool isTerra = false;
-    int temaCeu = 0;
-};
-
 char RaycasterMundo::obterNPCProximo(const std::string& tituloMapa, int mapX, int mapY) {
-    static thread_local std::string lastTitulo = "";
-    static thread_local std::map<std::pair<int, int>, char> npcCache;
-    
-    if (tituloMapa != lastTitulo) {
-        lastTitulo = tituloMapa;
-        npcCache.clear();
-    }
-    
-    std::pair<int, int> coords = {mapX, mapY};
-    auto it = npcCache.find(coords);
-    if (it != npcCache.end()) {
-        return it->second;
-    }
-
     std::vector<std::string> layout;
     std::string upper = tituloMapa;
     for (char& c : upper) c = std::toupper(static_cast<unsigned char>(c));
 
-    if (upper == "REINO" || upper == "PATIO DO REINO") {
-        layout = Mapa4ReinoLayouts::obterLayoutReino();
-    } else if (upper.find("IGREJA") != std::string::npos) {
-        layout = Mapa4ReinoLayouts::obterLayoutIgreja();
-    } else if (upper.find("PONTE") != std::string::npos || upper == "CAMINHO DO REINO") {
-        layout = Mapa3PonteReinoLayouts::obterLayoutPonteReino();
-    } else if (upper.find("VILA") != std::string::npos) {
-        layout = Mapa1VilaLayouts::obterLayoutVilaInicial();
-    } else if (upper.find("FLORESTA") != std::string::npos) {
-        layout = Mapa2FlorestaLayouts::obterLayoutFloresta();
-    } else if (upper.find("CAVERNA") != std::string::npos) {
-        layout = Mapa1VilaLayouts::obterLayoutCaverna(false);
-    }
+    if (upper == "REINO" || upper == "PATIO DO REINO") layout = Mapa4ReinoLayouts::obterLayoutReino();
+    else if (upper.find("IGREJA") != std::string::npos) layout = Mapa4ReinoLayouts::obterLayoutIgreja();
+    else if (upper.find("PONTE") != std::string::npos || upper == "CAMINHO DO REINO") layout = Mapa3PonteReinoLayouts::obterLayoutPonteReino();
+    else if (upper.find("VILA") != std::string::npos) layout = Mapa1VilaLayouts::obterLayoutVilaInicial();
+    else if (upper.find("FLORESTA") != std::string::npos) layout = Mapa2FlorestaLayouts::obterLayoutFloresta();
+    else if (upper.find("CAVERNA") != std::string::npos) layout = Mapa1VilaLayouts::obterLayoutCaverna(false);
 
-    if (layout.empty()) {
-        npcCache[coords] = ' ';
-        return ' ';
-    }
-
-    int height = layout.size();
-    int searchRadius = 12; // Procurar em um raio de até 12 células
-    char npcEncontrado = ' ';
-    int minDistSq = 9999;
-
-    for (int dy = -searchRadius; dy <= searchRadius; ++dy) {
-        for (int dx = -searchRadius; dx <= searchRadius; ++dx) {
-            int ny = mapY + dy;
-            int nx = mapX + dx;
-            if (ny >= 0 && ny < height && nx >= 0 && nx < (int)layout[ny].size()) {
-                char c = layout[ny][nx];
-                if (c == 'B' || c == 'F' || c == 'Q' || c == 'A' || c == 'I' || c == 'P' || c == 'C' || c == 'T' || c == 'M') {
-                    int distSq = dx * dx + dy * dy;
-                    if (distSq < minDistSq) {
-                        minDistSq = distSq;
-                        npcEncontrado = c;
-                    }
-                }
-            }
-        }
-    }
-    
-    npcCache[coords] = npcEncontrado;
-    return npcEncontrado;
+    return CacheMapa::obterNPCProximo(tituloMapa, mapX, mapY, layout);
 }
 
 static thread_local std::string g_currentMapTitle = "";
 
 static const MapFlags& obterFlagsMapa(const std::string& tituloMapa) {
-    static thread_local std::string lastTitulo;
-    static thread_local MapFlags flags;
-    if (tituloMapa != lastTitulo) {
-        lastTitulo = tituloMapa;
-        g_currentMapTitle = tituloMapa;
-        std::string upper = tituloMapa;
-        for (char& ch : upper) ch = std::toupper(static_cast<unsigned char>(ch));
-        flags.tituloUpper = upper;
-        flags.isReino = (upper.find("PATIO DO REINO") != std::string::npos || upper.find("REINO") != std::string::npos);
-        flags.isCaverna = (upper.find("CAVERNA") != std::string::npos || upper.find("CORACAO") != std::string::npos);
-        flags.isLabirinto = (upper.find("LABIRINTO") != std::string::npos);
-        flags.isSalaChefe = (upper.find("CHEFE") != std::string::npos);
-        flags.isSpawn = (upper.find("INICIO") != std::string::npos);
-        flags.isTerra = (upper.find("FLORESTA") != std::string::npos || 
-                         upper.find("BOSQUE") != std::string::npos ||
-                         upper.find("VILA") != std::string::npos ||
-                         upper.find("INICIO") != std::string::npos);
-        
-        if (flags.isCaverna || flags.isLabirinto || flags.isSalaChefe) {
-            flags.temaCeu = 0;
-        } else if (upper.find("CABANA") != std::string::npos) {
-            flags.temaCeu = 3;
-        } else if (upper.find("FLORESTA") != std::string::npos || upper.find("BOSQUE") != std::string::npos) {
-            flags.temaCeu = 1;
-        } else {
-            flags.temaCeu = 2;
-        }
-    }
-    return flags;
+    g_currentMapTitle = tituloMapa;
+    return CacheMapa::obterFlags(tituloMapa);
 }
 
-static Pixel3D aplicarNevoa(int r, int g, int b, float distancia, float profundidadeMaxima, int temaCeu, const std::vector<std::tuple<int, int, int>>& luzes, float hitX, float hitY, bool escurecer = false) {
-    float nevoaPercent = distancia / (profundidadeMaxima * 0.8f);
-    if (nevoaPercent < 0.0f) nevoaPercent = 0.0f;
-    if (nevoaPercent > 1.0f) nevoaPercent = 1.0f;
-    nevoaPercent = nevoaPercent * nevoaPercent; 
-
-    int fogR = 0, fogG = 0, fogB = 0;
-    if (temaCeu == 1) { 
-        fogR = 5; fogG = 5; fogB = 15;
-    } else if (temaCeu == 2) { 
-        fogR = 10; fogG = 60; fogB = 150;
-    }
-    
-    float luzR = 0, luzG = 0, luzB = 0;
-    for (const auto& luz : luzes) {
-        float dx = hitX - (std::get<0>(luz) + 0.5f);
-        float dy = hitY - (std::get<1>(luz) + 0.5f);
-        float distLuzSq = dx*dx + dy*dy;
-        int tipoLuz = std::get<2>(luz);
-        float maxDist = (tipoLuz == 1) ? 6.0f : 5.0f;
-        float maxDistSq = maxDist * maxDist;
-        if (distLuzSq < maxDistSq) {
-            float distLuz = std::sqrt(distLuzSq);
-            float intensity = 1.0f - (distLuz / maxDist);
-            intensity = intensity * intensity; 
-            if (tipoLuz == 0) { // Orange
-                luzR += 220 * intensity;
-                luzG += 120 * intensity;
-                luzB += 30 * intensity;
-            } else if (tipoLuz == 1) { // White Aura
-                luzR += 180 * intensity;
-                luzG += 220 * intensity;
-                luzB += 255 * intensity;
-            }
-        }
-    }
-    
-    int finalR = r + (int)luzR;
-    int finalG = g + (int)luzG;
-    int finalB = b + (int)luzB;
-    
-    finalR = finalR + (fogR - finalR) * nevoaPercent;
-    finalG = finalG + (fogG - finalG) * nevoaPercent;
-    finalB = finalB + (fogB - finalB) * nevoaPercent;
-    
-    if (escurecer) {
-        finalR = (int)(finalR * 0.65f);
-        finalG = (int)(finalG * 0.65f);
-        finalB = (int)(finalB * 0.65f);
-    }
-    
-    if (finalR > 255) finalR = 255;
-    if (finalG > 255) finalG = 255;
-    if (finalB > 255) finalB = 255;
-    if (finalR < 0) finalR = 0;
-    if (finalG < 0) finalG = 0;
-    if (finalB < 0) finalB = 0;
-    
-    Pixel3D px;
-    px.r = static_cast<uint8_t>(finalR);
-    px.g = static_cast<uint8_t>(finalG);
-    px.b = static_cast<uint8_t>(finalB);
-    px.ch = ' ';
-    px.hasFg = false;
-    px.isFundo = false;
-    return px;
-}
 
 bool RaycasterMundo::isTemaFloresta(const std::string& tituloMapa) {
     const auto& flags = obterFlagsMapa(tituloMapa);
@@ -196,7 +43,7 @@ bool RaycasterMundo::isTemaFloresta(const std::string& tituloMapa) {
 
 bool RaycasterMundo::isEntity(char c) {
     if ((c == '!' || c == '%' || c == '@') && !GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) return true;
-    return (c == 'G' || c == 'O' || c == 'B' || c == 'F' || c == 'S' || c == 'A' || c == 'M' || c == 'T' || c == 'H' || c == 'R' || c == 'P' || c == '^' || c == '*' || c == 'C' || c == 'I' || c == 'Q');
+    return (c == 'G' || c == 'O' || c == 'B' || c == 'F' || c == 'S' || c == 'A' || c == 'M' || c == 'T' || c == 'H' || c == 'R' || c == 'P' || c == '^' || c == '*' || c == 'C' || c == 'I' || c == 'Q' || c == 'Y');
 }
 
 bool RaycasterMundo::isTeleport(char c) { return c == '^'; }
@@ -795,7 +642,7 @@ Pixel3D RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMapa, 
             }
         }
     }
-    return aplicarNevoa(baseR, baseG, baseB, distanciaAteParede, profundidadeMaxima, temaCeu, luzes, hitX, hitY, isSideWall);
+    return Iluminador::aplicarNevoa(baseR, baseG, baseB, distanciaAteParede, profundidadeMaxima, temaCeu, luzes, hitX, hitY, isSideWall);
 }
 
 Pixel3D RaycasterMundo::obterPixelParede(const std::string& tituloMapa, bool temaFloresta, float distanciaAteParede, float profundidadeMaxima, char charParede, int y, int teto, int chao, float texX, float tempoAnimacao, bool isSideWall, const std::vector<std::tuple<int, int, int>>& luzes, float hitX, float hitY, char npcEncontrado) {
@@ -863,7 +710,7 @@ Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float curr
         else if ((globX * 3 + globY * 7) % 31 < 2) c = '`';
     }
     
-    Pixel3D px = aplicarNevoa(r, g, b, currentDist, profundidadeMaxima, temaCeu, luzes, currentX, currentY);
+    Pixel3D px = Iluminador::aplicarNevoa(r, g, b, currentDist, profundidadeMaxima, temaCeu, luzes, currentX, currentY);
     if (c != ' ' && currentDist <= profundidadeMaxima * 0.5f) {
         px.ch = c;
         px.fgR = fgR;
@@ -895,7 +742,7 @@ Pixel3D RaycasterMundo::obterPixelAgua(float currentX, float currentY, float cur
         baseR += 40; baseG += 40; baseB += 40;
     }
     std::vector<std::tuple<int, int, int>> noLuzes;
-    return aplicarNevoa(baseR, baseG, baseB, currentDist, profundidadeMaxima, temaCeu, noLuzes, currentX, currentY);
+    return Iluminador::aplicarNevoa(baseR, baseG, baseB, currentDist, profundidadeMaxima, temaCeu, noLuzes, currentX, currentY);
 }
 
 int RaycasterMundo::obterTemaCeu(const std::string& tituloMapa) {
@@ -903,7 +750,7 @@ int RaycasterMundo::obterTemaCeu(const std::string& tituloMapa) {
     return flags.temaCeu;
 }
 
-Pixel3D RaycasterMundo::obterPixelTeto(int temaCeu, float raioAngulo, int y, int alturaTela, float tempoAnimacao) {
+Pixel3D RaycasterMundo::obterPixelTeto(int temaCeu, float raioAngulo, float anguloSolLua, int y, int alturaTela, float tempoAnimacao) {
     int horizonte = alturaTela / 2;
     if (temaCeu == 3) {
         Pixel3D px;
@@ -953,7 +800,7 @@ Pixel3D RaycasterMundo::obterPixelTeto(int temaCeu, float raioAngulo, int y, int
         int b = 15 + (int)(30 * ratio);
         
         float divHorizonte = (horizonte > 0) ? (float)horizonte : 1.0f;
-        float diffAnguloLua = std::fmod(raioAngulo - 0.0f, 2.0f * 3.14159f);
+        float diffAnguloLua = std::fmod(anguloSolLua - 0.0f, 2.0f * 3.14159f);
         if (diffAnguloLua < -3.14159f) diffAnguloLua += 2.0f * 3.14159f;
         if (diffAnguloLua > 3.14159f) diffAnguloLua -= 2.0f * 3.14159f;
         
@@ -1011,11 +858,11 @@ Pixel3D RaycasterMundo::obterPixelTeto(int temaCeu, float raioAngulo, int y, int
         px.hasFg = false;
         px.isFundo = false;
         
-        if (noise == 0 && y < horizonte * 0.8f) { px.ch = '*'; px.fgR = 255; px.fgG = 255; px.fgB = 255; px.hasFg = true; }
-        else if (noise < 4 && y < horizonte * 0.8f) { px.ch = '+'; px.fgR = 200; px.fgG = 200; px.fgB = 255; px.hasFg = true; }
-        else if (noise < 12 && y < horizonte * 0.8f) { px.ch = '.'; px.fgR = 255; px.fgG = 255; px.fgB = 255; px.hasFg = true; }
-        else if (noise < 20 && y < horizonte * 0.8f) { px.ch = '.'; px.fgR = 200; px.fgG = 200; px.fgB = 200; px.hasFg = true; }
-        else if (noise == 25 && y < horizonte * 0.8f) { px.ch = '\''; px.fgR = 255; px.fgG = 255; px.fgB = 150; px.hasFg = true; }
+        if (noise == 0 && y <= horizonte) { px.ch = '*'; px.fgR = 255; px.fgG = 255; px.fgB = 255; px.hasFg = true; }
+        else if (noise < 3 && y <= horizonte) { px.ch = '+'; px.fgR = 200; px.fgG = 200; px.fgB = 255; px.hasFg = true; }
+        else if (noise < 10 && y <= horizonte) { px.ch = '.'; px.fgR = 255; px.fgG = 255; px.fgB = 255; px.hasFg = true; }
+        else if (noise < 17 && y <= horizonte) { px.ch = '.'; px.fgR = 200; px.fgG = 200; px.fgB = 200; px.hasFg = true; }
+        else if (noise == 20 && y <= horizonte) { px.ch = '\''; px.fgR = 255; px.fgG = 255; px.fgB = 150; px.hasFg = true; }
         
         return px;
     }
@@ -1025,12 +872,12 @@ Pixel3D RaycasterMundo::obterPixelTeto(int temaCeu, float raioAngulo, int y, int
     int b = 150 + (int)(80 * ratio);
 
     float divHorizonte = (horizonte > 0) ? (float)horizonte : 1.0f;
-    float diffAnguloSol = std::fmod(raioAngulo - 0.0f, 2.0f * 3.14159f);
+    float diffAnguloSol = std::fmod(anguloSolLua - 0.0f, 2.0f * 3.14159f);
     if (diffAnguloSol < -3.14159f) diffAnguloSol += 2.0f * 3.14159f;
     if (diffAnguloSol > 3.14159f) diffAnguloSol -= 2.0f * 3.14159f;
     
     float distXSol = diffAnguloSol;
-    float distYSol = (y - horizonte * 0.35f) / divHorizonte;
+    float distYSol = (y - horizonte * 0.25f) / divHorizonte;
     float distSol = std::sqrt(distXSol * distXSol * 6.0f + distYSol * distYSol);
     
     float angleSol = std::atan2(distYSol, distXSol * 2.449f);
@@ -1055,6 +902,24 @@ Pixel3D RaycasterMundo::obterPixelTeto(int temaCeu, float raioAngulo, int y, int
             r = std::min(255, r + (int)(150 * glow));
             g = std::min(255, g + (int)(100 * glow));
         }
+    } else {
+        float anguloCeuNuvem = raioAngulo; // static clouds, no rotation over time
+        float cy = y * 0.1f;
+        float cloudNoise = std::sin(anguloCeuNuvem * 5.0f) * std::sin(cy) 
+                         + 0.5f * std::sin(anguloCeuNuvem * 11.0f + cy * 1.3f)
+                         + 0.25f * std::sin(anguloCeuNuvem * 23.0f - cy * 2.1f);
+        
+        if (cloudNoise > 0.7f) {
+            float cloudIntensity = (cloudNoise - 0.7f) * 2.0f;
+            if (cloudIntensity > 1.0f) cloudIntensity = 1.0f;
+            
+            float densidadePerspectiva = 0.5f + (ratio * 0.5f);
+            cloudIntensity *= densidadePerspectiva;
+            
+            r = r + (int)((255 - r) * cloudIntensity);
+            g = g + (int)((255 - g) * cloudIntensity);
+            b = b + (int)((255 - b) * cloudIntensity);
+        }
     }
 
     px.r = r; px.g = g; px.b = b;
@@ -1078,6 +943,9 @@ char RaycasterMundo::obterSpriteChar(int /*mapX*/, int mapY, char c, const std::
     }
     if (c == '@') {
         return '@'; // Terminal hackeável
+    }
+    if (c == 'Y' || c == '*') {
+        return c;
     }
 
     const auto& flags = obterFlagsMapa(tituloMapa);

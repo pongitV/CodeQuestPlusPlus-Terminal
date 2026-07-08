@@ -30,6 +30,16 @@ std::vector<std::string> RaycasterRenderizadorCombate::obterArenaPorTitulo(const
             "  ...........................  "
         };
     }
+    if (upper.find("SALA DE TROFEUS") != std::string::npos || upper.find("TROFEU") != std::string::npos) {
+        return {
+            "#############################",
+            "#.......T...T...T...T.......#",
+            "#...........................#",
+            "#.......*...*...*...*.......#",
+            "#...........................#",
+            "#############################"
+        };
+    }
     if (upper.find("LABIRINTO") != std::string::npos) {
         return {
             "=================================",
@@ -133,26 +143,12 @@ std::tuple<int,int,int> RaycasterRenderizadorCombate::obterCorSpriteInimigo(Pers
 //  Pintar texto no buffer 1D (overlay)
 // ═══════════════════════════════════════════════════════════════════
 void RaycasterRenderizadorCombate::pintarTextoNoBuffer(std::vector<std::string>& tela, int larguraTela, int alturaMax, int posX, int posY, const std::string& texto, const std::string& corFg, const std::string& corBgOverride) {
-    if (posY < 0 || posY >= alturaMax) return;
-    std::string textoLimpo = Aparencia::removerCoresANSI(texto);
+    (void)larguraTela;
+    if (posY < 0 || posY >= (int)tela.size() || posY >= alturaMax) return;
     
-    // Helper para extrair o background da celula do Raycaster
-    auto getBg = [](const std::string& s) {
-        size_t pos = s.find("\033[48;2;");
-        if (pos != std::string::npos) {
-            size_t end = s.find('m', pos);
-            if (end != std::string::npos) return s.substr(pos, end - pos + 1);
-        }
-        return std::string("\033[48;2;0;0;0m");
-    };
-
-    for (int i = 0; i < static_cast<int>(textoLimpo.length()); ++i) {
-        int tx = posX + i;
-        if (tx >= 0 && tx < larguraTela) {
-            std::string bg = corBgOverride.empty() ? getBg(tela[posY * larguraTela + tx]) : corBgOverride;
-            tela[posY * larguraTela + tx] = bg + corFg + std::string(1, textoLimpo[i]) + "\033[0m";
-        }
-    }
+    std::string bg = corBgOverride.empty() ? "\033[48;2;0;0;0m" : corBgOverride;
+    std::string painelTexto = bg + corFg + texto + "\033[0m";
+    tela[posY] = Aparencia::sobreporPainelNaLinhaAnsi(tela[posY], painelTexto, posX);
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -164,7 +160,7 @@ std::vector<std::string> RaycasterRenderizadorCombate::renderizarQuadro(
     const std::vector<Personagem*>& inimigos,
     Personagem* alvoAnimacao,
     int frame,
-    int /*framesDeDanoJogador*/,
+    int framesDeDanoJogador,
     int danoAmount,
     bool isCura,
     int tempoMs,
@@ -212,20 +208,36 @@ std::vector<std::string> RaycasterRenderizadorCombate::renderizarQuadro(
             int framesDano = (isAnimado && danoAmount > 0 && !isMorte) ? frame : 0;
             bool isMorteIni = (isMorte && isAnimado);
             int frameMorteIni = isMorteIni ? frame : 0;
-            bool isSel = (TelaCombate::selecaoAlvoAtual == i);
+            bool isSel = (TelaCombate::contexto.selecaoAlvoAtual == i);
             
             sobreporSprite(tela, inimigo, i, numInimigos, larguraTela, altura3D, framesDano, danoAmount, isCura, tempoMs, isMorteIni, frameMorteIni, dropsAnimacao, isSel, spriteOpacity);
         }
     }
 
     // Retorna a tela com a altura correspondente à cena 3D (o HUD clássico será impresso abaixo por TelaCombate)
-    std::vector<std::string> linhasRenderizadas(altura3D);
+    // PREENCHENDO ATE A ALTURA_TELA TOTAL PARA EVITAR CRASH NO HUD!
+    std::vector<std::string> linhasRenderizadas(alturaTerminal);
+    
+    int cameraOffsetX = 0;
+    if (framesDeDanoJogador > 0 && framesDeDanoJogador % 2 == 0) {
+        cameraOffsetX = 4;
+    }
+    
     for (int y = 0; y < altura3D; y++) {
         std::string linha = "";
         for (int x = 0; x < larguraTela; x++) {
-            linha += tela[y * larguraTela + x];
+            int srcX = x - cameraOffsetX;
+            if (srcX >= 0 && srcX < larguraTela) {
+                linha += tela[y * larguraTela + srcX];
+            } else {
+                linha += " "; // pixel vazio
+            }
         }
         linhasRenderizadas[y] = std::move(linha);
+    }
+    // Pad the rest with empty space to avoid Out-Of-Bounds when the HUD draws at the bottom
+    for (int y = altura3D; y < alturaTerminal; y++) {
+        linhasRenderizadas[y] = std::string(larguraTela, ' ');
     }
 
     return linhasRenderizadas;
@@ -369,7 +381,7 @@ void RaycasterRenderizadorCombate::sobreporSprite(
         } else if (inimigo == g_inimigoAtacanteParry) {
             rMod = 255; gMod = 140; bMod = 0;
         } else if (isSelecionado) {
-            if (TelaCombate::piscarSelecao) {
+            if (TelaCombate::contexto.piscarSelecao) {
                 rMod = (rMod + 255) / 2;
                 gMod = (gMod + 255) / 2;
                 bMod = bMod / 2;
@@ -464,6 +476,40 @@ void RaycasterRenderizadorCombate::sobreporSprite(
                             } else {
                                 auto [tr, tg, tb] = obterTgtRGB(c, rawX, y);
                                 tgtR = tr; tgtG = tg; tgtB = tb;
+                                
+                                // Effect Overlays
+                                if (flashDanoInimigo > 0 && danoAmount > 0) {
+                                    int pulse = (tempoMs / 3) % 255;
+                                    if ((tempoMs / 765) % 2 == 1) pulse = 255 - pulse;
+                                    
+                                    if (isCura) {
+                                        tgtR = tgtR / 2;
+                                        tgtG = (tgtG + 255) / 2 + pulse / 2;
+                                        tgtB = tgtB / 2;
+                                        if (tgtG > 255) tgtG = 255;
+                                    } else {
+                                        tgtR = (tgtR + 255) / 2 + pulse / 2;
+                                        tgtG = tgtG / 2;
+                                        tgtB = tgtB / 2;
+                                        if (tgtR > 255) tgtR = 255;
+                                    }
+                                } else if (inimigo == g_inimigoAtacanteParry) {
+                                    int pulse = (tempoMs / 10) % 255;
+                                    if ((tempoMs / 2550) % 2 == 1) pulse = 255 - pulse;
+                                    tgtR = (tgtR + 255) / 2 + pulse / 5;
+                                    tgtG = (tgtG + 140) / 2 + pulse / 10;
+                                    tgtB = tgtB / 2;
+                                    if (tgtR > 255) tgtR = 255;
+                                    if (tgtG > 255) tgtG = 255;
+                                } else if (isSelecionado) {
+                                    int pulse = (tempoMs / 10) % 255;
+                                    if ((tempoMs / 2550) % 2 == 1) pulse = 255 - pulse;
+                                    tgtR = (tgtR + 255) / 2 + pulse / 5;
+                                    tgtG = (tgtG + 255) / 2 + pulse / 5;
+                                    tgtB = tgtB / 2;
+                                    if (tgtR > 255) tgtR = 255;
+                                    if (tgtG > 255) tgtG = 255;
+                                }
                             }
                             
                             int blendedR = static_cast<int>(bgR + (tgtR - bgR) * spriteOpacity);
@@ -535,7 +581,7 @@ void RaycasterRenderizadorCombate::sobreporSprite(
             
             if (isSelecionado) {
                 nameplate = "> " + nameplate + " <";
-                if (TelaCombate::piscarSelecao) {
+                if (TelaCombate::contexto.piscarSelecao) {
                     nameColor = "\033[1;38;2;255;255;0m"; // Amarelo
                 } else {
                     nameColor = "\033[1;38;2;120;120;120m"; // Cinza
@@ -551,7 +597,7 @@ void RaycasterRenderizadorCombate::sobreporSprite(
                 double pct = static_cast<double>(inimigo->obterVida()) / std::max(1, inimigo->obterVidaMaxima());
                 std::string hpValStr = std::to_string(inimigo->obterVida()) + "/" + std::to_string(inimigo->obterVidaMaxima());
                 
-                int totalLen = 5 + 8 + 2 + hpValStr.length(); // "HP: [" (5) + 8 blocks + "] " (2) + hpValStr
+                int totalLen = 5 + 8 + 2 + (int)hpValStr.length(); // "HP: [" (5) + 8 blocks + "] " (2) + hpValStr
                 int drawX = (startX + croppedWidth / 2) - totalLen / 2;
                 
                 // 1. "HP: ["
@@ -563,6 +609,9 @@ void RaycasterRenderizadorCombate::sobreporSprite(
                 int qtdReal = static_cast<int>(pct * blocks * 8);
                 
                 Cor baseCorVida = (pct > 0.70) ? Cor::VERDE : (pct > 0.30) ? Cor::AMARELO : Cor::VERMELHO;
+                if (flashDanoInimigo > 0 && flashDanoInimigo % 2 != 0) {
+                    baseCorVida = Cor::BRANCO; // Pisca branco/vermelho
+                }
                 
                 for (int i = 0; i < blocks; ++i) {
                     int intensidade = 130 + (125 * i) / std::max(1, blocks - 1);

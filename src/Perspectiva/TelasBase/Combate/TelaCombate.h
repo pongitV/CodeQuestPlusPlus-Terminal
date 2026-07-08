@@ -2,15 +2,16 @@
 
 #include <string>
 #include <vector>
-
+#include "ContextoCombate.h"
 #include "../../../Core/Utilidades/Aparencia.h"
 
 class Personagem;
 class Item;
 
-class TelaCombate 
-{
+class TelaCombate {
 public:
+    static ContextoCombate contexto;
+
     static void exibirLogoParaTelaDeCombate(const std::string& tituloDaTela = "", bool animar = true);
     static void animarIntroducaoCombate(const std::string& titulo, const std::vector<Personagem*>& inimigos, Personagem* jogadorAtual = nullptr);
     static std::vector<std::string> obterLinhasBarraDeStatusDoJogador(Personagem* jogadorAtual, Cor corDestaque = Cor::RESET, int danoAnimacao = -1, int frameAnimacao = 0, bool isCura = false);
@@ -25,28 +26,10 @@ public:
     static void adicionarMensagemFixa(const std::string& msg);
     static void limparMensagensFixas();
 
-    static bool isModo3D;
-    static bool isTerminalView;
-    static std::vector<std::string> matrizDoMapaAtual;
-    static float jogadorPosX;
-    static float jogadorPosY;
-    static float jogadorAngulo;
-    static std::string tituloMapaAtual;
     static void configurarContexto3D(bool modo3D, const std::vector<std::string>& matriz, float posX, float posY, float angulo, const std::string& titulo);
-
-    static int turnoAtualVisivel;
-    static std::string nomeTurnoVisivel;
-    static int selecaoAcaoAtual;
-    static int selecaoAlvoAtual;
-    static bool piscarSelecao;
-    static Personagem* g_inimigoMortoComDrops;
-    static std::vector<std::string> g_dropsAtivos;
     static void definirTurnoVisivel(int turno, const std::string& nome);
-    static std::vector<std::string> opcoesMenuAtual;
-    static Personagem* personagemHUD;
     static void selecionarHUDDeAliado(Personagem* jogadorAtual, const std::vector<Personagem*>& aliados);
 
-    // Menus e interacoes de texto do combate
     static int obterAcaoDoJogador(int turnoAtual, Personagem* personagemAgindo, const std::vector<Personagem*>& inimigos, Personagem* jogadorAtual, const std::vector<Personagem*>& aliados);
     static int obterAlvoAtaque(const std::string& tituloCombate, const std::vector<Personagem*>& inimigos, Personagem* jogadorAtual, const std::vector<Personagem*>& aliados);
     static int obterAlvoItem(const std::string& tituloCombate, const std::vector<Personagem*>& inimigos, Personagem* jogadorAtual, const std::vector<Personagem*>& aliados);

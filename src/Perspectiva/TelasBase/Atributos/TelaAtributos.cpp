@@ -1,7 +1,6 @@
 #include "TelaAtributos.h"
 #include "../../GerenciadorPerspectiva.h"
-#include "../../PerspectivaIDE/TelasIDE/TelaAtributosIDE.h"
-#include "../../PerspectivaRaycaster/TelasRaycaster/TelaAtributosRaycaster.h"
+#include "../../PerspectivaIDE/TelasIDE/Atributos/TelaAtributosIDE.h"
 #include "../TelaBase.h"
 #include "../../../Core/Utilidades/Aparencia.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"
@@ -44,7 +43,7 @@ DebuffInfo TelaAtributos::calcularDebuff(Personagem* jogadorAtual) {
 void TelaAtributos::exibir(Personagem* jogadorAtual)
 {
     if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        TelaAtributosRaycaster::exibir(jogadorAtual);
+        GerenciadorPerspectiva::obterAtributosUI().exibir(jogadorAtual);
     } else {
         TelaAtributosIDE::exibir(jogadorAtual);
     }
@@ -53,6 +52,12 @@ void TelaAtributos::exibir(Personagem* jogadorAtual)
 void TelaAtributos::gerenciarFichaDoJogador(Personagem* jogadorAtual)
 {
     if (jogadorAtual == nullptr) return;
+
+    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
+        GerenciadorPerspectiva::obterAtributosUI().gerenciarFichaDoJogador(jogadorAtual);
+        return;
+    }
+
     TelaBase::executarLoop(
         nullptr,
         [jogadorAtual]() {
@@ -105,7 +110,7 @@ void TelaAtributos::gerenciarFichaDoJogador(Personagem* jogadorAtual)
                 }
             } else if (selecao == 1) {
                 if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-                    TelaAtributosRaycaster::exibirDetalhesAtributos(jogadorAtual);
+                    GerenciadorPerspectiva::obterAtributosUI().exibirDetalhesAtributos(jogadorAtual);
                 } else {
                     TelaAtributosIDE::exibirDetalhesAtributos(jogadorAtual);
                 }

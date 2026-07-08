@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 class Personagem;
 
@@ -28,9 +29,19 @@ struct MissoesCategorizadas {
     std::vector<std::string> completas;
 };
 
+struct GrupoCategorizado {
+    std::string nome;
+    std::vector<std::string> itens;
+};
+
 class TelaDiarioLogic {
 public:
     static DadosProgresso obterProgresso();
     static ItensCategorizados categorizarItens(Personagem* jogador);
     static MissoesCategorizadas categorizarMissoes(Personagem* jogador);
+    static std::vector<GrupoCategorizado> categorizarBestiario();
+    static std::vector<GrupoCategorizado> categorizarNPCs();
+    static std::vector<GrupoCategorizado> categorizarRacas(const std::vector<std::string>& racasDescobertas);
+    static std::vector<std::string> obterTodasClasses();
+    static std::vector<std::string> quebrarTexto(const std::string& texto, int larguraMax);
 };

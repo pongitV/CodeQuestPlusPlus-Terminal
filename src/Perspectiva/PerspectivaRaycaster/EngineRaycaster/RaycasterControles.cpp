@@ -7,6 +7,7 @@
 #include "../../TelasBase/Diario/TelaDiario.h"
 #include "../../../Core/Controladores/Debug.h"
 #include "RaycasterMundo.h"
+#include "RaycasterQuadro.h"
 #include <cmath>
 #include <thread>
 
@@ -81,62 +82,60 @@ char RaycasterControles::processarInputEControles(
         mouseHider.show(); // Mostra se a janela perder o foco
     }
 
-    if (GetAsyncKeyState(VK_ESCAPE) & 0x8000) {
-        primeiraIteracaoMouse = true;
-        mouseHider.show();
-        ControleDeInput::limparBuffer(); // Previne buffer sujo ("dead input") ao abrir o menu
-        TelaPause::exibir(jogador);
-        Aparencia::limparTela();
-        tp1 = chrono::steady_clock::now();
-    }
-
     if (GetAsyncKeyState('V') & 0x8000) {
         mouseHider.show();
         rodando = false;
         while (GetAsyncKeyState('V') & 0x8000) std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-    if (GetAsyncKeyState('I') & 0x8000) {
-        primeiraIteracaoMouse = true;
-        mouseHider.show();
-        ControleDeInput::limparBuffer();
-        InventarioCombate::gerenciarInventario(jogador);
-        Aparencia::limparTela();
-        tp1 = chrono::steady_clock::now();
+
+    struct PopupEntry {
+        int tecla;
+        void (*acao)(Personagem*);
+    };
+    static const PopupEntry popups[] = {
+        {VK_ESCAPE, [](Personagem* p) { TelaPause::exibir(p); }},
+        {'I',       [](Personagem* p) { InventarioCombate::gerenciarInventario(p); }},
+        {'C',       [](Personagem* p) { TelaAtributos::gerenciarFichaDoJogador(p); }},
+        {'B',       [](Personagem* p) { TelaDiario::exibir(p); }},
+    };
+    for (const auto& p : popups) {
+        if (GetAsyncKeyState(p.tecla) & 0x8000) {
+            primeiraIteracaoMouse = true;
+            mouseHider.show();
+            ControleDeInput::limparBuffer();
+            p.acao(jogador);
+            RaycasterQuadro::restaurarUltimoQuadro();
+            tp1 = chrono::steady_clock::now();
+            break;
+        }
     }
-    if (GetAsyncKeyState('C') & 0x8000) {
-        primeiraIteracaoMouse = true;
-        mouseHider.show();
-        ControleDeInput::limparBuffer();
-        TelaAtributos::gerenciarFichaDoJogador(jogador);
-        Aparencia::limparTela();
-        tp1 = chrono::steady_clock::now();
-    }
-    if (GetAsyncKeyState('B') & 0x8000) {
-        primeiraIteracaoMouse = true;
-        mouseHider.show();
-        ControleDeInput::limparBuffer();
-        TelaDiario::exibir(jogador);
-        Aparencia::limparTela();
-        tp1 = chrono::steady_clock::now();
-    }
+
     if (GetAsyncKeyState('M') & 0x8000) {
         primeiraIteracaoMouse = true;
         mouseHider.show();
-        while (GetAsyncKeyState('M') & 0x8000) std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        while (GetAsyncKeyState('M') & 0x8000)
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         ControleDeInput::limparBuffer();
-        Aparencia::limparTela();
+        tp1 = chrono::steady_clock::now();
         return 'M';
     }
-    if ((GetAsyncKeyState(VK_OEM_3) & 0x8000) || (GetAsyncKeyState(VK_OEM_5) & 0x8000) || (GetAsyncKeyState(VK_OEM_PLUS) & 0x8000) || (GetAsyncKeyState(VK_OEM_102) & 0x8000)) {
-        primeiraIteracaoMouse = true;
-        mouseHider.show();
-        while ((GetAsyncKeyState(VK_OEM_3) & 0x8000) || (GetAsyncKeyState(VK_OEM_5) & 0x8000) || (GetAsyncKeyState(VK_OEM_PLUS) & 0x8000) || (GetAsyncKeyState(VK_OEM_102) & 0x8000)) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    {
+        int teclasDebug[] = {VK_OEM_3, VK_OEM_5, VK_OEM_PLUS, VK_OEM_102};
+        bool apertouDebug = false;
+        for (int td : teclasDebug)
+            if (GetAsyncKeyState(td) & 0x8000) { apertouDebug = true; break; }
+        if (apertouDebug) {
+            primeiraIteracaoMouse = true;
+            mouseHider.show();
+            for (int td : teclasDebug)
+                while (GetAsyncKeyState(td) & 0x8000)
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            ControleDeInput::limparBuffer();
+            Debug::exibirMenuDebug(jogador);
+            RaycasterQuadro::restaurarUltimoQuadro();
+            tp1 = chrono::steady_clock::now();
         }
-        ControleDeInput::limparBuffer();
-        Debug::exibirMenuDebug(jogador);
-        Aparencia::limparTela();
-        tp1 = chrono::steady_clock::now();
     }
 
     // Movimento e Strafing (Com sistema de Sliding)

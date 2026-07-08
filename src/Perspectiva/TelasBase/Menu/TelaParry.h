@@ -4,8 +4,8 @@
 class TelaParry {
 public:
     struct Resultado {
-        bool parryAtivado = false;
-        bool fazerTutorial = false;
+        enum class Modo { Movimento, Digitacao, Desligado };
+        Modo modo = Modo::Desligado;
         bool voltou = false;
     };
     static Resultado exibir(const std::string& nomeJogador, const std::string& nomeRaca, const std::string& nomeClasse);

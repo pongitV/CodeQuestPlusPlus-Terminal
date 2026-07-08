@@ -60,13 +60,21 @@ bool Parry::tentarParry(Personagem* atacante, Personagem* defensor, int danoMiti
     return sucesso;
 }
 
+std::string Parry::obterMensagemFeedback(bool parrySucesso, int danoFinal) {
+    if (parrySucesso) {
+        if (danoFinal <= 0) return "Parry Perfeito! Ataque anulado.";
+        else return "Parry efetivo! -" + std::to_string(danoFinal) + " HP.";
+    }
+    return "Parry falhou! -" + std::to_string(danoFinal) + " HP.";
+}
+
 bool Parry::executarMinigameMovimento(int dificuldade, int danoMitigado, int& quantidadeDeDanoReduzido) 
 {
-    std::string instructions = "O inimigo ataca! Pressione [ESPACO] no momento exato!";
+    std::string instructions = "Aperte [ESPACO] no alvo!";
     Parry::minigameMessage = instructions;
     
-    int tamanhoBarra = 60;
-    int sweetSpotCentro = 48;
+    int tamanhoBarra = 40;
+    int sweetSpotCentro = 32;
     int tamanhoSweetSpot = std::clamp(6 - (dificuldade / 3), 1, 4); 
     
     int posicaoAtual = 0;
@@ -156,7 +164,7 @@ bool Parry::executarMinigameDigitacao(int dificuldade, int danoMitigado, int& qu
 
     double tempoLimite = std::max(1.5, 4.0 - (dificuldade / 6.0));
 
-    std::string instructions = "DIGITE RAPIDO: " + sequencia;
+    std::string instructions = "DIGITE: " + sequencia;
     Parry::minigameMessage = instructions;
 
     std::string resposta = "";

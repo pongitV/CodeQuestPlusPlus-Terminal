@@ -27,7 +27,7 @@ Personagem::Personagem(const Personagem& other)
       statsFinais(other.statsFinais),
       mochila(std::make_unique<Inventario>()),
       arma(nullptr), escudo(nullptr), armadura(nullptr), consumivelRapido(nullptr), itemSelecionadoParaUso(nullptr),
-      nivel(other.nivel), xpAtual(other.xpAtual), xpParaSubir(other.xpParaSubir)
+      sistemaDeNivel(std::make_unique<SistemaDeNivel>(other.sistemaDeNivel->obterNivel(), other.sistemaDeNivel->obterXpAtual(), other.sistemaDeNivel->obterXpParaSubir()))
 {
     sistema = other.sistema;
     
@@ -74,9 +74,7 @@ Personagem::Personagem(const std::string& nome, std::unique_ptr<RacaBase> racaEs
       armadura(nullptr),
       consumivelRapido(nullptr),
       itemSelecionadoParaUso(nullptr),
-      nivel(1),
-      xpAtual(0),
-      xpParaSubir(Constantes::XP_BASE_PARA_SUBIR)
+      sistemaDeNivel(std::make_unique<SistemaDeNivel>(1, 0, Constantes::XP_BASE_PARA_SUBIR))
 {
     auto receberEEquiparKit = [this](std::vector<std::unique_ptr<Item>> kit) {
         for (auto& itemUnique : kit) {
@@ -142,7 +140,7 @@ int* Personagem::obterPonteiroAtributoEstatico(TipoAtributo atributo) {
 
 bool Personagem::subirDeNivel(TipoAtributo atributo)
 {
-    if (xpAtual < xpParaSubir) return false;
+    if (sistemaDeNivel->obterXpAtual() < sistemaDeNivel->obterXpParaSubir()) return false;
 
     if (atributo == TipoAtributo::Vida) {
         statsFinais.vida += Constantes::GANHO_VIDA_POR_NIVEL;
@@ -153,9 +151,9 @@ bool Personagem::subirDeNivel(TipoAtributo atributo)
         return false;
     }
 
-    xpAtual -= xpParaSubir;
-    xpParaSubir = static_cast<int>(std::min(xpParaSubir * Constantes::MULTIPLICADOR_XP_POR_NIVEL, Constantes::MAX_XP));
-    nivel++;
+    sistemaDeNivel->definirXpAtual(sistemaDeNivel->obterXpAtual() - sistemaDeNivel->obterXpParaSubir());
+    sistemaDeNivel->definirXpParaSubir(static_cast<int>(std::min(sistemaDeNivel->obterXpParaSubir() * Constantes::MULTIPLICADOR_XP_POR_NIVEL, Constantes::MAX_XP)));
+    sistemaDeNivel->definirNivel(sistemaDeNivel->obterNivel() + 1);
     cache_.sujo = true;
     return true;
 }

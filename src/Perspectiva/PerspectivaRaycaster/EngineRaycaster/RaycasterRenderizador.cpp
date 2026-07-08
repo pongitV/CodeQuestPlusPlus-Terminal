@@ -144,15 +144,63 @@ void RaycasterRenderizador::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA
         if (charParede == '*') teto -= (int)(ALTURA_TELA / perpWallDist * 1.5f); 
         if (isReino && charParede == '|') teto -= (int)(ALTURA_TELA / perpWallDist * 3.0f); // Portao super alto
 
+        float anguloCeu = raioAngulo;
+        float fadeCeu = 1.0f;
+        if (temaCeu == 1 || temaCeu == 2) {
+            long long globalMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+            float anguloLento = ((globalMs % 300000) / 300000.0f) * 6.2831853f;
+            anguloCeu -= anguloLento;
+            
+            float progressoCiclo = (globalMs % 180000) / 180000.0f; 
+            if (progressoCiclo > (2.0f / 3.0f)) { 
+                fadeCeu = 0.0f; 
+            } else { 
+                float anguloDia = (progressoCiclo / (2.0f / 3.0f)) * 3.14159f;
+                fadeCeu = std::sin(anguloDia); 
+            }
+        }
+
         for (int y = 0; y < ALTURA_TELA; y++) {
             bool drawFloor = false;
 
             if (y < teto) {
-                tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(temaCeu, raioAngulo, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
+                if (temaCeu == 1 || temaCeu == 2) {
+                    Pixel3D pxDia = RaycasterMundo::obterPixelTeto(2, raioAngulo, anguloCeu, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
+                    Pixel3D pxNoite = RaycasterMundo::obterPixelTeto(1, raioAngulo, anguloCeu + 3.14159265f, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
+                    Pixel3D pxMisturado = pxDia;
+                    pxMisturado.r = (int)(pxDia.r * fadeCeu + pxNoite.r * (1.0f - fadeCeu));
+                    pxMisturado.g = (int)(pxDia.g * fadeCeu + pxNoite.g * (1.0f - fadeCeu));
+                    pxMisturado.b = (int)(pxDia.b * fadeCeu + pxNoite.b * (1.0f - fadeCeu));
+                    if (pxNoite.ch != ' ' && fadeCeu < 0.5f) {
+                        pxMisturado.ch = pxNoite.ch; pxMisturado.hasFg = pxNoite.hasFg;
+                        pxMisturado.fgR = pxNoite.fgR; pxMisturado.fgG = pxNoite.fgG; pxMisturado.fgB = pxNoite.fgB;
+                    }
+                    if (pxDia.r == 255 && pxDia.g == 255 && pxDia.b == 255 && fadeCeu > 0.1f) { pxMisturado.r = 255; pxMisturado.g = 255; pxMisturado.b = 255; }
+                    tela[y * LARGURA_TELA + x] = pxMisturado;
+                } else {
+                    tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(temaCeu, raioAngulo, anguloCeu, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
+                }
             } else if (y >= teto && y <= chao) {
                 Pixel3D pixel = RaycasterMundo::obterPixelParede(tituloMapa, temaFloresta, perpWallDist, profundidadeMaxima, charParede, y, teto, chao, texXParede, tempoAbsoluto, isSideWall, luzes, hitX, hitY, npcEncontradoNaColuna);
                 if (pixel.isFundo) {
-                    if (y <= horizonte) tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(temaCeu, raioAngulo, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
+                    if (y <= horizonte) {
+                        if (temaCeu == 1 || temaCeu == 2) {
+                            Pixel3D pxDia = RaycasterMundo::obterPixelTeto(2, raioAngulo, anguloCeu, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
+                            Pixel3D pxNoite = RaycasterMundo::obterPixelTeto(1, raioAngulo, anguloCeu + 3.14159265f, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
+                            Pixel3D pxMisturado = pxDia;
+                            pxMisturado.r = (int)(pxDia.r * fadeCeu + pxNoite.r * (1.0f - fadeCeu));
+                            pxMisturado.g = (int)(pxDia.g * fadeCeu + pxNoite.g * (1.0f - fadeCeu));
+                            pxMisturado.b = (int)(pxDia.b * fadeCeu + pxNoite.b * (1.0f - fadeCeu));
+                            if (pxNoite.ch != ' ' && fadeCeu < 0.5f) {
+                                pxMisturado.ch = pxNoite.ch; pxMisturado.hasFg = pxNoite.hasFg;
+                                pxMisturado.fgR = pxNoite.fgR; pxMisturado.fgG = pxNoite.fgG; pxMisturado.fgB = pxNoite.fgB;
+                            }
+                            if (pxDia.r == 255 && pxDia.g == 255 && pxDia.b == 255 && fadeCeu > 0.1f) { pxMisturado.r = 255; pxMisturado.g = 255; pxMisturado.b = 255; }
+                            tela[y * LARGURA_TELA + x] = pxMisturado;
+                        } else {
+                            tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(temaCeu, raioAngulo, anguloCeu, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
+                        }
+                    }
                     else drawFloor = true;
                 } else {
                     tela[y * LARGURA_TELA + x] = pixel;

@@ -5,8 +5,11 @@
 #include "../Perspectiva/TelasBase/Menu/TelaMenu.h"
 #include "../Perspectiva/TelasBase/Pause/TelaPause.h"
 #include "../Core/Utilidades/Aparencia.h"
-#include "../Perspectiva/TelasBase/MapaMundial/TelaMapaMundial.h"
+#include "../Core/Utilidades/InputDispatcher.h"
+
+#include "../Perspectiva/TelasBase/MapaMundial/TelaMapaMundo.h"
 #include "../Sistemas/Combate/Combate.h"
+#include "../Sistemas/Combate/CombateRaycasterUIImpl.h"
 #include "../Sistemas/Progresso/Progressao.h"
 #include "../Core/Controladores/Debug.h"
 #include "../Core/Utilidades/ControleDeInput.h"
@@ -62,32 +65,25 @@ std::vector<std::string> ControleMapa::obterMatrizDoMapaAtual() { return s_matri
 
 bool ControleMapa::processarInputEComandos(char tecla, Personagem* jogador, int& proximaPosicaoX, int& proximaPosicaoY, const std::function<void()>& restaurarTela)
 {
-    // --- TELA DE PAUSE ---
-    if (tecla == 27 || tecla == '\033') // Códigos ASCII para a tecla ESC
-    {
-        TelaPause::exibir(jogador);
-        restaurarTela();
-        return true; // Retorna true para o mapa não processar movimento neste frame
+    static bool inicializado = false;
+    static InputDispatcher dispatcher;
+    if (!inicializado) {
+        inicializado = true;
+        dispatcher.registrar(27, [=]() { TelaPause::exibir(jogador); restaurarTela(); });
+        dispatcher.registrar(static_cast<int>('\\'), [=]() { Debug::exibirMenuDebug(jogador); restaurarTela(); });
+        dispatcher.registrar(static_cast<int>('`'),  [=]() { Debug::exibirMenuDebug(jogador); restaurarTela(); });
+        dispatcher.registrar(static_cast<int>('='),  [=]() { Debug::exibirMenuDebug(jogador); restaurarTela(); });
     }
 
-    // --- MENU DE DEBUG (ISOLADO PARA FACIL REMOCAO FUTURA) ---
-    if (tecla == '\\' || tecla == '`' || tecla == '=')
-    {
-        Debug::exibirMenuDebug(jogador);
-        restaurarTela();
-        return true;
-    }
-    // --- FIM DO MENU DE DEBUG ---
+    if (dispatcher.executar(static_cast<int>(tecla))) return true;
 
     ComandoMapa comando = ControleDeInput::traduzirTeclaParaComando(tecla);
 
-    // Movimentação (Não abre menus, portanto retorna falso)
     if (comando == ComandoMapa::Cima) { proximaPosicaoY--; return false; }
     if (comando == ComandoMapa::Baixo) { proximaPosicaoY++; return false; }
     if (comando == ComandoMapa::Esquerda) { proximaPosicaoX--; return false; }
     if (comando == ComandoMapa::Direita) { proximaPosicaoX++; return false; }
 
-    // Menus (Retornam true informando o mapa que a tela precisa pular a interação de movimento)
     if (comando == ComandoMapa::Inventario)
     {
         InventarioCombate::gerenciarInventario(jogador);
@@ -130,7 +126,12 @@ void ControleMapa::processarCombate(
     int opcaoEscolhidaPeloJogador = ControleDeInput::lerSelecaoMenuEmPopup(tituloDoCombate, texto, opcoesCombate, Cor::VERMELHO);
 
     if (opcaoEscolhidaPeloJogador == 1) {
-        Combate combate(jogadorAtual, std::move(inimigosParaBatalha));
+        std::unique_ptr<ICombateUI> ui = nullptr;
+        if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
+            ui = std::make_unique<CombateRaycasterUIImpl>();
+        }
+        
+        Combate combate(jogadorAtual, std::move(inimigosParaBatalha), std::move(ui));
         if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
             combate.setContexto3D(true, matrizDoMapaAtual, s_posCamera3DX, s_posCamera3DY, s_anguloCamera3D, s_tituloMapaAtual);
         }
@@ -830,7 +831,7 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
                 int progressoPonteReino = Progressao::instancia().obterProgressoPonteReino(jogadorAtual);
                 int progressoReino = Progressao::instancia().obterProgressoReino(jogadorAtual);
 
-                ProximaTransicaoMapa destino = TelaMapaMundial::exibir(loc, progressoVila, progressoFloresta, progressoPonteReino, progressoReino);
+                ProximaTransicaoMapa destino = TelaMapaMundo::exibir(jogadorAtual, loc, progressoVila, progressoFloresta, progressoPonteReino, progressoReino);
 
                 if (destino != ProximaTransicaoMapa::Nenhuma) {
                     destinoViagemRapida = destino;

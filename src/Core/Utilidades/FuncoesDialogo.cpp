@@ -31,29 +31,30 @@ void FuncoesDialogo::imprimirDialogoNPC(const std::string& npcNome, Cor npcCor, 
 }
 
 std::string FuncoesDialogo::formatarMsgNarracao(const std::string& texto) {
-    return Aparencia::cor(Cor::CINZA) + "[NARRACAO]: " + Aparencia::cor(Cor::BRANCO) + texto + Aparencia::cor(Cor::RESET);
+    return Aparencia::cor(Cor::CINZA) + "[NARRACAO]: " + texto + Aparencia::cor(Cor::RESET);
 }
 
 std::string FuncoesDialogo::formatarMsgSistema(const std::string& texto, Cor corTema) {
-    return Aparencia::cor(corTema) + "[SISTEMA]: " + Aparencia::cor(Cor::BRANCO) + texto + Aparencia::cor(Cor::RESET);
+    return Aparencia::cor(corTema) + "[SISTEMA]: " + texto + Aparencia::cor(Cor::RESET);
 }
 
 std::string FuncoesDialogo::formatarMsgHabilidade(const std::string& texto, Cor corTema) {
-    return Aparencia::cor(corTema) + "[HABILIDADE]: " + Aparencia::cor(Cor::BRANCO) + texto + Aparencia::cor(Cor::RESET);
+    if (corTema == Cor::VERDE_CLARO) corTema = Cor::ROXO;
+    return Aparencia::cor(corTema) + "[HABILIDADE]: " + texto + Aparencia::cor(Cor::RESET);
 }
 
 std::string FuncoesDialogo::formatarMsgStatus(const std::string& texto, Cor corTema) {
-    return Aparencia::cor(corTema) + "[STATUS]: " + Aparencia::cor(Cor::BRANCO) + texto + Aparencia::cor(Cor::RESET);
+    return Aparencia::cor(corTema) + "[STATUS]: " + texto + Aparencia::cor(Cor::RESET);
 }
 
 std::string FuncoesDialogo::formatarMsgDrop(const std::string& texto, Cor corTema) {
-    return Aparencia::cor(corTema) + "[DROP]: " + Aparencia::cor(Cor::BRANCO) + texto + Aparencia::cor(Cor::RESET);
+    return Aparencia::cor(corTema) + "[DROP]: " + texto + Aparencia::cor(Cor::RESET);
 }
 
 std::string FuncoesDialogo::formatarMsgCombate(const std::string& texto, Cor corTema) {
-    return Aparencia::cor(corTema) + "[COMBATE]: " + Aparencia::cor(Cor::BRANCO) + texto + Aparencia::cor(Cor::RESET);
+    return Aparencia::cor(corTema) + "[COMBATE]: " + texto + Aparencia::cor(Cor::RESET);
 }
 
 std::string FuncoesDialogo::formatarMsgInteracao(const std::string& texto, Cor corTema) {
-    return Aparencia::cor(corTema) + "[INTERACAO]: " + Aparencia::cor(Cor::BRANCO) + texto + Aparencia::cor(Cor::RESET);
+    return Aparencia::cor(corTema) + "[INTERACAO]: " + texto + Aparencia::cor(Cor::RESET);
 }

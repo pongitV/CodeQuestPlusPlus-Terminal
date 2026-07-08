@@ -1,2 +1,2 @@
 #include "RendererProvider.h"
-IVisaoRenderer* RendererProvider::instancia = nullptr;
+RenderizadorPerspectiva* RendererProvider::instancia = nullptr;

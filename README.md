@@ -1,99 +1,118 @@
 # RPG-Cpp
 
-Um jogo RPG em C++ com renderização 3D (Raycaster) e visualização Terminal IDE.
+Um RPG de terminal implementado em C++ com duas perspectivas: um renderer estilo raycaster para gameplay e um "Modo IDE" que apresenta, em tempo de execução, como partes do código estão funcionando. O projeto é um exercício de aprendizado em C++ sem dependências externas.
+
+Arquivo principal: [src/Principal.cpp](src/Principal.cpp)
+
+Executável pré-compilado: [bin/CodeQuest++.exe](bin/CodeQuest++.exe)
 
 ## Build com CMake Presets (Recomendado)
 
 ### Pré-requisitos
 
-- **CMake** 3.10+
-- **GCC/G++** (MinGW ou MSYS2)
-- **MinGW Make** (mingw32-make)
+- CMake 3.10+
+- Toolchain C++ (MSVC, MinGW ou equivalente)
+- Windows 10/11 (o projeto usa APIs Win32 em `src/Principal.cpp`)
 
 ### Compilar rapidamente
 
 ```bash
-# Configurar (Debug) - cria diretório build/
-cmake -B build --preset default
+# Configurar usando preset (se suportado)
+cmake --preset default
 
 # Compilar
-cmake --build build --preset default
-
-# Executar
-./bin/JogoRPG.exe
+cmake --build --preset default
 ```
 
-### Ou usar os comandos manuais
+### Comandos manuais
 
 ```bash
-# Configurar
-cmake -B build
+# Configurar (gera pasta build)
+cmake -S . -B build
 
 # Compilar
 cmake --build build
-
-# Executar
-./bin/JogoRPG.exe
 ```
 
-### Presets disponíveis
+### Observação sobre toolchains
 
-| Preset | Descrição |
-|--------|-----------|
-| `default` | Debug, otimizações mínimas |
-| `release` | Release, otimizações máximas |
+O código utiliza chamadas Win32 (`ShellExecuteEx`, `IsUserAnAdmin`, etc.), portanto é direcionado a Windows. Compilar com MSVC (Visual Studio) é a opção mais direta; MinGW/MSYS2 pode funcionar dependendo do ambiente.
 
-## Estrutura do Projeto
+## Executável pré-compilado
+
+Para executar o binário disponível em `bin/`:
+
+PowerShell / Windows Terminal:
+
+```powershell
+\bin\CodeQuest++.exe
+```
+
+cmd.exe (garantir UTF-8):
+
+```bat
+chcp 65001
+\bin\CodeQuest++.exe
+```
+
+O jogo pode solicitar elevação de privilégios (UAC). A chamada `garantirAdmin()` em [src/Principal.cpp](src/Principal.cpp) tenta iniciar uma instância elevada e encerrar a instância atual.
+
+## Estrutura do projeto
 
 ```
 RPG-Cpp/
-├── CMakeLists.txt          # Configuração principal do CMake
-├── CMakePresets.json       # Presets de build automáticos
-├── README.md               # Este arquivo
+├── CMakeLists.txt
+├── CMakePresets.json
+├── README.md
 ├── src/
-│   ├── Principal.cpp       # Entry point
-│   ├── Entidades/          # Personagem, Classes, Racas, Inimigos, NPCs
-│   ├── Mundo/              # Mapas, Controle de mapa
-│   ├── Sistemas/           # Combate, Inventario, Progresso
-│   └── Visoes/             # Telas (Raycaster 3D + Terminal IDE)
-│       ├── Raycaster/       # Views 3D (Engine 3D)
-│       └── Terminal/       # Views Terminal IDE
-│           ├── TelasIDE/    # Telas com estilo editor de código
-│           └── EngineIDE/   # Renderizador de IDE
-└── bin/                    # Executável compilado
+│   ├── Principal.cpp
+│   ├── Core/
+│   │   ├── Controladores/
+│   │   └── Utilidades/
+│   ├── Entidades/
+│   │   ├── Classes/
+│   │   └── Racas/
+│   ├── Mapas/
+│   ├── Perspectiva/    # Raycaster + Modo IDE
+│   └── Sistemas/
+└── bin/
+	└── CodeQuest++.exe
 ```
+### View Raycaster
+- Combate 3D
+- Atributos
+- Inventário
+- Diário
+- Bestiário
+- Mapa
+- Vitória/Derrota
 
-## Telas Disponíveis
-
-### View Raycaster (3D)
-- Tela de Combate 3D
-- Tela de Atributos
-- Tela de Inventario
-- Tela de Diario
-- Tela de Bestiario
-- Tela de Mapa
-- Tela de Vitoria/Derrota
-
-### View Terminal IDE
-- Telas com estilo editor de código C++
-- Syntax highlighting (terminal colors)
-- Estrutura de classes e funções
+### View Terminal IDE (SUSPENSA - EM DESENVOLVIMENTO)
+- Telas com estilo de editor de código e realce de sintaxe (cores do terminal)
+- Visualização de estruturas de classes e fluxo de execução
 
 ## Como adicionar novas telas
 
-1. Criar a tela base em `src/Visoes/TelasBase/`
-2. Criar a tela terminal em `src/Visoes/Terminal/TelasIDE/`
-3. Adicionar ao `GerenciadorVisao.cpp`
-4. Compilar com CMake (detecta automaticamente)
+1. Criar a tela base em `src/Perspectiva/TelasBase/` (ou pasta equivalente)
+2. Criar a tela terminal em `src/Perspectiva/Terminal/TelasIDE/` (ou caminho equivalente)
+3. Registrar a nova tela no gerenciador de perspectivas
+4. Compilar o projeto
 
 ## Como mover o projeto
 
 O projeto usa `CMakePresets.json` para configuração automática. Ao mover para outro diretório:
 
 ```bash
-# Basta executar:
-cmake -B build --preset default
-cmake --build build --preset default
+cmake --preset default
+cmake --build --preset default
 ```
 
-Não há necessidade de configurar paths manualmente — o CMake detecta tudo automaticamente.
+Não é necessário ajustar paths manualmente — o CMake deve detectar os arquivos do projeto.
+
+## Contribuição
+
+Projeto pessoal focado em aprendizado. Para contribuições, abra issues e envie pull requests com mudanças pequenas e descritas.
+
+## Licença
+
+Adicione a licença desejada (por exemplo, MIT) se quiser permitir contribuições externas.

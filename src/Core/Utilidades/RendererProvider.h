@@ -1,2 +1,2 @@
-#include "Perspectiva/IVisaoRenderer.h"
-class RendererProvider { public: static IVisaoRenderer* get() { return instancia; } static void set(IVisaoRenderer* r) { instancia = r; } private: static IVisaoRenderer* instancia; };
+#include "Perspectiva/RenderizadorPerspectiva.h"
+class RendererProvider { public: static RenderizadorPerspectiva* get() { return instancia; } static void set(RenderizadorPerspectiva* r) { instancia = r; } private: static RenderizadorPerspectiva* instancia; };

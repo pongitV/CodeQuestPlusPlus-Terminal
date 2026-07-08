@@ -2,14 +2,13 @@
 
 #include "TelaInventario.h"
 #include "../../GerenciadorPerspectiva.h"
-#include "../../PerspectivaIDE/TelasIDE/TelaInventarioIDE.h"
-#include "../../PerspectivaRaycaster/TelasRaycaster/TelaInventarioRaycaster.h"
+#include "../../PerspectivaIDE/TelasIDE/Inventario/TelaInventarioIDE.h"
 #include "../../../Core/Utilidades/Aparencia.h"
 #include "../../../Sistemas/Inventario/Item.h"
 
-void TelaInventario::exibirCabecalhoInventario(bool animar) {
+void TelaInventario::exibirCabecalhoInventario(bool animar, int startY) {
     if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        TelaInventarioRaycaster::exibirCabecalho(animar);
+        GerenciadorPerspectiva::obterInventarioUI().exibirCabecalho(animar, startY);
     } else {
         TelaInventarioIDE::exibirCabecalhoInventario(animar);
     }
@@ -17,7 +16,7 @@ void TelaInventario::exibirCabecalhoInventario(bool animar) {
 
 void TelaInventario::exibirCaixaEquipados(Personagem* jogadorAtual) {
     if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        TelaInventarioRaycaster::exibirCaixaEquipados(jogadorAtual);
+        GerenciadorPerspectiva::obterInventarioUI().exibirCaixaEquipados(jogadorAtual);
     } else {
         TelaInventarioIDE::exibirCaixaEquipados(jogadorAtual);
     }
@@ -72,7 +71,7 @@ std::vector<std::pair<std::string, Item*>> TelaInventario::obterListaCategoria(P
 void TelaInventario::exibirInspecaoItem(Item* item, Personagem* jogadorAtual)
 {
     if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        TelaInventarioRaycaster::exibirDetalheItem(item);
+        GerenciadorPerspectiva::obterInventarioUI().exibirDetalheItem(item);
     } else {
         TelaInventarioIDE::exibirInspecaoItem(item, jogadorAtual);
     }

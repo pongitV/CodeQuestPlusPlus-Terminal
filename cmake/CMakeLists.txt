@@ -9,17 +9,18 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
 
 # Cria o executável
-add_executable(JogoRPG ${SOURCES})
+add_executable(CodeQuestPlusPlus ${SOURCES})
+set_target_properties(CodeQuestPlusPlus PROPERTIES OUTPUT_NAME "CodeQuest++")
 
 # Adiciona a pasta 'src' como diretório de inclusão
-target_include_directories(JogoRPG PRIVATE "${CMAKE_SOURCE_DIR}/src")
+target_include_directories(CodeQuestPlusPlus PRIVATE "${CMAKE_SOURCE_DIR}/src")
 
 # Flags recomendadas (iguais às do Makefile antigo)
-target_compile_options(JogoRPG PRIVATE -Wall -Wextra -O2)
+target_compile_options(CodeQuestPlusPlus PRIVATE -Wall -Wextra -O2)
 
 # Linkagem estática (opcional, para rodar sem precisar das DLLs do MinGW)
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libgcc -static-libstdc++")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libgcc -static-libstdc++ -s")
 
 if(WIN32)
-    target_link_libraries(JogoRPG PRIVATE winmm)
+    target_link_libraries(CodeQuestPlusPlus PRIVATE winmm)
 endif()

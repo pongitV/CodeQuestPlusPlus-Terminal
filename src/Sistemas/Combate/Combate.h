@@ -4,7 +4,9 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <memory>
 
+#include "ICombateUI.h"
 #include "../../Entidades/Personagem.h"
 
 class Combate 
@@ -26,6 +28,9 @@ private:
     std::vector<std::unique_ptr<Personagem>> listaDeInimigos;
     std::vector<std::unique_ptr<Personagem>> listaDeAliados;
 
+    // Interface visual de combate (Injecao de Dependencia)
+    std::unique_ptr<ICombateUI> ui;
+
     // Estatisticas gerais e controle da sessao de combate
     int quantidadeDeOuroObtido;
     int quantidadeDeXpObtido;
@@ -33,6 +38,7 @@ private:
     int totalDeDanoRecebido;
     int contadorDoTurnoAtual;
     std::vector<std::string> itensObtidos;
+    std::vector<std::string> inimigosDerrotados;
 
     // Contexto de Visao 3D
     bool isModo3D;
@@ -44,6 +50,7 @@ private:
     // Estatisticas Avancadas da Sessao
     static int stats_parriesTentados;
     static int stats_parriesEfetivos;
+    static int stats_parriesPerfeitos;
     static int stats_maiorDanoCausado;
     static int stats_itensConsumidos;
     static std::vector<std::string> stats_novasDescobertas;
@@ -71,7 +78,7 @@ private:
     void exibirTelaDeCombate(bool animarEntrada = false) const;
 
 public:
-    Combate(Personagem* jogadorParaOCombate, std::vector<std::unique_ptr<Personagem>>&& inimigosParaOCombate);
+    Combate(Personagem* jogadorParaOCombate, std::vector<std::unique_ptr<Personagem>>&& inimigosParaOCombate, std::unique_ptr<ICombateUI> interfaceVisual = nullptr);
     virtual ~Combate();
 
     void setContexto3D(bool modo3D, const std::vector<std::string>& matriz, float posX, float posY, float angulo, const std::string& titulo);

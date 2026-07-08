@@ -1,53 +1,45 @@
 #include "TelaPause.h"
+#include "../RegistroTelas.h"
 #include <iostream>
 #include "../../../Entidades/Personagem.h"
 #include "../../GerenciadorPerspectiva.h"
-#include "../../PerspectivaIDE/TelasIDE/TelaPauseIDE.h"
-#include "../../PerspectivaRaycaster/TelasRaycaster/TelaPauseRaycaster.h"
+#include "../../PerspectivaIDE/TelasIDE/Pause/TelaPauseIDE.h"
 #include "../../../Core/Utilidades/Aparencia.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"
-#include "../../../Sistemas/Progresso/Salvamento.h"
 
 static int obterEscolhaMenuPause() {
     if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        return TelaPauseRaycaster::renderizarMenuPause();
+        return GerenciadorPerspectiva::obterPauseUI().renderizarMenuPause();
     }
     return TelaPauseIDE::renderizarMenuPause();
 }
 
 static int obterEscolhaConfiguracoes(Personagem* jogador) {
     if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        return TelaPauseRaycaster::renderizarMenuConfiguracoes(jogador);
+        return GerenciadorPerspectiva::obterPauseUI().renderizarMenuConfiguracoes(jogador);
     }
     return TelaPauseIDE::renderizarMenuConfiguracoes(jogador);
 }
 
 static int obterEscolhaAparencia(Personagem* jogador) {
     if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        return TelaPauseRaycaster::renderizarMenuAparencia(jogador);
+        return GerenciadorPerspectiva::obterPauseUI().renderizarMenuAparencia(jogador);
     }
     return TelaPauseIDE::renderizarMenuAparencia(jogador);
 }
 
 static int obterEscolhaFundo(int corFundoAtualIndex) {
     if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        return TelaPauseRaycaster::renderizarMenuFundo(corFundoAtualIndex);
+        return GerenciadorPerspectiva::obterPauseUI().renderizarMenuFundo(corFundoAtualIndex);
     }
     return TelaPauseIDE::renderizarMenuFundo(corFundoAtualIndex);
 }
 
 static int obterEscolhaSensibilidade(int percX, int percY) {
     if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        return TelaPauseRaycaster::renderizarMenuSensibilidade(percX, percY);
+        return GerenciadorPerspectiva::obterPauseUI().renderizarMenuSensibilidade(percX, percY);
     }
     return TelaPauseIDE::renderizarMenuSensibilidade(percX, percY);
-}
-
-static bool confirmarSalvar(Personagem* jogador) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        return TelaPauseRaycaster::renderizarConfirmacaoSalvar(jogador);
-    }
-    return TelaPauseIDE::renderizarConfirmacaoSalvar(jogador);
 }
 
 void TelaPause::exibir(Personagem* jogador) {
@@ -163,13 +155,8 @@ void TelaPause::exibir(Personagem* jogador) {
                 }
             }
         } else if (escolha == 2) {
-            if (confirmarSalvar(jogador)) {
-                Salvamento::salvarJogo(jogador);
-                std::cout << "\n";
-                Aparencia::imprimirCentralizado(Aparencia::cor(Cor::VERDE) + "[SISTEMA]: Jogo salvo no arquivo save_" + jogador->obterNome() + ".txt com sucesso!" + Aparencia::cor(Cor::RESET));
-                ControleDeInput::aguardarEnter();
-                jogador->definirVoltarProMenu(true);
-                continuar = false;
+            if (RegistroTelas::confirmarSaida()) {
+                std::exit(0);
             }
         }
     }

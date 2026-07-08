@@ -12,7 +12,7 @@ class TelaBase {
 public:
     static std::string gerarBarraGradiente(double pct, int tamanho, Cor corFinal);
     static void imprimirLinhaDivisoria(char caractere = '=');
-    static std::vector<std::string> criarCaixa(const std::vector<std::string>& linhas, const std::string& titulo = "", int larguraMinima = 0, Cor corCaixa = Cor::BRANCO);
+    static std::vector<std::string> criarCaixa(const std::vector<std::string>& linhas, const std::string& titulo = "", int larguraMinima = 0, Cor corCaixa = Cor::BRANCO, const std::string& bgAnsi = "");
 
     static void executarLoop(
         const std::function<void(bool)>& renderCabecalho,

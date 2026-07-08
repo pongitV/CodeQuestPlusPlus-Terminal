@@ -21,7 +21,7 @@ public:
     static Pixel3D obterPixelChao(const std::string& tituloMapa, float currentX, float currentY, float currentDist, float profundidadeMaxima, const std::vector<std::tuple<int, int, int>>& luzes = {});
     static Pixel3D obterPixelAgua(float currentX, float currentY, float currentDist, float profundidadeMaxima, float raioAngulo = 0.0f, float tempoAnimacao = 0.0f, int temaCeu = 0);
     static int obterTemaCeu(const std::string& tituloMapa);
-    static Pixel3D obterPixelTeto(int temaCeu, float raioAngulo, int y, int alturaTela, float tempoAnimacao = 0.0f);
+    static Pixel3D obterPixelTeto(int temaCeu, float raioAngulo, float anguloSolLua, int y, int alturaTela, float tempoAnimacao = 0.0f);
 
     static char obterSpriteChar(int mapX, int mapY, char c, const std::string& tituloMapa);
     static std::string obterCorMinimapaEntidade(char c, const std::string& tituloMapa);

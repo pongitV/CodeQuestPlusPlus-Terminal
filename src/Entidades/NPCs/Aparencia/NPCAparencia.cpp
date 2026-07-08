@@ -3,7 +3,6 @@
 #include "../../../Core/Controladores/MenuJogo.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"
 #include "../../../Sistemas/Progresso/Progressao.h"
-#include "../../../Sistemas/Progresso/Salvamento.h"
 #include <iostream>
 
 void NPCAparencia::interagir(Personagem* jogador) {

@@ -4,6 +4,8 @@
 #include <vector>
 #include <chrono>
 #include <thread>
+#include "../../../Perspectiva/GerenciadorPerspectiva.h"
+#include "../../../Perspectiva/PerspectivaAlteradaException.h"
 
 #ifdef _WIN32
     #include <conio.h>
@@ -28,11 +30,14 @@ bool ControleDeInput::teclaPressionada()
 
 char ControleDeInput::lerTecla() 
 {
+    char tecla;
 #ifdef _WIN32
-    return static_cast<char>(_getch());
+    tecla = static_cast<char>(_getch());
 #else
-    return static_cast<char>(std::cin.get());
+    tecla = static_cast<char>(std::cin.get());
 #endif
+    
+    return tecla;
 }
 
 void ControleDeInput::limparBuffer() 
@@ -155,7 +160,12 @@ int ControleDeInput::lerSelecaoMenuComSetas(const std::vector<std::string>& opco
             int padding = larguraMenuEsq - lenEsqReal;
             if (padding < 0) padding = 0;
             
-            std::cout << margem << linhaEsq << std::string(padding, ' ') << linhaDir << "\033[K\n";
+            if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
+                std::string margemMove = margem.empty() ? "" : "\033[" + std::to_string(margem.length()) + "C";
+                std::cout << "\033[0m" << margemMove << linhaEsq << std::string(padding, ' ') << linhaDir << "\n";
+            } else {
+                std::cout << margem << linhaEsq << std::string(padding, ' ') << linhaDir << "\033[K\n";
+            }
         }
 
         std::cout << std::flush; // Garante que a tela sempre atualize antes de esperar a tecla
@@ -211,7 +221,7 @@ int ControleDeInput::lerSelecaoMenuEmPopup(const std::string& titulo, const std:
 
     int selecaoAtual = 0;
     int totalOpcoes = static_cast<int>(opcoes.size());
-    std::string bgPopup = "\033[48;2;15;15;15m"; 
+    std::string bgPopup = "\033[48;2;25;25;25m"; 
     std::cout << "\033[?25l"; 
     
     ControleDeInput::limparBuffer();
@@ -312,7 +322,10 @@ int ControleDeInput::lerSelecaoMenuEmPopup(const std::string& titulo, const std:
 
         if (tecla == 'w' || tecla == 'W') { selecaoAtual--; if (selecaoAtual < 0) selecaoAtual = totalOpcoes - 1; }
         else if (tecla == 's' || tecla == 'S') { selecaoAtual++; if (selecaoAtual >= totalOpcoes) selecaoAtual = 0; }
-        else if (tecla == '\r' || tecla == '\n') { return selecaoAtual; }
+        else if (tecla == '\r' || tecla == '\n') { 
+            if (animarEntrada) Aparencia::removerCaixaPopupAnimada(finalBoxWidth, finalBoxHeight, startX, startY, true);
+            return selecaoAtual; 
+        }
     }
 }
 

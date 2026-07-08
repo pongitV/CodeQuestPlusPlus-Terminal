@@ -11,6 +11,7 @@
 #include "../Core/Controladores/Status.h"
 #include "../Sistemas/Inventario/Inventario.h"
 #include "../Core/Utilidades/Aparencia.h"
+#include "SistemaDeNivel.h"
 
 struct Atributos 
 {
@@ -160,9 +161,10 @@ protected:
     mutable std::mutex mutexCache_; // Protege o acesso ao cache em ambientes multithread
     void atualizarCacheSeNecessario() const;
     
-    int nivel;
-    int xpAtual;
-    int xpParaSubir;
+    
+    
+    std::unique_ptr<SistemaDeNivel> sistemaDeNivel;
+
 
     int* obterPonteiroAtributoEstatico(TipoAtributo atributo);
 
@@ -194,15 +196,15 @@ public:
     int obterInteligencia() const { atualizarCacheSeNecessario(); return cache_.inteligencia; }
     int obterSabedoria() const { atualizarCacheSeNecessario(); return cache_.sabedoria; }
     
-    int obterNivel() const { return nivel; }
-    int obterXpAtual() const { return xpAtual; }
-    int obterXpParaSubir() const { return xpParaSubir; }
-    void definirNivel(int novoNivel) { nivel = novoNivel; }
-    void definirXpAtual(int novoXp) { xpAtual = novoXp; }
-    void definirXpParaSubir(int novoXpParaSubir) { xpParaSubir = novoXpParaSubir; }
+    int obterNivel() const { return sistemaDeNivel->obterNivel(); }
+    int obterXpAtual() const { return sistemaDeNivel->obterXpAtual(); }
+    int obterXpParaSubir() const { return sistemaDeNivel->obterXpParaSubir(); }
+    void definirNivel(int novoNivel) { sistemaDeNivel->definirNivel(novoNivel); }
+    void definirXpAtual(int novoXp) { sistemaDeNivel->definirXpAtual(novoXp); }
+    void definirXpParaSubir(int novoXpParaSubir) { sistemaDeNivel->definirXpParaSubir(novoXpParaSubir); }
     void definirVida(int novaVida) { vidaAtual = novaVida; }
-    void ganharXp(int valor) { xpAtual += valor; }
-    bool podeSubirDeNivel() const { return xpAtual >= xpParaSubir; }
+    void ganharXp(int valor) { sistemaDeNivel->ganharXp(valor); }
+    bool podeSubirDeNivel() const { return sistemaDeNivel->podeSubirDeNivel(); }
     bool subirDeNivel(TipoAtributo atributo);
     void escalarAtributos(double fator);
     void adicionarAlma(std::unique_ptr<Personagem> alma);

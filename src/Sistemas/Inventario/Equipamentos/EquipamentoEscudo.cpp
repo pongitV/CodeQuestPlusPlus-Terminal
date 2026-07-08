@@ -31,8 +31,8 @@ void EquipamentoEscudo::reduzirDurabilidade(int qtd) {
     durabilidade -= qtd; 
     if (durabilidade <= 0) {
         durabilidade = 0;
-        TelaCombate::adicionarMensagemFixa(TelaCombate::margemCombate() + Aparencia::cor(Cor::VERMELHO) + ">> O escudo [" + nome + "] quebrou e perdeu seu poder de bloqueio!" + Aparencia::cor(Cor::RESET) + "\n");
-        Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERMELHO) + ">> O escudo [" + nome + "] quebrou e perdeu seu poder de bloqueio!" + Aparencia::cor(Cor::RESET));
+        TelaCombate::adicionarMensagemFixa(TelaCombate::margemCombate() + Aparencia::cor(Cor::VERMELHO) + ">> O escudo [" + nome + "] quebrou e perdeu seu poder de bloqueio!" + Aparencia::cor(Cor::BRANCO) + "\033[48;2;25;25;25m" + "\n");
+        Aparencia::registrarLogBatalha(Aparencia::cor(Cor::VERMELHO) + ">> O escudo [" + nome + "] quebrou e perdeu seu poder de bloqueio!" + Aparencia::cor(Cor::BRANCO) + "\033[48;2;25;25;25m");
     }
 }
 void EquipamentoEscudo::aumentarDurabilidade(int qtd) { durabilidade += qtd; }
@@ -58,7 +58,7 @@ std::vector<std::string> EquipamentoEscudo::obterDetalhesInspecao(Personagem* pe
     std::string bloqueioStr = std::to_string(reducaoFixa) + " (Dano bloqueado na acao 'Defender')";
     if (personagem) {
         int defTotal = reducaoFixa + personagem->obterResistencia();
-        bloqueioStr += " " + Aparencia::cor(Cor::CINZA) + "-> " + Aparencia::cor(Cor::RESET) + "C/ Seus Atributos: " + Aparencia::cor(Cor::AMARELO) + std::to_string(defTotal) + Aparencia::cor(Cor::RESET);
+        bloqueioStr += " " + Aparencia::cor(Cor::CINZA) + "-> " + Aparencia::cor(Cor::BRANCO) + "\033[48;2;25;25;25m" + "C/ Seus Atributos: " + Aparencia::cor(Cor::AMARELO) + std::to_string(defTotal) + Aparencia::cor(Cor::BRANCO) + "\033[48;2;25;25;25m";
     }
     linhas.push_back(" > Poder de Bloqueio: " + bloqueioStr);
     linhas.push_back(" > Durabilidade Maxima: " + std::to_string(durabilidade) + " usos");
@@ -95,9 +95,9 @@ std::string EquipamentoEscudo::obterInfoStatus() const {
     
     std::string tag = "";
     if (durabilidade <= 0) {
-        tag = " " + Aparencia::cor(Cor::VERMELHO) + "[QUEBRADO]" + Aparencia::cor(Cor::RESET);
+        tag = " " + Aparencia::cor(Cor::VERMELHO) + "[QUEBRADO]" + Aparencia::cor(Cor::BRANCO) + "\033[48;2;25;25;25m";
     } else if (durabilidade < durabilidadeMaxima) {
-        tag = " " + Aparencia::cor(Cor::VERMELHO) + "[D]" + Aparencia::cor(Cor::RESET);
+        tag = " " + Aparencia::cor(Cor::VERMELHO) + "[D]" + Aparencia::cor(Cor::BRANCO) + "\033[48;2;25;25;25m";
     }
     return info + reqs + ")" + tag;
 }

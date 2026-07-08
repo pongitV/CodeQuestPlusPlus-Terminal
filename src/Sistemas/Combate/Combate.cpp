@@ -1,4 +1,5 @@
 #include "Combate.h"
+#include "CombateUIImpl.h"
 
 #include <algorithm>
 #include <iostream>
@@ -19,15 +20,8 @@
 #include "../Progresso/Progressao.h"
 #include "../Progresso/ProgressaoFlags.h"
 #include "Parry.h"
-#include "../../Perspectiva/TelasBase/Bestiario/TelaBestiario.h"
-#include "../../Perspectiva/TelasBase/Diario/TelaDiario.h"
-#include "../../Perspectiva/TelasBase/Atributos/TelaAtributos.h"
-#include "../../Perspectiva/TelasBase/Combate/TelaCombate.h"
-#include "../../Perspectiva/TelasBase/Derrota/TelaDerrota.h"
-#include "../../Perspectiva/TelasBase/Vitoria/TelaVitoria.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Utilidades/GeradorAleatorio.h"
-#include "../../Perspectiva/TelasBase/Menu/TelaMenu.h"
 #include "../../Entidades/Classes/ClasseBase.h"
 #include "../../Core/Utilidades/ControleDeInput.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
@@ -47,6 +41,7 @@ int g_parryStatus = 0;
 
 int Combate::stats_parriesTentados = 0;
 int Combate::stats_parriesEfetivos = 0;
+int Combate::stats_parriesPerfeitos = 0;
 int Combate::stats_maiorDanoCausado = 0;
 int Combate::stats_itensConsumidos = 0;
 std::vector<std::string> Combate::stats_novasDescobertas;
@@ -54,14 +49,16 @@ std::vector<std::string> Combate::stats_novasDescobertas;
 void Combate::resetarEstatisticasAvancadas() {
     stats_parriesTentados = 0;
     stats_parriesEfetivos = 0;
+    stats_parriesPerfeitos = 0;
     stats_maiorDanoCausado = 0;
     stats_itensConsumidos = 0;
     stats_novasDescobertas.clear();
 }
 
-Combate::Combate(Personagem* jogadorParaOCombate, std::vector<std::unique_ptr<Personagem>>&& inimigosParaOCombate) 
+Combate::Combate(Personagem* jogadorParaOCombate, std::vector<std::unique_ptr<Personagem>>&& inimigosParaOCombate, std::unique_ptr<ICombateUI> interfaceVisual) 
     : jogadorAtual(jogadorParaOCombate), listaDeInimigos(std::move(inimigosParaOCombate)), quantidadeDeOuroObtido(0), quantidadeDeXpObtido(0), totalDeDanoCausado(0), totalDeDanoRecebido(0), contadorDoTurnoAtual(1),
-      isModo3D(false), jogadorPosX(0.0f), jogadorPosY(0.0f), jogadorAngulo(0.0f), tituloMapaAtual("")
+      isModo3D(false), jogadorPosX(0.0f), jogadorPosY(0.0f), jogadorAngulo(0.0f), tituloMapaAtual(""),
+      ui(interfaceVisual ? std::move(interfaceVisual) : std::make_unique<CombateUIImpl>())
 {
 
     int nivelDeDificuldade = static_cast<int>(jogadorAtual->obterDificuldade());
@@ -132,8 +129,8 @@ std::vector<Personagem*> Combate::obterInimigosRaw() const
 
 void Combate::exibirTelaDeCombate(bool animarEntrada) const
 {
-    TelaCombate::configurarContexto3D(isModo3D, matrizDoMapaAtual, jogadorPosX, jogadorPosY, jogadorAngulo, tituloMapaAtual);
-    TelaCombate::atualizarTelaEstatica(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual, obterAliadosVivosRaw(), animarEntrada);
+    ui->configurarContexto3D(isModo3D, matrizDoMapaAtual, jogadorPosX, jogadorPosY, jogadorAngulo, tituloMapaAtual);
+    ui->atualizarTelaEstatica(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual, obterAliadosVivosRaw(), animarEntrada);
 }
 
 std::vector<Personagem*> Combate::obterAliadosVivosRaw() const {
@@ -145,10 +142,10 @@ std::vector<Personagem*> Combate::obterAliadosVivosRaw() const {
 }
 
 void Combate::prepararTurnoPersonagem(Personagem* personagem) {
-    TelaCombate::limparMensagensFixas();
+    ui->limparMensagensFixas();
     registrarLog("");
     registrarLog("═══ TURNO " + std::to_string(contadorDoTurnoAtual) + " ║ VEZ DE " + personagem->obterNome() + " ═══");
-    TelaCombate::definirTurnoVisivel(contadorDoTurnoAtual, personagem->obterNome());
+    ui->definirTurnoVisivel(contadorDoTurnoAtual, personagem->obterNome());
     personagem->reduzirCooldowns();
     personagem->processarEfeitosInicioTurno();
 }
@@ -193,7 +190,7 @@ bool Combate::executarTurnoJogadorOuAliado(Personagem* personagem, bool& primeir
 
     if (usouInventario) {
         exibirTelaDeCombate();
-        TelaCombate::notificarDesprevencaoInventario();
+        ui->notificarDesprevencaoInventario();
     }
     return false;
 }
@@ -209,16 +206,16 @@ void Combate::iniciarCombate()
     resetarEstatisticasAvancadas();
     jogadorAtual->prepararParaNovaBatalha();
     Aparencia::limparLogBatalha();
-    TelaCombate::limparMensagensFixas();
+    ui->limparMensagensFixas();
 
     for (auto& aliado : listaDeAliados) {
         aliado->prepararParaNovaBatalha();
     }
 
-    TelaCombate::configurarContexto3D(isModo3D, matrizDoMapaAtual, jogadorPosX, jogadorPosY, jogadorAngulo, tituloMapaAtual);
-    TelaCombate::animarIntroducaoCombate(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual);
+    ui->configurarContexto3D(isModo3D, matrizDoMapaAtual, jogadorPosX, jogadorPosY, jogadorAngulo, tituloMapaAtual);
+    ui->animarIntroducaoCombate(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual);
 
-    Aparencia::limparTela();
+    ui->limparTela();
 
     int maxDestrezaInimigos = 0;
     for (const auto& inimigoPtr : listaDeInimigos) {
@@ -239,7 +236,7 @@ void Combate::iniciarCombate()
         
         if (maxDestrezaInimigos > (jogadorAtual->obterDestreza() * 2)) {
             std::string msg = FuncoesDialogo::formatarMsgSistema("A agilidade extrema dos inimigos (" + std::to_string(maxDestrezaInimigos) + " VS " + std::to_string(jogadorAtual->obterDestreza()) + ") permite que eles ataquem duas vezes seguidas!", Cor::VERMELHO);
-            std::cout << "\n" << TelaCombate::margemCombate() << msg << "\n";
+            std::cout << "\n" << ui->margemCombate() << msg << "\n";
             Aparencia::registrarLogBatalha(msg);
             ControleDeInput::aguardarEnter();
 
@@ -252,7 +249,7 @@ void Combate::iniciarCombate()
             
             contadorDoTurnoAtual++; // Jogador comeca no Turno 2
         } else {
-            TelaCombate::notificarInimigosMaisAgeis();
+            ui->notificarInimigosMaisAgeis();
             executarTurnoDeTodosOsInimigos();
             limparInimigosMortos();
             if (verificarCondicaoDeVitoriaOuDerrota()) return;
@@ -265,7 +262,7 @@ void Combate::iniciarCombate()
             if (executarTurnoJogadorOuAliado(jogadorAtual, primeiraRenderizacao)) return;
 
             if (turnoExtraFirstTurn && contadorDoTurnoAtual == 1) {
-                TelaCombate::notificarTurnoExtra(jogadorAtual->obterDestreza(), maxDestrezaInimigos);
+                ui->notificarTurnoExtra(jogadorAtual->obterDestreza(), maxDestrezaInimigos);
                 turnoExtraFirstTurn = false;
                 if (executarTurnoJogadorOuAliado(jogadorAtual, primeiraRenderizacao, false)) return;
             }
@@ -290,9 +287,9 @@ void Combate::iniciarCombate()
 
 void Combate::processarMenuDeAcoesDoJogador(Personagem* personagemAgindo, bool& turnoFoiConsumido, bool& usouInventarioNoTurno)
 {
-    int acaoEscolhida = TelaCombate::obterAcaoDoJogador(contadorDoTurnoAtual, personagemAgindo, obterInimigosRaw(), jogadorAtual, obterAliadosVivosRaw());
+    int acaoEscolhida = ui->obterAcaoDoJogador(contadorDoTurnoAtual, personagemAgindo, obterInimigosRaw(), jogadorAtual, obterAliadosVivosRaw());
     
-    TelaCombate::personagemHUD = nullptr; // Forca reset visual ao retornar para evitar bugs de persistencia de interface
+    ui->limparContextoPersonagemHUD(); // Forca reset visual ao retornar para evitar bugs de persistencia de interface
 
     switch (acaoEscolhida) 
     {
@@ -300,11 +297,11 @@ void Combate::processarMenuDeAcoesDoJogador(Personagem* personagemAgindo, bool& 
         case 2: processarAcaoDefender(personagemAgindo, turnoFoiConsumido); break;
         case 3: processarAcaoHabilidade(personagemAgindo, turnoFoiConsumido); break;
         case 4: processarAcaoInventario(personagemAgindo, turnoFoiConsumido, usouInventarioNoTurno); break;
-        case 5: TelaAtributos::gerenciarFichaDoJogador(personagemAgindo); break;
-        case 6: TelaDiario::exibir(personagemAgindo); break;
+        case 5: ui->exibirTelaAtributos(personagemAgindo); break;
+        case 6: ui->exibirTelaDiario(personagemAgindo); break;
         case 7: Aparencia::exibirHistoricoCompleto(); break;
         default: 
-            TelaCombate::notificarAcaoInvalida();
+            ui->notificarAcaoInvalida();
             break;
     }
 }
@@ -318,7 +315,7 @@ void Combate::processarAcaoAtacar(Personagem* personagemAgindo, bool& turnoFoiCo
     }
     else 
     {
-        int indiceDoAlvoEscolhido = TelaCombate::obterAlvoAtaque(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual, obterAliadosVivosRaw());
+        int indiceDoAlvoEscolhido = ui->obterAlvoAtaque(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual, obterAliadosVivosRaw());
         if (indiceDoAlvoEscolhido == -1) return;
 
         realizarAtaqueFisico(personagemAgindo, listaDeInimigos[indiceDoAlvoEscolhido].get(), contadorDoTurnoAtual);
@@ -338,11 +335,11 @@ Item* Combate::selecionarEscudo(Personagem* personagemAgindo)
 
     if (listaDeEscudos.empty()) 
     {
-        TelaCombate::notificarSemEscudos(personagemAgindo->obterNome());
+        ui->notificarSemEscudos(personagemAgindo->obterNome());
         return nullptr;
     }
 
-    int opcaoEscolhida = TelaCombate::obterEscolhaDeEscudo(personagemAgindo->obterNome(), listaDeEscudos);
+    int opcaoEscolhida = ui->obterEscolhaDeEscudo(personagemAgindo->obterNome(), listaDeEscudos);
     return (opcaoEscolhida == 0) ? nullptr : listaDeEscudos[opcaoEscolhida - 1];
 }
 
@@ -350,7 +347,7 @@ void Combate::processarAcaoDefender(Personagem* personagemAgindo, bool& turnoFoi
 {
     if (personagemAgindo->obterRecargaDefesa()) 
     {
-        TelaCombate::notificarDesequilibrioDefesa(personagemAgindo->obterNome());
+        ui->notificarDesequilibrioDefesa(personagemAgindo->obterNome());
         return; 
     }
     
@@ -359,19 +356,19 @@ void Combate::processarAcaoDefender(Personagem* personagemAgindo, bool& turnoFoi
     {
         if (escudoEscolhido->obterDurabilidadeAtualEscudo() <= 0) {
             std::string msg = FuncoesDialogo::formatarMsgSistema("O escudo [" + escudoEscolhido->obterNomeItem() + "] esta quebrado e nao pode ser usado!", Cor::VERMELHO);
-            std::cout << "\n" << TelaCombate::margemCombate() << msg << "\n";
+            std::cout << "\n" << ui->margemCombate() << msg << "\n";
             ControleDeInput::aguardarEnter();
             return; // Nao consome o turno
         }
 
         if (!escudoEscolhido->podeSerEquipadoPor(personagemAgindo)) {
-            TelaCombate::notificarRequisitoNaoAtendido(escudoEscolhido->obterMensagemRequisito());
+            ui->notificarRequisitoNaoAtendido(escudoEscolhido->obterMensagemRequisito());
             return;
         }
 
         personagemAgindo->equiparItem(escudoEscolhido);
         personagemAgindo->definirDefendendo(true);
-        TelaCombate::notificarPosturaDefensiva(personagemAgindo->obterNome(), escudoEscolhido->obterNomeItem());
+        ui->notificarPosturaDefensiva(personagemAgindo->obterNome(), escudoEscolhido->obterNomeItem());
         turnoFoiConsumido = true;
     }
 }
@@ -401,18 +398,18 @@ void Combate::processarAcaoInventario(Personagem* personagemAgindo, bool& turnoF
     }
     
     if (personagemAgindo->obterVida() > vidaAntes) {
-        TelaCombate::animarCuraNoJogador(obterTituloDoCombate(), obterInimigosRaw(), personagemAgindo, jogadorAtual, obterAliadosVivosRaw(), personagemAgindo->obterVida() - vidaAntes);
+        ui->animarCuraNoJogador(obterTituloDoCombate(), obterInimigosRaw(), personagemAgindo, jogadorAtual, obterAliadosVivosRaw(), personagemAgindo->obterVida() - vidaAntes);
     }
 
     if (personagemAgindo->obterItemSelecionadoParaUso() != nullptr) 
     {
         Item* itemSelecionado = personagemAgindo->obterItemSelecionadoParaUso();
         
-        int indiceDoAlvoEscolhido = TelaCombate::obterAlvoItem(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual, obterAliadosVivosRaw());
+        int indiceDoAlvoEscolhido = ui->obterAlvoItem(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual, obterAliadosVivosRaw());
 
         if (indiceDoAlvoEscolhido == -1) 
         {
-            TelaCombate::notificarCancelamentoItem();
+            ui->notificarCancelamentoItem();
             personagemAgindo->definirItemSelecionadoParaUso(nullptr);
         } 
         else 
@@ -469,15 +466,14 @@ void Combate::limparInimigosMortos()
                 }
 
                 std::vector<Personagem*> aliadosVivos = obterAliadosVivosRaw();
-                TelaCombate::animarMorteInimigo(obterTituloDoCombate(), obterInimigosRaw(), inimigoPtr.get(), jogadorAtual, aliadosVivos, dropsDaMorte);
+                ui->animarMorteInimigo(obterTituloDoCombate(), obterInimigosRaw(), inimigoPtr.get(), jogadorAtual, aliadosVivos, dropsDaMorte);
                 inimigoPtr->definirMorteAnimada(true);
                 if (listaDeInimigos.size() > 1) {
                     ControleDeInput::aguardarEnter();
                 } else {
                     std::this_thread::sleep_for(std::chrono::milliseconds(500));
                 }
-                TelaCombate::g_inimigoMortoComDrops = nullptr;
-                TelaCombate::g_dropsAtivos.clear();
+                ui->limparContextoInimigoMortoEDrops();
         }
     }
 
@@ -486,7 +482,7 @@ void Combate::limparInimigosMortos()
 
 void Combate::executarTurnoDeTodosOsInimigos() 
 {
-    TelaCombate::limparMensagensFixas();
+    ui->limparMensagensFixas();
     if (jogadorAtual->obterPularTurnoInimigo()) 
     {
         // A mensagem na UI foi removida para priorizar o combate limpo
@@ -498,7 +494,7 @@ void Combate::executarTurnoDeTodosOsInimigos()
         std::string textoTurnoInimigos = "═══ TURNO " + std::to_string(contadorDoTurnoAtual) + " ║ VEZ DOS INIMIGOS ═══";
         registrarLog("");
         registrarLog(textoTurnoInimigos);
-            TelaCombate::definirTurnoVisivel(contadorDoTurnoAtual, "INIMIGOS");
+            ui->definirTurnoVisivel(contadorDoTurnoAtual, "INIMIGOS");
             exibirTelaDeCombate(false); // Forca o HUD a atualizar o nome do Turno para os inimigos antes do ataque iniciar
         for (size_t i = 0; i < listaDeInimigos.size(); ++i) 
         {
@@ -673,10 +669,10 @@ void Combate::processarPosDano(Personagem* atacante, Personagem* alvo, int danoF
     {
         // ANIMACAO DO DANO NO INIMIGO (Piscar Vermelho + Flicker)
         if (!isPersonagemJogadorOuAliado(alvo)) {
-            TelaCombate::animarDanoNoInimigo(obterTituloDoCombate(), obterInimigosRaw(), alvo, atacante, jogadorAtual, aliadosVivos, danoFinal);
+            ui->animarDanoNoInimigo(obterTituloDoCombate(), obterInimigosRaw(), alvo, atacante, jogadorAtual, aliadosVivos, danoFinal);
         }
         else {
-            TelaCombate::animarDanoNoJogador(obterTituloDoCombate(), obterInimigosRaw(), alvo, jogadorAtual, aliadosVivos, false, danoFinal);
+            ui->animarDanoNoJogador(obterTituloDoCombate(), obterInimigosRaw(), alvo, jogadorAtual, aliadosVivos, false, danoFinal);
         }
 
         // Aplicação dos efeitos no acerto
@@ -690,9 +686,9 @@ void Combate::processarPosDano(Personagem* atacante, Personagem* alvo, int danoF
         // Verifica se o atacante se curou (Ex: Passiva da Abominacao)
         if (atacante->obterVida() > vidaAtacanteAntes) {
             if (!isPersonagemJogadorOuAliado(atacante)) {
-                TelaCombate::animarCuraNoInimigo(obterTituloDoCombate(), obterInimigosRaw(), atacante, jogadorAtual, aliadosVivos, atacante->obterVida() - vidaAtacanteAntes);
+                ui->animarCuraNoInimigo(obterTituloDoCombate(), obterInimigosRaw(), atacante, jogadorAtual, aliadosVivos, atacante->obterVida() - vidaAtacanteAntes);
             } else {
-                TelaCombate::animarCuraNoJogador(obterTituloDoCombate(), obterInimigosRaw(), atacante, jogadorAtual, aliadosVivos, atacante->obterVida() - vidaAtacanteAntes);
+                ui->animarCuraNoJogador(obterTituloDoCombate(), obterInimigosRaw(), atacante, jogadorAtual, aliadosVivos, atacante->obterVida() - vidaAtacanteAntes);
             }
         }
         
@@ -705,9 +701,9 @@ void Combate::processarPosDano(Personagem* atacante, Personagem* alvo, int danoF
         }
     }
     else if (tentouParry && parrySucesso && isPersonagemJogadorOuAliado(alvo)) {
-        TelaCombate::animarDanoNoJogador(obterTituloDoCombate(), obterInimigosRaw(), alvo, jogadorAtual, aliadosVivos, true, danoFinal);
+        ui->animarDanoNoJogador(obterTituloDoCombate(), obterInimigosRaw(), alvo, jogadorAtual, aliadosVivos, true, danoFinal);
     } else {
-        TelaCombate::atualizarTelaEstatica(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual, aliadosVivos);
+        ui->atualizarTelaEstatica(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual, aliadosVivos);
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
     }
 
@@ -721,10 +717,10 @@ void Combate::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* pers
     {
         std::string msgEsquiva = personagemAlvo->obterNome() + " evitou o ataque de " + personagemAtacante->obterNome();
         registrarLog(FuncoesDialogo::formatarMsgCombate(msgEsquiva, Cor::CIANO));
-        TelaCombate::adicionarMensagemFixa(Aparencia::centralizarTexto(Aparencia::cor(Cor::CIANO) + msgEsquiva + Aparencia::cor(Cor::RESET)) + "\n");
+        ui->adicionarMensagemFixa(Aparencia::centralizarTexto(Aparencia::cor(Cor::CIANO) + msgEsquiva + Aparencia::cor(Cor::RESET)) + "\n");
         
         std::vector<Personagem*> aliadosVivos = obterAliadosVivosRaw();
-        TelaCombate::atualizarTelaEstatica(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual, aliadosVivos);
+        ui->atualizarTelaEstatica(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual, aliadosVivos);
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
         return;
     }
@@ -745,7 +741,7 @@ void Combate::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* pers
         if (ataqueImparavel) {
             std::string msgImparavel = FuncoesDialogo::formatarMsgCombate(personagemAtacante->obterNome() + " desfere um ATAQUE IMPARAVEL! O Parry foi ignorado!", Cor::FUNDO_VERMELHO);
             registrarLog(msgImparavel);
-            TelaCombate::adicionarMensagemFixa(TelaCombate::margemCombate() + msgImparavel + "\n");
+            ui->adicionarMensagemFixa(ui->margemCombate() + msgImparavel + "\n");
         } else {
             tentouParry = true;
             parryFoiBemSucedido = Parry::tentarParry(personagemAtacante, personagemAlvo, danoBaseMitigado, quantidadeDeDanoReduzidoPeloParry);
@@ -770,6 +766,7 @@ void Combate::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* pers
     // Burlar o limite de "minimo de 1 de dano" do sistema base caso o Parry absorva todo o impacto
     if (tentouParry && parryFoiBemSucedido && quantidadeDeDanoReduzidoPeloParry >= danoBaseMitigado) 
     {
+        if (personagemAlvo == jogadorAtual) stats_parriesPerfeitos++;
         if (res.danoFinal > 0) 
         {
             personagemAlvo->modificarVida(res.danoFinal); // Restaura o HP retirado pela trava de minimo de dano
@@ -799,16 +796,15 @@ void Combate::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* pers
             atacanteReflexao += "(" + std::to_string(inimigoIdx) + ")";
         }
         
-        std::string msgReflexao = FuncoesDialogo::formatarMsgCombate("Parry Perfeito! Reflexao! " + atacanteReflexao + " recebeu " + std::to_string(danoRefletido) + " de dano de reflexao", Cor::AMARELO);
+        std::string msgReflexao = FuncoesDialogo::formatarMsgCombate("Reflexao! Inimigo tomou " + std::to_string(danoRefletido) + " de dano", Cor::AMARELO);
         registrarLog(msgReflexao);
-        TelaCombate::adicionarMensagemFixa(TelaCombate::margemCombate() + msgReflexao + "\n");
         
         std::vector<Personagem*> aliadosVivos = obterAliadosVivosRaw();
         if (!isPersonagemJogadorOuAliado(personagemAtacante)) {
-            TelaCombate::animarDanoNoInimigo(obterTituloDoCombate(), obterInimigosRaw(), personagemAtacante, personagemAlvo, jogadorAtual, aliadosVivos, danoRefletido);
+            ui->animarDanoNoInimigo(obterTituloDoCombate(), obterInimigosRaw(), personagemAtacante, personagemAlvo, jogadorAtual, aliadosVivos, danoRefletido);
             totalDeDanoCausado += danoRefletido;
         } else {
-            TelaCombate::animarDanoNoJogador(obterTituloDoCombate(), obterInimigosRaw(), personagemAtacante, jogadorAtual, aliadosVivos, false, danoRefletido);
+            ui->animarDanoNoJogador(obterTituloDoCombate(), obterInimigosRaw(), personagemAtacante, jogadorAtual, aliadosVivos, false, danoRefletido);
         }
     }
 }
@@ -816,48 +812,33 @@ void Combate::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* pers
 void Combate::exibirResultadoDoAtaque(Personagem* alvo, int danoFinal, bool tentouParry, bool parrySucesso, int danoBloqueado, bool escudoQuebrou, const std::string& nomeEscudoQuebrado)
 {
     bool isJogadorOuAliado = isPersonagemJogadorOuAliado(alvo);
-    std::string msg = "";
 
     if (danoBloqueado > 0) {
-        std::string msgDefesa = FuncoesDialogo::formatarMsgCombate("O escudo bloqueou " + std::to_string(danoBloqueado) + " de dano!", Cor::CIANO);
-        msg += TelaCombate::margemCombate() + msgDefesa + "\n";
+        std::string msgDefesa = FuncoesDialogo::formatarMsgCombate("O escudo bloqueou " + std::to_string(danoBloqueado) + " de dano!", Cor::AZUL);
         registrarLog(msgDefesa);
         
         if (escudoQuebrou) {
-            std::string msgQuebra = FuncoesDialogo::formatarMsgCombate("ALERTA: O escudo " + nomeEscudoQuebrado + " foi DESTRUIDO em pedacos e desequipado!", Cor::FUNDO_VERMELHO);
-            msg += TelaCombate::margemCombate() + msgQuebra + "\n";
+            std::string msgQuebra = FuncoesDialogo::formatarMsgCombate("ALERTA: O escudo " + nomeEscudoQuebrado + " foi DESTRUIDO em pedacos e desequipado!", Cor::AZUL);
             registrarLog(msgQuebra);
-            
             alvo->desequiparEscudo();
         }
     }
 
     if (isJogadorOuAliado) 
     {
-        if (tentouParry) 
-        {
-            std::string mensagemParryLog;
-            if (parrySucesso) {
-                if (danoFinal <= 0) {
-                    mensagemParryLog = "Parry perfeito! Ataque anulado!";
-                } else {
-                    mensagemParryLog = "Parry efetivo! Mas o ataque e muito forte!";
-                }
-            } else {
-                mensagemParryLog = "Parry falhou!";
-            }
-            
-            registrarLog(FuncoesDialogo::formatarMsgCombate(mensagemParryLog + " Inimigo causou " + std::to_string(danoFinal) + " de dano em " + alvo->obterNome(), Cor::VERMELHO_CLARO));
+        if (tentouParry) {
+            std::string mensagemParryLog = Parry::obterMensagemFeedback(parrySucesso, danoFinal);
+            registrarLog(FuncoesDialogo::formatarMsgCombate(mensagemParryLog, Cor::LARANJA));
         }
         else if (danoFinal > 0) 
         {
             // A mensagem estatica na UI de dano ao jogador foi comentada para priorizar o Texto de Dano Flutuante
-            registrarLog(FuncoesDialogo::formatarMsgCombate(alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano", Cor::VERMELHO_CLARO));
+            registrarLog(FuncoesDialogo::formatarMsgCombate(alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano", Cor::LARANJA));
         }
         else if (danoFinal == 0 && alvo->obterDefendendo()) 
         {
             // A mensagem estatica na UI de dano ao jogador foi comentada para priorizar o Texto de Dano Flutuante
-            registrarLog(FuncoesDialogo::formatarMsgCombate("O dano foi totalmente absorvido pela defesa de " + alvo->obterNome() + "!", Cor::CIANO));
+            registrarLog(FuncoesDialogo::formatarMsgCombate("O dano foi totalmente absorvido pela defesa de " + alvo->obterNome() + "!", Cor::AZUL));
         }
         
         if (danoFinal > 0 && alvo == jogadorAtual) totalDeDanoRecebido += danoFinal;
@@ -868,10 +849,6 @@ void Combate::exibirResultadoDoAtaque(Personagem* alvo, int danoFinal, bool tent
         if (alvo != jogadorAtual) totalDeDanoCausado += danoFinal;
         // A mensagem estatica na UI de dano aos inimigos foi comentada para priorizar o Texto de Dano Flutuante
         registrarLog(FuncoesDialogo::formatarMsgCombate(alvo->obterNome() + " recebeu " + std::to_string(danoFinal) + " de dano", Cor::VERMELHO));
-    }
-
-    if (!msg.empty()) {
-        TelaCombate::adicionarMensagemFixa(msg);
     }
 }
 
@@ -885,9 +862,11 @@ bool Combate::verificarCondicaoDeVitoriaOuDerrota()
         jogadorAtual->limparEfeitos(); // Remove buffs e debuffs ao final da batalha
         ControleDeInput::onAguardarEnterUpdate = nullptr; // Impede que o aguardarEnter da tela de vitoria/derrota redesenhe o combate
         if (isVitoria) {
-            TelaVitoria::exibir(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, jogadorAtual->obterCuraTotalRecebida(), contadorDoTurnoAtual, itensObtidos);
+            ui->exibirTelaVitoria(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, 
+                                totalDeDanoRecebido, jogadorAtual->obterCuraTotalRecebida(), contadorDoTurnoAtual, 
+                                itensObtidos, inimigosDerrotados, stats_parriesPerfeitos, stats_maiorDanoCausado);
         } else {
-            TelaDerrota::exibir(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, jogadorAtual->obterCuraTotalRecebida(), contadorDoTurnoAtual); 
+            ui->exibirTelaDerrota(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, jogadorAtual->obterCuraTotalRecebida(), contadorDoTurnoAtual); 
         }
         jogadorAtual->finalizarBatalha();
         return true; 
@@ -898,6 +877,7 @@ bool Combate::verificarCondicaoDeVitoriaOuDerrota()
 void Combate::processarMorteDeInimigo(Personagem* inimigo)
 {
     registrarLog(FuncoesDialogo::formatarMsgCombate(inimigo->obterNome() + " derrotado!", Cor::VERMELHO));
+    inimigosDerrotados.push_back(inimigo->obterNome());
 
     std::string nomeRaca = inimigo->obterRaca()->obterNomeRaca();
     if (!Bestiario::instancia().jaDerrotado(nomeRaca)) {

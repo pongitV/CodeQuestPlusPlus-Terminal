@@ -119,12 +119,14 @@ void Aparencia::exibirPopup(const std::string& titulo, const std::vector<std::st
         char c = ControleDeInput::lerTecla();
         if (c == '\r' || c == '\n') break;
     }
+    
+    removerCaixaPopupAnimada(finalBoxWidth, finalBoxHeight, startX, startY, true);
 }
 
 void Aparencia::renderizarCaixaPopupAnimada(const std::vector<std::string>& caixa, int startX, int startY, bool animar) {
     if (caixa.empty()) return;
     int finalBoxHeight = caixa.size();
-    std::string bgPopup = "\033[48;2;15;15;15m"; 
+    std::string bgPopup = "\033[48;2;25;25;25m"; 
     
     auto formatarLinha = [&](const std::string& linhaOriginal) {
         std::string linha = linhaOriginal;
@@ -197,4 +199,11 @@ int Aparencia::lerInteiroEmPopupFlutuante(const std::string& mensagem, int limit
     int resultado = ControleDeInput::lerInteiroComLimites("", limiteMin, limiteMax, false);
     std::cout << "\033[0m";
     return resultado;
+}
+
+void Aparencia::removerCaixaPopupAnimada(int finalBoxWidth, int finalBoxHeight, int startX, int startY, bool animar) {
+    // In raycaster or IDE mode, clearing the popup cleanly requires redrawing the background frame.
+    // Drawing empty spaces here leaves an ugly black/grey rectangle, so we just return and rely
+    // on the main game loop to redraw the screen immediately after the popup closes.
+    return;
 }

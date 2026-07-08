@@ -1,6 +1,7 @@
 #include "Aparencia.h"
 #include "../../../Perspectiva/TelasBase/TelaBase.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"
+#include "../../../Perspectiva/TelasBase/Combate/TelaCombate.h"
 #include <iostream>
 #include <algorithm>
 #include <string>
@@ -12,6 +13,7 @@ namespace {
 
 void Aparencia::registrarLogBatalha(const std::string& texto) {
     historicoBatalha.push_back(texto);
+    TelaCombate::adicionarMensagemFixa(texto);
 }
 
 void Aparencia::limparLogBatalha() {

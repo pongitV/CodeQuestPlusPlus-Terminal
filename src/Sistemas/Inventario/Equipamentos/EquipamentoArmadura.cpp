@@ -31,7 +31,7 @@ std::vector<std::string> EquipamentoArmadura::obterDetalhesInspecao(Personagem* 
     std::string defFixaStr = std::to_string(reducaoFixa) + " (Reduz dano recebido permanentemente)";
     if (personagem) {
         int defTotal = reducaoFixa + personagem->obterResistencia();
-        defFixaStr += " " + Aparencia::cor(Cor::CINZA) + "-> " + Aparencia::cor(Cor::RESET) + "C/ Seus Atributos: " + Aparencia::cor(Cor::AMARELO) + std::to_string(defTotal) + Aparencia::cor(Cor::RESET);
+        defFixaStr += " " + Aparencia::cor(Cor::CINZA) + "-> " + Aparencia::cor(Cor::BRANCO) + "\033[48;2;25;25;25m" + "C/ Seus Atributos: " + Aparencia::cor(Cor::AMARELO) + std::to_string(defTotal) + Aparencia::cor(Cor::BRANCO) + "\033[48;2;25;25;25m";
     }
     linhas.push_back(" > Defesa Fixa: " + defFixaStr);
     linhas.push_back(" > Requisitos:");

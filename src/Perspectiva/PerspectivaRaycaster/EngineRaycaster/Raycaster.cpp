@@ -37,6 +37,13 @@ using namespace std;
 float Raycaster::sensibilidadeX = 0.0008f; // Original: 0.002f (40%)
 float Raycaster::sensibilidadeY = 0.048f;  // Original: 0.08f (60%)
 
+std::string RaycasterQuadro::s_ultimoQuadroRenderizado;
+
+void RaycasterQuadro::restaurarUltimoQuadro() {
+    if (s_ultimoQuadroRenderizado.empty()) return;
+    std::cout << "\033[0m" << s_ultimoQuadroRenderizado << std::flush;
+}
+
 static inline char* writeByteFast(char* p, uint8_t val) {
     if (val >= 100) {
         *p++ = '0' + (val / 100);
@@ -385,7 +392,19 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
         int offsetGeral = (bobbingOffset * 2) + (int)(pitchOffset * 2.0f);
         
 
-    RaycasterRenderizador::renderizar3D(tela3D, LARGURA_TELA, ALTURA_INTERNA, jogadorX, jogadorY, anguloVisao, horizonteInterno, offsetGeral, profundidadeMaxima, tempoAbsoluto, matrizDoMapa, tituloMapa, temaFloresta, temaCeu, cacheSprites);
+        // --- CICLO DIA/NOITE GLOBAL ---
+        int temaAtivo = temaCeu;
+        if (temaCeu == 1 || temaCeu == 2) {
+            long long globalMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+            float anguloGlobal = ((globalMs % 60000) / 60000.0f) * 6.2831853f;
+            if (anguloGlobal > 1.5707f && anguloGlobal < 4.7123f) {
+                temaAtivo = 1; 
+            } else {
+                temaAtivo = 2; 
+            }
+        }
+
+        RaycasterRenderizador::renderizar3D(tela3D, LARGURA_TELA, ALTURA_INTERNA, jogadorX, jogadorY, anguloVisao, horizonteInterno, offsetGeral, profundidadeMaxima, tempoAbsoluto, matrizDoMapa, tituloMapa, temaFloresta, temaAtivo, cacheSprites);
         downsampleTela();
 
         // --- RENDERIZACAO HUD E OVERLAYS (2D) ---
@@ -459,6 +478,7 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
             if (y < ALTURA_TELA - 1) bufferFrame += "\n";
         }
         bufferFrame += "\033[0m\033[?2026l"; // Reset final das cores ao terminar o frame e desliga atualizacao sincronizada
+        s_ultimoQuadroRenderizado = bufferFrame; // <--- SALVA O QUADRO FORMATADO EM ANSI
         cout << bufferFrame << flush;
 
         // Frame Pacing dinâmico para cravar ~60 FPS reais

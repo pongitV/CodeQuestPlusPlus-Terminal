@@ -2,10 +2,16 @@
 #include "../../../Sistemas/Progresso/Progressao.h"
 #include "../../../Sistemas/Progresso/ProgressaoFlags.h"
 #include "../../../Sistemas/Progresso/Diario.h"
+#include "../../../Sistemas/Progresso/Bestiario.h"
 #include "../../../Sistemas/Inventario/FabricaItens.h"
 #include "../../../Sistemas/Inventario/Item.h"
 #include "../../../Entidades/Personagem.h"
 #include "../../../Core/Utilidades/Aparencia.h"
+
+#include <algorithm>
+#include <map>
+#include <functional>
+#include <sstream>
 
 namespace {
     enum class CategoriaProgresso { NPC, MONSTRO, ITEM };
@@ -84,6 +90,7 @@ DadosProgresso TelaDiarioLogic::obterProgresso() {
 }
 
 ItensCategorizados TelaDiarioLogic::categorizarItens(Personagem* jogador) {
+    (void)jogador;
     ItensCategorizados resultado;
     std::vector<std::string> itens = Diario::instancia().obterItensDescobertos();
 
@@ -130,5 +137,87 @@ MissoesCategorizadas TelaDiarioLogic::categorizarMissoes(Personagem* jogador) {
         }
     }
 
+    return resultado;
+}
+
+std::vector<GrupoCategorizado> TelaDiarioLogic::categorizarBestiario() {
+    std::map<std::string, std::vector<std::string>> grupos;
+    auto ordem = Bestiario::instancia().obterInimigosOrdenadosPorDificuldade();
+    for (const auto& nome : ordem) {
+        if (!Bestiario::instancia().estaDescoberto(nome)) continue;
+        const auto* info = Bestiario::instancia().obterInfo(nome);
+        std::string mapa = info ? info->mapa : "Desconhecido";
+        grupos[mapa].push_back(nome);
+    }
+
+    std::vector<GrupoCategorizado> resultado;
+    for (auto& par : grupos) {
+        Aparencia::ordenarAlfabeticamente(par.second);
+        resultado.push_back({par.first, par.second});
+    }
+    return resultado;
+}
+
+std::vector<GrupoCategorizado> TelaDiarioLogic::categorizarNPCs() {
+    std::map<std::string, std::vector<std::string>> grupos;
+    auto npcs = Diario::instancia().obterNPCsDescobertos();
+    for (const auto& nome : npcs) {
+        std::string area = "Viajante";
+        if (nome.find("Bjorn") != std::string::npos || nome.find("Cavaleiro Real") != std::string::npos) {
+            area = "Vila/Reino";
+        } else if (nome.find("Morgana") != std::string::npos) {
+            area = "Floresta";
+        } else if (nome.find("Franchesco") != std::string::npos) {
+            area = "Viajante";
+        }
+        grupos[area].push_back(nome);
+    }
+
+    std::vector<GrupoCategorizado> resultado;
+    for (auto& par : grupos) {
+        Aparencia::ordenarAlfabeticamente(par.second);
+        resultado.push_back({par.first, par.second});
+    }
+    return resultado;
+}
+
+std::vector<GrupoCategorizado> TelaDiarioLogic::categorizarRacas(const std::vector<std::string>& racasDescobertas) {
+    std::vector<std::string> jogaveis, monstros;
+    for (const auto& raca : racasDescobertas) {
+        if (raca == "Humano" || raca == "Dwarf" || raca == "Elfo" || raca == "Ork") {
+            jogaveis.push_back(raca);
+        } else {
+            monstros.push_back(raca);
+        }
+    }
+    Aparencia::ordenarAlfabeticamente(jogaveis);
+    Aparencia::ordenarAlfabeticamente(monstros);
+
+    std::vector<GrupoCategorizado> resultado;
+    if (!jogaveis.empty()) resultado.push_back({"Racas Jogaveis", jogaveis});
+    if (!monstros.empty()) resultado.push_back({"Monstros e Inimigos", monstros});
+    return resultado;
+}
+
+std::vector<std::string> TelaDiarioLogic::obterTodasClasses() {
+    return {"Guerreiro", "Mago", "Arqueiro", "Bardo", "Necromante"};
+}
+
+std::vector<std::string> TelaDiarioLogic::quebrarTexto(const std::string& texto, int larguraMax) {
+    std::vector<std::string> resultado;
+    std::istringstream stream(texto);
+    std::string linhaAtual;
+    std::string palavra;
+    while (stream >> palavra) {
+        if (linhaAtual.length() + palavra.length() + (linhaAtual.empty() ? 0 : 1) > (size_t)larguraMax) {
+            if (!linhaAtual.empty()) resultado.push_back(linhaAtual);
+            linhaAtual = palavra;
+        } else {
+            if (!linhaAtual.empty()) linhaAtual += ' ';
+            linhaAtual += palavra;
+        }
+    }
+    if (!linhaAtual.empty()) resultado.push_back(linhaAtual);
+    if (resultado.empty() && !texto.empty()) resultado.push_back(texto);
     return resultado;
 }

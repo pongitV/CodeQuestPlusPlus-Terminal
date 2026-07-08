@@ -58,8 +58,8 @@ std::vector<std::string> EquipamentoArma::obterDetalhesInspecao(Personagem* pers
         int danoFisEst = std::max(0, static_cast<int>((danoFisico + forca) * (1.0 + (destreza / 100.0)) * personagem->obterMultiplicador()));
         int danoMagEst = std::max(0, static_cast<int>((danoMagico + inteli) * (1.0 + (sabedoria / 100.0)) * personagem->obterMultiplicador()));
         
-        fisStr += " " + Aparencia::cor(Cor::CINZA) + "-> " + Aparencia::cor(Cor::RESET) + "C/ Seus Atributos: " + Aparencia::cor(Cor::VERMELHO_CLARO) + std::to_string(danoFisEst) + Aparencia::cor(Cor::RESET);
-        magStr += " " + Aparencia::cor(Cor::CINZA) + "-> " + Aparencia::cor(Cor::RESET) + "C/ Seus Atributos: " + Aparencia::cor(Cor::AZUL) + std::to_string(danoMagEst) + Aparencia::cor(Cor::RESET);
+        fisStr += " " + Aparencia::cor(Cor::CINZA) + "-> " + Aparencia::cor(Cor::BRANCO) + "\033[48;2;25;25;25m" + "C/ Seus Atributos: " + Aparencia::cor(Cor::VERMELHO_CLARO) + std::to_string(danoFisEst) + Aparencia::cor(Cor::BRANCO) + "\033[48;2;25;25;25m";
+        magStr += " " + Aparencia::cor(Cor::CINZA) + "-> " + Aparencia::cor(Cor::BRANCO) + "\033[48;2;25;25;25m" + "C/ Seus Atributos: " + Aparencia::cor(Cor::AZUL) + std::to_string(danoMagEst) + Aparencia::cor(Cor::BRANCO) + "\033[48;2;25;25;25m";
     }
 
     linhas.push_back(" > Dano Fisico: " + fisStr);
@@ -108,8 +108,8 @@ void EquipamentoArma::aplicarEfeitoLentidao() { efeitoLentidao = true; }
 void EquipamentoArma::antesDeCausarDano(Personagem* atacante, Personagem* alvo) {
     if (temPropriedade(Propriedade::Penetrante) && !alvo->possuiEfeito(EfeitoID::QuebraResistencia)) {
         alvo->adicionarEfeito(std::make_unique<EfeitoQuebraResistencia>());
-        TelaCombate::adicionarMensagemFixa(TelaCombate::margemCombate() + Aparencia::cor(Cor::CIANO) + ">> A arma de " + atacante->obterNome() + " ativou o po magico! O ataque enfraqueceu " + alvo->obterNome() + " ate o fim do combate!" + Aparencia::cor(Cor::RESET) + "\n");
-        Aparencia::registrarLogBatalha(Aparencia::cor(Cor::CIANO) + ">> A arma de " + atacante->obterNome() + " ativou o po magico! O ataque enfraqueceu " + alvo->obterNome() + " ate o fim do combate!" + Aparencia::cor(Cor::RESET));
+        TelaCombate::adicionarMensagemFixa(TelaCombate::margemCombate() + Aparencia::cor(Cor::CIANO) + ">> A arma de " + atacante->obterNome() + " ativou o po magico! O ataque enfraqueceu " + alvo->obterNome() + " ate o fim do combate!" + Aparencia::cor(Cor::BRANCO) + "\033[48;2;25;25;25m" + "\n");
+        Aparencia::registrarLogBatalha(Aparencia::cor(Cor::CIANO) + ">> A arma de " + atacante->obterNome() + " ativou o po magico! O ataque enfraqueceu " + alvo->obterNome() + " ate o fim do combate!" + Aparencia::cor(Cor::BRANCO) + "\033[48;2;25;25;25m");
     }
 }
 
@@ -128,14 +128,14 @@ void EquipamentoArma::aoCausarDano(Personagem* atacante, Personagem* alvo, int d
         int danoSangramento = std::max(1, alvo->obterVidaMaxima() / 10);
         alvo->adicionarEfeito(std::make_unique<EfeitoSangramento>(3, danoSangramento));
         Cor corSangramento = (alvo->obterNomeClasse() != "Monstro") ? Cor::VERMELHO_CLARO : Cor::VERMELHO;
-        TelaCombate::adicionarMensagemFixa(TelaCombate::margemCombate() + Aparencia::cor(corSangramento) + ">> " + alvo->obterNome() + " comecou a sangrar profundamente! (3 turnos)" + Aparencia::cor(Cor::RESET) + "\n");
-        Aparencia::registrarLogBatalha(Aparencia::cor(corSangramento) + ">> " + alvo->obterNome() + " comecou a sangrar profundamente! (3 turnos)" + Aparencia::cor(Cor::RESET));
+        TelaCombate::adicionarMensagemFixa(TelaCombate::margemCombate() + Aparencia::cor(corSangramento) + ">> " + alvo->obterNome() + " comecou a sangrar profundamente! (3 turnos)" + Aparencia::cor(Cor::BRANCO) + "\033[48;2;25;25;25m" + "\n");
+        Aparencia::registrarLogBatalha(Aparencia::cor(corSangramento) + ">> " + alvo->obterNome() + " comecou a sangrar profundamente! (3 turnos)" + Aparencia::cor(Cor::BRANCO) + "\033[48;2;25;25;25m");
     }
 
     if (possuiEfeitoLentidao() && !alvo->possuiEfeito(EfeitoID::Lentidao)) {
         alvo->adicionarEfeito(std::make_unique<EfeitoLentidao>(3));
-        TelaCombate::adicionarMensagemFixa(TelaCombate::margemCombate() + Aparencia::cor(Cor::MAGENTA) + ">> " + alvo->obterNome() + " foi coberto por gosma e sua destreza caiu pela metade! (3 turnos)" + Aparencia::cor(Cor::RESET) + "\n");
-        Aparencia::registrarLogBatalha(Aparencia::cor(Cor::MAGENTA) + ">> " + alvo->obterNome() + " foi coberto por gosma e sua destreza caiu pela metade! (3 turnos)" + Aparencia::cor(Cor::RESET));
+        TelaCombate::adicionarMensagemFixa(TelaCombate::margemCombate() + Aparencia::cor(Cor::MAGENTA) + ">> " + alvo->obterNome() + " foi coberto por gosma e sua destreza caiu pela metade! (3 turnos)" + Aparencia::cor(Cor::BRANCO) + "\033[48;2;25;25;25m" + "\n");
+        Aparencia::registrarLogBatalha(Aparencia::cor(Cor::MAGENTA) + ">> " + alvo->obterNome() + " foi coberto por gosma e sua destreza caiu pela metade! (3 turnos)" + Aparencia::cor(Cor::BRANCO) + "\033[48;2;25;25;25m");
     }
 }
 

@@ -11,5 +11,4 @@ public:
     static std::unique_ptr<Personagem> iniciarCriacaoDeSistemaPersonagem();
 
 private:
-    static std::vector<std::string> lerInformacoesDosSaves(const std::vector<std::string>& saves);
 };
