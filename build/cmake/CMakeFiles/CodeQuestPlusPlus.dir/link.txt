@@ -1,3 +1,0 @@
-"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\CodeQuestPlusPlus.dir/objects.a
-C:\msys64\ucrt64\bin\ar.exe qc CMakeFiles\CodeQuestPlusPlus.dir/objects.a @CMakeFiles\CodeQuestPlusPlus.dir\objects1.rsp
-C:\msys64\ucrt64\bin\c++.exe  -static -static-libgcc -static-libstdc++ -s -Wl,--whole-archive CMakeFiles\CodeQuestPlusPlus.dir/objects.a -Wl,--no-whole-archive -o "D:\git repos fixed\RPG-Cpp\bin\CodeQuest++.exe" -Wl,--out-implib,libCodeQuest++.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\CodeQuestPlusPlus.dir\linkLibs.rsp

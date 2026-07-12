@@ -13,9 +13,14 @@ if(WIN32 AND EXISTS "${CMAKE_SOURCE_DIR}/assets/icone.rc")
     list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/assets/icone.rc")
 endif()
 
+# Adiciona o PNG para visibilidade na IDE
+if(EXISTS "${CMAKE_SOURCE_DIR}/assets/CodeQuestPlusPlusIcon.png")
+    list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/assets/CodeQuestPlusPlusIcon.png")
+endif()
+
 # Cria o executável
 add_executable(CodeQuestPlusPlus ${SOURCES})
-set_target_properties(CodeQuestPlusPlus PROPERTIES OUTPUT_NAME "CodeQuest++")
+set_target_properties(CodeQuestPlusPlus PROPERTIES OUTPUT_NAME "CodeQuestPlusPlus")
 
 # Adiciona a pasta 'src' como diretório de inclusão
 target_include_directories(CodeQuestPlusPlus PRIVATE "${CMAKE_SOURCE_DIR}/src")

@@ -1,0 +1,16 @@
+# CMake
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+*.dir/
+
+# Pastas de build
+build/
+.cache/
+
+# Executáveis locais (opcional, mantido comentado se desejar ignorar futuramente)
+# bin/CodeQuestPlusPlus.exe
