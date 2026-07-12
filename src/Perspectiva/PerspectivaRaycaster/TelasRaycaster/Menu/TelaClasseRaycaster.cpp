@@ -12,27 +12,18 @@
 #include "../../../TelasBase/Menu/TelaBaseMenu.h"
 #include "../../../../Core/Utilidades/FuncoesDialogo.h"
 #include "../../../../Core/Utilidades/ControleDeInput.h"
-#include "../../../../Entidades/Classes/ClasseBase.h"
-#include "../../../../Entidades/Classes/Arqueiro.h"
-#include "../../../../Entidades/Classes/Bardo.h"
-#include "../../../../Entidades/Classes/Guerreiro.h"
-#include "../../../../Entidades/Classes/Mago.h"
-#include "../../../../Entidades/Classes/Necromante.h"
+#include "../../../../Entidades/Classes/FabricaClasses.h"
 #include "../../../../Entidades/Personagem.h"
 
-static std::unique_ptr<ClasseBase> criarClasse(const std::string& nome) {
-    if (nome == "Arqueiro") return std::make_unique<Arqueiro>();
-    if (nome == "Bardo") return std::make_unique<Bardo>();
-    if (nome == "Guerreiro") return std::make_unique<Guerreiro>();
-    if (nome == "Mago") return std::make_unique<Mago>();
-    if (nome == "Necromante") return std::make_unique<Necromante>();
-    return nullptr;
-}
+struct OpcaoClasse { TipoClasse tipo; std::string nome; };
 
 TelaClasse::Resultado TelaClasseRaycaster::exibir(const std::string& nomeJogador, const std::string& nomeRaca) {
-    std::vector<std::string> classes = {"Arqueiro", "Bardo", "Guerreiro", "Mago", "Necromante"};
-    Aparencia::ordenarAlfabeticamente(classes);
-    classes.push_back("VOLTAR");
+    std::vector<OpcaoClasse> opcoesGerais;
+    for (auto t : FabricaClasses::obterClassesJogaveis()) {
+        auto temp = FabricaClasses::criarClasse(t);
+        opcoesGerais.push_back({t, temp->obterNomeClasse()});
+    }
+    std::sort(opcoesGerais.begin(), opcoesGerais.end(), [](const OpcaoClasse& a, const OpcaoClasse& b) { return a.nome < b.nome; });
 
     int selecaoAtual = 0;
     int larguraConsole = Aparencia::obterLarguraTerminal();
@@ -46,9 +37,8 @@ TelaClasse::Resultado TelaClasseRaycaster::exibir(const std::string& nomeJogador
         std::ostringstream buffer;
         MenuRaycasterUtils::exibirFundo3D(buffer);
 
-        bool isVoltar = (selecaoAtual >= (int)classes.size() - 1);
-        std::string classeNome = isVoltar ? "" : classes[selecaoAtual];
-        auto classe = isVoltar ? nullptr : criarClasse(classeNome);
+        bool isVoltar = (selecaoAtual >= (int)opcoesGerais.size());
+        auto classe = isVoltar ? nullptr : FabricaClasses::criarClasse(opcoesGerais[selecaoAtual].tipo);
 
         std::string infoBox = nomeJogador + " | " + nomeRaca;
         int boxW = (int)infoBox.length() + 4;
@@ -73,11 +63,13 @@ TelaClasse::Resultado TelaClasseRaycaster::exibir(const std::string& nomeJogador
         if (colLista < 2) colLista = 2;
 
         // Left: list of options
-        for (int i = 0; i < (int)classes.size(); ++i) {
+        int totalOpcoes = (int)opcoesGerais.size() + 1;
+        for (int i = 0; i < totalOpcoes; ++i) {
+            std::string nomeOpcao = (i == (int)opcoesGerais.size()) ? "VOLTAR" : opcoesGerais[i].nome;
             if (i == selecaoAtual) {
-                MenuRaycasterUtils::sobreporTexto3D(buffer, "\033[38;2;0;255;0m> " + classes[i] + "\033[0m", yBase + i, colLista, larguraConsole);
+                MenuRaycasterUtils::sobreporTexto3D(buffer, "\033[38;2;0;255;0m> " + nomeOpcao + "\033[0m", yBase + i, colLista, larguraConsole);
             } else {
-                MenuRaycasterUtils::sobreporTexto3D(buffer, "  " + classes[i], yBase + i, colLista, larguraConsole);
+                MenuRaycasterUtils::sobreporTexto3D(buffer, "  " + nomeOpcao, yBase + i, colLista, larguraConsole);
             }
         }
 
@@ -151,9 +143,9 @@ TelaClasse::Resultado TelaClasseRaycaster::exibir(const std::string& nomeJogador
         }
 
         if (tecla == 'w' || tecla == 'W') {
-            selecaoAtual = (selecaoAtual - 1 + (int)classes.size()) % (int)classes.size();
+            selecaoAtual = (selecaoAtual - 1 + totalOpcoes) % totalOpcoes;
         } else if (tecla == 's' || tecla == 'S') {
-            selecaoAtual = (selecaoAtual + 1) % (int)classes.size();
+            selecaoAtual = (selecaoAtual + 1) % totalOpcoes;
         } else if (tecla == '\r' || tecla == '\n') {
             if (isVoltar) {
                 TelaClasse::Resultado r;
@@ -162,6 +154,8 @@ TelaClasse::Resultado TelaClasseRaycaster::exibir(const std::string& nomeJogador
             }
             TelaClasse::Resultado r;
             r.indice = selecaoAtual;
+            r.nome = opcoesGerais[selecaoAtual].nome;
+            r.classeSelecionada = opcoesGerais[selecaoAtual].tipo;
             return r;
         }
     }

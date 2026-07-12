@@ -4,13 +4,13 @@
 #include <vector>
 #include <thread>
 #include <chrono>
+#include <algorithm>
 #include "../../../../Core/Utilidades/Aparencia.h"
 #include "../../../../Core/Utilidades/ControleDeInput.h"
-#include "../../../../Entidades/Racas/RacaBase.h"
-#include "../../../../Entidades/Racas/Anao.h"
-#include "../../../../Entidades/Racas/Elfo.h"
-#include "../../../../Entidades/Racas/Humano.h"
-#include "../../../../Entidades/Racas/Orc.h"
+#include "../../../../Entidades/Racas/FabricaRacas.h"
+#include "../../../../Entidades/Personagem.h"
+
+struct OpcaoRaca { TipoRaca tipo; std::string nome; };
 
 TelaRaca::Resultado TelaRacaIDE::exibir(const std::string& nomeJogador) {
     std::string colorKeyword = "\033[38;2;86;156;214m"; // Blue
@@ -20,8 +20,14 @@ TelaRaca::Resultado TelaRacaIDE::exibir(const std::string& nomeJogador) {
     std::string colorHighlight = "\033[48;2;38;79;120m\033[38;2;255;255;255m"; // Azul escuro bg
     std::string reset = "\033[0m";
 
-    std::vector<std::string> racas = {"Dwarf", "Elfo", "Humano", "Ork", "Voltar (Nome)"};
+    std::vector<OpcaoRaca> opcoesGerais;
+    for (auto t : FabricaRacas::obterRacasJogaveis()) {
+        auto temp = FabricaRacas::criarRaca(t);
+        opcoesGerais.push_back({t, temp->obterNomeRaca()});
+    }
+    std::sort(opcoesGerais.begin(), opcoesGerais.end(), [](const OpcaoRaca& a, const OpcaoRaca& b) { return a.nome < b.nome; });
     
+    int totalOpcoes = (int)opcoesGerais.size() + 1;
     int selecaoAtual = 0;
     ControleDeInput::limparBuffer();
 
@@ -34,9 +40,9 @@ TelaRaca::Resultado TelaRacaIDE::exibir(const std::string& nomeJogador) {
         blocoCentral.push_back(colorComment + "// Selecione sua raca" + reset);
         blocoCentral.push_back(colorKeyword + "enum class " + colorEnum + "Race " + colorPunct + "{");
         
-        for (int i = 0; i < (int)racas.size(); ++i) {
+        for (int i = 0; i < totalOpcoes; ++i) {
             std::string linha = "    ";
-            std::string nomeOpcao = racas[i];
+            std::string nomeOpcao = (i == (int)opcoesGerais.size()) ? "Voltar (Nome)" : opcoesGerais[i].nome;
             
             if (i == selecaoAtual) {
                 linha += colorHighlight + nomeOpcao + reset;
@@ -44,7 +50,7 @@ TelaRaca::Resultado TelaRacaIDE::exibir(const std::string& nomeJogador) {
                 linha += colorPunct + nomeOpcao + reset;
             }
             
-            if (i < (int)racas.size() - 1) {
+            if (i < totalOpcoes - 1) {
                 linha += colorPunct + ",";
             }
             blocoCentral.push_back(linha);
@@ -66,52 +72,45 @@ TelaRaca::Resultado TelaRacaIDE::exibir(const std::string& nomeJogador) {
         }
 
         if (tecla == 'w' || tecla == 'W') {
-            selecaoAtual = (selecaoAtual - 1 + (int)racas.size()) % (int)racas.size();
+            selecaoAtual = (selecaoAtual - 1 + totalOpcoes) % totalOpcoes;
         } else if (tecla == 's' || tecla == 'S') {
-            selecaoAtual = (selecaoAtual + 1) % (int)racas.size();
+            selecaoAtual = (selecaoAtual + 1) % totalOpcoes;
         } else if (tecla == '\r' || tecla == '\n') {
             break;
         }
     }
 
-    if (selecaoAtual == 4) {
+    if (selecaoAtual == (int)opcoesGerais.size()) {
         TelaRaca::Resultado r;
         r.voltou = true;
         return r;
     }
 
-    std::string racaNome = racas[selecaoAtual];
+    std::string racaNome = opcoesGerais[selecaoAtual].nome;
     std::vector<std::string> arteRaca;
     std::vector<std::string> infoRaca = { "Raca: " + racaNome };
 
-    std::vector<std::string> arteOriginal;
-    if (racaNome == "Dwarf") {
-        arteOriginal = std::make_unique<Dwarf>()->obterAparenciaRaca();
-        infoRaca.push_back("Resistencia +2");
-        infoRaca.push_back("Constituicao +2");
-    } else if (racaNome == "Elfo") {
-        arteOriginal = std::make_unique<Elfo>()->obterAparenciaRaca();
-        infoRaca.push_back("Destreza +2");
-        infoRaca.push_back("Sabedoria +1");
-    } else if (racaNome == "Humano") {
-        arteOriginal = std::make_unique<Humano>()->obterAparenciaRaca();
-        infoRaca.push_back("Forca +1");
-        infoRaca.push_back("Inteligencia +1");
-        infoRaca.push_back("Sabedoria +1");
-    } else if (racaNome == "Ork") {
-        arteOriginal = std::make_unique<Ork>()->obterAparenciaRaca();
-        infoRaca.push_back("Forca +3");
-        infoRaca.push_back("Destreza -1");
-    }
+    auto racaInstancia = FabricaRacas::criarRaca(opcoesGerais[selecaoAtual].tipo);
+    std::vector<std::string> arteOriginal = racaInstancia->obterAparenciaRaca();
+    
+    Atributos atr = racaInstancia->obterAtributosRaca();
+    if (atr.forca != 0) infoRaca.push_back("Forca " + std::string(atr.forca > 0 ? "+" : "") + std::to_string(atr.forca));
+    if (atr.destreza != 0) infoRaca.push_back("Destreza " + std::string(atr.destreza > 0 ? "+" : "") + std::to_string(atr.destreza));
+    if (atr.constituicao != 0) infoRaca.push_back("Constituicao " + std::string(atr.constituicao > 0 ? "+" : "") + std::to_string(atr.constituicao));
+    if (atr.inteligencia != 0) infoRaca.push_back("Inteligencia " + std::string(atr.inteligencia > 0 ? "+" : "") + std::to_string(atr.inteligencia));
+    if (atr.sabedoria != 0) infoRaca.push_back("Sabedoria " + std::string(atr.sabedoria > 0 ? "+" : "") + std::to_string(atr.sabedoria));
+    if (atr.resistencia != 0) infoRaca.push_back("Resistencia " + std::string(atr.resistencia > 0 ? "+" : "") + std::to_string(atr.resistencia));
     
     arteRaca = TelaMenuIDE::comprimirArteASCII(arteOriginal, 3, 3);
 
     bool confirmou = TelaMenuIDE::exibirConfirmacaoDeEscolhaComArteLadoALado("RACA", racaNome, infoRaca, arteRaca);
     if (!confirmou) {
-        return exibir(nomeJogador);
+        return exibir(nomeJogador); // recursion on cancel
     }
 
     TelaRaca::Resultado r;
     r.indice = selecaoAtual;
+    r.nome = racaNome;
+    r.racaSelecionada = opcoesGerais[selecaoAtual].tipo;
     return r;
 }

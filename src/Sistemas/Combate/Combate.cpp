@@ -25,6 +25,9 @@
 #include "../../Entidades/Classes/ClasseBase.h"
 #include "../../Core/Utilidades/ControleDeInput.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
+#include "Mecanicas/CalculadoraDano.h"
+#include "Mecanicas/MecanicasInimigo.h"
+#include "Mecanicas/GerenciadorTurnos.h"
 
 namespace {
     void registrarLog(const std::string& texto, Cor cor = Cor::RESET) {
@@ -217,24 +220,23 @@ void Combate::iniciarCombate()
 
     ui->limparTela();
 
-    int maxDestrezaInimigos = 0;
+    int maxDestrezaInimigos = GerenciadorTurnos::calcularMaxDestrezaInimigos(listaDeInimigos);
     for (const auto& inimigoPtr : listaDeInimigos) {
         Bestiario::instancia().registrarPrimeiraVista(inimigoPtr->obterRaca()->obterNomeRaca());
         Diario::instancia().registrarRaca(inimigoPtr->obterRaca()->obterNomeRaca());
         if (inimigoPtr->obterNomeClasse() != "Monstro") {
             Diario::instancia().registrarClasse(inimigoPtr->obterNomeClasse());
         }
-        if (inimigoPtr->obterDestreza() > maxDestrezaInimigos) maxDestrezaInimigos = inimigoPtr->obterDestreza();
     }
     
-    bool turnoExtraFirstTurn = (jogadorAtual->obterDestreza() > (maxDestrezaInimigos * 2));
+    bool turnoExtraFirstTurn = GerenciadorTurnos::jogadorTemTurnoExtraNoInicio(jogadorAtual, maxDestrezaInimigos);
     bool primeiraRenderizacao = false; // Modificado, pois ja animamos na intro
     
-    if (maxDestrezaInimigos > jogadorAtual->obterDestreza()) {
+    if (GerenciadorTurnos::inimigosSaoMaisAgeis(jogadorAtual, maxDestrezaInimigos)) {
         exibirTelaDeCombate(primeiraRenderizacao);
         primeiraRenderizacao = false;
         
-        if (maxDestrezaInimigos > (jogadorAtual->obterDestreza() * 2)) {
+        if (GerenciadorTurnos::inimigosTemDobroDeAgilidade(jogadorAtual, maxDestrezaInimigos)) {
             std::string msg = FuncoesDialogo::formatarMsgSistema("A agilidade extrema dos inimigos (" + std::to_string(maxDestrezaInimigos) + " VS " + std::to_string(jogadorAtual->obterDestreza()) + ") permite que eles ataquem duas vezes seguidas!", Cor::VERMELHO);
             std::cout << "\n" << ui->margemCombate() << msg << "\n";
             Aparencia::registrarLogBatalha(msg);
@@ -512,28 +514,7 @@ void Combate::executarTurnoDeTodosOsInimigos()
                 agiu = true;
 
                 // Logica de escolha de alvo do inimigo
-                std::vector<Personagem*> alvosPossiveis;
-                std::vector<Personagem*> minionsVivos;
-                std::vector<Personagem*> aliadosNormaisVivos;
-                std::vector<Personagem*> aliadosVivos = obterAliadosVivosRaw();
-
-                for (auto* aliado : aliadosVivos) {
-                    if (aliado->isMinion()) {
-                        minionsVivos.push_back(aliado);
-                    } else {
-                        aliadosNormaisVivos.push_back(aliado);
-                    }
-                }
-
-                if (!minionsVivos.empty()) {
-                    alvosPossiveis = minionsVivos;
-                } else if (!aliadosNormaisVivos.empty()) {
-                    alvosPossiveis = aliadosNormaisVivos;
-                } else {
-                    alvosPossiveis.push_back(jogadorAtual);
-                }
-
-                Personagem* alvo = alvosPossiveis[GeradorAleatorio::obterInteiro(0, static_cast<int>(alvosPossiveis.size()) - 1)];
+                Personagem* alvo = MecanicasInimigo::escolherAlvo(obterAliadosVivosRaw(), jogadorAtual);
 
                 bool turnoConsumidoPorHabilidade = inimigoAtual->obterRaca()->tentarUsarHabilidadeAtiva(inimigoAtual, alvo, static_cast<int>(jogadorAtual->obterDificuldade()));
                 
@@ -573,7 +554,7 @@ void Combate::executarTurnoDeTodosOsInimigos()
 
 void Combate::realizarAtaqueFisico(Personagem* personagemAtacante, Personagem* personagemDefensor, int turnoAtualDoCombate) 
 {
-    auto [danoBaseCalculado, danoPerfurante] = calcularDanoBase(personagemAtacante);
+    auto [danoBaseCalculado, danoPerfurante] = CalculadoraDano::calcularDanoOfensivoBase(personagemAtacante);
 
     bool isAtacanteJogadorOuAliado = isPersonagemJogadorOuAliado(personagemAtacante);
 
@@ -591,65 +572,7 @@ void Combate::realizarAtaqueFisico(Personagem* personagemAtacante, Personagem* p
     personagemAtacante->obterClasse()->executarAtaqueComPassivaDaClasse(personagemAtacante, personagemDefensor, danoBaseCalculado, danoPerfurante, listaDeInimigos, callbackAplicarDano, aplicarPassivaClasse);
 }
 
-std::pair<int, int> Combate::calcularDanoBase(Personagem* atacante) 
-{
-    double multiplicadorDeAtributos = atacante->obterMultiplicador();
 
-    int danoFisicoDaArma = 1;
-    int danoMagicoDaArma = 0;
-    int perfuranteAtual = 0;
-
-    if (atacante->obterArma()) 
-    {
-        danoFisicoDaArma = atacante->obterArma()->obterDanoFisico();
-        danoMagicoDaArma = atacante->obterArma()->obterDanoMagico();
-
-        if (atacante->obterArma()->temPropriedade(Propriedade::Magica)) {
-            int bonusMagico = danoFisicoDaArma / 2;
-            double bonusEscalado = bonusMagico * (1.0 + (atacante->obterSabedoria() / 100.0));
-            perfuranteAtual = static_cast<int>(bonusEscalado * multiplicadorDeAtributos);
-        }
-    }
-
-    int forcaEfetiva = atacante->obterForca();
-    int destrezaEfetiva = atacante->obterDestreza();
-    int inteligenciaEfetiva = atacante->obterInteligencia();
-    int sabedoriaEfetiva = atacante->obterSabedoria();
-
-    if (danoFisicoDaArma == 0 && danoMagicoDaArma > 0) {
-        forcaEfetiva /= 10; destrezaEfetiva /= 10;
-    } else if (danoFisicoDaArma > 0 && danoMagicoDaArma == 0) {
-        inteligenciaEfetiva /= 10; sabedoriaEfetiva /= 10;
-    }
-
-    int danoFisicoCalculado = std::max(0, static_cast<int>((danoFisicoDaArma + forcaEfetiva) * (1.0 + (destrezaEfetiva / 100.0))));
-    int danoMagicoCalculado = std::max(0, static_cast<int>((danoMagicoDaArma + inteligenciaEfetiva) * (1.0 + (sabedoriaEfetiva / 100.0))));
-    
-    int total = std::max(1, danoFisicoCalculado + danoMagicoCalculado);
-    int totalFinal = static_cast<int>(total * multiplicadorDeAtributos);
-    int perfuranteFinal = perfuranteAtual;
-
-    if (atacante->obterArma() && atacante->obterArma()->temPropriedade(Propriedade::IgnoraDefesa)) {
-        perfuranteFinal = totalFinal;
-    }
-
-    // Logica de adaptacao do Mahoraga para ignorar escudos
-    if (atacante->obterTipoRaca() == TipoRaca::Mahoraga) {
-        auto* mahoraga = dynamic_cast<Mahoraga*>(atacante->obterRaca());
-        if (mahoraga && mahoraga->ignoraEscudo()) {
-            perfuranteFinal = totalFinal;
-        }
-    }
-
-    // Aplica o bonus da Mira Certeira diretamente no dano base (sem mexer nos atributos)
-    if (atacante->possuiEfeito(EfeitoID::MiraCerteira)) {
-        totalFinal *= 2;
-        perfuranteFinal *= 2;
-        atacante->removerEfeito(EfeitoID::MiraCerteira);
-    }
-
-    return { totalFinal, perfuranteFinal };
-}
 
 void Combate::processarPosDano(Personagem* atacante, Personagem* alvo, int danoFinal, bool tentouParry, bool parrySucesso) {
     std::vector<Personagem*> aliadosVivos = obterAliadosVivosRaw();
@@ -728,7 +651,7 @@ void Combate::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* pers
     // Logica da Quebra de Resistencia (Pó Mágico)
     if (personagemAtacante->obterArma()) personagemAtacante->obterArma()->antesDeCausarDano(personagemAtacante, personagemAlvo);
 
-    int danoBaseMitigado = personagemAlvo->calcularDefesaBase(quantidadeDeDanoBruto, danoPerfurante);
+    int danoBaseMitigado = CalculadoraDano::calcularMitigacaoDefensiva(personagemAlvo, quantidadeDeDanoBruto, danoPerfurante);
     int quantidadeDeDanoReduzidoPeloParry = 0;
     bool tentouParry = false;
     bool parryFoiBemSucedido = false;

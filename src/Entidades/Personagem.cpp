@@ -485,3 +485,11 @@ void Personagem::finalizarBatalha() {
         ControleDeInput::aguardarEnter();
     }
 }
+
+bool Personagem::isBoss() const {
+    TipoRaca t = obterTipoRaca();
+    return (t == TipoRaca::Mahoraga || 
+            t == TipoRaca::OrkExilado || 
+            t == TipoRaca::Troll || 
+            t == TipoRaca::AbominacaoFloresta);
+}

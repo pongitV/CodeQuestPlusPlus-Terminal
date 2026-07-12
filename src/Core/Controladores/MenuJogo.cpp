@@ -18,12 +18,8 @@
     #include <unistd.h>
 #endif
 
-#include "../../Entidades/Classes/Arqueiro.h"
-#include "../../Entidades/Classes/Bardo.h"
-#include "../../Entidades/Classes/ClasseBase.h"
-#include "../../Entidades/Classes/Guerreiro.h"
-#include "../../Entidades/Classes/Mago.h"
-#include "../../Entidades/Classes/Necromante.h"
+#include "../../Entidades/Classes/FabricaClasses.h"
+#include "../../Entidades/Racas/FabricaRacas.h"
 #include "CriadorInimigos.h"
 #include "../../Sistemas/Inventario/Equipamentos/EquipamentoArma.h"
 #include "../../Sistemas/Inventario/Equipamentos/EquipamentoArmadura.h"
@@ -105,15 +101,8 @@ std::unique_ptr<Personagem> MenuJogo::iniciarCriacaoDeSistemaPersonagem()
             auto resultado = TelaRaca::exibir(nomeDoPersonagem);
             if (resultado.voltou) continue;
 
-            std::vector<std::string> racas = {"Dwarf", "Elfo", "Humano", "Ork"};
-            Aparencia::ordenarAlfabeticamente(racas);
-            std::string racaSelecionada = racas[resultado.indice];
-            nomeRaca = racaSelecionada;
-
-            if (racaSelecionada == "Dwarf") racaEscolhida = std::make_unique<Dwarf>();
-            else if (racaSelecionada == "Elfo") racaEscolhida = std::make_unique<Elfo>();
-            else if (racaSelecionada == "Humano") racaEscolhida = std::make_unique<Humano>();
-            else if (racaSelecionada == "Ork") racaEscolhida = std::make_unique<Ork>();
+            nomeRaca = resultado.nome;
+            racaEscolhida = FabricaRacas::criarRaca(resultado.racaSelecionada);
         }
 
         std::string nomeClasse;
@@ -121,16 +110,8 @@ std::unique_ptr<Personagem> MenuJogo::iniciarCriacaoDeSistemaPersonagem()
             auto resultado = TelaClasse::exibir(nomeDoPersonagem, nomeRaca);
             if (resultado.voltou) continue;
 
-            std::vector<std::string> classes = {"Arqueiro", "Bardo", "Guerreiro", "Mago", "Necromante"};
-            Aparencia::ordenarAlfabeticamente(classes);
-            std::string classeSelecionada = classes[resultado.indice];
-            nomeClasse = classeSelecionada;
-
-            if (classeSelecionada == "Arqueiro") classeEscolhida = std::make_unique<Arqueiro>();
-            else if (classeSelecionada == "Bardo") classeEscolhida = std::make_unique<Bardo>();
-            else if (classeSelecionada == "Guerreiro") classeEscolhida = std::make_unique<Guerreiro>();
-            else if (classeSelecionada == "Mago") classeEscolhida = std::make_unique<Mago>();
-            else if (classeSelecionada == "Necromante") classeEscolhida = std::make_unique<Necromante>();
+            nomeClasse = resultado.nome;
+            classeEscolhida = FabricaClasses::criarClasse(resultado.classeSelecionada);
         }
 
         {

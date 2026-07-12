@@ -46,15 +46,20 @@ std::vector<std::string> Aparencia::carregarArte(const std::string& caminhoArqui
     return arte;
 }
 
-std::vector<std::string> Aparencia::reduzirEscalaAscii(const std::vector<std::string>& arteOriginal, int fatorX, int fatorY) {
+std::vector<std::string> Aparencia::reduzirEscalaAscii(const std::vector<std::string>& arteOriginal, float fatorX, float fatorY) {
     std::vector<std::string> arteReduzida;
-    if (fatorX <= 0) fatorX = 1;
-    if (fatorY <= 0) fatorY = 1;
+    if (fatorX <= 0.0f) fatorX = 1.0f;
+    if (fatorY <= 0.0f) fatorY = 1.0f;
 
-    for (size_t i = 0; i < arteOriginal.size(); i += fatorY) {
+    for (float i = 0; i < arteOriginal.size(); i += fatorY) {
         std::string novaLinha = "";
-        for (size_t j = 0; j < arteOriginal[i].length(); j += fatorX) {
-            novaLinha += arteOriginal[i][j];
+        int intI = static_cast<int>(i);
+        if (intI >= (int)arteOriginal.size()) break;
+        for (float j = 0; j < arteOriginal[intI].length(); j += fatorX) {
+            int intJ = static_cast<int>(j);
+            if (intJ < (int)arteOriginal[intI].length()) {
+                novaLinha += arteOriginal[intI][intJ];
+            }
         }
         arteReduzida.push_back(novaLinha);
     }

@@ -464,8 +464,8 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa3PonteReino.cpp.ob
  D:/git\ repos\ fixed/RPG-Cpp/src/Core/Controladores/MenuJogo.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaMenu.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Mapas/ControleMapa.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Core/Utilidades/ControleDeInput.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/ControleInputOutput/ControleDeInput.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Mapas/Sistemas/AnimadorMapa.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Mapas/Sistemas/CarregadorMapa.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Core/Controladores/CriadorInimigos.h \
  D:\git\ repos\ fixed\RPG-Cpp\src\Mapas\Reino\Mapa3PonteReinoLayout.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Core/Utilidades/ConversorString.h \

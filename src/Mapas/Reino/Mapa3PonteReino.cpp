@@ -10,7 +10,8 @@
 #include "../../Perspectiva/TelasBase/Menu/TelaMenu.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../ControleMapa.h"
-#include "../../Core/Utilidades/ControleDeInput.h"
+#include "../Sistemas/AnimadorMapa.h"
+#include "../Sistemas/CarregadorMapa.h"
 #include "../../Core/Controladores/CriadorInimigos.h"
 #include "Mapa3PonteReinoLayout.h"
 #include "../../Entidades/NPCs/CavaleiroGenerico/NPCCavaleiroGenerico.h"
@@ -25,7 +26,7 @@ Mapa3PonteReino::Mapa3PonteReino(Personagem* personagemJogador) :
     proximoMapa(ProximaTransicaoMapa::Nenhuma)
 {
     matrizDoMapaAtual = Mapa3PonteReinoLayouts::obterLayoutPonteReino();
-    ControleMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
+    CarregadorMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
 }
 
 Mapa3PonteReino::~Mapa3PonteReino() = default;
@@ -35,7 +36,7 @@ ProximaTransicaoMapa Mapa3PonteReino::iniciarLoopDeExploracao()
     bool trollDerrotado = false;
     bool conviteRecebido = false;
 
-    ControleMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
+    CarregadorMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
 
     Aparencia::ocultarCursor();
 
@@ -51,7 +52,7 @@ ProximaTransicaoMapa Mapa3PonteReino::iniciarLoopDeExploracao()
     int linhaInicialParaDesenharOMapa = 0;
 
     auto restaurarTela = [&]() {
-        linhaInicialParaDesenharOMapa = ControleMapa::animarIntroducaoMapa(tituloDoMapaAtual, {}, 0, {}, 0, Cor::CIANO, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, false);
+        linhaInicialParaDesenharOMapa = AnimadorMapa::animarIntroducaoMapa(tituloDoMapaAtual, {}, 0, {}, 0, Cor::CIANO, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, false, true, nullptr);
     };
 
     auto animarTela = [&]() {
@@ -67,7 +68,7 @@ ProximaTransicaoMapa Mapa3PonteReino::iniciarLoopDeExploracao()
             larguraTrans = 75;
         }
 
-        linhaInicialParaDesenharOMapa = ControleMapa::animarIntroducaoMapa(tituloDoMapaAtual, arteTitulo, larguraArte, arteTrans, larguraTrans, Cor::CIANO, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, true);
+        linhaInicialParaDesenharOMapa = AnimadorMapa::animarIntroducaoMapa(tituloDoMapaAtual, arteTitulo, larguraArte, arteTrans, larguraTrans, Cor::CIANO, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, true, true, nullptr);
     };
 
     auto animarTela_ = animarTela; // Para fins estáticos

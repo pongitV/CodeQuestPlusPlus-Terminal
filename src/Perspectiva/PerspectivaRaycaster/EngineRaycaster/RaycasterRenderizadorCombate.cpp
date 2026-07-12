@@ -124,19 +124,19 @@ std::vector<std::string> RaycasterRenderizadorCombate::obterArenaPorTitulo(const
 // ═══════════════════════════════════════════════════════════════════
 std::tuple<int,int,int> RaycasterRenderizadorCombate::obterCorSpriteInimigo(Personagem* inimigo) {
     if (!inimigo) return {255, 255, 255};
-    std::string nome = inimigo->obterRaca()->obterNomeRaca();
-    std::string upper = nome;
-    for (char& c : upper) c = std::toupper(static_cast<unsigned char>(c));
-
-    if (upper.find("GOBLIN") != std::string::npos) return {100, 200, 50};
-    if (upper.find("ORK") != std::string::npos || upper.find("ORC") != std::string::npos) return {50, 150, 50};
-    if (upper.find("SLIME") != std::string::npos) return {50, 200, 255};
-    if (upper.find("FADA") != std::string::npos) return {255, 100, 200};
-    if (upper.find("ABOMINACAO") != std::string::npos || upper.find("ABOMINA") != std::string::npos) return {139, 69, 19};
-    if (upper.find("TROLL") != std::string::npos) return {150, 150, 160};
-    if (upper.find("MIMICO") != std::string::npos) return {200, 150, 50};
-    if (upper.find("MAHORAGA") != std::string::npos) return {255, 255, 255};
-    return {200, 200, 200}; // Default cinza claro
+    
+    switch (inimigo->obterTipoRaca()) {
+        case TipoRaca::Goblin: return {100, 200, 50};
+        case TipoRaca::Ork:
+        case TipoRaca::OrkExilado: return {50, 150, 50};
+        case TipoRaca::Slime: return {50, 200, 255};
+        case TipoRaca::Fada: return {255, 100, 200};
+        case TipoRaca::AbominacaoFloresta: return {139, 69, 19};
+        case TipoRaca::Troll: return {150, 150, 160};
+        case TipoRaca::Mimico: return {200, 150, 50};
+        case TipoRaca::Mahoraga: return {255, 255, 255};
+        default: return {200, 200, 200}; // Default cinza claro
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -282,7 +282,47 @@ void RaycasterRenderizadorCombate::sobreporSprite(
     std::vector<std::string> arteUsada = arteOriginalInimigo;
     
     int alturaArte = static_cast<int>(arteUsada.size());
-    int fator = Aparencia::FATOR_COMPRESSAO_GLOBAL;
+    float fator = static_cast<float>(Aparencia::FATOR_COMPRESSAO_GLOBAL);
+    
+    TipoRaca tipo = inimigo->obterTipoRaca();
+    bool isBoss = inimigo->isBoss();
+    
+    switch (tipo) {
+        case TipoRaca::Ork:
+        case TipoRaca::OrkExilado:
+            fator = 2.7f;
+            break;
+        case TipoRaca::Goblin:
+            fator = 2.5f;
+            break;
+        case TipoRaca::Slime:
+            fator = 2.5f;
+            break;
+        case TipoRaca::Mahoraga:
+            fator = 3.0f;
+            break;
+        case TipoRaca::AbominacaoFloresta:
+            fator = 1.5f;
+            break;
+        case TipoRaca::Troll:
+            fator = 1.9f;
+            break;
+        case TipoRaca::Mimico:
+            fator = 2.5f;
+            break;
+        case TipoRaca::Fada:
+            fator = 3.2f;
+            break;
+        default:
+            break;
+    }
+    
+    if (!isBoss) {
+        // Variacao de escala deterministica em ate 5%
+        size_t h = reinterpret_cast<size_t>(inimigo);
+        float pct = ((h % 101) - 50.0f) / 1000.0f; // Varia de -0.05 a +0.05
+        fator *= (1.0f + pct);
+    }
     
     if (alturaArte > 10) {
         arteUsada = Aparencia::reduzirEscalaAscii(arteOriginalInimigo, fator, fator);
@@ -359,7 +399,7 @@ void RaycasterRenderizadorCombate::sobreporSprite(
         int currentBaseR = baseR;
         int currentBaseG = baseG;
         int currentBaseB = baseB;
-        if (inimigo->obterNome().find("Mahoraga") != std::string::npos && (ry * fator) < 24) {
+        if (inimigo->obterTipoRaca() == TipoRaca::Mahoraga && (ry * fator) < 24) {
             currentBaseR = 255;
             currentBaseG = 215;
             currentBaseB = 0; // Amarelo/Dourado

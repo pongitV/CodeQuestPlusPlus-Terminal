@@ -4,14 +4,13 @@
 #include <vector>
 #include <thread>
 #include <chrono>
+#include <algorithm>
 #include "../../../../Core/Utilidades/Aparencia.h"
 #include "../../../../Core/Utilidades/ControleDeInput.h"
-#include "../../../../Entidades/Classes/ClasseBase.h"
-#include "../../../../Entidades/Classes/Arqueiro.h"
-#include "../../../../Entidades/Classes/Bardo.h"
-#include "../../../../Entidades/Classes/Guerreiro.h"
-#include "../../../../Entidades/Classes/Mago.h"
-#include "../../../../Entidades/Classes/Necromante.h"
+#include "../../../../Entidades/Classes/FabricaClasses.h"
+#include "../../../../Entidades/Personagem.h"
+
+struct OpcaoClasse { TipoClasse tipo; std::string nome; };
 
 TelaClasse::Resultado TelaClasseIDE::exibir(const std::string& nomeJogador, const std::string& nomeRaca) {
     std::string colorKeyword = "\033[38;2;86;156;214m"; // Blue
@@ -21,8 +20,14 @@ TelaClasse::Resultado TelaClasseIDE::exibir(const std::string& nomeJogador, cons
     std::string colorHighlight = "\033[48;2;38;79;120m\033[38;2;255;255;255m"; // Azul escuro bg
     std::string reset = "\033[0m";
 
-    std::vector<std::string> classes = {"Arqueiro", "Bardo", "Guerreiro", "Mago", "Necromante", "Voltar (Raca)"};
+    std::vector<OpcaoClasse> opcoesGerais;
+    for (auto t : FabricaClasses::obterClassesJogaveis()) {
+        auto temp = FabricaClasses::criarClasse(t);
+        opcoesGerais.push_back({t, temp->obterNomeClasse()});
+    }
+    std::sort(opcoesGerais.begin(), opcoesGerais.end(), [](const OpcaoClasse& a, const OpcaoClasse& b) { return a.nome < b.nome; });
     
+    int totalOpcoes = (int)opcoesGerais.size() + 1;
     int selecaoAtual = 0;
     ControleDeInput::limparBuffer();
 
@@ -35,9 +40,9 @@ TelaClasse::Resultado TelaClasseIDE::exibir(const std::string& nomeJogador, cons
         blocoCentral.push_back(colorComment + "// Selecione sua classe" + reset);
         blocoCentral.push_back(colorKeyword + "enum class " + colorEnum + "ClassRole " + colorPunct + "{");
         
-        for (int i = 0; i < (int)classes.size(); ++i) {
+        for (int i = 0; i < totalOpcoes; ++i) {
             std::string linha = "    ";
-            std::string nomeOpcao = classes[i];
+            std::string nomeOpcao = (i == (int)opcoesGerais.size()) ? "Voltar (Raca)" : opcoesGerais[i].nome;
             
             if (i == selecaoAtual) {
                 linha += colorHighlight + nomeOpcao + reset;
@@ -45,7 +50,7 @@ TelaClasse::Resultado TelaClasseIDE::exibir(const std::string& nomeJogador, cons
                 linha += colorPunct + nomeOpcao + reset;
             }
             
-            if (i < (int)classes.size() - 1) {
+            if (i < totalOpcoes - 1) {
                 linha += colorPunct + ",";
             }
             blocoCentral.push_back(linha);
@@ -67,53 +72,36 @@ TelaClasse::Resultado TelaClasseIDE::exibir(const std::string& nomeJogador, cons
         }
 
         if (tecla == 'w' || tecla == 'W') {
-            selecaoAtual = (selecaoAtual - 1 + (int)classes.size()) % (int)classes.size();
+            selecaoAtual = (selecaoAtual - 1 + totalOpcoes) % totalOpcoes;
         } else if (tecla == 's' || tecla == 'S') {
-            selecaoAtual = (selecaoAtual + 1) % (int)classes.size();
+            selecaoAtual = (selecaoAtual + 1) % totalOpcoes;
         } else if (tecla == '\r' || tecla == '\n') {
             break;
         }
     }
 
-    if (selecaoAtual == 5) {
+    if (selecaoAtual == (int)opcoesGerais.size()) {
         TelaClasse::Resultado r;
         r.voltou = true;
         return r;
     }
 
-    std::string classeNome = classes[selecaoAtual];
+    std::string classeNome = opcoesGerais[selecaoAtual].nome;
     std::vector<std::string> arteClasse;
     std::vector<std::string> infoClasse = { "Classe: " + classeNome };
 
-    std::vector<std::string> arteOriginal;
-    Atributos statsBase;
-    if (classeNome == "Arqueiro") {
-        arteOriginal = std::make_unique<Arqueiro>()->obterAparenciaClasseMenu();
-        statsBase = { 8, 6, 10, 7, 6, 8, 7 };
-        infoClasse.push_back("Habilidade: Tiro Certeiro (+50% dano, 75% chance)");
-    } else if (classeNome == "Bardo") {
-        arteOriginal = std::make_unique<Bardo>()->obterAparenciaClasseMenu();
-        statsBase = { 8, 5, 8, 6, 8, 10, 9 };
-        infoClasse.push_back("Habilidade: Melodia Curativa (cura aliados)");
-    } else if (classeNome == "Guerreiro") {
-        arteOriginal = std::make_unique<Guerreiro>()->obterAparenciaClasseMenu();
-        statsBase = { 12, 9, 7, 9, 9, 5, 5 };
-        infoClasse.push_back("Habilidade: Golpe Imparavel (ignora defesa)");
-    } else if (classeNome == "Mago") {
-        arteOriginal = std::make_unique<Mago>()->obterAparenciaClasseMenu();
-        statsBase = { 6, 4, 6, 5, 12, 10, 12 };
-        infoClasse.push_back("Habilidade: Bola de Fogo (dano em area)");
-    } else if (classeNome == "Necromante") {
-        arteOriginal = std::make_unique<Necromante>()->obterAparenciaClasseMenu();
-        statsBase = { 7, 4, 7, 5, 10, 9, 11 };
-        infoClasse.push_back("Habilidade: Invocar Esqueleto (cria aliado)");
-    }
-
+    auto classeInstancia = FabricaClasses::criarClasse(opcoesGerais[selecaoAtual].tipo);
+    std::vector<std::string> arteOriginal = classeInstancia->obterAparenciaClasseMenu();
+    Atributos statsBase = classeInstancia->obterAtributosClasse();
+    
+    std::string habilidadeString = "Habilidade: " + classeInstancia->obterNomeHabilidadeClasse();
+    infoClasse.push_back(habilidadeString);
+    
     arteClasse = TelaMenuIDE::comprimirArteASCII(arteOriginal, 2, 2);
 
     std::vector<std::string> quadroAtributos = TelaMenuIDE::comporQuadroDeAtributos(
         statsBase, "ATRIBUTOS BASE", "HABILIDADE UNICA", classeNome,
-        infoClasse.size() > 1 ? infoClasse[1] : "");
+        habilidadeString);
 
     for (const auto& linha : quadroAtributos) {
         infoClasse.push_back(linha);
@@ -126,5 +114,7 @@ TelaClasse::Resultado TelaClasseIDE::exibir(const std::string& nomeJogador, cons
 
     TelaClasse::Resultado r;
     r.indice = selecaoAtual;
+    r.nome = classeNome;
+    r.classeSelecionada = opcoesGerais[selecaoAtual].tipo;
     return r;
 }

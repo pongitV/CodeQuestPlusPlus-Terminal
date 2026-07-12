@@ -477,17 +477,15 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Core/Controladores/MenuJogo.cpp.ob
  C:/msys64/ucrt64/include/c++/15.2.0/bits/this_thread_sleep.h \
  C:/msys64/ucrt64/include/semaphore.h C:/msys64/ucrt64/include/conio.h \
  C:/msys64/ucrt64/include/sec_api/conio_s.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Classes/Arqueiro.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Classes/FabricaClasses.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Classes/ClasseBase.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Inventario/FabricaItens.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Core/Utilidades/ControleDeInput.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/ControleInputOutput/ControleDeInput.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Combate/TelaCombate.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Combate/ContextoCombate.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Classes/Bardo.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Classes/Guerreiro.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Classes/Mago.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Classes/Necromante.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Racas/FabricaRacas.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Racas/RacaBase.h \
  D:\git\ repos\ fixed\RPG-Cpp\src\Core\Controladores\CriadorInimigos.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Inventario/Equipamentos/EquipamentoArma.h \
  C:/msys64/ucrt64/include/c++/15.2.0/set \
@@ -497,7 +495,6 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Core/Controladores/MenuJogo.cpp.ob
  D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Inventario/Equipamentos/EquipamentoEscudo.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Inventario/Itens/ItemConsumivel.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Racas/Anao.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Racas/RacaBase.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Racas/Elfo.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Racas/Humano.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Racas/Orc.h \

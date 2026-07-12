@@ -170,8 +170,7 @@ void Necromante::usarHabilidadeClasse(Combate* combate, Personagem* personagemUs
     for (const auto& aliado : combate->obterAliadosVivosRaw()) {
         if (aliado->isMinion()) {
             minionCount++;
-            std::string raca = aliado->obterRaca()->obterNomeRaca();
-            if (raca == "Abominacao da Floresta" || raca == "Ork Exilado" || raca == "Troll" || raca.find("Mahoraga") != std::string::npos) {
+            if (aliado->isBoss()) {
                 temMiniBoss = true;
             }
         }
@@ -226,7 +225,8 @@ void Necromante::usarHabilidadeClasse(Combate* combate, Personagem* personagemUs
 
         struct GrupoAlma {
             std::string nome;
-            std::string raca;
+            TipoRaca tipo;
+            bool isBoss;
             int quantidade;
             int primeiroIndice;
         };
@@ -241,20 +241,21 @@ void Necromante::usarHabilidadeClasse(Combate* combate, Personagem* personagemUs
                     break;
                 }
             }
-            if (!encontrou) grupos.push_back({almas[j]->obterNome(), almas[j]->obterRaca()->obterNomeRaca(), 1, static_cast<int>(j)});
+            if (!encontrou) grupos.push_back({almas[j]->obterNome(), almas[j]->obterTipoRaca(), almas[j]->isBoss(), 1, static_cast<int>(j)});
         }
 
         for (const auto& g : grupos) {
-            std::string raca = g.raca;
             std::string prefixo = "";
             std::string cor = Aparencia::cor(Cor::BRANCO);
             
-            if (raca.find("Mahoraga") != std::string::npos) {
-                prefixo = "[CHEFE] ";
-                cor = Aparencia::cor(Cor::VERMELHO);
-            } else if (raca == "Abominacao da Floresta" || raca == "Ork Exilado" || raca == "Troll") {
-                prefixo = "[MINI-CHEFE] ";
-                cor = Aparencia::cor(Cor::AMARELO);
+            if (g.isBoss) {
+                if (g.tipo == TipoRaca::Mahoraga) {
+                    prefixo = "[CHEFE] ";
+                    cor = Aparencia::cor(Cor::VERMELHO);
+                } else {
+                    prefixo = "[MINI-CHEFE] ";
+                    cor = Aparencia::cor(Cor::AMARELO);
+                }
             }
             
             opcoes.push_back(cor + std::to_string(g.quantidade) + "x " + prefixo + "Morto-Vivo de " + g.nome + Aparencia::cor(Cor::RESET));
@@ -275,10 +276,9 @@ void Necromante::usarHabilidadeClasse(Combate* combate, Personagem* personagemUs
         int indiceRealParaRemover = grupos[escolha].primeiroIndice;
         auto minion = personagemUsuario->removerAlma(indiceRealParaRemover);
         std::string nomeOriginal = minion->obterNome();
-        std::string racaOriginal = minion->obterRaca()->obterNomeRaca();
         
         double fatorEscala = 0.8;
-        if (racaOriginal.find("Mahoraga") != std::string::npos) {
+        if (minion->isBoss()) {
             fatorEscala = 0.6;
         }
         
@@ -290,11 +290,11 @@ void Necromante::usarHabilidadeClasse(Combate* combate, Personagem* personagemUs
         notificarMensagemCombate(msg, msg);
 
         Personagem* minionPtr = minion.get();
-        std::string racaInvocada = minionPtr->obterRaca()->obterNomeRaca();
+        bool eraBoss = minionPtr->isBoss();
         combate->adicionarAliadoEmCombate(std::move(minion));
         minionsRecemInvocados.push_back(minionPtr);
 
-        if (racaInvocada == "Abominacao da Floresta" || racaInvocada == "Ork Exilado" || racaInvocada == "Troll" || racaInvocada.find("Mahoraga") != std::string::npos) {
+        if (eraBoss) {
             if (i < quantidadeParaInvocar - 1) {
                 std::string msgBoss = FuncoesDialogo::formatarMsgSistema("A invocacao de um Chefe consumiu seu foco! Invocacoes adicionais canceladas.", Cor::AMARELO);
                 notificarMensagemCombate(msgBoss, msgBoss);

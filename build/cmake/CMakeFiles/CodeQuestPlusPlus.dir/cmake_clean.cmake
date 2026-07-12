@@ -1,4 +1,5 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/CodeQuestPlusPlus.dir/__/assets/icone.rc.obj"
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Core/Controladores/CriadorInimigos.cpp.obj"
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Core/Controladores/CriadorInimigos.cpp.obj.d"
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Core/Controladores/Debug.cpp.obj"
@@ -25,6 +26,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Bardo.cpp.obj.d"
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/CloneNecro.cpp.obj"
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/CloneNecro.cpp.obj.d"
+  "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/FabricaClasses.cpp.obj"
+  "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/FabricaClasses.cpp.obj.d"
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Guerreiro.cpp.obj"
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Guerreiro.cpp.obj.d"
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Mago.cpp.obj"
@@ -75,6 +78,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/CloneNecro.cpp.obj.d"
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Elfo.cpp.obj"
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Elfo.cpp.obj.d"
+  "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/FabricaRacas.cpp.obj"
+  "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/FabricaRacas.cpp.obj.d"
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Humano.cpp.obj"
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Humano.cpp.obj.d"
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Orc.cpp.obj"
@@ -87,6 +92,16 @@ file(REMOVE_RECURSE
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa3PonteReino.cpp.obj.d"
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa4Reino.cpp.obj"
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa4Reino.cpp.obj.d"
+  "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/AnimadorMapa.cpp.obj"
+  "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/AnimadorMapa.cpp.obj.d"
+  "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/CarregadorMapa.cpp.obj"
+  "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/CarregadorMapa.cpp.obj.d"
+  "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/ControladorInputMapa.cpp.obj"
+  "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/ControladorInputMapa.cpp.obj.d"
+  "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/FisicaMapa.cpp.obj"
+  "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/FisicaMapa.cpp.obj.d"
+  "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/RenderizadorMapa.cpp.obj"
+  "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/RenderizadorMapa.cpp.obj.d"
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Vila/Mapa1Vila.cpp.obj"
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Vila/Mapa1Vila.cpp.obj.d"
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/GerenciadorPerspectiva.cpp.obj"
@@ -239,6 +254,12 @@ file(REMOVE_RECURSE
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateRaycasterUIImpl.cpp.obj.d"
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateUIImpl.cpp.obj"
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateUIImpl.cpp.obj.d"
+  "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.obj"
+  "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.obj.d"
+  "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.obj"
+  "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.obj.d"
+  "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.obj"
+  "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.obj.d"
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Parry.cpp.obj"
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Parry.cpp.obj.d"
   "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Animacao.cpp.obj"
@@ -298,6 +319,6 @@ file(REMOVE_RECURSE
 )
 
 # Per-language clean rules from dependency scanning.
-foreach(lang CXX)
+foreach(lang CXX RC)
   include(CMakeFiles/CodeQuestPlusPlus.dir/cmake_clean_${lang}.cmake OPTIONAL)
 endforeach()

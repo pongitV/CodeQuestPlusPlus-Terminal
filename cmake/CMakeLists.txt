@@ -8,6 +8,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 # Encontra todos os arquivos .cpp dentro da pasta 'src'
 file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
 
+# Adiciona o arquivo de recursos do icone se ele existir (para Windows)
+if(WIN32 AND EXISTS "${CMAKE_SOURCE_DIR}/assets/icone.rc")
+    list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/assets/icone.rc")
+endif()
+
 # Cria o executável
 add_executable(CodeQuestPlusPlus ${SOURCES})
 set_target_properties(CodeQuestPlusPlus PROPERTIES OUTPUT_NAME "CodeQuest++")

@@ -463,7 +463,14 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/InventarioComb
  D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/SistemaDeNivel.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaNome.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaRaca.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Racas/RacaBase.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaClasse.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Classes/ClasseBase.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Inventario/FabricaItens.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Core/Utilidades/ControleDeInput.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/ControleInputOutput/ControleDeInput.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Combate/TelaCombate.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Combate/ContextoCombate.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaDificuldade.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaParry.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/IDiarioUI.h \
@@ -484,8 +491,6 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/InventarioComb
  C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_multiset.h \
  D:\git\ repos\ fixed\RPG-Cpp\src\Sistemas\Inventario\Equipamentos/EquipamentoEscudo.h \
  D:\git\ repos\ fixed\RPG-Cpp\src\Sistemas\Inventario\Equipamentos/EquipamentoArmadura.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Core/Utilidades/ControleDeInput.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/ControleInputOutput/ControleDeInput.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/TelaBase.h \
  C:/msys64/ucrt64/include/c++/15.2.0/chrono \
  C:/msys64/ucrt64/include/c++/15.2.0/sstream \
@@ -494,8 +499,6 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/InventarioComb
  C:/msys64/ucrt64/include/c++/15.2.0/iomanip \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/quoted_string.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Inventario/TelaInventario.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Combate/TelaCombate.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Combate/ContextoCombate.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Core/Utilidades/FuncoesDialogo.h \
  D:\git\ repos\ fixed\RPG-Cpp\src\Sistemas\Inventario\ControleInventario.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterQuadro.h

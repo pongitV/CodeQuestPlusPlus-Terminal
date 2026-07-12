@@ -71,8 +71,6 @@ private:
     void limparInimigosMortos();
     Item* selecionarEscudo(Personagem* personagemAgindo);
 
-    std::pair<int, int> calcularDanoBase(Personagem* atacante);
-
     std::string obterTituloDoCombate() const;
     std::vector<Personagem*> obterInimigosRaw() const;
     void exibirTelaDeCombate(bool animarEntrada = false) const;

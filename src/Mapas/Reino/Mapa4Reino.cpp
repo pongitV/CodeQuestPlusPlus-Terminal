@@ -3,6 +3,8 @@
 #include "../../Core/Controladores/MenuJogo.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../ControleMapa.h"
+#include "../Sistemas/AnimadorMapa.h"
+#include "../Sistemas/CarregadorMapa.h"
 #include "../../Core/Utilidades/ControleDeInput.h"
 #include "../../Entidades/NPCs/Mercador/NPCMercador.h"
 #include "../../Entidades/NPCs/Ferreiro/NPCFerreiro.h"
@@ -31,7 +33,7 @@ Mapa4Reino::Mapa4Reino(Personagem* personagemJogador) :
     igrejaJaFoiVisitada(false)
 {
     matrizDoMapaAtual = Mapa4ReinoLayouts::obterLayoutReino();
-    ControleMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
+    CarregadorMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
     matrizDoMapaPrincipalSalva = matrizDoMapaAtual; // Caso necessário
 }
 
@@ -39,7 +41,7 @@ Mapa4Reino::~Mapa4Reino() = default;
 
 ProximaTransicaoMapa Mapa4Reino::iniciarLoopDeExploracao()
 {
-    ControleMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
+    CarregadorMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
     Aparencia::ocultarCursor();
 
     auto formatador = [&](char celula, int x, int y) -> std::string {
@@ -54,7 +56,7 @@ ProximaTransicaoMapa Mapa4Reino::iniciarLoopDeExploracao()
     int linhaInicialParaDesenharOMapa = 0;
 
     auto restaurarTela = [&]() {
-        linhaInicialParaDesenharOMapa = ControleMapa::animarIntroducaoMapa(tituloDoMapaAtual, {}, 0, {}, 0, Cor::ROXO, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, false);
+        linhaInicialParaDesenharOMapa = AnimadorMapa::animarIntroducaoMapa(tituloDoMapaAtual, {}, 0, {}, 0, Cor::ROXO, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, false, true, nullptr);
     };
 
     auto animarTela = [&]() {
@@ -67,7 +69,7 @@ ProximaTransicaoMapa Mapa4Reino::iniciarLoopDeExploracao()
             arteTitulo = Mapa4ReinoLayouts::obterLogoReino();
             larguraArte = 77;
         }
-        linhaInicialParaDesenharOMapa = ControleMapa::animarIntroducaoMapa(tituloDoMapaAtual, arteTitulo, larguraArte, {}, 0, Cor::ROXO, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, true);
+        linhaInicialParaDesenharOMapa = AnimadorMapa::animarIntroducaoMapa(tituloDoMapaAtual, arteTitulo, larguraArte, {}, 0, Cor::ROXO, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, true, true, nullptr);
     };
 
     animarTela();
@@ -111,7 +113,7 @@ ProximaTransicaoMapa Mapa4Reino::iniciarLoopDeExploracao()
     // Entrada da Igreja
     interacoes['I'] = [&](int px, int py, int larg) {
         if (!jogadorEstaDentroDeUmSubMapa) {
-            ControleMapa::entrarSubMapa(
+            CarregadorMapa::entrarSubMapa(
                 matrizDoMapaAtual, matrizDoMapaPrincipalSalva,
                 posicaoXSalvaAntesDeEntrarNoSubMapa, posicaoYSalvaAntesDeEntrarNoSubMapa,
                 posicaoXDoJogador, posicaoYDoJogador, jogadorEstaDentroDeUmSubMapa,

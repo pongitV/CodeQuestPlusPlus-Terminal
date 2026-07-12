@@ -14,6 +14,7 @@
 #include "../Core/Controladores/Debug.h"
 #include "../Core/Utilidades/ControleDeInput.h"
 #include "../Core/Utilidades/GeradorAleatorio.h"
+#include "Sistemas/FisicaMapa.h"
 #include "../Perspectiva/PerspectivaRaycaster/EngineRaycaster/Raycaster.h"
 #include "../Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterMundo.h"
 #include "../Perspectiva/GerenciadorPerspectiva.h"
@@ -25,26 +26,15 @@
 #include <sstream>
 #include <cmath>
 
+#include "Sistemas/RenderizadorMapa.h"
+#include "Sistemas/ControladorInputMapa.h"
+
 namespace {
     std::string extrairCorBaseDoRaycaster(char celula, const std::string& tituloDoMapa, bool isFloresta) {
         // Sampleia a textura no "meio" do bloco (tx=33, ty=33) para evitar as linhas escuras de rejunte/sombra
         std::vector<std::tuple<int, int, int>> luzesVazias;
         Pixel3D px = RaycasterMundo::obterPixelParedeInternal(tituloDoMapa, isFloresta, 0.0f, 10.0f, celula, 33, 0, 64, 33.0f/64.0f, 0.0f, luzesVazias, 0.0f, 0.0f);
         return "\033[38;2;" + std::to_string(px.r) + ";" + std::to_string(px.g) + ";" + std::to_string(px.b) + "m";
-    }
-
-    void calcularCameraAxis(int maxVisivel, int posicaoJogador, int tamanhoMapa, int& start, int& end) {
-        start = 0;
-        end = tamanhoMapa;
-
-        if (end > maxVisivel) {
-            start = std::max(0, posicaoJogador - (maxVisivel / 2));
-            end = start + maxVisivel;
-            if (end > tamanhoMapa) {
-                end = tamanhoMapa;
-                start = std::max(0, end - maxVisivel);
-            }
-        }
     }
 }
 
@@ -63,55 +53,9 @@ float ControleMapa::obterAnguloCamera3D() { return s_anguloCamera3D; }
 std::string ControleMapa::obterTituloMapaAtual() { return s_tituloMapaAtual; }
 std::vector<std::string> ControleMapa::obterMatrizDoMapaAtual() { return s_matrizDoMapaAtual; }
 
-bool ControleMapa::processarInputEComandos(char tecla, Personagem* jogador, int& proximaPosicaoX, int& proximaPosicaoY, const std::function<void()>& restaurarTela)
-{
-    static bool inicializado = false;
-    static InputDispatcher dispatcher;
-    if (!inicializado) {
-        inicializado = true;
-        dispatcher.registrar(27, [=]() { TelaPause::exibir(jogador); restaurarTela(); });
-        dispatcher.registrar(static_cast<int>('\\'), [=]() { Debug::exibirMenuDebug(jogador); restaurarTela(); });
-        dispatcher.registrar(static_cast<int>('`'),  [=]() { Debug::exibirMenuDebug(jogador); restaurarTela(); });
-        dispatcher.registrar(static_cast<int>('='),  [=]() { Debug::exibirMenuDebug(jogador); restaurarTela(); });
-    }
+// processarInputEComandos movido para ControladorInputMapa.cpp
 
-    if (dispatcher.executar(static_cast<int>(tecla))) return true;
-
-    ComandoMapa comando = ControleDeInput::traduzirTeclaParaComando(tecla);
-
-    if (comando == ComandoMapa::Cima) { proximaPosicaoY--; return false; }
-    if (comando == ComandoMapa::Baixo) { proximaPosicaoY++; return false; }
-    if (comando == ComandoMapa::Esquerda) { proximaPosicaoX--; return false; }
-    if (comando == ComandoMapa::Direita) { proximaPosicaoX++; return false; }
-
-    if (comando == ComandoMapa::Inventario)
-    {
-        InventarioCombate::gerenciarInventario(jogador);
-        restaurarTela();
-        return true;
-    }
-    if (comando == ComandoMapa::Ficha)
-    {
-        TelaAtributos::gerenciarFichaDoJogador(jogador);
-        restaurarTela();
-        return true;
-    }
-    if (comando == ComandoMapa::Bestiario)
-    {
-        TelaDiario::exibir(jogador);
-        restaurarTela();
-        return true;
-    }
-    return false;
-}
-
-void ControleMapa::aplicarLimitesDeMapa(int& posicaoX, int& posicaoY, const std::vector<std::string>& matrizDoMapa) {
-    if (posicaoY < 0) posicaoY = 0; else if (posicaoY >= static_cast<int>(matrizDoMapa.size())) posicaoY = static_cast<int>(matrizDoMapa.size()) - 1;
-    if (matrizDoMapa.empty()) return;
-    int maxCols = static_cast<int>(matrizDoMapa[posicaoY].length());
-    if (posicaoX < 0) posicaoX = 0; else if (posicaoX >= maxCols) posicaoX = std::max(0, maxCols - 1);
-}
-
+// aplicarLimitesDeMapa foi movido para FisicaMapa
 void ControleMapa::processarCombate(
     Personagem* jogadorAtual, std::vector<std::string>& matrizDoMapaAtual, 
     int& posicaoXDoJogador, int& posicaoYDoJogador, bool& exploracaoEstaAtiva,
@@ -147,286 +91,12 @@ void ControleMapa::processarCombate(
     if (exploracaoEstaAtiva && !GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) restaurarTela();
 }
 
-void ControleMapa::entrarSubMapa(
-    std::vector<std::string>& matrizDoMapaAtual, std::vector<std::string>& matrizDoMapaPrincipalSalva,
-    int& posicaoXSalvaAntesDeEntrarNoSubMapa, int& posicaoYSalvaAntesDeEntrarNoSubMapa,
-    int& posicaoXDoJogador, int& posicaoYDoJogador, bool& jogadorEstaDentroDeUmSubMapa,
-    std::string& tituloDoMapaAtual, std::vector<std::string>& matrizDoSubMapaSalva, bool& subMapaJaFoiVisitado,
-    const std::vector<std::string>& matrizDoSubMapaGerada, int posicaoXInicialNoSubMapa, int posicaoYInicialNoSubMapa, const std::string& tituloDoSubMapa, const std::function<void()>& restaurarTela)
-{
-    matrizDoMapaPrincipalSalva = matrizDoMapaAtual;
-    posicaoXSalvaAntesDeEntrarNoSubMapa = posicaoXDoJogador;
-    posicaoYSalvaAntesDeEntrarNoSubMapa = posicaoYDoJogador;
-
-    if (!subMapaJaFoiVisitado) { matrizDoMapaAtual = matrizDoSubMapaGerada; subMapaJaFoiVisitado = true; } 
-    else { matrizDoMapaAtual = matrizDoSubMapaSalva; }
-    padronizarTamanhoDoMapa(matrizDoMapaAtual);
-
-    posicaoXDoJogador = posicaoXInicialNoSubMapa;
-    posicaoYDoJogador = posicaoYInicialNoSubMapa;
-    jogadorEstaDentroDeUmSubMapa = true;
-    tituloDoMapaAtual = tituloDoSubMapa;
-    if (!GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) restaurarTela();
-}
-
-void ControleMapa::moverInimigosAleatoriamente(std::vector<std::string>& matrizDoMapaAtual, const std::vector<std::string>& matrizOriginal, const std::string& simbolosInimigos, int jogadorX, int jogadorY) {
-    if (simbolosInimigos.empty()) return;
-
-    struct Pos { int x, y; char c; };
-    std::vector<Pos> inimigosAtuais;
-    
-    for (int y = 0; y < static_cast<int>(matrizDoMapaAtual.size()); ++y) {
-        for (int x = 0; x < static_cast<int>(matrizDoMapaAtual[y].size()); ++x) {
-            if (simbolosInimigos.find(matrizDoMapaAtual[y][x]) != std::string::npos) {
-                // Ignora o caractere se ele fizer parte de um marcador de mapa/teleporte (ex: ^S, ^Vila)
-                if (x > 0 && matrizDoMapaAtual[y][x-1] == '^') continue;
-
-                inimigosAtuais.push_back({x, y, matrizDoMapaAtual[y][x]});
-            }
-        }
-    }
-
-    for (const auto& inimigo : inimigosAtuais) {
-        if (matrizDoMapaAtual[inimigo.y][inimigo.x] != inimigo.c) continue; // Pode ter sido alterado (morto/já movido)
-        
-        int originX = -1, originY = -1;
-        // Encontra o spawn original no raio 3x3
-        for (int dy = -1; dy <= 1; ++dy) {
-            for (int dx = -1; dx <= 1; ++dx) {
-                int oy = inimigo.y + dy;
-                int ox = inimigo.x + dx;
-                if (oy >= 0 && oy < static_cast<int>(matrizOriginal.size()) && ox >= 0 && ox < static_cast<int>(matrizOriginal[oy].size())) {
-                    if (matrizOriginal[oy][ox] == inimigo.c) {
-                        originX = ox;
-                        originY = oy;
-                        break;
-                    }
-                }
-            }
-            if (originX != -1) break;
-        }
-
-        if (originX == -1) continue;
-
-        std::vector<std::pair<int, int>> movimentosPossiveis;
-        for (int dy = -1; dy <= 1; ++dy) {
-            for (int dx = -1; dx <= 1; ++dx) {
-                int ty = originY + dy;
-                int tx = originX + dx;
-                if (ty >= 0 && ty < static_cast<int>(matrizDoMapaAtual.size()) && tx >= 0 && tx < static_cast<int>(matrizDoMapaAtual[ty].size())) {
-                    // Só pode se mover para células vazias, e não pode pisar em cima do jogador
-                    if (matrizDoMapaAtual[ty][tx] == '.' && (tx != jogadorX || ty != jogadorY)) {
-                        // O inimigo anda 1 de cada vez, então limitamos aos adjacentes atuais dele dentro do raio 3x3 da origem
-                        if (std::abs(tx - inimigo.x) <= 1 && std::abs(ty - inimigo.y) <= 1) {
-                            movimentosPossiveis.push_back({tx, ty});
-                        }
-                    }
-                }
-            }
-        }
-
-        movimentosPossiveis.push_back({inimigo.x, inimigo.y}); // Opção de permanecer parado
-
-        int escolha = GeradorAleatorio::obterInteiro(0, static_cast<int>(movimentosPossiveis.size()) - 1);
-        int nx = movimentosPossiveis[escolha].first;
-        int ny = movimentosPossiveis[escolha].second;
-
-        if (nx != inimigo.x || ny != inimigo.y) {
-            matrizDoMapaAtual[inimigo.y][inimigo.x] = '.';
-            matrizDoMapaAtual[ny][nx] = inimigo.c;
-        }
-    }
-}
-
-int ControleMapa::animarIntroducaoMapa(
-    const std::string& tituloDoMapa,
-    const std::vector<std::string>& arteDoMapa,
-    int /*larguraArte*/,
-    const std::vector<std::string>& arteTransicao,
-    int /*larguraTransicao*/,
-    Cor /*corTema*/,
-    const std::vector<std::string>& matrizDoMapa,
-    int posicaoXDoJogador,
-    int posicaoYDoJogador,
-    const std::function<std::string(char, int, int)>& formatadorCelula,
-    bool animar,
-    bool usarAnimacaoBanner,
-    const std::function<void()>& acaoAposFadeInArte
-) {
-    if (ControleMapa::isExploracao3DAtiva()) {
-        RaycasterMundo::atualizarMapHash(matrizDoMapa);
-        return 0; 
-    }
-
-    RaycasterMundo::atualizarMapHash(matrizDoMapa);
-    Aparencia::limparTela();
-    Aparencia::ocultarCursor();
-
-    int larguraTerminal = Aparencia::obterLarguraTerminal();
-    int alturaTerminal = Aparencia::obterAlturaTerminal();
-
-    if (!animar) {
-        Aparencia::exibirPainelTexto(tituloDoMapa, Cor::BRANCO);
-        int linhaInicialMapa = Aparencia::obterPosicaoCursorY();
-        renderizarMapa(matrizDoMapa, posicaoXDoJogador, posicaoYDoJogador, larguraTerminal, alturaTerminal, linhaInicialMapa, formatadorCelula);
-        return linhaInicialMapa;
-    }
-
-    if (acaoAposFadeInArte) {
-        acaoAposFadeInArte();
-        Aparencia::limparTela();
-    }
-    
-    Aparencia::exibirPainelTexto(tituloDoMapa, Cor::BRANCO, true);
-    int linhaInicialMapa = Aparencia::obterPosicaoCursorY();
-
-    std::vector<std::string> bannerBase;
-    if (usarAnimacaoBanner) {
-        if (!arteDoMapa.empty()) {
-            bannerBase = arteDoMapa;
-        } else if (!arteTransicao.empty()) {
-            bannerBase = arteTransicao;
-        }
-    }
-
-    if (bannerBase.empty() || !usarAnimacaoBanner) {
-        renderizarMapa(matrizDoMapa, posicaoXDoJogador, posicaoYDoJogador, larguraTerminal, alturaTerminal, linhaInicialMapa, formatadorCelula);
-        return linhaInicialMapa;
-    }
-
-    std::vector<std::string> banner;
-    for (const auto& l : bannerBase) {
-        // Remover cores antigas e forcar branco negrito
-        banner.push_back("\033[1;37m" + Aparencia::removerCoresANSI(l) + "\033[0m");
-    }
-    
-    int maxW = 0;
-    for (const auto& l : banner) {
-        int w = Aparencia::obterComprimentoVisual(l);
-        if (w > maxW) maxW = w;
-    }
-    
-    int bannerHeight = banner.size();
-    int startXBox = (larguraTerminal - maxW) / 2;
-    if (startXBox < 0) startXBox = 0;
-
-    // Fazer cache do mapa para double-buffering sem piscar
-    int startX, endX;
-    calcularCameraHorizontal(larguraTerminal, posicaoXDoJogador, matrizDoMapa.empty() ? 0 : static_cast<int>(matrizDoMapa[0].length()), startX, endX);
-    std::string margemEsquerdaDoMapa = calcularMargemCentralizada(larguraTerminal, endX - startX);
-    
-    std::string textoDeControles = "W,A,S,D: Mover | V: Visao | I: Inventario | C: Ficha | B: Diario | M: Mapa";
-    std::string margemEsquerdaControles = calcularMargemCentralizada(larguraTerminal, textoDeControles.length());
-    
-    // O Controle de mapa usa 2 linhas de offset (texto na linha 0, \n vai pra 1, \n vai pra 2)
-    int offsetMapaReal = 2;
-    
-    int startY, endY;
-    calcularCameraVertical(alturaTerminal, linhaInicialMapa, posicaoYDoJogador, static_cast<int>(matrizDoMapa.size()), startY, endY);
-    
-    std::vector<std::string> linhasDoMapaCache;
-    for (int y = startY; y < endY; y++) {
-        std::string linhaStr = margemEsquerdaDoMapa;
-        linhaStr.reserve(margemEsquerdaDoMapa.size() + (endX - startX) * 10);
-        for (int x = startX; x < endX; x++) {
-            char c = (x < static_cast<int>(matrizDoMapa[y].length())) ? matrizDoMapa[y][x] : ' ';
-            linhaStr += formatadorCelula(c, x, y);
-        }
-        linhasDoMapaCache.push_back(linhaStr);
-    }
+// animarIntroducaoMapa movido para AnimadorMapa.cpp}
 
 
-    // Desenha os controles e o mapa inteiro APENAS UMA VEZ antes da animacao
-    std::ostringstream initialMap;
-    initialMap << "\033[" << (linhaInicialMapa + 1) << ";1H\033[K" << margemEsquerdaControles << Aparencia::cor(Cor::CINZA) << textoDeControles << Aparencia::cor(Cor::RESET) << "\n\033[K\n";
-    for (int i = 0; i < (int)linhasDoMapaCache.size(); i++) {
-        initialMap << "\033[" << (linhaInicialMapa + 1 + offsetMapaReal + i) << ";1H" << linhasDoMapaCache[i] << "\033[K";
-    }
-    std::cout << initialMap.str() << std::flush;
+// animarFlashbang movido para AnimadorMapa.cpp
 
-
-    // Fade-in animation (banner surgindo sobre o mapa)
-    int destinoY = 2;
-    
-    Aparencia::animarFadeIn(15, 40, [&](int frame, int /*intensidade*/) {
-        float opacity = frame / 15.0f;
-        int c = (int)(255 * opacity);
-        std::string corFadedBanner = "\033[38;2;" + std::to_string(c) + ";" + std::to_string(c) + ";" + std::to_string(c) + "m";
-        
-        std::ostringstream telaFrame;
-        
-        for (int i = 0; i < bannerHeight; i++) {
-            int drawY = linhaInicialMapa + destinoY + i;
-            if (drawY >= linhaInicialMapa && drawY < alturaTerminal) {
-                std::string linhaLimpa = Aparencia::removerCoresANSI(bannerBase[i]);
-                telaFrame << "\033[" << (drawY + 1) << ";" << (startXBox + 1) << "H" << corFadedBanner << linhaLimpa << "\033[0m";
-            }
-        }
-        std::cout << telaFrame.str() << std::flush;
-    });
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-    ControleDeInput::limparBuffer();
-    
-    // Assegura que o mapa esta totalmente renderizado ao final
-    renderizarMapa(matrizDoMapa, posicaoXDoJogador, posicaoYDoJogador, larguraTerminal, alturaTerminal, linhaInicialMapa, formatadorCelula);
-    
-    return linhaInicialMapa;
-}
-
-
-void ControleMapa::animarFlashbang(int r, int g, int b) {
-    int LARGURA_TELA = Aparencia::obterLarguraTerminal();
-    int ALTURA_TELA = Aparencia::obterAlturaTerminal();
-    if (LARGURA_TELA <= 0) LARGURA_TELA = 120;
-    if (ALTURA_TELA <= 0) ALTURA_TELA = 30;
-
-    std::cout << "\033[?25l"; // Hide cursor
-    std::string colorPrefix = "\033[48;2;" + std::to_string(r) + ";" + std::to_string(g) + ";" + std::to_string(b) + "m";
-    
-    // Lista de caracteres de dithering para o fade out
-    std::vector<std::string> fadeChars = {"█", "▓", "▒", "░", " "};
-    
-    for (int passo = 0; passo < (int)fadeChars.size(); passo++) {
-        std::string buffer = "\033[H";
-        buffer.reserve(LARGURA_TELA * ALTURA_TELA * 20);
-        
-        for (int y = 0; y < ALTURA_TELA; y++) {
-            for (int x = 0; x < LARGURA_TELA; x++) {
-                if (y == ALTURA_TELA - 1 && x == LARGURA_TELA - 1) break; // prevent scroll
-                if (fadeChars[passo] == " ") {
-                    buffer += "\033[40m \033[0m"; // Preto final
-                } else {
-                    buffer += colorPrefix + "\033[38;2;255;255;255m" + fadeChars[passo] + "\033[0m";
-                }
-            }
-            if (y < ALTURA_TELA - 1) buffer += "\n";
-        }
-        std::cout << buffer << std::flush;
-        std::this_thread::sleep_for(std::chrono::milliseconds(40));
-    }
-    Aparencia::limparTela();
-}
-
-void ControleMapa::calcularCameraVertical(int alturaDoTerminal, int linhaInicial, int posicaoYDoJogador, int tamanhoDoMapa, int& startY, int& endY) {
-    int maxLinhasVisiveis = std::max(5, alturaDoTerminal - linhaInicial - 4);
-    calcularCameraAxis(maxLinhasVisiveis, posicaoYDoJogador, tamanhoDoMapa, startY, endY);
-}
-
-void ControleMapa::calcularCameraHorizontal(int larguraDoTerminal, int posicaoXDoJogador, int larguraDoMapa, int& startX, int& endX) {
-    int maxColunasVisiveis = std::max(10, larguraDoTerminal); // Usa a largura total do terminal
-    calcularCameraAxis(maxColunasVisiveis, posicaoXDoJogador, larguraDoMapa, startX, endX);
-}
-
-std::string ControleMapa::calcularMargemCentralizada(int larguraDoTerminal, int larguraDoTexto) {
-    int espacos = (larguraDoTerminal - larguraDoTexto) / 2;
-    return std::string(espacos > 0 ? espacos : 0, ' ');
-}
-
-void ControleMapa::padronizarTamanhoDoMapa(std::vector<std::string>& matrizDoMapa) {
-    Aparencia::padronizarTamanhoVetor(matrizDoMapa);
-}
+// Funções da câmera e renderização abstraídas para RenderizadorMapa.cpp
 
 std::string ControleMapa::formatarCelula(char celula, int x, int y, const std::string& tituloDoMapa, const std::vector<std::string>& matrizDoMapa, bool isMinimapa) {
     thread_local std::string ultimoTitulo = "";
@@ -629,33 +299,7 @@ std::string ControleMapa::formatarCelula(char celula, int x, int y, const std::s
     return std::string(1, celula);
 }
 
-void ControleMapa::renderizarMapa(const std::vector<std::string>& matrizDoMapa, int posicaoXDoJogador, int posicaoYDoJogador, int larguraDoTerminal, int alturaDoTerminal, int linhaInicial, const std::function<std::string(char, int, int)>& formatadorCelula) {
-    int startX, endX;
-    calcularCameraHorizontal(larguraDoTerminal, posicaoXDoJogador, matrizDoMapa.empty() ? 0 : static_cast<int>(matrizDoMapa[0].length()), startX, endX);
-
-    std::string margemEsquerdaDoMapa = calcularMargemCentralizada(larguraDoTerminal, endX - startX);
-
-    std::string textoDeControles = "W,A,S,D: Mover | V: Visao | I: Inventario | C: Ficha | B: Diario | M: Mapa";
-    std::string margemEsquerdaControles = calcularMargemCentralizada(larguraDoTerminal, textoDeControles.length());
-
-    Aparencia::moverCursor(0, linhaInicial);
-
-    int startY, endY;
-    calcularCameraVertical(alturaDoTerminal, linhaInicial, posicaoYDoJogador, static_cast<int>(matrizDoMapa.size()), startY, endY);
-
-    std::cout << margemEsquerdaControles << Aparencia::cor(Cor::CINZA) << textoDeControles << Aparencia::cor(Cor::RESET) << "\n\n";
-
-    for (int y = startY; y < endY; y++) {
-        std::string linhaSendoRenderizada = margemEsquerdaDoMapa;
-        linhaSendoRenderizada.reserve(margemEsquerdaDoMapa.size() + (endX - startX) * 10);
-        for (int x = startX; x < endX; x++) {
-            char c = (x < static_cast<int>(matrizDoMapa[y].length())) ? matrizDoMapa[y][x] : ' ';
-            linhaSendoRenderizada += formatadorCelula(c, x, y);
-        }
-        std::cout << linhaSendoRenderizada << "\033[K\n";
-    }
-    std::cout << "\033[J" << std::flush;
-}
+// renderizarMapa abstraído para RenderizadorMapa.cpp
 
 ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
     Personagem* jogadorAtual,
@@ -688,7 +332,7 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
         bool tempoDeMoverInimigos = std::chrono::duration_cast<std::chrono::milliseconds>(agora - ultimoMovimentoInimigos).count() >= 800;
 
         if (tempoDeMoverInimigos) {
-            ControleMapa::moverInimigosAleatoriamente(matrizDoMapaAtual, obterLayoutOriginal(), obterSimbolosInimigos(), posicaoXDoJogador, posicaoYDoJogador);
+            FisicaMapa::moverInimigosAleatoriamente(matrizDoMapaAtual, obterLayoutOriginal(), obterSimbolosInimigos(), posicaoXDoJogador, posicaoYDoJogador);
             ultimoMovimentoInimigos = std::chrono::steady_clock::now();
             precisaRenderizar = true;
         }
@@ -698,7 +342,7 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
         if (precisaRenderizar && !GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
             int alturaDoTerminal = Aparencia::obterAlturaTerminal();
 
-            ControleMapa::renderizarMapa(matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, larguraDoTerminal, alturaDoTerminal, linhaInicialParaDesenharOMapa, formatador);
+            RenderizadorMapa::renderizarMapa(matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, larguraDoTerminal, alturaDoTerminal, linhaInicialParaDesenharOMapa, formatador);
 
             precisaRenderizar = false;
         }
@@ -748,7 +392,7 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
                 
                 bool isTrigger = false;
                 if (hitX != -1 && hitY != -1) {
-                    ControleMapa::aplicarLimitesDeMapa(hitX, hitY, matrizDoMapaAtual);
+                    FisicaMapa::aplicarLimitesDeMapa(hitX, hitY, matrizDoMapaAtual);
                     
                     char cell = matrizDoMapaAtual[hitY][hitX];
                     // Verifica se o jogador parou em um trigger (Inimigos ou Teleportes ou Terminal)
@@ -846,12 +490,11 @@ ProximaTransicaoMapa ControleMapa::executarLoopDeExploracao(
             int proximaPosicaoX = posicaoXDoJogador;
             int proximaPosicaoY = posicaoYDoJogador;
 
-            bool abriuMenu = ControleMapa::processarInputEComandos(teclaPressionadaPeloJogador, jogadorAtual, proximaPosicaoX, proximaPosicaoY, restaurarTela);
+            if (ControladorInputMapa::processarInputEComandos(teclaPressionadaPeloJogador, jogadorAtual, proximaPosicaoX, proximaPosicaoY, restaurarTela)) continue;
             
             if (jogadorAtual->obterVoltarProMenu()) break;
-            if (abriuMenu) continue;
 
-            ControleMapa::aplicarLimitesDeMapa(proximaPosicaoX, proximaPosicaoY, matrizDoMapaAtual);
+            FisicaMapa::aplicarLimitesDeMapa(proximaPosicaoX, proximaPosicaoY, matrizDoMapaAtual);
             processarInteracao(proximaPosicaoX, proximaPosicaoY, larguraDoTerminal);
             
             precisaRenderizar = true;

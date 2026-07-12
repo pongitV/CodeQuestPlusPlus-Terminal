@@ -129,6 +129,14 @@ CodeQuestPlusPlus/fast:
 	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/build
 .PHONY : CodeQuestPlusPlus/fast
 
+__/assets/icone.obj: __/assets/icone.rc.obj
+.PHONY : __/assets/icone.obj
+
+# target to build an object file
+__/assets/icone.rc.obj:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/assets/icone.rc.obj
+.PHONY : __/assets/icone.rc.obj
+
 __/src/Core/Controladores/CriadorInimigos.obj: __/src/Core/Controladores/CriadorInimigos.cpp.obj
 .PHONY : __/src/Core/Controladores/CriadorInimigos.obj
 
@@ -440,6 +448,30 @@ __/src/Entidades/Classes/CloneNecro.s: __/src/Entidades/Classes/CloneNecro.cpp.s
 __/src/Entidades/Classes/CloneNecro.cpp.s:
 	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/CloneNecro.cpp.s
 .PHONY : __/src/Entidades/Classes/CloneNecro.cpp.s
+
+__/src/Entidades/Classes/FabricaClasses.obj: __/src/Entidades/Classes/FabricaClasses.cpp.obj
+.PHONY : __/src/Entidades/Classes/FabricaClasses.obj
+
+# target to build an object file
+__/src/Entidades/Classes/FabricaClasses.cpp.obj:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/FabricaClasses.cpp.obj
+.PHONY : __/src/Entidades/Classes/FabricaClasses.cpp.obj
+
+__/src/Entidades/Classes/FabricaClasses.i: __/src/Entidades/Classes/FabricaClasses.cpp.i
+.PHONY : __/src/Entidades/Classes/FabricaClasses.i
+
+# target to preprocess a source file
+__/src/Entidades/Classes/FabricaClasses.cpp.i:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/FabricaClasses.cpp.i
+.PHONY : __/src/Entidades/Classes/FabricaClasses.cpp.i
+
+__/src/Entidades/Classes/FabricaClasses.s: __/src/Entidades/Classes/FabricaClasses.cpp.s
+.PHONY : __/src/Entidades/Classes/FabricaClasses.s
+
+# target to generate assembly for a file
+__/src/Entidades/Classes/FabricaClasses.cpp.s:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/FabricaClasses.cpp.s
+.PHONY : __/src/Entidades/Classes/FabricaClasses.cpp.s
 
 __/src/Entidades/Classes/Guerreiro.obj: __/src/Entidades/Classes/Guerreiro.cpp.obj
 .PHONY : __/src/Entidades/Classes/Guerreiro.obj
@@ -1041,6 +1073,30 @@ __/src/Entidades/Racas/Elfo.cpp.s:
 	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Elfo.cpp.s
 .PHONY : __/src/Entidades/Racas/Elfo.cpp.s
 
+__/src/Entidades/Racas/FabricaRacas.obj: __/src/Entidades/Racas/FabricaRacas.cpp.obj
+.PHONY : __/src/Entidades/Racas/FabricaRacas.obj
+
+# target to build an object file
+__/src/Entidades/Racas/FabricaRacas.cpp.obj:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/FabricaRacas.cpp.obj
+.PHONY : __/src/Entidades/Racas/FabricaRacas.cpp.obj
+
+__/src/Entidades/Racas/FabricaRacas.i: __/src/Entidades/Racas/FabricaRacas.cpp.i
+.PHONY : __/src/Entidades/Racas/FabricaRacas.i
+
+# target to preprocess a source file
+__/src/Entidades/Racas/FabricaRacas.cpp.i:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/FabricaRacas.cpp.i
+.PHONY : __/src/Entidades/Racas/FabricaRacas.cpp.i
+
+__/src/Entidades/Racas/FabricaRacas.s: __/src/Entidades/Racas/FabricaRacas.cpp.s
+.PHONY : __/src/Entidades/Racas/FabricaRacas.s
+
+# target to generate assembly for a file
+__/src/Entidades/Racas/FabricaRacas.cpp.s:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/FabricaRacas.cpp.s
+.PHONY : __/src/Entidades/Racas/FabricaRacas.cpp.s
+
 __/src/Entidades/Racas/Humano.obj: __/src/Entidades/Racas/Humano.cpp.obj
 .PHONY : __/src/Entidades/Racas/Humano.obj
 
@@ -1184,6 +1240,126 @@ __/src/Mapas/Reino/Mapa4Reino.s: __/src/Mapas/Reino/Mapa4Reino.cpp.s
 __/src/Mapas/Reino/Mapa4Reino.cpp.s:
 	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa4Reino.cpp.s
 .PHONY : __/src/Mapas/Reino/Mapa4Reino.cpp.s
+
+__/src/Mapas/Sistemas/AnimadorMapa.obj: __/src/Mapas/Sistemas/AnimadorMapa.cpp.obj
+.PHONY : __/src/Mapas/Sistemas/AnimadorMapa.obj
+
+# target to build an object file
+__/src/Mapas/Sistemas/AnimadorMapa.cpp.obj:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/AnimadorMapa.cpp.obj
+.PHONY : __/src/Mapas/Sistemas/AnimadorMapa.cpp.obj
+
+__/src/Mapas/Sistemas/AnimadorMapa.i: __/src/Mapas/Sistemas/AnimadorMapa.cpp.i
+.PHONY : __/src/Mapas/Sistemas/AnimadorMapa.i
+
+# target to preprocess a source file
+__/src/Mapas/Sistemas/AnimadorMapa.cpp.i:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/AnimadorMapa.cpp.i
+.PHONY : __/src/Mapas/Sistemas/AnimadorMapa.cpp.i
+
+__/src/Mapas/Sistemas/AnimadorMapa.s: __/src/Mapas/Sistemas/AnimadorMapa.cpp.s
+.PHONY : __/src/Mapas/Sistemas/AnimadorMapa.s
+
+# target to generate assembly for a file
+__/src/Mapas/Sistemas/AnimadorMapa.cpp.s:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/AnimadorMapa.cpp.s
+.PHONY : __/src/Mapas/Sistemas/AnimadorMapa.cpp.s
+
+__/src/Mapas/Sistemas/CarregadorMapa.obj: __/src/Mapas/Sistemas/CarregadorMapa.cpp.obj
+.PHONY : __/src/Mapas/Sistemas/CarregadorMapa.obj
+
+# target to build an object file
+__/src/Mapas/Sistemas/CarregadorMapa.cpp.obj:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/CarregadorMapa.cpp.obj
+.PHONY : __/src/Mapas/Sistemas/CarregadorMapa.cpp.obj
+
+__/src/Mapas/Sistemas/CarregadorMapa.i: __/src/Mapas/Sistemas/CarregadorMapa.cpp.i
+.PHONY : __/src/Mapas/Sistemas/CarregadorMapa.i
+
+# target to preprocess a source file
+__/src/Mapas/Sistemas/CarregadorMapa.cpp.i:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/CarregadorMapa.cpp.i
+.PHONY : __/src/Mapas/Sistemas/CarregadorMapa.cpp.i
+
+__/src/Mapas/Sistemas/CarregadorMapa.s: __/src/Mapas/Sistemas/CarregadorMapa.cpp.s
+.PHONY : __/src/Mapas/Sistemas/CarregadorMapa.s
+
+# target to generate assembly for a file
+__/src/Mapas/Sistemas/CarregadorMapa.cpp.s:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/CarregadorMapa.cpp.s
+.PHONY : __/src/Mapas/Sistemas/CarregadorMapa.cpp.s
+
+__/src/Mapas/Sistemas/ControladorInputMapa.obj: __/src/Mapas/Sistemas/ControladorInputMapa.cpp.obj
+.PHONY : __/src/Mapas/Sistemas/ControladorInputMapa.obj
+
+# target to build an object file
+__/src/Mapas/Sistemas/ControladorInputMapa.cpp.obj:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/ControladorInputMapa.cpp.obj
+.PHONY : __/src/Mapas/Sistemas/ControladorInputMapa.cpp.obj
+
+__/src/Mapas/Sistemas/ControladorInputMapa.i: __/src/Mapas/Sistemas/ControladorInputMapa.cpp.i
+.PHONY : __/src/Mapas/Sistemas/ControladorInputMapa.i
+
+# target to preprocess a source file
+__/src/Mapas/Sistemas/ControladorInputMapa.cpp.i:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/ControladorInputMapa.cpp.i
+.PHONY : __/src/Mapas/Sistemas/ControladorInputMapa.cpp.i
+
+__/src/Mapas/Sistemas/ControladorInputMapa.s: __/src/Mapas/Sistemas/ControladorInputMapa.cpp.s
+.PHONY : __/src/Mapas/Sistemas/ControladorInputMapa.s
+
+# target to generate assembly for a file
+__/src/Mapas/Sistemas/ControladorInputMapa.cpp.s:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/ControladorInputMapa.cpp.s
+.PHONY : __/src/Mapas/Sistemas/ControladorInputMapa.cpp.s
+
+__/src/Mapas/Sistemas/FisicaMapa.obj: __/src/Mapas/Sistemas/FisicaMapa.cpp.obj
+.PHONY : __/src/Mapas/Sistemas/FisicaMapa.obj
+
+# target to build an object file
+__/src/Mapas/Sistemas/FisicaMapa.cpp.obj:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/FisicaMapa.cpp.obj
+.PHONY : __/src/Mapas/Sistemas/FisicaMapa.cpp.obj
+
+__/src/Mapas/Sistemas/FisicaMapa.i: __/src/Mapas/Sistemas/FisicaMapa.cpp.i
+.PHONY : __/src/Mapas/Sistemas/FisicaMapa.i
+
+# target to preprocess a source file
+__/src/Mapas/Sistemas/FisicaMapa.cpp.i:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/FisicaMapa.cpp.i
+.PHONY : __/src/Mapas/Sistemas/FisicaMapa.cpp.i
+
+__/src/Mapas/Sistemas/FisicaMapa.s: __/src/Mapas/Sistemas/FisicaMapa.cpp.s
+.PHONY : __/src/Mapas/Sistemas/FisicaMapa.s
+
+# target to generate assembly for a file
+__/src/Mapas/Sistemas/FisicaMapa.cpp.s:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/FisicaMapa.cpp.s
+.PHONY : __/src/Mapas/Sistemas/FisicaMapa.cpp.s
+
+__/src/Mapas/Sistemas/RenderizadorMapa.obj: __/src/Mapas/Sistemas/RenderizadorMapa.cpp.obj
+.PHONY : __/src/Mapas/Sistemas/RenderizadorMapa.obj
+
+# target to build an object file
+__/src/Mapas/Sistemas/RenderizadorMapa.cpp.obj:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/RenderizadorMapa.cpp.obj
+.PHONY : __/src/Mapas/Sistemas/RenderizadorMapa.cpp.obj
+
+__/src/Mapas/Sistemas/RenderizadorMapa.i: __/src/Mapas/Sistemas/RenderizadorMapa.cpp.i
+.PHONY : __/src/Mapas/Sistemas/RenderizadorMapa.i
+
+# target to preprocess a source file
+__/src/Mapas/Sistemas/RenderizadorMapa.cpp.i:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/RenderizadorMapa.cpp.i
+.PHONY : __/src/Mapas/Sistemas/RenderizadorMapa.cpp.i
+
+__/src/Mapas/Sistemas/RenderizadorMapa.s: __/src/Mapas/Sistemas/RenderizadorMapa.cpp.s
+.PHONY : __/src/Mapas/Sistemas/RenderizadorMapa.s
+
+# target to generate assembly for a file
+__/src/Mapas/Sistemas/RenderizadorMapa.cpp.s:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/RenderizadorMapa.cpp.s
+.PHONY : __/src/Mapas/Sistemas/RenderizadorMapa.cpp.s
 
 __/src/Mapas/Vila/Mapa1Vila.obj: __/src/Mapas/Vila/Mapa1Vila.cpp.obj
 .PHONY : __/src/Mapas/Vila/Mapa1Vila.obj
@@ -3009,6 +3185,78 @@ __/src/Sistemas/Combate/CombateUIImpl.cpp.s:
 	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateUIImpl.cpp.s
 .PHONY : __/src/Sistemas/Combate/CombateUIImpl.cpp.s
 
+__/src/Sistemas/Combate/Mecanicas/CalculadoraDano.obj: __/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.obj
+.PHONY : __/src/Sistemas/Combate/Mecanicas/CalculadoraDano.obj
+
+# target to build an object file
+__/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.obj:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.obj
+.PHONY : __/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.obj
+
+__/src/Sistemas/Combate/Mecanicas/CalculadoraDano.i: __/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.i
+.PHONY : __/src/Sistemas/Combate/Mecanicas/CalculadoraDano.i
+
+# target to preprocess a source file
+__/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.i:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.i
+.PHONY : __/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.i
+
+__/src/Sistemas/Combate/Mecanicas/CalculadoraDano.s: __/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.s
+.PHONY : __/src/Sistemas/Combate/Mecanicas/CalculadoraDano.s
+
+# target to generate assembly for a file
+__/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.s:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.s
+.PHONY : __/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.s
+
+__/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.obj: __/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.obj
+.PHONY : __/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.obj
+
+# target to build an object file
+__/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.obj:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.obj
+.PHONY : __/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.obj
+
+__/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.i: __/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.i
+.PHONY : __/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.i
+
+# target to preprocess a source file
+__/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.i:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.i
+.PHONY : __/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.i
+
+__/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.s: __/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.s
+.PHONY : __/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.s
+
+# target to generate assembly for a file
+__/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.s:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.s
+.PHONY : __/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.s
+
+__/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.obj: __/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.obj
+.PHONY : __/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.obj
+
+# target to build an object file
+__/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.obj:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.obj
+.PHONY : __/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.obj
+
+__/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.i: __/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.i
+.PHONY : __/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.i
+
+# target to preprocess a source file
+__/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.i:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.i
+.PHONY : __/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.i
+
+__/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.s: __/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.s
+.PHONY : __/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.s
+
+# target to generate assembly for a file
+__/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.s:
+	cd /d "D:\git repos fixed\RPG-Cpp\build" && $(MAKE) $(MAKESILENT) -f cmake\CMakeFiles\CodeQuestPlusPlus.dir\build.make cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.s
+.PHONY : __/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.s
+
 __/src/Sistemas/Combate/Parry.obj: __/src/Sistemas/Combate/Parry.cpp.obj
 .PHONY : __/src/Sistemas/Combate/Parry.obj
 
@@ -3642,6 +3890,7 @@ help:
 	@echo ... edit_cache
 	@echo ... rebuild_cache
 	@echo ... CodeQuestPlusPlus
+	@echo ... __/assets/icone.obj
 	@echo ... __/src/Core/Controladores/CriadorInimigos.obj
 	@echo ... __/src/Core/Controladores/CriadorInimigos.i
 	@echo ... __/src/Core/Controladores/CriadorInimigos.s
@@ -3681,6 +3930,9 @@ help:
 	@echo ... __/src/Entidades/Classes/CloneNecro.obj
 	@echo ... __/src/Entidades/Classes/CloneNecro.i
 	@echo ... __/src/Entidades/Classes/CloneNecro.s
+	@echo ... __/src/Entidades/Classes/FabricaClasses.obj
+	@echo ... __/src/Entidades/Classes/FabricaClasses.i
+	@echo ... __/src/Entidades/Classes/FabricaClasses.s
 	@echo ... __/src/Entidades/Classes/Guerreiro.obj
 	@echo ... __/src/Entidades/Classes/Guerreiro.i
 	@echo ... __/src/Entidades/Classes/Guerreiro.s
@@ -3756,6 +4008,9 @@ help:
 	@echo ... __/src/Entidades/Racas/Elfo.obj
 	@echo ... __/src/Entidades/Racas/Elfo.i
 	@echo ... __/src/Entidades/Racas/Elfo.s
+	@echo ... __/src/Entidades/Racas/FabricaRacas.obj
+	@echo ... __/src/Entidades/Racas/FabricaRacas.i
+	@echo ... __/src/Entidades/Racas/FabricaRacas.s
 	@echo ... __/src/Entidades/Racas/Humano.obj
 	@echo ... __/src/Entidades/Racas/Humano.i
 	@echo ... __/src/Entidades/Racas/Humano.s
@@ -3774,6 +4029,21 @@ help:
 	@echo ... __/src/Mapas/Reino/Mapa4Reino.obj
 	@echo ... __/src/Mapas/Reino/Mapa4Reino.i
 	@echo ... __/src/Mapas/Reino/Mapa4Reino.s
+	@echo ... __/src/Mapas/Sistemas/AnimadorMapa.obj
+	@echo ... __/src/Mapas/Sistemas/AnimadorMapa.i
+	@echo ... __/src/Mapas/Sistemas/AnimadorMapa.s
+	@echo ... __/src/Mapas/Sistemas/CarregadorMapa.obj
+	@echo ... __/src/Mapas/Sistemas/CarregadorMapa.i
+	@echo ... __/src/Mapas/Sistemas/CarregadorMapa.s
+	@echo ... __/src/Mapas/Sistemas/ControladorInputMapa.obj
+	@echo ... __/src/Mapas/Sistemas/ControladorInputMapa.i
+	@echo ... __/src/Mapas/Sistemas/ControladorInputMapa.s
+	@echo ... __/src/Mapas/Sistemas/FisicaMapa.obj
+	@echo ... __/src/Mapas/Sistemas/FisicaMapa.i
+	@echo ... __/src/Mapas/Sistemas/FisicaMapa.s
+	@echo ... __/src/Mapas/Sistemas/RenderizadorMapa.obj
+	@echo ... __/src/Mapas/Sistemas/RenderizadorMapa.i
+	@echo ... __/src/Mapas/Sistemas/RenderizadorMapa.s
 	@echo ... __/src/Mapas/Vila/Mapa1Vila.obj
 	@echo ... __/src/Mapas/Vila/Mapa1Vila.i
 	@echo ... __/src/Mapas/Vila/Mapa1Vila.s
@@ -4002,6 +4272,15 @@ help:
 	@echo ... __/src/Sistemas/Combate/CombateUIImpl.obj
 	@echo ... __/src/Sistemas/Combate/CombateUIImpl.i
 	@echo ... __/src/Sistemas/Combate/CombateUIImpl.s
+	@echo ... __/src/Sistemas/Combate/Mecanicas/CalculadoraDano.obj
+	@echo ... __/src/Sistemas/Combate/Mecanicas/CalculadoraDano.i
+	@echo ... __/src/Sistemas/Combate/Mecanicas/CalculadoraDano.s
+	@echo ... __/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.obj
+	@echo ... __/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.i
+	@echo ... __/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.s
+	@echo ... __/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.obj
+	@echo ... __/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.i
+	@echo ... __/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.s
 	@echo ... __/src/Sistemas/Combate/Parry.obj
 	@echo ... __/src/Sistemas/Combate/Parry.i
 	@echo ... __/src/Sistemas/Combate/Parry.s

@@ -30,7 +30,6 @@ const std::vector<std::string>& OrkExilado::obterAparenciaRaca() const
 {
     static const std::vector<std::string> aparencia =
     {
-        "                                                 @                                                                                                    ",
         "                                                 @@@@ @@@                                                                                             ",
         "                                                 @@@@@@@@@@                                                                                           ",
         "                                                 @@@@@@@%%                                                                                            ",

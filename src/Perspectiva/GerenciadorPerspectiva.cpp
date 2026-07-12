@@ -87,7 +87,7 @@ GerenciadorPerspectiva::GerenciadorPerspectiva() : m_visao3DAtiva(true) {
 void GerenciadorPerspectiva::inicializar() {
     m_rendererTerminal = std::make_unique<IDERenderer>();
     // Por enquanto a Engine3D usará as mesmas mecânicas de popup (TelasBase), mas futuramente terá a própria!
-    m_renderer3D = std::make_unique<IDERenderer>(); // TODO: Implementar RaycasterRenderizador como RenderizadorPerspectiva 
+    m_renderer3D = std::make_unique<IDERenderer>(); // No futuro, implementar RaycasterRenderizador como RenderizadorPerspectiva se necessario
 
     m_telasTerminal = std::make_unique<GerenciadorTelasIDE>();
     m_telas3D = std::make_unique<GerenciadorTelasRaycaster>();

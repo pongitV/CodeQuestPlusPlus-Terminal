@@ -107,13 +107,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
  C:/msys64/ucrt64/include/c++/15.2.0/bits/uses_allocator_args.h \
  C:/msys64/ucrt64/include/c++/15.2.0/tuple \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaClasse.h \
- D:\git\ repos\ fixed\RPG-Cpp\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaMenuIDE.h \
- C:/msys64/ucrt64/include/c++/15.2.0/vector \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_uninitialized.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_vector.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_bvector.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/vector.tcc \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/formatfwd.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Classes/ClasseBase.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Personagem.h \
  C:/msys64/ucrt64/include/c++/15.2.0/iostream \
  C:/msys64/ucrt64/include/c++/15.2.0/ostream \
@@ -173,6 +167,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
  C:/msys64/ucrt64/include/c++/15.2.0/bits/enable_special_members.h \
  C:/msys64/ucrt64/include/c++/15.2.0/span \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/monostate.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/formatfwd.h \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/unicode.h \
  C:/msys64/ucrt64/include/c++/15.2.0/cstdint \
  C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/stdint.h \
@@ -187,6 +182,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
  C:/msys64/ucrt64/include/c++/15.2.0/istream \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/istream.tcc \
  C:/msys64/ucrt64/include/c++/15.2.0/memory \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_uninitialized.h \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_raw_storage_iter.h \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/align.h \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/unique_ptr.h \
@@ -213,6 +209,10 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
  C:/msys64/ucrt64/include/c++/15.2.0/bits/erase_if.h \
  C:/msys64/ucrt64/include/c++/15.2.0/unordered_set \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/unordered_set.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/vector \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_vector.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_bvector.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/vector.tcc \
  C:/msys64/ucrt64/include/c++/15.2.0/mutex \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/chrono.h \
  C:/msys64/ucrt64/include/c++/15.2.0/ratio \
@@ -458,6 +458,12 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
  C:/msys64/ucrt64/include/winsvc.h C:/msys64/ucrt64/include/mcx.h \
  C:/msys64/ucrt64/include/imm.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/SistemaDeNivel.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Inventario/FabricaItens.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Core/Utilidades/ControleDeInput.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/ControleInputOutput/ControleDeInput.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Combate/TelaCombate.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Combate/ContextoCombate.h \
+ D:\git\ repos\ fixed\RPG-Cpp\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaMenuIDE.h \
  C:/msys64/ucrt64/include/c++/15.2.0/thread \
  C:/msys64/ucrt64/include/c++/15.2.0/stop_token \
  C:/msys64/ucrt64/include/c++/15.2.0/atomic \
@@ -473,14 +479,4 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
  C:/msys64/ucrt64/include/c++/15.2.0/bits/chrono_io.h \
  C:/msys64/ucrt64/include/c++/15.2.0/iomanip \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/quoted_string.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Core/Utilidades/ControleDeInput.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/ControleInputOutput/ControleDeInput.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Classes/ClasseBase.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Inventario/FabricaItens.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Combate/TelaCombate.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Combate/ContextoCombate.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Classes/Arqueiro.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Classes/Bardo.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Classes/Guerreiro.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Classes/Mago.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Classes/Necromante.h
+ D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Classes/FabricaClasses.h

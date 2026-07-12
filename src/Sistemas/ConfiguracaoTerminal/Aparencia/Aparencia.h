@@ -70,7 +70,7 @@ public:
     static int lerInteiroEmPopupFlutuante(const std::string& mensagem, int limiteMin, int limiteMax, Cor corTema = Cor::BRANCO);
     static void limparPopupAnterior();
     static void definirUltimoPopup(int x, int y, int w, int h, const std::string& bgAnsi = "\033[48;2;25;25;25m");
-    static std::vector<std::string> reduzirEscalaAscii(const std::vector<std::string>& arteOriginal, int fatorX = 2, int fatorY = 2);
+    static std::vector<std::string> reduzirEscalaAscii(const std::vector<std::string>& arteOriginal, float fatorX = 2.0f, float fatorY = 2.0f);
     static std::string sobreporLogoAnsi(const std::string& backgroundLine, const std::vector<std::string>& logoChars, int startX, const std::string& fgColor, int larguraTerminal);
     static std::string fadarLinhaAnsi(const std::string& linha, float ratio);
     

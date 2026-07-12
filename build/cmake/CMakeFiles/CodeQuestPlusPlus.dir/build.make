@@ -266,11 +266,26 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/CloneNecro.cpp.s
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/CloneNecro.cpp.s"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "D:\git repos fixed\RPG-Cpp\src\Entidades\Classes\CloneNecro.cpp" -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Classes\CloneNecro.cpp.s
 
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/FabricaClasses.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/flags.make
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/FabricaClasses.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/FabricaClasses.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Classes/FabricaClasses.cpp
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/FabricaClasses.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/FabricaClasses.cpp.obj"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/FabricaClasses.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Classes\FabricaClasses.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Classes\FabricaClasses.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\Classes\FabricaClasses.cpp"
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/FabricaClasses.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/FabricaClasses.cpp.i"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "D:\git repos fixed\RPG-Cpp\src\Entidades\Classes\FabricaClasses.cpp" > CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Classes\FabricaClasses.cpp.i
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/FabricaClasses.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/FabricaClasses.cpp.s"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "D:\git repos fixed\RPG-Cpp\src\Entidades\Classes\FabricaClasses.cpp" -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Classes\FabricaClasses.cpp.s
+
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Guerreiro.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/flags.make
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Guerreiro.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Guerreiro.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Classes/Guerreiro.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Guerreiro.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Guerreiro.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Guerreiro.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Guerreiro.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Classes\Guerreiro.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Classes\Guerreiro.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\Classes\Guerreiro.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Guerreiro.cpp.i: cmake_force
@@ -285,7 +300,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Mago.cpp.obj: cm
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Mago.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Mago.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Classes/Mago.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Mago.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Mago.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Mago.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Mago.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Classes\Mago.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Classes\Mago.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\Classes\Mago.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Mago.cpp.i: cmake_force
@@ -300,7 +315,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Necromante.cpp.o
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Necromante.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Necromante.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Classes/Necromante.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Necromante.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Necromante.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Necromante.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Necromante.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Classes\Necromante.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Classes\Necromante.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\Classes\Necromante.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Necromante.cpp.i: cmake_force
@@ -315,7 +330,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/AbominacaoFlore
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/AbominacaoFloresta.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/AbominacaoFloresta.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Inimigos/AbominacaoFloresta.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/AbominacaoFloresta.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/AbominacaoFloresta.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_18) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/AbominacaoFloresta.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/AbominacaoFloresta.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Inimigos\AbominacaoFloresta.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Inimigos\AbominacaoFloresta.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\Inimigos\AbominacaoFloresta.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/AbominacaoFloresta.cpp.i: cmake_force
@@ -330,7 +345,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/ClasseBaseInimi
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/ClasseBaseInimigo.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/ClasseBaseInimigo.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Inimigos/ClasseBaseInimigo.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/ClasseBaseInimigo.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_18) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/ClasseBaseInimigo.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_19) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/ClasseBaseInimigo.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/ClasseBaseInimigo.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Inimigos\ClasseBaseInimigo.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Inimigos\ClasseBaseInimigo.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\Inimigos\ClasseBaseInimigo.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/ClasseBaseInimigo.cpp.i: cmake_force
@@ -345,7 +360,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Fada.cpp.obj: c
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Fada.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Fada.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Inimigos/Fada.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Fada.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_19) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Fada.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_20) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Fada.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Fada.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Inimigos\Fada.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Inimigos\Fada.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\Inimigos\Fada.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Fada.cpp.i: cmake_force
@@ -360,7 +375,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Goblin.cpp.obj:
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Goblin.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Goblin.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Inimigos/Goblin.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Goblin.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_20) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Goblin.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_21) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Goblin.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Goblin.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Inimigos\Goblin.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Inimigos\Goblin.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\Inimigos\Goblin.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Goblin.cpp.i: cmake_force
@@ -375,7 +390,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Mahoraga.cpp.ob
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Mahoraga.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Mahoraga.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Inimigos/Mahoraga.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Mahoraga.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_21) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Mahoraga.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_22) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Mahoraga.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Mahoraga.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Inimigos\Mahoraga.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Inimigos\Mahoraga.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\Inimigos\Mahoraga.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Mahoraga.cpp.i: cmake_force
@@ -390,7 +405,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Mimico.cpp.obj:
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Mimico.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Mimico.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Inimigos/Mimico.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Mimico.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_22) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Mimico.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_23) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Mimico.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Mimico.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Inimigos\Mimico.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Inimigos\Mimico.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\Inimigos\Mimico.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Mimico.cpp.i: cmake_force
@@ -405,7 +420,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/OrcExilado.cpp.
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/OrcExilado.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/OrcExilado.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Inimigos/OrcExilado.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/OrcExilado.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_23) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/OrcExilado.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_24) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/OrcExilado.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/OrcExilado.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Inimigos\OrcExilado.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Inimigos\OrcExilado.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\Inimigos\OrcExilado.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/OrcExilado.cpp.i: cmake_force
@@ -420,7 +435,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Slime.cpp.obj: 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Slime.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Slime.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Inimigos/Slime.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Slime.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_24) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Slime.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_25) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Slime.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Slime.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Inimigos\Slime.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Inimigos\Slime.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\Inimigos\Slime.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Slime.cpp.i: cmake_force
@@ -435,7 +450,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Troll.cpp.obj: 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Troll.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Troll.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Inimigos/Troll.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Troll.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_25) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Troll.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_26) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Troll.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Troll.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Inimigos\Troll.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Inimigos\Troll.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\Inimigos\Troll.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Inimigos/Troll.cpp.i: cmake_force
@@ -450,7 +465,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Alquimista/NPCAlqui
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Alquimista/NPCAlquimista.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Alquimista/NPCAlquimista.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/NPCs/Alquimista/NPCAlquimista.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Alquimista/NPCAlquimista.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_26) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Alquimista/NPCAlquimista.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_27) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Alquimista/NPCAlquimista.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Alquimista/NPCAlquimista.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\NPCs\Alquimista\NPCAlquimista.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\NPCs\Alquimista\NPCAlquimista.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\NPCs\Alquimista\NPCAlquimista.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Alquimista/NPCAlquimista.cpp.i: cmake_force
@@ -465,7 +480,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Aparencia/NPCAparen
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Aparencia/NPCAparencia.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Aparencia/NPCAparencia.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/NPCs/Aparencia/NPCAparencia.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Aparencia/NPCAparencia.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_27) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Aparencia/NPCAparencia.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_28) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Aparencia/NPCAparencia.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Aparencia/NPCAparencia.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\NPCs\Aparencia\NPCAparencia.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\NPCs\Aparencia\NPCAparencia.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\NPCs\Aparencia\NPCAparencia.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Aparencia/NPCAparencia.cpp.i: cmake_force
@@ -480,7 +495,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/CavaleiroGenerico/N
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/CavaleiroGenerico/NPCCavaleiroGenerico.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/CavaleiroGenerico/NPCCavaleiroGenerico.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/NPCs/CavaleiroGenerico/NPCCavaleiroGenerico.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/CavaleiroGenerico/NPCCavaleiroGenerico.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_28) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/CavaleiroGenerico/NPCCavaleiroGenerico.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_29) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/CavaleiroGenerico/NPCCavaleiroGenerico.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/CavaleiroGenerico/NPCCavaleiroGenerico.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\NPCs\CavaleiroGenerico\NPCCavaleiroGenerico.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\NPCs\CavaleiroGenerico\NPCCavaleiroGenerico.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\NPCs\CavaleiroGenerico\NPCCavaleiroGenerico.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/CavaleiroGenerico/NPCCavaleiroGenerico.cpp.i: cmake_force
@@ -495,7 +510,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Comida/NPCComida.cp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Comida/NPCComida.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Comida/NPCComida.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/NPCs/Comida/NPCComida.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Comida/NPCComida.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_29) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Comida/NPCComida.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_30) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Comida/NPCComida.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Comida/NPCComida.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\NPCs\Comida\NPCComida.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\NPCs\Comida\NPCComida.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\NPCs\Comida\NPCComida.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Comida/NPCComida.cpp.i: cmake_force
@@ -510,7 +525,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Ferreiro/NPCFerreir
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Ferreiro/NPCFerreiro.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Ferreiro/NPCFerreiro.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/NPCs/Ferreiro/NPCFerreiro.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Ferreiro/NPCFerreiro.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_30) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Ferreiro/NPCFerreiro.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_31) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Ferreiro/NPCFerreiro.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Ferreiro/NPCFerreiro.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\NPCs\Ferreiro\NPCFerreiro.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\NPCs\Ferreiro\NPCFerreiro.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\NPCs\Ferreiro\NPCFerreiro.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Ferreiro/NPCFerreiro.cpp.i: cmake_force
@@ -525,7 +540,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/InteracaoNPC.cpp.ob
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/InteracaoNPC.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/InteracaoNPC.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/NPCs/InteracaoNPC.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/InteracaoNPC.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_31) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/InteracaoNPC.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_32) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/InteracaoNPC.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/InteracaoNPC.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\NPCs\InteracaoNPC.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\NPCs\InteracaoNPC.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\NPCs\InteracaoNPC.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/InteracaoNPC.cpp.i: cmake_force
@@ -540,7 +555,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Maga/NPCMaga.cpp.ob
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Maga/NPCMaga.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Maga/NPCMaga.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/NPCs/Maga/NPCMaga.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Maga/NPCMaga.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_32) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Maga/NPCMaga.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_33) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Maga/NPCMaga.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Maga/NPCMaga.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\NPCs\Maga\NPCMaga.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\NPCs\Maga\NPCMaga.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\NPCs\Maga\NPCMaga.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Maga/NPCMaga.cpp.i: cmake_force
@@ -555,7 +570,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Mercador/NPCMercado
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Mercador/NPCMercador.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Mercador/NPCMercador.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/NPCs/Mercador/NPCMercador.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Mercador/NPCMercador.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_33) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Mercador/NPCMercador.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_34) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Mercador/NPCMercador.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Mercador/NPCMercador.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\NPCs\Mercador\NPCMercador.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\NPCs\Mercador\NPCMercador.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\NPCs\Mercador\NPCMercador.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Mercador/NPCMercador.cpp.i: cmake_force
@@ -570,7 +585,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Padre/NPCPadre.cpp.
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Padre/NPCPadre.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Padre/NPCPadre.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/NPCs/Padre/NPCPadre.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Padre/NPCPadre.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_34) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Padre/NPCPadre.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_35) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Padre/NPCPadre.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Padre/NPCPadre.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\NPCs\Padre\NPCPadre.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\NPCs\Padre\NPCPadre.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\NPCs\Padre\NPCPadre.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/NPCs/Padre/NPCPadre.cpp.i: cmake_force
@@ -585,7 +600,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Personagem.cpp.obj: cmak
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Personagem.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Personagem.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Personagem.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Personagem.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_35) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Personagem.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_36) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Personagem.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Personagem.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Personagem.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Personagem.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\Personagem.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Personagem.cpp.i: cmake_force
@@ -600,7 +615,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Anao.cpp.obj: cmak
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Anao.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Anao.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Racas/Anao.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Anao.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_36) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Anao.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_37) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Anao.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Anao.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Racas\Anao.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Racas\Anao.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\Racas\Anao.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Anao.cpp.i: cmake_force
@@ -615,7 +630,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/CloneNecro.cpp.obj
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/CloneNecro.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/CloneNecro.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Racas/CloneNecro.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/CloneNecro.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_37) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/CloneNecro.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_38) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/CloneNecro.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/CloneNecro.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Racas\CloneNecro.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Racas\CloneNecro.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\Racas\CloneNecro.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/CloneNecro.cpp.i: cmake_force
@@ -630,7 +645,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Elfo.cpp.obj: cmak
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Elfo.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Elfo.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Racas/Elfo.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Elfo.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_38) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Elfo.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_39) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Elfo.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Elfo.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Racas\Elfo.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Racas\Elfo.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\Racas\Elfo.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Elfo.cpp.i: cmake_force
@@ -641,11 +656,26 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Elfo.cpp.s: cmake_
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Elfo.cpp.s"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "D:\git repos fixed\RPG-Cpp\src\Entidades\Racas\Elfo.cpp" -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Racas\Elfo.cpp.s
 
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/FabricaRacas.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/flags.make
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/FabricaRacas.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/FabricaRacas.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Racas/FabricaRacas.cpp
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/FabricaRacas.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_40) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/FabricaRacas.cpp.obj"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/FabricaRacas.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Racas\FabricaRacas.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Racas\FabricaRacas.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\Racas\FabricaRacas.cpp"
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/FabricaRacas.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/FabricaRacas.cpp.i"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "D:\git repos fixed\RPG-Cpp\src\Entidades\Racas\FabricaRacas.cpp" > CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Racas\FabricaRacas.cpp.i
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/FabricaRacas.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/FabricaRacas.cpp.s"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "D:\git repos fixed\RPG-Cpp\src\Entidades\Racas\FabricaRacas.cpp" -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Racas\FabricaRacas.cpp.s
+
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Humano.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/flags.make
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Humano.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Humano.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Racas/Humano.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Humano.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_39) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Humano.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_41) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Humano.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Humano.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Racas\Humano.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Racas\Humano.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\Racas\Humano.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Humano.cpp.i: cmake_force
@@ -660,7 +690,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Orc.cpp.obj: cmake
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Orc.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Orc.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Racas/Orc.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Orc.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_40) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Orc.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_42) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Orc.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Orc.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Racas\Orc.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Entidades\Racas\Orc.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Entidades\Racas\Orc.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Orc.cpp.i: cmake_force
@@ -675,7 +705,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/ControleMapa.cpp.obj: cmake/
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/ControleMapa.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/ControleMapa.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Mapas/ControleMapa.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/ControleMapa.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_41) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/ControleMapa.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_43) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/ControleMapa.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/ControleMapa.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\ControleMapa.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\ControleMapa.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Mapas\ControleMapa.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/ControleMapa.cpp.i: cmake_force
@@ -690,7 +720,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Floresta/Mapa2Floresta.cpp.o
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Floresta/Mapa2Floresta.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Floresta/Mapa2Floresta.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Mapas/Floresta/Mapa2Floresta.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Floresta/Mapa2Floresta.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_42) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Floresta/Mapa2Floresta.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_44) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Floresta/Mapa2Floresta.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Floresta/Mapa2Floresta.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Floresta\Mapa2Floresta.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Floresta\Mapa2Floresta.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Mapas\Floresta\Mapa2Floresta.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Floresta/Mapa2Floresta.cpp.i: cmake_force
@@ -705,7 +735,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa3PonteReino.cpp.ob
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa3PonteReino.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa3PonteReino.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Mapas/Reino/Mapa3PonteReino.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa3PonteReino.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_43) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa3PonteReino.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_45) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa3PonteReino.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa3PonteReino.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Reino\Mapa3PonteReino.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Reino\Mapa3PonteReino.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Mapas\Reino\Mapa3PonteReino.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa3PonteReino.cpp.i: cmake_force
@@ -720,7 +750,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa4Reino.cpp.obj: cm
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa4Reino.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa4Reino.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Mapas/Reino/Mapa4Reino.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa4Reino.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_44) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa4Reino.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_46) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa4Reino.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa4Reino.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Reino\Mapa4Reino.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Reino\Mapa4Reino.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Mapas\Reino\Mapa4Reino.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa4Reino.cpp.i: cmake_force
@@ -731,11 +761,86 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa4Reino.cpp.s: cmak
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa4Reino.cpp.s"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "D:\git repos fixed\RPG-Cpp\src\Mapas\Reino\Mapa4Reino.cpp" -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Reino\Mapa4Reino.cpp.s
 
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/AnimadorMapa.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/flags.make
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/AnimadorMapa.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/AnimadorMapa.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Mapas/Sistemas/AnimadorMapa.cpp
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/AnimadorMapa.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_47) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/AnimadorMapa.cpp.obj"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/AnimadorMapa.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Sistemas\AnimadorMapa.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Sistemas\AnimadorMapa.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Mapas\Sistemas\AnimadorMapa.cpp"
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/AnimadorMapa.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/AnimadorMapa.cpp.i"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "D:\git repos fixed\RPG-Cpp\src\Mapas\Sistemas\AnimadorMapa.cpp" > CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Sistemas\AnimadorMapa.cpp.i
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/AnimadorMapa.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/AnimadorMapa.cpp.s"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "D:\git repos fixed\RPG-Cpp\src\Mapas\Sistemas\AnimadorMapa.cpp" -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Sistemas\AnimadorMapa.cpp.s
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/CarregadorMapa.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/flags.make
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/CarregadorMapa.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/CarregadorMapa.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Mapas/Sistemas/CarregadorMapa.cpp
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/CarregadorMapa.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_48) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/CarregadorMapa.cpp.obj"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/CarregadorMapa.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Sistemas\CarregadorMapa.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Sistemas\CarregadorMapa.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Mapas\Sistemas\CarregadorMapa.cpp"
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/CarregadorMapa.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/CarregadorMapa.cpp.i"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "D:\git repos fixed\RPG-Cpp\src\Mapas\Sistemas\CarregadorMapa.cpp" > CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Sistemas\CarregadorMapa.cpp.i
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/CarregadorMapa.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/CarregadorMapa.cpp.s"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "D:\git repos fixed\RPG-Cpp\src\Mapas\Sistemas\CarregadorMapa.cpp" -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Sistemas\CarregadorMapa.cpp.s
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/ControladorInputMapa.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/flags.make
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/ControladorInputMapa.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/ControladorInputMapa.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Mapas/Sistemas/ControladorInputMapa.cpp
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/ControladorInputMapa.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_49) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/ControladorInputMapa.cpp.obj"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/ControladorInputMapa.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Sistemas\ControladorInputMapa.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Sistemas\ControladorInputMapa.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Mapas\Sistemas\ControladorInputMapa.cpp"
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/ControladorInputMapa.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/ControladorInputMapa.cpp.i"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "D:\git repos fixed\RPG-Cpp\src\Mapas\Sistemas\ControladorInputMapa.cpp" > CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Sistemas\ControladorInputMapa.cpp.i
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/ControladorInputMapa.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/ControladorInputMapa.cpp.s"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "D:\git repos fixed\RPG-Cpp\src\Mapas\Sistemas\ControladorInputMapa.cpp" -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Sistemas\ControladorInputMapa.cpp.s
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/FisicaMapa.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/flags.make
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/FisicaMapa.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/FisicaMapa.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Mapas/Sistemas/FisicaMapa.cpp
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/FisicaMapa.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_50) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/FisicaMapa.cpp.obj"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/FisicaMapa.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Sistemas\FisicaMapa.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Sistemas\FisicaMapa.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Mapas\Sistemas\FisicaMapa.cpp"
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/FisicaMapa.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/FisicaMapa.cpp.i"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "D:\git repos fixed\RPG-Cpp\src\Mapas\Sistemas\FisicaMapa.cpp" > CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Sistemas\FisicaMapa.cpp.i
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/FisicaMapa.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/FisicaMapa.cpp.s"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "D:\git repos fixed\RPG-Cpp\src\Mapas\Sistemas\FisicaMapa.cpp" -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Sistemas\FisicaMapa.cpp.s
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/RenderizadorMapa.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/flags.make
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/RenderizadorMapa.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/RenderizadorMapa.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Mapas/Sistemas/RenderizadorMapa.cpp
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/RenderizadorMapa.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_51) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/RenderizadorMapa.cpp.obj"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/RenderizadorMapa.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Sistemas\RenderizadorMapa.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Sistemas\RenderizadorMapa.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Mapas\Sistemas\RenderizadorMapa.cpp"
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/RenderizadorMapa.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/RenderizadorMapa.cpp.i"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "D:\git repos fixed\RPG-Cpp\src\Mapas\Sistemas\RenderizadorMapa.cpp" > CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Sistemas\RenderizadorMapa.cpp.i
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/RenderizadorMapa.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/RenderizadorMapa.cpp.s"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "D:\git repos fixed\RPG-Cpp\src\Mapas\Sistemas\RenderizadorMapa.cpp" -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Sistemas\RenderizadorMapa.cpp.s
+
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Vila/Mapa1Vila.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/flags.make
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Vila/Mapa1Vila.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Vila/Mapa1Vila.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Mapas/Vila/Mapa1Vila.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Vila/Mapa1Vila.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_45) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Vila/Mapa1Vila.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_52) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Vila/Mapa1Vila.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Vila/Mapa1Vila.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Vila\Mapa1Vila.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Mapas\Vila\Mapa1Vila.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Mapas\Vila\Mapa1Vila.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Vila/Mapa1Vila.cpp.i: cmake_force
@@ -750,7 +855,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/GerenciadorPerspectiva
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/GerenciadorPerspectiva.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/GerenciadorPerspectiva.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/GerenciadorPerspectiva.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/GerenciadorPerspectiva.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_46) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/GerenciadorPerspectiva.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_53) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/GerenciadorPerspectiva.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/GerenciadorPerspectiva.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\GerenciadorPerspectiva.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\GerenciadorPerspectiva.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\GerenciadorPerspectiva.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/GerenciadorPerspectiva.cpp.i: cmake_force
@@ -765,7 +870,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/EngineI
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/EngineIDE/IDEAnimator.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/EngineIDE/IDEAnimator.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaIDE/EngineIDE/IDEAnimator.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/EngineIDE/IDEAnimator.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_47) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/EngineIDE/IDEAnimator.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_54) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/EngineIDE/IDEAnimator.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/EngineIDE/IDEAnimator.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\EngineIDE\IDEAnimator.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\EngineIDE\IDEAnimator.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaIDE\EngineIDE\IDEAnimator.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/EngineIDE/IDEAnimator.cpp.i: cmake_force
@@ -780,7 +885,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/EngineI
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/EngineIDE/IDECodeFormatter.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/EngineIDE/IDECodeFormatter.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaIDE/EngineIDE/IDECodeFormatter.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/EngineIDE/IDECodeFormatter.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_48) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/EngineIDE/IDECodeFormatter.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_55) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/EngineIDE/IDECodeFormatter.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/EngineIDE/IDECodeFormatter.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\EngineIDE\IDECodeFormatter.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\EngineIDE\IDECodeFormatter.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaIDE\EngineIDE\IDECodeFormatter.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/EngineIDE/IDECodeFormatter.cpp.i: cmake_force
@@ -795,7 +900,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/Gerenci
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/GerenciadorTelasIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/GerenciadorTelasIDE.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaIDE/GerenciadorTelasIDE.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/GerenciadorTelasIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_49) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/GerenciadorTelasIDE.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_56) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/GerenciadorTelasIDE.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/GerenciadorTelasIDE.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\GerenciadorTelasIDE.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\GerenciadorTelasIDE.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaIDE\GerenciadorTelasIDE.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/GerenciadorTelasIDE.cpp.i: cmake_force
@@ -810,7 +915,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Atributos/TelaAtributosIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Atributos/TelaAtributosIDE.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaIDE/TelasIDE/Atributos/TelaAtributosIDE.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Atributos/TelaAtributosIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_50) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Atributos/TelaAtributosIDE.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_57) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Atributos/TelaAtributosIDE.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Atributos/TelaAtributosIDE.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Atributos\TelaAtributosIDE.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Atributos\TelaAtributosIDE.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaIDE\TelasIDE\Atributos\TelaAtributosIDE.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Atributos/TelaAtributosIDE.cpp.i: cmake_force
@@ -825,7 +930,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Bestiario/TelaBestiarioIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Bestiario/TelaBestiarioIDE.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaIDE/TelasIDE/Bestiario/TelaBestiarioIDE.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Bestiario/TelaBestiarioIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_51) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Bestiario/TelaBestiarioIDE.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_58) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Bestiario/TelaBestiarioIDE.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Bestiario/TelaBestiarioIDE.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Bestiario\TelaBestiarioIDE.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Bestiario\TelaBestiarioIDE.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaIDE\TelasIDE\Bestiario\TelaBestiarioIDE.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Bestiario/TelaBestiarioIDE.cpp.i: cmake_force
@@ -840,7 +945,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Combate/TelaCombateIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Combate/TelaCombateIDE.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaIDE/TelasIDE/Combate/TelaCombateIDE.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Combate/TelaCombateIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_52) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Combate/TelaCombateIDE.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_59) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Combate/TelaCombateIDE.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Combate/TelaCombateIDE.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Combate\TelaCombateIDE.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Combate\TelaCombateIDE.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaIDE\TelasIDE\Combate\TelaCombateIDE.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Combate/TelaCombateIDE.cpp.i: cmake_force
@@ -855,7 +960,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Derrota/TelaDerrotaIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Derrota/TelaDerrotaIDE.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaIDE/TelasIDE/Derrota/TelaDerrotaIDE.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Derrota/TelaDerrotaIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_53) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Derrota/TelaDerrotaIDE.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_60) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Derrota/TelaDerrotaIDE.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Derrota/TelaDerrotaIDE.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Derrota\TelaDerrotaIDE.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Derrota\TelaDerrotaIDE.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaIDE\TelasIDE\Derrota\TelaDerrotaIDE.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Derrota/TelaDerrotaIDE.cpp.i: cmake_force
@@ -870,7 +975,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Diario/TelaDiarioIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Diario/TelaDiarioIDE.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaIDE/TelasIDE/Diario/TelaDiarioIDE.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Diario/TelaDiarioIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_54) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Diario/TelaDiarioIDE.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_61) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Diario/TelaDiarioIDE.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Diario/TelaDiarioIDE.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Diario\TelaDiarioIDE.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Diario\TelaDiarioIDE.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaIDE\TelasIDE\Diario\TelaDiarioIDE.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Diario/TelaDiarioIDE.cpp.i: cmake_force
@@ -885,7 +990,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Inventario/TelaInventarioIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Inventario/TelaInventarioIDE.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaIDE/TelasIDE/Inventario/TelaInventarioIDE.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Inventario/TelaInventarioIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_55) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Inventario/TelaInventarioIDE.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_62) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Inventario/TelaInventarioIDE.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Inventario/TelaInventarioIDE.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Inventario\TelaInventarioIDE.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Inventario\TelaInventarioIDE.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaIDE\TelasIDE\Inventario\TelaInventarioIDE.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Inventario/TelaInventarioIDE.cpp.i: cmake_force
@@ -900,7 +1005,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Mapa/TelaMapaIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Mapa/TelaMapaIDE.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaIDE/TelasIDE/Mapa/TelaMapaIDE.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Mapa/TelaMapaIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_56) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Mapa/TelaMapaIDE.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_63) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Mapa/TelaMapaIDE.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Mapa/TelaMapaIDE.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Mapa\TelaMapaIDE.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Mapa\TelaMapaIDE.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaIDE\TelasIDE\Mapa\TelaMapaIDE.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Mapa/TelaMapaIDE.cpp.i: cmake_force
@@ -915,7 +1020,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaAberturaIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaAberturaIDE.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaAberturaIDE.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaAberturaIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_57) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaAberturaIDE.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_64) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaAberturaIDE.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaAberturaIDE.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaAberturaIDE.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaAberturaIDE.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaAberturaIDE.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaAberturaIDE.cpp.i: cmake_force
@@ -930,7 +1035,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaClasseIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaClasseIDE.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaClasseIDE.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaClasseIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_58) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaClasseIDE.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_65) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaClasseIDE.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaClasseIDE.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaClasseIDE.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaClasseIDE.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaClasseIDE.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaClasseIDE.cpp.i: cmake_force
@@ -945,7 +1050,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaDificuldadeIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaDificuldadeIDE.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaDificuldadeIDE.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaDificuldadeIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_59) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaDificuldadeIDE.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_66) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaDificuldadeIDE.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaDificuldadeIDE.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaDificuldadeIDE.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaDificuldadeIDE.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaDificuldadeIDE.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaDificuldadeIDE.cpp.i: cmake_force
@@ -960,7 +1065,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaIntroducaoIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaIntroducaoIDE.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaIntroducaoIDE.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaIntroducaoIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_60) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaIntroducaoIDE.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_67) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaIntroducaoIDE.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaIntroducaoIDE.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaIntroducaoIDE.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaIntroducaoIDE.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaIntroducaoIDE.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaIntroducaoIDE.cpp.i: cmake_force
@@ -975,7 +1080,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaMenuIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaMenuIDE.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaMenuIDE.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaMenuIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_61) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaMenuIDE.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_68) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaMenuIDE.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaMenuIDE.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaMenuIDE.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaMenuIDE.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaMenuIDE.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaMenuIDE.cpp.i: cmake_force
@@ -990,7 +1095,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaNomeIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaNomeIDE.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaNomeIDE.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaNomeIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_62) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaNomeIDE.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_69) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaNomeIDE.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaNomeIDE.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaNomeIDE.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaNomeIDE.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaNomeIDE.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaNomeIDE.cpp.i: cmake_force
@@ -1005,7 +1110,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaParryIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaParryIDE.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaParryIDE.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaParryIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_63) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaParryIDE.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_70) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaParryIDE.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaParryIDE.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaParryIDE.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaParryIDE.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaParryIDE.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaParryIDE.cpp.i: cmake_force
@@ -1020,7 +1125,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaRacaIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaRacaIDE.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaRacaIDE.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaRacaIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_64) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaRacaIDE.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_71) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaRacaIDE.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaRacaIDE.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaRacaIDE.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaRacaIDE.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaRacaIDE.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Menu/TelaRacaIDE.cpp.i: cmake_force
@@ -1035,7 +1140,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Pause/TelaPauseIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Pause/TelaPauseIDE.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaIDE/TelasIDE/Pause/TelaPauseIDE.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Pause/TelaPauseIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_65) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Pause/TelaPauseIDE.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_72) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Pause/TelaPauseIDE.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Pause/TelaPauseIDE.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Pause\TelaPauseIDE.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Pause\TelaPauseIDE.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaIDE\TelasIDE\Pause\TelaPauseIDE.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Pause/TelaPauseIDE.cpp.i: cmake_force
@@ -1050,7 +1155,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Vitoria/TelaVitoriaIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Vitoria/TelaVitoriaIDE.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaIDE/TelasIDE/Vitoria/TelaVitoriaIDE.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Vitoria/TelaVitoriaIDE.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_66) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Vitoria/TelaVitoriaIDE.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_73) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Vitoria/TelaVitoriaIDE.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Vitoria/TelaVitoriaIDE.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Vitoria\TelaVitoriaIDE.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaIDE\TelasIDE\Vitoria\TelaVitoriaIDE.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaIDE\TelasIDE\Vitoria\TelaVitoriaIDE.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasIDE/Vitoria/TelaVitoriaIDE.cpp.i: cmake_force
@@ -1065,7 +1170,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/E
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/Raycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/Raycaster.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/Raycaster.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/Raycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_67) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/Raycaster.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_74) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/Raycaster.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/Raycaster.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\Raycaster.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\Raycaster.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\Raycaster.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/Raycaster.cpp.i: cmake_force
@@ -1080,7 +1185,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/E
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterControles.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterControles.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterControles.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterControles.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_68) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterControles.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_75) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterControles.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterControles.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\RaycasterControles.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\RaycasterControles.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\RaycasterControles.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterControles.cpp.i: cmake_force
@@ -1095,7 +1200,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/E
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterHUD.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterHUD.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterHUD.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterHUD.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_69) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterHUD.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_76) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterHUD.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterHUD.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\RaycasterHUD.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\RaycasterHUD.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\RaycasterHUD.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterHUD.cpp.i: cmake_force
@@ -1110,7 +1215,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/E
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterInimigos.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterInimigos.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterInimigos.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterInimigos.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_70) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterInimigos.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_77) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterInimigos.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterInimigos.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\RaycasterInimigos.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\RaycasterInimigos.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\RaycasterInimigos.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterInimigos.cpp.i: cmake_force
@@ -1125,7 +1230,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/E
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterMundo.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterMundo.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterMundo.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterMundo.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_71) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterMundo.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_78) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterMundo.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterMundo.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\RaycasterMundo.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\RaycasterMundo.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\RaycasterMundo.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterMundo.cpp.i: cmake_force
@@ -1140,7 +1245,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/E
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterNPCs.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterNPCs.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterNPCs.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterNPCs.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_72) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterNPCs.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_79) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterNPCs.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterNPCs.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\RaycasterNPCs.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\RaycasterNPCs.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\RaycasterNPCs.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterNPCs.cpp.i: cmake_force
@@ -1155,7 +1260,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/E
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterRenderizador.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterRenderizador.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterRenderizador.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterRenderizador.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_73) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterRenderizador.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_80) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterRenderizador.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterRenderizador.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\RaycasterRenderizador.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\RaycasterRenderizador.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\RaycasterRenderizador.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterRenderizador.cpp.i: cmake_force
@@ -1170,7 +1275,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/E
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterRenderizadorCombate.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterRenderizadorCombate.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterRenderizadorCombate.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterRenderizadorCombate.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_74) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterRenderizadorCombate.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_81) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterRenderizadorCombate.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterRenderizadorCombate.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\RaycasterRenderizadorCombate.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\RaycasterRenderizadorCombate.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\RaycasterRenderizadorCombate.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterRenderizadorCombate.cpp.i: cmake_force
@@ -1185,7 +1290,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/E
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterSprites.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterSprites.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterSprites.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterSprites.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_75) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterSprites.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_82) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterSprites.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterSprites.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\RaycasterSprites.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\RaycasterSprites.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\EngineRaycaster\RaycasterSprites.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterSprites.cpp.i: cmake_force
@@ -1200,7 +1305,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/G
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/GerenciadorTelasRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/GerenciadorTelasRaycaster.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/GerenciadorTelasRaycaster.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/GerenciadorTelasRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_76) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/GerenciadorTelasRaycaster.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_83) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/GerenciadorTelasRaycaster.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/GerenciadorTelasRaycaster.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\GerenciadorTelasRaycaster.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\GerenciadorTelasRaycaster.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\GerenciadorTelasRaycaster.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/GerenciadorTelasRaycaster.cpp.i: cmake_force
@@ -1215,7 +1320,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/T
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Atributos/TelaAtributosRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Atributos/TelaAtributosRaycaster.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Atributos/TelaAtributosRaycaster.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Atributos/TelaAtributosRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_77) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Atributos/TelaAtributosRaycaster.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_84) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Atributos/TelaAtributosRaycaster.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Atributos/TelaAtributosRaycaster.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Atributos\TelaAtributosRaycaster.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Atributos\TelaAtributosRaycaster.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Atributos\TelaAtributosRaycaster.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Atributos/TelaAtributosRaycaster.cpp.i: cmake_force
@@ -1230,7 +1335,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/T
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Bestiario/TelaBestiarioRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Bestiario/TelaBestiarioRaycaster.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Bestiario/TelaBestiarioRaycaster.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Bestiario/TelaBestiarioRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_78) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Bestiario/TelaBestiarioRaycaster.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_85) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Bestiario/TelaBestiarioRaycaster.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Bestiario/TelaBestiarioRaycaster.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Bestiario\TelaBestiarioRaycaster.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Bestiario\TelaBestiarioRaycaster.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Bestiario\TelaBestiarioRaycaster.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Bestiario/TelaBestiarioRaycaster.cpp.i: cmake_force
@@ -1245,7 +1350,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/T
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Combate/TelaCombateRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Combate/TelaCombateRaycaster.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Combate/TelaCombateRaycaster.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Combate/TelaCombateRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_79) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Combate/TelaCombateRaycaster.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_86) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Combate/TelaCombateRaycaster.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Combate/TelaCombateRaycaster.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Combate\TelaCombateRaycaster.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Combate\TelaCombateRaycaster.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Combate\TelaCombateRaycaster.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Combate/TelaCombateRaycaster.cpp.i: cmake_force
@@ -1260,7 +1365,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/T
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Derrota/TelaDerrotaRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Derrota/TelaDerrotaRaycaster.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Derrota/TelaDerrotaRaycaster.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Derrota/TelaDerrotaRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_80) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Derrota/TelaDerrotaRaycaster.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_87) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Derrota/TelaDerrotaRaycaster.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Derrota/TelaDerrotaRaycaster.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Derrota\TelaDerrotaRaycaster.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Derrota\TelaDerrotaRaycaster.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Derrota\TelaDerrotaRaycaster.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Derrota/TelaDerrotaRaycaster.cpp.i: cmake_force
@@ -1275,7 +1380,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/T
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Diario/TelaDiarioRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Diario/TelaDiarioRaycaster.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Diario/TelaDiarioRaycaster.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Diario/TelaDiarioRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_81) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Diario/TelaDiarioRaycaster.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_88) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Diario/TelaDiarioRaycaster.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Diario/TelaDiarioRaycaster.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Diario\TelaDiarioRaycaster.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Diario\TelaDiarioRaycaster.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Diario\TelaDiarioRaycaster.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Diario/TelaDiarioRaycaster.cpp.i: cmake_force
@@ -1290,7 +1395,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/T
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Inventario/TelaInventarioRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Inventario/TelaInventarioRaycaster.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Inventario/TelaInventarioRaycaster.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Inventario/TelaInventarioRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_82) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Inventario/TelaInventarioRaycaster.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_89) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Inventario/TelaInventarioRaycaster.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Inventario/TelaInventarioRaycaster.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Inventario\TelaInventarioRaycaster.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Inventario\TelaInventarioRaycaster.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Inventario\TelaInventarioRaycaster.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Inventario/TelaInventarioRaycaster.cpp.i: cmake_force
@@ -1305,7 +1410,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/T
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Mapa/TelaMapaMundoRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Mapa/TelaMapaMundoRaycaster.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Mapa/TelaMapaMundoRaycaster.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Mapa/TelaMapaMundoRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_83) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Mapa/TelaMapaMundoRaycaster.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_90) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Mapa/TelaMapaMundoRaycaster.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Mapa/TelaMapaMundoRaycaster.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Mapa\TelaMapaMundoRaycaster.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Mapa\TelaMapaMundoRaycaster.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Mapa\TelaMapaMundoRaycaster.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Mapa/TelaMapaMundoRaycaster.cpp.i: cmake_force
@@ -1320,7 +1425,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/T
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Mapa/TelaMapaRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Mapa/TelaMapaRaycaster.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Mapa/TelaMapaRaycaster.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Mapa/TelaMapaRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_84) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Mapa/TelaMapaRaycaster.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_91) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Mapa/TelaMapaRaycaster.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Mapa/TelaMapaRaycaster.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Mapa\TelaMapaRaycaster.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Mapa\TelaMapaRaycaster.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Mapa\TelaMapaRaycaster.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Mapa/TelaMapaRaycaster.cpp.i: cmake_force
@@ -1335,7 +1440,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/T
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaAberturaRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaAberturaRaycaster.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaAberturaRaycaster.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaAberturaRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_85) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaAberturaRaycaster.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_92) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaAberturaRaycaster.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaAberturaRaycaster.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Menu\TelaAberturaRaycaster.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Menu\TelaAberturaRaycaster.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Menu\TelaAberturaRaycaster.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaAberturaRaycaster.cpp.i: cmake_force
@@ -1350,7 +1455,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/T
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaClasseRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaClasseRaycaster.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaClasseRaycaster.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaClasseRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_86) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaClasseRaycaster.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_93) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaClasseRaycaster.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaClasseRaycaster.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Menu\TelaClasseRaycaster.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Menu\TelaClasseRaycaster.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Menu\TelaClasseRaycaster.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaClasseRaycaster.cpp.i: cmake_force
@@ -1365,7 +1470,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/T
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaDificuldadeRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaDificuldadeRaycaster.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaDificuldadeRaycaster.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaDificuldadeRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_87) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaDificuldadeRaycaster.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_94) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaDificuldadeRaycaster.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaDificuldadeRaycaster.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Menu\TelaDificuldadeRaycaster.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Menu\TelaDificuldadeRaycaster.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Menu\TelaDificuldadeRaycaster.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaDificuldadeRaycaster.cpp.i: cmake_force
@@ -1380,7 +1485,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/T
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaIntroducaoRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaIntroducaoRaycaster.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaIntroducaoRaycaster.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaIntroducaoRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_88) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaIntroducaoRaycaster.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_95) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaIntroducaoRaycaster.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaIntroducaoRaycaster.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Menu\TelaIntroducaoRaycaster.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Menu\TelaIntroducaoRaycaster.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Menu\TelaIntroducaoRaycaster.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaIntroducaoRaycaster.cpp.i: cmake_force
@@ -1395,7 +1500,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/T
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaMenuRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaMenuRaycaster.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaMenuRaycaster.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaMenuRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_89) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaMenuRaycaster.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_96) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaMenuRaycaster.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaMenuRaycaster.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Menu\TelaMenuRaycaster.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Menu\TelaMenuRaycaster.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Menu\TelaMenuRaycaster.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaMenuRaycaster.cpp.i: cmake_force
@@ -1410,7 +1515,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/T
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaNomeRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaNomeRaycaster.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaNomeRaycaster.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaNomeRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_90) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaNomeRaycaster.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_97) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaNomeRaycaster.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaNomeRaycaster.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Menu\TelaNomeRaycaster.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Menu\TelaNomeRaycaster.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Menu\TelaNomeRaycaster.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaNomeRaycaster.cpp.i: cmake_force
@@ -1425,7 +1530,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/T
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaParryRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaParryRaycaster.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaParryRaycaster.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaParryRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_91) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaParryRaycaster.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_98) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaParryRaycaster.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaParryRaycaster.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Menu\TelaParryRaycaster.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Menu\TelaParryRaycaster.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Menu\TelaParryRaycaster.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaParryRaycaster.cpp.i: cmake_force
@@ -1440,7 +1545,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/T
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaRacaRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaRacaRaycaster.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaRacaRaycaster.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaRacaRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_92) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaRacaRaycaster.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_99) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaRacaRaycaster.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaRacaRaycaster.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Menu\TelaRacaRaycaster.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Menu\TelaRacaRaycaster.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Menu\TelaRacaRaycaster.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Menu/TelaRacaRaycaster.cpp.i: cmake_force
@@ -1455,7 +1560,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/T
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Pause/TelaPauseRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Pause/TelaPauseRaycaster.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Pause/TelaPauseRaycaster.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Pause/TelaPauseRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_93) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Pause/TelaPauseRaycaster.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_100) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Pause/TelaPauseRaycaster.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Pause/TelaPauseRaycaster.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Pause\TelaPauseRaycaster.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Pause\TelaPauseRaycaster.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Pause\TelaPauseRaycaster.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Pause/TelaPauseRaycaster.cpp.i: cmake_force
@@ -1470,7 +1575,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/T
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Vitoria/TelaVitoriaRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Vitoria/TelaVitoriaRaycaster.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Vitoria/TelaVitoriaRaycaster.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Vitoria/TelaVitoriaRaycaster.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_94) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Vitoria/TelaVitoriaRaycaster.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_101) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Vitoria/TelaVitoriaRaycaster.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Vitoria/TelaVitoriaRaycaster.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Vitoria\TelaVitoriaRaycaster.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Vitoria\TelaVitoriaRaycaster.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\PerspectivaRaycaster\TelasRaycaster\Vitoria\TelaVitoriaRaycaster.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaRaycaster/TelasRaycaster/Vitoria/TelaVitoriaRaycaster.cpp.i: cmake_force
@@ -1485,7 +1590,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Atributos/Te
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Atributos/TelaAtributos.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Atributos/TelaAtributos.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Atributos/TelaAtributos.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Atributos/TelaAtributos.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_95) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Atributos/TelaAtributos.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_102) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Atributos/TelaAtributos.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Atributos/TelaAtributos.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Atributos\TelaAtributos.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Atributos\TelaAtributos.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\TelasBase\Atributos\TelaAtributos.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Atributos/TelaAtributos.cpp.i: cmake_force
@@ -1500,7 +1605,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Bestiario/Te
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Bestiario/TelaBestiario.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Bestiario/TelaBestiario.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Bestiario/TelaBestiario.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Bestiario/TelaBestiario.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_96) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Bestiario/TelaBestiario.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_103) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Bestiario/TelaBestiario.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Bestiario/TelaBestiario.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Bestiario\TelaBestiario.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Bestiario\TelaBestiario.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\TelasBase\Bestiario\TelaBestiario.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Bestiario/TelaBestiario.cpp.i: cmake_force
@@ -1515,7 +1620,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Combate/Tela
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Combate/TelaCombate.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Combate/TelaCombate.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Combate/TelaCombate.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Combate/TelaCombate.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_97) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Combate/TelaCombate.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_104) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Combate/TelaCombate.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Combate/TelaCombate.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Combate\TelaCombate.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Combate\TelaCombate.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\TelasBase\Combate\TelaCombate.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Combate/TelaCombate.cpp.i: cmake_force
@@ -1530,7 +1635,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Derrota/Tela
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Derrota/TelaDerrota.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Derrota/TelaDerrota.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Derrota/TelaDerrota.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Derrota/TelaDerrota.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_98) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Derrota/TelaDerrota.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_105) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Derrota/TelaDerrota.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Derrota/TelaDerrota.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Derrota\TelaDerrota.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Derrota\TelaDerrota.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\TelasBase\Derrota\TelaDerrota.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Derrota/TelaDerrota.cpp.i: cmake_force
@@ -1545,7 +1650,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Diario/TelaD
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Diario/TelaDiario.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Diario/TelaDiario.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Diario/TelaDiario.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Diario/TelaDiario.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_99) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Diario/TelaDiario.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_106) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Diario/TelaDiario.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Diario/TelaDiario.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Diario\TelaDiario.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Diario\TelaDiario.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\TelasBase\Diario\TelaDiario.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Diario/TelaDiario.cpp.i: cmake_force
@@ -1560,7 +1665,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Diario/TelaD
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Diario/TelaDiarioLogic.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Diario/TelaDiarioLogic.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Diario/TelaDiarioLogic.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Diario/TelaDiarioLogic.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_100) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Diario/TelaDiarioLogic.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_107) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Diario/TelaDiarioLogic.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Diario/TelaDiarioLogic.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Diario\TelaDiarioLogic.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Diario\TelaDiarioLogic.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\TelasBase\Diario\TelaDiarioLogic.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Diario/TelaDiarioLogic.cpp.i: cmake_force
@@ -1575,7 +1680,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Inventario/T
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Inventario/TelaInventario.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Inventario/TelaInventario.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Inventario/TelaInventario.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Inventario/TelaInventario.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_101) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Inventario/TelaInventario.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_108) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Inventario/TelaInventario.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Inventario/TelaInventario.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Inventario\TelaInventario.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Inventario\TelaInventario.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\TelasBase\Inventario\TelaInventario.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Inventario/TelaInventario.cpp.i: cmake_force
@@ -1590,7 +1695,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/MapaMundial/
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/MapaMundial/TelaMapaMundo.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/MapaMundial/TelaMapaMundo.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/MapaMundial/TelaMapaMundo.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/MapaMundial/TelaMapaMundo.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_102) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/MapaMundial/TelaMapaMundo.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_109) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/MapaMundial/TelaMapaMundo.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/MapaMundial/TelaMapaMundo.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\MapaMundial\TelaMapaMundo.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\MapaMundial\TelaMapaMundo.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\TelasBase\MapaMundial\TelaMapaMundo.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/MapaMundial/TelaMapaMundo.cpp.i: cmake_force
@@ -1605,7 +1710,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaAbe
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaAbertura.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaAbertura.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaAbertura.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaAbertura.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_103) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaAbertura.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_110) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaAbertura.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaAbertura.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Menu\TelaAbertura.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Menu\TelaAbertura.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\TelasBase\Menu\TelaAbertura.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaAbertura.cpp.i: cmake_force
@@ -1620,7 +1725,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaCla
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaClasse.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaClasse.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaClasse.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaClasse.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_104) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaClasse.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_111) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaClasse.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaClasse.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Menu\TelaClasse.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Menu\TelaClasse.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\TelasBase\Menu\TelaClasse.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaClasse.cpp.i: cmake_force
@@ -1635,7 +1740,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaDif
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaDificuldade.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaDificuldade.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaDificuldade.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaDificuldade.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_105) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaDificuldade.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_112) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaDificuldade.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaDificuldade.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Menu\TelaDificuldade.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Menu\TelaDificuldade.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\TelasBase\Menu\TelaDificuldade.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaDificuldade.cpp.i: cmake_force
@@ -1650,7 +1755,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaInt
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaIntroducao.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaIntroducao.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaIntroducao.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaIntroducao.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_106) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaIntroducao.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_113) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaIntroducao.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaIntroducao.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Menu\TelaIntroducao.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Menu\TelaIntroducao.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\TelasBase\Menu\TelaIntroducao.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaIntroducao.cpp.i: cmake_force
@@ -1665,7 +1770,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaMen
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaMenu.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaMenu.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaMenu.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaMenu.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_107) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaMenu.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_114) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaMenu.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaMenu.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Menu\TelaMenu.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Menu\TelaMenu.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\TelasBase\Menu\TelaMenu.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaMenu.cpp.i: cmake_force
@@ -1680,7 +1785,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaNom
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaNome.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaNome.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaNome.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaNome.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_108) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaNome.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_115) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaNome.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaNome.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Menu\TelaNome.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Menu\TelaNome.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\TelasBase\Menu\TelaNome.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaNome.cpp.i: cmake_force
@@ -1695,7 +1800,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaPar
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaParry.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaParry.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaParry.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaParry.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_109) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaParry.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_116) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaParry.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaParry.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Menu\TelaParry.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Menu\TelaParry.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\TelasBase\Menu\TelaParry.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaParry.cpp.i: cmake_force
@@ -1710,7 +1815,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaRac
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaRaca.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaRaca.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaRaca.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaRaca.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_110) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaRaca.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_117) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaRaca.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaRaca.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Menu\TelaRaca.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Menu\TelaRaca.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\TelasBase\Menu\TelaRaca.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaRaca.cpp.i: cmake_force
@@ -1725,7 +1830,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaTut
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaTutorial.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaTutorial.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaTutorial.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaTutorial.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_111) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaTutorial.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_118) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaTutorial.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaTutorial.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Menu\TelaTutorial.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Menu\TelaTutorial.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\TelasBase\Menu\TelaTutorial.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Menu/TelaTutorial.cpp.i: cmake_force
@@ -1740,7 +1845,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Pause/TelaPa
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Pause/TelaPause.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Pause/TelaPause.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Pause/TelaPause.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Pause/TelaPause.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_112) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Pause/TelaPause.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_119) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Pause/TelaPause.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Pause/TelaPause.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Pause\TelaPause.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Pause\TelaPause.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\TelasBase\Pause\TelaPause.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Pause/TelaPause.cpp.i: cmake_force
@@ -1755,7 +1860,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/RegistroTela
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/RegistroTelas.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/RegistroTelas.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/RegistroTelas.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/RegistroTelas.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_113) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/RegistroTelas.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_120) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/RegistroTelas.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/RegistroTelas.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\RegistroTelas.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\RegistroTelas.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\TelasBase\RegistroTelas.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/RegistroTelas.cpp.i: cmake_force
@@ -1770,7 +1875,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/TelaBase.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/TelaBase.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/TelaBase.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/TelaBase.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/TelaBase.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_114) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/TelaBase.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_121) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/TelaBase.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/TelaBase.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\TelaBase.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\TelaBase.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\TelasBase\TelaBase.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/TelaBase.cpp.i: cmake_force
@@ -1785,7 +1890,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/TelaCena3D.c
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/TelaCena3D.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/TelaCena3D.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/TelaCena3D.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/TelaCena3D.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_115) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/TelaCena3D.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_122) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/TelaCena3D.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/TelaCena3D.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\TelaCena3D.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\TelaCena3D.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\TelasBase\TelaCena3D.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/TelaCena3D.cpp.i: cmake_force
@@ -1800,7 +1905,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Vitoria/Tela
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Vitoria/TelaVitoria.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Vitoria/TelaVitoria.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Vitoria/TelaVitoria.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Vitoria/TelaVitoria.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_116) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Vitoria/TelaVitoria.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_123) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Vitoria/TelaVitoria.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Vitoria/TelaVitoria.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Vitoria\TelaVitoria.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Perspectiva\TelasBase\Vitoria\TelaVitoria.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Perspectiva\TelasBase\Vitoria\TelaVitoria.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Vitoria/TelaVitoria.cpp.i: cmake_force
@@ -1815,7 +1920,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Principal.cpp.obj: cmake/CMakeFile
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Principal.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Principal.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Principal.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Principal.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_117) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Principal.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_124) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Principal.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Principal.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Principal.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Principal.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Principal.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Principal.cpp.i: cmake_force
@@ -1830,7 +1935,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Combate.cpp.obj: 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Combate.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Combate.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Combate/Combate.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Combate.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_118) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Combate.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_125) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Combate.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Combate.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Combate\Combate.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Combate\Combate.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\Combate\Combate.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Combate.cpp.i: cmake_force
@@ -1845,7 +1950,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateRaycasterU
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateRaycasterUIImpl.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateRaycasterUIImpl.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Combate/CombateRaycasterUIImpl.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateRaycasterUIImpl.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_119) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateRaycasterUIImpl.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_126) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateRaycasterUIImpl.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateRaycasterUIImpl.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Combate\CombateRaycasterUIImpl.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Combate\CombateRaycasterUIImpl.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\Combate\CombateRaycasterUIImpl.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateRaycasterUIImpl.cpp.i: cmake_force
@@ -1860,7 +1965,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateUIImpl.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateUIImpl.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateUIImpl.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Combate/CombateUIImpl.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateUIImpl.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_120) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateUIImpl.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_127) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateUIImpl.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateUIImpl.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Combate\CombateUIImpl.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Combate\CombateUIImpl.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\Combate\CombateUIImpl.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateUIImpl.cpp.i: cmake_force
@@ -1871,11 +1976,56 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateUIImpl.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateUIImpl.cpp.s"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "D:\git repos fixed\RPG-Cpp\src\Sistemas\Combate\CombateUIImpl.cpp" -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Combate\CombateUIImpl.cpp.s
 
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/flags.make
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_128) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.obj"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Combate\Mecanicas\CalculadoraDano.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Combate\Mecanicas\CalculadoraDano.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\Combate\Mecanicas\CalculadoraDano.cpp"
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.i"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "D:\git repos fixed\RPG-Cpp\src\Sistemas\Combate\Mecanicas\CalculadoraDano.cpp" > CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Combate\Mecanicas\CalculadoraDano.cpp.i
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.s"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "D:\git repos fixed\RPG-Cpp\src\Sistemas\Combate\Mecanicas\CalculadoraDano.cpp" -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Combate\Mecanicas\CalculadoraDano.cpp.s
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/flags.make
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_129) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.obj"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Combate\Mecanicas\GerenciadorTurnos.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Combate\Mecanicas\GerenciadorTurnos.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\Combate\Mecanicas\GerenciadorTurnos.cpp"
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.i"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "D:\git repos fixed\RPG-Cpp\src\Sistemas\Combate\Mecanicas\GerenciadorTurnos.cpp" > CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Combate\Mecanicas\GerenciadorTurnos.cpp.i
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.s"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "D:\git repos fixed\RPG-Cpp\src\Sistemas\Combate\Mecanicas\GerenciadorTurnos.cpp" -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Combate\Mecanicas\GerenciadorTurnos.cpp.s
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/flags.make
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_130) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.obj"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Combate\Mecanicas\MecanicasInimigo.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Combate\Mecanicas\MecanicasInimigo.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\Combate\Mecanicas\MecanicasInimigo.cpp"
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.i"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "D:\git repos fixed\RPG-Cpp\src\Sistemas\Combate\Mecanicas\MecanicasInimigo.cpp" > CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Combate\Mecanicas\MecanicasInimigo.cpp.i
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.s"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "D:\git repos fixed\RPG-Cpp\src\Sistemas\Combate\Mecanicas\MecanicasInimigo.cpp" -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Combate\Mecanicas\MecanicasInimigo.cpp.s
+
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Parry.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/flags.make
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Parry.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Parry.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Combate/Parry.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Parry.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_121) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Parry.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_131) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Parry.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Parry.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Combate\Parry.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Combate\Parry.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\Combate\Parry.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Parry.cpp.i: cmake_force
@@ -1890,7 +2040,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Apar
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Animacao.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Animacao.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/Aparencia/Animacao.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Animacao.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_122) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Animacao.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_132) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Animacao.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Animacao.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\ConfiguracaoTerminal\Aparencia\Animacao.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\ConfiguracaoTerminal\Aparencia\Animacao.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\ConfiguracaoTerminal\Aparencia\Animacao.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Animacao.cpp.i: cmake_force
@@ -1905,7 +2055,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Apar
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Aparencia.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Aparencia.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/Aparencia/Aparencia.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Aparencia.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_123) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Aparencia.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_133) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Aparencia.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Aparencia.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\ConfiguracaoTerminal\Aparencia\Aparencia.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\ConfiguracaoTerminal\Aparencia\Aparencia.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\ConfiguracaoTerminal\Aparencia\Aparencia.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Aparencia.cpp.i: cmake_force
@@ -1920,7 +2070,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Apar
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/AparenciaTerminal.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/AparenciaTerminal.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/Aparencia/AparenciaTerminal.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/AparenciaTerminal.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_124) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/AparenciaTerminal.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_134) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/AparenciaTerminal.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/AparenciaTerminal.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\ConfiguracaoTerminal\Aparencia\AparenciaTerminal.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\ConfiguracaoTerminal\Aparencia\AparenciaTerminal.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\ConfiguracaoTerminal\Aparencia\AparenciaTerminal.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/AparenciaTerminal.cpp.i: cmake_force
@@ -1935,7 +2085,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Apar
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Console.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Console.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/Aparencia/Console.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Console.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_125) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Console.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_135) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Console.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Console.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\ConfiguracaoTerminal\Aparencia\Console.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\ConfiguracaoTerminal\Aparencia\Console.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\ConfiguracaoTerminal\Aparencia\Console.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Console.cpp.i: cmake_force
@@ -1950,7 +2100,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Apar
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Cores.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Cores.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/Aparencia/Cores.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Cores.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_126) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Cores.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_136) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Cores.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Cores.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\ConfiguracaoTerminal\Aparencia\Cores.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\ConfiguracaoTerminal\Aparencia\Cores.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\ConfiguracaoTerminal\Aparencia\Cores.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Cores.cpp.i: cmake_force
@@ -1965,7 +2115,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Apar
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Exibicao.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Exibicao.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/Aparencia/Exibicao.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Exibicao.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_127) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Exibicao.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_137) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Exibicao.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Exibicao.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\ConfiguracaoTerminal\Aparencia\Exibicao.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\ConfiguracaoTerminal\Aparencia\Exibicao.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\ConfiguracaoTerminal\Aparencia\Exibicao.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Exibicao.cpp.i: cmake_force
@@ -1980,7 +2130,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Apar
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Log.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Log.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/Aparencia/Log.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Log.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_128) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Log.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_138) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Log.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Log.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\ConfiguracaoTerminal\Aparencia\Log.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\ConfiguracaoTerminal\Aparencia\Log.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\ConfiguracaoTerminal\Aparencia\Log.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Log.cpp.i: cmake_force
@@ -1995,7 +2145,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Apar
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Overlay.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Overlay.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/Aparencia/Overlay.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Overlay.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_129) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Overlay.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_139) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Overlay.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Overlay.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\ConfiguracaoTerminal\Aparencia\Overlay.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\ConfiguracaoTerminal\Aparencia\Overlay.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\ConfiguracaoTerminal\Aparencia\Overlay.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Overlay.cpp.i: cmake_force
@@ -2010,7 +2160,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Apar
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Popup.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Popup.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/Aparencia/Popup.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Popup.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_130) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Popup.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_140) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Popup.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Popup.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\ConfiguracaoTerminal\Aparencia\Popup.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\ConfiguracaoTerminal\Aparencia\Popup.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\ConfiguracaoTerminal\Aparencia\Popup.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Popup.cpp.i: cmake_force
@@ -2025,7 +2175,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Apar
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Texto.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Texto.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/Aparencia/Texto.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Texto.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_131) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Texto.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_141) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Texto.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Texto.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\ConfiguracaoTerminal\Aparencia\Texto.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\ConfiguracaoTerminal\Aparencia\Texto.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\ConfiguracaoTerminal\Aparencia\Texto.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Texto.cpp.i: cmake_force
@@ -2040,7 +2190,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Cont
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/ControleInputOutput/ControleDeInput.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/ControleInputOutput/ControleDeInput.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/ControleInputOutput/ControleDeInput.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/ControleInputOutput/ControleDeInput.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_132) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/ControleInputOutput/ControleDeInput.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_142) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/ControleInputOutput/ControleDeInput.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/ControleInputOutput/ControleDeInput.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\ConfiguracaoTerminal\ControleInputOutput\ControleDeInput.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\ConfiguracaoTerminal\ControleInputOutput\ControleDeInput.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\ConfiguracaoTerminal\ControleInputOutput\ControleDeInput.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/ControleInputOutput/ControleDeInput.cpp.i: cmake_force
@@ -2055,7 +2205,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/ControleInvent
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/ControleInventario.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/ControleInventario.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Inventario/ControleInventario.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/ControleInventario.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_133) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/ControleInventario.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_143) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/ControleInventario.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/ControleInventario.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Inventario\ControleInventario.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Inventario\ControleInventario.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\Inventario\ControleInventario.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/ControleInventario.cpp.i: cmake_force
@@ -2070,7 +2220,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Equipamentos/E
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Equipamentos/EquipamentoArma.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Equipamentos/EquipamentoArma.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Inventario/Equipamentos/EquipamentoArma.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Equipamentos/EquipamentoArma.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_134) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Equipamentos/EquipamentoArma.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_144) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Equipamentos/EquipamentoArma.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Equipamentos/EquipamentoArma.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Inventario\Equipamentos\EquipamentoArma.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Inventario\Equipamentos\EquipamentoArma.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\Inventario\Equipamentos\EquipamentoArma.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Equipamentos/EquipamentoArma.cpp.i: cmake_force
@@ -2085,7 +2235,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Equipamentos/E
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Equipamentos/EquipamentoArmadura.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Equipamentos/EquipamentoArmadura.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Inventario/Equipamentos/EquipamentoArmadura.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Equipamentos/EquipamentoArmadura.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_135) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Equipamentos/EquipamentoArmadura.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_145) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Equipamentos/EquipamentoArmadura.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Equipamentos/EquipamentoArmadura.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Inventario\Equipamentos\EquipamentoArmadura.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Inventario\Equipamentos\EquipamentoArmadura.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\Inventario\Equipamentos\EquipamentoArmadura.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Equipamentos/EquipamentoArmadura.cpp.i: cmake_force
@@ -2100,7 +2250,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Equipamentos/E
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Equipamentos/EquipamentoEscudo.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Equipamentos/EquipamentoEscudo.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Inventario/Equipamentos/EquipamentoEscudo.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Equipamentos/EquipamentoEscudo.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_136) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Equipamentos/EquipamentoEscudo.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_146) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Equipamentos/EquipamentoEscudo.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Equipamentos/EquipamentoEscudo.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Inventario\Equipamentos\EquipamentoEscudo.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Inventario\Equipamentos\EquipamentoEscudo.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\Inventario\Equipamentos\EquipamentoEscudo.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Equipamentos/EquipamentoEscudo.cpp.i: cmake_force
@@ -2115,7 +2265,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/FabricaItens.c
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/FabricaItens.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/FabricaItens.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Inventario/FabricaItens.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/FabricaItens.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_137) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/FabricaItens.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_147) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/FabricaItens.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/FabricaItens.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Inventario\FabricaItens.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Inventario\FabricaItens.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\Inventario\FabricaItens.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/FabricaItens.cpp.i: cmake_force
@@ -2130,7 +2280,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Inventario.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Inventario.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Inventario.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Inventario/Inventario.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Inventario.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_138) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Inventario.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_148) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Inventario.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Inventario.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Inventario\Inventario.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Inventario\Inventario.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\Inventario\Inventario.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Inventario.cpp.i: cmake_force
@@ -2145,7 +2295,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/InventarioComb
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/InventarioCombate.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/InventarioCombate.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Inventario/InventarioCombate.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/InventarioCombate.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_139) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/InventarioCombate.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_149) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/InventarioCombate.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/InventarioCombate.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Inventario\InventarioCombate.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Inventario\InventarioCombate.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\Inventario\InventarioCombate.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/InventarioCombate.cpp.i: cmake_force
@@ -2160,7 +2310,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Itens/ItemCons
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Itens/ItemConsumivel.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Itens/ItemConsumivel.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Inventario/Itens/ItemConsumivel.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Itens/ItemConsumivel.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_140) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Itens/ItemConsumivel.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_150) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Itens/ItemConsumivel.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Itens/ItemConsumivel.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Inventario\Itens\ItemConsumivel.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Inventario\Itens\ItemConsumivel.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\Inventario\Itens\ItemConsumivel.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Itens/ItemConsumivel.cpp.i: cmake_force
@@ -2175,7 +2325,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Itens/ItemMate
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Itens/ItemMaterial.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Itens/ItemMaterial.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Inventario/Itens/ItemMaterial.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Itens/ItemMaterial.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_141) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Itens/ItemMaterial.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_151) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Itens/ItemMaterial.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Itens/ItemMaterial.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Inventario\Itens\ItemMaterial.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Inventario\Itens\ItemMaterial.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\Inventario\Itens\ItemMaterial.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Itens/ItemMaterial.cpp.i: cmake_force
@@ -2190,7 +2340,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Itens/ItemMiss
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Itens/ItemMissao.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Itens/ItemMissao.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Inventario/Itens/ItemMissao.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Itens/ItemMissao.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_142) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Itens/ItemMissao.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_152) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Itens/ItemMissao.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Itens/ItemMissao.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Inventario\Itens\ItemMissao.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Inventario\Itens\ItemMissao.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\Inventario\Itens\ItemMissao.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Inventario/Itens/ItemMissao.cpp.i: cmake_force
@@ -2205,7 +2355,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Minigames/HackConsole.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Minigames/HackConsole.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Minigames/HackConsole.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Minigames/HackConsole.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Minigames/HackConsole.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_143) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Minigames/HackConsole.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_153) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Minigames/HackConsole.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Minigames/HackConsole.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Minigames\HackConsole.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Minigames\HackConsole.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\Minigames\HackConsole.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Minigames/HackConsole.cpp.i: cmake_force
@@ -2220,7 +2370,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Bestiario.cpp.o
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Bestiario.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Bestiario.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Progresso/Bestiario.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Bestiario.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_144) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Bestiario.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_154) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Bestiario.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Bestiario.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Progresso\Bestiario.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Progresso\Bestiario.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\Progresso\Bestiario.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Bestiario.cpp.i: cmake_force
@@ -2235,7 +2385,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Diario.cpp.obj:
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Diario.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Diario.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Progresso/Diario.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Diario.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_145) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Diario.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_155) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Diario.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Diario.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Progresso\Diario.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Progresso\Diario.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\Progresso\Diario.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Diario.cpp.i: cmake_force
@@ -2250,7 +2400,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Progressao.cpp.
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Progressao.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/includes_CXX.rsp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Progressao.cpp.obj: D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Progresso/Progressao.cpp
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Progressao.cpp.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_146) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Progressao.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_156) "Building CXX object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Progressao.cpp.obj"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Progressao.cpp.obj -MF CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Progresso\Progressao.cpp.obj.d -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Progresso\Progressao.cpp.obj -c "D:\git repos fixed\RPG-Cpp\src\Sistemas\Progresso\Progressao.cpp"
 
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Progressao.cpp.i: cmake_force
@@ -2260,6 +2410,11 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Progressao.cpp.
 cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Progressao.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Progressao.cpp.s"
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "D:\git repos fixed\RPG-Cpp\src\Sistemas\Progresso\Progressao.cpp" -o CMakeFiles\CodeQuestPlusPlus.dir\__\src\Sistemas\Progresso\Progressao.cpp.s
+
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/assets/icone.rc.obj: cmake/CMakeFiles/CodeQuestPlusPlus.dir/flags.make
+cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/assets/icone.rc.obj: D:/git\ repos\ fixed/RPG-Cpp/assets/icone.rc
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_157) "Building RC object cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/assets/icone.rc.obj"
+	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && C:\msys64\ucrt64\bin\windres.exe -O coff $(RC_DEFINES) $(RC_INCLUDES) $(RC_FLAGS) "D:\git repos fixed\RPG-Cpp\assets\icone.rc" CMakeFiles\CodeQuestPlusPlus.dir\__\assets\icone.rc.obj
 
 # Object files for target CodeQuestPlusPlus
 CodeQuestPlusPlus_OBJECTS = \
@@ -2276,6 +2431,7 @@ CodeQuestPlusPlus_OBJECTS = \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Arqueiro.cpp.obj" \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Bardo.cpp.obj" \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/CloneNecro.cpp.obj" \
+"CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/FabricaClasses.cpp.obj" \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Guerreiro.cpp.obj" \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Mago.cpp.obj" \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Necromante.cpp.obj" \
@@ -2301,12 +2457,18 @@ CodeQuestPlusPlus_OBJECTS = \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Anao.cpp.obj" \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/CloneNecro.cpp.obj" \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Elfo.cpp.obj" \
+"CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/FabricaRacas.cpp.obj" \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Humano.cpp.obj" \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Orc.cpp.obj" \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/ControleMapa.cpp.obj" \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Floresta/Mapa2Floresta.cpp.obj" \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa3PonteReino.cpp.obj" \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa4Reino.cpp.obj" \
+"CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/AnimadorMapa.cpp.obj" \
+"CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/CarregadorMapa.cpp.obj" \
+"CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/ControladorInputMapa.cpp.obj" \
+"CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/FisicaMapa.cpp.obj" \
+"CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/RenderizadorMapa.cpp.obj" \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Vila/Mapa1Vila.cpp.obj" \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/GerenciadorPerspectiva.cpp.obj" \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/EngineIDE/IDEAnimator.cpp.obj" \
@@ -2383,6 +2545,9 @@ CodeQuestPlusPlus_OBJECTS = \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Combate.cpp.obj" \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateRaycasterUIImpl.cpp.obj" \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateUIImpl.cpp.obj" \
+"CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.obj" \
+"CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.obj" \
+"CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.obj" \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Parry.cpp.obj" \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Animacao.cpp.obj" \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Aparencia.cpp.obj" \
@@ -2408,7 +2573,8 @@ CodeQuestPlusPlus_OBJECTS = \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Minigames/HackConsole.cpp.obj" \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Bestiario.cpp.obj" \
 "CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Diario.cpp.obj" \
-"CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Progressao.cpp.obj"
+"CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Progressao.cpp.obj" \
+"CMakeFiles/CodeQuestPlusPlus.dir/__/assets/icone.rc.obj"
 
 # External object files for target CodeQuestPlusPlus
 CodeQuestPlusPlus_EXTERNAL_OBJECTS =
@@ -2426,6 +2592,7 @@ D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlus
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Arqueiro.cpp.obj
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Bardo.cpp.obj
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/CloneNecro.cpp.obj
+D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/FabricaClasses.cpp.obj
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Guerreiro.cpp.obj
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Mago.cpp.obj
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Necromante.cpp.obj
@@ -2451,12 +2618,18 @@ D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlus
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Anao.cpp.obj
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/CloneNecro.cpp.obj
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Elfo.cpp.obj
+D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/FabricaRacas.cpp.obj
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Humano.cpp.obj
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Orc.cpp.obj
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/ControleMapa.cpp.obj
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Floresta/Mapa2Floresta.cpp.obj
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa3PonteReino.cpp.obj
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa4Reino.cpp.obj
+D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/AnimadorMapa.cpp.obj
+D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/CarregadorMapa.cpp.obj
+D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/ControladorInputMapa.cpp.obj
+D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/FisicaMapa.cpp.obj
+D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/RenderizadorMapa.cpp.obj
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Vila/Mapa1Vila.cpp.obj
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/GerenciadorPerspectiva.cpp.obj
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/EngineIDE/IDEAnimator.cpp.obj
@@ -2533,6 +2706,9 @@ D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlus
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Combate.cpp.obj
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateRaycasterUIImpl.cpp.obj
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateUIImpl.cpp.obj
+D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.obj
+D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.obj
+D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.obj
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Parry.cpp.obj
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Animacao.cpp.obj
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Aparencia.cpp.obj
@@ -2559,11 +2735,12 @@ D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlus
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Bestiario.cpp.obj
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Diario.cpp.obj
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Progresso/Progressao.cpp.obj
+D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/assets/icone.rc.obj
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/build.make
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/linkLibs.rsp
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/objects1.rsp
 D:/git\ repos\ fixed/RPG-Cpp/bin/CodeQuest++.exe: cmake/CMakeFiles/CodeQuestPlusPlus.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_147) "Linking CXX executable \"D:\git repos fixed\RPG-Cpp\bin\CodeQuest++.exe\""
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="D:\git repos fixed\RPG-Cpp\build\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_158) "Linking CXX executable \"D:\git repos fixed\RPG-Cpp\bin\CodeQuest++.exe\""
 	cd /d "D:\git repos fixed\RPG-Cpp\build\cmake" && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\CodeQuestPlusPlus.dir\link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

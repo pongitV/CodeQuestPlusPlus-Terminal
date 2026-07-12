@@ -107,16 +107,13 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
  C:/msys64/ucrt64/include/c++/15.2.0/bits/uses_allocator_args.h \
  C:/msys64/ucrt64/include/c++/15.2.0/tuple \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaRaca.h \
- D:\git\ repos\ fixed\RPG-Cpp\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaMenuIDE.h \
- C:/msys64/ucrt64/include/c++/15.2.0/vector \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Racas/RacaBase.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/memory \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_tempbuf.h \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_uninitialized.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_vector.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_bvector.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/vector.tcc \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/formatfwd.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Personagem.h \
- C:/msys64/ucrt64/include/c++/15.2.0/iostream \
- C:/msys64/ucrt64/include/c++/15.2.0/ostream \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_raw_storage_iter.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/align.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/unique_ptr.h \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/ostream.h \
  C:/msys64/ucrt64/include/c++/15.2.0/ios \
  C:/msys64/ucrt64/include/c++/15.2.0/exception \
@@ -157,8 +154,45 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
  C:/msys64/ucrt64/include/c++/15.2.0/x86_64-w64-mingw32/bits/ctype_inline.h \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/locale_facets.tcc \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/basic_ios.tcc \
- C:/msys64/ucrt64/include/c++/15.2.0/format \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/shared_ptr.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/shared_ptr_base.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/allocated_ptr.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/ext/aligned_buffer.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/ext/concurrence.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/shared_ptr_atomic.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/atomic_base.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/atomic_lockfree_defines.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/atomic_wait.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/cstdint \
+ C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/stdint.h \
+ C:/msys64/ucrt64/include/stdint.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/std_mutex.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/backward/auto_ptr.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/ranges_uninitialized.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/out_ptr.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/pstl/glue_memory_defs.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/pstl/execution_defs.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/vector \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_vector.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_bvector.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/vector.tcc \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/formatfwd.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Inventario/Item.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/functional \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/std_function.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/unordered_map \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/unordered_map.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/hashtable.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/hashtable_policy.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/enable_special_members.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/node_handle.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/erase_if.h \
  C:/msys64/ucrt64/include/c++/15.2.0/array \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/move_only_function.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/mofunc_impl.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/iostream \
+ C:/msys64/ucrt64/include/c++/15.2.0/ostream \
+ C:/msys64/ucrt64/include/c++/15.2.0/format \
  C:/msys64/ucrt64/include/c++/15.2.0/charconv \
  C:/msys64/ucrt64/include/c++/15.2.0/limits \
  C:/msys64/ucrt64/include/c++/15.2.0/locale \
@@ -170,66 +204,20 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
  C:/msys64/ucrt64/include/c++/15.2.0/bits/locale_facets_nonio.tcc \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/locale_conv.h \
  C:/msys64/ucrt64/include/c++/15.2.0/optional \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/enable_special_members.h \
  C:/msys64/ucrt64/include/c++/15.2.0/span \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/monostate.h \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/unicode.h \
- C:/msys64/ucrt64/include/c++/15.2.0/cstdint \
- C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/stdint.h \
- C:/msys64/ucrt64/include/stdint.h \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_algo.h \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/algorithmfwd.h \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_heap.h \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/uniform_int_dist.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_tempbuf.h \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/unicode-data.h \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/ostream.tcc \
  C:/msys64/ucrt64/include/c++/15.2.0/istream \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/istream.tcc \
- C:/msys64/ucrt64/include/c++/15.2.0/memory \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_raw_storage_iter.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/align.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/unique_ptr.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/shared_ptr.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/shared_ptr_base.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/allocated_ptr.h \
- C:/msys64/ucrt64/include/c++/15.2.0/ext/aligned_buffer.h \
- C:/msys64/ucrt64/include/c++/15.2.0/ext/concurrence.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/shared_ptr_atomic.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/atomic_base.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/atomic_lockfree_defines.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/atomic_wait.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/std_mutex.h \
- C:/msys64/ucrt64/include/c++/15.2.0/backward/auto_ptr.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/ranges_uninitialized.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/out_ptr.h \
- C:/msys64/ucrt64/include/c++/15.2.0/pstl/glue_memory_defs.h \
- C:/msys64/ucrt64/include/c++/15.2.0/pstl/execution_defs.h \
- C:/msys64/ucrt64/include/c++/15.2.0/unordered_map \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/unordered_map.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/hashtable.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/hashtable_policy.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/node_handle.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/erase_if.h \
- C:/msys64/ucrt64/include/c++/15.2.0/unordered_set \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/unordered_set.h \
- C:/msys64/ucrt64/include/c++/15.2.0/mutex \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/chrono.h \
- C:/msys64/ucrt64/include/c++/15.2.0/ratio \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/parse_numbers.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/unique_lock.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Core/Controladores/Status.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Inventario/Inventario.h \
  C:/msys64/ucrt64/include/c++/15.2.0/algorithm \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/ranges_algo.h \
  C:/msys64/ucrt64/include/c++/15.2.0/pstl/glue_algorithm_defs.h \
- C:/msys64/ucrt64/include/c++/15.2.0/iterator \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/stream_iterator.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Inventario/Item.h \
- C:/msys64/ucrt64/include/c++/15.2.0/functional \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/std_function.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/move_only_function.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/mofunc_impl.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Core/Utilidades/Aparencia.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/Aparencia/Aparencia.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/Aparencia/Cor.h \
@@ -457,7 +445,20 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
  C:/msys64/ucrt64/include/sec_api/stralign_s.h \
  C:/msys64/ucrt64/include/winsvc.h C:/msys64/ucrt64/include/mcx.h \
  C:/msys64/ucrt64/include/imm.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Personagem.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/unordered_set \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/unordered_set.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/mutex \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/chrono.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/ratio \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/parse_numbers.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/unique_lock.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Core/Controladores/Status.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Inventario/Inventario.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/iterator \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/stream_iterator.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/SistemaDeNivel.h \
+ D:\git\ repos\ fixed\RPG-Cpp\src\Perspectiva\PerspectivaIDE\TelasIDE\Menu\TelaMenuIDE.h \
  C:/msys64/ucrt64/include/c++/15.2.0/thread \
  C:/msys64/ucrt64/include/c++/15.2.0/stop_token \
  C:/msys64/ucrt64/include/c++/15.2.0/atomic \
@@ -475,8 +476,4 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
  C:/msys64/ucrt64/include/c++/15.2.0/bits/quoted_string.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Core/Utilidades/ControleDeInput.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/ControleInputOutput/ControleDeInput.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Racas/RacaBase.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Racas/Anao.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Racas/Elfo.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Racas/Humano.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Racas/Orc.h
+ D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Racas/FabricaRacas.h

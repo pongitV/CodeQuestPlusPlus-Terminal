@@ -18,11 +18,13 @@
 #include "../../Perspectiva/TelasBase/Atributos/TelaAtributos.h"
 #include "../../Perspectiva/TelasBase/Bestiario/TelaBestiario.h"
 #include "../../Sistemas/Combate/Combate.h"
-#include "../../Entidades/Inimigos/Fada.h"
-#include "../../Entidades/Inimigos/ClasseBaseInimigo.h"
+#include "../ControleMapa.h"
+#include "../Sistemas/AnimadorMapa.h"
+#include "../Sistemas/CarregadorMapa.h"
 #include "../../Entidades/NPCs/Maga/NPCMaga.h"
 #include "../../Entidades/Inimigos/AbominacaoFloresta.h"
 #include "../../Entidades/Inimigos/Mahoraga.h"
+#include "../../Entidades/Inimigos/ClasseBaseInimigo.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Sistemas/Progresso/Diario.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
@@ -47,7 +49,7 @@ Mapa2Floresta::Mapa2Floresta(Personagem* personagemJogador) :
     proximoMapa(ProximaTransicaoMapa::Nenhuma)
 {
     matrizDoMapaAtual = Mapa2FlorestaLayouts::obterLayoutFloresta();
-    ControleMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
+    CarregadorMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
 }
 
 Mapa2Floresta::~Mapa2Floresta() = default;
@@ -161,7 +163,7 @@ namespace {
             }
             // 3. Entrar no Coracao da Arvore a partir da Floresta (X=121, Y=43)
             else if (px == 121 && py == 43 && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDoCoracaoDaArvoreSalva, ctx.self->coracaoDaArvoreJaFoiVisitado, Mapa2FlorestaLayouts::obterLayoutCoracaoDaArvore(), 10, 3, "CORACAO DA ARVORE", ctx.restaurarTela);
+                CarregadorMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDoCoracaoDaArvoreSalva, ctx.self->coracaoDaArvoreJaFoiVisitado, Mapa2FlorestaLayouts::obterLayoutCoracaoDaArvore(), 10, 3, "CORACAO DA ARVORE", ctx.restaurarTela);
             }
             // 4. Ir para o Reino a partir da Floresta (X=18, Y=45)
             else if (px == 18 && py == 45 && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
@@ -183,7 +185,7 @@ namespace {
                     return;
                 }
 
-                ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDoLabirintoSalva, ctx.self->labirintoJaFoiVisitado, Mapa2FlorestaLayouts::obterLayoutLabirinto(), 4, 11, "LABIRINTO SUBTERRANEO", ctx.restaurarTela);
+                CarregadorMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDoLabirintoSalva, ctx.self->labirintoJaFoiVisitado, Mapa2FlorestaLayouts::obterLayoutLabirinto(), 4, 11, "LABIRINTO SUBTERRANEO", ctx.restaurarTela);
             }
             // 6. Sair de Submapas
             else if ((titulo == "CORACAO DA ARVORE") ||
@@ -243,7 +245,7 @@ namespace {
                         ctx.self->matrizDoMapaDoLabirintoSalva = ctx.self->matrizDoMapaAtual;
                         if (!ctx.self->salaDoChefeJaFoiVisitada) {
                             ctx.self->matrizDoMapaAtual = Mapa2FlorestaLayouts::obterLayoutSalaDoChefe();
-                            ControleMapa::padronizarTamanhoDoMapa(ctx.self->matrizDoMapaAtual);
+                            CarregadorMapa::padronizarTamanhoDoMapa(ctx.self->matrizDoMapaAtual);
                             ctx.self->salaDoChefeJaFoiVisitada = true;
                         } else {
                             ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaSalaDoChefeSalva;
@@ -306,7 +308,7 @@ ProximaTransicaoMapa Mapa2Floresta::iniciarLoopDeExploracao()
 
     inicializarInteracoes();
 
-    ControleMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
+    CarregadorMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
 
     Aparencia::ocultarCursor();
 
@@ -323,7 +325,7 @@ ProximaTransicaoMapa Mapa2Floresta::iniciarLoopDeExploracao()
     int linhaInicialParaDesenharOMapa = 0;
 
     auto restaurarTela = [&]() {
-        linhaInicialParaDesenharOMapa = ControleMapa::animarIntroducaoMapa(tituloDoMapaAtual, {}, 0, {}, 0, Cor::VERDE, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, false);
+        linhaInicialParaDesenharOMapa = AnimadorMapa::animarIntroducaoMapa(tituloDoMapaAtual, {}, 0, {}, 0, Cor::VERDE, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, false, true, nullptr);
         precisaRenderizar = true;
     };
 
@@ -340,7 +342,7 @@ ProximaTransicaoMapa Mapa2Floresta::iniciarLoopDeExploracao()
             larguraTrans = 87;
         }
 
-        linhaInicialParaDesenharOMapa = ControleMapa::animarIntroducaoMapa(tituloDoMapaAtual, arteTitulo, larguraArte, arteTrans, larguraTrans, Cor::VERDE, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, true);
+        linhaInicialParaDesenharOMapa = AnimadorMapa::animarIntroducaoMapa(tituloDoMapaAtual, arteTitulo, larguraArte, arteTrans, larguraTrans, Cor::VERDE, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, true, true, nullptr);
         precisaRenderizar = false;
     };
 

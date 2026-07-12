@@ -503,7 +503,7 @@ int TelaCombateRaycaster::obterAcaoDoJogador(int turnoAtual, Personagem* persona
     (void)personagemAgindo;
     ControleDeInput::limparBuffer();
     TelaCombate::contexto.selecaoAlvoAtual = -1; // Garante que nenhum alvo esta selecionado ao escolher acao
-    std::vector<std::string> acoes = {"Atacar", "Defender", "Itens", "Fugir"};
+    std::vector<std::string> acoes = {"Atacar", "Habilidade", "Defender", "Itens", "Diario"};
     int selecionado = 0;
     while(true) {
         int largura = Aparencia::obterLarguraTerminal();
@@ -556,9 +556,10 @@ int TelaCombateRaycaster::obterAcaoDoJogador(int turnoAtual, Personagem* persona
         if(c == 'd' || c == 'D' || c == 77) selecionado = (selecionado + 1) % acoes.size();
         if(c == '\r' || c == '\n') {
             if (selecionado == 0) return 1; // Atacar
-            if (selecionado == 1) return 2; // Defender
-            if (selecionado == 2) return 4; // Inventario
-            if (selecionado == 3) return 6; // Fugir
+            if (selecionado == 1) return 3; // Habilidade
+            if (selecionado == 2) return 2; // Defender
+            if (selecionado == 3) return 4; // Inventario
+            if (selecionado == 4) return 6; // Diario
         }
     }
 }

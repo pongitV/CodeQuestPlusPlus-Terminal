@@ -462,6 +462,8 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa4Reino.cpp.obj: \
  D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/Aparencia/ConversorString.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Core/Controladores/MenuJogo.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Mapas/ControleMapa.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Mapas/Sistemas/AnimadorMapa.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Mapas/Sistemas/CarregadorMapa.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Core/Utilidades/ControleDeInput.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/ControleInputOutput/ControleDeInput.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/NPCs/Mercador/NPCMercador.h \

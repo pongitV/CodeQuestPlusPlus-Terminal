@@ -489,9 +489,9 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Vila/Mapa1Vila.cpp.obj: \
  D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Racas/Orc.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Racas/RacaBase.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Core/Utilidades/FuncoesDialogo.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Mapas/Sistemas/AnimadorMapa.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Mapas/ControleMapa.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Core/Utilidades/ControleDeInput.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/ControleInputOutput/ControleDeInput.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Mapas/Sistemas/CarregadorMapa.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Core/Utilidades/GeradorAleatorio.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Progresso/Progressao.h \
  C:/msys64/ucrt64/include/c++/15.2.0/fstream \

@@ -460,7 +460,14 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Atributos/Te
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/IGerenciadorTelas.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaNome.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaRaca.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Racas/RacaBase.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaClasse.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Classes/ClasseBase.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Inventario/FabricaItens.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Core/Utilidades/ControleDeInput.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/ControleInputOutput/ControleDeInput.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Combate/TelaCombate.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Combate/ContextoCombate.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaDificuldade.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaParry.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/IDiarioUI.h \
@@ -482,6 +489,4 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/TelasBase/Atributos/Te
  C:/msys64/ucrt64/include/c++/15.2.0/bits/chrono_io.h \
  C:/msys64/ucrt64/include/c++/15.2.0/iomanip \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/quoted_string.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Core/Utilidades/ControleDeInput.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/ControleInputOutput/ControleDeInput.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Core/Utilidades/FuncoesDialogo.h

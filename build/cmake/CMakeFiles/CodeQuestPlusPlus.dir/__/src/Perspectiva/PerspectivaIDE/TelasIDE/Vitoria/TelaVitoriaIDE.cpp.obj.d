@@ -497,6 +497,10 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/TelasID
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaNome.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaRaca.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaClasse.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Classes/ClasseBase.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Inventario/FabricaItens.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Combate/TelaCombate.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Combate/ContextoCombate.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaDificuldade.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Menu/TelaParry.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/IDiarioUI.h \

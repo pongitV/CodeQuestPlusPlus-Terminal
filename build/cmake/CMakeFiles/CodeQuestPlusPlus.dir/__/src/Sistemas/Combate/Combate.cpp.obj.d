@@ -499,4 +499,7 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Combate.cpp.obj: 
  D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Progresso/ProgressaoFlags.h \
  D:\git\ repos\ fixed\RPG-Cpp\src\Sistemas\Combate\Parry.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Core/Utilidades/GeradorAleatorio.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Core/Utilidades/FuncoesDialogo.h
+ D:/git\ repos\ fixed/RPG-Cpp/src/Core/Utilidades/FuncoesDialogo.h \
+ D:\git\ repos\ fixed\RPG-Cpp\src\Sistemas\Combate\Mecanicas/CalculadoraDano.h \
+ D:\git\ repos\ fixed\RPG-Cpp\src\Sistemas\Combate\Mecanicas/MecanicasInimigo.h \
+ D:\git\ repos\ fixed\RPG-Cpp\src\Sistemas\Combate\Mecanicas/GerenciadorTurnos.h

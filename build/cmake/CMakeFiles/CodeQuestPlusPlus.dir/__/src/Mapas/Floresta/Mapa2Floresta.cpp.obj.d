@@ -484,8 +484,14 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Floresta/Mapa2Floresta.cpp.o
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Bestiario/TelaBestiario.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Combate/Combate.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Combate/ICombateUI.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Inimigos/Fada.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Mapas/ControleMapa.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Mapas/Sistemas/AnimadorMapa.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Mapas/Sistemas/CarregadorMapa.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/NPCs/Maga/NPCMaga.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/NPCs/InteracaoNPC.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Inimigos/AbominacaoFloresta.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Racas/RacaBase.h \
+ D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Inimigos/Mahoraga.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Inimigos/ClasseBaseInimigo.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Classes/ClasseBase.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Inventario/FabricaItens.h \
@@ -493,10 +499,6 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Floresta/Mapa2Floresta.cpp.o
  D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/ControleInputOutput/ControleDeInput.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Combate/TelaCombate.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Perspectiva/TelasBase/Combate/ContextoCombate.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/NPCs/Maga/NPCMaga.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/NPCs/InteracaoNPC.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Inimigos/AbominacaoFloresta.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Entidades/Inimigos/Mahoraga.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Sistemas/Progresso/Diario.h \
  C:/msys64/ucrt64/include/c++/15.2.0/set \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_tree.h \
@@ -507,7 +509,6 @@ cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Floresta/Mapa2Floresta.cpp.o
  C:/msys64/ucrt64/include/c++/15.2.0/x86_64-w64-mingw32/bits/c++io.h \
  C:/msys64/ucrt64/include/c++/15.2.0/bits/fstream.tcc \
  D:/git\ repos\ fixed/RPG-Cpp/src/Core/Utilidades/FuncoesDialogo.h \
- D:/git\ repos\ fixed/RPG-Cpp/src/Mapas/ControleMapa.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Core/Utilidades/GeradorAleatorio.h \
  D:/git\ repos\ fixed/RPG-Cpp/src/Mapas/Reino/Mapa3PonteReino.h \
  D:\git\ repos\ fixed\RPG-Cpp\src\Mapas\Floresta\Mapa2FlorestaLayout.h \

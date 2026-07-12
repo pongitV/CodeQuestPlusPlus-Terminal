@@ -3,7 +3,7 @@
 #include "Menu/TelaTutorial.h"
 #include "../PerspectivaAlteradaException.h"
 
-// Mantendo esse método caso outros lugares o utilizem, mas o RegistroTelas em si não precisa mais dele para o fluxo principal
+
 bool RegistroTelas::modoRaycasterAtivo() {
     return GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva();
 }

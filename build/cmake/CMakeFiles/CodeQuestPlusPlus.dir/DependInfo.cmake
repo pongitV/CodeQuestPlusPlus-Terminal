@@ -4,6 +4,16 @@ set(CMAKE_DEPENDS_IN_PROJECT_ONLY OFF)
 
 # The set of languages for which implicit dependencies are needed:
 set(CMAKE_DEPENDS_LANGUAGES
+  "RC"
+  )
+# The set of files for implicit dependencies of each language:
+set(CMAKE_DEPENDS_CHECK_RC
+  "D:/git repos fixed/RPG-Cpp/assets/icone.rc" "D:/git repos fixed/RPG-Cpp/build/cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/assets/icone.rc.obj"
+  )
+
+# The include file search paths:
+set(CMAKE_RC_TARGET_INCLUDE_PATH
+  "D:/git repos fixed/RPG-Cpp/src"
   )
 
 # The set of dependency files which are needed:
@@ -21,6 +31,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "D:/git repos fixed/RPG-Cpp/src/Entidades/Classes/Arqueiro.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Arqueiro.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Arqueiro.cpp.obj.d"
   "D:/git repos fixed/RPG-Cpp/src/Entidades/Classes/Bardo.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Bardo.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Bardo.cpp.obj.d"
   "D:/git repos fixed/RPG-Cpp/src/Entidades/Classes/CloneNecro.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/CloneNecro.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/CloneNecro.cpp.obj.d"
+  "D:/git repos fixed/RPG-Cpp/src/Entidades/Classes/FabricaClasses.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/FabricaClasses.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/FabricaClasses.cpp.obj.d"
   "D:/git repos fixed/RPG-Cpp/src/Entidades/Classes/Guerreiro.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Guerreiro.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Guerreiro.cpp.obj.d"
   "D:/git repos fixed/RPG-Cpp/src/Entidades/Classes/Mago.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Mago.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Mago.cpp.obj.d"
   "D:/git repos fixed/RPG-Cpp/src/Entidades/Classes/Necromante.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Necromante.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Classes/Necromante.cpp.obj.d"
@@ -46,12 +57,18 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "D:/git repos fixed/RPG-Cpp/src/Entidades/Racas/Anao.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Anao.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Anao.cpp.obj.d"
   "D:/git repos fixed/RPG-Cpp/src/Entidades/Racas/CloneNecro.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/CloneNecro.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/CloneNecro.cpp.obj.d"
   "D:/git repos fixed/RPG-Cpp/src/Entidades/Racas/Elfo.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Elfo.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Elfo.cpp.obj.d"
+  "D:/git repos fixed/RPG-Cpp/src/Entidades/Racas/FabricaRacas.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/FabricaRacas.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/FabricaRacas.cpp.obj.d"
   "D:/git repos fixed/RPG-Cpp/src/Entidades/Racas/Humano.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Humano.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Humano.cpp.obj.d"
   "D:/git repos fixed/RPG-Cpp/src/Entidades/Racas/Orc.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Orc.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Entidades/Racas/Orc.cpp.obj.d"
   "D:/git repos fixed/RPG-Cpp/src/Mapas/ControleMapa.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/ControleMapa.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/ControleMapa.cpp.obj.d"
   "D:/git repos fixed/RPG-Cpp/src/Mapas/Floresta/Mapa2Floresta.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Floresta/Mapa2Floresta.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Floresta/Mapa2Floresta.cpp.obj.d"
   "D:/git repos fixed/RPG-Cpp/src/Mapas/Reino/Mapa3PonteReino.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa3PonteReino.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa3PonteReino.cpp.obj.d"
   "D:/git repos fixed/RPG-Cpp/src/Mapas/Reino/Mapa4Reino.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa4Reino.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Reino/Mapa4Reino.cpp.obj.d"
+  "D:/git repos fixed/RPG-Cpp/src/Mapas/Sistemas/AnimadorMapa.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/AnimadorMapa.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/AnimadorMapa.cpp.obj.d"
+  "D:/git repos fixed/RPG-Cpp/src/Mapas/Sistemas/CarregadorMapa.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/CarregadorMapa.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/CarregadorMapa.cpp.obj.d"
+  "D:/git repos fixed/RPG-Cpp/src/Mapas/Sistemas/ControladorInputMapa.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/ControladorInputMapa.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/ControladorInputMapa.cpp.obj.d"
+  "D:/git repos fixed/RPG-Cpp/src/Mapas/Sistemas/FisicaMapa.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/FisicaMapa.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/FisicaMapa.cpp.obj.d"
+  "D:/git repos fixed/RPG-Cpp/src/Mapas/Sistemas/RenderizadorMapa.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/RenderizadorMapa.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Sistemas/RenderizadorMapa.cpp.obj.d"
   "D:/git repos fixed/RPG-Cpp/src/Mapas/Vila/Mapa1Vila.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Vila/Mapa1Vila.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Mapas/Vila/Mapa1Vila.cpp.obj.d"
   "D:/git repos fixed/RPG-Cpp/src/Perspectiva/GerenciadorPerspectiva.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/GerenciadorPerspectiva.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/GerenciadorPerspectiva.cpp.obj.d"
   "D:/git repos fixed/RPG-Cpp/src/Perspectiva/PerspectivaIDE/EngineIDE/IDEAnimator.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/EngineIDE/IDEAnimator.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Perspectiva/PerspectivaIDE/EngineIDE/IDEAnimator.cpp.obj.d"
@@ -128,6 +145,9 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "D:/git repos fixed/RPG-Cpp/src/Sistemas/Combate/Combate.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Combate.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Combate.cpp.obj.d"
   "D:/git repos fixed/RPG-Cpp/src/Sistemas/Combate/CombateRaycasterUIImpl.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateRaycasterUIImpl.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateRaycasterUIImpl.cpp.obj.d"
   "D:/git repos fixed/RPG-Cpp/src/Sistemas/Combate/CombateUIImpl.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateUIImpl.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/CombateUIImpl.cpp.obj.d"
+  "D:/git repos fixed/RPG-Cpp/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/CalculadoraDano.cpp.obj.d"
+  "D:/git repos fixed/RPG-Cpp/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/GerenciadorTurnos.cpp.obj.d"
+  "D:/git repos fixed/RPG-Cpp/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Mecanicas/MecanicasInimigo.cpp.obj.d"
   "D:/git repos fixed/RPG-Cpp/src/Sistemas/Combate/Parry.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Parry.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/Combate/Parry.cpp.obj.d"
   "D:/git repos fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/Aparencia/Animacao.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Animacao.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Animacao.cpp.obj.d"
   "D:/git repos fixed/RPG-Cpp/src/Sistemas/ConfiguracaoTerminal/Aparencia/Aparencia.cpp" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Aparencia.cpp.obj" "gcc" "cmake/CMakeFiles/CodeQuestPlusPlus.dir/__/src/Sistemas/ConfiguracaoTerminal/Aparencia/Aparencia.cpp.obj.d"

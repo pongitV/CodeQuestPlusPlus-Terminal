@@ -20,8 +20,9 @@
 #include "../../Entidades/Inimigos/OrcExilado.h"
 #include "../../Core/Utilidades/Aparencia.h"
 #include "../../Core/Utilidades/FuncoesDialogo.h"
+#include "../Sistemas/AnimadorMapa.h"
 #include "../ControleMapa.h"
-#include "../../Core/Utilidades/ControleDeInput.h"
+#include "../Sistemas/CarregadorMapa.h"
 #include "../../Core/Utilidades/GeradorAleatorio.h"
 #include "../MapaInteracao.h"
 #include "../../Sistemas/Progresso/Progressao.h"
@@ -45,13 +46,13 @@ Mapa1Vila::Mapa1Vila(Personagem* personagemJogador) :
     veioDaFloresta(false)
 {
     matrizDoMapaPrincipalSalva = Mapa1VilaLayouts::obterLayoutVilaInicial();
-    ControleMapa::padronizarTamanhoDoMapa(matrizDoMapaPrincipalSalva);
+    CarregadorMapa::padronizarTamanhoDoMapa(matrizDoMapaPrincipalSalva);
 
     matrizDoMapaAtual = Mapa1VilaLayouts::obterLayoutSpawn();
-    ControleMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
+    CarregadorMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
 
     mapaBaseDaVila = Mapa1VilaLayouts::obterLayoutVilaInicial();
-    ControleMapa::padronizarTamanhoDoMapa(mapaBaseDaVila);
+    CarregadorMapa::padronizarTamanhoDoMapa(mapaBaseDaVila);
 
     if (!bjornResgatado) {
         for (auto& linha : matrizDoMapaPrincipalSalva) {
@@ -151,7 +152,7 @@ namespace {
             
             // 1. Entrar na Caverna a partir da Vila (X=121, Y=13)
             if (px == 121 && py == 13 && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaCavernaSalva, ctx.self->cavernaJaFoiVisitada, Mapa1VilaLayouts::obterLayoutCaverna(ctx.self->bjornResgatado), 14, 3, "CAVERNA DO ORK", ctx.animarTela);
+                CarregadorMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaCavernaSalva, ctx.self->cavernaJaFoiVisitada, Mapa1VilaLayouts::obterLayoutCaverna(ctx.self->bjornResgatado), 14, 3, "CAVERNA DO ORK", ctx.animarTela);
             }
             // 2. Retornar dos Interiores/Caverna de volta para a Vila Inicial
             else if (nextCell == 'S' && ctx.self->jogadorEstaDentroDeUmSubMapa) {
@@ -160,7 +161,7 @@ namespace {
                 }
 
                 ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaPrincipalSalva;
-                ControleMapa::padronizarTamanhoDoMapa(ctx.self->matrizDoMapaAtual);
+                CarregadorMapa::padronizarTamanhoDoMapa(ctx.self->matrizDoMapaAtual);
                 ctx.self->posicaoXDoJogador = ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa;
                 ctx.self->posicaoYDoJogador = ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa;
                 ctx.self->jogadorEstaDentroDeUmSubMapa = false;
@@ -171,7 +172,7 @@ namespace {
             else if (px == 54 && py == 7 && ctx.self->tituloDoMapaAtual == "CAMINHO DO INICIO") {
                 ctx.self->matrizDoMapaDoSpawnSalva = ctx.self->matrizDoMapaAtual;
                 ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaPrincipalSalva;
-                ControleMapa::padronizarTamanhoDoMapa(ctx.self->matrizDoMapaAtual);
+                CarregadorMapa::padronizarTamanhoDoMapa(ctx.self->matrizDoMapaAtual);
                 ctx.self->posicaoXDoJogador = 17;
                 ctx.self->posicaoYDoJogador = 5;
                 ctx.self->jogadorEstaDentroDeUmSubMapa = false;
@@ -180,7 +181,7 @@ namespace {
             }
             // 4. Entrar no Caminho do Inicio (Spawn) a partir da Vila Inicial (X=18, Y=5)
             else if (px == 18 && py == 5 && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                ControleMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDoSpawnSalva, ctx.self->spawnJaFoiVisitado, Mapa1VilaLayouts::obterLayoutSpawn(), 53, 7, "CAMINHO DO INICIO", ctx.animarTela);
+                CarregadorMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDoSpawnSalva, ctx.self->spawnJaFoiVisitado, Mapa1VilaLayouts::obterLayoutSpawn(), 53, 7, "CAMINHO DO INICIO", ctx.animarTela);
             }
             // 7. Seguir caminho para a Floresta (X=133, Y=50)
             else if (px == 133 && py == 50 && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
@@ -236,7 +237,7 @@ ProximaTransicaoMapa Mapa1Vila::iniciarLoopDeExploracao()
         veioDaFloresta = false;
     }
 
-    ControleMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
+    CarregadorMapa::padronizarTamanhoDoMapa(matrizDoMapaAtual);
 
     Aparencia::ocultarCursor();
 
@@ -253,7 +254,7 @@ ProximaTransicaoMapa Mapa1Vila::iniciarLoopDeExploracao()
     int linhaInicialParaDesenharOMapa = 0;
 
     auto restaurarTela = [&]() {
-        linhaInicialParaDesenharOMapa = ControleMapa::animarIntroducaoMapa(tituloDoMapaAtual, {}, 0, {}, 0, Cor::AMARELO, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, false);
+        linhaInicialParaDesenharOMapa = AnimadorMapa::animarIntroducaoMapa(tituloDoMapaAtual, {}, 0, {}, 0, Cor::AMARELO, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, false, true, nullptr);
         precisaRenderizar = true;
     };
 
@@ -278,7 +279,7 @@ ProximaTransicaoMapa Mapa1Vila::iniciarLoopDeExploracao()
             }
         }
         
-        linhaInicialParaDesenharOMapa = ControleMapa::animarIntroducaoMapa(tituloDoMapaAtual, arteTitulo, larguraArte, arteTrans, larguraTrans, Cor::AMARELO, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, true, usarAnimacaoBanner, acaoNarracao);
+        linhaInicialParaDesenharOMapa = AnimadorMapa::animarIntroducaoMapa(tituloDoMapaAtual, arteTitulo, larguraArte, arteTrans, larguraTrans, Cor::AMARELO, matrizDoMapaAtual, posicaoXDoJogador, posicaoYDoJogador, formatador, true, usarAnimacaoBanner, acaoNarracao);
         precisaRenderizar = false;
     };
 

@@ -224,6 +224,7 @@ public:
     std::string obterNomeClasse() const;
     TipoClasse obterTipoClasse() const;
     TipoRaca obterTipoRaca() const;
+    bool isBoss() const;
     
     Item* obterArma() const { return arma; }
     Item* obterEscudo() const { return escudo; }

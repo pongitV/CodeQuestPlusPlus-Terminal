@@ -12,25 +12,18 @@
 #include "../../../TelasBase/Menu/TelaBaseMenu.h"
 #include "../../../../Core/Utilidades/FuncoesDialogo.h"
 #include "../../../../Core/Utilidades/ControleDeInput.h"
-#include "../../../../Entidades/Racas/RacaBase.h"
-#include "../../../../Entidades/Racas/Anao.h"
-#include "../../../../Entidades/Racas/Elfo.h"
-#include "../../../../Entidades/Racas/Humano.h"
-#include "../../../../Entidades/Racas/Orc.h"
+#include "../../../../Entidades/Racas/FabricaRacas.h"
 #include "../../../../Entidades/Personagem.h"
 
-static std::unique_ptr<RacaBase> criarRaca(const std::string& nome) {
-    if (nome == "Anao" || nome == "Dwarf") return std::make_unique<Dwarf>();
-    if (nome == "Elfo") return std::make_unique<Elfo>();
-    if (nome == "Humano") return std::make_unique<Humano>();
-    if (nome == "Ork" || nome == "Orc") return std::make_unique<Ork>();
-    return nullptr;
-}
+struct OpcaoRaca { TipoRaca tipo; std::string nome; };
 
 TelaRaca::Resultado TelaRacaRaycaster::exibir(const std::string& nomeJogador) {
-    std::vector<std::string> racas = {"Dwarf", "Elfo", "Humano", "Ork"};
-    Aparencia::ordenarAlfabeticamente(racas);
-    racas.push_back("VOLTAR");
+    std::vector<OpcaoRaca> opcoesGerais;
+    for (auto t : FabricaRacas::obterRacasJogaveis()) {
+        auto temp = FabricaRacas::criarRaca(t);
+        opcoesGerais.push_back({t, temp->obterNomeRaca()});
+    }
+    std::sort(opcoesGerais.begin(), opcoesGerais.end(), [](const OpcaoRaca& a, const OpcaoRaca& b) { return a.nome < b.nome; });
 
     int selecaoAtual = 0;
     int larguraConsole = Aparencia::obterLarguraTerminal();
@@ -44,9 +37,8 @@ TelaRaca::Resultado TelaRacaRaycaster::exibir(const std::string& nomeJogador) {
         std::ostringstream buffer;
         MenuRaycasterUtils::exibirFundo3D(buffer);
 
-        bool isVoltar = (selecaoAtual >= (int)racas.size() - 1);
-        std::string racaNome = isVoltar ? "" : racas[selecaoAtual];
-        auto raca = isVoltar ? nullptr : criarRaca(racaNome);
+        bool isVoltar = (selecaoAtual >= (int)opcoesGerais.size());
+        auto raca = isVoltar ? nullptr : FabricaRacas::criarRaca(opcoesGerais[selecaoAtual].tipo);
 
         std::string titulo = "SELECIONE SUA RACA - " + nomeJogador;
         int boxW = (int)titulo.length() + 4;
@@ -71,11 +63,13 @@ TelaRaca::Resultado TelaRacaRaycaster::exibir(const std::string& nomeJogador) {
         if (colLista < 2) colLista = 2;
 
         // Left: list of options
-        for (int i = 0; i < (int)racas.size(); ++i) {
+        int totalOpcoes = (int)opcoesGerais.size() + 1;
+        for (int i = 0; i < totalOpcoes; ++i) {
+            std::string nomeOpcao = (i == (int)opcoesGerais.size()) ? "VOLTAR" : opcoesGerais[i].nome;
             if (i == selecaoAtual) {
-                MenuRaycasterUtils::sobreporTexto3D(buffer, "\033[38;2;0;255;0m> " + racas[i] + "\033[0m", yBase + i, colLista, larguraConsole);
+                MenuRaycasterUtils::sobreporTexto3D(buffer, "\033[38;2;0;255;0m> " + nomeOpcao + "\033[0m", yBase + i, colLista, larguraConsole);
             } else {
-                MenuRaycasterUtils::sobreporTexto3D(buffer, "  " + racas[i], yBase + i, colLista, larguraConsole);
+                MenuRaycasterUtils::sobreporTexto3D(buffer, "  " + nomeOpcao, yBase + i, colLista, larguraConsole);
             }
         }
 
@@ -136,9 +130,9 @@ TelaRaca::Resultado TelaRacaRaycaster::exibir(const std::string& nomeJogador) {
         }
 
         if (tecla == 'w' || tecla == 'W') {
-            selecaoAtual = (selecaoAtual - 1 + (int)racas.size()) % (int)racas.size();
+            selecaoAtual = (selecaoAtual - 1 + totalOpcoes) % totalOpcoes;
         } else if (tecla == 's' || tecla == 'S') {
-            selecaoAtual = (selecaoAtual + 1) % (int)racas.size();
+            selecaoAtual = (selecaoAtual + 1) % totalOpcoes;
         } else if (tecla == '\r' || tecla == '\n') {
             if (isVoltar) {
                 TelaRaca::Resultado r;
@@ -147,6 +141,8 @@ TelaRaca::Resultado TelaRacaRaycaster::exibir(const std::string& nomeJogador) {
             }
             TelaRaca::Resultado r;
             r.indice = selecaoAtual;
+            r.nome = opcoesGerais[selecaoAtual].nome;
+            r.racaSelecionada = opcoesGerais[selecaoAtual].tipo;
             return r;
         }
     }
