@@ -405,74 +405,78 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
         }
 
         RaycasterRenderizador::renderizar3D(tela3D, LARGURA_TELA, ALTURA_INTERNA, jogadorX, jogadorY, anguloVisao, horizonteInterno, offsetGeral, profundidadeMaxima, tempoAbsoluto, matrizDoMapa, tituloMapa, temaFloresta, temaAtivo, cacheSprites);
-        downsampleTela();
+        // --- LIMPA A TELA HUD ---
+        for (int i = 0; i < LARGURA_TELA * ALTURA_TELA; i++) {
+            tela[i] = " ";
+        }
 
         // --- RENDERIZACAO HUD E OVERLAYS (2D) ---
         RaycasterHUD::desenhar(tela, LARGURA_TELA, ALTURA_TELA, jogadorX, jogadorY, anguloVisao, matrizDoMapa, tituloMapa, temaFloresta, jogador);
 
         // Envia o frame processado para o terminal de uma vez de forma linear (Zero Flickering!)
-        // Otimização de Transmissão ANSI Baseada em Ponteiros (Zero Alocações de Memória)
         string bufferFrame = "\033[?2026h\033[?25l\033[H"; 
         bufferFrame.reserve(LARGURA_TELA * ALTURA_TELA * 15); 
 
-        std::string_view activeBg = "";
-        std::string_view activeFg = "";
+        int curBgR = -1, curBgG = -1, curBgB = -1;
+        int curFgR = -1, curFgG = -1, curFgB = -1;
 
         for (int y = 0; y < ALTURA_TELA; y++) {
             for (int x = 0; x < LARGURA_TELA; x++) {
                 if (y == ALTURA_TELA - 1 && x == LARGURA_TELA - 1) break; // Pula o ultimo pixel
                 
-                const string& cell = tela[y * LARGURA_TELA + x];
-                if (cell.empty()) continue;
-                
-                const char* p = cell.c_str();
-                const char* end = p + cell.size();
-                
-                while (p < end) {
-                    if (*p == '\033') {
-                        // Encontra o fim da sequencia de escape 'm'
-                        const char* m = p;
-                        while (m < end && *m != 'm') {
-                            m++;
-                        }
-                        if (m < end) {
-                            size_t len = m - p + 1;
-                            std::string_view esc(p, len);
-                            if (len == 4 && p[1] == '[' && p[2] == '0' && p[3] == 'm') {
-                                // É um \033[0m. Nós o emitimos para garantir que cores do HUD e textos voltem ao padrão
-                                activeBg = "";
-                                activeFg = "";
-                                bufferFrame.append(p, len);
-                            } else if (len >= 7 && std::strncmp(p, "\033[48;2;", 7) == 0) {
-                                // Código de Background RGB (\033[48;2;...)
-                                if (activeBg != esc) {
-                                    activeBg = esc;
-                                    bufferFrame.append(p, len);
-                                }
-                            } else if (len >= 7 && std::strncmp(p, "\033[38;2;", 7) == 0) {
-                                // Código de Foreground RGB (\033[38;2;...)
-                                if (activeFg != esc) {
-                                    activeFg = esc;
-                                    bufferFrame.append(p, len);
-                                }
-                            } else {
-                                // Outros códigos de escape (ex: negrito \033[1m ou resets específicos \033[39m / \033[49m)
-                                if (len == 5 && std::strncmp(p, "\033[49m", 5) == 0) {
-                                    activeBg = "";
-                                } else if (len == 5 && std::strncmp(p, "\033[39m", 5) == 0) {
-                                    activeFg = "";
-                                }
-                                bufferFrame.append(p, len);
-                            }
-                            p = m + 1; // Avança para depois do 'm'
-                        } else {
-                            bufferFrame.push_back(*p);
-                            p++;
-                        }
+                const string& hudStr = tela[y * LARGURA_TELA + x];
+                if (hudStr != " ") {
+                    bufferFrame += hudStr;
+                    curBgR = -1; curBgG = -1; curBgB = -1;
+                    curFgR = -1; curFgG = -1; curFgB = -1;
+                } else {
+                    const Pixel3D& top = tela3D[(y * 2) * LARGURA_TELA + x];
+                    const Pixel3D& bot = tela3D[(y * 2 + 1) * LARGURA_TELA + x];
+                    
+                    int bgR, bgG, bgB;
+                    int fgR=0, fgG=0, fgB=0;
+                    bool hasFg = false;
+                    char ch = ' ';
+                    bool isHalfBlock = false;
+                    
+                    if (top.ch == ' ' && bot.ch == ' ') {
+                        bgR = bot.r; bgG = bot.g; bgB = bot.b;
+                        fgR = top.r; fgG = top.g; fgB = top.b;
+                        hasFg = true;
+                        isHalfBlock = true;
+                    } else if (top.ch != ' ') {
+                        bgR = top.r; bgG = top.g; bgB = top.b;
+                        if (top.hasFg) { fgR = top.fgR; fgG = top.fgG; fgB = top.fgB; hasFg = true; }
+                        ch = top.ch;
                     } else {
-                        bufferFrame.push_back(*p);
-                        p++;
+                        bgR = bot.r; bgG = bot.g; bgB = bot.b;
+                        if (bot.hasFg) { fgR = bot.fgR; fgG = bot.fgG; fgB = bot.fgB; hasFg = true; }
+                        ch = bot.ch;
                     }
+                    
+                    char buf[64];
+                    char* p = buf;
+                    
+                    if (bgR != curBgR || bgG != curBgG || bgB != curBgB) {
+                        p = writeAnsiColorFast(p, 48, bgR, bgG, bgB);
+                        curBgR = bgR; curBgG = bgG; curBgB = bgB;
+                    }
+                    if (hasFg) {
+                        if (fgR != curFgR || fgG != curFgG || fgB != curFgB) {
+                            p = writeAnsiColorFast(p, 38, fgR, fgG, fgB);
+                            curFgR = fgR; curFgG = fgG; curFgB = fgB;
+                        }
+                    }
+                    
+                    if (isHalfBlock) {
+                        *p++ = '\xE2';
+                        *p++ = '\x96';
+                        *p++ = '\x80';
+                    } else {
+                        *p++ = ch;
+                    }
+                    
+                    bufferFrame.append(buf, p - buf);
                 }
             }
             if (y < ALTURA_TELA - 1) bufferFrame += "\n";

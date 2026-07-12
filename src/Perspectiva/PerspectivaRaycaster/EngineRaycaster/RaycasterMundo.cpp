@@ -11,19 +11,27 @@
 #include "../../../Mapas/Reino/Mapa3PonteReinoLayout.h"
 #include "../../../Mapas/Reino/Mapa4ReinoLayout.h"
 
-static thread_local size_t g_currentMapHash = 0;
+#include <atomic>
+
+static std::atomic<size_t> g_currentMapHash{0};
 
 char RaycasterMundo::obterNPCProximo(const std::string& tituloMapa, int mapX, int mapY) {
-    std::vector<std::string> layout;
-    std::string upper = tituloMapa;
-    for (char& c : upper) c = std::toupper(static_cast<unsigned char>(c));
+    static thread_local std::string lastTitulo;
+    static thread_local std::vector<std::string> layout;
 
-    if (upper == "REINO" || upper == "PATIO DO REINO") layout = Mapa4ReinoLayouts::obterLayoutReino();
-    else if (upper.find("IGREJA") != std::string::npos) layout = Mapa4ReinoLayouts::obterLayoutIgreja();
-    else if (upper.find("PONTE") != std::string::npos || upper == "CAMINHO DO REINO") layout = Mapa3PonteReinoLayouts::obterLayoutPonteReino();
-    else if (upper.find("VILA") != std::string::npos) layout = Mapa1VilaLayouts::obterLayoutVilaInicial();
-    else if (upper.find("FLORESTA") != std::string::npos) layout = Mapa2FlorestaLayouts::obterLayoutFloresta();
-    else if (upper.find("CAVERNA") != std::string::npos) layout = Mapa1VilaLayouts::obterLayoutCaverna(false);
+    if (tituloMapa != lastTitulo) {
+        lastTitulo = tituloMapa;
+        std::string upper = tituloMapa;
+        for (char& c : upper) c = std::toupper(static_cast<unsigned char>(c));
+
+        if (upper == "REINO" || upper == "PATIO DO REINO") layout = Mapa4ReinoLayouts::obterLayoutReino();
+        else if (upper.find("IGREJA") != std::string::npos) layout = Mapa4ReinoLayouts::obterLayoutIgreja();
+        else if (upper.find("PONTE") != std::string::npos || upper == "CAMINHO DO REINO") layout = Mapa3PonteReinoLayouts::obterLayoutPonteReino();
+        else if (upper.find("VILA") != std::string::npos) layout = Mapa1VilaLayouts::obterLayoutVilaInicial();
+        else if (upper.find("FLORESTA") != std::string::npos) layout = Mapa2FlorestaLayouts::obterLayoutFloresta();
+        else if (upper.find("CAVERNA") != std::string::npos) layout = Mapa1VilaLayouts::obterLayoutCaverna(false);
+        else layout.clear();
+    }
 
     return CacheMapa::obterNPCProximo(tituloMapa, mapX, mapY, layout);
 }
@@ -31,7 +39,11 @@ char RaycasterMundo::obterNPCProximo(const std::string& tituloMapa, int mapX, in
 static thread_local std::string g_currentMapTitle = "";
 
 static const MapFlags& obterFlagsMapa(const std::string& tituloMapa) {
-    g_currentMapTitle = tituloMapa;
+    static thread_local std::string lastTitle;
+    if (tituloMapa != lastTitle) {
+        lastTitle = tituloMapa;
+        g_currentMapTitle = tituloMapa;
+    }
     return CacheMapa::obterFlags(tituloMapa);
 }
 
@@ -151,11 +163,10 @@ bool RaycasterMundo::isMapLabel(int mapX, int mapY, const std::vector<std::strin
     return result;
 }
 
-Pixel3D RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMapa, bool temaFloresta, float distanciaAteParede, float profundidadeMaxima, char charParede, int y, int teto, int chao, float texX, float tempoAnimacao, const std::vector<std::tuple<int, int, int>>& luzes, float hitX, float hitY, bool isSideWall, char npcEncontrado) {
+Pixel3D RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMapa, bool temaFloresta, float distanciaAteParede, float profundidadeMaxima, char charParede, int y, int teto, int chao, float texX, float tempoAnimacao, const Iluminador::InfoLuz& infoLuz, float hitX, float hitY, bool isSideWall, char npcEncontrado) {
     const auto& flags = obterFlagsMapa(tituloMapa);
     int temaCeu = flags.temaCeu;
     int baseR=0, baseG=0, baseB=0;
-    distanciaAteParede *= 0.55f;
 
     int alturaParede = chao - teto;
     
@@ -167,9 +178,7 @@ Pixel3D RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMapa, 
 
     bool isReino = flags.isReino;
 
-    bool isEstrutura = false;
-    std::string charsEstrutura = "|_[]{}/\\<>;=-:+";
-    if (charsEstrutura.find(charParede) != std::string::npos) isEstrutura = true;
+    bool isEstrutura = (charParede == '|' || charParede == '_' || charParede == '[' || charParede == ']' || charParede == '{' || charParede == '}' || charParede == '/' || charParede == '\\' || charParede == '<' || charParede == '>' || charParede == ';' || charParede == '=' || charParede == '-' || charParede == ':' || charParede == '+');
 
     bool isLabyrinthArch = (!isReino && temaFloresta && charParede == '#' && hitX >= 125.0f && hitX <= 150.0f && hitY >= 5.0f && hitY <= 15.0f);
 
@@ -642,14 +651,24 @@ Pixel3D RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMapa, 
             }
         }
     }
-    return Iluminador::aplicarNevoa(baseR, baseG, baseB, distanciaAteParede, profundidadeMaxima, temaCeu, luzes, hitX, hitY, isSideWall);
+    return Iluminador::aplicarLuzPrecalculada(baseR, baseG, baseB, infoLuz, isSideWall);
+}
+
+Pixel3D RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMapa, bool temaFloresta, float distanciaAteParede, float profundidadeMaxima, char charParede, int y, int teto, int chao, float texX, float tempoAnimacao, const std::vector<std::tuple<int, int, int>>& luzes, float hitX, float hitY, bool isSideWall, char npcEncontrado) {
+    const auto& flags = obterFlagsMapa(tituloMapa);
+    Iluminador::InfoLuz info = Iluminador::calcularInfoLuz(distanciaAteParede * 0.55f, profundidadeMaxima, flags.temaCeu, luzes, hitX, hitY);
+    return obterPixelParedeInternal(tituloMapa, temaFloresta, distanciaAteParede, profundidadeMaxima, charParede, y, teto, chao, texX, tempoAnimacao, info, hitX, hitY, isSideWall, npcEncontrado);
+}
+
+Pixel3D RaycasterMundo::obterPixelParede(const std::string& tituloMapa, bool temaFloresta, float distanciaAteParede, float profundidadeMaxima, char charParede, int y, int teto, int chao, float texX, float tempoAnimacao, bool isSideWall, const Iluminador::InfoLuz& infoLuz, float hitX, float hitY, char npcEncontrado) {
+    return obterPixelParedeInternal(tituloMapa, temaFloresta, distanciaAteParede, profundidadeMaxima, charParede, y, teto, chao, texX, tempoAnimacao, infoLuz, hitX, hitY, isSideWall, npcEncontrado);
 }
 
 Pixel3D RaycasterMundo::obterPixelParede(const std::string& tituloMapa, bool temaFloresta, float distanciaAteParede, float profundidadeMaxima, char charParede, int y, int teto, int chao, float texX, float tempoAnimacao, bool isSideWall, const std::vector<std::tuple<int, int, int>>& luzes, float hitX, float hitY, char npcEncontrado) {
     return obterPixelParedeInternal(tituloMapa, temaFloresta, distanciaAteParede, profundidadeMaxima, charParede, y, teto, chao, texX, tempoAnimacao, luzes, hitX, hitY, isSideWall, npcEncontrado);
 }
 
-Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float currentX, float currentY, float currentDist, float profundidadeMaxima, const std::vector<std::tuple<int, int, int>>& luzes) {
+Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float currentX, float currentY, float currentDist, float profundidadeMaxima, const std::vector<std::tuple<int, int, int>>& luzes, const std::vector<std::string>* matrizDoMapa) {
     const auto& flags = obterFlagsMapa(tituloMapa);
     int temaCeu = flags.temaCeu;
     currentDist *= 0.55f;
@@ -667,19 +686,19 @@ Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float curr
 
     if (isLabirinto) {
         fgR = 150; fgG = 130; fgB = 90;
-        bool bordaX = (globX % 64 < 2) || (globX % 64 > 61);
-        bool bordaY = (globY % 32 < 2) || (globY % 32 > 29);
+        bool bordaX = ((globX & 63) < 2) || ((globX & 63) > 61);
+        bool bordaY = ((globY & 31) < 2) || ((globY & 31) > 29);
         if (bordaX || bordaY) {
             r = 40; g = 40; b = 30;
             c = ' ';
         } else {
-            if ((globX + globY) % 2 == 0) { r = 180; g = 160; b = 110; }
+            if (((globX + globY) & 1) == 0) { r = 180; g = 160; b = 110; }
             else                          { r = 160; g = 140; b = 95; }
-            c = ((globX * 3 + globY * 7) % 5 < 2) ? '-' : '=';
+            c = (((globX * 3 + globY * 7) & 3) < 2) ? '-' : '=';
         }
     } else if (isSalaChefe) {
-        float cx = (globX % 64) - 32.0f;
-        float cy = (globY % 64) - 32.0f;
+        float cx = (globX & 63) - 32.0f;
+        float cy = (globY & 63) - 32.0f;
         float dist = std::sqrt(cx*cx + cy*cy);
         float angle = std::atan2(cy, cx);
         float spiral = std::sin(dist * 0.4f - angle * 3.0f);
@@ -692,25 +711,99 @@ Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float curr
         else c = ' ';
     } else if (isTerra) {
         fgR = 45; fgG = 25; fgB = 10;
-        if ((globX + globY) % 2 == 0) { r = 28; g = 18; b = 8; }
-        else if ((globX * 3 + globY * 5) % 7 < 2) { r = 22; g = 12; b = 4; }
+        if (((globX + globY) & 1) == 0) { r = 28; g = 18; b = 8; }
+        else if (((globX * 3 + globY * 5) & 7) < 2) { r = 22; g = 12; b = 4; }
         else { r = 25; g = 15; b = 5; }
         
-        if ((globX * 17 + globY * 23) % 47 < 4) c = '.';
-        else if ((globX * globX + globY * 13) % 53 < 3) c = '-';
-        else if ((globX * 3 + globY * 7) % 31 < 2) c = '`';
+        if (((globX * 17 + globY * 23) & 63) < 4) c = '.';
+        else if (((globX * globX + globY * 13) & 63) < 3) c = '-';
+        else if (((globX * 3 + globY * 7) & 31) < 2) c = '`';
     } else {
         fgR = 60; fgG = 60; fgB = 60;
-        if ((globX + globY) % 2 == 0) { r = 24; g = 24; b = 24; }
-        else if ((globX * 3 + globY * 5) % 7 < 2) { r = 16; g = 16; b = 16; }
+        if (((globX + globY) & 1) == 0) { r = 24; g = 24; b = 24; }
+        else if (((globX * 3 + globY * 5) & 7) < 2) { r = 16; g = 16; b = 16; }
         else { r = 20; g = 20; b = 20; }
         
-        if ((globX * 17 + globY * 23) % 47 < 4) c = '.';
-        else if ((globX * globX + globY * 13) % 53 < 3) c = '-';
-        else if ((globX * 3 + globY * 7) % 31 < 2) c = '`';
+        if (((globX * 17 + globY * 23) & 63) < 4) c = '.';
+        else if (((globX * globX + globY * 13) & 63) < 3) c = '-';
+        else if (((globX * 3 + globY * 7) & 31) < 2) c = '`';
     }
     
-    Pixel3D px = Iluminador::aplicarNevoa(r, g, b, currentDist, profundidadeMaxima, temaCeu, luzes, currentX, currentY);
+    Pixel3D px = Iluminador::aplicarNevoa(r, g, b, currentDist, profundidadeMaxima, temaCeu, luzes, currentX, currentY, false, matrizDoMapa);
+    if (c != ' ' && currentDist <= profundidadeMaxima * 0.5f) {
+        px.ch = c;
+        px.fgR = fgR;
+        px.fgG = fgG;
+        px.fgB = fgB;
+        px.hasFg = true;
+    }
+    return px;
+}
+
+Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float currentX, float currentY, float currentDist, float profundidadeMaxima, const Iluminador::InfoLuz& infoLuz) {
+    const auto& flags = obterFlagsMapa(tituloMapa);
+    currentDist *= 0.55f;
+
+    bool isTerra = flags.isTerra;
+    bool isLabirinto = flags.isLabirinto;
+    bool isSalaChefe = flags.isSalaChefe;
+
+    unsigned int globX = static_cast<unsigned int>(std::abs(currentX * 32.0f));
+    unsigned int globY = static_cast<unsigned int>(std::abs(currentY * 32.0f));
+
+    char c = ' ';
+    int r = 0, g = 0, b = 0;
+    uint8_t fgR = 0, fgG = 0, fgB = 0;
+
+    if (isLabirinto) {
+        fgR = 150; fgG = 130; fgB = 90;
+        bool bordaX = ((globX & 63) < 2) || ((globX & 63) > 61);
+        bool bordaY = ((globY & 31) < 2) || ((globY & 31) > 29);
+        if (bordaX || bordaY) {
+            r = 40; g = 40; b = 30;
+            c = ' ';
+        } else {
+            if (((globX + globY) & 1) == 0) { r = 180; g = 160; b = 110; }
+            else                          { r = 160; g = 140; b = 95; }
+            c = (((globX * 3 + globY * 7) & 3) < 2) ? '-' : '=';
+        }
+    } else if (isSalaChefe) {
+        float cx = (globX & 63) - 32.0f;
+        float cy = (globY & 63) - 32.0f;
+        float dist = std::sqrt(cx*cx + cy*cy);
+        float angle = std::atan2(cy, cx);
+        float spiral = std::sin(dist * 0.4f - angle * 3.0f);
+
+        r = 5; g = 5; b = 5;
+        fgR = 50; fgG = 50; fgB = 50; 
+        if (spiral > 0.3f) c = '@';
+        else if (spiral > 0.0f) c = '%';
+        else if (spiral > -0.3f) c = '.';
+        else c = ' ';
+    } else if (isTerra) {
+        fgR = 45; fgG = 25; fgB = 10;
+        if (((globX + globY) & 1) == 0) { r = 28; g = 18; b = 8; }
+        else if (((globX * 3 + globY * 5) & 7) < 2) { r = 22; g = 12; b = 4; }
+        else { r = 25; g = 15; b = 5; }
+        
+        if (((globX * 17 + globY * 23) & 63) < 4) c = '.';
+        else if (((globX * globX + globY * 13) & 63) < 3) c = '-';
+        else if (((globX * 3 + globY * 7) & 31) < 2) c = '`';
+    } else {
+        fgR = 60; fgG = 60; fgB = 60;
+        if (((globX + globY) & 1) == 0) { r = 24; g = 24; b = 24; }
+        else if (((globX * 3 + globY * 5) & 7) < 2) { r = 16; g = 16; b = 16; }
+        else { r = 20; g = 20; b = 20; }
+        
+        if (((globX * 17 + globY * 23) & 63) < 4) c = '.';
+        else if (((globX * globX + globY * 13) & 63) < 3) c = '-';
+        else if (((globX * 3 + globY * 7) & 31) < 2) c = '`';
+    }
+    
+    Iluminador::InfoLuz infoLocal = infoLuz;
+    infoLocal.nevoaPercent = std::min(1.0f, (currentDist / (profundidadeMaxima * 0.8f)) *
+                                             (currentDist / (profundidadeMaxima * 0.8f)));
+    Pixel3D px = Iluminador::aplicarLuzPrecalculada(r, g, b, infoLocal);
     if (c != ' ' && currentDist <= profundidadeMaxima * 0.5f) {
         px.ch = c;
         px.fgR = fgR;
@@ -725,22 +818,37 @@ Pixel3D RaycasterMundo::obterPixelAgua(float currentX, float currentY, float cur
     int baseR=0, baseG=0, baseB=0;
     currentDist *= 0.55f;
 
-    int tx = (int)(currentX * 32.0f) % 32;
-    int ty = (int)(currentY * 32.0f) % 32;
+    float waveX = std::sin(currentX * 4.0f + tempoAnimacao * 2.0f);
+    float waveY = std::cos(currentY * 4.0f + tempoAnimacao * 1.5f);
+    float wave = (waveX + waveY) * 0.5f; // value between -1 and 1
 
-    bool isOnda = ((tx + ty) % 4 == 0) || (((tx / 2) + ty) % 5 == 0);
-    if (isOnda) {
-        baseR = 80; baseG = 180; baseB = 255;
+    if (wave > 0.3f) {
+        // Crest of the wave (lighter cyan)
+        baseR = 100; baseG = 200; baseB = 255;
+    } else if (wave > -0.3f) {
+        // Mid of the wave (standard water)
+        baseR = 60; baseG = 160; baseB = 235;
     } else {
-        baseR = 50; baseG = 150; baseB = 255;
+        // Trough of the wave (deep blue)
+        baseR = 30; baseG = 130; baseB = 215;
     }
     
-    float angleOffset = std::sin(tempoAnimacao + currentX * 0.5f) * 0.1f;
-    float diffAnguloLua = std::fmod(raioAngulo + angleOffset, 2.0f * 3.14159f);
-    if (diffAnguloLua < 0) diffAnguloLua += 2.0f * 3.14159f;
-    if (diffAnguloLua < 0.2f || diffAnguloLua > 6.0f) {
-        baseR += 40; baseG += 40; baseB += 40;
+    float angleOffset = wave * 0.2f; // The wave distorts the reflection!
+    float angReflexo = raioAngulo + angleOffset;
+    while (angReflexo >= 2.0f * 3.14159f) angReflexo -= 2.0f * 3.14159f;
+    while (angReflexo < 0) angReflexo += 2.0f * 3.14159f;
+    
+    // Moon / Sun reflection path on water
+    if (angReflexo < 0.3f || angReflexo > (2.0f * 3.14159f - 0.3f)) {
+        float dif = (angReflexo < 0.3f) ? angReflexo : ((2.0f * 3.14159f) - angReflexo);
+        float intensidadeReflexo = 1.0f - (dif / 0.3f);
+        intensidadeReflexo *= (0.5f + (wave + 1.0f) * 0.25f); // Waves affect intensity
+        
+        baseR = std::min(255, baseR + (int)(155 * intensidadeReflexo));
+        baseG = std::min(255, baseG + (int)(95 * intensidadeReflexo));
+        if (temaCeu != 1 && temaCeu != 2) baseB = std::min(255, baseB + (int)(255 * intensidadeReflexo)); // White for moon, slightly yellowish for sun depending on theme? We'll just add some blue for general reflection
     }
+
     std::vector<std::tuple<int, int, int>> noLuzes;
     return Iluminador::aplicarNevoa(baseR, baseG, baseB, currentDist, profundidadeMaxima, temaCeu, noLuzes, currentX, currentY);
 }

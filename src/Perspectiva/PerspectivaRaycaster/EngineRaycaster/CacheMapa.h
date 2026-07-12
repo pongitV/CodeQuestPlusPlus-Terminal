@@ -43,12 +43,27 @@ namespace CacheMapa {
         return flags;
     }
 
-    inline char obterNPCProximo(const std::string&, int mapX, int mapY,
+    inline char obterNPCProximo(const std::string& titulo, int mapX, int mapY,
                                 const std::vector<std::string>& layout) {
         if (layout.empty()) return ' ';
 
-        int mapW = layout.empty() ? 0 : (int)layout[0].size();
-        int mapH = (int)layout.size();
+        static thread_local std::string lastTituloCache;
+        static thread_local std::vector<std::vector<char>> npcGrid;
+
+        int mapW = layout[0].size();
+        int mapH = layout.size();
+
+        if (titulo != lastTituloCache) {
+            lastTituloCache = titulo;
+            npcGrid.assign(mapH, std::vector<char>(mapW, 0));
+        }
+
+        if (mapY < 0 || mapY >= mapH || mapX < 0 || mapX >= mapW) return ' ';
+
+        if (npcGrid[mapY][mapX] != 0) {
+            return npcGrid[mapY][mapX] == '-' ? ' ' : npcGrid[mapY][mapX];
+        }
+
         int bestDist = 12 * 12;
         char bestChar = ' ';
 
@@ -64,6 +79,7 @@ namespace CacheMapa {
                 }
             }
         }
+        npcGrid[mapY][mapX] = (bestChar == ' ') ? '-' : bestChar;
         return bestChar;
     }
 

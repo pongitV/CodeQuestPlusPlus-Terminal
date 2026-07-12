@@ -4,8 +4,66 @@
 #include <algorithm>
 #include <thread>
 #include <vector>
+#include <mutex>
+#include <condition_variable>
+#include <atomic>
+#include <functional>
 
 using namespace std;
+
+struct ThreadPool {
+    std::vector<std::thread> threads;
+    std::atomic<bool> stop{false};
+    std::atomic<int> activeTasks{0};
+    
+    std::mutex mtx;
+    std::condition_variable cv;
+    std::vector<std::function<void()>> tasks;
+    
+    ThreadPool() {
+        int numThreads = std::thread::hardware_concurrency();
+        if (numThreads == 0) numThreads = 4;
+        for (int i = 0; i < numThreads; ++i) {
+            threads.emplace_back([this]() {
+                while (true) {
+                    std::function<void()> task;
+                    {
+                        std::unique_lock<std::mutex> lock(mtx);
+                        cv.wait(lock, [this]() { return stop || !tasks.empty(); });
+                        if (stop && tasks.empty()) return;
+                        task = std::move(tasks.back());
+                        tasks.pop_back();
+                    }
+                    task();
+                    activeTasks--;
+                }
+            });
+        }
+    }
+    
+    ~ThreadPool() {
+        stop = true;
+        cv.notify_all();
+        for (auto& t : threads) t.join();
+    }
+    
+    void execute(std::vector<std::function<void()>> newTasks) {
+        {
+            std::lock_guard<std::mutex> lock(mtx);
+            tasks = std::move(newTasks);
+            activeTasks = tasks.size();
+        }
+        cv.notify_all();
+        while (activeTasks > 0) {
+            std::this_thread::yield();
+        }
+    }
+};
+
+static ThreadPool& obterThreadPool() {
+    static ThreadPool pool;
+    return pool;
+}
 
 struct EntidadeAtingida {
     float dist;
@@ -40,7 +98,18 @@ void RaycasterRenderizador::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA
             }
         }
     }
-    const auto& luzes = cachedLuzes;
+
+    std::vector<std::tuple<int, int, int>> luzesVisiveis;
+    float maxDistLuz = profundidadeMaxima + 8.0f;
+    float maxDistLuzSq = maxDistLuz * maxDistLuz;
+    for (const auto& l : cachedLuzes) {
+        float dx = std::get<0>(l) - jogadorX;
+        float dy = std::get<1>(l) - jogadorY;
+        if (dx * dx + dy * dy <= maxDistLuzSq) {
+            luzesVisiveis.push_back(l);
+        }
+    }
+    const auto& luzes = luzesVisiveis;
 
     std::string tituloUpper = tituloMapa;
     for (char& ch : tituloUpper) ch = std::toupper(static_cast<unsigned char>(ch));
@@ -48,7 +117,17 @@ void RaycasterRenderizador::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA
 
     std::vector<float> ZBuffer(LARGURA_TELA, 0.0f);
 
-    for (int x = 0; x < LARGURA_TELA; x++) {
+    int numThreads = std::thread::hardware_concurrency();
+    if (numThreads == 0) numThreads = 4;
+    int chunkSize = LARGURA_TELA / numThreads;
+    std::vector<std::function<void()>> tasks;
+
+    for (int i = 0; i < numThreads; i++) {
+        int startX = i * chunkSize;
+        int endX = (i == numThreads - 1) ? LARGURA_TELA : startX + chunkSize;
+        
+        tasks.push_back([&, startX, endX]() {
+            for (int x = startX; x < endX; x++) {
         float raioAngulo = (anguloVisao - campoVisao / 2.0f) + ((float)x / (float)LARGURA_TELA) * campoVisao;
         float distanciaAteParede = 0.0f;
         bool bateuNaParede = false;
@@ -124,6 +203,9 @@ void RaycasterRenderizador::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA
 
         ZBuffer[x] = perpWallDist;
 
+        float invCosFisheye = 1.0f / cosf(raioAngulo - anguloVisao);
+        float factorDist = (float)ALTURA_TELA * invCosFisheye;
+
         float texXParede = 0.0f;
         bool isSideWall = false;
         if (side == 0) {
@@ -144,6 +226,18 @@ void RaycasterRenderizador::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA
         if (charParede == '*') teto -= (int)(ALTURA_TELA / perpWallDist * 1.5f); 
         if (isReino && charParede == '|') teto -= (int)(ALTURA_TELA / perpWallDist * 3.0f); // Portao super alto
 
+        std::vector<std::tuple<int, int, int>> luzesDaParede;
+        int nx = (side == 0) ? -stepX : 0;
+        int ny = (side == 1) ? -stepY : 0;
+        for (const auto& l : luzes) {
+            float dirLuzX = std::get<0>(l) + 0.5f - hitX;
+            float dirLuzY = std::get<1>(l) + 0.5f - hitY;
+            if (dirLuzX * nx + dirLuzY * ny >= -0.5f) {
+                luzesDaParede.push_back(l);
+            }
+        }
+
+        Iluminador::InfoLuz infoLuzParede = Iluminador::calcularInfoLuz(perpWallDist * 0.55f, profundidadeMaxima, temaCeu, luzesDaParede, hitX, hitY, &matrizDoMapa);
         float anguloCeu = raioAngulo;
         float fadeCeu = 1.0f;
         if (temaCeu == 1 || temaCeu == 2) {
@@ -165,38 +259,50 @@ void RaycasterRenderizador::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA
 
             if (y < teto) {
                 if (temaCeu == 1 || temaCeu == 2) {
-                    Pixel3D pxDia = RaycasterMundo::obterPixelTeto(2, raioAngulo, anguloCeu, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
-                    Pixel3D pxNoite = RaycasterMundo::obterPixelTeto(1, raioAngulo, anguloCeu + 3.14159265f, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
-                    Pixel3D pxMisturado = pxDia;
-                    pxMisturado.r = (int)(pxDia.r * fadeCeu + pxNoite.r * (1.0f - fadeCeu));
-                    pxMisturado.g = (int)(pxDia.g * fadeCeu + pxNoite.g * (1.0f - fadeCeu));
-                    pxMisturado.b = (int)(pxDia.b * fadeCeu + pxNoite.b * (1.0f - fadeCeu));
-                    if (pxNoite.ch != ' ' && fadeCeu < 0.5f) {
-                        pxMisturado.ch = pxNoite.ch; pxMisturado.hasFg = pxNoite.hasFg;
-                        pxMisturado.fgR = pxNoite.fgR; pxMisturado.fgG = pxNoite.fgG; pxMisturado.fgB = pxNoite.fgB;
+                    if (fadeCeu >= 0.99f) {
+                        tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(2, raioAngulo, anguloCeu, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
+                    } else if (fadeCeu <= 0.01f) {
+                        tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(1, raioAngulo, anguloCeu + 3.14159265f, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
+                    } else {
+                        Pixel3D pxDia = RaycasterMundo::obterPixelTeto(2, raioAngulo, anguloCeu, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
+                        Pixel3D pxNoite = RaycasterMundo::obterPixelTeto(1, raioAngulo, anguloCeu + 3.14159265f, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
+                        Pixel3D pxMisturado = pxDia;
+                        pxMisturado.r = (int)(pxDia.r * fadeCeu + pxNoite.r * (1.0f - fadeCeu));
+                        pxMisturado.g = (int)(pxDia.g * fadeCeu + pxNoite.g * (1.0f - fadeCeu));
+                        pxMisturado.b = (int)(pxDia.b * fadeCeu + pxNoite.b * (1.0f - fadeCeu));
+                        if (pxNoite.ch != ' ' && fadeCeu < 0.5f) {
+                            pxMisturado.ch = pxNoite.ch; pxMisturado.hasFg = pxNoite.hasFg;
+                            pxMisturado.fgR = pxNoite.fgR; pxMisturado.fgG = pxNoite.fgG; pxMisturado.fgB = pxNoite.fgB;
+                        }
+                        if (pxDia.r == 255 && pxDia.g == 255 && pxDia.b == 255 && fadeCeu > 0.1f) { pxMisturado.r = 255; pxMisturado.g = 255; pxMisturado.b = 255; }
+                        tela[y * LARGURA_TELA + x] = pxMisturado;
                     }
-                    if (pxDia.r == 255 && pxDia.g == 255 && pxDia.b == 255 && fadeCeu > 0.1f) { pxMisturado.r = 255; pxMisturado.g = 255; pxMisturado.b = 255; }
-                    tela[y * LARGURA_TELA + x] = pxMisturado;
                 } else {
                     tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(temaCeu, raioAngulo, anguloCeu, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
                 }
             } else if (y >= teto && y <= chao) {
-                Pixel3D pixel = RaycasterMundo::obterPixelParede(tituloMapa, temaFloresta, perpWallDist, profundidadeMaxima, charParede, y, teto, chao, texXParede, tempoAbsoluto, isSideWall, luzes, hitX, hitY, npcEncontradoNaColuna);
+                Pixel3D pixel = RaycasterMundo::obterPixelParede(tituloMapa, temaFloresta, perpWallDist, profundidadeMaxima, charParede, y, teto, chao, texXParede, tempoAbsoluto, isSideWall, infoLuzParede, hitX, hitY, npcEncontradoNaColuna);
                 if (pixel.isFundo) {
                     if (y <= horizonte) {
                         if (temaCeu == 1 || temaCeu == 2) {
-                            Pixel3D pxDia = RaycasterMundo::obterPixelTeto(2, raioAngulo, anguloCeu, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
-                            Pixel3D pxNoite = RaycasterMundo::obterPixelTeto(1, raioAngulo, anguloCeu + 3.14159265f, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
-                            Pixel3D pxMisturado = pxDia;
-                            pxMisturado.r = (int)(pxDia.r * fadeCeu + pxNoite.r * (1.0f - fadeCeu));
-                            pxMisturado.g = (int)(pxDia.g * fadeCeu + pxNoite.g * (1.0f - fadeCeu));
-                            pxMisturado.b = (int)(pxDia.b * fadeCeu + pxNoite.b * (1.0f - fadeCeu));
-                            if (pxNoite.ch != ' ' && fadeCeu < 0.5f) {
-                                pxMisturado.ch = pxNoite.ch; pxMisturado.hasFg = pxNoite.hasFg;
-                                pxMisturado.fgR = pxNoite.fgR; pxMisturado.fgG = pxNoite.fgG; pxMisturado.fgB = pxNoite.fgB;
+                            if (fadeCeu >= 0.99f) {
+                                tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(2, raioAngulo, anguloCeu, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
+                            } else if (fadeCeu <= 0.01f) {
+                                tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(1, raioAngulo, anguloCeu + 3.14159265f, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
+                            } else {
+                                Pixel3D pxDia = RaycasterMundo::obterPixelTeto(2, raioAngulo, anguloCeu, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
+                                Pixel3D pxNoite = RaycasterMundo::obterPixelTeto(1, raioAngulo, anguloCeu + 3.14159265f, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
+                                Pixel3D pxMisturado = pxDia;
+                                pxMisturado.r = (int)(pxDia.r * fadeCeu + pxNoite.r * (1.0f - fadeCeu));
+                                pxMisturado.g = (int)(pxDia.g * fadeCeu + pxNoite.g * (1.0f - fadeCeu));
+                                pxMisturado.b = (int)(pxDia.b * fadeCeu + pxNoite.b * (1.0f - fadeCeu));
+                                if (pxNoite.ch != ' ' && fadeCeu < 0.5f) {
+                                    pxMisturado.ch = pxNoite.ch; pxMisturado.hasFg = pxNoite.hasFg;
+                                    pxMisturado.fgR = pxNoite.fgR; pxMisturado.fgG = pxNoite.fgG; pxMisturado.fgB = pxNoite.fgB;
+                                }
+                                if (pxDia.r == 255 && pxDia.g == 255 && pxDia.b == 255 && fadeCeu > 0.1f) { pxMisturado.r = 255; pxMisturado.g = 255; pxMisturado.b = 255; }
+                                tela[y * LARGURA_TELA + x] = pxMisturado;
                             }
-                            if (pxDia.r == 255 && pxDia.g == 255 && pxDia.b == 255 && fadeCeu > 0.1f) { pxMisturado.r = 255; pxMisturado.g = 255; pxMisturado.b = 255; }
-                            tela[y * LARGURA_TELA + x] = pxMisturado;
                         } else {
                             tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(temaCeu, raioAngulo, anguloCeu, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
                         }
@@ -210,7 +316,8 @@ void RaycasterRenderizador::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA
             }
 
             if (drawFloor) {
-                float currentDist = (float)ALTURA_TELA / ((float)y - horizonte) / cosf(raioAngulo - anguloVisao);
+                if (y == horizonte) continue; // Previne Divisao Por Zero (Inf/NaN) na FPU, que causa gargalo de hardware!
+                float currentDist = factorDist / ((float)y - horizonte);
                 float currentX = jogadorX + olhoX * currentDist;
                 float currentY = jogadorY + olhoY * currentDist;
                 char floorChar = '.';
@@ -218,10 +325,14 @@ void RaycasterRenderizador::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA
                     floorChar = matrizDoMapa[(int)currentY][(int)currentX];
                 }
                 if (floorChar == '~') tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelAgua(currentX, currentY, currentDist, profundidadeMaxima, raioAngulo, tempoAbsoluto, temaCeu);
-                else tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelChao(tituloMapa, currentX, currentY, currentDist, profundidadeMaxima, luzes);
+                else tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelChao(tituloMapa, currentX, currentY, currentDist, profundidadeMaxima, luzesDaParede, &matrizDoMapa);
             }
-        }
-    }
+            } // for y
+        } // for x
+        }); // lambda
+    } // for i (tasks)
+    
+    obterThreadPool().execute(tasks);
 
     // SPRITE CASTING (Multi-Pass)
     struct SpriteProj { float x, y, dist; char c, sprCh; };
