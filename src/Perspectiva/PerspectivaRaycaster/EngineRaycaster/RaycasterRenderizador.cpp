@@ -368,12 +368,80 @@ void RaycasterRenderizador::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA
         float transformY = invDet * (-planeY * spriteX + planeX * spriteY);
 
         if (transformY <= 0.1f) continue;
-
+        if (cacheSprites.count(sp.sprCh) == 0) continue;
+        const auto& sc = cacheSprites.at(sp.sprCh);
         int spriteScreenX = (int)((LARGURA_TELA / 2) * (1 + transformX / transformY));
-        int spriteHeight = std::abs((int)(ALTURA_TELA / transformY));
+        int spriteHeightBase = std::abs((int)(ALTURA_TELA / transformY));
+        int spriteHeight = spriteHeightBase;
         
-        int tetoEnt = (int)(horizonte - spriteHeight);
-        int chaoEnt = (int)(horizonte + spriteHeight);
+        float entityScale = 1.0f;
+        bool isEnemy = false;
+        
+        if (sp.sprCh == 'G' || sp.sprCh == 'O' || sp.sprCh == 'S' || sp.sprCh == 'A' || sp.sprCh == 'T' || sp.sprCh == 'M' || sp.sprCh == 'F' || sp.sprCh == 'H') {
+            float cbFator = 2.5f; 
+            switch(sp.sprCh) {
+                case 'O': cbFator = 2.7f; break; 
+                case 'G': cbFator = 2.5f; break; 
+                case 'S': cbFator = 2.5f; break; 
+                case 'H': cbFator = 3.0f; break; 
+                case 'A': cbFator = 1.5f; break; 
+                case 'T': cbFator = 1.9f; break; 
+                case 'M': cbFator = 2.5f; break; 
+                case 'F': cbFator = 3.2f; break; 
+            }
+            float combat_height = sc.height * (2.5f / cbFator);
+            entityScale = combat_height / 100.0f; 
+            isEnemy = true;
+        }
+        else if (sp.sprCh == 'V' || sp.sprCh == 'Q' || sp.sprCh == 'Z' || sp.sprCh == 'J') {
+            entityScale = 0.5f; 
+        }
+        else if (sp.sprCh == 'C') {
+            entityScale = 0.6f;
+        }
+        else if (sp.sprCh == 'W' || sp.sprCh == 'B') {
+            entityScale = 0.4f;
+        }
+        else if (sp.sprCh == '*') {
+            // Arvores: manter o tamanho gigante que estava com o bug anterior (1.0 * 1.725), reduzido em 20% a pedido
+            entityScale = 1.725f * 0.80f;
+        }
+        else if (sp.sprCh == '^' || (sp.sprCh >= '1' && sp.sprCh <= '5')) {
+            // Portas: levemente maiores que o player (0.5f da camera) + aumentos acumulados
+            entityScale = 0.6f * 1.25f * 1.50f;
+        }
+
+        if (isEnemy) {
+            int mapSeed = (int)(sp.x * 100) ^ (int)(sp.y * 100);
+            float pct = ((mapSeed % 101) - 50.0f) / 1000.0f; 
+            entityScale *= (1.0f + pct);
+            
+            // Inimigos: escala base + 50%, e depois reduzido em 10%
+            entityScale *= (1.5f * 0.90f);
+            
+            // Ajustes finos adicionais pedidos pelo usuario
+            if (sp.sprCh == 'O') {
+                entityScale *= (1.25f * 1.10f); // +10% em cima dos 25% anteriores
+            } else if (sp.sprCh == 'S') {
+                entityScale *= (1.25f * 1.10f); // +10% em cima dos 25% anteriores
+            } else if (sp.sprCh == 'T') {
+                entityScale *= (1.25f * 1.20f * 1.20f * 1.15f); // +15% extra
+            }
+        } 
+        else if (sp.sprCh == 'V' || sp.sprCh == 'Q' || sp.sprCh == 'Z' || sp.sprCh == 'J' || sp.sprCh == 'C' || sp.sprCh == 'B' || sp.sprCh == 'W') {
+            // NPCs: escala base + 50%, e depois aumentado em 15%
+            entityScale *= (1.5f * 1.15f);
+            
+            // Ajuste fino para o Cavaleiro a pedido do usuario
+            if (sp.sprCh == 'C') {
+                entityScale *= 0.85f; // -15%
+            }
+        }
+        
+        spriteHeight = (int)(spriteHeightBase * entityScale);
+        
+        int chaoEnt = (int)(horizonte + spriteHeightBase); // Fixa os pes no chao
+        int tetoEnt = chaoEnt - (spriteHeight * 2);
 
         if (sp.sprCh == '*') tetoEnt -= (int)(spriteHeight * 1.5f);
         if (sp.sprCh != '^' && sp.sprCh != 'P' && sp.sprCh != 'X' && sp.sprCh != '*') {
@@ -393,8 +461,6 @@ void RaycasterRenderizador::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA
         int drawEndX = spriteWidth / 2 + spriteScreenX;
         if (drawEndX > LARGURA_TELA) drawEndX = LARGURA_TELA;
 
-        if (cacheSprites.count(sp.sprCh) == 0) continue;
-        const auto& sc = cacheSprites.at(sp.sprCh);
         bool isAnimated = (sp.sprCh == '^' || (sp.sprCh >= '1' && sp.sprCh <= '5'));
 
         for (int stripe = drawStartX; stripe < drawEndX; stripe++) {
