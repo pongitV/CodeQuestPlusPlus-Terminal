@@ -145,10 +145,8 @@ void Bardo::usarHabilidadeClasse(Combate* /*combate*/, Personagem* personagemUsu
         { HabilidadeID::OnSight, "On sight", "1.5x Dano no proximo ataque", [this](Personagem* personagemHabilidade) {
             personagemHabilidade->definirMultiplicador(1.5);
             personagemHabilidade->definirCooldown(HabilidadeID::OnSight, 3);
-            std::string msg1 = FuncoesDialogo::formatarMsgHabilidade(personagemHabilidade->obterNome() + " tocou 'On sight' e ganhara 1.5x de dano!");
-            this->notificarMensagemCombate(msg1, msg1);
-            std::string msg2 = FuncoesDialogo::formatarMsgHabilidade("!On sight! Seu proximo ataque causara 1.5x de dano!");
-            this->notificarMensagemCombate(msg2, msg2);
+            std::string msg = FuncoesDialogo::formatarMsgHabilidade(personagemHabilidade->obterNome() + " tocou 'On sight'! Proximo ataque com 1.5x dano!");
+            this->notificarMensagemCombate(msg, msg);
         }},
         { HabilidadeID::ThroughTheWire, "Through the wire", "Metade do dano recebido", [this](Personagem* personagemHabilidade) {
             personagemHabilidade->adicionarEfeito(std::make_unique<EfeitoMetadeDano>(1));

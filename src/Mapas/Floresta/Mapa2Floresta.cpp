@@ -156,22 +156,22 @@ namespace {
             int py = ctx.proximaPosicaoY;
             std::string titulo = ctx.self->tituloDoMapaAtual;
             
-            // 2. Voltar para a Vila a partir da Floresta (X=19, Y=10)
-            if (px == 19 && py == 10 && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
+            // 2. Voltar para a Vila a partir da Floresta
+            if (px < 40 && py < 20 && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 ctx.self->exploracaoEstaAtiva = false;
                 ctx.self->proximoMapa = ProximaTransicaoMapa::Vila;
             }
-            // 3. Entrar no Coracao da Arvore a partir da Floresta (X=121, Y=43)
-            else if (px == 121 && py == 43 && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
+            // 3. Entrar no Coracao da Arvore a partir da Floresta
+            else if (px > 80 && py > 20 && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 CarregadorMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDoCoracaoDaArvoreSalva, ctx.self->coracaoDaArvoreJaFoiVisitado, Mapa2FlorestaLayouts::obterLayoutCoracaoDaArvore(), 10, 3, "CORACAO DA ARVORE", ctx.restaurarTela);
             }
-            // 4. Ir para o Reino a partir da Floresta (X=18, Y=45)
-            else if (px == 18 && py == 45 && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
+            // 4. Ir para o Reino a partir da Floresta
+            else if (px < 40 && py > 20 && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 ctx.self->exploracaoEstaAtiva = false;
                 ctx.self->proximoMapa = ProximaTransicaoMapa::Reino;
             }
-            // 5. Entrar no Labirinto a partir da Floresta (X=133, Y=12)
-            else if (px == 133 && py == 12 && titulo == "FLORESTA") {
+            // 5. Entrar no Labirinto a partir da Floresta
+            else if (px > 100 && py < 20 && titulo == "FLORESTA") {
                 if (!ctx.self->jogadorAtual->obterLabirintoDesbloqueado()) {
                     Aparencia::iniciarInteracaoPopup();
                     std::vector<std::string> msg = {

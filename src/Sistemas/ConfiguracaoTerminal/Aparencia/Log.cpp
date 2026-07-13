@@ -12,6 +12,7 @@ namespace {
 }
 
 void Aparencia::registrarLogBatalha(const std::string& texto) {
+    if (!historicoBatalha.empty() && historicoBatalha.back() == texto) return;
     historicoBatalha.push_back(texto);
     TelaCombate::adicionarMensagemFixa(texto);
 }

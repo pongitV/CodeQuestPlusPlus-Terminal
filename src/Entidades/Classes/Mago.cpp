@@ -120,10 +120,10 @@ void Mago::usarHabilidadeClasse(Combate* /*combate*/, Personagem* personagemUsua
     Item* escudo = personagemUsuario->obterEscudo();
     if (escudo) {
         personagemUsuario->definirDefendendo(true);
-        std::string msg = FuncoesDialogo::formatarMsgHabilidade("Canalizacao arcana! Voce se defende com " + escudo->obterNomeItem() + " e prepara um ataque devastador (2x Dano)!");
+        std::string msg = FuncoesDialogo::formatarMsgHabilidade("Canalizacao arcana! Defendendo com " + escudo->obterNomeItem() + "! 2x Dano no prox. ataque!");
         notificarMensagemCombate(msg, msg);
     } else {
-        std::string msg = FuncoesDialogo::formatarMsgHabilidade("Canalizacao arcana! Voce foca sua energia para um ataque devastador (2x Dano) no proximo turno!");
+        std::string msg = FuncoesDialogo::formatarMsgHabilidade("Canalizacao arcana! Foco magico para 2x Dano no proximo ataque!");
         notificarMensagemCombate(msg, msg);
     }
 }

@@ -25,6 +25,7 @@
 #include "Sistemas/Progresso/Progressao.h"
 #include "Sistemas/Progresso/ProgressaoFlags.h"
 #include "Core/Utilidades/Aparencia.h"
+#include "Sistemas/ConfiguracaoTerminal/ControleInputOutput/ControleDeInput.h"
 #include "Perspectiva/GerenciadorPerspectiva.h"
 
 // Funcao para garantir que o jogo rode como Administrador
@@ -63,6 +64,9 @@ int main()
     Aparencia::inicializarConsole();
     Aparencia::maximizarJanelaTerminal(); 
     Aparencia::limparTela();
+    
+    // Configura Mouse Events do Console
+    ControleDeInput::habilitarMouseInput();
     
     // 3. Inicializa os renders do Gerenciador de Visoes (Seta o RendererProvider)
     GerenciadorPerspectiva::obterInstancia().inicializar();

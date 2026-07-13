@@ -89,8 +89,8 @@ ProximaTransicaoMapa Mapa4Reino::iniciarLoopDeExploracao()
                 restaurarTela();
             }
         } else {
-            // Retornar para o Reino 
-            if (px == 41 && py == 41) {
+            // Retornar para o Reino (Ponte)
+            if (py > 30) {
                 exploracaoEstaAtiva = false;
                 proximoMapa = ProximaTransicaoMapa::Reino;
             }
@@ -189,7 +189,7 @@ ProximaTransicaoMapa Mapa4Reino::iniciarLoopDeExploracao()
     };
 
     // Loja de aparencia (Anok)
-    interacoes['A'] = [&](int px, int py, int larg) {
+    interacoes['N'] = [&](int px, int py, int larg) {
         NPCAparencia aparencia;
         aparencia.interagir(jogadorAtual);
         Diario::instancia().registrarNPC("Anok (Estilista)");

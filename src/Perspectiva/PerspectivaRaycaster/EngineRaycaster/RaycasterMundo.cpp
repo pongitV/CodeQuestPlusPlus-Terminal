@@ -54,8 +54,8 @@ bool RaycasterMundo::isTemaFloresta(const std::string& tituloMapa) {
 }
 
 bool RaycasterMundo::isEntity(char c) {
-    if ((c == '!' || c == '%' || c == '@') && !GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) return true;
-    return (c == 'G' || c == 'O' || c == 'B' || c == 'F' || c == 'S' || c == 'A' || c == 'M' || c == 'T' || c == 'H' || c == 'R' || c == 'P' || c == '^' || c == '*' || c == 'C' || c == 'I' || c == 'Q' || c == 'Y');
+    if (c == 'T' && g_currentMapTitle.find("CORACAO") != std::string::npos) return false;
+    return (c == 'G' || c == 'O' || c == 'B' || c == 'F' || c == 'S' || c == 'A' || c == 'M' || c == 'T' || c == 'H' || c == 'R' || c == 'P' || c == '^' || c == '*' || c == 'C' || c == 'I' || c == 'Q' || c == 'Y' || c == 'Z' || c == 'V' || c == 'W' || c == 'N');
 }
 
 bool RaycasterMundo::isTeleport(char c) { return c == '^'; }
@@ -63,11 +63,6 @@ bool RaycasterMundo::isTeleport(char c) { return c == '^'; }
 bool RaycasterMundo::isWalkable(int mapX, int mapY, const std::vector<std::string>& matrizDoMapa) {
     char c = matrizDoMapa[mapY][mapX];
     if (c == '*') return false;
-    
-    // Parede secreta e Console hackeável (só podem ser atravessados/interagidos se for a visão IDE)
-    if (c == '!' || c == '%' || c == '@') {
-        return !GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva();
-    }
     
     if (c == '=' || c == '|' || c == '\'' || c == '+') return false;
 
@@ -163,7 +158,7 @@ bool RaycasterMundo::isMapLabel(int mapX, int mapY, const std::vector<std::strin
     return result;
 }
 
-Pixel3D RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMapa, bool temaFloresta, float distanciaAteParede, float profundidadeMaxima, char charParede, int y, int teto, int chao, float texX, float tempoAnimacao, const Iluminador::InfoLuz& infoLuz, float hitX, float hitY, bool isSideWall, char npcEncontrado) {
+Pixel3D RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMapa, bool temaFloresta, float distanciaAteParede, float profundidadeMaxima, char charParede, int y, int teto, int chao, float texX, float tempoAnimacao, const Iluminador::InfoLuz& infoLuz, float hitX, float hitY, bool isSideWall, char npcEncontrado, float nx, float ny) {
     const auto& flags = obterFlagsMapa(tituloMapa);
     int temaCeu = flags.temaCeu;
     int baseR=0, baseG=0, baseB=0;
@@ -564,35 +559,99 @@ Pixel3D RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMapa, 
                 }
             }
         }
-    } else if (!isReino && temaFloresta && charParede == '#' && !isLabyrinthArch) {
-        int folhaTx = tx;
-        int limiteFolhas = 28 + ((tx * 7) % 10);
-
-        if (ty < limiteFolhas) {
-            int animOffset = (int)(std::sin(tempoAnimacao * 1.5f + texX * 10.0f) * 4.0f);
-            folhaTx = (tx + animOffset) % 64;
-            if (folhaTx < 0) folhaTx += 64;
+    } else if (!isReino && temaFloresta && charParede == 'T') {
+        bool isCoracao = flags.tituloUpper.find("CORACAO") != std::string::npos;
+        if (isCoracao) {
+            // Troncos contorcidos com musgo espalhado
+            float cx = (tx - 32.0f);
+            float cy = (ty - 32.0f);
+            float dist = std::sqrt(cx*cx + cy*cy);
+            float angle = std::atan2(cy, cx);
+            float spiral = std::sin(dist * 0.2f + angle * 4.0f + tx * 0.1f);
             
-            bool sombraFolha = ((folhaTx * 7 + ty * 13) % 11) < 4; 
-            if (sombraFolha) {
-                baseR = 22; baseG = 89; baseB = 22;
+            bool hasMoss = ((tx * 17 + ty * 13) % 100) < 20 || (spiral > 0.8f);
+            
+            if (hasMoss) {
+                baseR = 30; baseG = 80; baseB = 20; // Verde musgo
+            } else if (spiral > 0.0f) {
+                baseR = 50; baseG = 30; baseB = 15; // Madeira marrom
             } else {
-                baseR = 34; baseG = 139; baseB = 34;
+                baseR = 25; baseG = 15; baseB = 10; // Madeira escura
             }
         } else {
-            bool isBordaEscura = (tx < 6 || tx > 57);
-            bool isSombra = (tx >= 6 && tx <= 12) || (tx >= 51 && tx <= 57);
-            bool hasWoodGrain = ((tx * 3 + ty * 7) % 5) == 0;
+            int folhaTx = tx;
+            int limiteFolhas = 28 + ((tx * 7) % 10);
 
-            if (isBordaEscura) {
-                baseR = 15; baseG = 10; baseB = 5;
-            } else if (isSombra) {
-                baseR = 40; baseG = 25; baseB = 10;
-            } else {
-                if (hasWoodGrain) {
-                    baseR = 60; baseG = 40; baseB = 20;
+            if (ty < limiteFolhas) {
+                int animOffset = (int)(std::sin(tempoAnimacao * 1.5f + texX * 10.0f) * 4.0f);
+                folhaTx = (tx + animOffset) % 64;
+                if (folhaTx < 0) folhaTx += 64;
+                
+                bool sombraFolha = ((folhaTx * 7 + ty * 13) % 11) < 4; 
+                if (sombraFolha) {
+                    baseR = 22; baseG = 89; baseB = 22;
                 } else {
-                    baseR = 80; baseG = 55; baseB = 25;
+                    baseR = 34; baseG = 139; baseB = 34;
+                }
+            } else {
+                bool isBordaEscura = (tx < 6 || tx > 57);
+                bool isSombra = (tx >= 6 && tx <= 12) || (tx >= 51 && tx <= 57);
+                bool hasWoodGrain = ((tx * 3 + ty * 7) % 5) == 0;
+
+                if (isBordaEscura) {
+                    baseR = 15; baseG = 10; baseB = 5;
+                } else if (isSombra) {
+                    baseR = 40; baseG = 25; baseB = 10;
+                } else if (hasWoodGrain) {
+                    baseR = 80; baseG = 55; baseB = 30; // Veios da madeira
+                } else {
+                    baseR = 100; baseG = 65; baseB = 35; // Tronco marrom claro
+                }
+            }
+        }
+    } else if (charParede == '#') {
+        if (flags.tituloUpper.find("FLORESTA") != std::string::npos) {
+            // Árvores grossas e altas
+            int folhaTx = tx;
+            int limiteFolhas = 28 + ((tx * 7) % 10);
+
+            if (ty < limiteFolhas) {
+                int animOffset = (int)(std::sin(tempoAnimacao * 1.5f + texX * 10.0f) * 4.0f);
+                folhaTx = (tx + animOffset) % 64;
+                if (folhaTx < 0) folhaTx += 64;
+                
+                bool sombraFolha = ((folhaTx * 7 + ty * 13) % 11) < 4; 
+                if (sombraFolha) {
+                    baseR = 15; baseG = 65; baseB = 15; // Verde bem escuro
+                } else {
+                    baseR = 25; baseG = 95; baseB = 25; // Verde escuro
+                }
+            } else {
+                bool isBordaEscura = (tx < 6 || tx > 57);
+                bool isSombra = (tx >= 6 && tx <= 12) || (tx >= 51 && tx <= 57);
+                bool hasWoodGrain = ((tx * 3 + ty * 7) % 5) == 0;
+
+                if (isBordaEscura) {
+                    baseR = 15; baseG = 10; baseB = 5;
+                } else if (isSombra) {
+                    baseR = 30; baseG = 20; baseB = 10;
+                } else if (hasWoodGrain) {
+                    baseR = 60; baseG = 40; baseB = 20; // Veios escuros
+                } else {
+                    baseR = 80; baseG = 50; baseB = 25; // Tronco floresta
+                }
+            }
+        } else {
+            // Pedras da Vila / Caverna
+            bool isJuntaPedra = ((tx * 3 + ty * 7) % 9) < 2 || ((tx * 11 + ty * 5) % 13) < 2;
+            if (isJuntaPedra) {
+                baseR = 30; baseG = 30; baseB = 30;
+            } else {
+                bool hasGrain = ((tx * 17 + ty * 23) % 7) < 3;
+                if (hasGrain) {
+                    baseR = 55; baseG = 50; baseB = 45;
+                } else {
+                    baseR = 75; baseG = 70; baseB = 65;
                 }
             }
         }
@@ -626,49 +685,76 @@ Pixel3D RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMapa, 
                 baseR = 15; baseG = 15; baseB = 15;
             }
         } else if (isCaverna) {
-            bool isJuntaPedra = ((tx * 3 + ty * 7) % 9) < 2 || ((tx * 11 + ty * 5) % 13) < 2;
-            if (isJuntaPedra) {
-                baseR = 30; baseG = 30; baseB = 30;
-            } else {
-                bool hasGrain = ((tx * 17 + ty * 23) % 7) < 3;
-                if (hasGrain) {
-                    baseR = 55; baseG = 50; baseB = 45;
+            if (flags.tituloUpper.find("CORACAO") != std::string::npos) {
+                // Chao verde musgo com musgo e terra
+                bool isTerra = ((tx * 7 + ty * 13) % 10) < 4;
+                bool isMusgoDenso = ((tx * 19 + ty * 23) % 15) < 5;
+                
+                if (isMusgoDenso) {
+                    baseR = 25; baseG = 70; baseB = 20; // Musgo escuro
+                } else if (isTerra) {
+                    baseR = 60; baseG = 35; baseB = 15; // Terra
                 } else {
-                    baseR = 75; baseG = 70; baseB = 65;
+                    baseR = 45; baseG = 90; baseB = 30; // Verde musgo claro
+                }
+            } else {
+                bool isJuntaPedra = ((tx * 3 + ty * 7) % 9) < 2 || ((tx * 11 + ty * 5) % 13) < 2;
+                if (isJuntaPedra) {
+                    baseR = 30; baseG = 30; baseB = 30;
+                } else {
+                    bool hasGrain = ((tx * 17 + ty * 23) % 7) < 3;
+                    if (hasGrain) {
+                        baseR = 55; baseG = 50; baseB = 45;
+                    } else {
+                        baseR = 75; baseG = 70; baseB = 65;
+                    }
                 }
             }
         } else {
-            bool isJuntaPedra = ((tx * 3 + ty * 7) % 9) < 2 || ((tx * 11 + ty * 5) % 13) < 2;
-            if (isJuntaPedra) {
-                baseR = 50; baseG = 50; baseB = 50;
-            } else {
-                bool hasGrain = ((tx * 17 + ty * 23) % 7) < 3;
-                if (hasGrain) {
-                    baseR = 90; baseG = 90; baseB = 90;
+            // Block default (Out-of-bounds walls in non-cave maps)
+            if (flags.tituloUpper.find("FLORESTA") != std::string::npos) {
+                // Árvores densas de fundo
+                bool sombraFolha = ((tx * 7 + ty * 13) % 11) < 4; 
+                if (sombraFolha) {
+                    baseR = 15; baseG = 65; baseB = 15; 
                 } else {
-                    baseR = 110; baseG = 110; baseB = 110;
+                    baseR = 25; baseG = 95; baseB = 25; 
+                }
+            } else {
+                // Paredes de pedra da vila (fallback)
+                bool isJuntaPedra = ((tx * 3 + ty * 7) % 9) < 2 || ((tx * 11 + ty * 5) % 13) < 2;
+                if (isJuntaPedra) {
+                    baseR = 30; baseG = 30; baseB = 30;
+                } else {
+                    bool hasGrain = ((tx * 17 + ty * 23) % 7) < 3;
+                    if (hasGrain) {
+                        baseR = 55; baseG = 50; baseB = 45;
+                    } else {
+                        baseR = 75; baseG = 70; baseB = 65;
+                    }
                 }
             }
         }
     }
-    return Iluminador::aplicarLuzPrecalculada(baseR, baseG, baseB, infoLuz, isSideWall);
+    return Iluminador::aplicarLuzPrecalculada(baseR, baseG, baseB, infoLuz, false, true, nx, ny);
 }
 
-Pixel3D RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMapa, bool temaFloresta, float distanciaAteParede, float profundidadeMaxima, char charParede, int y, int teto, int chao, float texX, float tempoAnimacao, const std::vector<std::tuple<int, int, int>>& luzes, float hitX, float hitY, bool isSideWall, char npcEncontrado) {
+Pixel3D RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMapa, bool temaFloresta, float distanciaAteParede, float profundidadeMaxima, char charParede, int y, int teto, int chao, float texX, float tempoAnimacao, const std::vector<std::tuple<int, int, int>>& luzes, float hitX, float hitY, bool isSideWall, char npcEncontrado, float nx, float ny) {
     const auto& flags = obterFlagsMapa(tituloMapa);
-    Iluminador::InfoLuz info = Iluminador::calcularInfoLuz(distanciaAteParede * 0.55f, profundidadeMaxima, flags.temaCeu, luzes, hitX, hitY);
-    return obterPixelParedeInternal(tituloMapa, temaFloresta, distanciaAteParede, profundidadeMaxima, charParede, y, teto, chao, texX, tempoAnimacao, info, hitX, hitY, isSideWall, npcEncontrado);
+    Iluminador::InfoLuz info = Iluminador::calcularInfoLuz(distanciaAteParede * 0.55f, profundidadeMaxima, flags.temaCeu, luzes, hitX, hitY, nullptr, tempoAnimacao);
+    return obterPixelParedeInternal(tituloMapa, temaFloresta, distanciaAteParede, profundidadeMaxima, charParede, y, teto, chao, texX, tempoAnimacao, info, hitX, hitY, isSideWall, npcEncontrado, nx, ny);
 }
 
-Pixel3D RaycasterMundo::obterPixelParede(const std::string& tituloMapa, bool temaFloresta, float distanciaAteParede, float profundidadeMaxima, char charParede, int y, int teto, int chao, float texX, float tempoAnimacao, bool isSideWall, const Iluminador::InfoLuz& infoLuz, float hitX, float hitY, char npcEncontrado) {
-    return obterPixelParedeInternal(tituloMapa, temaFloresta, distanciaAteParede, profundidadeMaxima, charParede, y, teto, chao, texX, tempoAnimacao, infoLuz, hitX, hitY, isSideWall, npcEncontrado);
+Pixel3D RaycasterMundo::obterPixelParede(const std::string& tituloMapa, bool temaFloresta, float distanciaAteParede, float profundidadeMaxima, char charParede, int y, int teto, int chao, float texX, float tempoAnimacao, bool isSideWall, const Iluminador::InfoLuz& infoLuz, float hitX, float hitY, char npcEncontrado, float nx, float ny) {
+    return obterPixelParedeInternal(tituloMapa, temaFloresta, distanciaAteParede, profundidadeMaxima, charParede, y, teto, chao, texX, tempoAnimacao, infoLuz, hitX, hitY, isSideWall, npcEncontrado, nx, ny);
 }
 
-Pixel3D RaycasterMundo::obterPixelParede(const std::string& tituloMapa, bool temaFloresta, float distanciaAteParede, float profundidadeMaxima, char charParede, int y, int teto, int chao, float texX, float tempoAnimacao, bool isSideWall, const std::vector<std::tuple<int, int, int>>& luzes, float hitX, float hitY, char npcEncontrado) {
-    return obterPixelParedeInternal(tituloMapa, temaFloresta, distanciaAteParede, profundidadeMaxima, charParede, y, teto, chao, texX, tempoAnimacao, luzes, hitX, hitY, isSideWall, npcEncontrado);
+Pixel3D RaycasterMundo::obterPixelParede(const std::string& tituloMapa, bool temaFloresta, float distanciaAteParede, float profundidadeMaxima, char charParede, int y, int teto, int chao, float texX, float tempoAnimacao, bool isSideWall, const std::vector<std::tuple<int, int, int>>& luzes, float hitX, float hitY, char npcEncontrado, float nx, float ny) {
+    return obterPixelParedeInternal(tituloMapa, temaFloresta, distanciaAteParede, profundidadeMaxima, charParede, y, teto, chao, texX, tempoAnimacao, luzes, hitX, hitY, isSideWall, npcEncontrado, nx, ny);
 }
 
-Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float currentX, float currentY, float currentDist, float profundidadeMaxima, const std::vector<std::tuple<int, int, int>>& luzes, const std::vector<std::string>* matrizDoMapa) {
+
+Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float currentX, float currentY, float currentDist, float profundidadeMaxima, const std::vector<std::tuple<int, int, int>>& luzes, const std::vector<std::string>* matrizDoMapa, float tempoAnimacao) {
     const auto& flags = obterFlagsMapa(tituloMapa);
     int temaCeu = flags.temaCeu;
     currentDist *= 0.55f;
@@ -694,7 +780,7 @@ Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float curr
         } else {
             if (((globX + globY) & 1) == 0) { r = 180; g = 160; b = 110; }
             else                          { r = 160; g = 140; b = 95; }
-            c = (((globX * 3 + globY * 7) & 3) < 2) ? '-' : '=';
+            c = ' ';
         }
     } else if (isSalaChefe) {
         float cx = (globX & 63) - 32.0f;
@@ -710,26 +796,63 @@ Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float curr
         else if (spiral > -0.3f) c = '.';
         else c = ' ';
     } else if (isTerra) {
-        fgR = 45; fgG = 25; fgB = 10;
-        if (((globX + globY) & 1) == 0) { r = 28; g = 18; b = 8; }
-        else if (((globX * 3 + globY * 5) & 7) < 2) { r = 22; g = 12; b = 4; }
-        else { r = 25; g = 15; b = 5; }
+        // Mistura de terra e grama para Vila e Floresta
+        // Formula caotica sem padrao repetitivo
+        float cx = globX * 0.123f;
+        float cy = globY * 0.091f;
+        float cx2 = (globX + globY) * 0.054f;
+        float cy2 = ((float)globX - globY) * 0.111f;
+        float noise = std::sin(cx) + std::sin(cy) + std::sin(cx2) + std::sin(cy2);
         
-        if (((globX * 17 + globY * 23) & 63) < 4) c = '.';
-        else if (((globX * globX + globY * 13) & 63) < 3) c = '-';
-        else if (((globX * 3 + globY * 7) & 31) < 2) c = '`';
+        bool isGrama = (noise > -3.0f); // Mais grama do que terra
+        
+        if (isGrama) {
+            if (flags.tituloUpper.find("FLORESTA") != std::string::npos) {
+                fgR = 6; fgG = 35; fgB = 6; // Verde floresta bem denso e escuro
+                if (((globX + globY) & 1) == 0) { r = 4; g = 25; b = 4; }
+                else if (((globX * 3 + globY * 5) & 7) < 2) { r = 2; g = 15; b = 2; }
+                else { r = 6; g = 30; b = 6; }
+            } else {
+                fgR = 12; fgG = 75; fgB = 12; // Verde vila mais escuro
+                if (((globX + globY) & 1) == 0) { r = 10; g = 60; b = 10; }
+                else if (((globX * 3 + globY * 5) & 7) < 2) { r = 8; g = 45; b = 8; }
+                else { r = 15; g = 80; b = 15; }
+            }
+            c = ' ';
+        } else {
+            fgR = 45; fgG = 25; fgB = 10; // Marrom terra
+            if (((globX + globY) & 1) == 0) { r = 28; g = 18; b = 8; }
+            else if (((globX * 3 + globY * 5) & 7) < 2) { r = 22; g = 12; b = 4; }
+            else { r = 25; g = 15; b = 5; }
+            c = ' ';
+        }
+    } else if (flags.tituloUpper.find("CORACAO") != std::string::npos) {
+        // Chão de musgo e terra para Coracao da Floresta
+        float cx = (globX & 127) - 64.0f;
+        float cy = (globY & 127) - 64.0f;
+        float dist = std::sqrt(cx*cx + cy*cy);
+        float angle = std::atan2(cy, cx);
+        float spiral = std::sin(dist * 0.2f + angle * 4.0f + globX * 0.1f);
+        
+        bool hasMoss = ((globX * 17 + globY * 13) % 100) < 40 || (spiral > 0.5f);
+        
+        if (hasMoss) {
+            r = 30; g = 80; b = 20; // Verde musgo
+        } else if (spiral > 0.0f) {
+            r = 50; g = 30; b = 15; // Madeira/Terra marrom
+        } else {
+            r = 25; g = 15; b = 10; // Madeira/Terra escura
+        }
+        c = ' ';
     } else {
         fgR = 60; fgG = 60; fgB = 60;
         if (((globX + globY) & 1) == 0) { r = 24; g = 24; b = 24; }
         else if (((globX * 3 + globY * 5) & 7) < 2) { r = 16; g = 16; b = 16; }
         else { r = 20; g = 20; b = 20; }
-        
-        if (((globX * 17 + globY * 23) & 63) < 4) c = '.';
-        else if (((globX * globX + globY * 13) & 63) < 3) c = '-';
-        else if (((globX * 3 + globY * 7) & 31) < 2) c = '`';
+        c = ' ';
     }
     
-    Pixel3D px = Iluminador::aplicarNevoa(r, g, b, currentDist, profundidadeMaxima, temaCeu, luzes, currentX, currentY, false, matrizDoMapa);
+    Pixel3D px = Iluminador::aplicarNevoa(r, g, b, currentDist, profundidadeMaxima, temaCeu, luzes, currentX, currentY, false, matrizDoMapa, false, 0.0f, 0.0f, tempoAnimacao);
     if (c != ' ' && currentDist <= profundidadeMaxima * 0.5f) {
         px.ch = c;
         px.fgR = fgR;
@@ -747,6 +870,7 @@ Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float curr
     bool isTerra = flags.isTerra;
     bool isLabirinto = flags.isLabirinto;
     bool isSalaChefe = flags.isSalaChefe;
+    bool isCoracao = flags.tituloUpper.find("CORACAO") != std::string::npos;
 
     unsigned int globX = static_cast<unsigned int>(std::abs(currentX * 32.0f));
     unsigned int globY = static_cast<unsigned int>(std::abs(currentY * 32.0f));
@@ -765,7 +889,7 @@ Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float curr
         } else {
             if (((globX + globY) & 1) == 0) { r = 180; g = 160; b = 110; }
             else                          { r = 160; g = 140; b = 95; }
-            c = (((globX * 3 + globY * 7) & 3) < 2) ? '-' : '=';
+            c = ' ';
         }
     } else if (isSalaChefe) {
         float cx = (globX & 63) - 32.0f;
@@ -780,15 +904,58 @@ Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float curr
         else if (spiral > 0.0f) c = '%';
         else if (spiral > -0.3f) c = '.';
         else c = ' ';
-    } else if (isTerra) {
-        fgR = 45; fgG = 25; fgB = 10;
-        if (((globX + globY) & 1) == 0) { r = 28; g = 18; b = 8; }
-        else if (((globX * 3 + globY * 5) & 7) < 2) { r = 22; g = 12; b = 4; }
-        else { r = 25; g = 15; b = 5; }
+    } else if (isCoracao) {
+        // Chão de musgo e terra para Coracao da Floresta
+        float cx = (globX & 127) - 64.0f;
+        float cy = (globY & 127) - 64.0f;
+        float dist = std::sqrt(cx*cx + cy*cy);
+        float angle = std::atan2(cy, cx);
+        float spiral = std::sin(dist * 0.2f + angle * 4.0f + globX * 0.1f);
         
-        if (((globX * 17 + globY * 23) & 63) < 4) c = '.';
-        else if (((globX * globX + globY * 13) & 63) < 3) c = '-';
-        else if (((globX * 3 + globY * 7) & 31) < 2) c = '`';
+        bool hasMoss = ((globX * 17 + globY * 13) % 100) < 40 || (spiral > 0.5f);
+        
+        if (hasMoss) {
+            r = 30; g = 80; b = 20; // Verde musgo
+            fgR = 30; fgG = 80; fgB = 20;
+        } else if (spiral > 0.0f) {
+            r = 50; g = 30; b = 15; // Madeira/Terra marrom
+            fgR = 50; fgG = 30; fgB = 15;
+        } else {
+            r = 25; g = 15; b = 10; // Madeira/Terra escura
+            fgR = 25; fgG = 15; fgB = 10;
+        }
+        c = ' ';
+    } else if (isTerra) {
+        // Mistura de terra e grama para Vila e Floresta
+        // Formula caotica sem padrao repetitivo
+        float cx = globX * 0.123f;
+        float cy = globY * 0.091f;
+        float cx2 = (globX + globY) * 0.054f;
+        float cy2 = ((float)globX - globY) * 0.111f;
+        float noise = std::sin(cx) + std::sin(cy) + std::sin(cx2) + std::sin(cy2);
+        
+        bool isGrama = (noise > -3.0f); // Mais grama do que terra
+        
+        if (isGrama) {
+            if (flags.tituloUpper.find("FLORESTA") != std::string::npos) {
+                fgR = 6; fgG = 35; fgB = 6; // Verde floresta bem denso e escuro
+                if (((globX + globY) & 1) == 0) { r = 4; g = 25; b = 4; }
+                else if (((globX * 3 + globY * 5) & 7) < 2) { r = 2; g = 15; b = 2; }
+                else { r = 6; g = 30; b = 6; }
+            } else {
+                fgR = 12; fgG = 75; fgB = 12; // Verde vila mais escuro
+                if (((globX + globY) & 1) == 0) { r = 10; g = 60; b = 10; }
+                else if (((globX * 3 + globY * 5) & 7) < 2) { r = 8; g = 45; b = 8; }
+                else { r = 15; g = 80; b = 15; }
+            }
+            c = ' ';
+        } else {
+            fgR = 45; fgG = 25; fgB = 10; // Marrom terra
+            if (((globX + globY) & 1) == 0) { r = 28; g = 18; b = 8; }
+            else if (((globX * 3 + globY * 5) & 7) < 2) { r = 22; g = 12; b = 4; }
+            else { r = 25; g = 15; b = 5; }
+            c = ' ';
+        }
     } else {
         fgR = 60; fgG = 60; fgB = 60;
         if (((globX + globY) & 1) == 0) { r = 24; g = 24; b = 24; }
@@ -850,7 +1017,24 @@ Pixel3D RaycasterMundo::obterPixelAgua(float currentX, float currentY, float cur
     }
 
     std::vector<std::tuple<int, int, int>> noLuzes;
-    return Iluminador::aplicarNevoa(baseR, baseG, baseB, currentDist, profundidadeMaxima, temaCeu, noLuzes, currentX, currentY);
+    Iluminador::InfoLuz info = Iluminador::calcularInfoLuz(currentDist, profundidadeMaxima, temaCeu, noLuzes, currentX, currentY, nullptr, tempoAnimacao);
+    
+    float nightFactor = std::max(0.4f, info.solIntensidade);
+    baseR = (int)(baseR * nightFactor);
+    baseG = (int)(baseG * nightFactor);
+    baseB = (int)(baseB * nightFactor);
+    
+    float nf = info.nevoaPercent;
+    float finalR = baseR * (1.0f - nf) + info.fogR * nf;
+    float finalG = baseG * (1.0f - nf) + info.fogG * nf;
+    float finalB = baseB * (1.0f - nf) + info.fogB * nf;
+    
+    Pixel3D px;
+    px.r = (uint8_t)std::min(255, std::max(0, (int)finalR));
+    px.g = (uint8_t)std::min(255, std::max(0, (int)finalG));
+    px.b = (uint8_t)std::min(255, std::max(0, (int)finalB));
+    px.ch = ' ';
+    return px;
 }
 
 int RaycasterMundo::obterTemaCeu(const std::string& tituloMapa) {
@@ -858,9 +1042,9 @@ int RaycasterMundo::obterTemaCeu(const std::string& tituloMapa) {
     return flags.temaCeu;
 }
 
-Pixel3D RaycasterMundo::obterPixelTeto(int temaCeu, float raioAngulo, float anguloSolLua, int y, int alturaTela, float tempoAnimacao) {
+Pixel3D RaycasterMundo::obterPixelTeto(int temaCeu, float raioAngulo, float anguloCeu, int y, int alturaTela, float tempoAnimacao, bool isMenu) {
     int horizonte = alturaTela / 2;
-    if (temaCeu == 3) {
+    if (temaCeu == 3) { // Indoors
         Pixel3D px;
         float ratioY = (horizonte > 0) ? (float)y / (float)horizonte : 1.0f;
         int tx = (int)(raioAngulo * 30.0f) % 64;
@@ -868,33 +1052,39 @@ Pixel3D RaycasterMundo::obterPixelTeto(int temaCeu, float raioAngulo, float angu
         if (tx < 0) tx += 64;
         if (ty < 0) ty += 64;
         
-        bool isJunta = (ty % 10 == 0) || (tx % 8 == 0);
-        if (isJunta) {
-            px.r = 30; px.g = 15; px.b = 5;
+        bool isCoracao = g_currentMapTitle.find("CORACAO") != std::string::npos;
+        if (isCoracao) {
+            float cx = (tx - 32.0f);
+            float cy = (ty - 32.0f);
+            float dist = std::sqrt(cx*cx + cy*cy);
+            float angle = std::atan2(cy, cx);
+            float spiral = std::sin(dist * 0.2f + angle * 4.0f + tx * 0.1f);
+            
+            bool hasMoss = ((tx * 17 + ty * 13) % 100) < 20 || (spiral > 0.8f);
+            
+            if (hasMoss) { px.r = 30; px.g = 80; px.b = 20; }
+            else if (spiral > 0.0f) { px.r = 50; px.g = 30; px.b = 15; }
+            else { px.r = 25; px.g = 15; px.b = 10; }
         } else {
-            px.r = 45; px.g = 25; px.b = 10;
+            bool isJunta = (ty % 10 == 0) || (tx % 8 == 0);
+            if (isJunta) { px.r = 30; px.g = 15; px.b = 5; } else { px.r = 45; px.g = 25; px.b = 10; }
         }
-        px.ch = ' ';
-        px.isFundo = false;
+        
+        px.ch = ' '; px.isFundo = false;
         return px;
     }
-    if (temaCeu == 0) {
+
+    if (temaCeu == 0 && g_currentMapTitle.find("IGREJA") != std::string::npos) {
         Pixel3D px;
-        px.ch = ' ';
-        if (g_currentMapTitle.find("IGREJA") != std::string::npos) {
-            float divHorizonte = (horizonte > 0) ? (float)horizonte : 1.0f;
-            float ratioY = (float)y / divHorizonte;
-            int colorIndex = (int)(raioAngulo * 5.0f + ratioY * 8.0f) % 5;
-            px.isFundo = false;
-            px.hasFg = true;
-            px.ch = '#';
-            if (colorIndex == 0) { px.r = 150; px.g = 50; px.b = 50; px.fgR = 100; px.fgG = 30; px.fgB = 30; }
-            else if (colorIndex == 1) { px.r = 50; px.g = 100; px.b = 150; px.fgR = 30; px.fgG = 70; px.fgB = 100; }
-            else if (colorIndex == 2) { px.r = 180; px.g = 150; px.b = 50; px.fgR = 130; px.fgG = 110; px.fgB = 30; }
-            else if (colorIndex == 3) { px.r = 50; px.g = 120; px.b = 80; px.fgR = 30; px.fgG = 80; px.fgB = 50; }
-            else { px.r = 120; px.g = 80; px.b = 120; px.fgR = 80; px.fgG = 50; px.fgB = 80; }
-            return px;
-        }
+        float divHorizonte = (horizonte > 0) ? (float)horizonte : 1.0f;
+        float ratioY = (float)y / divHorizonte;
+        int colorIndex = (int)(raioAngulo * 5.0f + ratioY * 8.0f) % 5;
+        px.isFundo = false; px.hasFg = true; px.ch = '#';
+        if (colorIndex == 0) { px.r = 150; px.g = 50; px.b = 50; px.fgR = 100; px.fgG = 30; px.fgB = 30; }
+        else if (colorIndex == 1) { px.r = 50; px.g = 100; px.b = 150; px.fgR = 30; px.fgG = 70; px.fgB = 100; }
+        else if (colorIndex == 2) { px.r = 180; px.g = 150; px.b = 50; px.fgR = 130; px.fgG = 110; px.fgB = 30; }
+        else if (colorIndex == 3) { px.r = 50; px.g = 120; px.b = 80; px.fgR = 30; px.fgG = 80; px.fgB = 50; }
+        else { px.r = 120; px.g = 80; px.b = 120; px.fgR = 80; px.fgG = 50; px.fgB = 80; }
         return px;
     }
 
@@ -902,69 +1092,130 @@ Pixel3D RaycasterMundo::obterPixelTeto(int temaCeu, float raioAngulo, float angu
     if (ratio < 0.0f) ratio = 0.0f;
     if (ratio > 1.0f) ratio = 1.0f;
 
-    if (temaCeu == 1) {
-        int r = 5 + (int)(15 * ratio);
-        int g = 5 + (int)(20 * ratio);
-        int b = 15 + (int)(30 * ratio);
-        
-        float divHorizonte = (horizonte > 0) ? (float)horizonte : 1.0f;
-        float diffAnguloLua = std::fmod(anguloSolLua - 0.0f, 2.0f * 3.14159f);
+    struct CorCeu { float topR, topG, topB, botR, botG, botB; };
+    auto misturarCor = [](CorCeu a, CorCeu b, float t) -> CorCeu {
+        return { a.topR + (b.topR - a.topR) * t, a.topG + (b.topG - a.topG) * t, a.topB + (b.topB - a.topB) * t,
+                 a.botR + (b.botR - a.botR) * t, a.botG + (b.botG - a.botG) * t, a.botB + (b.botB - a.botB) * t };
+    };
+
+    CorCeu nascer = { 20, 20, 60,   255, 120, 50 };
+    CorCeu dia =    { 10, 60, 150,  70, 150, 230 };
+    CorCeu porSol = { 40, 10, 60,   255, 80, 20 };
+    CorCeu noite =  { 2, 2, 5,      5, 25, 45 };
+
+    float t = std::fmod(tempoAnimacao, 120.0f) / 120.0f;
+    CorCeu corAtual;
+    if (t < 0.1f)      corAtual = misturarCor(nascer, dia, t / 0.1f);
+    else if (t < 0.4f) corAtual = dia;
+    else if (t < 0.5f) corAtual = misturarCor(dia, porSol, (t - 0.4f) / 0.1f);
+    else if (t < 0.6f) corAtual = misturarCor(porSol, noite, (t - 0.5f) / 0.1f);
+    else if (t < 0.9f) corAtual = noite;
+    else               corAtual = misturarCor(noite, nascer, (t - 0.9f) / 0.1f);
+
+    int r = (int)(corAtual.topR * (1.0f - ratio) + corAtual.botR * ratio);
+    int g = (int)(corAtual.topG * (1.0f - ratio) + corAtual.botG * ratio);
+    int b = (int)(corAtual.topB * (1.0f - ratio) + corAtual.botB * ratio);
+
+    float divHorizonte = (horizonte > 0) ? (float)horizonte : 1.0f;
+    float ratioY = (float)y / divHorizonte;
+    float globalRotation = tempoAnimacao * 0.05f;
+
+    float diffAnguloSol;
+    if (isMenu) {
+        // No menu o Sol nasce na esquerda (colAng=-0.8) as t=0.0 e se poe na direita (colAng=+0.8) as t=0.5
+        float colAng = raioAngulo;
+        diffAnguloSol = colAng - (t - 0.25f) * 3.2f;
+    } else {
+        diffAnguloSol = std::fmod(raioAngulo - globalRotation, 2.0f * 3.14159f);
+        if (diffAnguloSol < -3.14159f) diffAnguloSol += 2.0f * 3.14159f;
+        if (diffAnguloSol > 3.14159f) diffAnguloSol -= 2.0f * 3.14159f;
+    }
+    
+    float sunPhase = (t - 0.25f) * 2.0f * 3.14159f;
+    float sunElevation = std::cos(sunPhase); 
+    float distYSol = isMenu ? (ratioY - (0.5f - 0.2f * sunElevation)) : (ratioY - (0.9f - 1.1f * sunElevation));
+    float distSol = std::sqrt(diffAnguloSol * diffAnguloSol * 6.0f + distYSol * distYSol);
+    
+    float diffAnguloLua;
+    if (isMenu) {
+        float colAng = raioAngulo;
+        diffAnguloLua = colAng - (t - 0.75f) * 3.2f;
+    } else {
+        diffAnguloLua = std::fmod(raioAngulo - globalRotation + 3.14159f, 2.0f * 3.14159f);
         if (diffAnguloLua < -3.14159f) diffAnguloLua += 2.0f * 3.14159f;
         if (diffAnguloLua > 3.14159f) diffAnguloLua -= 2.0f * 3.14159f;
-        
-        float distXLua = diffAnguloLua;
-        float distYLua = (y - horizonte * 0.25f) / divHorizonte;
-        float distLua = std::sqrt(distXLua * distXLua * 6.0f + distYLua * distYLua);
-        
-        if (distLua < 0.10f) {
-            float shadowOffset = 0.04f + std::sin(tempoAnimacao * 1.5f) * 0.015f; 
-            float shadowDist = std::sqrt((distXLua - shadowOffset) * (distXLua - shadowOffset) * 6.0f + distYLua * distYLua);
-            
-            Pixel3D px;
-            px.ch = ' ';
-            px.isFundo = false;
-            px.hasFg = false;
-            if (shadowDist < 0.10f) {
-                px.r = 60; px.g = 60; px.b = 70;
-            } else {
-                int craterNoise = ((int)(distXLua * 100) * 17 + y * 23) % 47;
-                if (craterNoise < 8) {
-                    px.r = 180; px.g = 180; px.b = 190;
-                } else {
-                    px.r = 230; px.g = 230; px.b = 240;
-                }
-            }
+    }
+    
+    float moonPhase = (t - 0.75f) * 2.0f * 3.14159f;
+    float moonElevation = std::cos(moonPhase);
+    float distYLua = isMenu ? (ratioY - (0.5f - 0.2f * moonElevation)) : (ratioY - (0.9f - 1.1f * moonElevation));
+    float distLua = std::sqrt(diffAnguloLua * diffAnguloLua * 6.0f + distYLua * distYLua);
+
+    Pixel3D px;
+    px.ch = ' '; px.hasFg = false; px.isFundo = false;
+
+    // Draw Moon
+    float moonAlpha = 1.0f;
+    if (distLua < 0.10f) {
+        float shadowOffset = 0.04f + std::sin(tempoAnimacao * 1.5f) * 0.015f; 
+        float shadowDist = std::sqrt((diffAnguloLua - shadowOffset) * (diffAnguloLua - shadowOffset) * 6.0f + distYLua * distYLua);
+        if (shadowDist < 0.10f) {
+            px.r = 60; px.g = 60; px.b = 70; return px;
+        } else {
+            int craterNoise = ((int)(diffAnguloLua * 100) * 17 + y * 23) % 47;
+            px.r = craterNoise < 8 ? 180 : 230; px.g = px.r; px.b = px.r + 10;
             return px;
-        } else if (distLua < 0.12f) {
-            Pixel3D px;
-            px.ch = ' ';
-            px.r = 120; px.g = 120; px.b = 130;
-            return px;
-        } else if (distLua < 0.25f) {
-            float glowPulse = std::sin(tempoAnimacao * 2.0f) * 0.02f;
-            float glow = 1.0f - ((distLua - 0.12f) / (0.13f + glowPulse));
-            if (glow > 0.0f) {
-                r = std::min(255, r + (int)(40 * glow));
-                g = std::min(255, g + (int)(45 * glow));
-                b = std::min(255, (int)(b + 60 * glow));
-            }
         }
+    } else if (distLua < 0.12f) {
+        px.r = 120; px.g = 120; px.b = 130; return px;
+    } else if (distLua < 0.25f) {
+        float glowPulse = std::sin(tempoAnimacao * 2.0f) * 0.02f;
+        float glow = 1.0f - ((distLua - 0.12f) / (0.13f + glowPulse));
+        if (glow > 0.0f) {
+            r = std::min(255, r + (int)(40 * glow * moonAlpha));
+            g = std::min(255, g + (int)(45 * glow * moonAlpha));
+            b = std::min(255, b + (int)(60 * glow * moonAlpha));
+        }
+    }
 
-        float anguloNorm = std::fmod(raioAngulo, 2.0f * 3.14159f);
-        if (anguloNorm < 0.0f) anguloNorm += 2.0f * 3.14159f;
+    // Draw Sun
+    float sunAlpha = 1.0f;
+    float angleSol = std::atan2(distYSol, diffAnguloSol * 2.449f);
+    float rays = std::sin(angleSol * 8.0f + tempoAnimacao * 2.0f);
+    float glowRadius = 0.12f + rays * 0.02f;
+    
+    if (distSol < 0.08f) {
+        px.r = 255; px.g = 255; px.b = 255; return px;
+    } else if (distSol < glowRadius) {
+        px.r = 255; px.g = 220; px.b = 50; return px;
+    } else if (distSol < 0.35f) {
+        float glowPulse = std::sin(tempoAnimacao * 1.5f) * 0.03f;
+        float glow = 1.0f - ((distSol - glowRadius) / (0.35f - glowRadius + glowPulse)); 
+        if (glow > 0.0f) {
+            r = std::min(255, r + (int)(150 * glow * sunAlpha));
+            g = std::min(255, g + (int)(100 * glow * sunAlpha));
+        }
+    }
 
-        unsigned int starX = static_cast<unsigned int>(anguloNorm * 150.0f);
-        unsigned int starY = static_cast<unsigned int>(y);
-        
-        unsigned int hash = starX * 374761393U + starY * 668265263U;
+    // Clouds
+    float cloudNoise = std::sin(raioAngulo * 5.0f) * std::sin(y * 0.1f) 
+                     + 0.5f * std::sin(raioAngulo * 11.0f + y * 0.13f)
+                     + 0.25f * std::sin(raioAngulo * 23.0f - y * 0.21f);
+    if (cloudNoise > 0.7f) {
+        float cloudIntensity = std::min(1.0f, (cloudNoise - 0.7f) * 2.0f);
+        cloudIntensity *= (0.5f + (ratio * 0.5f));
+        r = r + (int)((255 - r) * cloudIntensity);
+        g = g + (int)((255 - g) * cloudIntensity);
+        b = b + (int)((255 - b) * cloudIntensity);
+    }
+
+    // Stars (only at night)
+    if (t > 0.5f && t < 0.95f) {
+        float starAlpha = (t > 0.6f && t < 0.85f) ? 1.0f : 0.5f;
+        unsigned int starX = static_cast<unsigned int>(raioAngulo * 150.0f);
+        unsigned int hash = starX * 374761393U + y * 668265263U;
         hash = (hash ^ (hash >> 13)) * 1274126177U;
         int noise = hash % 1000;
-        
-        Pixel3D px;
-        px.r = r; px.g = g; px.b = b;
-        px.ch = ' ';
-        px.hasFg = false;
-        px.isFundo = false;
         
         if (noise == 0 && y <= horizonte) { px.ch = '*'; px.fgR = 255; px.fgG = 255; px.fgB = 255; px.hasFg = true; }
         else if (noise < 3 && y <= horizonte) { px.ch = '+'; px.fgR = 200; px.fgG = 200; px.fgB = 255; px.hasFg = true; }
@@ -972,61 +1223,12 @@ Pixel3D RaycasterMundo::obterPixelTeto(int temaCeu, float raioAngulo, float angu
         else if (noise < 17 && y <= horizonte) { px.ch = '.'; px.fgR = 200; px.fgG = 200; px.fgB = 200; px.hasFg = true; }
         else if (noise == 20 && y <= horizonte) { px.ch = '\''; px.fgR = 255; px.fgG = 255; px.fgB = 150; px.hasFg = true; }
         
-        return px;
-    }
-
-    int r = 10 + (int)(60 * ratio);
-    int g = 60 + (int)(90 * ratio);
-    int b = 150 + (int)(80 * ratio);
-
-    float divHorizonte = (horizonte > 0) ? (float)horizonte : 1.0f;
-    float diffAnguloSol = std::fmod(anguloSolLua - 0.0f, 2.0f * 3.14159f);
-    if (diffAnguloSol < -3.14159f) diffAnguloSol += 2.0f * 3.14159f;
-    if (diffAnguloSol > 3.14159f) diffAnguloSol -= 2.0f * 3.14159f;
-    
-    float distXSol = diffAnguloSol;
-    float distYSol = (y - horizonte * 0.25f) / divHorizonte;
-    float distSol = std::sqrt(distXSol * distXSol * 6.0f + distYSol * distYSol);
-    
-    float angleSol = std::atan2(distYSol, distXSol * 2.449f);
-    float rays = std::sin(angleSol * 8.0f + tempoAnimacao * 2.0f);
-    float glowRadius = 0.12f + rays * 0.02f;
-    
-    Pixel3D px;
-    px.ch = ' ';
-    px.hasFg = false;
-    px.isFundo = false;
-    
-    if (distSol < 0.08f) {
-        px.r = 255; px.g = 255; px.b = 255;
-        return px;
-    } else if (distSol < glowRadius) {
-        px.r = 255; px.g = 220; px.b = 50;
-        return px;
-    } else if (distSol < 0.35f) {
-        float glowPulse = std::sin(tempoAnimacao * 1.5f) * 0.03f;
-        float glow = 1.0f - ((distSol - glowRadius) / (0.35f - glowRadius + glowPulse)); 
-        if (glow > 0.0f) {
-            r = std::min(255, r + (int)(150 * glow));
-            g = std::min(255, g + (int)(100 * glow));
-        }
-    } else {
-        float anguloCeuNuvem = raioAngulo; // static clouds, no rotation over time
-        float cy = y * 0.1f;
-        float cloudNoise = std::sin(anguloCeuNuvem * 5.0f) * std::sin(cy) 
-                         + 0.5f * std::sin(anguloCeuNuvem * 11.0f + cy * 1.3f)
-                         + 0.25f * std::sin(anguloCeuNuvem * 23.0f - cy * 2.1f);
-        
-        if (cloudNoise > 0.7f) {
-            float cloudIntensity = (cloudNoise - 0.7f) * 2.0f;
-            if (cloudIntensity > 1.0f) cloudIntensity = 1.0f;
-            
-            float densidadePerspectiva = 0.5f + (ratio * 0.5f);
-            cloudIntensity *= densidadePerspectiva;
-            
-            r = r + (int)((255 - r) * cloudIntensity);
-            g = g + (int)((255 - g) * cloudIntensity);
-            b = b + (int)((255 - b) * cloudIntensity);
+        if (px.ch != ' ') {
+            px.fgR = (uint8_t)(px.fgR * starAlpha);
+            px.fgG = (uint8_t)(px.fgG * starAlpha);
+            px.fgB = (uint8_t)(px.fgB * starAlpha);
+            px.r = r; px.g = g; px.b = b;
+            return px;
         }
     }
 
@@ -1058,11 +1260,14 @@ char RaycasterMundo::obterSpriteChar(int /*mapX*/, int mapY, char c, const std::
 
     const auto& flags = obterFlagsMapa(tituloMapa);
 
-    if (flags.tituloUpper.find("VILA") != std::string::npos && c == 'F') {
+    if ((flags.tituloUpper.find("VILA") != std::string::npos || flags.tituloUpper.find("CASA") != std::string::npos) && c == 'F') {
         return 'V';
     }
     if (flags.tituloUpper.find("SALA DO CHEFE") != std::string::npos && (c == 'M' || c == 'A' || c == 'H' || c == 'O' || c == 'R' || c == 'G')) {
         return 'H';
+    }
+    if ((flags.tituloUpper.find("REINO") != std::string::npos || flags.tituloUpper.find("PATIO") != std::string::npos) && c == 'N') {
+        return 'Z';
     }
     if ((flags.tituloUpper.find("CABANA") != std::string::npos || flags.tituloUpper.find("FLORESTA") != std::string::npos) && c == 'M') {
         return 'W';
@@ -1074,7 +1279,7 @@ char RaycasterMundo::obterSpriteChar(int /*mapX*/, int mapY, char c, const std::
     // Customizações para o PATIO DO REINO (e REINO) e Igreja
     if (flags.tituloUpper.find("PATIO DO REINO") != std::string::npos || flags.tituloUpper == "REINO") {
         if (c == 'F') return 'V'; // Franchesco
-        if (c == 'A') return 'A'; // Anok (Manequim)
+        if (c == 'N') return 'Z'; // Anok (Manequim)
         if (c == 'Q') return 'Q'; // Alquimista
         if (c == 'C') return 'C'; // Cavaleiro de Treino
         if (c == 'I') return 'Y'; // Igreja (Capela)

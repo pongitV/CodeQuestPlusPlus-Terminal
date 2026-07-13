@@ -90,10 +90,17 @@ void RaycasterRenderizador::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA
                 char c = matrizDoMapa[ly][lx];
                 if (RaycasterMundo::isMapLabel(lx, ly, matrizDoMapa)) continue;
 
-                if (c == '^') {
-                    cachedLuzes.push_back({lx, ly, 1}); // White
-                } else if (c == 'P' || c == 'F' || c == 'B' || c == 'A' || c == 'Q') {
-                    cachedLuzes.push_back({lx, ly, 0}); // Orange
+                char mappedC = RaycasterMundo::obterSpriteChar(lx, ly, c, tituloMapa);
+                if (RaycasterMundo::isMapLabel(lx, ly, matrizDoMapa)) continue;
+
+                if (mappedC == '^' || mappedC == '1' || mappedC == '2' || mappedC == '3' || mappedC == '4' || mappedC == '5') {
+                    cachedLuzes.push_back({lx, ly, 1}); // Teleport/Door (Soft Brown)
+                } else if (mappedC == 'F') {
+                    cachedLuzes.push_back({lx, ly, 0}); // Fire (Orange)
+                } else if (mappedC == 'G' || mappedC == 'O' || mappedC == 'S' || mappedC == 'A' || mappedC == 'M' || mappedC == 'T' || mappedC == 'Y') {
+                    cachedLuzes.push_back({lx, ly, 2}); // Enemy (Red)
+                } else if (mappedC == 'H' || mappedC == 'R' || mappedC == 'P' || mappedC == 'Q' || mappedC == 'B' || mappedC == 'W' || mappedC == 'V' || mappedC == 'C' || mappedC == 'J' || mappedC == 'K' || mappedC == 'Z') {
+                    cachedLuzes.push_back({lx, ly, 3}); // NPC (Yellow)
                 }
             }
         }
@@ -237,72 +244,45 @@ void RaycasterRenderizador::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA
             }
         }
 
-        Iluminador::InfoLuz infoLuzParede = Iluminador::calcularInfoLuz(perpWallDist * 0.55f, profundidadeMaxima, temaCeu, luzesDaParede, hitX, hitY, &matrizDoMapa);
+        float pushX = hitX + nx * 0.01f;
+        float pushY = hitY + ny * 0.01f;
+        Iluminador::InfoLuz infoLuzParede = Iluminador::calcularInfoLuz(perpWallDist * 0.55f, profundidadeMaxima, temaCeu, luzesDaParede, pushX, pushY, &matrizDoMapa, tempoAbsoluto);
         float anguloCeu = raioAngulo;
-        float fadeCeu = 1.0f;
-        if (temaCeu == 1 || temaCeu == 2) {
+        if (temaCeu == 0) { // Dynamic Outdoors
             long long globalMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
             float anguloLento = ((globalMs % 300000) / 300000.0f) * 6.2831853f;
             anguloCeu -= anguloLento;
-            
-            float progressoCiclo = (globalMs % 180000) / 180000.0f; 
-            if (progressoCiclo > (2.0f / 3.0f)) { 
-                fadeCeu = 0.0f; 
-            } else { 
-                float anguloDia = (progressoCiclo / (2.0f / 3.0f)) * 3.14159f;
-                fadeCeu = std::sin(anguloDia); 
-            }
         }
+
+        auto drawIndoorCeiling = [&](int screenY, float currentX, float currentY, float currentDist) {
+            float fractX = currentX - std::floor(currentX);
+            float fractY = currentY - std::floor(currentY);
+            char charTeto = '#';
+            Iluminador::InfoLuz infoLuzTeto = Iluminador::calcularInfoLuz(currentDist, profundidadeMaxima, temaCeu, luzes, currentX, currentY, &matrizDoMapa, tempoAbsoluto);
+            return RaycasterMundo::obterPixelParede(tituloMapa, temaFloresta, currentDist, profundidadeMaxima, charTeto, (int)(fractY * 1000.0f), 0, 1000, fractX, tempoAbsoluto, false, infoLuzTeto, currentX, currentY, ' ', 0.0f, 0.0f);
+        };
 
         for (int y = 0; y < ALTURA_TELA; y++) {
             bool drawFloor = false;
 
             if (y < teto) {
-                if (temaCeu == 1 || temaCeu == 2) {
-                    if (fadeCeu >= 0.99f) {
-                        tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(2, raioAngulo, anguloCeu, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
-                    } else if (fadeCeu <= 0.01f) {
-                        tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(1, raioAngulo, anguloCeu + 3.14159265f, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
-                    } else {
-                        Pixel3D pxDia = RaycasterMundo::obterPixelTeto(2, raioAngulo, anguloCeu, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
-                        Pixel3D pxNoite = RaycasterMundo::obterPixelTeto(1, raioAngulo, anguloCeu + 3.14159265f, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
-                        Pixel3D pxMisturado = pxDia;
-                        pxMisturado.r = (int)(pxDia.r * fadeCeu + pxNoite.r * (1.0f - fadeCeu));
-                        pxMisturado.g = (int)(pxDia.g * fadeCeu + pxNoite.g * (1.0f - fadeCeu));
-                        pxMisturado.b = (int)(pxDia.b * fadeCeu + pxNoite.b * (1.0f - fadeCeu));
-                        if (pxNoite.ch != ' ' && fadeCeu < 0.5f) {
-                            pxMisturado.ch = pxNoite.ch; pxMisturado.hasFg = pxNoite.hasFg;
-                            pxMisturado.fgR = pxNoite.fgR; pxMisturado.fgG = pxNoite.fgG; pxMisturado.fgB = pxNoite.fgB;
-                        }
-                        if (pxDia.r == 255 && pxDia.g == 255 && pxDia.b == 255 && fadeCeu > 0.1f) { pxMisturado.r = 255; pxMisturado.g = 255; pxMisturado.b = 255; }
-                        tela[y * LARGURA_TELA + x] = pxMisturado;
-                    }
+                if (temaCeu == 3) {
+                    float currentDist = factorDist / ((float)horizonte - y);
+                    float currentX = jogadorX + olhoX * currentDist;
+                    float currentY = jogadorY + olhoY * currentDist;
+                    tela[y * LARGURA_TELA + x] = drawIndoorCeiling(y, currentX, currentY, currentDist);
                 } else {
                     tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(temaCeu, raioAngulo, anguloCeu, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
                 }
             } else if (y >= teto && y <= chao) {
-                Pixel3D pixel = RaycasterMundo::obterPixelParede(tituloMapa, temaFloresta, perpWallDist, profundidadeMaxima, charParede, y, teto, chao, texXParede, tempoAbsoluto, isSideWall, infoLuzParede, hitX, hitY, npcEncontradoNaColuna);
+                Pixel3D pixel = RaycasterMundo::obterPixelParede(tituloMapa, temaFloresta, perpWallDist, profundidadeMaxima, charParede, y, teto, chao, texXParede, tempoAbsoluto, isSideWall, infoLuzParede, hitX, hitY, npcEncontradoNaColuna, (float)nx, (float)ny);
                 if (pixel.isFundo) {
                     if (y <= horizonte) {
-                        if (temaCeu == 1 || temaCeu == 2) {
-                            if (fadeCeu >= 0.99f) {
-                                tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(2, raioAngulo, anguloCeu, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
-                            } else if (fadeCeu <= 0.01f) {
-                                tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(1, raioAngulo, anguloCeu + 3.14159265f, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
-                            } else {
-                                Pixel3D pxDia = RaycasterMundo::obterPixelTeto(2, raioAngulo, anguloCeu, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
-                                Pixel3D pxNoite = RaycasterMundo::obterPixelTeto(1, raioAngulo, anguloCeu + 3.14159265f, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
-                                Pixel3D pxMisturado = pxDia;
-                                pxMisturado.r = (int)(pxDia.r * fadeCeu + pxNoite.r * (1.0f - fadeCeu));
-                                pxMisturado.g = (int)(pxDia.g * fadeCeu + pxNoite.g * (1.0f - fadeCeu));
-                                pxMisturado.b = (int)(pxDia.b * fadeCeu + pxNoite.b * (1.0f - fadeCeu));
-                                if (pxNoite.ch != ' ' && fadeCeu < 0.5f) {
-                                    pxMisturado.ch = pxNoite.ch; pxMisturado.hasFg = pxNoite.hasFg;
-                                    pxMisturado.fgR = pxNoite.fgR; pxMisturado.fgG = pxNoite.fgG; pxMisturado.fgB = pxNoite.fgB;
-                                }
-                                if (pxDia.r == 255 && pxDia.g == 255 && pxDia.b == 255 && fadeCeu > 0.1f) { pxMisturado.r = 255; pxMisturado.g = 255; pxMisturado.b = 255; }
-                                tela[y * LARGURA_TELA + x] = pxMisturado;
-                            }
+                        if (temaCeu == 3) {
+                            float currentDist = factorDist / ((float)horizonte - y);
+                            float currentX = jogadorX + olhoX * currentDist;
+                            float currentY = jogadorY + olhoY * currentDist;
+                            tela[y * LARGURA_TELA + x] = drawIndoorCeiling(y, currentX, currentY, currentDist);
                         } else {
                             tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(temaCeu, raioAngulo, anguloCeu, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
                         }
@@ -325,7 +305,7 @@ void RaycasterRenderizador::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA
                     floorChar = matrizDoMapa[(int)currentY][(int)currentX];
                 }
                 if (floorChar == '~') tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelAgua(currentX, currentY, currentDist, profundidadeMaxima, raioAngulo, tempoAbsoluto, temaCeu);
-                else tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelChao(tituloMapa, currentX, currentY, currentDist, profundidadeMaxima, luzesDaParede, &matrizDoMapa);
+                else tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelChao(tituloMapa, currentX, currentY, currentDist, profundidadeMaxima, luzes, &matrizDoMapa, tempoAbsoluto);
             }
             } // for y
         } // for x

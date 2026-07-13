@@ -640,7 +640,6 @@ void Combate::aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* pers
     {
         std::string msgEsquiva = personagemAlvo->obterNome() + " evitou o ataque de " + personagemAtacante->obterNome();
         registrarLog(FuncoesDialogo::formatarMsgCombate(msgEsquiva, Cor::CIANO));
-        ui->adicionarMensagemFixa(Aparencia::centralizarTexto(Aparencia::cor(Cor::CIANO) + msgEsquiva + Aparencia::cor(Cor::RESET)) + "\n");
         
         std::vector<Personagem*> aliadosVivos = obterAliadosVivosRaw();
         ui->atualizarTelaEstatica(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual, aliadosVivos);

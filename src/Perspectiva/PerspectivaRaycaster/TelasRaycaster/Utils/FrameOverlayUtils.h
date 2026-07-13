@@ -29,8 +29,13 @@ namespace MenuRaycasterUtils {
 
         for (size_t i = 0; i < texto.size(); ) {
             if (cellStart >= linha.size()) break;
-            size_t bgEnd = linha.find('m', cellStart);
-            if (bgEnd == std::string::npos || linha[bgEnd + 1] != ' ') break;
+            size_t bgStart = linha.find("\033[48;2;", cellStart);
+            if (bgStart == std::string::npos) break;
+            size_t bgEnd = linha.find('m', bgStart);
+            if (bgEnd == std::string::npos) break;
+            
+            size_t cellEnd = linha.find("\033[0m", bgEnd);
+            if (cellEnd == std::string::npos) break;
 
             unsigned char lead = (unsigned char)texto[i];
             int charLen;
@@ -44,7 +49,7 @@ namespace MenuRaycasterUtils {
             std::string ch = texto.substr(i, charLen);
 
             if (ch != " ") {
-                linha.erase(bgEnd + 1, 1);
+                linha.erase(bgEnd + 1, cellEnd - (bgEnd + 1));
                 linha.insert(bgEnd + 1, fgCode + ch);
             }
 

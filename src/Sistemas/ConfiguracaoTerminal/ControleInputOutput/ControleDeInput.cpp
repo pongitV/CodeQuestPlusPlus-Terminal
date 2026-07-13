@@ -60,6 +60,73 @@ ComandoMapa ControleDeInput::traduzirTeclaParaComando(char tecla)
     return ComandoMapa::Nenhum;
 }
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+void ControleDeInput::habilitarMouseInput() {
+#ifdef _WIN32
+    HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
+    DWORD mode;
+    GetConsoleMode(hStdin, &mode);
+    mode = (mode & ~ENABLE_QUICK_EDIT_MODE) | ENABLE_EXTENDED_FLAGS | ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT;
+    SetConsoleMode(hStdin, mode);
+#endif
+}
+
+bool ControleDeInput::lerEstadoArrastoHorizontalMouse(int& deltaX) {
+    deltaX = 0;
+#ifdef _WIN32
+    HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
+    DWORD numEvents = 0;
+    GetNumberOfConsoleInputEvents(hStdin, &numEvents);
+    if (numEvents == 0) return false;
+
+    INPUT_RECORD ir[128];
+    DWORD numRead;
+    // We use ReadConsoleInput, but we must restore KEYBOARD_EVENTs so _kbhit() doesn't break
+    ReadConsoleInput(hStdin, ir, 128, &numRead);
+    
+    static int lastMouseX = -1;
+    static bool isDragging = false;
+    bool evMouse = false;
+    
+    std::vector<INPUT_RECORD> nonMouseEvents;
+
+    for (DWORD i = 0; i < numRead; ++i) {
+        if (ir[i].EventType == MOUSE_EVENT) {
+            evMouse = true;
+            MOUSE_EVENT_RECORD mouseEvent = ir[i].Event.MouseEvent;
+            
+            if (mouseEvent.dwButtonState == FROM_LEFT_1ST_BUTTON_PRESSED) {
+                if (!isDragging) {
+                    isDragging = true;
+                    lastMouseX = mouseEvent.dwMousePosition.X;
+                } else {
+                    deltaX += (int)mouseEvent.dwMousePosition.X - lastMouseX;
+                    lastMouseX = mouseEvent.dwMousePosition.X;
+                }
+            } else {
+                isDragging = false;
+                lastMouseX = -1;
+            }
+        } else {
+            nonMouseEvents.push_back(ir[i]);
+        }
+    }
+    
+    if (!nonMouseEvents.empty()) {
+        DWORD written = 0;
+        WriteConsoleInput(hStdin, nonMouseEvents.data(), (DWORD)nonMouseEvents.size(), &written);
+    }
+    
+    return evMouse;
+#else
+    return false;
+#endif
+}
+
+
 std::string ControleDeInput::lerEntradaProtegida(const std::string& promptMensagem) {
     if (!promptMensagem.empty()) {
         Aparencia::exibirPrompt(promptMensagem);
@@ -234,7 +301,12 @@ int ControleDeInput::lerSelecaoMenuEmPopup(const std::string& titulo, const std:
             else linhasTexto.push_back("   " + opcoes[i]);
         }
 
-        std::vector<std::string> caixa = TelaBase::criarCaixaComArte(arte, linhasTexto, titulo, 0, corTema, bgPopup);
+        std::vector<std::string> caixa;
+        if (arte.empty()) {
+            caixa = TelaBase::criarCaixa(linhasTexto, titulo, 0, corTema, bgPopup);
+        } else {
+            caixa = TelaBase::criarCaixaComArte(arte, linhasTexto, titulo, 0, corTema, bgPopup);
+        }
 
         int finalBoxWidth = Aparencia::obterComprimentoVisual(caixa[0]);
         int finalBoxHeight = caixa.size();

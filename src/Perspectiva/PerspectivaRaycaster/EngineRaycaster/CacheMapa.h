@@ -35,10 +35,11 @@ namespace CacheMapa {
             if (u.find("FLORESTA") != std::string::npos || u.find("BOSQUE") != std::string::npos ||
                 u.find("VILA") != std::string::npos || u.find("INICIO") != std::string::npos) flags.isTerra = true;
 
-            if (flags.isCaverna || flags.isLabirinto || flags.isSalaChefe) flags.temaCeu = 0;
-            else if (u.find("CABANA") != std::string::npos) flags.temaCeu = 3;
-            else if (flags.isTerra && !flags.isReino) flags.temaCeu = 1;
-            else flags.temaCeu = 2;
+            if (flags.isCaverna || flags.isLabirinto || flags.isSalaChefe || u.find("CABANA") != std::string::npos) {
+                flags.temaCeu = 3; // Static Indoors
+            } else {
+                flags.temaCeu = 0; // Dynamic Outdoors
+            }
         }
         return flags;
     }

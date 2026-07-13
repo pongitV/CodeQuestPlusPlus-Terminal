@@ -11,6 +11,7 @@
 #include "MenuRaycasterLayout.h"
 #include "../../EngineRaycaster/RaycasterMundo.h"
 #include "../../../../Core/Utilidades/Aparencia.h"
+#include "../../../../Sistemas/ConfiguracaoTerminal/ControleInputOutput/ControleDeInput.h"
 
 namespace MenuRaycasterUtils {
 
@@ -49,15 +50,19 @@ namespace MenuRaycasterUtils {
 
         float FOV = 1.6f;
 
-        long long globalMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-        float animPulsacao = (globalMs % 100000) / 1000.0f;
+        static float s_tempoMenuAnimacao = 30.0f; // Comeca de dia
 
-        float fadeBase = std::cos((s_cicloCelestial - 1.15f) * (6.2831853f / 4.6f));
-        float fadeCeu = (fadeBase * 4.0f + 1.0f) * 0.5f;
-        fadeCeu = std::max(0.0f, std::min(1.0f, fadeCeu));
+        int deltaX = 0;
+        if (ControleDeInput::lerEstadoArrastoHorizontalMouse(deltaX)) {
+            if (deltaX != 0) {
+                s_tempoMenuAnimacao += (float)deltaX * 0.4f; 
+            }
+        } else {
+            s_tempoMenuAnimacao += 0.05f; // Auto-passar do tempo lento
+        }
 
-        float posSol = -1.15f + s_cicloCelestial;
-        float posLua = -1.15f + (s_cicloCelestial - 2.3f);
+        while (s_tempoMenuAnimacao < 0.0f) s_tempoMenuAnimacao += 120.0f;
+        while (s_tempoMenuAnimacao > 120.0f) s_tempoMenuAnimacao -= 120.0f;
 
         for (int y = 0; y < totalLinhas; ++y) {
             std::string novaLinha;
@@ -65,24 +70,12 @@ namespace MenuRaycasterUtils {
 
             for (int cellX = 0; cellX < larguraTela; ++cellX) {
                 float colAng = ((float)cellX / (float)larguraTela - 0.5f) * FOV;
+                
+                Pixel3D pxCeu = RaycasterMundo::obterPixelTeto(0, colAng, colAng, y, alturaCeu * 2, s_tempoMenuAnimacao, true);
 
-                float raioAnguloMenu = std::fmod(colAng + 6.2831853f, 6.2831853f);
-
-                float anguloCeuSun = std::fmod(colAng - posSol + 6.2831853f, 6.2831853f);
-                float anguloCeuMoon = std::fmod(colAng - posLua + 6.2831853f, 6.2831853f);
-
-                Pixel3D pxDia   = RaycasterMundo::obterPixelTeto(2, raioAnguloMenu, anguloCeuSun, y, alturaCeu * 2, animPulsacao);
-                Pixel3D pxNoite = RaycasterMundo::obterPixelTeto(1, raioAnguloMenu, anguloCeuMoon, y, alturaCeu * 2, animPulsacao);
-
-                if (pxNoite.hasFg && pxNoite.ch != ' ') {
-                    pxNoite.r = pxNoite.fgR;
-                    pxNoite.g = pxNoite.fgG;
-                    pxNoite.b = pxNoite.fgB;
-                }
-
-                int r = (int)((float)pxDia.r * fadeCeu + (float)pxNoite.r * (1.0f - fadeCeu));
-                int g = (int)((float)pxDia.g * fadeCeu + (float)pxNoite.g * (1.0f - fadeCeu));
-                int b = (int)((float)pxDia.b * fadeCeu + (float)pxNoite.b * (1.0f - fadeCeu));
+                int r = pxCeu.r;
+                int g = pxCeu.g;
+                int b = pxCeu.b;
 
                 if (y >= totalLinhas * 2 / 3) {
                     float campoY = (float)(y - totalLinhas * 2 / 3) / (float)(totalLinhas / 3);
@@ -114,7 +107,18 @@ namespace MenuRaycasterUtils {
                 g = std::max(0, std::min(255, g));
                 b = std::max(0, std::min(255, b));
 
-                novaLinha += "\033[48;2;" + std::to_string(r) + ";" + std::to_string(g) + ";" + std::to_string(b) + "m ";
+                novaLinha += "\033[48;2;" + std::to_string(r) + ";" + std::to_string(g) + ";" + std::to_string(b) + "m";
+                
+                if (y < totalLinhas * 2 / 3 && pxCeu.ch != ' ') {
+                    if (pxCeu.hasFg) {
+                        novaLinha += "\033[38;2;" + std::to_string(pxCeu.fgR) + ";" + std::to_string(pxCeu.fgG) + ";" + std::to_string(pxCeu.fgB) + "m";
+                    } else {
+                        novaLinha += "\033[38;2;255;255;255m";
+                    }
+                    novaLinha += pxCeu.ch;
+                } else {
+                    novaLinha += " ";
+                }
                 novaLinha += "\033[0m";
             }
             frame[y] = std::move(novaLinha);

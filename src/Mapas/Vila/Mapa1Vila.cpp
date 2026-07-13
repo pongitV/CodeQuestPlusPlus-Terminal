@@ -150,11 +150,15 @@ namespace {
             int px = ctx.proximaPosicaoX;
             int py = ctx.proximaPosicaoY;
             
-            // 1. Entrar na Caverna a partir da Vila (X=121, Y=13)
-            if (px == 121 && py == 13 && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
+            // 1. Entrar no Caminho do Inicio (Spawn) a partir da Vila Inicial (X=18, Y=5 ou Y=4)
+            if (px >= 17 && px <= 19 && py <= 6 && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
+                CarregadorMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDoSpawnSalva, ctx.self->spawnJaFoiVisitado, Mapa1VilaLayouts::obterLayoutSpawn(), 53, 7, "CAMINHO DO INICIO", ctx.animarTela);
+            }
+            // 2. Entrar na Caverna a partir da Vila (Caverna fica a leste)
+            else if (px > 50 && py < 30 && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 CarregadorMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDaCavernaSalva, ctx.self->cavernaJaFoiVisitada, Mapa1VilaLayouts::obterLayoutCaverna(ctx.self->bjornResgatado), 14, 3, "CAVERNA DO ORK", ctx.animarTela);
             }
-            // 2. Retornar dos Interiores/Caverna de volta para a Vila Inicial
+            // 3. Retornar dos Interiores/Caverna de volta para a Vila Inicial
             else if (nextCell == 'S' && ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 if (ctx.self->tituloDoMapaAtual == "CAVERNA DO ORK") {
                     ctx.self->cavernaJaFoiVisitada = false;
@@ -179,12 +183,8 @@ namespace {
                 ctx.self->tituloDoMapaAtual = "VILA INICIAL";
                 if (!ControleMapa::isExploracao3DAtiva()) ctx.animarTela();
             }
-            // 4. Entrar no Caminho do Inicio (Spawn) a partir da Vila Inicial (X=18, Y=5)
-            else if (px == 18 && py == 5 && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
-                CarregadorMapa::entrarSubMapa(ctx.self->matrizDoMapaAtual, ctx.self->matrizDoMapaPrincipalSalva, ctx.self->posicaoXSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoYSalvaAntesDeEntrarNoSubMapa, ctx.self->posicaoXDoJogador, ctx.self->posicaoYDoJogador, ctx.self->jogadorEstaDentroDeUmSubMapa, ctx.self->tituloDoMapaAtual, ctx.self->matrizDoMapaDoSpawnSalva, ctx.self->spawnJaFoiVisitado, Mapa1VilaLayouts::obterLayoutSpawn(), 53, 7, "CAMINHO DO INICIO", ctx.animarTela);
-            }
-            // 7. Seguir caminho para a Floresta (X=133, Y=50)
-            else if (px == 133 && py == 50 && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
+            // 5. Ir para a Floresta a partir da Vila
+            else if (py >= 30 && !ctx.self->jogadorEstaDentroDeUmSubMapa) {
                 if (!Progressao::instancia().obterFlag(Flags::Vila_BjornResgatado)) {
                     Aparencia::iniciarInteracaoPopup();
                     std::vector<std::string> msg = {
@@ -225,6 +225,7 @@ void Mapa1Vila::inicializarInteracoes() {
     interacoes['F'] = std::make_unique<InteracaoNPCMercador>();
     interacoes['P'] = std::make_unique<InteracaoPlaca>();
     interacoes['^'] = std::make_unique<InteracaoTeleporte>();
+    interacoes['S'] = std::make_unique<InteracaoTeleporte>();
 }
 
 ProximaTransicaoMapa Mapa1Vila::iniciarLoopDeExploracao()

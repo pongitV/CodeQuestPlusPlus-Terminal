@@ -130,6 +130,6 @@ void Arqueiro::usarHabilidadeClasse(Combate* combate, Personagem* personagemUsua
     personagemUsuario->adicionarEfeito(std::make_unique<EfeitoInviolavel>(1));
     personagemUsuario->definirCooldown(HabilidadeID::RetiradaComPontaria, 2);
     
-    std::string msg = FuncoesDialogo::formatarMsgHabilidade("Retirada com pontaria! Voce se afasta neste turno.");
+    std::string msg = FuncoesDialogo::formatarMsgHabilidade("Retirada com pontaria! (Afasta-se)");
     notificarMensagemCombate(msg, msg);
 }

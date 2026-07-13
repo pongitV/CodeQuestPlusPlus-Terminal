@@ -77,8 +77,8 @@ ProximaTransicaoMapa Mapa3PonteReino::iniciarLoopDeExploracao()
     std::unordered_map<char, std::function<void(int, int, int)>> interacoes;
 
     interacoes['^'] = [&](int px, int py, int larg) {
-        // 1. Acesso ao Reino (X=47, Y=3)
-        if (px == 47 && py == 3) {
+        // 1. Acesso ao Reino
+        if (py < 20) {
             if (!conviteRecebido) {
                 Aparencia::iniciarInteracaoPopup();
                 std::vector<std::string> msg = { "Os portoes estao trancados.", "Voce precisa de uma permissao real." };
@@ -94,8 +94,8 @@ ProximaTransicaoMapa Mapa3PonteReino::iniciarLoopDeExploracao()
                 proximoMapa = ProximaTransicaoMapa::Reino;
             }
         }
-        // 2. Retornar para a Floresta (X=47, Y=33)
-        else if (px == 47 && py == 33) {
+        // 2. Retornar para a Floresta
+        else if (py >= 20) {
             exploracaoEstaAtiva = false;
             proximoMapa = ProximaTransicaoMapa::Floresta;
         }

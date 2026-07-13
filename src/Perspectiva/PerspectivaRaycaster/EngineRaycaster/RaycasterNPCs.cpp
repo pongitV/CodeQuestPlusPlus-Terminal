@@ -69,7 +69,7 @@ void RaycasterNPCs::inicializarSprites(std::map<char, SpriteCache>& cache) {
     cache['C'] = RaycasterSprites::parseSprite(NPCCavaleiroGenericoLayouts::arteCavaleiro, 200, 200, 220); // Cavaleiro Real
 
     // Sprites customizados para o PATIO DO REINO e Igreja
-    cache['A'] = RaycasterSprites::parseSprite(NPCAparenciaLayouts::arteAparencia, 120, 50, 200); // Anok (Roxo Estiloso)
+    cache['Z'] = RaycasterSprites::parseSprite(NPCAparenciaLayouts::arteAparencia, 120, 50, 200); // Anok (Roxo Estiloso)
 
     cache['Q'] = RaycasterSprites::parseSprite(NPCAlquimistaLayouts::arteAlquimista, 180, 50, 200); // Alquimista (Roxo)
 
