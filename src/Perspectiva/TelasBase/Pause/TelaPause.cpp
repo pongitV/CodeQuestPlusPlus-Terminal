@@ -83,20 +83,20 @@ void TelaPause::exibir(Personagem* jogador) {
                             int numCores = 7;
                             int idxAtual = 0;
                             for (int i = 0; i < numCores; ++i) {
-                                if (jogador->obterCorJogador() == cores[i]) {
+                                if (Aparencia::corJogadorPersonalizada == cores[i]) {
                                     idxAtual = i;
                                     break;
                                 }
                             }
                             idxAtual = (idxAtual + 1) % numCores;
-                            jogador->definirCorJogador(cores[idxAtual]);
+                            Aparencia::corJogadorPersonalizada = cores[idxAtual];
                         } else if (apEscolha == 1) {
                             std::cout << "\n";
                             std::string promptMsg = "Digite o novo icone (1 caractere): ";
                             std::cout << Aparencia::espacosParaCentralizar(promptMsg.length()) << promptMsg;
                             std::string novoIcone = ControleDeInput::lerEntradaProtegida();
                             if (!novoIcone.empty() && novoIcone[0] != ' ') {
-                                jogador->definirIconeJogador(novoIcone[0]);
+                                Aparencia::iconeJogadorPersonalizado = novoIcone[0];
                             }
                         } else {
                             aparenciaAberta = false;

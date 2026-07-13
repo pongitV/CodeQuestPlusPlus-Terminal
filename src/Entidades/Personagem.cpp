@@ -26,7 +26,7 @@ Personagem::Personagem(const Personagem& other)
       classe(std::make_unique<ClasseClone>()),
       statsFinais(other.statsFinais),
       mochila(std::make_unique<Inventario>()),
-      arma(nullptr), escudo(nullptr), armadura(nullptr), consumivelRapido(nullptr), itemSelecionadoParaUso(nullptr),
+      itemSelecionadoParaUso(nullptr),
       sistemaDeNivel(std::make_unique<SistemaDeNivel>(other.sistemaDeNivel->obterNivel(), other.sistemaDeNivel->obterXpAtual(), other.sistemaDeNivel->obterXpParaSubir()))
 {
     sistema = other.sistema;
@@ -47,17 +47,14 @@ Personagem::Personagem(const Personagem& other)
     personagensAtivos.insert(this);
 
     // Copia dos Itens (Conforme regra: "mas possui os mesmos items")
-    if (other.arma) {
-        auto copiaArma = FabricaItens::criarItem(Aparencia::removerCoresANSI(other.arma->obterNomeItem()));
-        if (copiaArma) { this->arma = copiaArma.get(); this->mochila->adicionarItem(std::move(copiaArma)); }
-    }
-    if (other.escudo) {
-        auto copiaEscudo = FabricaItens::criarItem(Aparencia::removerCoresANSI(other.escudo->obterNomeItem()));
-        if (copiaEscudo) { this->escudo = copiaEscudo.get(); this->mochila->adicionarItem(std::move(copiaEscudo)); }
-    }
-    if (other.armadura) {
-        auto copiaArmadura = FabricaItens::criarItem(Aparencia::removerCoresANSI(other.armadura->obterNomeItem()));
-        if (copiaArmadura) { this->armadura = copiaArmadura.get(); this->mochila->adicionarItem(std::move(copiaArmadura)); }
+    for (const auto& par : other.equipamentos) {
+        if (par.second) {
+            auto copiaItem = FabricaItens::criarItem(Aparencia::removerCoresANSI(par.second->obterNomeItem()));
+            if (copiaItem) { 
+                this->equipamentos[par.first] = copiaItem.get(); 
+                this->mochila->adicionarItem(std::move(copiaItem)); 
+            }
+        }
     }
     atualizarCacheSeNecessario();
 }
@@ -69,10 +66,6 @@ Personagem::Personagem(const std::string& nome, std::unique_ptr<RacaBase> racaEs
       classe(std::move(classeEscolhida)),
       statsFinais{ 0, 0, 0, 0, 0, 0, 0 },
       mochila(std::make_unique<Inventario>()),
-      arma(nullptr),
-      escudo(nullptr),
-      armadura(nullptr),
-      consumivelRapido(nullptr),
       itemSelecionadoParaUso(nullptr),
       sistemaDeNivel(std::make_unique<SistemaDeNivel>(1, 0, Constantes::XP_BASE_PARA_SUBIR))
 {
@@ -183,7 +176,7 @@ void Personagem::prepararParaNovaBatalha()
     combate.vidaMaximaFixa = obterVidaMaxima();
     limparEfeitos();
     
-    if (armadura && armadura->temPropriedade(Propriedade::ArmaduraAdaptacao)) {
+    if (obterArmadura() && obterArmadura()->temPropriedade(Propriedade::ArmaduraAdaptacao)) {
         adicionarEfeito(std::make_unique<EfeitoRodaAdaptacao>());
     }
 }
@@ -209,15 +202,15 @@ void Personagem::atualizarCacheSeNecessario() const {
     cache_.inteligencia = aplicarMult(statsFinais.inteligencia);
     cache_.sabedoria = aplicarMult(statsFinais.sabedoria);
 
-    int penalidade = armadura ? (armadura->obterReducaoFixa() / 3) : 0;
-    if (armadura && armadura->obterNomeItem() == "Armadura de bau") penalidade = 10;
+    int penalidade = obterArmadura() ? (obterArmadura()->obterReducaoFixa() / 3) : 0;
+    if (obterArmadura() && obterArmadura()->obterNomeItem() == "Armadura de bau") penalidade = 10;
     if (classe) penalidade = classe->processarPenalidadeArmaduraPassivaArqueiro(penalidade);
     
     int destrezaBase = static_cast<int>(statsFinais.destreza * mult);
     int destrezaFinal = destrezaBase - penalidade;
     cache_.destreza = destrezaFinal > 0 ? destrezaFinal : 0;
 
-    int bonusArmadura = armadura ? armadura->obterReducaoFixa() : 0;
+    int bonusArmadura = obterArmadura() ? obterArmadura()->obterReducaoFixa() : 0;
     int reducao = cache_.resistencia + bonusArmadura;
     
     double percentualReducao = cache_.constituicao / 100.0;
@@ -299,18 +292,18 @@ TipoRaca Personagem::obterTipoRaca() const
 void Personagem::equiparItem(Item* item)
 {
     if (item == nullptr) return;
-    if (item->obterTipo() == TipoEquipamento::ARMA) this->arma = item;
-    else if (item->obterTipo() == TipoEquipamento::ESCUDO) this->escudo = item;
+    if (item->obterTipo() == TipoEquipamento::ARMA) this->equipamentos[SlotEquipamento::MAO_PRINCIPAL] = item;
+    else if (item->obterTipo() == TipoEquipamento::ESCUDO) this->equipamentos[SlotEquipamento::MAO_SECUNDARIA] = item;
     else if (item->obterTipo() == TipoEquipamento::ARMADURA)
     {
-        this->armadura = item;
+        this->equipamentos[SlotEquipamento::ARMADURA] = item;
         if (combate.vidaMaximaFixa > 0 && item->temPropriedade(Propriedade::ArmaduraAdaptacao)) {
             if (!possuiEfeito(EfeitoID::RodaAdaptacao)) {
                 adicionarEfeito(std::make_unique<EfeitoRodaAdaptacao>());
             }
         }
     }
-    else if (item->obterTipo() == TipoEquipamento::CONSUMIVEL) this->consumivelRapido = item;
+    else if (item->obterTipo() == TipoEquipamento::CONSUMIVEL) this->equipamentos[SlotEquipamento::CONSUMIVEL] = item;
     cache_.sujo = true;
 }
 
@@ -336,7 +329,7 @@ bool Personagem::habilidadeDaClasseConsomeTurno() const
     return true;
 }
 
-int Personagem::calcularDefesaBase(int danoBruto, int danoPerfurante) const {
+int Personagem::calcularDefesaBase(int danoBruto, int danoPerfurante) {
     int danoSemPerfuracao = std::max(0, danoBruto - danoPerfurante);
 
     atualizarCacheSeNecessario();
@@ -348,7 +341,7 @@ int Personagem::calcularDefesaBase(int danoBruto, int danoPerfurante) const {
     return danoFinal + danoPerfurante;
 }
 
-ResultadoDano Personagem::receberDano(int danoBruto, int danoPerfurante, int danoReduzidoParry, Personagem* atacante, bool aplicarPassivas) {
+ResultadoDano Personagem::receberDano(int danoBruto, int danoPerfurante, int danoReduzidoParry, IAttacker* atacante, bool aplicarPassivas) {
     ResultadoDano resultado;
 
     int danoFinal = calcularDefesaBase(danoBruto, danoPerfurante);
@@ -359,22 +352,23 @@ ResultadoDano Personagem::receberDano(int danoBruto, int danoPerfurante, int dan
 
     danoFinal = std::max(0, danoFinal - danoReduzidoParry);
 
-    if (combate.estaDefendendo && escudo != nullptr) {
-        resultado.danoBloqueado = escudo->obterReducaoDanoFixaEscudo();
+    if (combate.estaDefendendo && obterEscudo() != nullptr) {
+        Item* esc = obterEscudo();
+        resultado.danoBloqueado = esc->obterReducaoDanoFixaEscudo();
         danoFinal = std::max(0, danoFinal - resultado.danoBloqueado);
 
-        escudo->reduzirDurabilidade(1);
-        if (escudo->obterDurabilidadeAtualEscudo() <= 0) {
+        esc->reduzirDurabilidade(1);
+        if (esc->obterDurabilidadeAtualEscudo() <= 0) {
             resultado.escudoQuebrou = true;
-            resultado.nomeEscudoQuebrado = escudo->obterNomeItem();
-            mochila->removerItem(escudo);
+            resultado.nomeEscudoQuebrado = esc->obterNomeItem();
+            mochila->removerItem(esc);
             desequiparEscudo();
         }
     }
 
     if (aplicarPassivas && raca) danoFinal = raca->processarDanoDefensivo(danoFinal, this);
     
-    if (atacante && atacante->obterArma()) danoFinal = atacante->obterArma()->garantirDanoMinimo(danoFinal);
+    if (atacante) danoFinal = atacante->garantirDanoMinimo(danoFinal);
 
     if (danoFinal > 0) modificarVida(-danoFinal);
 
@@ -469,12 +463,71 @@ void Personagem::obterIDsEfeitosAtivos(std::vector<EfeitoID>& outIDs) const {
     });
 }
 
-void Personagem::executarDrops(Personagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal)
-{
-    if (this->raca) 
-    {
-        this->raca->realizarDrops(this, jogadorAtual, itensObtidos, ouroTotal, xpTotal);
+void Personagem::executarDrops(Personagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal) {
+    if (raca) {
+        raca->realizarDrops(this, jogadorAtual, itensObtidos, ouroTotal, xpTotal);
     }
+}
+
+int Personagem::garantirDanoMinimo(int danoAtual) {
+    if (obterArma()) {
+        return obterArma()->garantirDanoMinimo(danoAtual);
+    }
+    return danoAtual;
+}
+
+std::pair<int, int> Personagem::calcularDanoOfensivoBase() {
+    double multiplicadorDeAtributos = obterMultiplicador();
+
+    int danoFisicoDaArma = 1;
+    int danoMagicoDaArma = 0;
+    int perfuranteAtual = 0;
+
+    if (obterArma()) 
+    {
+        danoFisicoDaArma = obterArma()->obterDanoFisico();
+        danoMagicoDaArma = obterArma()->obterDanoMagico();
+
+        if (obterArma()->temPropriedade(Propriedade::Magica)) {
+            int bonusMagico = danoFisicoDaArma / 2;
+            double bonusEscalado = bonusMagico * (1.0 + (obterSabedoria() / 100.0));
+            perfuranteAtual = static_cast<int>(bonusEscalado * multiplicadorDeAtributos);
+        }
+    }
+
+    int forcaEfetiva = obterForca();
+    int destrezaEfetiva = obterDestreza();
+    int inteligenciaEfetiva = obterInteligencia();
+    int sabedoriaEfetiva = obterSabedoria();
+
+    if (danoFisicoDaArma == 0 && danoMagicoDaArma > 0) {
+        forcaEfetiva /= 10; destrezaEfetiva /= 10;
+    } else if (danoFisicoDaArma > 0 && danoMagicoDaArma == 0) {
+        inteligenciaEfetiva /= 10; sabedoriaEfetiva /= 10;
+    }
+
+    int danoFisicoCalculado = std::max(0, static_cast<int>((danoFisicoDaArma + forcaEfetiva) * (1.0 + (destrezaEfetiva / 100.0))));
+    int danoMagicoCalculado = std::max(0, static_cast<int>((danoMagicoDaArma + inteligenciaEfetiva) * (1.0 + (sabedoriaEfetiva / 100.0))));
+    
+    int total = std::max(1, danoFisicoCalculado + danoMagicoCalculado);
+    int totalFinal = static_cast<int>(total * multiplicadorDeAtributos);
+    int perfuranteFinal = perfuranteAtual;
+
+    if (obterArma() && obterArma()->temPropriedade(Propriedade::IgnoraDefesa)) {
+        perfuranteFinal = totalFinal;
+    }
+
+    if (raca && raca->ignoraEscudo()) {
+        perfuranteFinal = totalFinal;
+    }
+
+    if (possuiEfeito(EfeitoID::MiraCerteira)) {
+        totalFinal *= 2;
+        perfuranteFinal *= 2;
+        removerEfeito(EfeitoID::MiraCerteira);
+    }
+
+    return { totalFinal, perfuranteFinal };
 }
 
 void Personagem::finalizarBatalha() { 

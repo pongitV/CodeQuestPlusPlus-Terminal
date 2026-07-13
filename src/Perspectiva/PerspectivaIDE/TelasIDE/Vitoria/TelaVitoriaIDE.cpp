@@ -23,13 +23,17 @@ private:
     int totalDeDanoRecebido;
     int curaTotalRecebida;
     int turnosCombate;
+    int maiorDano;
+    int itensConsumidos;
+    int parriesTentados;
+    int parriesEfetivos;
     std::vector<std::string> tela3D;
     std::string tituloMapa;
 
 public:
-    CenaVitoriaIntro3D(Personagem* jogador, int ouro, int danoCausado, int danoRecebido, int cura, int turnos, const std::string& mapa)
+    CenaVitoriaIntro3D(Personagem* jogador, int ouro, int danoCausado, int danoRecebido, int cura, int turnos, int mDano, int itens, int pTent, int pEf, const std::string& mapa)
         : jogadorAtual(jogador), quantidadeDeOuroObtido(ouro), totalDeDanoCausado(danoCausado),
-          totalDeDanoRecebido(danoRecebido), curaTotalRecebida(cura), turnosCombate(turnos), tituloMapa(mapa) {
+          totalDeDanoRecebido(danoRecebido), curaTotalRecebida(cura), turnosCombate(turnos), maiorDano(mDano), itensConsumidos(itens), parriesTentados(pTent), parriesEfetivos(pEf), tituloMapa(mapa) {
         std::vector<Personagem*> vazio;
         tela3D = RaycasterRenderizadorCombate::renderizarQuadro(tituloMapa, jogadorAtual, vazio);
     }
@@ -55,13 +59,13 @@ protected:
         estLinhas.push_back("");
         estLinhas.push_back(" Turnos         : " + std::to_string(turnosCombate));
         estLinhas.push_back(" Dano Causado   : " + std::to_string(totalDeDanoCausado));
-        estLinhas.push_back(" Maior Hit Dano : " + Aparencia::cor(Cor::VERMELHO) + std::to_string(Combate::obterMaiorDanoCausado()) + Aparencia::cor(Cor::RESET));
+        estLinhas.push_back(" Maior Hit Dano : " + Aparencia::cor(Cor::VERMELHO) + std::to_string(maiorDano) + Aparencia::cor(Cor::RESET));
         estLinhas.push_back(" Dano Recebido  : " + std::to_string(totalDeDanoRecebido));
         estLinhas.push_back(" Cura Realizada : " + std::to_string(curaTotalRecebida));
-        estLinhas.push_back(" Itens Gastos   : " + std::to_string(Combate::obterItensConsumidos()));
+        estLinhas.push_back(" Itens Gastos   : " + std::to_string(itensConsumidos));
 
-        std::string strParry = std::to_string(Combate::obterParriesEfetivos()) + "/" + std::to_string(Combate::obterParriesTentados());
-        if (Combate::obterParriesTentados() > 0 && Combate::obterParriesEfetivos() == Combate::obterParriesTentados()) {
+        std::string strParry = std::to_string(parriesEfetivos) + "/" + std::to_string(parriesTentados);
+        if (parriesTentados > 0 && parriesEfetivos == parriesTentados) {
             strParry = Aparencia::cor(Cor::AMARELO) + strParry + " (Perfeito!)" + Aparencia::cor(Cor::RESET);
         }
         estLinhas.push_back(" Parries        : " + strParry);
@@ -115,7 +119,7 @@ protected:
 void TelaVitoriaIDE::exibir(Personagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido,
     int totalDeDanoCausado, int totalDeDanoRecebido, int curaTotalRecebida, int turnosCombate,
     const std::vector<std::string>& inimigosDerrotados, int parriesPerfeitos, int maiorDano,
-    const std::vector<std::pair<std::string, int>>& dropsUnicos,
+    int parriesTentados, int parriesEfetivos, int itensConsumidos, const std::vector<std::pair<std::string, int>>& dropsUnicos,
     bool podeSubirNivel, const std::vector<std::string>& novasDescobertas,
     const std::string& tituloMapa)
 {
@@ -129,7 +133,7 @@ void TelaVitoriaIDE::exibir(Personagem* jogadorAtual, int quantidadeDeOuroObtido
     int framesTotal = framesXP + (dropsUnicos.empty() ? 0 : static_cast<int>(dropsUnicos.size())) + 1;
 
     if (isModo3D) {
-        CenaVitoriaIntro3D intro(jogadorAtual, quantidadeDeOuroObtido, totalDeDanoCausado, totalDeDanoRecebido, curaTotalRecebida, turnosCombate, tituloMapa);
+        CenaVitoriaIntro3D intro(jogadorAtual, quantidadeDeOuroObtido, totalDeDanoCausado, totalDeDanoRecebido, curaTotalRecebida, turnosCombate, maiorDano, itensConsumidos, parriesTentados, parriesEfetivos, tituloMapa);
         intro.executar();
     }
 
@@ -153,13 +157,13 @@ void TelaVitoriaIDE::exibir(Personagem* jogadorAtual, int quantidadeDeOuroObtido
         estLinhas.push_back("");
         estLinhas.push_back(" Turnos         : " + std::to_string(turnosCombate));
         estLinhas.push_back(" Dano Causado   : " + std::to_string(totalDeDanoCausado));
-        estLinhas.push_back(" Maior Hit Dano : " + Aparencia::cor(Cor::VERMELHO) + std::to_string(Combate::obterMaiorDanoCausado()) + Aparencia::cor(Cor::RESET));
+        estLinhas.push_back(" Maior Hit Dano : " + Aparencia::cor(Cor::VERMELHO) + std::to_string(maiorDano) + Aparencia::cor(Cor::RESET));
         estLinhas.push_back(" Dano Recebido  : " + std::to_string(totalDeDanoRecebido));
         estLinhas.push_back(" Cura Realizada : " + std::to_string(curaTotalRecebida));
-        estLinhas.push_back(" Itens Gastos   : " + std::to_string(Combate::obterItensConsumidos()));
+        estLinhas.push_back(" Itens Gastos   : " + std::to_string(itensConsumidos));
 
-        std::string strParry = std::to_string(Combate::obterParriesEfetivos()) + "/" + std::to_string(Combate::obterParriesTentados());
-        if (Combate::obterParriesTentados() > 0 && Combate::obterParriesEfetivos() == Combate::obterParriesTentados()) {
+        std::string strParry = std::to_string(parriesEfetivos) + "/" + std::to_string(parriesTentados);
+        if (parriesTentados > 0 && parriesEfetivos == parriesTentados) {
             strParry = Aparencia::cor(Cor::AMARELO) + strParry + " (Perfeito!)" + Aparencia::cor(Cor::RESET);
         }
         estLinhas.push_back(" Parries        : " + strParry);

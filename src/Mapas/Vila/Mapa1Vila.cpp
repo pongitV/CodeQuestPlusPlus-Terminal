@@ -1,4 +1,5 @@
 #include "Mapa1Vila.h"
+#include "../../Core/Controladores/Debug.h"
 
 #include <iostream>
 #include <vector>
@@ -244,9 +245,9 @@ ProximaTransicaoMapa Mapa1Vila::iniciarLoopDeExploracao()
 
     auto formatador = [&](char celula, int x, int y) -> std::string {
         if (x == posicaoXDoJogador && y == posicaoYDoJogador) {
-            char ic = jogadorAtual->obterIconeJogador();
+            char ic = Aparencia::iconeJogadorPersonalizado;
             if (ic <= 32 || ic > 126) ic = '@'; 
-            return Aparencia::cor(jogadorAtual->obterCorJogador()) + std::string(1, ic) + Aparencia::cor(Cor::RESET);
+            return Aparencia::cor(Aparencia::corJogadorPersonalizada) + std::string(1, ic) + Aparencia::cor(Cor::RESET);
         }
         return ControleMapa::formatarCelula(celula, x, y, tituloDoMapaAtual, matrizDoMapaAtual, false);
     };
@@ -307,7 +308,7 @@ ProximaTransicaoMapa Mapa1Vila::iniciarLoopDeExploracao()
         } else {
             std::string colisoes = "*#|_[]{}-=";
             bool ehParede = (colisoes.find(celulaDestinoDoMapa) != std::string::npos);
-            if (!ehParede || jogadorAtual->isNoclip()) {
+            if (!ehParede || Debug::isNoclipAtivo) {
                 posicaoXDoJogador = proximaPosicaoX;
                 posicaoYDoJogador = proximaPosicaoY;
             }

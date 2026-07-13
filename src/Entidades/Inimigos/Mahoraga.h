@@ -20,7 +20,7 @@ public:
     void aoSofrerParryPerfeito() override;
     void aoTerAtaqueBloqueadoPorEscudo();
     bool ignoraParry() const override;
-    bool ignoraEscudo() const;
+    bool ignoraEscudo() const override;
 
     InfoBestiario obterInfoBestiario() const override;
     void realizarDrops(Personagem* inimigo, Personagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal) override;

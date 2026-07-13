@@ -21,6 +21,9 @@
 #include "../../Sistemas/Combate/Combate.h"
 #include "../../Mapas/ControleMapa.h"
 
+bool Debug::isGodModeAtivo = false;
+bool Debug::isNoclipAtivo = false;
+
 namespace {
     void ativarGodMode(Personagem* jogador) {
         jogador->obterAtributosFinais().vida += 999999;
@@ -294,7 +297,7 @@ void Debug::exibirMenuDebug(Personagem* jogador) {
                 "Obter Qualquer Item",
                 "Definir Ouro e XP",
                 "Liberar Todos os Mapas (Fast Travel)",
-                std::string("Noclip (Atravessar paredes): ") + (jogador->isNoclip() ? Aparencia::cor(Cor::VERDE) + "LIGADO" + Aparencia::cor(Cor::RESET) : Aparencia::cor(Cor::VERMELHO) + "DESLIGADO" + Aparencia::cor(Cor::RESET)),
+                std::string("Noclip (Atravessar paredes): ") + (Debug::isNoclipAtivo ? Aparencia::cor(Cor::VERDE) + "LIGADO" + Aparencia::cor(Cor::RESET) : Aparencia::cor(Cor::VERMELHO) + "DESLIGADO" + Aparencia::cor(Cor::RESET)),
                 "Iniciar Combate com Qualquer Inimigo",
                 "Fechar Debug Menu"
             };
@@ -336,7 +339,7 @@ void Debug::exibirMenuDebug(Personagem* jogador) {
                     ControleDeInput::aguardarEnter();
                     break;
                 case 5:
-                    jogador->alternarNoclip();
+                    Debug::isNoclipAtivo = !Debug::isNoclipAtivo;
                     break;
                 case 6:
                     menuIniciarCombate(jogador);

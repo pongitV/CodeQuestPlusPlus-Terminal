@@ -10,6 +10,8 @@ int Aparencia::FATOR_COMPRESSAO_GLOBAL = 2;
 
 int Aparencia::atrasoDigitacaoMS = 25;
 Cor Aparencia::corFundoAtiva = Cor::RESET;
+char Aparencia::iconeJogadorPersonalizado = '@';
+Cor Aparencia::corJogadorPersonalizada = Cor::VERDE;
 
 std::vector<std::string> Aparencia::carregarArte(const std::string& caminhoArquivo) {
     std::vector<std::string> arte;

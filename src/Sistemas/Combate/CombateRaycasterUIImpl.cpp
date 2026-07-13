@@ -117,7 +117,7 @@ void CombateRaycasterUIImpl::notificarRequisitoNaoAtendido(const std::string& me
     TelaCombateRaycaster::notificarRequisitoNaoAtendido(mensagemRequisito);
 }
 
-void CombateRaycasterUIImpl::exibirTelaVitoria(Personagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido, int curaTotalRecebida, int turnosCombate, const std::vector<std::string>& itensObtidos, const std::vector<std::string>& inimigosDerrotados, int parriesPerfeitos, int maiorDano) {
+void CombateRaycasterUIImpl::exibirTelaVitoria(Personagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido, int curaTotalRecebida, int turnosCombate, const std::vector<std::string>& itensObtidos, const std::vector<std::string>& inimigosDerrotados, int parriesPerfeitos, int maiorDano, int parriesTentados, int parriesEfetivos, int itensConsumidos, const std::vector<std::string>& novasDescobertas) {
     std::unordered_map<std::string, int> frequenciaDrops;
     for (const auto& item : itensObtidos) {
         frequenciaDrops[item]++;
@@ -129,7 +129,7 @@ void CombateRaycasterUIImpl::exibirTelaVitoria(Personagem* jogadorAtual, int qua
 
     bool podeSubirNivel = jogadorAtual->obterXpAtual() + quantidadeDeXpObtido >= jogadorAtual->obterXpParaSubir();
 
-    TelaVitoriaRaycaster::exibir(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, curaTotalRecebida, turnosCombate, inimigosDerrotados, parriesPerfeitos, maiorDano, dropsUnicos, podeSubirNivel, {}, "");
+    TelaVitoriaRaycaster::exibir(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, curaTotalRecebida, turnosCombate, inimigosDerrotados, parriesPerfeitos, maiorDano, parriesTentados, parriesEfetivos, itensConsumidos, dropsUnicos, podeSubirNivel, novasDescobertas, "");
 }
 
 void CombateRaycasterUIImpl::exibirTelaDerrota(Personagem* jogadorAtual, int quantidadeDeOuroObtido, int quantidadeDeXpObtido, int totalDeDanoCausado, int totalDeDanoRecebido, int curaTotalRecebida, int turnosCombate) {

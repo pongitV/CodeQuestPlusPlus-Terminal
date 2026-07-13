@@ -60,6 +60,7 @@ public:
     
     virtual void aoSofrerParryPerfeito() {}
     virtual bool ignoraParry() const { return false; }
+    virtual bool ignoraEscudo() const { return false; }
 
     virtual void realizarDrops(Personagem* /*inimigo*/, Personagem* /*jogadorAtual*/, std::vector<std::string>& /*itensObtidos*/, int& /*ouroTotal*/, int& /*xpTotal*/) {
         // Implementação padrão vazia (sem drops)

@@ -1,4 +1,5 @@
 #include "Mapa3PonteReino.h"
+#include "../../Core/Controladores/Debug.h"
 
 #include <iostream>
 #include <vector>
@@ -42,9 +43,9 @@ ProximaTransicaoMapa Mapa3PonteReino::iniciarLoopDeExploracao()
 
     auto formatador = [&](char celula, int x, int y) -> std::string {
         if (x == posicaoXDoJogador && y == posicaoYDoJogador) {
-            char ic = jogadorAtual->obterIconeJogador();
+            char ic = Aparencia::iconeJogadorPersonalizado;
             if (ic <= 32 || ic > 126) ic = '@'; // Garante que o icone seja um caractere visivel
-            return Aparencia::cor(jogadorAtual->obterCorJogador()) + std::string(1, ic) + Aparencia::cor(Cor::RESET);
+            return Aparencia::cor(Aparencia::corJogadorPersonalizada) + std::string(1, ic) + Aparencia::cor(Cor::RESET);
         }
         return ControleMapa::formatarCelula(celula, x, y, tituloDoMapaAtual, matrizDoMapaAtual, false);
     };
@@ -122,7 +123,7 @@ ProximaTransicaoMapa Mapa3PonteReino::iniciarLoopDeExploracao()
         auto it = interacoes.find(celulaDestino);
         if (it != interacoes.end()) {
             it->second(px, py, larg);
-        } else if ((celulaDestino != '*' && celulaDestino != '#' && celulaDestino != '=' && celulaDestino != '|' && celulaDestino != '[' && celulaDestino != ']' && celulaDestino != 'A' && celulaDestino != 'S' && celulaDestino != 'E' && celulaDestino != 'L' && celulaDestino != 'O' && celulaDestino != ' ') || jogadorAtual->isNoclip()) {
+        } else if ((celulaDestino != '*' && celulaDestino != '#' && celulaDestino != '=' && celulaDestino != '|' && celulaDestino != '[' && celulaDestino != ']' && celulaDestino != 'A' && celulaDestino != 'S' && celulaDestino != 'E' && celulaDestino != 'L' && celulaDestino != 'O' && celulaDestino != ' ') || Debug::isNoclipAtivo) {
             posicaoXDoJogador = px;
             posicaoYDoJogador = py;
         }

@@ -12,6 +12,8 @@
 class Aparencia {
 public:
     static Cor corFundoAtiva;
+    static char iconeJogadorPersonalizado;
+    static Cor corJogadorPersonalizada;
 
     static void inicializarConsole();
     static std::string converterVetorParaStringBruta(const std::vector<std::string>& vetor);

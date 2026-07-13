@@ -7,6 +7,11 @@
 #include <unordered_set>
 #include <vector>
 #include <mutex>
+#include <map>
+
+#include "SlotEquipamento.h"
+#include "Interfaces/IAttacker.h"
+#include "Interfaces/IDamageable.h"
 
 #include "../Core/Controladores/Status.h"
 #include "../Sistemas/Inventario/Inventario.h"
@@ -58,13 +63,6 @@ enum class TipoClasse;
 enum class HabilidadeID;
 enum class TipoRaca;
 
-struct ResultadoDano {
-    int danoFinal = 0;
-    int danoBloqueado = 0;
-    bool escudoQuebrou = false;
-    std::string nomeEscudoQuebrado = "";
-};
-
 enum class DificuldadeJogo 
 {
     Facil = 1,
@@ -72,7 +70,11 @@ enum class DificuldadeJogo
     Dificil = 3
 };
 
-class Personagem 
+/**
+ * @brief Classe central do jogo que representa qualquer entidade viva (Jogador, Inimigos, NPCs).
+ * Agrega status, atributos, inventario e logica de persistencia e interacao.
+ */
+class Personagem : public IAttacker, public IDamageable
 {
 private:
     struct ControleCombate {
@@ -137,10 +139,7 @@ protected:
     std::vector<EfeitoID> efeitosFilaRemocao;
     bool processandoEfeitos = false;
 
-    Item* arma;
-    Item* escudo;
-    Item* armadura;
-    Item* consumivelRapido;
+    std::map<SlotEquipamento, Item*> equipamentos;
     Item* itemSelecionadoParaUso;
 
     // Cache de getters calculados
@@ -226,14 +225,41 @@ public:
     TipoRaca obterTipoRaca() const;
     bool isBoss() const;
     
-    Item* obterArma() const { return arma; }
-    Item* obterEscudo() const { return escudo; }
-    Item* obterArmadura() const { return armadura; }
-    Item* obterConsumivelRapido() const { return consumivelRapido; }
-    void desequiparConsumivel() { consumivelRapido = nullptr; cache_.sujo = true; }
+    Item* obterArma() const { auto it = equipamentos.find(SlotEquipamento::MAO_PRINCIPAL); return it != equipamentos.end() ? it->second : nullptr; }
+    Item* obterEscudo() const { auto it = equipamentos.find(SlotEquipamento::MAO_SECUNDARIA); return it != equipamentos.end() ? it->second : nullptr; }
+    Item* obterArmadura() const { auto it = equipamentos.find(SlotEquipamento::ARMADURA); return it != equipamentos.end() ? it->second : nullptr; }
+    Item* obterConsumivelRapido() const { auto it = equipamentos.find(SlotEquipamento::CONSUMIVEL); return it != equipamentos.end() ? it->second : nullptr; }
+    void desequiparConsumivel() { equipamentos.erase(SlotEquipamento::CONSUMIVEL); cache_.sujo = true; }
     Inventario* obterInventario() const { return mochila.get(); }
     Item* obterItemSelecionadoParaUso() const { return itemSelecionadoParaUso; }
-    bool isItemEquipado(Item* item) const { return item != nullptr && (item == arma || item == escudo || item == armadura || item == consumivelRapido); }
+    bool isItemEquipado(Item* item) const { 
+        if (!item) return false;
+        for (const auto& par : equipamentos) {
+            if (par.second == item) return true;
+        }
+        return false;
+    }
+
+    /**
+     * @brief Verifica se a entidade esta ativamente no loop de combate.
+     */
+    bool estaEmCombate() const;
+
+    /**
+     * @brief Define o estado da entidade para combate.
+     */
+    void entrarEmCombate();
+
+    /**
+     * @brief Limpa o estado de combate da entidade (CDs, flags).
+     */
+    void sairDoCombate();
+
+    /**
+     * @brief Inicializa a entidade antes da luta.
+     */
+    void prepararParaCombate();
+
     void definirItemSelecionadoParaUso(Item* item) { itemSelecionadoParaUso = item; }
 
     void ganharOuro(int valor) { mochila->adicionarOuro(valor); }
@@ -290,9 +316,9 @@ public:
     bool obterDefendendo() const { return combate.estaDefendendo; }
     void definirRecargaDefesa(bool r) { combate.recargaDefesa = r; }
     bool obterRecargaDefesa() const { return combate.recargaDefesa; }
-    void desequiparEscudo() { escudo = nullptr; cache_.sujo = true; }
-    void desequiparArma() { arma = nullptr; cache_.sujo = true; }
-    void desequiparArmadura() { armadura = nullptr; cache_.sujo = true; }
+    void desequiparEscudo() { equipamentos.erase(SlotEquipamento::MAO_SECUNDARIA); cache_.sujo = true; }
+    void desequiparArma() { equipamentos.erase(SlotEquipamento::MAO_PRINCIPAL); cache_.sujo = true; }
+    void desequiparArmadura() { equipamentos.erase(SlotEquipamento::ARMADURA); cache_.sujo = true; }
 
     void definirMorteAnimada(bool m) { combate.morteAnimada = m; }
     bool obterMorteAnimada() const { return combate.morteAnimada; }
@@ -330,8 +356,10 @@ public:
     void limparEfeitos();
     void removerEfeito(EfeitoID id);
 
-    int calcularDefesaBase(int danoBruto, int danoPerfurante) const;
-    ResultadoDano receberDano(int danoBruto, int danoPerfurante, int danoReduzidoParry, Personagem* atacante, bool aplicarPassivas);
+    int calcularDefesaBase(int danoBruto, int danoPerfurante) override;
+    ResultadoDano receberDano(int danoBruto, int danoPerfurante, int danoReduzidoParry, IAttacker* atacante, bool aplicarPassivas = true) override;
+    std::pair<int, int> calcularDanoOfensivoBase() override;
+    int garantirDanoMinimo(int danoAtual) override;
 
     virtual void executarDrops(Personagem* jogadorAtual, std::vector<std::string>& itensObtidos, int& ouroTotal, int& xpTotal);
 };

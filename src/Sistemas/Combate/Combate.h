@@ -9,6 +9,10 @@
 #include "ICombateUI.h"
 #include "../../Entidades/Personagem.h"
 
+/**
+ * @brief Classe responsavel por gerenciar o fluxo de combate do jogo.
+ * Controla turnos, vida, acoes e UI do combate.
+ */
 class Combate 
 {
 public:
@@ -40,21 +44,14 @@ private:
     std::vector<std::string> itensObtidos;
     std::vector<std::string> inimigosDerrotados;
 
-    // Contexto de Visao 3D
-    bool isModo3D;
-    std::vector<std::string> matrizDoMapaAtual;
-    float jogadorPosX;
-    float jogadorPosY;
-    float jogadorAngulo;
-    std::string tituloMapaAtual;    
     // Estatisticas Avancadas da Sessao
-    static int stats_parriesTentados;
-    static int stats_parriesEfetivos;
-    static int stats_parriesPerfeitos;
-    static int stats_maiorDanoCausado;
-    static int stats_itensConsumidos;
-    static std::vector<std::string> stats_novasDescobertas;
-    static void resetarEstatisticasAvancadas();
+    int stats_parriesTentados;
+    int stats_parriesEfetivos;
+    int stats_parriesPerfeitos;
+    int stats_maiorDanoCausado;
+    int stats_itensConsumidos;
+    std::vector<std::string> stats_novasDescobertas;
+    void resetarEstatisticasAvancadas();
 
     void aplicarDanoAoAlvo(Personagem* personagemAtacante, Personagem* personagemAlvo, int quantidadeDeDanoBruto, int danoPerfurante, int turnoAtualDoCombate);
     void processarMorteDeInimigo(Personagem* inimigo);
@@ -85,15 +82,34 @@ public:
     bool executarTurnoJogadorOuAliado(Personagem* personagem, bool& primeiraRenderizacao, bool processarEfeitosInicio = true);
     void adicionarAliadoEmCombate(std::unique_ptr<Personagem> aliado);
     void adicionarAliados(std::vector<std::unique_ptr<Personagem>> aliados);
+    /**
+     * @brief Inicia o laco principal de combate.
+     */
     void iniciarCombate();
+
+    /**
+     * @brief Executa a inteligencia e as acoes de todos os inimigos presentes.
+     */
     void executarTurnoDeTodosOsInimigos();
+
+    /**
+     * @brief Verifica se todos os inimigos estao mortos ou se o jogador morreu.
+     * @return true se o combate deve acabar.
+     */
     bool verificarCondicaoDeVitoriaOuDerrota();
+
+    /**
+     * @brief Aplica o fluxo completo de dano fisico de um personagem a outro.
+     * @param personagemAtacante Ponteiro para quem ataca.
+     * @param personagemDefensor Ponteiro para quem defende.
+     * @param turnoAtualDoCombate Turno em que a acao ocorre.
+     */
     void realizarAtaqueFisico(Personagem* personagemAtacante, Personagem* personagemDefensor, int turnoAtualDoCombate);
 
     // Getters para Estatisticas Avancadas
-    static int obterParriesTentados() { return stats_parriesTentados; }
-    static int obterParriesEfetivos() { return stats_parriesEfetivos; }
-    static int obterMaiorDanoCausado() { return stats_maiorDanoCausado; }
-    static int obterItensConsumidos() { return stats_itensConsumidos; }
-    static const std::vector<std::string>& obterNovasDescobertas() { return stats_novasDescobertas; }
+    int obterParriesTentados() const { return stats_parriesTentados; }
+    int obterParriesEfetivos() const { return stats_parriesEfetivos; }
+    int obterMaiorDanoCausado() const { return stats_maiorDanoCausado; }
+    int obterItensConsumidos() const { return stats_itensConsumidos; }
+    const std::vector<std::string>& obterNovasDescobertas() const { return stats_novasDescobertas; }
 };

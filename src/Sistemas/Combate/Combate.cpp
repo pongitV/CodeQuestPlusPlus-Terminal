@@ -42,13 +42,6 @@ namespace {
 Personagem* g_inimigoAtacanteParry = nullptr;
 int g_parryStatus = 0;
 
-int Combate::stats_parriesTentados = 0;
-int Combate::stats_parriesEfetivos = 0;
-int Combate::stats_parriesPerfeitos = 0;
-int Combate::stats_maiorDanoCausado = 0;
-int Combate::stats_itensConsumidos = 0;
-std::vector<std::string> Combate::stats_novasDescobertas;
-
 void Combate::resetarEstatisticasAvancadas() {
     stats_parriesTentados = 0;
     stats_parriesEfetivos = 0;
@@ -60,7 +53,6 @@ void Combate::resetarEstatisticasAvancadas() {
 
 Combate::Combate(Personagem* jogadorParaOCombate, std::vector<std::unique_ptr<Personagem>>&& inimigosParaOCombate, std::unique_ptr<ICombateUI> interfaceVisual) 
     : jogadorAtual(jogadorParaOCombate), listaDeInimigos(std::move(inimigosParaOCombate)), quantidadeDeOuroObtido(0), quantidadeDeXpObtido(0), totalDeDanoCausado(0), totalDeDanoRecebido(0), contadorDoTurnoAtual(1),
-      isModo3D(false), jogadorPosX(0.0f), jogadorPosY(0.0f), jogadorAngulo(0.0f), tituloMapaAtual(""),
       ui(interfaceVisual ? std::move(interfaceVisual) : std::make_unique<CombateUIImpl>())
 {
 
@@ -81,12 +73,9 @@ Combate::Combate(Personagem* jogadorParaOCombate, std::vector<std::unique_ptr<Pe
 }
 
 void Combate::setContexto3D(bool modo3D, const std::vector<std::string>& matriz, float posX, float posY, float angulo, const std::string& titulo) {
-    this->isModo3D = modo3D;
-    this->matrizDoMapaAtual = matriz;
-    this->jogadorPosX = posX;
-    this->jogadorPosY = posY;
-    this->jogadorAngulo = angulo;
-    this->tituloMapaAtual = titulo;
+    if (ui) {
+        ui->configurarContexto3D(modo3D, matriz, posX, posY, angulo, titulo);
+    }
 }
 
 void Combate::adicionarAliados(std::vector<std::unique_ptr<Personagem>> aliados)
@@ -132,7 +121,6 @@ std::vector<Personagem*> Combate::obterInimigosRaw() const
 
 void Combate::exibirTelaDeCombate(bool animarEntrada) const
 {
-    ui->configurarContexto3D(isModo3D, matrizDoMapaAtual, jogadorPosX, jogadorPosY, jogadorAngulo, tituloMapaAtual);
     ui->atualizarTelaEstatica(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual, obterAliadosVivosRaw(), animarEntrada);
 }
 
@@ -214,8 +202,6 @@ void Combate::iniciarCombate()
     for (auto& aliado : listaDeAliados) {
         aliado->prepararParaNovaBatalha();
     }
-
-    ui->configurarContexto3D(isModo3D, matrizDoMapaAtual, jogadorPosX, jogadorPosY, jogadorAngulo, tituloMapaAtual);
     ui->animarIntroducaoCombate(obterTituloDoCombate(), obterInimigosRaw(), jogadorAtual);
 
     ui->limparTela();
@@ -786,7 +772,7 @@ bool Combate::verificarCondicaoDeVitoriaOuDerrota()
         if (isVitoria) {
             ui->exibirTelaVitoria(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, 
                                 totalDeDanoRecebido, jogadorAtual->obterCuraTotalRecebida(), contadorDoTurnoAtual, 
-                                itensObtidos, inimigosDerrotados, stats_parriesPerfeitos, stats_maiorDanoCausado);
+                                itensObtidos, inimigosDerrotados, stats_parriesPerfeitos, stats_maiorDanoCausado, stats_parriesTentados, stats_parriesEfetivos, stats_itensConsumidos, stats_novasDescobertas);
         } else {
             ui->exibirTelaDerrota(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido, totalDeDanoCausado, totalDeDanoRecebido, jogadorAtual->obterCuraTotalRecebida(), contadorDoTurnoAtual); 
         }

@@ -1,4 +1,5 @@
 #include "Mapa4Reino.h"
+#include "../../Core/Controladores/Debug.h"
 #include "Mapa4ReinoLayout.h"
 #include "../../Core/Controladores/MenuJogo.h"
 #include "../../Core/Utilidades/Aparencia.h"
@@ -46,9 +47,9 @@ ProximaTransicaoMapa Mapa4Reino::iniciarLoopDeExploracao()
 
     auto formatador = [&](char celula, int x, int y) -> std::string {
         if (x == posicaoXDoJogador && y == posicaoYDoJogador) {
-            char ic = jogadorAtual->obterIconeJogador();
+            char ic = Aparencia::iconeJogadorPersonalizado;
             if (ic <= 32 || ic > 126) ic = '@'; // Garante caractere visivel
-            return Aparencia::cor(jogadorAtual->obterCorJogador()) + std::string(1, ic) + Aparencia::cor(Cor::RESET);
+            return Aparencia::cor(Aparencia::corJogadorPersonalizada) + std::string(1, ic) + Aparencia::cor(Cor::RESET);
         }
         return ControleMapa::formatarCelula(celula, x, y, tituloDoMapaAtual, matrizDoMapaAtual, false);
     };
@@ -209,7 +210,7 @@ ProximaTransicaoMapa Mapa4Reino::iniciarLoopDeExploracao()
         auto it = interacoes.find(celulaDestino);
         if (it != interacoes.end()) {
             it->second(px, py, larg);
-        } else if ((celulaDestino != '*' && celulaDestino != '#' && celulaDestino != '=' && celulaDestino != '|' && celulaDestino != '[' && celulaDestino != ']' && celulaDestino != ' ') || jogadorAtual->isNoclip()) {
+        } else if ((celulaDestino != '*' && celulaDestino != '#' && celulaDestino != '=' && celulaDestino != '|' && celulaDestino != '[' && celulaDestino != ']' && celulaDestino != ' ') || Debug::isNoclipAtivo) {
             posicaoXDoJogador = px;
             posicaoYDoJogador = py;
             

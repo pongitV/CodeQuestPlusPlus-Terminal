@@ -57,7 +57,7 @@ int TelaPauseIDE::renderizarMenuAparencia(Personagem* jogador) {
     std::cout << "\n";
 
     std::string corAtualStr;
-    switch (jogador->obterCorJogador()) {
+    switch (Aparencia::corJogadorPersonalizada) {
         case Cor::VERDE: corAtualStr = Aparencia::cor(Cor::VERDE) + "Verde" + Aparencia::cor(Cor::RESET); break;
         case Cor::AZUL: corAtualStr = Aparencia::cor(Cor::AZUL) + "Azul" + Aparencia::cor(Cor::RESET); break;
         case Cor::AMARELO: corAtualStr = Aparencia::cor(Cor::AMARELO) + "Amarelo" + Aparencia::cor(Cor::RESET); break;
@@ -70,7 +70,7 @@ int TelaPauseIDE::renderizarMenuAparencia(Personagem* jogador) {
 
     std::vector<std::string> opcoesAparencia = {
         "Cor do Jogador: " + corAtualStr,
-        "Icone do Jogador: " + Aparencia::cor(jogador->obterCorJogador()) + std::string(1, jogador->obterIconeJogador()) + Aparencia::cor(Cor::RESET),
+        "Icone do Jogador: " + Aparencia::cor(Aparencia::corJogadorPersonalizada) + std::string(1, Aparencia::iconeJogadorPersonalizado) + Aparencia::cor(Cor::RESET),
         "Voltar"
     };
 

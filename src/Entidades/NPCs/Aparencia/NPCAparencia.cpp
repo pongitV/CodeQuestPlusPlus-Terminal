@@ -175,7 +175,7 @@ void NPCAparencia::processarOpcao(Personagem* jogador, const std::string& opcao,
 
             std::vector<std::string> opcoesMenu;
             for (const auto& ic : iconesDisponiveis) {
-                std::string status = (jogador->obterIconeJogador() == ic.second) ? " (Equipado)" : "";
+                std::string status = (Aparencia::iconeJogadorPersonalizado == ic.second) ? " (Equipado)" : "";
                 opcoesMenu.push_back(ic.first + status);
             }
             opcoesMenu.push_back("Voltar");
@@ -187,7 +187,7 @@ void NPCAparencia::processarOpcao(Personagem* jogador, const std::string& opcao,
             );
 
             if (escolha >= 0 && escolha < (int)iconesDisponiveis.size()) {
-                jogador->definirIconeJogador(iconesDisponiveis[escolha].second);
+                Aparencia::iconeJogadorPersonalizado = iconesDisponiveis[escolha].second;
                 Aparencia::exibirPopup("ICONE ALTERADO", {"Icone alterado com sucesso para: " + iconesDisponiveis[escolha].first}, Cor::MARROM_CLARO, obterArteASCII());
             }
         }
@@ -214,7 +214,7 @@ void NPCAparencia::processarOpcao(Personagem* jogador, const std::string& opcao,
 
             std::vector<std::string> opcoesMenu;
             for (const auto& c : coresDisponiveis) {
-                std::string status = (jogador->obterCorFundoTerminal() == c.second) ? " (Equipado)" : "";
+                std::string status = (Aparencia::corFundoAtiva == c.second) ? " (Equipado)" : "";
                 opcoesMenu.push_back(c.first + status);
             }
             opcoesMenu.push_back("Voltar");
@@ -226,7 +226,7 @@ void NPCAparencia::processarOpcao(Personagem* jogador, const std::string& opcao,
             );
 
             if (escolha >= 0 && escolha < (int)coresDisponiveis.size()) {
-                jogador->definirCorFundoTerminal(coresDisponiveis[escolha].second);
+                Aparencia::corFundoAtiva = coresDisponiveis[escolha].second;
                 Aparencia::limparTela(); // Limpa e redesenha a tela inteira para aplicar a cor de fundo
                 Aparencia::exibirPopup("COR ALTERADA", {"Cor de fundo alterada com sucesso!"}, Cor::MARROM_CLARO, obterArteASCII());
             }
