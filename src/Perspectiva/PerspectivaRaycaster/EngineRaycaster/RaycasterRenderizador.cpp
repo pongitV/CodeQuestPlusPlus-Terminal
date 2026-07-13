@@ -1,4 +1,5 @@
 #include "RaycasterRenderizador.h"
+#include "GerenciadorTexturas.h"
 #include "RaycasterMundo.h"
 #include <cmath>
 #include <algorithm>
@@ -72,6 +73,7 @@ struct EntidadeAtingida {
 };
 
 void RaycasterRenderizador::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA, int ALTURA_TELA, float jogadorX, float jogadorY, float anguloVisao, float horizonte, int bobbingOffset, float profundidadeMaxima, float tempoAbsoluto, const vector<string>& matrizDoMapa, const string& tituloMapa, bool temaFloresta, int temaCeu, const map<char, SpriteCache>& cacheSprites) {
+    GerenciadorTexturas::inicializar();
     float campoVisao = 3.14159f / 4.0f; // FOV 45 graus
     int larguraMapa = matrizDoMapa.empty() ? 0 : matrizDoMapa[0].size();
     int alturaMapa = matrizDoMapa.size();
@@ -126,13 +128,13 @@ void RaycasterRenderizador::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA
 
     int numThreads = std::thread::hardware_concurrency();
     if (numThreads == 0) numThreads = 4;
-    int chunkSize = LARGURA_TELA / numThreads;
+    int chunkSize = 16;
+    int numChunks = (LARGURA_TELA + chunkSize - 1) / chunkSize;
     std::vector<std::function<void()>> tasks;
 
-    for (int i = 0; i < numThreads; i++) {
+    for (int i = 0; i < numChunks; i++) {
         int startX = i * chunkSize;
-        int endX = (i == numThreads - 1) ? LARGURA_TELA : startX + chunkSize;
-        
+        int endX = std::min(startX + chunkSize, LARGURA_TELA);
         tasks.push_back([&, startX, endX]() {
             for (int x = startX; x < endX; x++) {
         float raioAngulo = (anguloVisao - campoVisao / 2.0f) + ((float)x / (float)LARGURA_TELA) * campoVisao;
@@ -255,6 +257,7 @@ void RaycasterRenderizador::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA
         }
 
         auto drawIndoorCeiling = [&](int screenY, float currentX, float currentY, float currentDist) {
+            (void)screenY;
             float fractX = currentX - std::floor(currentX);
             float fractY = currentY - std::floor(currentY);
             char charTeto = '#';
@@ -262,52 +265,61 @@ void RaycasterRenderizador::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA
             return RaycasterMundo::obterPixelParede(tituloMapa, temaFloresta, currentDist, profundidadeMaxima, charTeto, (int)(fractY * 1000.0f), 0, 1000, fractX, tempoAbsoluto, false, infoLuzTeto, currentX, currentY, ' ', 0.0f, 0.0f);
         };
 
-        for (int y = 0; y < ALTURA_TELA; y++) {
-            bool drawFloor = false;
-
-            if (y < teto) {
-                if (temaCeu == 3) {
-                    float currentDist = factorDist / ((float)horizonte - y);
-                    float currentX = jogadorX + olhoX * currentDist;
-                    float currentY = jogadorY + olhoY * currentDist;
-                    tela[y * LARGURA_TELA + x] = drawIndoorCeiling(y, currentX, currentY, currentDist);
-                } else {
-                    tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(temaCeu, raioAngulo, anguloCeu, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
-                }
-            } else if (y >= teto && y <= chao) {
-                Pixel3D pixel = RaycasterMundo::obterPixelParede(tituloMapa, temaFloresta, perpWallDist, profundidadeMaxima, charParede, y, teto, chao, texXParede, tempoAbsoluto, isSideWall, infoLuzParede, hitX, hitY, npcEncontradoNaColuna, (float)nx, (float)ny);
-                if (pixel.isFundo) {
-                    if (y <= horizonte) {
-                        if (temaCeu == 3) {
-                            float currentDist = factorDist / ((float)horizonte - y);
-                            float currentX = jogadorX + olhoX * currentDist;
-                            float currentY = jogadorY + olhoY * currentDist;
-                            tela[y * LARGURA_TELA + x] = drawIndoorCeiling(y, currentX, currentY, currentDist);
-                        } else {
-                            tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(temaCeu, raioAngulo, anguloCeu, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
-                        }
-                    }
-                    else drawFloor = true;
-                } else {
-                    tela[y * LARGURA_TELA + x] = pixel;
-                }
-            } else {
-                drawFloor = true;
-            }
-
-            if (drawFloor) {
-                if (y == horizonte) continue; // Previne Divisao Por Zero (Inf/NaN) na FPU, que causa gargalo de hardware!
-                float currentDist = factorDist / ((float)y - horizonte);
+        int startY = 0;
+        int endTeto = std::min(teto, ALTURA_TELA);
+        for (int y = startY; y < endTeto; y++) {
+            if (temaCeu == 3) {
+                float currentDist = factorDist / ((float)horizonte - y);
                 float currentX = jogadorX + olhoX * currentDist;
                 float currentY = jogadorY + olhoY * currentDist;
-                char floorChar = '.';
-                if (currentX >= 0 && currentX < larguraMapa && currentY >= 0 && currentY < alturaMapa) {
-                    floorChar = matrizDoMapa[(int)currentY][(int)currentX];
-                }
-                if (floorChar == '~') tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelAgua(currentX, currentY, currentDist, profundidadeMaxima, raioAngulo, tempoAbsoluto, temaCeu);
-                else tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelChao(tituloMapa, currentX, currentY, currentDist, profundidadeMaxima, luzes, &matrizDoMapa, tempoAbsoluto);
+                tela[y * LARGURA_TELA + x] = drawIndoorCeiling(y, currentX, currentY, currentDist);
+            } else {
+                tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(temaCeu, raioAngulo, anguloCeu, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
             }
-            } // for y
+        }
+        
+        int startParede = std::max(0, teto);
+        int endParede = std::min(chao, ALTURA_TELA - 1);
+        for (int y = startParede; y <= endParede; y++) {
+            Pixel3D pixel = RaycasterMundo::obterPixelParede(tituloMapa, temaFloresta, perpWallDist, profundidadeMaxima, charParede, y, teto, chao, texXParede, tempoAbsoluto, isSideWall, infoLuzParede, hitX, hitY, npcEncontradoNaColuna, (float)nx, (float)ny);
+            if (pixel.isFundo) {
+                if (y <= horizonte) {
+                    if (temaCeu == 3) {
+                        float currentDist = factorDist / ((float)horizonte - y);
+                        float currentX = jogadorX + olhoX * currentDist;
+                        float currentY = jogadorY + olhoY * currentDist;
+                        tela[y * LARGURA_TELA + x] = drawIndoorCeiling(y, currentX, currentY, currentDist);
+                    } else {
+                        tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelTeto(temaCeu, raioAngulo, anguloCeu, y - bobbingOffset, ALTURA_TELA, tempoAbsoluto);
+                    }
+                } else {
+                    float currentDist = factorDist / ((float)y - horizonte);
+                    float currentX = jogadorX + olhoX * currentDist;
+                    float currentY = jogadorY + olhoY * currentDist;
+                    char floorChar = '.';
+                    if (currentX >= 0 && currentX < larguraMapa && currentY >= 0 && currentY < alturaMapa) {
+                        floorChar = matrizDoMapa[(int)currentY][(int)currentX];
+                    }
+                    if (floorChar == '~') tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelAgua(currentX, currentY, currentDist, profundidadeMaxima, raioAngulo, tempoAbsoluto, temaCeu);
+                    else tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelChao(tituloMapa, currentX, currentY, currentDist, profundidadeMaxima, luzes, &matrizDoMapa, tempoAbsoluto);
+                }
+            } else {
+                tela[y * LARGURA_TELA + x] = pixel;
+            }
+        }
+        
+        int startChao = std::max((int)horizonte + 1, endParede + 1);
+        for (int y = startChao; y < ALTURA_TELA; y++) {
+            float currentDist = factorDist / ((float)y - horizonte);
+            float currentX = jogadorX + olhoX * currentDist;
+            float currentY = jogadorY + olhoY * currentDist;
+            char floorChar = '.';
+            if (currentX >= 0 && currentX < larguraMapa && currentY >= 0 && currentY < alturaMapa) {
+                floorChar = matrizDoMapa[(int)currentY][(int)currentX];
+            }
+            if (floorChar == '~') tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelAgua(currentX, currentY, currentDist, profundidadeMaxima, raioAngulo, tempoAbsoluto, temaCeu);
+            else tela[y * LARGURA_TELA + x] = RaycasterMundo::obterPixelChao(tituloMapa, currentX, currentY, currentDist, profundidadeMaxima, luzes, &matrizDoMapa, tempoAbsoluto);
+        }
         } // for x
         }); // lambda
     } // for i (tasks)
@@ -415,7 +427,7 @@ void RaycasterRenderizador::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA
                             px.isFundo = false;
 
                             if (spix.ch == ' ' && isAnimated) {
-                                float wave = sinf(tempoAbsoluto * 6.0f + y * 0.2f + texX * 0.2f);
+                                float wave = GerenciadorTexturas::fastSin(tempoAbsoluto * 6.0f + y * 0.2f + texX * 0.2f);
                                 px.r = static_cast<uint8_t>(210 + (int)(wave * 45));
                                 px.g = static_cast<uint8_t>(190 + (int)(wave * 65));
                                 px.b = 255;

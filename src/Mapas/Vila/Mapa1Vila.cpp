@@ -172,8 +172,8 @@ namespace {
                 ctx.self->tituloDoMapaAtual = "VILA INICIAL";
                 if (!ControleMapa::isExploracao3DAtiva()) ctx.restaurarTela();
             }
-            // 3. Voltar para a Vila Inicial a partir do Caminho do Inicio (X=54, Y=7)
-            else if (px == 54 && py == 7 && ctx.self->tituloDoMapaAtual == "CAMINHO DO INICIO") {
+            // 3. Voltar para a Vila Inicial a partir do Caminho do Inicio (X=54, Y=7 ou Y=6)
+            else if (px == 54 && (py == 7 || py == 6) && ctx.self->tituloDoMapaAtual == "CAMINHO DO INICIO") {
                 ctx.self->matrizDoMapaDoSpawnSalva = ctx.self->matrizDoMapaAtual;
                 ctx.self->matrizDoMapaAtual = ctx.self->matrizDoMapaPrincipalSalva;
                 CarregadorMapa::padronizarTamanhoDoMapa(ctx.self->matrizDoMapaAtual);

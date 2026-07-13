@@ -1,4 +1,5 @@
 #include "RaycasterMundo.h"
+#include "GerenciadorTexturas.h"
 #include "CacheMapa.h"
 #include "Iluminador.h"
 #include <algorithm>
@@ -159,10 +160,8 @@ bool RaycasterMundo::isMapLabel(int mapX, int mapY, const std::vector<std::strin
 }
 
 Pixel3D RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMapa, bool temaFloresta, float distanciaAteParede, float profundidadeMaxima, char charParede, int y, int teto, int chao, float texX, float tempoAnimacao, const Iluminador::InfoLuz& infoLuz, float hitX, float hitY, bool isSideWall, char npcEncontrado, float nx, float ny) {
+    (void)isSideWall; (void)distanciaAteParede; (void)profundidadeMaxima; (void)tempoAnimacao;
     const auto& flags = obterFlagsMapa(tituloMapa);
-    int temaCeu = flags.temaCeu;
-    int baseR=0, baseG=0, baseB=0;
-
     int alturaParede = chao - teto;
     
     float texY = 0.0f;
@@ -172,573 +171,74 @@ Pixel3D RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMapa, 
     int ty = (int)(texY * 64.0f) % 64;
 
     bool isReino = flags.isReino;
-
     bool isEstrutura = (charParede == '|' || charParede == '_' || charParede == '[' || charParede == ']' || charParede == '{' || charParede == '}' || charParede == '/' || charParede == '\\' || charParede == '<' || charParede == '>' || charParede == ';' || charParede == '=' || charParede == '-' || charParede == ':' || charParede == '+');
-
     bool isLabyrinthArch = (!isReino && temaFloresta && charParede == '#' && hitX >= 125.0f && hitX <= 150.0f && hitY >= 5.0f && hitY <= 15.0f);
 
-    if (flags.isLabirinto) {
-        bool isWoodBase = (ty > 54);
-        bool isWoodenPillar = (tx % 32 < 4);
-        bool isWoodenFrameX = (tx % 16 < 2);
-        bool isWoodenFrameY = (ty % 16 < 2);
+    TexID texID = TexID::ParedeInvalida;
 
-        if (isWoodBase || isWoodenPillar || isWoodenFrameX || isWoodenFrameY) {
-            baseR = 70; baseG = 40; baseB = 20;
-        } else {
-            baseR = 235; baseG = 220; baseB = 190;
-        }
+    if (flags.isLabirinto) {
+        texID = TexID::LabirintoMadeira;
     } else if (isLabyrinthArch) {
         int mapX = (int)hitX;
         int mapY = (int)hitY;
-
         bool isPilar = (std::abs(mapY - 12) == 1 && mapX >= 132 && mapX <= 136);
-
-        if (isPilar) {
-            int shadow = (tx % 32 < 8 || tx % 32 > 24) ? -20 : 20;
-            baseR = 130 + shadow; baseG = 130 + shadow; baseB = 120 + shadow;
-            
-            // Rachaduras no pilar
-            bool isRachadura = ((tx * 13 + ty * 7) % 31) < 2 || ((tx * 5 + ty * 11) % 47) < 2;
-            if (isRachadura) {
-                baseR = 40; baseG = 40; baseB = 40;
+        if (isPilar) texID = TexID::LabirintoArcoPilar;
+        else texID = TexID::LabirintoArcoFundo;
+    } else if (isEstrutura && npcEncontrado == 'M') {
+        texID = TexID::MorganaMadeira;
+    } else if (isReino && (isEstrutura || charParede == '#')) {
+        if (charParede == '|') {
+            if (flags.tituloUpper.find("IGREJA") != std::string::npos) texID = TexID::IgrejaVitral;
+            else if (flags.tituloUpper.find("PONTE") != std::string::npos) texID = TexID::PonteMadeira;
+            else {
+                if (npcEncontrado == 'Q') texID = TexID::Alquimista;
+                else if (npcEncontrado == 'I' || npcEncontrado == 'P') texID = TexID::EntradaIgreja;
+                else if (npcEncontrado == 'A') texID = TexID::ManequimAnok;
+                else if (npcEncontrado == 'F') texID = TexID::Franchesco;
+                else if (npcEncontrado == 'B') texID = TexID::Bjorn;
+                else texID = TexID::ReinoMadeira;
             }
         } else {
-            bool isJunta = (ty % 4 == 0) || (((ty / 4) % 2 == 0) && tx % 8 == 0) || (((ty / 4) % 2 == 1) && (tx + 4) % 8 == 0); 
-            if (isJunta) {
-                baseR = 60; baseG = 60; baseB = 60;
-            } else {
-                bool hasGrain = ((tx * 7 + ty * 13) % 10) < 3;
-                if (hasGrain) {
-                    baseR = 100; baseG = 100; baseB = 100;
-                } else {
-                    baseR = 115; baseG = 115; baseB = 115;
-                }
-            }
-        }
-    } else if (isEstrutura && npcEncontrado == 'M') {
-        // Morgana ('M') -> Cabana de madeira escura com pequenos cogumelos
-        // Fundo de madeira escura e visivelmente marrom
-        bool isTabua = (tx % 10 == 0);
-        if (isTabua) { 
-            baseR = 65; baseG = 35; baseB = 15; 
-        } else { 
-            bool hasGrain = ((tx * 3 + ty * 7) % 5) == 0;
-            if (hasGrain) {
-                baseR = 90; baseG = 45; baseB = 20;
-            } else {
-                baseR = 75; baseG = 38; baseB = 18;
-            }
-        }
-
-        // Pequenos cogumelos espalhados na base da parede
-        if (ty >= 50 && ty <= 60) {
-            int posCogumeloX = ((ty * 13) % 64);
-            if (std::abs(tx - posCogumeloX) < 3) {
-                if (ty < 54) { // Chapéu do cogumelo
-                    baseR = 150; baseG = 30; baseB = 150; // Roxo místico
-                    if ((tx + ty) % 2 == 0) { // Pontinhos brilhantes
-                        baseR = 200; baseG = 100; baseB = 255;
-                    }
-                } else { // Caule
-                    baseR = 180; baseG = 180; baseB = 150;
-                }
-            }
-        }
-    }
-    else if (isReino && (isEstrutura || charParede == '#')) {
-        if (charParede == '|') {
-            // Se estivermos dentro da Igreja (submapa da Igreja)
             if (flags.tituloUpper.find("IGREJA") != std::string::npos) {
-                // Vitrais geométricos coloridos da igreja
-                bool isVitral = (tx % 32 >= 8 && tx % 32 <= 24 && ty >= 12 && ty <= 52);
-                if (isVitral) {
-                    int padrao = (tx / 4 + ty / 4) % 4;
-                    if (padrao == 0) { baseR = 230; baseG = 30; baseB = 30; }
-                    else if (padrao == 1) { baseR = 30; baseG = 120; baseB = 230; }
-                    else if (padrao == 2) { baseR = 230; baseG = 200; baseB = 20; }
-                    else { baseR = 30; baseG = 200; baseB = 100; }
-                } else {
-                    baseR = 210; baseG = 205; baseB = 195; // Mármore claro
-                }
-            }
-            // Se estivermos na Ponte do Reino (Mapa 3) -> Sempre Madeira Pura
-            else if (flags.tituloUpper.find("PONTE") != std::string::npos) {
-                bool isTabua = (tx % 8 == 0); 
-                if (isTabua) {
-                    baseR = 45; baseG = 25; baseB = 10;
-                } else {
-                    bool hasGrain = ((tx * 3 + ty * 7) % 5) == 0;
-                    if (hasGrain) {
-                        baseR = 80; baseG = 50; baseB = 20;
-                    } else {
-                        baseR = 101; baseG = 67; baseB = 33;
-                    }
-                }
-            }
-            // Outros mapas (PATIO DO REINO, Vila, etc.)
-            else {
-
-                // Em volta do Alquimista ('Q') -> Prateleiras de poções
-                if (npcEncontrado == 'Q') {
-                    bool isPrateleira = (ty == 12 || ty == 28 || ty == 44);
-                    if (isPrateleira) {
-                        baseR = 80; baseG = 40; baseB = 15;
-                    } else {
-                        int vidroCol = (tx % 12);
-                        if (vidroCol >= 3 && vidroCol <= 8 && ((ty % 16) > 4 && (ty % 16) < 12)) {
-                            int corPocao = (tx / 12) % 3;
-                            if (corPocao == 0) { baseR = 0; baseG = 220; baseB = 255; }
-                            else if (corPocao == 1) { baseR = 255; baseG = 0; baseB = 128; }
-                            else { baseR = 50; baseG = 255; baseB = 50; }
-                        } else {
-                            baseR = 40; baseG = 30; baseB = 20;
-                        }
-                    }
-                }
-                // Em volta da Igreja ('I' ou 'P') -> Entrada da Igreja (Mármore e porta de madeira com arco)
-                else if (npcEncontrado == 'I' || npcEncontrado == 'P') {
-                    // Pilares de mármore nas bordas
-                    if (tx < 8 || tx > 55) {
-                        baseR = 210; baseG = 205; baseB = 195;
-                    } 
-                    // Arco de pedra sobre a porta
-                    else if (ty < 16) {
-                        // Formato de arco
-                        float arcX = (tx - 32.0f) / 24.0f;
-                        float arcY = (ty - 16.0f) / 16.0f;
-                        if (arcX*arcX + arcY*arcY > 1.0f) {
-                            baseR = 190; baseG = 185; baseB = 175; // Pedra do arco
-                        } else {
-                            // Vitral acima da porta (meio círculo)
-                            int padrao = (tx / 4 + ty / 4) % 3;
-                            if (padrao == 0) { baseR = 230; baseG = 30; baseB = 30; }
-                            else if (padrao == 1) { baseR = 30; baseG = 120; baseB = 230; }
-                            else { baseR = 230; baseG = 200; baseB = 20; }
-                        }
-                    }
-                    // Porta dupla de madeira pesada
-                    else {
-                        // Linha no meio dividindo as portas
-                        if (tx >= 31 && tx <= 32) {
-                            baseR = 20; baseG = 10; baseB = 5;
-                        } 
-                        // Dobradiças/maçanetas de ferro/ouro
-                        else if (ty >= 38 && ty <= 42 && (tx == 28 || tx == 36)) {
-                            baseR = 218; baseG = 165; baseB = 32; // Ouro
-                        }
-                        // Madeira escura da porta
-                        else {
-                            bool isVerticalLine = (tx % 4 == 0);
-                            if (isVerticalLine) {
-                                baseR = 40; baseG = 20; baseB = 10;
-                            } else {
-                                baseR = 60; baseG = 30; baseB = 15;
-                            }
-                        }
-                    }
-                }
-                // Anok ('A') -> Manequins detalhados com manto degradê e pedestal (Mantido perfeito)
-                else if (npcEncontrado == 'A') {
-                    // Fundo de madeira elegante do ateliê
-                    bool isVerticalJoint = (tx == 0 || tx == 63);
-                    bool isHorizontalJoint = (ty % 16 == 0);
-                    if (isVerticalJoint || isHorizontalJoint) {
-                        baseR = 50; baseG = 30; baseB = 15;
-                    } else {
-                        int grain = (tx * 3 + ty * 7) % 8;
-                        baseR = 110 - grain * 2;
-                        baseG = 75 - grain;
-                        baseB = 45;
-                    }
-
-                    // Cabeça do manequim (elipsoide no topo central)
-                    float dx = (tx - 31.5f) / 4.0f;
-                    float dy = (ty - 10.5f) / 5.0f;
-                    if (dx*dx + dy*dy <= 1.0f) {
-                        baseR = 222; baseG = 184; baseB = 135; // Madeira clara/polida
-                    }
-                    // Pescoço
-                    else if (tx >= 30 && tx <= 33 && ty >= 13 && ty <= 15) {
-                        baseR = 202; baseG = 164; baseB = 115;
-                    }
-                    // Corpo vestido com Manto Real
-                    else if (ty >= 16 && ty <= 45) {
-                        int larguraVestido = 10;
-                        if (ty <= 22) {
-                            larguraVestido = 12 - (ty - 16); // Ombros
-                        } else if (ty <= 30) {
-                            larguraVestido = 6 + (ty - 22) / 2; // Cintura fina
-                        } else {
-                            larguraVestido = 10 + (ty - 30) / 2; // Saia do manto
-                        }
-                        
-                        if (tx >= 32 - larguraVestido && tx <= 32 + larguraVestido) {
-                            // Cinto dourado
-                            if (ty >= 28 && ty <= 30) {
-                                baseR = 218; baseG = 165; baseB = 32;
-                            } 
-                            // Colarinho gola dourada
-                            else if (ty >= 16 && ty <= 18 && tx >= 27 && tx <= 37) {
-                                baseR = 218; baseG = 165; baseB = 32;
-                            }
-                            // Tecido carmesim com relevos verticais
-                            else {
-                                int dobra = (tx % 6 < 3) ? 20 : 0;
-                                baseR = 160 + dobra - (ty - 16);
-                                baseG = 20;
-                                baseB = 40;
-                            }
-                        }
-                    }
-                    // Haste preta/metálica do pedestal
-                    else if (tx >= 30 && tx <= 33 && ty > 45 && ty <= 56) {
-                        baseR = 80; baseG = 80; baseB = 80;
-                    }
-                    // Base de madeira escura do pedestal
-                    else if (ty > 56 && ty <= 62) {
-                        int largBase = (ty - 56) * 3;
-                        if (tx >= 32 - largBase && tx <= 32 + largBase) {
-                            baseR = 50; baseG = 25; baseB = 10;
-                        }
-                    }
-                }
-                else if (npcEncontrado == 'F') {
-                    bool isPrateleira = (ty == 16 || ty == 32 || ty == 48);
-                    if (isPrateleira) {
-                        baseR = 60; baseG = 35; baseB = 15; // Madeira da prateleira
-                    } else if (ty > 16 && ty < 24 && (tx % 16 > 2 && tx % 16 < 14)) { // Livros/Caixas
-                        baseR = 120; baseG = 40; baseB = 40; // Vermelho
-                        if (tx % 4 == 0) { baseR = 200; baseG = 180; baseB = 120; } // Páginas/Detalhes
-                    } else if (ty > 32 && ty < 40 && (tx % 12 > 2 && tx % 12 < 10)) { // Sacos de ouro/itens
-                        baseR = 160; baseG = 140; baseB = 100; // Tecido cru
-                        if (ty < 35) { baseR = 100; baseG = 80; baseB = 50; } // Corda de amarração
-                    } else if (ty > 48 && ty < 56 && (tx % 20 > 4 && tx % 20 < 16)) { // Baús pequenos
-                        baseR = 100; baseG = 60; baseB = 20; // Madeira
-                        if (tx % 20 < 6 || tx % 20 > 14 || ty == 52) { baseR = 80; baseG = 80; baseB = 80; } // Ferro do baú
-                    } else {
-                        // Fundo da parede de madeira
-                        bool isTabua = (tx % 8 == 0); 
-                        if (isTabua) { baseR = 40; baseG = 20; baseB = 10; }
-                        else { baseR = 50; baseG = 30; baseB = 15; }
-                    }
-                }
-                // Bjorn ('B') -> Fundo com bigorna, espadas, machados e arcos
-                else if (npcEncontrado == 'B') {
-                    // Fundo da parede (madeira rústica)
-                    bool isTabua = (tx % 16 == 0); 
-                    if (isTabua) { baseR = 35; baseG = 20; baseB = 10; }
-                    else { baseR = 45; baseG = 25; baseB = 15; }
-
-                    // Espada na esquerda (tx=8 a 12, ty=10 a 40)
-                    if (tx >= 8 && tx <= 12 && ty >= 10 && ty <= 40) {
-                        if (tx == 10 && ty >= 10 && ty <= 30) { baseR = 190; baseG = 195; baseB = 200; } // Lâmina
-                        else if (ty >= 30 && ty <= 32 && tx >= 8 && tx <= 12) { baseR = 150; baseG = 130; baseB = 40; } // Guarda de bronze
-                        else if (tx == 10 && ty > 32 && ty <= 38) { baseR = 80; baseG = 40; baseB = 10; } // Cabo de couro
-                        else if (tx == 10 && ty > 38 && ty <= 40) { baseR = 150; baseG = 130; baseB = 40; } // Pomo
-                    }
-                    // Machado na direita (tx=52 a 58, ty=15 a 45)
-                    else if (tx >= 52 && tx <= 58 && ty >= 15 && ty <= 45) {
-                        if (tx == 55 && ty >= 15 && ty <= 45) { baseR = 80; baseG = 50; baseB = 20; } // Cabo de madeira
-                        else if (ty >= 18 && ty <= 26 && tx >= 52 && tx <= 58) {
-                            if (tx < 55) { baseR = 180; baseG = 180; baseB = 185; } // Lâmina do machado
-                        }
-                    }
-                    // Arco no topo (curva ty = 10 a 20, tx = 20 a 44)
-                    else if (ty >= 10 && ty <= 22 && tx >= 20 && tx <= 44) {
-                        float dx = (tx - 32.0f) / 12.0f;
-                        float dy = (ty - 16.0f) / 6.0f;
-                        if (dx*dx + dy*dy > 0.8f && dx*dx + dy*dy < 1.2f && ty < 16) {
-                            baseR = 120; baseG = 70; baseB = 30; // Arco de madeira
-                        }
-                        if (ty == 16 && tx >= 20 && tx <= 44) {
-                            baseR = 200; baseG = 200; baseB = 200; // Corda do arco
-                        }
-                    }
-                    // Bigorna no centro-inferior (tx = 22 a 42, ty = 48 a 62)
-                    else if (tx >= 22 && tx <= 42 && ty >= 48 && ty <= 62) {
-                        if (ty >= 48 && ty <= 52 && tx >= 22 && tx <= 42) {
-                            baseR = 70; baseG = 70; baseB = 75; // Topo da bigorna (largo)
-                        } else if (ty > 52 && ty <= 58 && tx >= 28 && tx <= 36) {
-                            baseR = 60; baseG = 60; baseB = 65; // Corpo da bigorna (estreito)
-                        } else if (ty > 58 && ty <= 62 && tx >= 26 && tx <= 38) {
-                            baseR = 50; baseG = 50; baseB = 55; // Base da bigorna
-                        }
-                    }
-                }
-
-                // Demais NPCs -> Madeira Pura
-                else {
-                    bool isTabua = (tx % 8 == 0); 
-                    if (isTabua) {
-                        baseR = 45; baseG = 25; baseB = 10;
-                    } else {
-                        bool hasGrain = ((tx * 3 + ty * 7) % 5) == 0;
-                        if (hasGrain) {
-                            baseR = 80; baseG = 50; baseB = 20;
-                        } else {
-                            baseR = 101; baseG = 67; baseB = 33;
-                        }
-                    }
-                }
-            }
-        }
-        // Se for pedra (#) ou outra estrutura
-        else {
-            if (flags.tituloUpper.find("IGREJA") != std::string::npos) {
-                if (hitX < 10.0f) {
-                    // Altar de ouro brilhante
-                    baseR = 255; baseG = 215; baseB = 0;
-                    if ((tx + ty) % 4 == 0) {
-                        baseR = 255; baseG = 240; baseB = 150;
-                    }
-                } else {
-                    // Vitrais coloridos
-                    bool isVitral = (tx % 32 >= 8 && tx % 32 <= 24 && ty >= 12 && ty <= 52);
-                    if (isVitral) {
-                        int padrao = (tx / 4 + ty / 4) % 4;
-                        if (padrao == 0) { baseR = 230; baseG = 30; baseB = 30; }
-                        else if (padrao == 1) { baseR = 30; baseG = 120; baseB = 230; }
-                        else if (padrao == 2) { baseR = 230; baseG = 200; baseB = 20; }
-                        else { baseR = 30; baseG = 200; baseB = 100; }
-                    } else {
-                        baseR = 80; baseG = 80; baseB = 85;
-                    }
-                }
+                if (hitX < 10.0f) texID = TexID::IgrejaAltar;
+                else texID = TexID::IgrejaParede;
             } else {
-                // Muros de pedra do PATIO DO REINO normais (incluindo pilares e colunas centrais)
                 bool isBattlementGap = (ty < 12 && (tx % 32) >= 16);
                 if (isBattlementGap) {
                     Pixel3D px;
                     px.isFundo = true;
                     return px;
                 }
-                bool isJunta = (ty % 4 == 0) || (((ty / 4) % 2 == 0) && tx % 8 == 0) || (((ty / 4) % 2 == 1) && (tx + 4) % 8 == 0); 
-                if (isJunta) {
-                    baseR = 60; baseG = 60; baseB = 60;
-                } else {
-                    bool hasGrain = ((tx * 7 + ty * 13) % 10) < 3;
-                    if (hasGrain) {
-                        baseR = 100; baseG = 100; baseB = 100;
-                    } else {
-                        baseR = 120; baseG = 120; baseB = 120;
-                    }
-                }
+                texID = TexID::PatioMuro;
             }
         }
     } else if (isEstrutura) {
-        if (temaFloresta) {
-            bool isTabua = (tx % 8 == 0); 
-            if (isTabua) {
-                baseR = 45; baseG = 25; baseB = 10;
-            } else {
-                bool hasGrain = ((tx * 3 + ty * 7) % 5) == 0;
-                if (hasGrain) {
-                    baseR = 80; baseG = 50; baseB = 20;
-                } else {
-                    baseR = 101; baseG = 67; baseB = 33;
-                }
-            }
-            
-            bool isCogumelo = ((tx * 11 + ty * 13) % 47) < 2;
-            if (isCogumelo) {
-                baseR = 255; baseG = 50; baseB = 50; // Cogumelos vermelhos
-            } else if (((tx * 17 + ty * 19) % 53) < 2) {
-                baseR = 200; baseG = 200; baseB = 255; // Cogumelos azulados/brancos
-            }
-        } else {
-            bool isJunta = (ty % 4 == 0) || (((ty / 4) % 2 == 0) && tx % 8 == 0) || (((ty / 4) % 2 == 1) && (tx + 4) % 8 == 0); 
-            if (isJunta) {
-                baseR = 120; baseG = 120; baseB = 120;
-            } else {
-                bool hasGrain = ((tx * 7 + ty * 13) % 10) < 3;
-                if (hasGrain) {
-                    baseR = 140; baseG = 50; baseB = 30;
-                } else {
-                    baseR = 160; baseG = 60; baseB = 40;
-                }
-            }
-        }
+        if (temaFloresta) texID = TexID::FlorestaEstrutura;
+        else texID = TexID::PadraoEstrutura;
     } else if (!isReino && temaFloresta && charParede == 'T') {
-        bool isCoracao = flags.tituloUpper.find("CORACAO") != std::string::npos;
-        if (isCoracao) {
-            // Troncos contorcidos com musgo espalhado
-            float cx = (tx - 32.0f);
-            float cy = (ty - 32.0f);
-            float dist = std::sqrt(cx*cx + cy*cy);
-            float angle = std::atan2(cy, cx);
-            float spiral = std::sin(dist * 0.2f + angle * 4.0f + tx * 0.1f);
-            
-            bool hasMoss = ((tx * 17 + ty * 13) % 100) < 20 || (spiral > 0.8f);
-            
-            if (hasMoss) {
-                baseR = 30; baseG = 80; baseB = 20; // Verde musgo
-            } else if (spiral > 0.0f) {
-                baseR = 50; baseG = 30; baseB = 15; // Madeira marrom
-            } else {
-                baseR = 25; baseG = 15; baseB = 10; // Madeira escura
-            }
-        } else {
-            int folhaTx = tx;
-            int limiteFolhas = 28 + ((tx * 7) % 10);
-
-            if (ty < limiteFolhas) {
-                int animOffset = (int)(std::sin(tempoAnimacao * 1.5f + texX * 10.0f) * 4.0f);
-                folhaTx = (tx + animOffset) % 64;
-                if (folhaTx < 0) folhaTx += 64;
-                
-                bool sombraFolha = ((folhaTx * 7 + ty * 13) % 11) < 4; 
-                if (sombraFolha) {
-                    baseR = 22; baseG = 89; baseB = 22;
-                } else {
-                    baseR = 34; baseG = 139; baseB = 34;
-                }
-            } else {
-                bool isBordaEscura = (tx < 6 || tx > 57);
-                bool isSombra = (tx >= 6 && tx <= 12) || (tx >= 51 && tx <= 57);
-                bool hasWoodGrain = ((tx * 3 + ty * 7) % 5) == 0;
-
-                if (isBordaEscura) {
-                    baseR = 15; baseG = 10; baseB = 5;
-                } else if (isSombra) {
-                    baseR = 40; baseG = 25; baseB = 10;
-                } else if (hasWoodGrain) {
-                    baseR = 80; baseG = 55; baseB = 30; // Veios da madeira
-                } else {
-                    baseR = 100; baseG = 65; baseB = 35; // Tronco marrom claro
-                }
-            }
-        }
+        if (flags.tituloUpper.find("CORACAO") != std::string::npos) texID = TexID::ArvoreCoracao;
+        else texID = TexID::ArvoreFloresta;
     } else if (charParede == '#') {
-        if (flags.tituloUpper.find("FLORESTA") != std::string::npos) {
-            // Árvores grossas e altas
-            int folhaTx = tx;
-            int limiteFolhas = 28 + ((tx * 7) % 10);
-
-            if (ty < limiteFolhas) {
-                int animOffset = (int)(std::sin(tempoAnimacao * 1.5f + texX * 10.0f) * 4.0f);
-                folhaTx = (tx + animOffset) % 64;
-                if (folhaTx < 0) folhaTx += 64;
-                
-                bool sombraFolha = ((folhaTx * 7 + ty * 13) % 11) < 4; 
-                if (sombraFolha) {
-                    baseR = 15; baseG = 65; baseB = 15; // Verde bem escuro
-                } else {
-                    baseR = 25; baseG = 95; baseB = 25; // Verde escuro
-                }
-            } else {
-                bool isBordaEscura = (tx < 6 || tx > 57);
-                bool isSombra = (tx >= 6 && tx <= 12) || (tx >= 51 && tx <= 57);
-                bool hasWoodGrain = ((tx * 3 + ty * 7) % 5) == 0;
-
-                if (isBordaEscura) {
-                    baseR = 15; baseG = 10; baseB = 5;
-                } else if (isSombra) {
-                    baseR = 30; baseG = 20; baseB = 10;
-                } else if (hasWoodGrain) {
-                    baseR = 60; baseG = 40; baseB = 20; // Veios escuros
-                } else {
-                    baseR = 80; baseG = 50; baseB = 25; // Tronco floresta
-                }
-            }
-        } else {
-            // Pedras da Vila / Caverna
-            bool isJuntaPedra = ((tx * 3 + ty * 7) % 9) < 2 || ((tx * 11 + ty * 5) % 13) < 2;
-            if (isJuntaPedra) {
-                baseR = 30; baseG = 30; baseB = 30;
-            } else {
-                bool hasGrain = ((tx * 17 + ty * 23) % 7) < 3;
-                if (hasGrain) {
-                    baseR = 55; baseG = 50; baseB = 45;
-                } else {
-                    baseR = 75; baseG = 70; baseB = 65;
-                }
-            }
-        }
+        if (flags.tituloUpper.find("FLORESTA") != std::string::npos) texID = TexID::ArvoreFloresta;
+        else texID = TexID::PedraVila;
     } else if (!isReino) {
-        bool isSpawn = flags.isSpawn;
-        bool isSalaChefe = flags.isSalaChefe;
-        bool isCaverna = flags.isCaverna;
-        
-        if (isSpawn) {
-            bool isJuntaBranca = (ty % 4 == 0) || (((ty / 4) % 2 == 0) && tx % 8 == 0) || (((ty / 4) % 2 == 1) && (tx + 4) % 8 == 0); 
-            if (isJuntaBranca) {
-                baseR = 140; baseG = 140; baseB = 140;
-            } else {
-                bool hasGrain = ((tx * 11 + ty * 17) % 10) < 3;
-                if (hasGrain) {
-                    baseR = 210; baseG = 210; baseB = 210;
-                } else {
-                    baseR = 240; baseG = 240; baseB = 240;
-                }
-            }
-        } else if (isSalaChefe) {
-            float cx = (tx - 32.0f);
-            float cy = (ty - 32.0f);
-            float dist = std::sqrt(cx*cx + cy*cy);
-            float angle = std::atan2(cy, cx);
-            float spiral = std::sin(dist * 0.5f - angle * 3.0f);
-            
-            if (spiral > 0.0f) {
-                baseR = 50; baseG = 50; baseB = 50;
-            } else {
-                baseR = 15; baseG = 15; baseB = 15;
-            }
-        } else if (isCaverna) {
-            if (flags.tituloUpper.find("CORACAO") != std::string::npos) {
-                // Chao verde musgo com musgo e terra
-                bool isTerra = ((tx * 7 + ty * 13) % 10) < 4;
-                bool isMusgoDenso = ((tx * 19 + ty * 23) % 15) < 5;
-                
-                if (isMusgoDenso) {
-                    baseR = 25; baseG = 70; baseB = 20; // Musgo escuro
-                } else if (isTerra) {
-                    baseR = 60; baseG = 35; baseB = 15; // Terra
-                } else {
-                    baseR = 45; baseG = 90; baseB = 30; // Verde musgo claro
-                }
-            } else {
-                bool isJuntaPedra = ((tx * 3 + ty * 7) % 9) < 2 || ((tx * 11 + ty * 5) % 13) < 2;
-                if (isJuntaPedra) {
-                    baseR = 30; baseG = 30; baseB = 30;
-                } else {
-                    bool hasGrain = ((tx * 17 + ty * 23) % 7) < 3;
-                    if (hasGrain) {
-                        baseR = 55; baseG = 50; baseB = 45;
-                    } else {
-                        baseR = 75; baseG = 70; baseB = 65;
-                    }
-                }
-            }
+        if (flags.isSpawn) texID = TexID::PedraSpawn;
+        else if (flags.isSalaChefe) texID = TexID::SalaChefeParede;
+        else if (flags.isCaverna) {
+            if (flags.tituloUpper.find("CORACAO") != std::string::npos) texID = TexID::CavernaCoracaoParede;
+            else texID = TexID::PedraVila;
         } else {
-            // Block default (Out-of-bounds walls in non-cave maps)
-            if (flags.tituloUpper.find("FLORESTA") != std::string::npos) {
-                // Árvores densas de fundo
-                bool sombraFolha = ((tx * 7 + ty * 13) % 11) < 4; 
-                if (sombraFolha) {
-                    baseR = 15; baseG = 65; baseB = 15; 
-                } else {
-                    baseR = 25; baseG = 95; baseB = 25; 
-                }
-            } else {
-                // Paredes de pedra da vila (fallback)
-                bool isJuntaPedra = ((tx * 3 + ty * 7) % 9) < 2 || ((tx * 11 + ty * 5) % 13) < 2;
-                if (isJuntaPedra) {
-                    baseR = 30; baseG = 30; baseB = 30;
-                } else {
-                    bool hasGrain = ((tx * 17 + ty * 23) % 7) < 3;
-                    if (hasGrain) {
-                        baseR = 55; baseG = 50; baseB = 45;
-                    } else {
-                        baseR = 75; baseG = 70; baseB = 65;
-                    }
-                }
-            }
+            if (flags.tituloUpper.find("FLORESTA") != std::string::npos) texID = TexID::ArvoreFloresta;
+            else texID = TexID::PedraVila;
         }
+    } else {
+        if (flags.tituloUpper.find("FLORESTA") != std::string::npos) texID = TexID::ArvoreFloresta;
+        else texID = TexID::PedraVila;
     }
-    return Iluminador::aplicarLuzPrecalculada(baseR, baseG, baseB, infoLuz, false, true, nx, ny);
-}
 
+    CorRGB cor = GerenciadorTexturas::obterCor(texID, tx, ty);
+    return Iluminador::aplicarLuzPrecalculada(cor.r, cor.g, cor.b, infoLuz, false, true, nx, ny);
+}
 Pixel3D RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMapa, bool temaFloresta, float distanciaAteParede, float profundidadeMaxima, char charParede, int y, int teto, int chao, float texX, float tempoAnimacao, const std::vector<std::tuple<int, int, int>>& luzes, float hitX, float hitY, bool isSideWall, char npcEncontrado, float nx, float ny) {
     const auto& flags = obterFlagsMapa(tituloMapa);
     Iluminador::InfoLuz info = Iluminador::calcularInfoLuz(distanciaAteParede * 0.55f, profundidadeMaxima, flags.temaCeu, luzes, hitX, hitY, nullptr, tempoAnimacao);
@@ -762,97 +262,67 @@ Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float curr
     bool isTerra = flags.isTerra;
     bool isLabirinto = flags.isLabirinto;
     bool isSalaChefe = flags.isSalaChefe;
+    bool isCoracao = flags.tituloUpper.find("CORACAO") != std::string::npos;
 
     unsigned int globX = static_cast<unsigned int>(std::abs(currentX * 32.0f));
     unsigned int globY = static_cast<unsigned int>(std::abs(currentY * 32.0f));
+    int tx = globX & 63;
+    int ty = globY & 63;
 
+    TexID texID = TexID::ChaoPadrao;
     char c = ' ';
-    int r = 0, g = 0, b = 0;
     uint8_t fgR = 0, fgG = 0, fgB = 0;
 
     if (isLabirinto) {
         fgR = 150; fgG = 130; fgB = 90;
         bool bordaX = ((globX & 63) < 2) || ((globX & 63) > 61);
         bool bordaY = ((globY & 31) < 2) || ((globY & 31) > 29);
-        if (bordaX || bordaY) {
-            r = 40; g = 40; b = 30;
-            c = ' ';
-        } else {
-            if (((globX + globY) & 1) == 0) { r = 180; g = 160; b = 110; }
-            else                          { r = 160; g = 140; b = 95; }
-            c = ' ';
-        }
+        if (bordaX || bordaY) texID = TexID::ChaoLabirintoBorda;
+        else texID = TexID::ChaoLabirinto;
     } else if (isSalaChefe) {
         float cx = (globX & 63) - 32.0f;
         float cy = (globY & 63) - 32.0f;
         float dist = std::sqrt(cx*cx + cy*cy);
         float angle = std::atan2(cy, cx);
-        float spiral = std::sin(dist * 0.4f - angle * 3.0f);
-
-        r = 5; g = 5; b = 5;
+        float spiral = GerenciadorTexturas::fastSin(dist * 0.4f - angle * 3.0f);
         fgR = 50; fgG = 50; fgB = 50; 
         if (spiral > 0.3f) c = '@';
         else if (spiral > 0.0f) c = '%';
         else if (spiral > -0.3f) c = '.';
-        else c = ' ';
-    } else if (isTerra) {
-        // Mistura de terra e grama para Vila e Floresta
-        // Formula caotica sem padrao repetitivo
-        float cx = globX * 0.123f;
-        float cy = globY * 0.091f;
-        float cx2 = (globX + globY) * 0.054f;
-        float cy2 = ((float)globX - globY) * 0.111f;
-        float noise = std::sin(cx) + std::sin(cy) + std::sin(cx2) + std::sin(cy2);
-        
-        bool isGrama = (noise > -3.0f); // Mais grama do que terra
-        
-        if (isGrama) {
-            if (flags.tituloUpper.find("FLORESTA") != std::string::npos) {
-                fgR = 6; fgG = 35; fgB = 6; // Verde floresta bem denso e escuro
-                if (((globX + globY) & 1) == 0) { r = 4; g = 25; b = 4; }
-                else if (((globX * 3 + globY * 5) & 7) < 2) { r = 2; g = 15; b = 2; }
-                else { r = 6; g = 30; b = 6; }
-            } else {
-                fgR = 12; fgG = 75; fgB = 12; // Verde vila mais escuro
-                if (((globX + globY) & 1) == 0) { r = 10; g = 60; b = 10; }
-                else if (((globX * 3 + globY * 5) & 7) < 2) { r = 8; g = 45; b = 8; }
-                else { r = 15; g = 80; b = 15; }
-            }
-            c = ' ';
-        } else {
-            fgR = 45; fgG = 25; fgB = 10; // Marrom terra
-            if (((globX + globY) & 1) == 0) { r = 28; g = 18; b = 8; }
-            else if (((globX * 3 + globY * 5) & 7) < 2) { r = 22; g = 12; b = 4; }
-            else { r = 25; g = 15; b = 5; }
-            c = ' ';
-        }
-    } else if (flags.tituloUpper.find("CORACAO") != std::string::npos) {
-        // Chão de musgo e terra para Coracao da Floresta
+        if (spiral > 0.0f) texID = TexID::ChaoSalaChefeDentro;
+        else texID = TexID::ChaoSalaChefeFora;
+    } else if (isCoracao) {
         float cx = (globX & 127) - 64.0f;
         float cy = (globY & 127) - 64.0f;
         float dist = std::sqrt(cx*cx + cy*cy);
         float angle = std::atan2(cy, cx);
-        float spiral = std::sin(dist * 0.2f + angle * 4.0f + globX * 0.1f);
-        
+        float spiral = GerenciadorTexturas::fastSin(dist * 0.2f + angle * 4.0f + globX * 0.1f);
         bool hasMoss = ((globX * 17 + globY * 13) % 100) < 40 || (spiral > 0.5f);
-        
-        if (hasMoss) {
-            r = 30; g = 80; b = 20; // Verde musgo
-        } else if (spiral > 0.0f) {
-            r = 50; g = 30; b = 15; // Madeira/Terra marrom
+        if (hasMoss) { texID = TexID::ChaoCoracaoMusgo; fgR = 30; fgG = 80; fgB = 20; }
+        else if (spiral > 0.0f) { texID = TexID::ChaoCoracaoTerra; fgR = 50; fgG = 30; fgB = 15; }
+        else { texID = TexID::ChaoCoracaoEscuro; fgR = 25; fgG = 15; fgB = 10; }
+    } else if (isTerra) {
+        float cx = globX * 0.123f;
+        float cy = globY * 0.091f;
+        float cx2 = (globX + globY) * 0.054f;
+        float cy2 = ((float)globX - globY) * 0.111f;
+        float noise = GerenciadorTexturas::fastSin(cx) + GerenciadorTexturas::fastSin(cy) + GerenciadorTexturas::fastSin(cx2) + GerenciadorTexturas::fastSin(cy2);
+        bool isGrama = (noise > -3.0f);
+        if (isGrama) {
+            if (flags.tituloUpper.find("FLORESTA") != std::string::npos) { fgR = 6; fgG = 35; fgB = 6; texID = TexID::ChaoGramaFloresta; }
+            else { fgR = 12; fgG = 75; fgB = 12; texID = TexID::ChaoGramaVila; }
         } else {
-            r = 25; g = 15; b = 10; // Madeira/Terra escura
+            fgR = 45; fgG = 25; fgB = 10; texID = TexID::ChaoTerra;
         }
-        c = ' ';
     } else {
-        fgR = 60; fgG = 60; fgB = 60;
-        if (((globX + globY) & 1) == 0) { r = 24; g = 24; b = 24; }
-        else if (((globX * 3 + globY * 5) & 7) < 2) { r = 16; g = 16; b = 16; }
-        else { r = 20; g = 20; b = 20; }
-        c = ' ';
+        fgR = 60; fgG = 60; fgB = 60; texID = TexID::ChaoPadrao;
+        if (((globX * 17 + globY * 23) & 63) < 4) c = '.';
+        else if (((globX * globX + globY * 13) & 63) < 3) c = '-';
+        else if (((globX * 3 + globY * 7) & 31) < 2) c = '`';
     }
     
-    Pixel3D px = Iluminador::aplicarNevoa(r, g, b, currentDist, profundidadeMaxima, temaCeu, luzes, currentX, currentY, false, matrizDoMapa, false, 0.0f, 0.0f, tempoAnimacao);
+    CorRGB cor = GerenciadorTexturas::obterCor(texID, tx, ty);
+    Pixel3D px = Iluminador::aplicarNevoa(cor.r, cor.g, cor.b, currentDist, profundidadeMaxima, temaCeu, luzes, currentX, currentY, false, matrizDoMapa, false, 0.0f, 0.0f, tempoAnimacao);
     if (c != ' ' && currentDist <= profundidadeMaxima * 0.5f) {
         px.ch = c;
         px.fgR = fgR;
@@ -862,7 +332,6 @@ Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float curr
     }
     return px;
 }
-
 Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float currentX, float currentY, float currentDist, float profundidadeMaxima, const Iluminador::InfoLuz& infoLuz) {
     const auto& flags = obterFlagsMapa(tituloMapa);
     currentDist *= 0.55f;
@@ -985,35 +454,31 @@ Pixel3D RaycasterMundo::obterPixelAgua(float currentX, float currentY, float cur
     int baseR=0, baseG=0, baseB=0;
     currentDist *= 0.55f;
 
-    float waveX = std::sin(currentX * 4.0f + tempoAnimacao * 2.0f);
-    float waveY = std::cos(currentY * 4.0f + tempoAnimacao * 1.5f);
-    float wave = (waveX + waveY) * 0.5f; // value between -1 and 1
+    float waveX = GerenciadorTexturas::fastSin(currentX * 4.0f + tempoAnimacao * 2.0f);
+    float waveY = GerenciadorTexturas::fastCos(currentY * 4.0f + tempoAnimacao * 1.5f);
+    float wave = (waveX + waveY) * 0.5f; 
 
     if (wave > 0.3f) {
-        // Crest of the wave (lighter cyan)
         baseR = 100; baseG = 200; baseB = 255;
     } else if (wave > -0.3f) {
-        // Mid of the wave (standard water)
         baseR = 60; baseG = 160; baseB = 235;
     } else {
-        // Trough of the wave (deep blue)
         baseR = 30; baseG = 130; baseB = 215;
     }
     
-    float angleOffset = wave * 0.2f; // The wave distorts the reflection!
+    float angleOffset = wave * 0.2f; 
     float angReflexo = raioAngulo + angleOffset;
     while (angReflexo >= 2.0f * 3.14159f) angReflexo -= 2.0f * 3.14159f;
     while (angReflexo < 0) angReflexo += 2.0f * 3.14159f;
     
-    // Moon / Sun reflection path on water
     if (angReflexo < 0.3f || angReflexo > (2.0f * 3.14159f - 0.3f)) {
         float dif = (angReflexo < 0.3f) ? angReflexo : ((2.0f * 3.14159f) - angReflexo);
         float intensidadeReflexo = 1.0f - (dif / 0.3f);
-        intensidadeReflexo *= (0.5f + (wave + 1.0f) * 0.25f); // Waves affect intensity
+        intensidadeReflexo *= (0.5f + (wave + 1.0f) * 0.25f); 
         
         baseR = std::min(255, baseR + (int)(155 * intensidadeReflexo));
         baseG = std::min(255, baseG + (int)(95 * intensidadeReflexo));
-        if (temaCeu != 1 && temaCeu != 2) baseB = std::min(255, baseB + (int)(255 * intensidadeReflexo)); // White for moon, slightly yellowish for sun depending on theme? We'll just add some blue for general reflection
+        if (temaCeu != 1 && temaCeu != 2) baseB = std::min(255, baseB + (int)(255 * intensidadeReflexo)); 
     }
 
     std::vector<std::tuple<int, int, int>> noLuzes;
@@ -1036,15 +501,15 @@ Pixel3D RaycasterMundo::obterPixelAgua(float currentX, float currentY, float cur
     px.ch = ' ';
     return px;
 }
-
 int RaycasterMundo::obterTemaCeu(const std::string& tituloMapa) {
     const auto& flags = obterFlagsMapa(tituloMapa);
     return flags.temaCeu;
 }
 
 Pixel3D RaycasterMundo::obterPixelTeto(int temaCeu, float raioAngulo, float anguloCeu, int y, int alturaTela, float tempoAnimacao, bool isMenu) {
+    (void)anguloCeu; (void)tempoAnimacao; (void)isMenu;
     int horizonte = alturaTela / 2;
-    if (temaCeu == 3) { // Indoors
+    if (temaCeu == 3) { 
         Pixel3D px;
         float ratioY = (horizonte > 0) ? (float)y / (float)horizonte : 1.0f;
         int tx = (int)(raioAngulo * 30.0f) % 64;
@@ -1052,28 +517,26 @@ Pixel3D RaycasterMundo::obterPixelTeto(int temaCeu, float raioAngulo, float angu
         if (tx < 0) tx += 64;
         if (ty < 0) ty += 64;
         
+        TexID texID = TexID::TetoIndoorsPadrao;
         bool isCoracao = g_currentMapTitle.find("CORACAO") != std::string::npos;
         if (isCoracao) {
             float cx = (tx - 32.0f);
             float cy = (ty - 32.0f);
             float dist = std::sqrt(cx*cx + cy*cy);
             float angle = std::atan2(cy, cx);
-            float spiral = std::sin(dist * 0.2f + angle * 4.0f + tx * 0.1f);
+            float spiral = GerenciadorTexturas::fastSin(dist * 0.2f + angle * 4.0f + tx * 0.1f);
             
             bool hasMoss = ((tx * 17 + ty * 13) % 100) < 20 || (spiral > 0.8f);
             
-            if (hasMoss) { px.r = 30; px.g = 80; px.b = 20; }
-            else if (spiral > 0.0f) { px.r = 50; px.g = 30; px.b = 15; }
-            else { px.r = 25; px.g = 15; px.b = 10; }
-        } else {
-            bool isJunta = (ty % 10 == 0) || (tx % 8 == 0);
-            if (isJunta) { px.r = 30; px.g = 15; px.b = 5; } else { px.r = 45; px.g = 25; px.b = 10; }
-        }
-        
+            if (hasMoss) texID = TexID::TetoIndoorsCoracaoMusgo;
+            else if (spiral > 0.0f) texID = TexID::TetoIndoorsCoracaoMadeira;
+            else texID = TexID::TetoIndoorsCoracaoEscuro;
+        } 
+        CorRGB cor = GerenciadorTexturas::obterCor(texID, tx, ty);
+        px.r = cor.r; px.g = cor.g; px.b = cor.b;
         px.ch = ' '; px.isFundo = false;
         return px;
     }
-
     if (temaCeu == 0 && g_currentMapTitle.find("IGREJA") != std::string::npos) {
         Pixel3D px;
         float divHorizonte = (horizonte > 0) ? (float)horizonte : 1.0f;
