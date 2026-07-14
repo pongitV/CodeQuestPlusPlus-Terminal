@@ -618,51 +618,79 @@ Pixel3D RaycasterMundo::obterPixelTeto(int temaCeu, float raioAngulo, float angu
 
     // Draw Moon
     float moonAlpha = 1.0f;
+    float moonGlowRadius = 0.11f;
+
     if (distLua < 0.10f) {
-        float shadowOffset = 0.04f + std::sin(tempoAnimacao * 1.5f) * 0.015f; 
+        float shadowOffset = 0.04f + std::sin(tempoAnimacao * 0.5f) * 0.01f; 
         float shadowDist = std::sqrt((diffAnguloLua - shadowOffset) * (diffAnguloLua - shadowOffset) * 6.0f + distYLua * distYLua);
         if (shadowDist < 0.10f) {
-            px.r = 60; px.g = 60; px.b = 70; return px;
+            px.r = 25; px.g = 30; px.b = 40; return px;
         } else {
-            int craterNoise = ((int)(diffAnguloLua * 100) * 17 + y * 23) % 47;
-            px.r = craterNoise < 8 ? 180 : 230; px.g = px.r; px.b = px.r + 10;
+            float lunarX = diffAnguloLua * 20.0f;
+            float lunarY = distYLua * 20.0f;
+            float rotation = tempoAnimacao * 0.15f; 
+            float mariaNoise = std::sin(lunarX * 3.0f + lunarY + rotation) * std::cos(lunarY * 4.0f - lunarX - rotation) 
+                             + std::sin(lunarX * 7.0f - rotation);
+            if (mariaNoise > 0.4f) {
+                px.r = 140; px.g = 150; px.b = 180;
+            } else {
+                px.r = 240; px.g = 245; px.b = 255;
+            }
             return px;
         }
-    } else if (distLua < 0.12f) {
-        px.r = 120; px.g = 120; px.b = 130; return px;
-    } else if (distLua < 0.25f) {
-        float glowPulse = std::sin(tempoAnimacao * 2.0f) * 0.02f;
-        float glow = 1.0f - ((distLua - 0.12f) / (0.13f + glowPulse));
+    } else if (distLua < moonGlowRadius) {
+        float coronaLerp = (distLua - 0.10f) / (moonGlowRadius - 0.10f);
+        px.r = 240 - (int)(40 * coronaLerp); 
+        px.g = 245 - (int)(35 * coronaLerp); 
+        px.b = 255 - (int)(15 * coronaLerp); 
+        return px;
+    } else if (distLua < 0.45f) {
+        float glowPulse = std::sin(tempoAnimacao * 1.5f) * 0.02f;
+        float glowDist = (distLua - moonGlowRadius) / (0.45f - moonGlowRadius + glowPulse);
+        float glow = std::max(0.0f, 1.0f - glowDist);
+        glow = glow * glow; 
+        
         if (glow > 0.0f) {
-            r = std::min(255, r + (int)(40 * glow * moonAlpha));
-            g = std::min(255, g + (int)(45 * glow * moonAlpha));
-            b = std::min(255, b + (int)(60 * glow * moonAlpha));
+            r = std::min(255, r + (int)(120 * glow * moonAlpha));
+            g = std::min(255, g + (int)(150 * glow * moonAlpha));
+            b = std::min(255, b + (int)(220 * glow * moonAlpha));
         }
     }
 
     // Draw Sun
     float sunAlpha = 1.0f;
     float angleSol = std::atan2(distYSol, diffAnguloSol * 2.449f);
-    float rays = std::sin(angleSol * 8.0f + tempoAnimacao * 2.0f);
-    float glowRadius = 0.12f + rays * 0.02f;
+    float rays = std::sin(angleSol * 12.0f + tempoAnimacao * 1.5f) * 0.5f 
+               + std::sin(angleSol * 7.0f - tempoAnimacao * 0.8f) * 0.5f;
+    float glowRadius = 0.12f + rays * 0.025f;
     
     if (distSol < 0.08f) {
         px.r = 255; px.g = 255; px.b = 255; return px;
     } else if (distSol < glowRadius) {
-        px.r = 255; px.g = 220; px.b = 50; return px;
-    } else if (distSol < 0.35f) {
-        float glowPulse = std::sin(tempoAnimacao * 1.5f) * 0.03f;
-        float glow = 1.0f - ((distSol - glowRadius) / (0.35f - glowRadius + glowPulse)); 
+        float coronaLerp = (distSol - 0.08f) / (glowRadius - 0.08f);
+        px.r = 255; 
+        px.g = 255 - (int)(35 * coronaLerp); 
+        px.b = 255 - (int)(205 * coronaLerp); 
+        return px;
+    } else if (distSol < 0.45f) {
+        float glowPulse = std::sin(tempoAnimacao * 2.0f) * 0.03f;
+        float glowDist = (distSol - glowRadius) / (0.45f - glowRadius + glowPulse);
+        float glow = std::max(0.0f, 1.0f - glowDist);
+        glow = glow * glow; 
+        
         if (glow > 0.0f) {
-            r = std::min(255, r + (int)(150 * glow * sunAlpha));
-            g = std::min(255, g + (int)(100 * glow * sunAlpha));
+            r = std::min(255, r + (int)(180 * glow * sunAlpha));
+            g = std::min(255, g + (int)(110 * glow * sunAlpha));
+            b = std::min(255, b + (int)(20 * glow * sunAlpha));
         }
     }
 
     // Clouds
-    float cloudNoise = std::sin(raioAngulo * 5.0f) * std::sin(y * 0.1f) 
-                     + 0.5f * std::sin(raioAngulo * 11.0f + y * 0.13f)
-                     + 0.25f * std::sin(raioAngulo * 23.0f - y * 0.21f);
+    float wind = tempoAnimacao * 0.05f; 
+    float angleBase = raioAngulo + wind;
+    float cloudNoise = std::sin(angleBase * 5.0f) * std::sin((y + wind*10.0f) * 0.1f) 
+                     + 0.5f * std::sin(angleBase * 11.0f + (y - wind*5.0f) * 0.13f)
+                     + 0.25f * std::sin(angleBase * 23.0f - (y + wind*15.0f) * 0.21f);
     if (cloudNoise > 0.7f) {
         float cloudIntensity = std::min(1.0f, (cloudNoise - 0.7f) * 2.0f);
         cloudIntensity *= (0.5f + (ratio * 0.5f));
