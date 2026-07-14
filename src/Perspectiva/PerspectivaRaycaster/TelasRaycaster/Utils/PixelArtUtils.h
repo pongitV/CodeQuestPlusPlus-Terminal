@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <chrono>
 
 namespace MenuRaycasterUtils {
 
@@ -76,6 +77,28 @@ namespace MenuRaycasterUtils {
                 if (isEdge) {
                     r = r * 2 / 3; g = g * 2 / 3; b = b * 2 / 3;
                 }
+
+                int absX = offsetX + x;
+                int absY = offsetY + y;
+                int smoothNoise = (int)(std::sin(absX * 0.4f) * 12 + std::sin(absY * 0.4f) * 12);
+                
+                if (c == '@' || c == '*') {
+                    long long ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                        std::chrono::system_clock::now().time_since_epoch()).count();
+                    smoothNoise = (int)(std::sin(absX * 0.5f + ms * 0.01f) * 25 + std::sin(absY * 0.5f - ms * 0.005f) * 25);
+                } else if (c == '%') {
+                    long long ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                        std::chrono::system_clock::now().time_since_epoch()).count();
+                    int scanline = (int)(std::sin(absY * 1.5f + ms * 0.005f) * 15);
+                    unsigned int hash = (unsigned int)(x * 374761393U + y * 668265263U + ms / 50 * 1274126177U);
+                    int staticNoise = (int)((hash % 100) / 100.0f * 20);
+                    smoothNoise = scanline + staticNoise;
+                }
+
+                r = std::max(0, std::min(255, r + smoothNoise));
+                g = std::max(0, std::min(255, g + smoothNoise));
+                b = std::max(0, std::min(255, b + smoothNoise));
+
                 buffer << "\033[" << (offsetY + y + 1) << ";" << (offsetX + x + 1) << "H"
                        << "\033[38;2;" << r << ";" << g << ";" << b << "m\u2588\033[0m";
             }

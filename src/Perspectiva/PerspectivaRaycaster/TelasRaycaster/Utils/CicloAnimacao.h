@@ -18,9 +18,9 @@ namespace MenuRaycasterUtils {
     inline float s_cicloCelestial = 0.0f;
     inline float s_velocidadeCelestial = 0.005f;
     inline int s_estrelasX = 0;
-    inline int s_guerreiroX = 5;
-    inline int s_magoX = -10;
-    inline int s_arqueiroX = -25;
+    inline int s_guerreiroX = 12;
+    inline int s_magoX = -8;
+    inline int s_arqueiroX = -28;
     inline int s_guerreiroPassos = 0;
 
     inline void incrementarCicloDia() {
@@ -79,22 +79,36 @@ namespace MenuRaycasterUtils {
 
                 if (y >= totalLinhas * 2 / 3) {
                     float campoY = (float)(y - totalLinhas * 2 / 3) / (float)(totalLinhas / 3);
-                    r = 25 + (int)(campoY * 35);
-                    g = 90 + (int)(campoY * 50 + (cellX % 3) * 3);
-                    b = 15 + (int)(campoY * 25);
+                    
+                    // Grass texture with smooth organic variation
+                    float noise = std::sin(cellX * 0.15f + y * 0.1f) + std::sin(y * 0.1f - cellX * 0.05f);
+                    float detail = std::sin(cellX * 0.8f) * std::sin(y * 0.8f);
+                    
+                    int baseR = 25 + (int)(campoY * 35);
+                    int baseG = 80 + (int)(campoY * 55);
+                    int baseB = 15 + (int)(campoY * 25);
+                    
+                    r = baseR + (int)(noise * 5) + (int)(detail * 4);
+                    g = baseG + (int)(noise * 8) + (int)(detail * 6);
+                    b = baseB + (int)(noise * 5) + (int)(detail * 4);
 
-                    unsigned int fX = (unsigned int)(cellX * 7 + 13) * 374761393U;
-                    unsigned int fY = (unsigned int)(y * 11 + 7) * 668265263U;
-                    unsigned int fHash = fX + fY;
-                    fHash = (fHash ^ (fHash >> 13)) * 1274126177U;
-                    int flor = fHash % 1000;
-                    if (flor < 6) {
-                        r = 235; g = 40; b = 40;
-                    } else if (flor < 11) {
-                        r = 255; g = 220; b = 50;
-                    } else if (flor < 15) {
-                        r = 240; g = 240; b = 255;
+                    // Flower distribution (cluster-based)
+                    float flowerNoise = std::sin(cellX * 0.1f + y * 0.1f) + std::sin(cellX * 0.03f - y * 0.07f);
+                    if (flowerNoise > 0.4f) {
+                        unsigned int fX = (unsigned int)(cellX * 7 + 13) * 374761393U;
+                        unsigned int fY = (unsigned int)(y * 11 + 7) * 668265263U;
+                        unsigned int fHash = fX + fY;
+                        fHash = (fHash ^ (fHash >> 13)) * 1274126177U;
+                        int flor = fHash % 100;
+                        if (flor < 10) {
+                            r = 235; g = 40; b = 40; // Red flowers
+                        } else if (flor < 20) {
+                            r = 255; g = 220; b = 50; // Yellow flowers
+                        } else if (flor < 28) {
+                            r = 240; g = 240; b = 255; // White flowers
+                        }
                     }
+                    
                     if (campoY < 0.08f) {
                         float blend = campoY / 0.08f;
                         r = (int)((float)r * blend + 60.0f * (1.0f - blend));
@@ -133,7 +147,7 @@ namespace MenuRaycasterUtils {
 
         int largura = Aparencia::obterLarguraTerminal();
         int xCentro = std::max(0, (largura - 47) / 2);
-        pintarSpriteNoFrame(yBase, xCentro, ArtesRaycaster::casteloMenu, 110, 115, 125);
+        pintarHeroiNoFrame(yBase, xCentro, ArtesRaycaster::casteloMenu, 110, 115, 125);
     }
 
     inline void animarGuerreiro() {
@@ -142,7 +156,7 @@ namespace MenuRaycasterUtils {
         int yBase = altura * 2 / 3 + 4;
         if (yBase + 4 > altura) return;
 
-        pintarSpriteNoFrame(yBase, s_guerreiroX, ArtesRaycaster::guerreiroArte, 190, 195, 210);
+        pintarHeroiNoFrame(yBase, s_guerreiroX, ArtesRaycaster::guerreiroArte, 190, 195, 210);
     }
 
     inline void animarMago() {
@@ -151,7 +165,7 @@ namespace MenuRaycasterUtils {
         int yBase = altura * 2 / 3 + 4;
         if (yBase + 4 > altura) return;
 
-        pintarSpriteNoFrame(yBase, s_magoX, ArtesRaycaster::magoArte, 120, 100, 210);
+        pintarHeroiNoFrame(yBase, s_magoX, ArtesRaycaster::magoArte, 120, 100, 210);
     }
 
     inline void animarArqueiro() {
@@ -160,7 +174,7 @@ namespace MenuRaycasterUtils {
         int yBase = altura * 2 / 3 + 4;
         if (yBase + 4 > altura) return;
 
-        pintarSpriteNoFrame(yBase, s_arqueiroX, ArtesRaycaster::arqueiroArte, 100, 180, 100);
+        pintarHeroiNoFrame(yBase, s_arqueiroX, ArtesRaycaster::arqueiroArte, 100, 180, 100);
     }
 
     inline void sobreporLogoCodeQuest() {

@@ -85,7 +85,8 @@ int TelaMenuRaycaster::exibirOpcoesMenuPrincipal() {
                 std::vector<MenuRaycasterUtils::GrupoCor> grupos = {
                     {"@", 255, brilhoChama, 0}, 
                     {"*", 255, brilhoChama / 2, 0}, 
-                    {"#", 139, 69, 19}
+                    {"#\\/", 139, 69, 19},
+                    {"O", 150, 150, 150}
                 };
                 MenuRaycasterUtils::imprimirArtePixelada(buffer, arte, grupos, arteX, arteY);
             } else if (selecaoAtual == 1) {
@@ -100,7 +101,7 @@ int TelaMenuRaycaster::exibirOpcoesMenuPrincipal() {
                 else frameArte = ArtesRaycaster::tvFrame5; 
 
                 std::vector<MenuRaycasterUtils::GrupoCor> gruposTV = {
-                    {"#", 80, 80, 80},     
+                    {"#\\/O_o][-|", 80, 80, 80},     
                     {"%", 200, 255, 255}   
                 };
                 MenuRaycasterUtils::imprimirArtePixelada(buffer, frameArte, gruposTV, arteX, arteY);
@@ -319,7 +320,7 @@ bool TelaMenuRaycaster::exibirConfirmacaoSaida() {
         int arteX = TelaBaseMenu::calcularOffsetCentral((int)frameArte[0].length(), larguraConsole);
 
         std::vector<MenuRaycasterUtils::GrupoCor> gruposTV = {
-            {"#", 80, 80, 80},     
+            {"#\\/O_o][-|", 80, 80, 80},     
             {"%", 200, 255, 255}   
         };
         MenuRaycasterUtils::imprimirArtePixelada(buffer, frameArte, gruposTV, arteX, arteY);

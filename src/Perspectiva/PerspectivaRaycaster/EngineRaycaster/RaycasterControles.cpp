@@ -80,6 +80,13 @@ char RaycasterControles::processarInputEControles(
         }
     } else {
         mouseHider.show(); // Mostra se a janela perder o foco
+        
+        // Auto-pause ao perder o foco (Alt-Tab)
+        primeiraIteracaoMouse = true;
+        ControleDeInput::limparBuffer();
+        TelaPause::exibir(jogador);
+        RaycasterQuadro::restaurarUltimoQuadro();
+        tp1 = chrono::steady_clock::now();
     }
 
     if (GetAsyncKeyState('V') & 0x8000) {
