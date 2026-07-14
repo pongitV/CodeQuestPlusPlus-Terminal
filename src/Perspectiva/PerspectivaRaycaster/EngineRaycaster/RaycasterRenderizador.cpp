@@ -368,8 +368,10 @@ void RaycasterRenderizador::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA
         float transformY = invDet * (-planeY * spriteX + planeX * spriteY);
 
         if (transformY <= 0.1f) continue;
-        if (cacheSprites.count(sp.sprCh) == 0) continue;
-        const auto& sc = cacheSprites.at(sp.sprCh);
+        char renderCh = sp.sprCh;
+        if (renderCh == '*' && temaFloresta) renderCh = 127;
+        if (cacheSprites.count(renderCh) == 0) continue;
+        const auto& sc = cacheSprites.at(renderCh);
         int spriteScreenX = (int)((LARGURA_TELA / 2) * (1 + transformX / transformY));
         int spriteHeightBase = std::abs((int)(ALTURA_TELA / transformY));
         int spriteHeight = spriteHeightBase;

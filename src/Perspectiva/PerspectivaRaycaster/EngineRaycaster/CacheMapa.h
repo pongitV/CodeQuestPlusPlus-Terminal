@@ -12,6 +12,11 @@ struct MapFlags {
     bool isSalaChefe = false;
     bool isSpawn = false;
     bool isTerra = false;
+    bool isFloresta = false;
+    bool isIgreja = false;
+    bool isCoracao = false;
+    bool isPonte = false;
+    bool isPatio = false;
     int temaCeu = 0;
 };
 
@@ -34,6 +39,12 @@ namespace CacheMapa {
             if (u.find("INICIO") != std::string::npos) flags.isSpawn = true;
             if (u.find("FLORESTA") != std::string::npos || u.find("BOSQUE") != std::string::npos ||
                 u.find("VILA") != std::string::npos || u.find("INICIO") != std::string::npos) flags.isTerra = true;
+                
+            if (u.find("FLORESTA") != std::string::npos) flags.isFloresta = true;
+            if (u.find("IGREJA") != std::string::npos) flags.isIgreja = true;
+            if (u.find("CORACAO") != std::string::npos) flags.isCoracao = true;
+            if (u.find("PONTE") != std::string::npos) flags.isPonte = true;
+            if (u.find("PATIO") != std::string::npos) flags.isPatio = true;
 
             if (flags.isCaverna || flags.isLabirinto || flags.isSalaChefe || u.find("CABANA") != std::string::npos) {
                 flags.temaCeu = 3; // Static Indoors

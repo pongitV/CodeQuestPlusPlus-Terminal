@@ -3,7 +3,7 @@
 #include <algorithm>
 
 bool GerenciadorTexturas::inicializado = false;
-CorRGB GerenciadorTexturas::cache[256][4096];
+CorRGB GerenciadorTexturas::cache[256][16384];
 float GerenciadorTexturas::tabelaSin[4096];
 
 float GerenciadorTexturas::fastSin(float angle) {
@@ -37,16 +37,17 @@ void GerenciadorTexturas::inicializar() {
 
 void GerenciadorTexturas::gerar(TexID id) {
     int index = static_cast<int>(id);
-    for (int ty = 0; ty < 64; ty++) {
-        for (int tx = 0; tx < 64; tx++) {
+    int res = obterResolucao(id);
+    for (int ty = 0; ty < res; ty++) {
+        for (int tx = 0; tx < res; tx++) {
             uint8_t r = 0, g = 0, b = 0;
 
             switch (id) {
                 case TexID::LabirintoMadeira: {
-                    bool isWoodBase = (ty > 54);
-                    bool isWoodenPillar = (tx % 32 < 4);
-                    bool isWoodenFrameX = (tx % 16 < 2);
-                    bool isWoodenFrameY = (ty % 16 < 2);
+                    bool isWoodBase = (ty > 108);
+                    bool isWoodenPillar = (tx % 64 < 4);
+                    bool isWoodenFrameX = (tx % 32 < 2);
+                    bool isWoodenFrameY = (ty % 32 < 2);
                     if (isWoodBase || isWoodenPillar || isWoodenFrameX || isWoodenFrameY) {
                         r = 70; g = 40; b = 20;
                     } else {
@@ -55,7 +56,7 @@ void GerenciadorTexturas::gerar(TexID id) {
                     break;
                 }
                 case TexID::LabirintoArcoPilar: {
-                    int shadow = (tx % 32 < 8 || tx % 32 > 24) ? -20 : 20;
+                    int shadow = (tx % 64 < 8 || tx % 64 > 24) ? -20 : 20;
                     r = std::clamp(130 + shadow, 0, 255);
                     g = std::clamp(130 + shadow, 0, 255);
                     b = std::clamp(120 + shadow, 0, 255);
@@ -64,7 +65,7 @@ void GerenciadorTexturas::gerar(TexID id) {
                     break;
                 }
                 case TexID::LabirintoArcoFundo: {
-                    bool isJunta = (ty % 4 == 0) || (((ty / 4) % 2 == 0) && tx % 8 == 0) || (((ty / 4) % 2 == 1) && (tx + 4) % 8 == 0); 
+                    bool isJunta = (ty % 8 == 0) || (((ty / 4) % 2 == 0) && tx % 16 == 0) || (((ty / 4) % 2 == 1) && (tx + 4) % 8 == 0); 
                     if (isJunta) {
                         r = 60; g = 60; b = 60;
                     } else {
@@ -75,7 +76,7 @@ void GerenciadorTexturas::gerar(TexID id) {
                     break;
                 }
                 case TexID::MorganaMadeira: {
-                    bool isTabua = (tx % 10 == 0);
+                    bool isTabua = (tx % 20 == 0);
                     if (isTabua) { r = 65; g = 35; b = 15; } 
                     else { 
                         bool hasGrain = ((tx * 3 + ty * 7) % 5) == 0;
@@ -95,7 +96,7 @@ void GerenciadorTexturas::gerar(TexID id) {
                     break;
                 }
                 case TexID::IgrejaVitral: {
-                    bool isVitral = (tx % 32 >= 8 && tx % 32 <= 24 && ty >= 12 && ty <= 52);
+                    bool isVitral = (tx % 64 >= 8 && tx % 64 <= 24 && ty >= 12 && ty <= 52);
                     if (isVitral) {
                         int padrao = (tx / 4 + ty / 4) % 4;
                         if (padrao == 0) { r = 230; g = 30; b = 30; }
@@ -109,7 +110,7 @@ void GerenciadorTexturas::gerar(TexID id) {
                 }
                 case TexID::PonteMadeira:
                 case TexID::ReinoMadeira: {
-                    bool isTabua = (tx % 8 == 0); 
+                    bool isTabua = (tx % 16 == 0); 
                     if (isTabua) { r = 45; g = 25; b = 10; } 
                     else {
                         bool hasGrain = ((tx * 3 + ty * 7) % 5) == 0;
@@ -123,8 +124,8 @@ void GerenciadorTexturas::gerar(TexID id) {
                     if (isPrateleira) {
                         r = 80; g = 40; b = 15;
                     } else {
-                        int vidroCol = (tx % 12);
-                        if (vidroCol >= 3 && vidroCol <= 8 && ((ty % 16) > 4 && (ty % 16) < 12)) {
+                        int vidroCol = (tx % 24);
+                        if (vidroCol >= 3 && vidroCol <= 8 && ((ty % 32) > 4 && (ty % 32) < 12)) {
                             int corPocao = (tx / 12) % 3;
                             if (corPocao == 0) { r = 0; g = 220; b = 255; }
                             else if (corPocao == 1) { r = 255; g = 0; b = 128; }
@@ -153,7 +154,7 @@ void GerenciadorTexturas::gerar(TexID id) {
                         if (tx >= 31 && tx <= 32) { r = 20; g = 10; b = 5; } 
                         else if (ty >= 38 && ty <= 42 && (tx == 28 || tx == 36)) { r = 218; g = 165; b = 32; }
                         else {
-                            bool isVerticalLine = (tx % 4 == 0);
+                            bool isVerticalLine = (tx % 8 == 0);
                             if (isVerticalLine) { r = 40; g = 20; b = 10; } 
                             else { r = 60; g = 30; b = 15; }
                         }
@@ -162,7 +163,7 @@ void GerenciadorTexturas::gerar(TexID id) {
                 }
                 case TexID::ManequimAnok: {
                     bool isVerticalJoint = (tx == 0 || tx == 63);
-                    bool isHorizontalJoint = (ty % 16 == 0);
+                    bool isHorizontalJoint = (ty % 32 == 0);
                     if (isVerticalJoint || isHorizontalJoint) {
                         r = 50; g = 30; b = 15;
                     } else {
@@ -178,7 +179,7 @@ void GerenciadorTexturas::gerar(TexID id) {
                             if (ty >= 28 && ty <= 30) { r = 218; g = 165; b = 32; } 
                             else if (ty >= 16 && ty <= 18 && tx >= 27 && tx <= 37) { r = 218; g = 165; b = 32; }
                             else {
-                                int dobra = (tx % 6 < 3) ? 20 : 0;
+                                int dobra = (tx % 12 < 3) ? 20 : 0;
                                 r = std::clamp(160 + dobra - (ty - 16), 0, 255); g = 20; b = 40;
                             }
                         }
@@ -193,23 +194,23 @@ void GerenciadorTexturas::gerar(TexID id) {
                 case TexID::Franchesco: {
                     bool isPrateleira = (ty == 16 || ty == 32 || ty == 48);
                     if (isPrateleira) { r = 60; g = 35; b = 15; } 
-                    else if (ty > 16 && ty < 24 && (tx % 16 > 2 && tx % 16 < 14)) { 
+                    else if (ty > 16 && ty < 24 && (tx % 32 > 2 && tx % 32 < 14)) { 
                         r = 120; g = 40; b = 40; 
-                        if (tx % 4 == 0) { r = 200; g = 180; b = 120; } 
-                    } else if (ty > 32 && ty < 40 && (tx % 12 > 2 && tx % 12 < 10)) { 
+                        if (tx % 8 == 0) { r = 200; g = 180; b = 120; } 
+                    } else if (ty > 32 && ty < 80 && (tx % 24 > 2 && tx % 24 < 10)) { 
                         r = 160; g = 140; b = 100; 
                         if (ty < 35) { r = 100; g = 80; b = 50; } 
-                    } else if (ty > 48 && ty < 56 && (tx % 20 > 4 && tx % 20 < 16)) { 
+                    } else if (ty > 48 && ty < 56 && (tx % 40 > 4 && tx % 40 < 16)) { 
                         r = 100; g = 60; b = 20; 
-                        if (tx % 20 < 6 || tx % 20 > 14 || ty == 52) { r = 80; g = 80; b = 80; } 
+                        if (tx % 40 < 6 || tx % 40 > 14 || ty == 52) { r = 80; g = 80; b = 80; } 
                     } else {
-                        bool isTabua = (tx % 8 == 0); 
+                        bool isTabua = (tx % 16 == 0); 
                         if (isTabua) { r = 40; g = 20; b = 10; } else { r = 50; g = 30; b = 15; }
                     }
                     break;
                 }
                 case TexID::Bjorn: {
-                    bool isTabua = (tx % 16 == 0); 
+                    bool isTabua = (tx % 32 == 0); 
                     if (isTabua) { r = 35; g = 20; b = 10; } else { r = 45; g = 25; b = 15; }
                     if (tx >= 8 && tx <= 12 && ty >= 10 && ty <= 40) {
                         if (tx == 10 && ty >= 10 && ty <= 30) { r = 190; g = 195; b = 200; } 
@@ -238,7 +239,7 @@ void GerenciadorTexturas::gerar(TexID id) {
                     break;
                 }
                 case TexID::IgrejaParede: {
-                    bool isVitral = (tx % 32 >= 8 && tx % 32 <= 24 && ty >= 12 && ty <= 52);
+                    bool isVitral = (tx % 64 >= 8 && tx % 64 <= 24 && ty >= 12 && ty <= 52);
                     if (isVitral) {
                         int padrao = (tx / 4 + ty / 4) % 4;
                         if (padrao == 0) { r = 230; g = 30; b = 30; }
@@ -249,16 +250,37 @@ void GerenciadorTexturas::gerar(TexID id) {
                     break;
                 }
                 case TexID::PatioMuro: {
-                    bool isJunta = (ty % 4 == 0) || (((ty / 4) % 2 == 0) && tx % 8 == 0) || (((ty / 4) % 2 == 1) && (tx + 4) % 8 == 0); 
-                    if (isJunta) { r = 60; g = 60; b = 60; } 
-                    else {
-                        bool hasGrain = ((tx * 7 + ty * 13) % 10) < 3;
-                        if (hasGrain) { r = 100; g = 100; b = 100; } else { r = 120; g = 120; b = 120; }
-                    }
+                    float nx = tx + 1000.0f + 4.0f * GerenciadorTexturas::fastSin(ty * 0.2f) + 2.0f * GerenciadorTexturas::fastSin(tx * 0.1f);
+                    float ny = ty + 1000.0f + 4.0f * GerenciadorTexturas::fastSin(tx * 0.2f) + 2.0f * GerenciadorTexturas::fastSin(ty * 0.1f);
+                    
+                    int stoneSize = 16;
+                    int row = (int)(ny / stoneSize);
+                    float offsetX = (row % 2 == 0) ? 0.0f : (stoneSize / 2.0f);
+                    int col = (int)((nx + offsetX) / stoneSize);
+                    
+                    float localX = std::fmod(nx + offsetX, (float)stoneSize);
+                    float localY = std::fmod(ny, (float)stoneSize);
+                    
+                    float dx = localX - (stoneSize / 2.0f);
+                    float dy = localY - (stoneSize / 2.0f);
+                    float dist = std::sqrt(dx*dx + dy*dy);
+                    float maxDist = (stoneSize / 2.0f) * 1.1f;
+                    
+                    float stoneFactor = 1.0f - std::clamp((dist - (maxDist * 0.65f)) / (maxDist * 0.35f), 0.0f, 1.0f);
+                    
+                    int hash = (row * 31 + col * 17) % 30;
+                    float noise = GerenciadorTexturas::fastSin(tx * 0.5f) + GerenciadorTexturas::fastSin(ty * 0.5f);
+                    
+                    int baseColor = 120 + hash + (int)(noise * 8);
+                    int rejunteColor = 85 + (int)(noise * 4);
+                    float lighting = 0.85f + 0.15f * (1.0f - (dist / maxDist));
+                    
+                    int c = (int)(rejunteColor * (1.0f - stoneFactor) + baseColor * lighting * stoneFactor);
+                    r = g = b = std::clamp(c, 0, 255);
                     break;
                 }
                 case TexID::FlorestaEstrutura: {
-                    bool isTabua = (tx % 8 == 0); 
+                    bool isTabua = (tx % 16 == 0); 
                     if (isTabua) { r = 45; g = 25; b = 10; } 
                     else {
                         bool hasGrain = ((tx * 3 + ty * 7) % 5) == 0;
@@ -270,56 +292,125 @@ void GerenciadorTexturas::gerar(TexID id) {
                     break;
                 }
                 case TexID::PadraoEstrutura: {
-                    bool isJunta = (ty % 4 == 0) || (((ty / 4) % 2 == 0) && tx % 8 == 0) || (((ty / 4) % 2 == 1) && (tx + 4) % 8 == 0); 
-                    if (isJunta) { r = 120; g = 120; b = 120; } 
-                    else {
-                        bool hasGrain = ((tx * 7 + ty * 13) % 10) < 3;
-                        if (hasGrain) { r = 140; g = 50; b = 30; } else { r = 160; g = 60; b = 40; }
+                    bool isJuntaY = (ty % 8 == 0);
+                    bool isJuntaX = ((ty / 8) % 2 == 0) ? (tx % 16 == 0) : ((tx + 8) % 16 == 0);
+                    if (isJuntaY || isJuntaX) { 
+                        r = 200; g = 135; b = 115; // Rejunte
+                    } else {
+                        // Tijolo realista e suave
+                        int brickRow = ty / 8;
+                        int brickCol = ((ty / 8) % 2 == 0) ? (tx / 16) : ((tx + 8) / 16);
+                        int hash = (brickRow * 17 + brickCol * 31) % 15;
+                        
+                        float grain = GerenciadorTexturas::fastSin(tx * 0.3f) * GerenciadorTexturas::fastSin(ty * 0.3f);
+                        int offset = hash + (int)(grain * 6.0f);
+                        
+                        r = std::clamp(165 + offset, 0, 255); 
+                        g = std::clamp(75 + offset / 2, 0, 255); 
+                        b = std::clamp(45 + offset / 2, 0, 255); 
                     }
                     break;
                 }
                 case TexID::ArvoreCoracao: {
-                    float cx = (tx - 32.0f); float cy = (ty - 32.0f);
-                    float dist = std::sqrt(cx*cx + cy*cy);
-                    float angle = std::atan2(cy, cx);
-                    float spiral = std::sin(dist * 0.2f + angle * 4.0f + tx * 0.1f);
-                    bool hasMoss = ((tx * 17 + ty * 13) % 100) < 20 || (spiral > 0.8f);
-                    if (hasMoss) { r = 30; g = 80; b = 20; } 
-                    else if (spiral > 0.0f) { r = 50; g = 30; b = 15; } 
-                    else { r = 25; g = 15; b = 10; }
+                    float stx = tx * (64.0f / res);
+                    float sty = ty * (64.0f / res);
+                    
+                    int trunkId = (int)(stx / 16.0f); 
+                    float localX = std::fmod(stx, 16.0f) - 8.0f;
+                    
+                    float nx = localX / 8.0f;
+                    float lighting = 1.0f - (nx * nx * 0.6f);
+                    
+                    float noiseY = GerenciadorTexturas::fastSin(sty * 0.2f);
+                    float barkNoise = GerenciadorTexturas::fastSin(stx * 0.8f + noiseY * 2.0f);
+                    
+                    r = std::clamp((int)((80 + barkNoise * 10 + trunkId*4) * lighting), 0, 255);
+                    g = std::clamp((int)((45 + barkNoise * 6 + trunkId*2) * lighting), 0, 255);
+                    b = std::clamp((int)((35 + barkNoise * 6 + trunkId*2) * lighting), 0, 255);
+                    
+                    float canopyEdge = 25.0f + 4.0f * GerenciadorTexturas::fastSin(stx * 0.3f) + 3.0f * GerenciadorTexturas::fastSin(stx * 0.8f);
+                    if (sty < canopyEdge) {
+                        float leafNoise = GerenciadorTexturas::fastSin(stx * 0.6f + sty * 0.6f) + GerenciadorTexturas::fastSin(stx * 1.5f + sty * 0.5f);
+                        float depth = 1.0f - (sty / canopyEdge) * 0.4f;
+                        r = std::clamp((int)((70 + leafNoise * 10) * depth), 0, 255);
+                        g = std::clamp((int)((35 + leafNoise * 5) * depth), 0, 255);
+                        b = std::clamp((int)((25 + leafNoise * 5) * depth), 0, 255);
+                    }
                     break;
                 }
                 case TexID::ArvoreFloresta: {
-                    int limiteFolhas = 28 + ((tx * 7) % 10);
-                    if (ty < limiteFolhas) {
-                        bool sombraFolha = ((tx * 7 + ty * 13) % 11) < 4; 
-                        if (sombraFolha) { r = 15; g = 65; b = 15; } else { r = 25; g = 95; b = 25; }
-                    } else {
-                        bool isBordaEscura = (tx < 6 || tx > 57);
-                        bool isSombra = (tx >= 6 && tx <= 12) || (tx >= 51 && tx <= 57);
-                        bool hasWoodGrain = ((tx * 3 + ty * 7) % 5) == 0;
-                        if (isBordaEscura) { r = 15; g = 10; b = 5; } 
-                        else if (isSombra) { r = 40; g = 25; b = 10; } 
-                        else if (hasWoodGrain) { r = 80; g = 55; b = 30; } 
-                        else { r = 100; g = 65; b = 35; }
+                    float stx = tx * (64.0f / res);
+                    float sty = ty * (64.0f / res);
+                    
+                    int trunkId = (int)(stx / 16.0f); 
+                    float localX = std::fmod(stx, 16.0f) - 8.0f;
+                    
+                    float nx = localX / 8.0f;
+                    float lighting = 1.0f - (nx * nx * 0.6f);
+                    
+                    float noiseY = GerenciadorTexturas::fastSin(sty * 0.2f);
+                    float barkNoise = GerenciadorTexturas::fastSin(stx * 0.8f + noiseY * 2.0f);
+                    
+                    r = std::clamp((int)((95 + barkNoise * 12 + trunkId*5) * lighting), 0, 255);
+                    g = std::clamp((int)((65 + barkNoise * 8 + trunkId*3) * lighting), 0, 255);
+                    b = std::clamp((int)((45 + barkNoise * 8 + trunkId*3) * lighting), 0, 255);
+                    
+                    float canopyEdge = 25.0f + 4.0f * GerenciadorTexturas::fastSin(stx * 0.3f) + 3.0f * GerenciadorTexturas::fastSin(stx * 0.8f);
+                    if (sty < canopyEdge) {
+                        float leafNoise = GerenciadorTexturas::fastSin(stx * 0.6f + sty * 0.6f) + GerenciadorTexturas::fastSin(stx * 1.5f + sty * 0.5f);
+                        float depth = 1.0f - (sty / canopyEdge) * 0.4f;
+                        r = std::clamp((int)((30 + leafNoise * 8) * depth), 0, 255);
+                        g = std::clamp((int)((120 + leafNoise * 15) * depth), 0, 255);
+                        b = std::clamp((int)((40 + leafNoise * 8) * depth), 0, 255);
                     }
                     break;
                 }
                 case TexID::PedraVila: {
-                    bool isJuntaPedra = ((tx * 3 + ty * 7) % 9) < 2 || ((tx * 11 + ty * 5) % 13) < 2;
-                    if (isJuntaPedra) { r = 30; g = 30; b = 30; } 
-                    else {
-                        bool hasGrain = ((tx * 17 + ty * 23) % 7) < 3;
-                        if (hasGrain) { r = 55; g = 50; b = 45; } else { r = 75; g = 70; b = 65; }
-                    }
+                    float nx = tx + 1000.0f + 2.0f * GerenciadorTexturas::fastSin(ty * 0.4f) + GerenciadorTexturas::fastSin(tx * 0.2f);
+                    float ny = ty + 1000.0f + 2.0f * GerenciadorTexturas::fastSin(tx * 0.4f) + GerenciadorTexturas::fastSin(ty * 0.2f);
+                    
+                    int stoneSize = 8;
+                    int row = (int)(ny / stoneSize);
+                    float offsetX = (row % 2 == 0) ? 0.0f : (stoneSize / 2.0f);
+                    int col = (int)((nx + offsetX) / stoneSize);
+                    
+                    float localX = std::fmod(nx + offsetX, (float)stoneSize);
+                    float localY = std::fmod(ny, (float)stoneSize);
+                    
+                    float dx = localX - (stoneSize / 2.0f);
+                    float dy = localY - (stoneSize / 2.0f);
+                    float dist = std::sqrt(dx*dx + dy*dy);
+                    float maxDist = (stoneSize / 2.0f) * 1.1f;
+                    
+                    float stoneFactor = 1.0f - std::clamp((dist - (maxDist * 0.65f)) / (maxDist * 0.35f), 0.0f, 1.0f);
+                    
+                    int hash = (row * 31 + col * 17) % 30;
+                    float noise = GerenciadorTexturas::fastSin(tx * 0.5f) + GerenciadorTexturas::fastSin(ty * 0.5f);
+                    
+                    int baseColor = 120 + hash + (int)(noise * 8);
+                    int rejunteColor = 85 + (int)(noise * 4);
+                    float lighting = 0.85f + 0.15f * (1.0f - (dist / maxDist));
+                    
+                    int c = (int)(rejunteColor * (1.0f - stoneFactor) + baseColor * lighting * stoneFactor);
+                    r = g = b = std::clamp(c, 0, 255);
                     break;
                 }
                 case TexID::PedraSpawn: {
-                    bool isJuntaBranca = (ty % 4 == 0) || (((ty / 4) % 2 == 0) && tx % 8 == 0) || (((ty / 4) % 2 == 1) && (tx + 4) % 8 == 0); 
-                    if (isJuntaBranca) { r = 140; g = 140; b = 140; } 
-                    else {
-                        bool hasGrain = ((tx * 11 + ty * 17) % 10) < 3;
-                        if (hasGrain) { r = 210; g = 210; b = 210; } else { r = 240; g = 240; b = 240; }
+                    float nx = tx + 128.0f + 3.0f * GerenciadorTexturas::fastSin(ty * 0.15f);
+                    float ny = ty + 128.0f + 3.0f * GerenciadorTexturas::fastSin(tx * 0.15f);
+                    int row = (int)(ny / 32.0f);
+                    float offsetX = (row % 2 == 0) ? 0.0f : 16.0f;
+                    float cx = std::fmod(nx + offsetX, 32.0f) - 16.0f;
+                    float cy = std::fmod(ny, 32.0f) - 16.0f;
+                    float distSq = cx * cx + cy * cy;
+                    
+                    if (distSq < 210.0f) {
+                        int shadow = (int)(distSq * 0.08f);
+                        r = std::clamp(210 - shadow, 0, 255);
+                        g = std::clamp(215 - shadow, 0, 255);
+                        b = std::clamp(215 - shadow, 0, 255);
+                    } else {
+                        r = 140; g = 140; b = 140; // Rejunte claro
                     }
                     break;
                 }
@@ -332,11 +423,24 @@ void GerenciadorTexturas::gerar(TexID id) {
                     break;
                 }
                 case TexID::CavernaCoracaoParede: {
-                    bool isTerra = ((tx * 7 + ty * 13) % 10) < 4;
-                    bool isMusgoDenso = ((tx * 19 + ty * 23) % 15) < 5;
-                    if (isMusgoDenso) { r = 25; g = 70; b = 20; } 
-                    else if (isTerra) { r = 60; g = 35; b = 15; } 
-                    else { r = 45; g = 90; b = 30; }
+                    float nx = tx + 30.0f * GerenciadorTexturas::fastSin(ty * 0.05f); // tronco retorcido verticalmente
+                    float trunkNoise = GerenciadorTexturas::fastSin(nx * 0.2f);
+                    float barkDetail = GerenciadorTexturas::fastSin(nx * 0.8f + ty * 0.1f);
+                    
+                    float mossNoise = GerenciadorTexturas::fastSin(tx * 0.1f + ty * 0.1f) + GerenciadorTexturas::fastSin(tx * 0.03f - ty * 0.07f);
+                    
+                    if (mossNoise > 0.3f) {
+                        float mossDetail = GerenciadorTexturas::fastSin(tx * 0.5f) * GerenciadorTexturas::fastSin(ty * 0.5f);
+                        r = std::clamp(20 + (int)(mossDetail * 10), 0, 255);
+                        g = std::clamp(65 + (int)(mossDetail * 20), 0, 255);
+                        b = std::clamp(25 + (int)(mossDetail * 10), 0, 255);
+                    } else {
+                        float lighting = 0.7f + 0.3f * trunkNoise;
+                        int baseColor = 55 + (int)(barkDetail * 10);
+                        r = std::clamp((int)(baseColor * lighting), 0, 255);
+                        g = std::clamp((int)((baseColor - 20) * lighting), 0, 255);
+                        b = std::clamp((int)((baseColor - 35) * lighting), 0, 255);
+                    }
                     break;
                 }
                 
@@ -352,25 +456,40 @@ void GerenciadorTexturas::gerar(TexID id) {
                 case TexID::ChaoSalaChefeFora: {
                     r = 5; g = 5; b = 5; break;
                 }
-                case TexID::ChaoCoracaoMusgo: {
-                    r = 30; g = 80; b = 20; break;
-                }
-                case TexID::ChaoCoracaoTerra: {
-                    r = 50; g = 30; b = 15; break;
-                }
+                case TexID::ChaoCoracaoMusgo:
+                case TexID::ChaoCoracaoTerra:
                 case TexID::ChaoCoracaoEscuro: {
-                    r = 25; g = 15; b = 10; break;
+                    float noise = GerenciadorTexturas::fastSin(tx * 0.15f + ty * 0.1f) + GerenciadorTexturas::fastSin(ty * 0.1f - tx * 0.05f);
+                    float detail = GerenciadorTexturas::fastSin(tx * 0.8f) * GerenciadorTexturas::fastSin(ty * 0.8f);
+                    
+                    if (noise > 0.0f) {
+                        int baseR = 40, baseG = 25, baseB = 15;
+                        r = std::clamp(baseR + (int)(detail * 5), 0, 255);
+                        g = std::clamp(baseG + (int)(detail * 5), 0, 255);
+                        b = std::clamp(baseB + (int)(detail * 3), 0, 255);
+                    } else {
+                        int baseR = 15, baseG = 40, baseB = 15;
+                        r = std::clamp(baseR + (int)(detail * 8), 0, 255);
+                        g = std::clamp(baseG + (int)(detail * 12), 0, 255);
+                        b = std::clamp(baseB + (int)(detail * 8), 0, 255);
+                    }
+                    if (id == TexID::ChaoCoracaoEscuro) {
+                        r = r / 2; g = g / 2; b = b / 2;
+                    }
+                    break;
                 }
                 case TexID::ChaoGramaFloresta: {
-                    if (((tx + ty) & 1) == 0) { r = 4; g = 25; b = 4; }
-                    else if (((tx * 3 + ty * 5) & 7) < 2) { r = 2; g = 15; b = 2; }
-                    else { r = 6; g = 30; b = 6; }
+                    float noise = GerenciadorTexturas::fastSin(tx * 0.08f + ty * 0.04f) + GerenciadorTexturas::fastSin(ty * 0.08f - tx * 0.04f);
+                    if (noise > 0.5f) { r = 5; g = 30; b = 5; }
+                    else if (noise > -0.5f) { r = 4; g = 26; b = 4; }
+                    else { r = 3; g = 22; b = 3; }
                     break;
                 }
                 case TexID::ChaoGramaVila: {
-                    if (((tx + ty) & 1) == 0) { r = 10; g = 60; b = 10; }
-                    else if (((tx * 3 + ty * 5) & 7) < 2) { r = 8; g = 45; b = 8; }
-                    else { r = 15; g = 80; b = 15; }
+                    float noise = GerenciadorTexturas::fastSin(tx * 0.08f + ty * 0.04f) + GerenciadorTexturas::fastSin(ty * 0.08f - tx * 0.04f);
+                    if (noise > 0.5f) { r = 12; g = 70; b = 12; }
+                    else if (noise > -0.5f) { r = 10; g = 62; b = 10; }
+                    else { r = 8; g = 54; b = 8; }
                     break;
                 }
                 case TexID::ChaoTerra: {
@@ -385,17 +504,33 @@ void GerenciadorTexturas::gerar(TexID id) {
                     else { r = 20; g = 20; b = 20; }
                     break;
                 }
-                case TexID::TetoIndoorsCoracaoMusgo: {
-                    r = 30; g = 80; b = 20; break;
-                }
-                case TexID::TetoIndoorsCoracaoMadeira: {
-                    r = 50; g = 30; b = 15; break;
-                }
+                case TexID::TetoIndoorsCoracaoMusgo:
+                case TexID::TetoIndoorsCoracaoMadeira:
                 case TexID::TetoIndoorsCoracaoEscuro: {
-                    r = 25; g = 15; b = 10; break;
+                    float nx = tx + 15.0f * GerenciadorTexturas::fastSin(ty * 0.1f);
+                    float ny = ty + 15.0f * GerenciadorTexturas::fastSin(tx * 0.1f);
+                    
+                    float rootNoise = GerenciadorTexturas::fastSin(nx * 0.15f + ny * 0.15f);
+                    float barkDetail = GerenciadorTexturas::fastSin(nx * 0.6f + ny * 0.6f);
+                    float mossNoise = GerenciadorTexturas::fastSin(tx * 0.12f - ty * 0.12f);
+                    
+                    if (mossNoise > 0.2f) {
+                        r = 20; g = 55; b = 25;
+                    } else {
+                        float lighting = 0.7f + 0.3f * rootNoise;
+                        int baseColor = 45 + (int)(barkDetail * 8);
+                        r = std::clamp((int)(baseColor * lighting), 0, 255);
+                        g = std::clamp((int)((baseColor - 20) * lighting), 0, 255);
+                        b = std::clamp((int)((baseColor - 30) * lighting), 0, 255);
+                    }
+                    
+                    if (id == TexID::TetoIndoorsCoracaoEscuro) {
+                        r = (int)(r * 0.6f); g = (int)(g * 0.6f); b = (int)(b * 0.6f);
+                    }
+                    break;
                 }
                 case TexID::TetoIndoorsPadrao: {
-                    bool isJunta = (ty % 10 == 0) || (tx % 8 == 0);
+                    bool isJunta = (ty % 20 == 0) || (tx % 16 == 0);
                     if (isJunta) { r = 30; g = 15; b = 5; } else { r = 45; g = 25; b = 10; }
                     break;
                 }
@@ -405,7 +540,7 @@ void GerenciadorTexturas::gerar(TexID id) {
                     break;
             }
 
-            cache[index][ty * 64 + tx] = { r, g, b };
+            cache[index][ty * res + tx] = { r, g, b };
         }
     }
 }

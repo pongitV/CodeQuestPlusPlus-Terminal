@@ -62,7 +62,7 @@ void Aparencia::ajustarFonteParaResolucao() {
     double escalaY = static_cast<double>(alturaTela) / 1080.0;
     double escala = std::min(escalaX, escalaY);
     
-    const int FONTE_REFERENCIA = 16;
+    const int FONTE_REFERENCIA = 10;
     
     int novoTamanho = static_cast<int>(FONTE_REFERENCIA * escala);
     

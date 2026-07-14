@@ -167,8 +167,8 @@ Pixel3D RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMapa, 
     float texY = 0.0f;
     if (alturaParede > 0) texY = (float)(y - teto) / (float)alturaParede;
     if (texY > 0.999f) texY = 0.999f;
-    int tx = (int)(texX * 64.0f) % 64;
-    int ty = (int)(texY * 64.0f) % 64;
+    int tx = (int)(texX * 128.0f) % 128;
+    int ty = (int)(texY * 128.0f) % 128;
 
     bool isReino = flags.isReino;
     bool isEstrutura = (charParede == '|' || charParede == '_' || charParede == '[' || charParede == ']' || charParede == '{' || charParede == '}' || charParede == '/' || charParede == '\\' || charParede == '<' || charParede == '>' || charParede == ';' || charParede == '=' || charParede == '-' || charParede == ':' || charParede == '+');
@@ -188,8 +188,8 @@ Pixel3D RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMapa, 
         texID = TexID::MorganaMadeira;
     } else if (isReino && (isEstrutura || charParede == '#')) {
         if (charParede == '|') {
-            if (flags.tituloUpper.find("IGREJA") != std::string::npos) texID = TexID::IgrejaVitral;
-            else if (flags.tituloUpper.find("PONTE") != std::string::npos) texID = TexID::PonteMadeira;
+            if (flags.isIgreja) texID = TexID::IgrejaVitral;
+            else if (flags.isPonte) texID = TexID::PonteMadeira;
             else {
                 if (npcEncontrado == 'Q') texID = TexID::Alquimista;
                 else if (npcEncontrado == 'I' || npcEncontrado == 'P') texID = TexID::EntradaIgreja;
@@ -199,7 +199,7 @@ Pixel3D RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMapa, 
                 else texID = TexID::ReinoMadeira;
             }
         } else {
-            if (flags.tituloUpper.find("IGREJA") != std::string::npos) {
+            if (flags.isIgreja) {
                 if (hitX < 10.0f) texID = TexID::IgrejaAltar;
                 else texID = TexID::IgrejaParede;
             } else {
@@ -216,23 +216,23 @@ Pixel3D RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMapa, 
         if (temaFloresta) texID = TexID::FlorestaEstrutura;
         else texID = TexID::PadraoEstrutura;
     } else if (!isReino && temaFloresta && charParede == 'T') {
-        if (flags.tituloUpper.find("CORACAO") != std::string::npos) texID = TexID::ArvoreCoracao;
+        if (flags.isCoracao) texID = TexID::ArvoreCoracao;
         else texID = TexID::ArvoreFloresta;
     } else if (charParede == '#') {
-        if (flags.tituloUpper.find("FLORESTA") != std::string::npos) texID = TexID::ArvoreFloresta;
+        if (flags.isFloresta) texID = TexID::ArvoreFloresta;
         else texID = TexID::PedraVila;
     } else if (!isReino) {
         if (flags.isSpawn) texID = TexID::PedraSpawn;
         else if (flags.isSalaChefe) texID = TexID::SalaChefeParede;
         else if (flags.isCaverna) {
-            if (flags.tituloUpper.find("CORACAO") != std::string::npos) texID = TexID::CavernaCoracaoParede;
+            if (flags.isCoracao) texID = TexID::CavernaCoracaoParede;
             else texID = TexID::PedraVila;
         } else {
-            if (flags.tituloUpper.find("FLORESTA") != std::string::npos) texID = TexID::ArvoreFloresta;
+            if (flags.isFloresta) texID = TexID::ArvoreFloresta;
             else texID = TexID::PedraVila;
         }
     } else {
-        if (flags.tituloUpper.find("FLORESTA") != std::string::npos) texID = TexID::ArvoreFloresta;
+        if (flags.isFloresta) texID = TexID::ArvoreFloresta;
         else texID = TexID::PedraVila;
     }
 
@@ -264,10 +264,10 @@ Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float curr
     bool isSalaChefe = flags.isSalaChefe;
     bool isCoracao = flags.tituloUpper.find("CORACAO") != std::string::npos;
 
-    unsigned int globX = static_cast<unsigned int>(std::abs(currentX * 32.0f));
-    unsigned int globY = static_cast<unsigned int>(std::abs(currentY * 32.0f));
-    int tx = globX & 63;
-    int ty = globY & 63;
+    unsigned int globX = static_cast<unsigned int>(std::abs(currentX * 64.0f));
+    unsigned int globY = static_cast<unsigned int>(std::abs(currentY * 64.0f));
+    int tx = globX & 127;
+    int ty = globY & 127;
 
     TexID texID = TexID::ChaoPadrao;
     char c = ' ';
@@ -275,13 +275,13 @@ Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float curr
 
     if (isLabirinto) {
         fgR = 150; fgG = 130; fgB = 90;
-        bool bordaX = ((globX & 63) < 2) || ((globX & 63) > 61);
+        bool bordaX = ((globX & 127) < 2) || ((globX & 127) > 125);
         bool bordaY = ((globY & 31) < 2) || ((globY & 31) > 29);
         if (bordaX || bordaY) texID = TexID::ChaoLabirintoBorda;
         else texID = TexID::ChaoLabirinto;
     } else if (isSalaChefe) {
-        float cx = (globX & 63) - 32.0f;
-        float cy = (globY & 63) - 32.0f;
+        float cx = (globX & 127) - 64.0f;
+        float cy = (globY & 127) - 64.0f;
         float dist = std::sqrt(cx*cx + cy*cy);
         float angle = std::atan2(cy, cx);
         float spiral = GerenciadorTexturas::fastSin(dist * 0.4f - angle * 3.0f);
@@ -292,8 +292,8 @@ Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float curr
         if (spiral > 0.0f) texID = TexID::ChaoSalaChefeDentro;
         else texID = TexID::ChaoSalaChefeFora;
     } else if (isCoracao) {
-        float cx = (globX & 127) - 64.0f;
-        float cy = (globY & 127) - 64.0f;
+        float cx = (globX & 255) - 128.0f;
+        float cy = (globY & 255) - 128.0f;
         float dist = std::sqrt(cx*cx + cy*cy);
         float angle = std::atan2(cy, cx);
         float spiral = GerenciadorTexturas::fastSin(dist * 0.2f + angle * 4.0f + globX * 0.1f);
@@ -341,8 +341,8 @@ Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float curr
     bool isSalaChefe = flags.isSalaChefe;
     bool isCoracao = flags.tituloUpper.find("CORACAO") != std::string::npos;
 
-    unsigned int globX = static_cast<unsigned int>(std::abs(currentX * 32.0f));
-    unsigned int globY = static_cast<unsigned int>(std::abs(currentY * 32.0f));
+    unsigned int globX = static_cast<unsigned int>(std::abs(currentX * 64.0f));
+    unsigned int globY = static_cast<unsigned int>(std::abs(currentY * 64.0f));
 
     char c = ' ';
     int r = 0, g = 0, b = 0;
@@ -350,7 +350,7 @@ Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float curr
 
     if (isLabirinto) {
         fgR = 150; fgG = 130; fgB = 90;
-        bool bordaX = ((globX & 63) < 2) || ((globX & 63) > 61);
+        bool bordaX = ((globX & 127) < 2) || ((globX & 127) > 125);
         bool bordaY = ((globY & 31) < 2) || ((globY & 31) > 29);
         if (bordaX || bordaY) {
             r = 40; g = 40; b = 30;
@@ -361,8 +361,8 @@ Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float curr
             c = ' ';
         }
     } else if (isSalaChefe) {
-        float cx = (globX & 63) - 32.0f;
-        float cy = (globY & 63) - 32.0f;
+        float cx = (globX & 127) - 64.0f;
+        float cy = (globY & 127) - 64.0f;
         float dist = std::sqrt(cx*cx + cy*cy);
         float angle = std::atan2(cy, cx);
         float spiral = std::sin(dist * 0.4f - angle * 3.0f);
@@ -375,8 +375,8 @@ Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float curr
         else c = ' ';
     } else if (isCoracao) {
         // Chão de musgo e terra para Coracao da Floresta
-        float cx = (globX & 127) - 64.0f;
-        float cy = (globY & 127) - 64.0f;
+        float cx = (globX & 255) - 128.0f;
+        float cy = (globY & 255) - 128.0f;
         float dist = std::sqrt(cx*cx + cy*cy);
         float angle = std::atan2(cy, cx);
         float spiral = std::sin(dist * 0.2f + angle * 4.0f + globX * 0.1f);
@@ -406,16 +406,15 @@ Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float curr
         bool isGrama = (noise > -3.0f); // Mais grama do que terra
         
         if (isGrama) {
+            if (flags.tituloUpper.find("FLORESTA") != std::string::npos) { fgR = 6; fgG = 35; fgB = 6; }
+            else { fgR = 12; fgG = 75; fgB = 12; }
+            
             if (flags.tituloUpper.find("FLORESTA") != std::string::npos) {
-                fgR = 6; fgG = 35; fgB = 6; // Verde floresta bem denso e escuro
-                if (((globX + globY) & 1) == 0) { r = 4; g = 25; b = 4; }
-                else if (((globX * 3 + globY * 5) & 7) < 2) { r = 2; g = 15; b = 2; }
-                else { r = 6; g = 30; b = 6; }
+                bool isPatch = ((globX / 16) + (globY / 16)) % 2 == 0;
+                if (isPatch) { r = 5; g = 28; b = 5; } else { r = 4; g = 24; b = 4; }
             } else {
-                fgR = 12; fgG = 75; fgB = 12; // Verde vila mais escuro
-                if (((globX + globY) & 1) == 0) { r = 10; g = 60; b = 10; }
-                else if (((globX * 3 + globY * 5) & 7) < 2) { r = 8; g = 45; b = 8; }
-                else { r = 15; g = 80; b = 15; }
+                bool isPatch = ((globX / 16) + (globY / 16)) % 2 == 0;
+                if (isPatch) { r = 12; g = 65; b = 12; } else { r = 10; g = 58; b = 10; }
             }
             c = ' ';
         } else {
@@ -512,10 +511,10 @@ Pixel3D RaycasterMundo::obterPixelTeto(int temaCeu, float raioAngulo, float angu
     if (temaCeu == 3) { 
         Pixel3D px;
         float ratioY = (horizonte > 0) ? (float)y / (float)horizonte : 1.0f;
-        int tx = (int)(raioAngulo * 30.0f) % 64;
-        int ty = (int)(ratioY * 30.0f) % 64;
-        if (tx < 0) tx += 64;
-        if (ty < 0) ty += 64;
+        int tx = (int)(raioAngulo * 60.0f) % 128;
+        int ty = (int)(ratioY * 60.0f) % 128;
+        if (tx < 0) tx += 128;
+        if (ty < 0) ty += 128;
         
         TexID texID = TexID::TetoIndoorsPadrao;
         bool isCoracao = g_currentMapTitle.find("CORACAO") != std::string::npos;

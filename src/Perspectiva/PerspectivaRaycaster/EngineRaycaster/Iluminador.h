@@ -29,7 +29,8 @@ namespace Iluminador {
             if (x0 != (int)startX || y0 != (int)startY) {
                 if (y0 >= 0 && y0 < (int)matrizDoMapa->size() && x0 >= 0 && x0 < (int)(*matrizDoMapa)[0].size()) {
                     char c = (*matrizDoMapa)[y0][x0];
-                    if (c != '.' && c != ' ' && c != '~' && c != '^' && c != 'P' && c != 'F' && c != 'B' && c != 'A' && c != 'Q' && c != 'M') {
+                    if (c != '.' && c != ' ' && c != '~' && c != '^' && c != 'P' && c != 'F' && c != 'B' && c != 'A' && c != 'Q' && c != 'M' && 
+                        c != 'T' && c != 'G' && c != 'O' && c != 'S' && c != 'C' && c != 'I' && c != 'Y' && c != 'Z' && c != 'V' && c != 'W' && c != 'N') {
                         return true;
                     }
                 }

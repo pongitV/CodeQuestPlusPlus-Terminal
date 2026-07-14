@@ -62,16 +62,42 @@ public:
 
 private:
     static bool inicializado;
-    static CorRGB cache[256][4096];
+    static CorRGB cache[256][16384];
     static float tabelaSin[4096];
+
+    static int obterResolucao(TexID id) {
+        switch (id) {
+            case TexID::ChaoGramaFloresta:
+            case TexID::ChaoGramaVila:
+            case TexID::PedraSpawn:
+            case TexID::CavernaCoracaoParede:
+                return 128;
+            case TexID::ArvoreFloresta:
+            case TexID::ArvoreCoracao:
+            case TexID::PedraVila:
+            case TexID::PadraoEstrutura:
+                return 32;
+            default:
+                return 64;
+        }
+    }
 
     static void gerar(TexID id);
 };
 
 inline CorRGB GerenciadorTexturas::obterCor(TexID id, int tx, int ty) {
+    if (!inicializado) inicializar();
+    int res = obterResolucao(id);
+    if (res == 64) {
+        tx /= 2;
+        ty /= 2;
+    } else if (res == 32) {
+        tx /= 4;
+        ty /= 4;
+    }
     if (tx < 0) tx = 0; 
-    if (tx > 63) tx = 63;
+    if (tx >= res) tx = res - 1;
     if (ty < 0) ty = 0; 
-    if (ty > 63) ty = 63;
-    return cache[static_cast<int>(id)][ty * 64 + tx];
+    if (ty >= res) ty = res - 1;
+    return cache[static_cast<int>(id)][ty * res + tx];
 }
