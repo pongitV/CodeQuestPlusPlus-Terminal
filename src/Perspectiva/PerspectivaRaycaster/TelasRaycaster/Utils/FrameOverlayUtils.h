@@ -61,6 +61,36 @@ namespace MenuRaycasterUtils {
         }
     }
 
+    inline void pintarEfeitoNoFrame(int y, int x, const std::string& texto, int corR, int corG, int corB) {
+        if (y < 0 || y >= (int)s_fundo3DMenu.size()) return;
+        std::string& frameLinha = s_fundo3DMenu[y];
+        
+        for (size_t col = 0; col < texto.size(); ++col) {
+            char c = texto[col];
+            if (c == ' ') continue;
+            
+            int lx = x + (int)col;
+            if (lx < 0) continue;
+            
+            size_t pos = 0;
+            for (int cell = 0; cell < lx; ++cell) {
+                pos = frameLinha.find("\033[48;2;", pos);
+                if (pos == std::string::npos) { pos = frameLinha.size(); break; }
+                pos = frameLinha.find("\033[0m", pos);
+                if (pos == std::string::npos) { pos = frameLinha.size(); break; }
+                pos += 4;
+            }
+            if (pos >= frameLinha.size()) continue;
+            
+            size_t endOfCell = frameLinha.find("\033[0m", pos);
+            if (endOfCell == std::string::npos) continue;
+            
+            std::string novoBg = "\033[48;2;" + std::to_string(corR) + ";" +
+                                 std::to_string(corG) + ";" + std::to_string(corB) + "m ";
+            frameLinha.replace(pos, endOfCell - pos, novoBg);
+        }
+    }
+
     inline void pintarSpriteNoFrame(int y, int x, const std::vector<std::string>& sprite,
                                      int corR, int corG, int corB) {
         for (size_t linha = 0; linha < sprite.size(); ++linha) {
@@ -132,8 +162,8 @@ namespace MenuRaycasterUtils {
                 }
                 if (pos >= frameLinha.size()) continue;
 
-                size_t bgEnd = frameLinha.find('m', pos);
-                if (bgEnd == std::string::npos) continue;
+                size_t endOfCell = frameLinha.find("\033[0m", pos);
+                if (endOfCell == std::string::npos) continue;
 
                 int rMod = corR, gMod = corG, bMod = corB;
                 
@@ -159,8 +189,62 @@ namespace MenuRaycasterUtils {
                 bMod = std::max(0, std::min(255, bMod + smoothNoise));
 
                 std::string novoBg = "\033[48;2;" + std::to_string(rMod) + ";" +
-                                     std::to_string(gMod) + ";" + std::to_string(bMod) + "m";
-                frameLinha.replace(pos, bgEnd - pos + 1, novoBg);
+                                     std::to_string(gMod) + ";" + std::to_string(bMod) + "m ";
+                frameLinha.replace(pos, endOfCell - pos, novoBg);
+            }
+        }
+    }
+
+    inline void pintarInimigoNoFrame(int y, int x, const std::vector<std::string>& sprite,
+                                     int corR, int corG, int corB, bool flashRed = false) {
+        for (size_t linha = 0; linha < sprite.size(); ++linha) {
+            int ly = y + (int)linha;
+            if (ly < 0 || ly >= (int)s_fundo3DMenu.size()) continue;
+            std::string& frameLinha = s_fundo3DMenu[ly];
+
+            for (size_t col = 0; col < sprite[linha].size(); ++col) {
+                char c = sprite[linha][col];
+                if (c == ' ') continue;
+                int lx = x + (int)col;
+                if (lx < 0) continue;
+
+                size_t pos = 0;
+                for (int cell = 0; cell < lx; ++cell) {
+                    pos = frameLinha.find("\033[48;2;", pos);
+                    if (pos == std::string::npos) { pos = frameLinha.size(); break; }
+                    pos = frameLinha.find("\033[0m", pos);
+                    if (pos == std::string::npos) { pos = frameLinha.size(); break; }
+                    pos += 4;
+                }
+                if (pos >= frameLinha.size()) continue;
+
+                size_t endOfCell = frameLinha.find("\033[0m", pos);
+                if (endOfCell == std::string::npos) continue;
+
+                int rMod = corR, gMod = corG, bMod = corB;
+                
+                if (flashRed) {
+                    rMod = 255; gMod = 0; bMod = 0;
+                } else {
+                    if (c == '+') { rMod = 255; gMod = 215; bMod = 0; }
+                    else if (c == 'O' || c == 'o') { rMod = 230; gMod = 190; bMod = 160; } 
+                    else if (c == '#') { rMod = 180; gMod = 185; bMod = 190; }
+                    else if (c == '|') { rMod = 139; gMod = 69; bMod = 19; } 
+                    else if (c == '/') { rMod = 160; gMod = 82; bMod = 45; } 
+                    else if (c == '\\') { rMod = 120; gMod = 60; bMod = 15; } 
+                    else if (c == '&') { rMod = corR; gMod = corG; bMod = corB; } 
+                    else if (c == '%') { rMod = (int)(corR * 0.6f); gMod = (int)(corG * 0.6f); bMod = (int)(corB * 0.6f); } 
+                    else if (c == '@') { rMod = (int)(corR * 0.4f); gMod = (int)(corG * 0.4f); bMod = (int)(corB * 0.4f); } 
+                    
+                    int smoothNoise = (int)(std::sin(lx * 0.4f) * 12 + std::sin(ly * 0.4f) * 12);
+                    rMod = std::max(0, std::min(255, rMod + smoothNoise));
+                    gMod = std::max(0, std::min(255, gMod + smoothNoise));
+                    bMod = std::max(0, std::min(255, bMod + smoothNoise));
+                }
+
+                std::string novoBg = "\033[48;2;" + std::to_string(rMod) + ";" +
+                                     std::to_string(gMod) + ";" + std::to_string(bMod) + "m ";
+                frameLinha.replace(pos, endOfCell - pos, novoBg);
             }
         }
     }

@@ -38,9 +38,7 @@ void TelaAberturaRaycaster::exibir() {
         MenuRaycasterUtils::incrementarCicloDia();
         MenuRaycasterUtils::aplicarCicloDiaNoite(MenuRaycasterUtils::s_fundo3DMenu);
         MenuRaycasterUtils::desenharCastelo();
-        MenuRaycasterUtils::animarGuerreiro();
-        MenuRaycasterUtils::animarMago();
-        MenuRaycasterUtils::animarArqueiro();
+        MenuRaycasterUtils::desenharCenaBatalha();
 
         for (size_t i = 1; i < ArtesRaycaster::logoTexto.size(); ++i) {
             int row = yLogo + (int)i - 1;

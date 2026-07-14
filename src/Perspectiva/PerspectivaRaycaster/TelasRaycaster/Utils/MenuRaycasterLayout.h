@@ -177,6 +177,17 @@ ___|________|_____|_|_||_|_|_____|________|___
   _#_ _#_     
 )");
 
+    inline const std::vector<std::string> guerreiroAtaqueArte = 
+    ConversorString::converterStringBrutaParaVetor(R"(
+    _#_       
+   /#|#\      
+  / ### \==>  
+ |  ###  |    
+   ## ##      
+   ## ##      
+  _#_ _#_     
+)");
+
     inline const std::vector<std::string> magoArte = 
     ConversorString::converterStringBrutaParaVetor(R"(
      O   *** 
@@ -194,6 +205,29 @@ ___|________|_____|_|_||_|_|_____|________|___
   /|\+  
    / \  
   (x)   
+)");
+
+    inline const std::vector<std::string> goblinArte = 
+    ConversorString::converterStringBrutaParaVetor(R"(
+          
+          
+    \&/   
+   /&+&\ /
+   |%%%|/ 
+   %% %%  
+  _&_ _&_ 
+)");
+
+    inline const std::vector<std::string> orkArte = 
+    ConversorString::converterStringBrutaParaVetor(R"(
+    \&&&/
+    &&&&&     |
+  /#|&+&|#\   |
+ /# |&@&| #\  |
+ || |&@&|  ||/
+    |%%%|     
+    %% %%     
+  _&_   _&_   
 )");
 
     inline const std::vector<std::string>& artesClasse(int indice) {
