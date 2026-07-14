@@ -26,14 +26,19 @@ void TelaVitoriaRaycaster::exibir(Personagem* jogadorAtual, int quantidadeDeOuro
         inimigosAgrupados[ini]++;
     }
 
-    // Gera o fundo 3D estatico da arena do combate
-    std::vector<std::string> arena = RaycasterRenderizadorCombate::obterArenaPorTitulo(tituloMapa);
-    float jX = static_cast<float>(arena[0].size()) / 2.0f;
-    float jY = static_cast<float>(arena.size()) - 2.0f;
-    float angulo = -1.57f;
+    // Usa o mesmo fundo gerado e cacheado durante a batalha,
+    // garantindo que a tela pareça estatica no momento em que o combate acabou
+    std::vector<std::string> flatTela = RaycasterRenderizadorCombate::obterUltimoFundoRenderizado();
     int altura3D = std::max(10, Aparencia::obterAlturaTerminal());
     
-    std::vector<std::string> flatTela = Raycaster::desenharQuadroEstatico3D(arena, jX, jY, angulo, tituloMapa, jogadorAtual, altura3D);
+    // Fallback de segurança se o cache falhar ou se o terminal mudar de tamanho do nada
+    if (flatTela.empty() || static_cast<int>(flatTela.size()) < altura3D * larguraConsole) {
+        std::vector<std::string> arena = RaycasterRenderizadorCombate::obterArenaPorTitulo(tituloMapa);
+        float jX = static_cast<float>(arena[0].size()) / 2.0f;
+        float jY = static_cast<float>(arena.size()) - 2.0f;
+        flatTela = Raycaster::desenharQuadroEstatico3D(arena, jX, jY, -1.57f, tituloMapa, jogadorAtual, altura3D);
+    }
+
     std::vector<std::string> telaFundo(altura3D);
     for (int y = 0; y < altura3D; ++y) {
         std::string linha = "";

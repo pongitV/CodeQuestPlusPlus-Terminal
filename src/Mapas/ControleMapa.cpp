@@ -14,6 +14,8 @@
 #include "../Core/Controladores/Debug.h"
 #include "../Core/Utilidades/ControleDeInput.h"
 #include "../Core/Utilidades/GeradorAleatorio.h"
+#include "../Core/Utilidades/RendererProvider.h"
+#include "../Entidades/Racas/RacaBase.h"
 #include "Sistemas/FisicaMapa.h"
 #include "../Perspectiva/PerspectivaRaycaster/EngineRaycaster/Raycaster.h"
 #include "../Perspectiva/PerspectivaRaycaster/EngineRaycaster/RaycasterMundo.h"
@@ -64,10 +66,16 @@ void ControleMapa::processarCombate(
 {
     Aparencia::iniciarInteracaoPopup();
     std::vector<std::string> texto = { 
-        Aparencia::cor(Cor::AMARELO) + "[!] " + mensagemDeAviso + Aparencia::cor(Cor::RESET) 
+        Aparencia::cor(Cor::AMARELO) + "[!] " + mensagemDeAviso
     };
     std::vector<std::string> opcoesCombate = { "Nao, recuar", "Sim, batalha!" };
-    int opcaoEscolhidaPeloJogador = ControleDeInput::lerSelecaoMenuEmPopup(tituloDoCombate, texto, opcoesCombate, Cor::VERMELHO);
+    
+    int opcaoEscolhidaPeloJogador = 0;
+    if (RendererProvider::get()) {
+        opcaoEscolhidaPeloJogador = RendererProvider::get()->lerSelecaoMenuEmPopup(tituloDoCombate, texto, opcoesCombate, Cor::VERMELHO);
+    } else {
+        opcaoEscolhidaPeloJogador = ControleDeInput::lerSelecaoMenuEmPopup(tituloDoCombate, texto, opcoesCombate, Cor::VERMELHO);
+    }
 
     if (opcaoEscolhidaPeloJogador == 1) {
         std::unique_ptr<ICombateUI> ui = nullptr;

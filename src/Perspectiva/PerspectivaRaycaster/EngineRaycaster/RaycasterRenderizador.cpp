@@ -194,7 +194,7 @@ void RaycasterRenderizador::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA
                 distanciaAteParede = profundidadeMaxima;
             } else {
                 char c = matrizDoMapa[mapY][mapX];
-                if (c != '.' && c != ' ' && c != '~') {
+                if (c != '.' && c != ' ' && c != '~' && c != ',') {
                     if (!RaycasterMundo::isMapLabel(mapX, mapY, matrizDoMapa) && !RaycasterMundo::isEntity(c)) {
                         bateuNaParede = true;
                         charParede = c;

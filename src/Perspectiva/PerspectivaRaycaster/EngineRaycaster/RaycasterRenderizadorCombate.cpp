@@ -112,7 +112,22 @@ std::vector<std::string> RaycasterRenderizadorCombate::obterArenaPorTitulo(const
             "################################"
         };
     }
-    // Vila / Inicio / Default
+    // Vila / Inicio
+    if (upper.find("VILA") != std::string::npos || upper.find("INICIO") != std::string::npos) {
+        return {
+            "T=====[]=======================T",
+            "T" + chaoStr(30) + "T",
+            "T" + chaoStr(30) + "T",
+            "T" + chaoStr(30) + "T",
+            "T" + chaoStr(30) + "T",
+            "T" + chaoStr(30) + "T",
+            "T" + chaoStr(30) + "T",
+            "T" + chaoStr(30) + "T",
+            "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+        };
+    }
+    
+    // Default
     return {
         "####_[]_########################",
         "#" + chaoStr(30) + "#",
@@ -161,6 +176,15 @@ void RaycasterRenderizadorCombate::pintarTextoNoBuffer(std::vector<std::string>&
 // ═══════════════════════════════════════════════════════════════════
 //  Renderizar Quadro Principal
 // ═══════════════════════════════════════════════════════════════════
+static std::vector<std::string> s_cachedBackground;
+static std::string s_cachedTituloMapa;
+static int s_cachedLarguraTela = 0;
+static int s_cachedAltura3D = 0;
+
+const std::vector<std::string>& RaycasterRenderizadorCombate::obterUltimoFundoRenderizado() {
+    return s_cachedBackground;
+}
+
 std::vector<std::string> RaycasterRenderizadorCombate::renderizarQuadro(
     const std::string& tituloMapa, 
     Personagem* jogador, 
@@ -190,12 +214,6 @@ std::vector<std::string> RaycasterRenderizadorCombate::renderizarQuadro(
 
     int alturaHUD = 0;
     int altura3D = std::max(10, alturaTerminal - alturaHUD);
-
-    // Renderiza o fundo 3D em um vetor achatado (LARGURA x ALTURA) com altura reduzida
-    static std::vector<std::string> s_cachedBackground;
-    static std::string s_cachedTituloMapa;
-    static int s_cachedLarguraTela = 0;
-    static int s_cachedAltura3D = 0;
 
     if (s_cachedBackground.empty() || s_cachedTituloMapa != tituloMapa || s_cachedLarguraTela != larguraTela || s_cachedAltura3D != altura3D) {
         s_cachedBackground = Raycaster::desenharQuadroEstatico3D(arena, jX, jY, angulo, tituloMapa, jogador, altura3D);

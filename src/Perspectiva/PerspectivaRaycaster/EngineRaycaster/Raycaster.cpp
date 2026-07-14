@@ -148,7 +148,7 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
 
     auto tp1 = chrono::steady_clock::now();
     auto tp2 = chrono::steady_clock::now();
-    auto tempoInicio = chrono::steady_clock::now();
+    static auto tempoInicio = chrono::steady_clock::now();
     float bobbingTime = 0.0f;
     float bobbingAmplitude = 0.0f;
     float pitchOffset = 0.0f;
@@ -319,7 +319,22 @@ char Raycaster::iniciarExploracao3D(const vector<string>& matrizDoMapa, float& j
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     };
 
-    RaycasterRenderizador::renderizar3D(tela3D, LARGURA_TELA, ALTURA_INTERNA, jogadorX, jogadorY, anguloVisao, (ALTURA_INTERNA / 2.0f), 0, profundidadeMaxima, 0.0f, matrizDoMapa, tituloMapa, temaFloresta, temaCeu, cacheSprites);
+    int temaAtivoInicial = temaCeu;
+    if (temaCeu == 1 || temaCeu == 2) {
+        long long globalMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        float anguloGlobal = ((globalMs % 60000) / 60000.0f) * 6.2831853f;
+        if (anguloGlobal > 1.5707f && anguloGlobal < 4.7123f) {
+            temaAtivoInicial = 1; 
+        } else {
+            temaAtivoInicial = 2; 
+        }
+    }
+    
+    auto tpAgora = std::chrono::steady_clock::now();
+    std::chrono::duration<float> diffInicioInicial = tpAgora - tempoInicio;
+    float tempoAbsolutoInicial = diffInicioInicial.count();
+
+    RaycasterRenderizador::renderizar3D(tela3D, LARGURA_TELA, ALTURA_INTERNA, jogadorX, jogadorY, anguloVisao, (ALTURA_INTERNA / 2.0f), 0, profundidadeMaxima, tempoAbsolutoInicial, matrizDoMapa, tituloMapa, temaFloresta, temaAtivoInicial, cacheSprites);
     downsampleTela();
     RaycasterHUD::desenhar(tela, LARGURA_TELA, ALTURA_TELA, jogadorX, jogadorY, anguloVisao, matrizDoMapa, tituloMapa, temaFloresta, jogador);
     if (tipoAnimacaoEntrada == 1) {

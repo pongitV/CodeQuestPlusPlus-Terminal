@@ -16,7 +16,15 @@ void Aparencia::animarFadeIn(int framesTotais, int tempoPorFrameMs, const std::f
         auto fimFrame = std::chrono::steady_clock::now();
         auto duracaoFrame = std::chrono::duration_cast<std::chrono::milliseconds>(fimFrame - inicioFrame).count();
         int tempoEspera = std::max(0, tempoPorFrameMs - static_cast<int>(duracaoFrame));
-        std::this_thread::sleep_for(std::chrono::milliseconds(tempoEspera));
+        for (int i = 0; i < tempoEspera; i += 10) {
+            if (ControleDeInput::teclaPressionada()) {
+                ControleDeInput::limparBuffer();
+                int finalIntensidade = 255;
+                renderFrame(framesTotais, finalIntensidade);
+                return;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(std::min(10, tempoEspera - i)));
+        }
     }
 }
 

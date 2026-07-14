@@ -106,10 +106,16 @@ std::vector<std::string> TelaBase::criarCaixa(const std::vector<std::string>& li
 
     bool isEngineIDE = !GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva();
     if (isEngineIDE) {
+        std::string padBg = "";
+        if (!bgAnsi.empty()) {
+            padBg = bgAnsi;
+        } else {
+            padBg = "\033[48;2;25;25;25m";
+        }
         std::string tituloIDE = titulo.empty() ? "Info" : titulo;
         std::replace(tituloIDE.begin(), tituloIDE.end(), ' ', '_');
         
-        caixa.push_back("\033[38;2;86;156;214mstruct\033[0m \033[38;2;78;201;176m" + tituloIDE + "\033[0m {");
+        caixa.push_back(padBg + "\033[38;2;86;156;214mstruct\033[0m \033[38;2;78;201;176m" + tituloIDE + "\033[0m {");
         for (const auto& linha : linhas) {
             std::string linhaLimpa = linha;
             if (linhaLimpa.find(":") != std::string::npos) {
@@ -120,9 +126,9 @@ std::vector<std::string> TelaBase::criarCaixa(const std::vector<std::string>& li
                 std::string chaveVar = Aparencia::removerCoresANSI(chave);
                 chaveVar.erase(std::remove(chaveVar.begin(), chaveVar.end(), ' '), chaveVar.end());
                 
-                linhaLimpa = "    \033[38;2;86;156;214mauto\033[0m " + chaveVar + " = " + valor + ";";
+                linhaLimpa = padBg + "    \033[38;2;86;156;214mauto\033[0m " + chaveVar + " = " + valor + ";";
             } else {
-                linhaLimpa = "    " + linha + ";";
+                linhaLimpa = padBg + "    " + linha + ";";
             }
             
             int comp = Aparencia::obterComprimentoVisual(linhaLimpa);
@@ -131,14 +137,31 @@ std::vector<std::string> TelaBase::criarCaixa(const std::vector<std::string>& li
             
             caixa.push_back(linhaLimpa);
         }
-        caixa.push_back("};");
+        caixa.push_back(padBg + "};");
+
+        for (auto& c : caixa) {
+            c += "\033[0m";
+            std::string toReplace = "\033[0m";
+            std::string replaceWith = "\033[0m" + padBg;
+            size_t pos = c.find(toReplace);
+            while (pos != std::string::npos) {
+                size_t nextPos = c.find(toReplace, pos + toReplace.length());
+                if (nextPos != std::string::npos) {
+                    c.replace(pos, toReplace.length(), replaceWith);
+                    pos = c.find(toReplace, pos + replaceWith.length());
+                } else {
+                    pos = std::string::npos;
+                }
+            }
+        }
+
         return caixa;
     }
 
     std::string padBg = "";
     if (!bgAnsi.empty()) {
         padBg = bgAnsi;
-    } else if (!isEngineIDE) {
+    } else {
         padBg = "\033[48;2;0;0;0m";
     }
 
@@ -181,13 +204,17 @@ std::vector<std::string> TelaBase::criarCaixa(const std::vector<std::string>& li
     if (!isEngineIDE) {
         for (auto& c : caixa) {
             std::string toReplace = "\033[0m";
-            std::string replaceWith = "\033[0m\033[48;2;0;0;0m";
+            std::string replaceWith = "\033[0m" + padBg;
             size_t pos = c.find(toReplace);
             while (pos != std::string::npos) {
-                c.replace(pos, toReplace.length(), replaceWith);
-                pos = c.find(toReplace, pos + replaceWith.length());
+                size_t nextPos = c.find(toReplace, pos + toReplace.length());
+                if (nextPos != std::string::npos) {
+                    c.replace(pos, toReplace.length(), replaceWith);
+                    pos = c.find(toReplace, pos + replaceWith.length());
+                } else {
+                    pos = std::string::npos;
+                }
             }
-            c += "\033[0m";
         }
     }
 
@@ -262,8 +289,13 @@ std::vector<std::string> TelaBase::criarCaixaComArte(const std::vector<std::stri
             std::string replaceWith = "\033[0m" + bgAnsi;
             size_t pos = c.find(toReplace);
             while (pos != std::string::npos) {
-                c.replace(pos, toReplace.length(), replaceWith);
-                pos = c.find(toReplace, pos + replaceWith.length());
+                size_t nextPos = c.find(toReplace, pos + toReplace.length());
+                if (nextPos != std::string::npos) {
+                    c.replace(pos, toReplace.length(), replaceWith);
+                    pos = c.find(toReplace, pos + replaceWith.length());
+                } else {
+                    pos = std::string::npos;
+                }
             }
         }
     }

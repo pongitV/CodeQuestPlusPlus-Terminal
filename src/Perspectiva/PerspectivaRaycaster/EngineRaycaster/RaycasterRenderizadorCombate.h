@@ -27,6 +27,9 @@ public:
     // Gera uma mini-arena baseada no titulo do mapa (bioma)
     static std::vector<std::string> obterArenaPorTitulo(const std::string& titulo);
 
+    // Retorna o fundo 3D que foi gerado na ultima renderizacao do combate
+    static const std::vector<std::string>& obterUltimoFundoRenderizado();
+
     // Retorna a cor RGB base para texturizar o sprite do inimigo no 3D
     static std::tuple<int,int,int> obterCorSpriteInimigo(Personagem* inimigo);
 

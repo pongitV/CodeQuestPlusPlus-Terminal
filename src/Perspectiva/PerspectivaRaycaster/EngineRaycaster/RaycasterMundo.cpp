@@ -215,7 +215,7 @@ Pixel3D RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMapa, 
     } else if (isEstrutura) {
         if (temaFloresta) texID = TexID::FlorestaEstrutura;
         else texID = TexID::PadraoEstrutura;
-    } else if (!isReino && temaFloresta && charParede == 'T') {
+    } else if (!isReino && (temaFloresta || flags.isTerra) && charParede == 'T') {
         if (flags.isCoracao) texID = TexID::ArvoreCoracao;
         else texID = TexID::ArvoreFloresta;
     } else if (charParede == '#') {
@@ -272,6 +272,8 @@ Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float curr
     TexID texID = TexID::ChaoPadrao;
     char c = ' ';
     uint8_t fgR = 0, fgG = 0, fgB = 0;
+    uint8_t bgR = 0, bgG = 0, bgB = 0;
+    bool isProcedural = false;
 
     if (isLabirinto) {
         fgR = 150; fgG = 130; fgB = 90;
@@ -301,6 +303,36 @@ Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float curr
         if (hasMoss) { texID = TexID::ChaoCoracaoMusgo; fgR = 30; fgG = 80; fgB = 20; }
         else if (spiral > 0.0f) { texID = TexID::ChaoCoracaoTerra; fgR = 50; fgG = 30; fgB = 15; }
         else { texID = TexID::ChaoCoracaoEscuro; fgR = 25; fgG = 15; fgB = 10; }
+    } else if (flags.isReino || flags.isPonte) {
+        float cx = globX * 0.15f;
+        float cy = globY * 0.15f;
+        float noise = GerenciadorTexturas::fastSin(cx) * GerenciadorTexturas::fastSin(cy);
+        
+        int row = globY / 24;
+        int offset = (row % 2 == 0) ? 0 : 12;
+        float blockX = ((globX + offset) % 24) / 24.0f;
+        float blockY = (globY % 24) / 24.0f;
+        
+        bool bordaTile = (blockX < 0.1f || blockX > 0.9f || blockY < 0.1f || blockY > 0.9f);
+        
+        if (bordaTile) {
+            bgR = 20; bgG = 20; bgB = 22; 
+        } else {
+            int var = (int)(noise * 6.0f);
+            bgR = 38 + var; bgG = 40 + var; bgB = 43 + var; 
+        }
+        c = ' ';
+        isProcedural = true;
+    } else if (flags.isCaverna && !isCoracao) {
+        float cx = globX * 0.06f;
+        float cy = globY * 0.06f;
+        float cx2 = (globX - globY) * 0.03f;
+        float noise = GerenciadorTexturas::fastSin(cx) + GerenciadorTexturas::fastSin(cy) + GerenciadorTexturas::fastSin(cx2);
+        
+        int var = (int)(noise * 5.0f);
+        bgR = 30 + var; bgG = 30 + var; bgB = 30 + var;
+        c = ' ';
+        isProcedural = true;
     } else if (isTerra) {
         float cx = globX * 0.123f;
         float cy = globY * 0.091f;
@@ -321,7 +353,13 @@ Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float curr
         else if (((globX * 3 + globY * 7) & 31) < 2) c = '`';
     }
     
-    CorRGB cor = GerenciadorTexturas::obterCor(texID, tx, ty);
+    CorRGB cor;
+    if (isProcedural) {
+        cor.r = bgR; cor.g = bgG; cor.b = bgB;
+    } else {
+        cor = GerenciadorTexturas::obterCor(texID, tx, ty);
+    }
+    
     Pixel3D px = Iluminador::aplicarNevoa(cor.r, cor.g, cor.b, currentDist, profundidadeMaxima, temaCeu, luzes, currentX, currentY, false, matrizDoMapa, false, 0.0f, 0.0f, tempoAnimacao);
     if (c != ' ' && currentDist <= profundidadeMaxima * 0.5f) {
         px.ch = c;
@@ -393,6 +431,34 @@ Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float curr
             r = 25; g = 15; b = 10; // Madeira/Terra escura
             fgR = 25; fgG = 15; fgB = 10;
         }
+        c = ' ';
+    } else if (flags.isReino || flags.isPonte) {
+        float cx = globX * 0.15f;
+        float cy = globY * 0.15f;
+        float noise = std::sin(cx) * std::sin(cy);
+        
+        int row = globY / 24;
+        int offset = (row % 2 == 0) ? 0 : 12;
+        float blockX = ((globX + offset) % 24) / 24.0f;
+        float blockY = (globY % 24) / 24.0f;
+        
+        bool bordaTile = (blockX < 0.1f || blockX > 0.9f || blockY < 0.1f || blockY > 0.9f);
+        
+        if (bordaTile) {
+            r = 20; g = 20; b = 22; 
+        } else {
+            int var = (int)(noise * 6.0f);
+            r = 38 + var; g = 40 + var; b = 43 + var; 
+        }
+        c = ' ';
+    } else if (flags.isCaverna && !isCoracao) {
+        float cx = globX * 0.06f;
+        float cy = globY * 0.06f;
+        float cx2 = (globX - globY) * 0.03f;
+        float noise = std::sin(cx) + std::sin(cy) + std::sin(cx2);
+        
+        int var = (int)(noise * 5.0f);
+        r = 30 + var; g = 30 + var; b = 30 + var;
         c = ' ';
     } else if (isTerra) {
         // Mistura de terra e grama para Vila e Floresta

@@ -30,7 +30,6 @@ int AnimadorMapa::animarIntroducaoMapa(
     }
 
     RaycasterMundo::atualizarMapHash(matrizDoMapa);
-    Aparencia::limparTela();
     Aparencia::ocultarCursor();
 
     int larguraTerminal = Aparencia::obterLarguraTerminal();
@@ -42,6 +41,8 @@ int AnimadorMapa::animarIntroducaoMapa(
         RenderizadorMapa::renderizarMapa(matrizDoMapa, posicaoXDoJogador, posicaoYDoJogador, larguraTerminal, alturaTerminal, linhaInicialMapa, formatadorCelula);
         return linhaInicialMapa;
     }
+
+    Aparencia::limparTela();
 
     if (acaoAposFadeInArte) {
         acaoAposFadeInArte();
@@ -129,7 +130,9 @@ int AnimadorMapa::animarIntroducaoMapa(
         std::cout << telaFrame.str() << std::flush;
     });
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    if (!ControleDeInput::teclaPressionada()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    }
 
     ControleDeInput::limparBuffer();
     

@@ -77,7 +77,7 @@ namespace {
     }
 
     void exibirTelaCavaleiro(const std::string& tituloCabecalho, const std::vector<std::string>& falas) {
-        if (RendererProvider::get()) RendererProvider::get()->exibirPopup(tituloCabecalho, falas, Cor::CINZA);
+        if (RendererProvider::get()) RendererProvider::get()->exibirPopup(tituloCabecalho, falas, Cor::CINZA, NPCCavaleiroGenericoLayouts::arteCavaleiro);
     }
 }
 
@@ -116,7 +116,7 @@ void NPCCavaleiroGenerico::interagir(Personagem* jogadorAtual, bool& trollDerrot
                 "Nos ajude a derrotar todos e podemos",
                 "garantir sua entrada no reino!"
             };
-            if (RendererProvider::get()) RendererProvider::get()->exibirPopup("CAVALEIROS REAIS", falas, Cor::CINZA);
+            if (RendererProvider::get()) RendererProvider::get()->exibirPopup("CAVALEIROS REAIS", falas, Cor::CINZA, NPCCavaleiroGenericoLayouts::arteCavaleiro);
             return;
         }
 
@@ -128,7 +128,7 @@ void NPCCavaleiroGenerico::interagir(Personagem* jogadorAtual, bool& trollDerrot
         };
         
         int escolha = 1; // Default
-        if (RendererProvider::get()) escolha = RendererProvider::get()->lerSelecaoMenuEmPopup("PEDIDO DE AJUDA", falas, {"Ajudar os Cavaleiros", "Recuar"}, Cor::CINZA);
+        if (RendererProvider::get()) escolha = RendererProvider::get()->lerSelecaoMenuEmPopup("PEDIDO DE AJUDA", falas, {"Ajudar os Cavaleiros", "Recuar"}, Cor::CINZA, NPCCavaleiroGenericoLayouts::arteCavaleiro);
         if (escolha == 0) {
             Diario::instancia().registrarMissaoAceita("cavaleiro_trolls");
             std::vector<std::unique_ptr<Personagem>> aliados;
@@ -181,22 +181,23 @@ void NPCCavaleiroGenerico::interagir(Personagem* jogadorAtual, bool& trollDerrot
                 "CAVALEIRO REAL",
                 {"Saudacoes, viajante. O que deseja?"},
                 opcoes,
-                Cor::CINZA
+                Cor::CINZA,
+                NPCCavaleiroGenericoLayouts::arteCavaleiro
             );
 
             if (escolha == 0) {
                 if (RendererProvider::get()) RendererProvider::get()->iniciarInteracaoPopup();
                 if (!conviteRecebido) {
-                    if (RendererProvider::get()) RendererProvider::get()->exibirPopup("CAVALEIRO REAL", { "Obrigado por nos ajudar com os Trolls!" }, Cor::CINZA);
+                    if (RendererProvider::get()) RendererProvider::get()->exibirPopup("CAVALEIRO REAL", { "Obrigado por nos ajudar com os Trolls!" }, Cor::CINZA, NPCCavaleiroGenericoLayouts::arteCavaleiro);
                 } else {
-                    if (RendererProvider::get()) RendererProvider::get()->exibirPopup("CAVALEIRO REAL", { "O Rei o aguarda no Reino. Siga em frente!" }, Cor::CINZA);
+                    if (RendererProvider::get()) RendererProvider::get()->exibirPopup("CAVALEIRO REAL", { "O Rei o aguarda no Reino. Siga em frente!" }, Cor::CINZA, NPCCavaleiroGenericoLayouts::arteCavaleiro);
                 }
             } else if (escolha == 1) {
                 if (RendererProvider::get()) RendererProvider::get()->iniciarInteracaoPopup();
                 if (!conviteRecebido) {
                     std::vector<std::string> missoes = { "[M] Reportar Trolls derrotados", "Voltar" };
                     int escMissao = 1;
-                    if (RendererProvider::get()) escMissao = RendererProvider::get()->lerSelecaoMenuEmPopup("MISSOES - CAVALEIRO", {"Escolha uma missao:"}, missoes, Cor::CINZA);
+                    if (RendererProvider::get()) escMissao = RendererProvider::get()->lerSelecaoMenuEmPopup("MISSOES - CAVALEIRO", {"Escolha uma missao:"}, missoes, Cor::CINZA, NPCCavaleiroGenericoLayouts::arteCavaleiro);
                     if (escMissao == 0) {
                         std::vector<std::string> falas = {
                             "Voce lutou bravamente e limpou o reino dos Trolls!",
@@ -204,7 +205,7 @@ void NPCCavaleiroGenerico::interagir(Personagem* jogadorAtual, bool& trollDerrot
                             "",
                             "Voce recebeu o [Convite Real]!"
                         };
-                        if (RendererProvider::get()) RendererProvider::get()->exibirPopup("RECOMPENSA", falas, Cor::AMARELO);
+                        if (RendererProvider::get()) RendererProvider::get()->exibirPopup("RECOMPENSA", falas, Cor::AMARELO, NPCCavaleiroGenericoLayouts::arteCavaleiro);
                         jogadorAtual->obterInventario()->adicionarItem(FabricaItens::criarItem(ItemID::ConviteReal));
                         Diario::instancia().registrarItem("Convite Real");
                         Diario::instancia().registrarMissaoConcluida("cavaleiro_trolls");
@@ -214,9 +215,9 @@ void NPCCavaleiroGenerico::interagir(Personagem* jogadorAtual, bool& trollDerrot
                 } else {
                     std::vector<std::string> missoes = { "(Nenhuma missao disponivel)", "Voltar" };
                     int escMissao = 1;
-                    if (RendererProvider::get()) escMissao = RendererProvider::get()->lerSelecaoMenuEmPopup("MISSOES - CAVALEIRO", {"Escolha uma missao:"}, missoes, Cor::CINZA);
+                    if (RendererProvider::get()) escMissao = RendererProvider::get()->lerSelecaoMenuEmPopup("MISSOES - CAVALEIRO", {"Escolha uma missao:"}, missoes, Cor::CINZA, NPCCavaleiroGenericoLayouts::arteCavaleiro);
                     if (escMissao == 0) {
-                        if (RendererProvider::get()) RendererProvider::get()->exibirPopup("CAVALEIRO REAL", { "Nao precisamos de ajuda no momento." }, Cor::CINZA);
+                        if (RendererProvider::get()) RendererProvider::get()->exibirPopup("CAVALEIRO REAL", { "Nao precisamos de ajuda no momento." }, Cor::CINZA, NPCCavaleiroGenericoLayouts::arteCavaleiro);
                     }
                 }
             } else {
