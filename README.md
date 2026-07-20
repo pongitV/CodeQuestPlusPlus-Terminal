@@ -91,6 +91,16 @@ CodeQuestPlusPlus-Terminal/
 - Telas com estilo de editor de código e realce de sintaxe (cores do terminal)
 - Visualização de estruturas de classes e fluxo de execução
 
+## Retrospectiva do Projeto (Post-Mortem)
+
+O desenvolvimento desta versão para terminal serviu como um exercício aprofundado em C++ e arquitetura de software, operando sob restrições extremas de ambiente. O projeto exigiu a superação de obstáculos técnicos significativos:
+
+- Motor de projeção 3D (Raycaster) operando puramente no terminal de texto, processando visuais sem aceleração de hardware.
+- Estruturação orientada a objetos com forte uso de polimorfismo e injeção de dependências para separar as lógicas do jogo da camada de renderização.
+- Gerenciamento persistente de estado (State Pattern) para alternar entre exploração em tempo real, gerenciamento de inventário e combate em turnos sem comprometer a estabilidade do console.
+
+A decisão de suspender esta versão e migrar a arquitetura base para o Direct2D (em um repositório dedicado) baseia-se nas limitações técnicas do console do Windows (CPU-bound, oscilação visual severa em atualizações rápidas, restrições de framerate e limitação de manipulação de *buffers*). A transição para uma API gráfica real permitirá o reaproveitamento dos padrões arquiteturais robustos desenvolvidos aqui, com o benefício direto do controle sobre o hardware gráfico.
+
 ## Como adicionar novas telas
 
 1. Criar a tela base em `src/Perspectiva/TelasBase/` (ou pasta equivalente)
