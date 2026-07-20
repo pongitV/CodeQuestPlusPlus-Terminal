@@ -1,19 +1,10 @@
 ﻿#include "TelaBestiario.h"
 #include "../../GerenciadorPerspectiva.h"
-#include "../../PerspectivaIDE/TelasIDE/Bestiario/TelaBestiarioIDE.h"
 
 void TelaBestiario::exibirLista(Personagem* jogadorAtual) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterBestiarioUI().exibir({});
-    } else {
-        TelaBestiarioIDE::exibirLista(jogadorAtual);
-    }
+    GerenciadorPerspectiva::obterBestiarioUI().exibir({});
 }
 
 void TelaBestiario::exibirFicha(Personagem* jogadorAtual, const std::string& nomeInimigo, int indiceDescoberto, const std::vector<std::string>& descobertos) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterBestiarioUI().exibirDetalhe(nullptr);
-    } else {
-        TelaBestiarioIDE::exibirFicha(jogadorAtual, nomeInimigo, indiceDescoberto, descobertos);
-    }
+    GerenciadorPerspectiva::obterBestiarioUI().exibirDetalhe(nullptr);
 }

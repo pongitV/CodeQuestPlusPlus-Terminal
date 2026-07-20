@@ -36,7 +36,6 @@
 #include "../../../Entidades/NPCs/CavaleiroGenerico/NPCCavaleiroGenericoLayout.h"
 
 #include "../../GerenciadorPerspectiva.h"
-#include "../../PerspectivaIDE/TelasIDE/Diario/TelaDiarioIDE.h"
 
 namespace {
 
@@ -394,9 +393,5 @@ void exibirRaycaster(Personagem* jogadorAtual) {
 void TelaDiario::exibir(Personagem* jogadorAtual) {
     if (!jogadorAtual) return;
 
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        exibirRaycaster(jogadorAtual);
-    } else {
-        TelaDiarioIDE::exibir(jogadorAtual);
-    }
+    exibirRaycaster(jogadorAtual);
 }

@@ -2,24 +2,15 @@
 
 #include "TelaInventario.h"
 #include "../../GerenciadorPerspectiva.h"
-#include "../../PerspectivaIDE/TelasIDE/Inventario/TelaInventarioIDE.h"
 #include "../../../Core/Utilidades/Aparencia.h"
 #include "../../../Sistemas/Inventario/Item.h"
 
 void TelaInventario::exibirCabecalhoInventario(bool animar, int startY) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterInventarioUI().exibirCabecalho(animar, startY);
-    } else {
-        TelaInventarioIDE::exibirCabecalhoInventario(animar);
-    }
+    GerenciadorPerspectiva::obterInventarioUI().exibirCabecalho(animar, startY);
 }
 
 void TelaInventario::exibirCaixaEquipados(Personagem* jogadorAtual) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterInventarioUI().exibirCaixaEquipados(jogadorAtual);
-    } else {
-        TelaInventarioIDE::exibirCaixaEquipados(jogadorAtual);
-    }
+    GerenciadorPerspectiva::obterInventarioUI().exibirCaixaEquipados(jogadorAtual);
 }
 
 std::vector<std::pair<std::string, Item*>> TelaInventario::obterListaCategoria(Personagem* jogadorAtual, int categoria, bool mostrarPrecos)
@@ -70,9 +61,5 @@ std::vector<std::pair<std::string, Item*>> TelaInventario::obterListaCategoria(P
 
 void TelaInventario::exibirInspecaoItem(Item* item, Personagem* jogadorAtual)
 {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterInventarioUI().exibirDetalheItem(item);
-    } else {
-        TelaInventarioIDE::exibirInspecaoItem(item, jogadorAtual);
-    }
+    GerenciadorPerspectiva::obterInventarioUI().exibirDetalheItem(item);
 }

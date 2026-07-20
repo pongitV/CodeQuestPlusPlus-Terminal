@@ -19,9 +19,12 @@ enum class TexID {
     ManequimAnok,
     Franchesco,
     Bjorn,
+    Cavaleiro,
     ReinoMadeira,
     IgrejaAltar,
     IgrejaParede,
+    IgrejaParedeAltar,
+    IgrejaTeto,
     PatioMuro,
     FlorestaEstrutura,
     PadraoEstrutura,
@@ -65,36 +68,12 @@ private:
     static CorRGB cache[256][16384];
     static float tabelaSin[4096];
 
-    static int obterResolucao(TexID id) {
-        switch (id) {
-            case TexID::ChaoGramaFloresta:
-            case TexID::ChaoGramaVila:
-            case TexID::PedraSpawn:
-            case TexID::CavernaCoracaoParede:
-                return 128;
-            case TexID::ArvoreFloresta:
-            case TexID::ArvoreCoracao:
-            case TexID::PedraVila:
-            case TexID::PadraoEstrutura:
-                return 32;
-            default:
-                return 64;
-        }
-    }
-
     static void gerar(TexID id);
 };
 
 inline CorRGB GerenciadorTexturas::obterCor(TexID id, int tx, int ty) {
     if (!inicializado) inicializar();
-    int res = obterResolucao(id);
-    if (res == 64) {
-        tx /= 2;
-        ty /= 2;
-    } else if (res == 32) {
-        tx /= 4;
-        ty /= 4;
-    }
+    int res = 128;
     if (tx < 0) tx = 0; 
     if (tx >= res) tx = res - 1;
     if (ty < 0) ty = 0; 

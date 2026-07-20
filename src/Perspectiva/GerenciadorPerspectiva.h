@@ -49,9 +49,7 @@ private:
     GerenciadorPerspectiva& operator=(const GerenciadorPerspectiva&) = delete;
 
     bool m_visao3DAtiva;
-    std::unique_ptr<RenderizadorPerspectiva> m_rendererTerminal;
     std::unique_ptr<RenderizadorPerspectiva> m_renderer3D;
 
-    std::unique_ptr<IGerenciadorTelas> m_telasTerminal;
     std::unique_ptr<IGerenciadorTelas> m_telas3D;
 };

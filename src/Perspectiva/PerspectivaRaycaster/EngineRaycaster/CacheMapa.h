@@ -46,7 +46,7 @@ namespace CacheMapa {
             if (u.find("PONTE") != std::string::npos) flags.isPonte = true;
             if (u.find("PATIO") != std::string::npos) flags.isPatio = true;
 
-            if (flags.isCaverna || flags.isLabirinto || flags.isSalaChefe || u.find("CABANA") != std::string::npos) {
+            if (flags.isCaverna || flags.isLabirinto || flags.isSalaChefe || flags.isIgreja || u.find("CABANA") != std::string::npos) {
                 flags.temaCeu = 3; // Static Indoors
             } else {
                 flags.temaCeu = 0; // Dynamic Outdoors
@@ -65,7 +65,7 @@ namespace CacheMapa {
         int mapW = layout[0].size();
         int mapH = layout.size();
 
-        if (titulo != lastTituloCache) {
+        if (titulo != lastTituloCache || npcGrid.size() != (size_t)mapH || (mapH > 0 && npcGrid[0].size() != (size_t)mapW)) {
             lastTituloCache = titulo;
             npcGrid.assign(mapH, std::vector<char>(mapW, 0));
         }
@@ -84,7 +84,7 @@ namespace CacheMapa {
                 int ny = mapY + dy, nx = mapX + dx;
                 if (ny < 0 || ny >= mapH || nx < 0 || nx >= mapW) continue;
                 char c = layout[ny][nx];
-                if (c == 'B' || c == 'F' || c == 'Q' || c == 'A' ||
+                if (c == 'B' || c == 'F' || c == 'Q' || c == 'A' || c == 'N' ||
                     c == 'I' || c == 'P' || c == 'C' || c == 'T' || c == 'M') {
                     int dist = dx * dx + dy * dy;
                     if (dist < bestDist) { bestDist = dist; bestChar = c; }

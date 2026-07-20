@@ -16,7 +16,11 @@
 
 static std::atomic<size_t> g_currentMapHash{0};
 
-char RaycasterMundo::obterNPCProximo(const std::string& tituloMapa, int mapX, int mapY) {
+char RaycasterMundo::obterNPCProximo(const std::string& tituloMapa, int mapX, int mapY, const std::vector<std::string>* matrizDoMapa) {
+    if (matrizDoMapa != nullptr) {
+        return CacheMapa::obterNPCProximo(tituloMapa, mapX, mapY, *matrizDoMapa);
+    }
+    
     static thread_local std::string lastTitulo;
     static thread_local std::vector<std::string> layout;
 
@@ -186,16 +190,19 @@ Pixel3D RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMapa, 
         else texID = TexID::LabirintoArcoFundo;
     } else if (isEstrutura && npcEncontrado == 'M') {
         texID = TexID::MorganaMadeira;
-    } else if (isReino && (isEstrutura || charParede == '#')) {
-        if (charParede == '|') {
+    } else if (isReino && (isEstrutura || charParede == '#' || charParede == '+')) {
+        if (charParede == '+') {
+            if (flags.isIgreja) texID = TexID::IgrejaParedeAltar;
+        } else if (charParede == '|') {
             if (flags.isIgreja) texID = TexID::IgrejaVitral;
             else if (flags.isPonte) texID = TexID::PonteMadeira;
             else {
                 if (npcEncontrado == 'Q') texID = TexID::Alquimista;
                 else if (npcEncontrado == 'I' || npcEncontrado == 'P') texID = TexID::EntradaIgreja;
-                else if (npcEncontrado == 'A') texID = TexID::ManequimAnok;
+                else if (npcEncontrado == 'A' || npcEncontrado == 'N') texID = TexID::ManequimAnok;
                 else if (npcEncontrado == 'F') texID = TexID::Franchesco;
                 else if (npcEncontrado == 'B') texID = TexID::Bjorn;
+                else if (npcEncontrado == 'C') texID = TexID::Cavaleiro;
                 else texID = TexID::ReinoMadeira;
             }
         } else {
@@ -221,6 +228,9 @@ Pixel3D RaycasterMundo::obterPixelParedeInternal(const std::string& tituloMapa, 
     } else if (charParede == '#') {
         if (flags.isFloresta) texID = TexID::ArvoreFloresta;
         else texID = TexID::PedraVila;
+    } else if (charParede == 'T') {
+        if (flags.isIgreja) texID = TexID::IgrejaTeto;
+        else texID = TexID::PadraoEstrutura; // Default fallback for T
     } else if (!isReino) {
         if (flags.isSpawn) texID = TexID::PedraSpawn;
         else if (flags.isSalaChefe) texID = TexID::SalaChefeParede;
@@ -264,8 +274,8 @@ Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float curr
     bool isSalaChefe = flags.isSalaChefe;
     bool isCoracao = flags.tituloUpper.find("CORACAO") != std::string::npos;
 
-    unsigned int globX = static_cast<unsigned int>(std::abs(currentX * 64.0f));
-    unsigned int globY = static_cast<unsigned int>(std::abs(currentY * 64.0f));
+    unsigned int globX = static_cast<unsigned int>(std::abs(currentX * 128.0f));
+    unsigned int globY = static_cast<unsigned int>(std::abs(currentY * 128.0f));
     int tx = globX & 127;
     int ty = globY & 127;
 
@@ -379,8 +389,8 @@ Pixel3D RaycasterMundo::obterPixelChao(const std::string& tituloMapa, float curr
     bool isSalaChefe = flags.isSalaChefe;
     bool isCoracao = flags.tituloUpper.find("CORACAO") != std::string::npos;
 
-    unsigned int globX = static_cast<unsigned int>(std::abs(currentX * 64.0f));
-    unsigned int globY = static_cast<unsigned int>(std::abs(currentY * 64.0f));
+    unsigned int globX = static_cast<unsigned int>(std::abs(currentX * 128.0f));
+    unsigned int globY = static_cast<unsigned int>(std::abs(currentY * 128.0f));
 
     char c = ' ';
     int r = 0, g = 0, b = 0;
@@ -584,9 +594,11 @@ Pixel3D RaycasterMundo::obterPixelTeto(int temaCeu, float raioAngulo, float angu
         
         TexID texID = TexID::TetoIndoorsPadrao;
         bool isCoracao = g_currentMapTitle.find("CORACAO") != std::string::npos;
+        bool isSalaChefe = g_currentMapTitle.find("CAVERNA") != std::string::npos || g_currentMapTitle.find("CHEFE") != std::string::npos;
+        
         if (isCoracao) {
-            float cx = (tx - 32.0f);
-            float cy = (ty - 32.0f);
+            float cx = (tx - 64.0f);
+            float cy = (ty - 64.0f);
             float dist = std::sqrt(cx*cx + cy*cy);
             float angle = std::atan2(cy, cx);
             float spiral = GerenciadorTexturas::fastSin(dist * 0.2f + angle * 4.0f + tx * 0.1f);
@@ -596,25 +608,15 @@ Pixel3D RaycasterMundo::obterPixelTeto(int temaCeu, float raioAngulo, float angu
             if (hasMoss) texID = TexID::TetoIndoorsCoracaoMusgo;
             else if (spiral > 0.0f) texID = TexID::TetoIndoorsCoracaoMadeira;
             else texID = TexID::TetoIndoorsCoracaoEscuro;
-        } 
+        } else if (isSalaChefe) {
+            texID = TexID::SalaChefeParede;
+        }
         CorRGB cor = GerenciadorTexturas::obterCor(texID, tx, ty);
         px.r = cor.r; px.g = cor.g; px.b = cor.b;
         px.ch = ' '; px.isFundo = false;
         return px;
     }
-    if (temaCeu == 0 && g_currentMapTitle.find("IGREJA") != std::string::npos) {
-        Pixel3D px;
-        float divHorizonte = (horizonte > 0) ? (float)horizonte : 1.0f;
-        float ratioY = (float)y / divHorizonte;
-        int colorIndex = (int)(raioAngulo * 5.0f + ratioY * 8.0f) % 5;
-        px.isFundo = false; px.hasFg = true; px.ch = '#';
-        if (colorIndex == 0) { px.r = 150; px.g = 50; px.b = 50; px.fgR = 100; px.fgG = 30; px.fgB = 30; }
-        else if (colorIndex == 1) { px.r = 50; px.g = 100; px.b = 150; px.fgR = 30; px.fgG = 70; px.fgB = 100; }
-        else if (colorIndex == 2) { px.r = 180; px.g = 150; px.b = 50; px.fgR = 130; px.fgG = 110; px.fgB = 30; }
-        else if (colorIndex == 3) { px.r = 50; px.g = 120; px.b = 80; px.fgR = 30; px.fgG = 80; px.fgB = 50; }
-        else { px.r = 120; px.g = 80; px.b = 120; px.fgR = 80; px.fgG = 50; px.fgB = 80; }
-        return px;
-    }
+
 
     float ratio = (horizonte > 0) ? (float)y / (float)horizonte : 1.0f;
     if (ratio < 0.0f) ratio = 0.0f;
@@ -813,8 +815,10 @@ char RaycasterMundo::obterSpriteChar(int /*mapX*/, int mapY, char c, const std::
     if (c == 'Y' || c == '*') {
         return c;
     }
-
     const auto& flags = obterFlagsMapa(tituloMapa);
+    if (flags.tituloUpper.find("IGREJA") != std::string::npos) {
+        if (c == 'P') return 'J'; // Padre Benedito
+    }
 
     if ((flags.tituloUpper.find("VILA") != std::string::npos || flags.tituloUpper.find("CASA") != std::string::npos) && c == 'F') {
         return 'V';

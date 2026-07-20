@@ -39,7 +39,7 @@ namespace {
     void processarVendaDeItens(Personagem* jogadorAtual);
 
     void dialogoFranchesco(const std::vector<std::string>& linhas) {
-        Aparencia::exibirPopup("FRANCHESCO", linhas, Cor::AMARELO, NPCMercadorLayouts::arteMercador, false);
+        Aparencia::exibirPopup("FRANCHESCO", linhas, Cor::AMARELO, NPCMercadorLayouts::arteMercador);
     }
     
     void dialogoFranchescoUnico(const std::string& msg) {

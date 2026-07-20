@@ -228,7 +228,7 @@ void RaycasterRenderizador::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA
         int teto = (int)(horizonte - ALTURA_TELA / perpWallDist);
         int chao = (int)(horizonte + ALTURA_TELA / perpWallDist);
 
-        char npcEncontradoNaColuna = RaycasterMundo::obterNPCProximo(tituloMapa, (int)hitX, (int)hitY);
+        char npcEncontradoNaColuna = RaycasterMundo::obterNPCProximo(tituloMapa, (int)hitX, (int)hitY, &matrizDoMapa);
 
         if (temaFloresta && charParede == '#') teto -= (int)(ALTURA_TELA / perpWallDist * 1.5f); 
         if (temaFloresta && npcEncontradoNaColuna == 'M') teto -= (int)(ALTURA_TELA / perpWallDist * 1.2f);
@@ -260,7 +260,7 @@ void RaycasterRenderizador::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA
             (void)screenY;
             float fractX = currentX - std::floor(currentX);
             float fractY = currentY - std::floor(currentY);
-            char charTeto = '#';
+            char charTeto = 'T';
             Iluminador::InfoLuz infoLuzTeto = Iluminador::calcularInfoLuz(currentDist, profundidadeMaxima, temaCeu, luzes, currentX, currentY, &matrizDoMapa, tempoAbsoluto);
             return RaycasterMundo::obterPixelParede(tituloMapa, temaFloresta, currentDist, profundidadeMaxima, charTeto, (int)(fractY * 1000.0f), 0, 1000, fractX, tempoAbsoluto, false, infoLuzTeto, currentX, currentY, ' ', 0.0f, 0.0f);
         };
@@ -294,6 +294,7 @@ void RaycasterRenderizador::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA
                     }
                 } else {
                     float currentDist = factorDist / ((float)y - horizonte);
+                    if (currentDist > 10000.0f || std::isnan(currentDist)) currentDist = 10000.0f;
                     float currentX = jogadorX + olhoX * currentDist;
                     float currentY = jogadorY + olhoY * currentDist;
                     char floorChar = '.';
@@ -311,6 +312,7 @@ void RaycasterRenderizador::renderizar3D(vector<Pixel3D>& tela, int LARGURA_TELA
         int startChao = std::max((int)horizonte + 1, endParede + 1);
         for (int y = startChao; y < ALTURA_TELA; y++) {
             float currentDist = factorDist / ((float)y - horizonte);
+            if (currentDist > 10000.0f || std::isnan(currentDist)) currentDist = 10000.0f;
             float currentX = jogadorX + olhoX * currentDist;
             float currentY = jogadorY + olhoY * currentDist;
             char floorChar = '.';

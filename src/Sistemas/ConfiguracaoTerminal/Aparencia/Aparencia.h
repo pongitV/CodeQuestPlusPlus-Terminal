@@ -62,7 +62,7 @@ public:
     static void exibirPainelArte(const std::vector<std::string>& arteAscii, int larguraVisual, Cor corDaArte, const std::string& tituloSecundario = "", bool animarFadeIn = false);
     static void exibirTituloPadrao(const std::string& titulo, Cor corTema = Cor::BRANCO);
     static void exibirPrompt(const std::string& mensagem);
-    static void exibirPopup(const std::string& titulo, const std::vector<std::string>& texto, Cor corTema = Cor::BRANCO, const std::vector<std::string>& arteAscii = {}, bool mostrarMensagemEnter = true);
+    static void exibirPopup(const std::string& titulo, const std::vector<std::string>& texto, Cor corTema = Cor::BRANCO, const std::vector<std::string>& arteAscii = {});
     static void renderizarCaixaPopupAnimada(const std::vector<std::string>& caixa, int startX, int startY, bool animar);
     static void removerCaixaPopupAnimada(int finalBoxWidth, int finalBoxHeight, int startX, int startY, bool animar = true);
     static void iniciarInteracaoPopup();

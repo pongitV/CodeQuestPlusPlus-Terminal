@@ -10,6 +10,8 @@
 #include <vector>
 #include <string>
 #include <cmath>
+#include <map>
+
 static SpriteCache criarPortaMadeira() {
     return RaycasterSprites::parseArte({
         "  ~~~~~~~~  ",
@@ -88,13 +90,7 @@ void RaycasterNPCs::inicializarSprites(std::map<char, SpriteCache>& cache) {
         " | || | "
     }, 230, 230, 250); // Capela (Branco MArmore)
 
-    cache['J'] = RaycasterSprites::parseSprite({
-        "   ()   ",
-        "  /||\\  ",
-        "  \\||/  ",
-        "  /||\\  ",
-        "  /||\\  "
-    }, 255, 215, 0); // Padre Benedito (Dourado)
+    cache['J'] = RaycasterSprites::parseSprite(NPCPadreLayouts::artePadre, 255, 215, 0); // Padre Benedito (Dourado)
 
     cache['P'] = RaycasterSprites::parseSprite({
         "  ____  ",

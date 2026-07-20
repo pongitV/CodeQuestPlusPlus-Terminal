@@ -1,10 +1,10 @@
-# CodeQuestPlusPlus
+# CodeQuestPlusPlus-Terminal
 
 Um RPG de terminal implementado em C++ com duas perspectivas: um renderer estilo raycaster para gameplay e um "Modo IDE" que apresenta, em tempo de execução, como partes do código estão funcionando. O projeto é um exercício de aprendizado em C++ sem dependências externas.
 
 Arquivo principal: [src/Principal.cpp](src/Principal.cpp)
 
-Executável pré-compilado: [bin/CodeQuestPlusPlus.exe](bin/CodeQuestPlusPlus.exe)
+Executável pré-compilado: [bin/CodeQuestPlusPlus-Terminal.exe](bin/CodeQuestPlusPlus-Terminal.exe)
 
 ## Build com CMake Presets (Recomendado)
 
@@ -45,14 +45,14 @@ Para executar o binário disponível em `bin/`:
 PowerShell / Windows Terminal:
 
 ```powershell
-\bin\CodeQuestPlusPlus.exe
+\bin\CodeQuestPlusPlus-Terminal.exe
 ```
 
 cmd.exe (garantir UTF-8):
 
 ```bat
 chcp 65001
-\bin\CodeQuestPlusPlus.exe
+\bin\CodeQuestPlusPlus-Terminal.exe
 ```
 
 O jogo pode solicitar elevação de privilégios (UAC). A chamada `garantirAdmin()` em [src/Principal.cpp](src/Principal.cpp) tenta iniciar uma instância elevada e encerrar a instância atual.
@@ -60,7 +60,7 @@ O jogo pode solicitar elevação de privilégios (UAC). A chamada `garantirAdmin
 ## Estrutura do projeto
 
 ```
-CodeQuestPlusPlus/
+CodeQuestPlusPlus-Terminal/
 ├── CMakeLists.txt
 ├── CMakePresets.json
 ├── README.md
@@ -76,7 +76,7 @@ CodeQuestPlusPlus/
 │   ├── Perspectiva/    # Raycaster + Modo IDE
 │   └── Sistemas/
 └── bin/
-	└── CodeQuestPlusPlus.exe
+	└── CodeQuestPlusPlus-Terminal.exe
 ```
 ### View Raycaster
 - Combate 3D

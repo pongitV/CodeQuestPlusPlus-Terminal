@@ -2,12 +2,16 @@
 #include "../Utils/MenuRaycasterLayout.h"
 #include "../Utils/MenuRaycasterUtils.h"
 #include <iostream>
+#include <fstream>
+#include <vector>
+#include <cstdint>
 #include <sstream>
 #include <thread>
 #include <chrono>
 
 #include "../../../TelasBase/Menu/TelaBaseMenu.h"
 #include "../../../../Core/Utilidades/ControleDeInput.h"
+
 
 void TelaAberturaRaycaster::exibir() {
     std::cout << "\033[?25l";
@@ -32,6 +36,8 @@ void TelaAberturaRaycaster::exibir() {
 
     std::string versao = "Versao 0.1";
     int colVersao = std::max(1, larguraConsole - (int)versao.length() - 1);
+
+
 
     ControleDeInput::limparBuffer();
     while (!ControleDeInput::teclaPressionada()) {
@@ -62,6 +68,8 @@ void TelaAberturaRaycaster::exibir() {
             abrBuf << MenuRaycasterUtils::s_fundo3DMenu[y];
             if (y < MenuRaycasterUtils::s_fundo3DMenu.size() - 1) abrBuf << "\n";
         }
+        
+
         MenuRaycasterUtils::flushFrameParaConsole(abrBuf.str());
 
         std::this_thread::sleep_for(std::chrono::milliseconds(50));

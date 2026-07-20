@@ -1,6 +1,5 @@
 ﻿#include "TelaCombate.h"
 #include "../../GerenciadorPerspectiva.h"
-#include "../../PerspectivaIDE/TelasIDE/Combate/TelaCombateIDE.h"
 
 #include "../../../Entidades/Personagem.h"
 #include "../../../Core/Utilidades/Aparencia.h"
@@ -8,99 +7,51 @@
 ContextoCombate TelaCombate::contexto;
 
 void TelaCombate::exibirLogoParaTelaDeCombate(const std::string& tituloDaTela, bool animar) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterTelaCombateUI().exibirLogoParaTelaDeCombate(tituloDaTela, animar);
-    } else {
-        TelaCombateIDE::exibirLogoParaTelaDeCombate(tituloDaTela, animar);
-    }
+    GerenciadorPerspectiva::obterTelaCombateUI().exibirLogoParaTelaDeCombate(tituloDaTela, animar);
 }
 
 void TelaCombate::animarIntroducaoCombate(const std::string& titulo, const std::vector<Personagem*>& inimigos, Personagem* jogadorAtual) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterTelaCombateUI().animarIntroducaoCombate(titulo, inimigos, jogadorAtual);
-    } else {
-        TelaCombateIDE::animarIntroducaoCombate(titulo, inimigos, jogadorAtual);
-    }
+    GerenciadorPerspectiva::obterTelaCombateUI().animarIntroducaoCombate(titulo, inimigos, jogadorAtual);
 }
 
 std::vector<std::string> TelaCombate::obterLinhasBarraDeStatusDoJogador(Personagem* jogadorAtual, Cor corDestaque, int danoAnimacao, int frameAnimacao, bool isCura) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        return GerenciadorPerspectiva::obterTelaCombateUI().obterLinhasBarraDeStatusDoJogador(jogadorAtual, corDestaque, danoAnimacao, frameAnimacao, isCura);
-    } else {
-        return TelaCombateIDE::obterLinhasBarraDeStatusDoJogador(jogadorAtual, corDestaque, danoAnimacao, frameAnimacao, isCura);
-    }
+    return GerenciadorPerspectiva::obterTelaCombateUI().obterLinhasBarraDeStatusDoJogador(jogadorAtual, corDestaque, danoAnimacao, frameAnimacao, isCura);
 }
 
 void TelaCombate::exibirHordaDeInimigosLadoALado(const std::vector<Personagem*>& listaDeInimigos, Personagem* alvoAnimacao, int frameAnimacao, bool isCura, bool animarSurgimento, bool isMorte, Item* armaAtacante, int danoAnimacao, const std::vector<std::string>& dropsAnimacao) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterTelaCombateUI().exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, frameAnimacao, isCura, animarSurgimento, isMorte, armaAtacante, danoAnimacao, dropsAnimacao);
-    } else {
-        TelaCombateIDE::exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, frameAnimacao, isCura, animarSurgimento, isMorte, armaAtacante, danoAnimacao, dropsAnimacao);
-    }
+    GerenciadorPerspectiva::obterTelaCombateUI().exibirHordaDeInimigosLadoALado(listaDeInimigos, alvoAnimacao, frameAnimacao, isCura, animarSurgimento, isMorte, armaAtacante, danoAnimacao, dropsAnimacao);
 }
 
 void TelaCombate::animarDanoNoInimigo(const std::string& tituloCombate, const std::vector<Personagem*>& listaDeInimigos, Personagem* alvoAnimacao, Personagem* atacante, Personagem* jogadorAtual, const std::vector<Personagem*>& listaDeAliados, int danoAnimacao) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterTelaCombateUI().animarDanoNoInimigo(tituloCombate, listaDeInimigos, alvoAnimacao, atacante, jogadorAtual, listaDeAliados, danoAnimacao);
-    } else {
-        TelaCombateIDE::animarDanoNoInimigo(tituloCombate, listaDeInimigos, alvoAnimacao, atacante, jogadorAtual, listaDeAliados, danoAnimacao);
-    }
+    GerenciadorPerspectiva::obterTelaCombateUI().animarDanoNoInimigo(tituloCombate, listaDeInimigos, alvoAnimacao, atacante, jogadorAtual, listaDeAliados, danoAnimacao);
 }
 
 void TelaCombate::animarCuraNoInimigo(const std::string& tituloCombate, const std::vector<Personagem*>& listaDeInimigos, Personagem* alvoAnimacao, Personagem* jogadorAtual, const std::vector<Personagem*>& listaDeAliados, int curaAnimacao) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterTelaCombateUI().animarCuraNoInimigo(tituloCombate, listaDeInimigos, alvoAnimacao, jogadorAtual, listaDeAliados, curaAnimacao);
-    } else {
-        TelaCombateIDE::animarCuraNoInimigo(tituloCombate, listaDeInimigos, alvoAnimacao, jogadorAtual, listaDeAliados, curaAnimacao);
-    }
+    GerenciadorPerspectiva::obterTelaCombateUI().animarCuraNoInimigo(tituloCombate, listaDeInimigos, alvoAnimacao, jogadorAtual, listaDeAliados, curaAnimacao);
 }
 
 void TelaCombate::animarDanoNoJogador(const std::string& tituloCombate, const std::vector<Personagem*>& listaDeInimigos, Personagem* alvoAnimacao, Personagem* jogadorAtual, const std::vector<Personagem*>& listaDeAliados, bool isParry, int danoAnimacao) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterTelaCombateUI().animarDanoNoJogador(tituloCombate, listaDeInimigos, alvoAnimacao, jogadorAtual, listaDeAliados, isParry, danoAnimacao);
-    } else {
-        TelaCombateIDE::animarDanoNoJogador(tituloCombate, listaDeInimigos, alvoAnimacao, jogadorAtual, listaDeAliados, isParry, danoAnimacao);
-    }
+    GerenciadorPerspectiva::obterTelaCombateUI().animarDanoNoJogador(tituloCombate, listaDeInimigos, alvoAnimacao, jogadorAtual, listaDeAliados, isParry, danoAnimacao);
 }
 
 void TelaCombate::animarCuraNoJogador(const std::string& tituloCombate, const std::vector<Personagem*>& listaDeInimigos, Personagem* alvoAnimacao, Personagem* jogadorAtual, const std::vector<Personagem*>& listaDeAliados, int curaAnimacao) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterTelaCombateUI().animarCuraNoJogador(tituloCombate, listaDeInimigos, alvoAnimacao, jogadorAtual, listaDeAliados, curaAnimacao);
-    } else {
-        TelaCombateIDE::animarCuraNoJogador(tituloCombate, listaDeInimigos, alvoAnimacao, jogadorAtual, listaDeAliados, curaAnimacao);
-    }
+    GerenciadorPerspectiva::obterTelaCombateUI().animarCuraNoJogador(tituloCombate, listaDeInimigos, alvoAnimacao, jogadorAtual, listaDeAliados, curaAnimacao);
 }
 
 void TelaCombate::animarMorteInimigo(const std::string& tituloCombate, const std::vector<Personagem*>& listaDeInimigos, Personagem* inimigoMorto, Personagem* jogadorAtual, const std::vector<Personagem*>& listaDeAliados, const std::vector<std::string>& drops) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterTelaCombateUI().animarMorteInimigo(tituloCombate, listaDeInimigos, inimigoMorto, jogadorAtual, listaDeAliados, drops);
-    } else {
-        TelaCombateIDE::animarMorteInimigo(tituloCombate, listaDeInimigos, inimigoMorto, jogadorAtual, listaDeAliados, drops);
-    }
+    GerenciadorPerspectiva::obterTelaCombateUI().animarMorteInimigo(tituloCombate, listaDeInimigos, inimigoMorto, jogadorAtual, listaDeAliados, drops);
 }
 
 void TelaCombate::atualizarTelaEstatica(const std::string& tituloCombate, const std::vector<Personagem*>& listaDeInimigos, Personagem* jogadorAtual, const std::vector<Personagem*>& listaDeAliados, bool animarEntrada) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterTelaCombateUI().atualizarTelaEstatica(tituloCombate, listaDeInimigos, jogadorAtual, listaDeAliados, animarEntrada);
-    } else {
-        TelaCombateIDE::atualizarTelaEstatica(tituloCombate, listaDeInimigos, jogadorAtual, listaDeAliados, animarEntrada);
-    }
+    GerenciadorPerspectiva::obterTelaCombateUI().atualizarTelaEstatica(tituloCombate, listaDeInimigos, jogadorAtual, listaDeAliados, animarEntrada);
 }
 
 void TelaCombate::adicionarMensagemFixa(const std::string& msg) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterTelaCombateUI().adicionarMensagemFixa(msg);
-    } else {
-        TelaCombateIDE::adicionarMensagemFixa(msg);
-    }
+    GerenciadorPerspectiva::obterTelaCombateUI().adicionarMensagemFixa(msg);
 }
 
 void TelaCombate::limparMensagensFixas() {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterTelaCombateUI().limparMensagensFixas();
-    } else {
-        TelaCombateIDE::limparMensagensFixas();
-    }
+    GerenciadorPerspectiva::obterTelaCombateUI().limparMensagensFixas();
 }
 
 void TelaCombate::configurarContexto3D(bool modo3D, const std::vector<std::string>& matriz, float posX, float posY, float angulo, const std::string& titulo) {
@@ -113,11 +64,7 @@ void TelaCombate::configurarContexto3D(bool modo3D, const std::vector<std::strin
 }
 
 void TelaCombate::selecionarHUDDeAliado(Personagem* jogadorAtual, const std::vector<Personagem*>& aliados) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterTelaCombateUI().selecionarHUDDeAliado(jogadorAtual, aliados);
-    } else {
-        TelaCombateIDE::selecionarHUDDeAliado(jogadorAtual, aliados);
-    }
+    GerenciadorPerspectiva::obterTelaCombateUI().selecionarHUDDeAliado(jogadorAtual, aliados);
 }
 
 void TelaCombate::definirTurnoVisivel(int turno, const std::string& nome) {
@@ -126,107 +73,55 @@ void TelaCombate::definirTurnoVisivel(int turno, const std::string& nome) {
 }
 
 int TelaCombate::obterAcaoDoJogador(int turnoAtual, Personagem* personagemAgindo, const std::vector<Personagem*>& inimigos, Personagem* jogadorAtual, const std::vector<Personagem*>& aliados) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        return GerenciadorPerspectiva::obterTelaCombateUI().obterAcaoDoJogador(turnoAtual, personagemAgindo, inimigos, jogadorAtual, aliados);
-    } else {
-        return TelaCombateIDE::obterAcaoDoJogador(turnoAtual, personagemAgindo, inimigos, jogadorAtual, aliados);
-    }
+    return GerenciadorPerspectiva::obterTelaCombateUI().obterAcaoDoJogador(turnoAtual, personagemAgindo, inimigos, jogadorAtual, aliados);
 }
 
 int TelaCombate::obterAlvoAtaque(const std::string& tituloCombate, const std::vector<Personagem*>& inimigos, Personagem* jogadorAtual, const std::vector<Personagem*>& aliados) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        return GerenciadorPerspectiva::obterTelaCombateUI().obterAlvoAtaque(tituloCombate, inimigos, jogadorAtual, aliados);
-    } else {
-        return TelaCombateIDE::obterAlvoAtaque(tituloCombate, inimigos, jogadorAtual, aliados);
-    }
+    return GerenciadorPerspectiva::obterTelaCombateUI().obterAlvoAtaque(tituloCombate, inimigos, jogadorAtual, aliados);
 }
 
 int TelaCombate::obterAlvoItem(const std::string& tituloCombate, const std::vector<Personagem*>& inimigos, Personagem* jogadorAtual, const std::vector<Personagem*>& aliados) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        return GerenciadorPerspectiva::obterTelaCombateUI().obterAlvoItem(tituloCombate, inimigos, jogadorAtual, aliados);
-    } else {
-        return TelaCombateIDE::obterAlvoItem(tituloCombate, inimigos, jogadorAtual, aliados);
-    }
+    return GerenciadorPerspectiva::obterTelaCombateUI().obterAlvoItem(tituloCombate, inimigos, jogadorAtual, aliados);
 }
 
 int TelaCombate::obterEscolhaDeEscudo(const std::string& nomePersonagem, const std::vector<Item*>& listaDeEscudos) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        return GerenciadorPerspectiva::obterTelaCombateUI().obterEscolhaDeEscudo(nomePersonagem, listaDeEscudos);
-    } else {
-        return TelaCombateIDE::obterEscolhaDeEscudo(nomePersonagem, listaDeEscudos);
-    }
+    return GerenciadorPerspectiva::obterTelaCombateUI().obterEscolhaDeEscudo(nomePersonagem, listaDeEscudos);
 }
 
 void TelaCombate::notificarInimigosMaisAgeis() {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterTelaCombateUI().notificarInimigosMaisAgeis();
-    } else {
-        TelaCombateIDE::notificarInimigosMaisAgeis();
-    }
+    GerenciadorPerspectiva::obterTelaCombateUI().notificarInimigosMaisAgeis();
 }
 
 void TelaCombate::notificarTurnoExtra(int destrezaJogador, int maxDestrezaInimigos) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterTelaCombateUI().notificarTurnoExtra(destrezaJogador, maxDestrezaInimigos);
-    } else {
-        TelaCombateIDE::notificarTurnoExtra(destrezaJogador, maxDestrezaInimigos);
-    }
+    GerenciadorPerspectiva::obterTelaCombateUI().notificarTurnoExtra(destrezaJogador, maxDestrezaInimigos);
 }
 
 void TelaCombate::notificarDesprevencaoInventario() {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterTelaCombateUI().notificarDesprevencaoInventario();
-    } else {
-        TelaCombateIDE::notificarDesprevencaoInventario();
-    }
+    GerenciadorPerspectiva::obterTelaCombateUI().notificarDesprevencaoInventario();
 }
 
 void TelaCombate::notificarSemEscudos(const std::string& nomePersonagem) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterTelaCombateUI().notificarSemEscudos(nomePersonagem);
-    } else {
-        TelaCombateIDE::notificarSemEscudos(nomePersonagem);
-    }
+    GerenciadorPerspectiva::obterTelaCombateUI().notificarSemEscudos(nomePersonagem);
 }
 
 void TelaCombate::notificarDesequilibrioDefesa(const std::string& nomePersonagem) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterTelaCombateUI().notificarDesequilibrioDefesa(nomePersonagem);
-    } else {
-        TelaCombateIDE::notificarDesequilibrioDefesa(nomePersonagem);
-    }
+    GerenciadorPerspectiva::obterTelaCombateUI().notificarDesequilibrioDefesa(nomePersonagem);
 }
 
 void TelaCombate::notificarPosturaDefensiva(const std::string& nomePersonagem, const std::string& nomeEscudo) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterTelaCombateUI().notificarPosturaDefensiva(nomePersonagem, nomeEscudo);
-    } else {
-        TelaCombateIDE::notificarPosturaDefensiva(nomePersonagem, nomeEscudo);
-    }
+    GerenciadorPerspectiva::obterTelaCombateUI().notificarPosturaDefensiva(nomePersonagem, nomeEscudo);
 }
 
 void TelaCombate::notificarAcaoInvalida() {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterTelaCombateUI().notificarAcaoInvalida();
-    } else {
-        TelaCombateIDE::notificarAcaoInvalida();
-    }
+    GerenciadorPerspectiva::obterTelaCombateUI().notificarAcaoInvalida();
 }
 
 void TelaCombate::notificarCancelamentoItem() {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterTelaCombateUI().notificarCancelamentoItem();
-    } else {
-        TelaCombateIDE::notificarCancelamentoItem();
-    }
+    GerenciadorPerspectiva::obterTelaCombateUI().notificarCancelamentoItem();
 }
 
 void TelaCombate::notificarRequisitoNaoAtendido(const std::string& mensagemRequisito) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterTelaCombateUI().notificarRequisitoNaoAtendido(mensagemRequisito);
-    } else {
-        TelaCombateIDE::notificarRequisitoNaoAtendido(mensagemRequisito);
-    }
+    GerenciadorPerspectiva::obterTelaCombateUI().notificarRequisitoNaoAtendido(mensagemRequisito);
 }
 
 std::string TelaCombate::margemCombate() {

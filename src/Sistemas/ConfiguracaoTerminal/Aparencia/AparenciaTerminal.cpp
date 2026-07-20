@@ -1,6 +1,5 @@
 #include "AparenciaTerminal.h"
 #include "Aparencia.h"
-#include "../../../Perspectiva/PerspectivaIDE/TemaIDE.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>

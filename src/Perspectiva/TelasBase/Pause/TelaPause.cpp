@@ -3,43 +3,27 @@
 #include <iostream>
 #include "../../../Entidades/Personagem.h"
 #include "../../GerenciadorPerspectiva.h"
-#include "../../PerspectivaIDE/TelasIDE/Pause/TelaPauseIDE.h"
 #include "../../../Core/Utilidades/Aparencia.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"
 
 static int obterEscolhaMenuPause() {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        return GerenciadorPerspectiva::obterPauseUI().renderizarMenuPause();
-    }
-    return TelaPauseIDE::renderizarMenuPause();
+    return GerenciadorPerspectiva::obterPauseUI().renderizarMenuPause();
 }
 
 static int obterEscolhaConfiguracoes(Personagem* jogador) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        return GerenciadorPerspectiva::obterPauseUI().renderizarMenuConfiguracoes(jogador);
-    }
-    return TelaPauseIDE::renderizarMenuConfiguracoes(jogador);
+    return GerenciadorPerspectiva::obterPauseUI().renderizarMenuConfiguracoes(jogador);
 }
 
 static int obterEscolhaAparencia(Personagem* jogador) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        return GerenciadorPerspectiva::obterPauseUI().renderizarMenuAparencia(jogador);
-    }
-    return TelaPauseIDE::renderizarMenuAparencia(jogador);
+    return GerenciadorPerspectiva::obterPauseUI().renderizarMenuAparencia(jogador);
 }
 
 static int obterEscolhaFundo(int corFundoAtualIndex) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        return GerenciadorPerspectiva::obterPauseUI().renderizarMenuFundo(corFundoAtualIndex);
-    }
-    return TelaPauseIDE::renderizarMenuFundo(corFundoAtualIndex);
+    return GerenciadorPerspectiva::obterPauseUI().renderizarMenuFundo(corFundoAtualIndex);
 }
 
 static int obterEscolhaSensibilidade(int percX, int percY) {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        return GerenciadorPerspectiva::obterPauseUI().renderizarMenuSensibilidade(percX, percY);
-    }
-    return TelaPauseIDE::renderizarMenuSensibilidade(percX, percY);
+    return GerenciadorPerspectiva::obterPauseUI().renderizarMenuSensibilidade(percX, percY);
 }
 
 void TelaPause::exibir(Personagem* jogador) {
@@ -64,15 +48,7 @@ void TelaPause::exibir(Personagem* jogador) {
                 } else if (confEscolha == 1) {
                     jogador->definirParryAtivado(!jogador->obterParryAtivado());
                 } else if (confEscolha == 2) {
-                    bool isTerminal = !GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva();
-                    if (isTerminal) {
-                        std::cout << "\n";
-                        Aparencia::imprimirCentralizado(Aparencia::cor(Cor::AMARELO) + "[AVISO]: Na visao de terminal (IDE), apenas o sistema de parry de digitacao esta disponivel." + Aparencia::cor(Cor::RESET));
-                        Aparencia::imprimirCentralizado(Aparencia::cor(Cor::CINZA) + "[AVISO]: A alternancia de parry (movimento/digitacao) so esta disponivel fora da visao de terminal." + Aparencia::cor(Cor::RESET));
-                        ControleDeInput::aguardarEnter();
-                    } else {
-                        jogador->definirParryModerno(!jogador->obterParryModerno());
-                    }
+                    jogador->definirParryModerno(!jogador->obterParryModerno());
                 } else if (confEscolha == 3) {
                     bool aparenciaAberta = true;
                     while (aparenciaAberta) {

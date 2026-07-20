@@ -41,7 +41,7 @@ void Aparencia::definirUltimoPopup(int x, int y, int w, int h, const std::string
     ultimoPopupX = x; ultimoPopupY = y; ultimoPopupW = w; ultimoPopupH = h; ultimoPopupBg = bgAnsi;
 }
 
-void Aparencia::exibirPopup(const std::string& titulo, const std::vector<std::string>& texto, Cor corTema, const std::vector<std::string>& arteOriginal, bool mostrarMensagemEnter) {
+void Aparencia::exibirPopup(const std::string& titulo, const std::vector<std::string>& texto, Cor corTema, const std::vector<std::string>& arteOriginal) {
     limparPopupAnterior();
 
     std::vector<std::string> arte = arteOriginal;
@@ -50,10 +50,6 @@ void Aparencia::exibirPopup(const std::string& titulo, const std::vector<std::st
     }
 
     std::vector<std::string> linhasTexto = texto;
-    if (mostrarMensagemEnter) {
-        linhasTexto.push_back("");
-        linhasTexto.push_back(cor(Cor::CINZA) + "[ Pressione ENTER para continuar ]" + cor(Cor::RESET));
-    }
 
     std::string bgPopup = "\033[48;2;25;25;25m";
     std::vector<std::string> caixa = TelaBase::criarCaixaComArte(arte, linhasTexto, titulo, 0, corTema, bgPopup);

@@ -1,9 +1,8 @@
 #include "GerenciadorPerspectiva.h"
-#include "PerspectivaIDE/EngineIDE/IDERenderer.h"
 #include "PerspectivaRaycaster/EngineRaycaster/Raycaster.h"
 #include "PerspectivaRaycaster/EngineRaycaster/RaycasterRenderer.h"
 #include "../Core/Utilidades/RendererProvider.h"
-#include "PerspectivaIDE/GerenciadorTelasIDE.h"
+#include "../Core/Utilidades/Aparencia.h"
 #include "PerspectivaRaycaster/GerenciadorTelasRaycaster.h"
 #include "PerspectivaRaycaster/TelasRaycaster/Diario/TelaDiarioRaycaster.h"
 #include "PerspectivaRaycaster/TelasRaycaster/Inventario/TelaInventarioRaycaster.h"
@@ -86,38 +85,34 @@ GerenciadorPerspectiva::GerenciadorPerspectiva() : m_visao3DAtiva(true) {
 }
 
 void GerenciadorPerspectiva::inicializar() {
-    m_rendererTerminal = std::make_unique<IDERenderer>();
-    // Por enquanto a Engine3D usará as mesmas mecânicas de popup (TelasBase), mas sem as formatações IDE.
     m_renderer3D = std::make_unique<RaycasterRenderer>();
-
-    m_telasTerminal = std::make_unique<GerenciadorTelasIDE>();
     m_telas3D = std::make_unique<GerenciadorTelasRaycaster>();
-
-    // Configura o Provider inicial baseado no estado (3D é o padrão da nossa fantasia)
-    RendererProvider::set(obterRendererAtivo());
+    m_visao3DAtiva = true;
+    RendererProvider::set(m_renderer3D.get());
 }
 
 void GerenciadorPerspectiva::alternarVisao() {
-    m_visao3DAtiva = !m_visao3DAtiva;
-    RendererProvider::set(obterRendererAtivo());
+    Aparencia::exibirPopup(
+        "PERSPECTIVA IDE",
+        {"A perspective IDE esta em construcao!",
+         "",
+         "Em breve voce podera explorar o jogo",
+         "no estilo de um terminal de programacao.",
+         "Por enquanto, apenas a visao 3D esta disponivel."},
+        Cor::AMARELO
+    );
 }
 
 bool GerenciadorPerspectiva::isVisao3DAtiva() const {
-    return m_visao3DAtiva;
+    return true;
 }
 
 RenderizadorPerspectiva* GerenciadorPerspectiva::obterRendererAtivo() const {
-    if (m_visao3DAtiva) {
-        return m_renderer3D.get();
-    }
-    return m_rendererTerminal.get();
+    return m_renderer3D.get();
 }
 
 IGerenciadorTelas* GerenciadorPerspectiva::obterGerenciadorTelas() const {
-    if (m_visao3DAtiva) {
-        return m_telas3D.get();
-    }
-    return m_telasTerminal.get();
+    return m_telas3D.get();
 }
 
 float GerenciadorPerspectiva::obterSensibilidadeMouseX() {

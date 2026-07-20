@@ -1,7 +1,6 @@
 #include "TelaVitoria.h"
 #include <map>
 #include "../../GerenciadorPerspectiva.h"
-#include "../../PerspectivaIDE/TelasIDE/Vitoria/TelaVitoriaIDE.h"
 #include "../../../Sistemas/Combate/Combate.h"
 #include "../../../Entidades/Personagem.h"
 #include "../Combate/TelaCombate.h"
@@ -20,13 +19,7 @@ void TelaVitoria::exibir(Personagem* jogadorAtual, int quantidadeDeOuroObtido, i
 
     const std::string& tituloMapa = TelaCombate::contexto.tituloMapaAtual;
 
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterVitoriaUI().exibir(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido,
-            totalDeDanoCausado, totalDeDanoRecebido, curaTotalRecebida, turnosCombate,
-            inimigosDerrotados, parriesPerfeitos, maiorDano, parriesTentados, parriesEfetivos, itensConsumidos, dropsUnicos, podeSubirNivel, novasDescobertas, tituloMapa);
-    } else {
-        TelaVitoriaIDE::exibir(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido,
-            totalDeDanoCausado, totalDeDanoRecebido, curaTotalRecebida, turnosCombate,
-            inimigosDerrotados, parriesPerfeitos, maiorDano, parriesTentados, parriesEfetivos, itensConsumidos, dropsUnicos, podeSubirNivel, novasDescobertas, tituloMapa);
-    }
+    GerenciadorPerspectiva::obterVitoriaUI().exibir(jogadorAtual, quantidadeDeOuroObtido, quantidadeDeXpObtido,
+        totalDeDanoCausado, totalDeDanoRecebido, curaTotalRecebida, turnosCombate,
+        inimigosDerrotados, parriesPerfeitos, maiorDano, parriesTentados, parriesEfetivos, itensConsumidos, dropsUnicos, podeSubirNivel, novasDescobertas, tituloMapa);
 }

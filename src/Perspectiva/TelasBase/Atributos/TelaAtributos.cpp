@@ -1,6 +1,5 @@
 #include "TelaAtributos.h"
 #include "../../GerenciadorPerspectiva.h"
-#include "../../PerspectivaIDE/TelasIDE/Atributos/TelaAtributosIDE.h"
 #include "../TelaBase.h"
 #include "../../../Core/Utilidades/Aparencia.h"
 #include "../../../Core/Utilidades/ControleDeInput.h"
@@ -42,82 +41,12 @@ DebuffInfo TelaAtributos::calcularDebuff(Personagem* jogadorAtual) {
 
 void TelaAtributos::exibir(Personagem* jogadorAtual)
 {
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterAtributosUI().exibir(jogadorAtual);
-    } else {
-        TelaAtributosIDE::exibir(jogadorAtual);
-    }
+    GerenciadorPerspectiva::obterAtributosUI().exibir(jogadorAtual);
 }
 
 void TelaAtributos::gerenciarFichaDoJogador(Personagem* jogadorAtual)
 {
     if (jogadorAtual == nullptr) return;
 
-    if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-        GerenciadorPerspectiva::obterAtributosUI().gerenciarFichaDoJogador(jogadorAtual);
-        return;
-    }
-
-    TelaBase::executarLoop(
-        nullptr,
-        [jogadorAtual]() {
-            TelaAtributos::exibir(jogadorAtual);
-        },
-        []() {
-            return std::vector<std::string>{ "SUBIR DE NIVEL", "DETALHES DE ATRIBUTOS", "VOLTAR" };
-        },
-        [jogadorAtual](int selecao) {
-            if (selecao == 0) {
-                if (!jogadorAtual->podeSubirDeNivel()) {
-                    Aparencia::exibirPrompt(FuncoesDialogo::formatarMsgSistema("Voce nao tem XP suficiente para subir de nivel!", Cor::AMARELO));
-                    ControleDeInput::aguardarEnter();
-                } else {
-                    std::vector<std::string> opcoesAtr;
-                    std::string nomesAtr[] = {"Vida", "Forca", "Destreza", "Resistencia", "Constituicao", "Inteligencia", "Sabedoria"};
-
-                    for (int i = 1; i <= 7; ++i) {
-                        auto clonePreview = jogadorAtual->clone();
-                        clonePreview->subirDeNivel(static_cast<TipoAtributo>(i));
-
-                        int valAtual = 0, valNovo = 0;
-                        switch (i) {
-                            case 1: valAtual = jogadorAtual->obterVidaMaxima(); valNovo = clonePreview->obterVidaMaxima(); break;
-                            case 2: valAtual = jogadorAtual->obterForca(); valNovo = clonePreview->obterForca(); break;
-                            case 3: valAtual = jogadorAtual->obterDestreza(); valNovo = clonePreview->obterDestreza(); break;
-                            case 4: valAtual = jogadorAtual->obterResistencia(); valNovo = clonePreview->obterResistencia(); break;
-                            case 5: valAtual = jogadorAtual->obterConstituicao(); valNovo = clonePreview->obterConstituicao(); break;
-                            case 6: valAtual = jogadorAtual->obterInteligencia(); valNovo = clonePreview->obterInteligencia(); break;
-                            case 7: valAtual = jogadorAtual->obterSabedoria(); valNovo = clonePreview->obterSabedoria(); break;
-                        }
-
-                        int ganho = valNovo - valAtual;
-                        opcoesAtr.push_back(nomesAtr[i - 1] + " " + Aparencia::cor(Cor::CINZA) + "(" + std::to_string(valAtual) + " -> " + std::to_string(valNovo) + " [" + Aparencia::cor(Cor::VERDE) + "+" + std::to_string(ganho) + Aparencia::cor(Cor::CINZA) + "])" + Aparencia::cor(Cor::RESET));
-                    }
-                    opcoesAtr.push_back("Cancelar");
-
-                    std::cout << "\n";
-                    Aparencia::imprimirCentralizado("Escolha o atributo para melhorar:");
-                    std::cout << "\n";
-                    int escolhaAtr = ControleDeInput::lerSelecaoMenuComSetas(opcoesAtr, true);
-
-                    if (escolhaAtr >= 0 && escolhaAtr <= 6) {
-                        TipoAtributo atributo = static_cast<TipoAtributo>(escolhaAtr + 1);
-                        if (jogadorAtual->subirDeNivel(atributo)) {
-                            Aparencia::exibirPrompt(FuncoesDialogo::formatarMsgSistema("Nivel subiu! Atributo melhorado.", Cor::VERDE));
-                            ControleDeInput::aguardarEnter();
-                        }
-                    }
-                }
-            } else if (selecao == 1) {
-                if (GerenciadorPerspectiva::obterInstancia().isVisao3DAtiva()) {
-                    GerenciadorPerspectiva::obterAtributosUI().exibirDetalhesAtributos(jogadorAtual);
-                } else {
-                    TelaAtributosIDE::exibirDetalhesAtributos(jogadorAtual);
-                }
-            } else if (selecao == 2 || selecao == -1) {
-                return false;
-            }
-            return true;
-        }
-    );
+    GerenciadorPerspectiva::obterAtributosUI().gerenciarFichaDoJogador(jogadorAtual);
 }

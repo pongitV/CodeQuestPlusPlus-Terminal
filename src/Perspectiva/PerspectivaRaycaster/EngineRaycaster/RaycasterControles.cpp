@@ -91,7 +91,18 @@ char RaycasterControles::processarInputEControles(
 
     if (GetAsyncKeyState('V') & 0x8000) {
         mouseHider.show();
-        rodando = false;
+        ControleDeInput::limparBuffer();
+        Aparencia::exibirPopup(
+            "PERSPECTIVA IDE",
+            {"A perspectiva IDE esta em construcao!",
+             "",
+             "Em breve voce podera explorar o jogo",
+             "no estilo de um terminal de programacao.",
+             "Por enquanto, apenas a visao 3D esta disponivel."},
+            Cor::AMARELO
+        );
+        RaycasterQuadro::restaurarUltimoQuadro();
+        primeiraIteracaoMouse = true;
         while (GetAsyncKeyState('V') & 0x8000) std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 

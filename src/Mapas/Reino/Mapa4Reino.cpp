@@ -81,7 +81,7 @@ ProximaTransicaoMapa Mapa4Reino::iniciarLoopDeExploracao()
     interacoes['^'] = [&](int px, int py, int larg) {
         if (jogadorEstaDentroDeUmSubMapa) {
             // Saindo da Igreja (submapa) de volta para o patio do Reino
-            if (px == 75 && py == 3) {
+            if (px == 18 && py == 3) {
                 matrizDoMapaAtual = matrizDoMapaPrincipalSalva;
                 posicaoXDoJogador = posicaoXSalvaAntesDeEntrarNoSubMapa;
                 posicaoYDoJogador = posicaoYSalvaAntesDeEntrarNoSubMapa;
@@ -119,7 +119,7 @@ ProximaTransicaoMapa Mapa4Reino::iniciarLoopDeExploracao()
                 posicaoXSalvaAntesDeEntrarNoSubMapa, posicaoYSalvaAntesDeEntrarNoSubMapa,
                 posicaoXDoJogador, posicaoYDoJogador, jogadorEstaDentroDeUmSubMapa,
                 tituloDoMapaAtual, matrizDoMapaDaIgrejaSalva, igrejaJaFoiVisitada,
-                Mapa4ReinoLayouts::obterLayoutIgreja(), 74, 3, "IGREJA DO REINO", restaurarTela
+                Mapa4ReinoLayouts::obterLayoutIgreja(), 17, 3, "IGREJA DO REINO", restaurarTela
             );
         }
     };
