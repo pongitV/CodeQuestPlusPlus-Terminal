@@ -13,3 +13,8 @@ Este documento lista os bugs conhecidos e funcionalidades incompletas presentes 
 - Implementar novas classes e racas adicionais.
 - Ajuste de responsividade do terminal para diferentes tamanhos de fontes.
 - Efeitos sonoros para as transicoes (se um wrapper/biblioteca externa for incluida no fork).
+
+## Perspectiva IDE
+
+- **Status**: Suspensa e incompleta.
+- **Metodologia**: A Perspectiva IDE deve representar o código fonte do jogo em ação durante o gameplay. Seu objetivo é exibir a estrutura de classes, variáveis em tempo real e o fluxo de execução das lógicas de forma didática, simulando como uma IDE exibe o estado de um programa rodando em tempo real no console, tudo formatado com coloração de sintaxe e rastreamento de instâncias e métodos.
