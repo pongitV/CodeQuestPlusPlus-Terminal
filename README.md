@@ -125,4 +125,4 @@ Projeto pessoal focado em aprendizado. Para contribuições, abra issues e envie
 
 ## Licença
 
-Adicione a licença desejada (por exemplo, MIT) se quiser permitir contribuições externas.
+Este projeto é licenciado sob a licença GNU GPLv3 - veja o arquivo [LICENSE](LICENSE) para detalhes.
