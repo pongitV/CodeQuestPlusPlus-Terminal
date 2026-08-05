@@ -102,7 +102,7 @@ O desenvolvimento desta versão para terminal serviu como um exercício aprofund
 - Estruturação orientada a objetos com forte uso de polimorfismo e injeção de dependências para separar as lógicas do jogo da camada de renderização.
 - Gerenciamento persistente de estado (State Pattern) para alternar entre exploração em tempo real, gerenciamento de inventário e combate em turnos sem comprometer a estabilidade do console.
 
-A decisão de suspender esta versão e migrar a arquitetura base para o Direct2D (em um repositório dedicado) baseia-se nas limitações técnicas do console do Windows (CPU-bound, oscilação visual severa em atualizações rápidas, restrições de framerate e limitação de manipulação de *buffers*). A transição para uma API gráfica real permitirá o reaproveitamento dos padrões arquiteturais robustos desenvolvidos aqui, com o benefício direto do controle sobre o hardware gráfico.
+A decisão de suspender esta versão e migrar a arquitetura base para um Framework mais livre e eficiente (em um repositório dedicado) baseia-se nas limitações técnicas do console do Windows (CPU-bound, oscilação visual severa em atualizações rápidas, restrições de framerate e limitação de manipulação de *buffers*). A transição para uma API gráfica real permitirá o reaproveitamento dos padrões arquiteturais robustos desenvolvidos aqui, com o benefício direto do controle sobre o hardware gráfico.
 
 ## Como adicionar novas telas
 
