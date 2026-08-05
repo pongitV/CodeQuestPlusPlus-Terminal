@@ -2,12 +2,14 @@
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Define o destino do executável como a pasta bin/ na raiz do repositório
+# Define o destino de todos os binários (executáveis, bibliotecas e arquivos) como a pasta bin/ na raiz do repositório
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
 # Encontra todos os arquivos .cpp dentro da pasta 'src' (excluindo PerspectivaIDE)
 file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
-file(GLOB_RECURSE IDE_SOURCES "${CMAKE_SOURCE_DIR}/src/Perspectiva/PerspectivaIDE/*.cpp")
+file(GLOB_RECURSE IDE_SOURCES "${CMAKE_SOURCE_DIR}/src/UI/Renderers/IDE/*.cpp")
 list(REMOVE_ITEM SOURCES ${IDE_SOURCES})
 
 # Adiciona o arquivo de recursos do icone se ele existir (para Windows)

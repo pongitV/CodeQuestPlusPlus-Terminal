@@ -1,0 +1,39 @@
+#pragma once
+
+#include <cstdint>
+
+enum class Color : uint32_t {
+    RESET = 0xFFFFFFFF,
+    BOLD = 0xFFFFFFFE,
+    RED = 0xFF3232,
+    GREEN = 0x228B22,
+    YELLOW = 0xFFC832,
+    BLUE = 0x0000FF,
+    MAGENTA = 0xC864FF,
+    CYAN = 0x64C8FF,
+    WHITE = 0xFFFFFF,
+    GRAY = 0x8C8C8C,
+    LIGHT_RED = 0xFF5555,
+    LIGHT_GREEN = 0x55FF55,
+    ORANGE = 0xFFA500,
+    PURPLE = 0x800080,
+    LILAC = 0xC8A2C8,
+    WATER = 0x3296FF,
+
+    BROWN = 0x8B4513,
+    BROWN_OFCOURSE = 0xD2B48C,
+    WOOD = 0x654321,
+    GREEN_DARK = 0x006400,
+    BRICK = 0xA03C28,
+    SILVER = 0xC8C8DC,
+    GOLD = 0xC89632,
+    TELEPORT = 0xFFFF32,
+
+    BG_RED = 0x80FF0000,
+    BG_GREEN = 0x8000FF00,
+    BG_YELLOW = 0x80FFFF00,
+    BG_BLUE = 0x800000FF,
+    BG_MAGENTA = 0x80FF00FF,
+    BG_CYAN = 0x8000FFFF,
+    BG_WHITE = 0x80FFFFFF
+};

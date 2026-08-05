@@ -12,5 +12,26 @@ compile_commands.json
 build/
 .cache/
 
-# Executáveis locais (opcional, mantido comentado se desejar ignorar futuramente)
-# bin/CodeQuestPlusPlus.exe
+# IDEs e Editores
+.vscode/
+.vs/
+.idea/
+*.suo
+*.sln
+*.swp
+
+# Arquivos compilados (Objetos e Binários)
+*.o
+*.obj
+*.pdb
+*.ilk
+*.a
+*.lib
+*.so
+*.dll
+*.out
+*.app
+
+# Logs e arquivos temporários
+*.log
+.system_generated/

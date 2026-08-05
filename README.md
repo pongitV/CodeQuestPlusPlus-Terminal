@@ -2,7 +2,7 @@
 
 Um RPG de terminal implementado em C++ com duas perspectivas: um renderer estilo raycaster para gameplay e um "Modo IDE" que apresenta, em tempo de execução, como partes do código estão funcionando. O projeto é um exercício de aprendizado em C++ sem dependências externas.
 
-Arquivo principal: [src/Principal.cpp](src/Principal.cpp)
+Arquivo principal: [src/Main.cpp](src/Main.cpp)
 
 Executável pré-compilado: [bin/CodeQuestPlusPlus-Terminal.exe](bin/CodeQuestPlusPlus-Terminal.exe)
 
@@ -34,6 +34,8 @@ cmake -S . -B build
 cmake --build build
 ```
 
+*(Alternativamente, utilize os scripts em `scripts/build/compilar_inicio.bat` para build limpo e `compilar_mudancas.bat` para build incremental no Windows).*
+
 ### Observação sobre toolchains
 
 O código utiliza chamadas Win32 (`ShellExecuteEx`, `IsUserAnAdmin`, etc.), portanto é direcionado a Windows. Compilar com MSVC (Visual Studio) é a opção mais direta; MinGW/MSYS2 pode funcionar dependendo do ambiente.
@@ -55,7 +57,7 @@ chcp 65001
 \bin\CodeQuestPlusPlus-Terminal.exe
 ```
 
-O jogo pode solicitar elevação de privilégios (UAC). A chamada `garantirAdmin()` em [src/Principal.cpp](src/Principal.cpp) tenta iniciar uma instância elevada e encerrar a instância atual.
+O jogo pode solicitar elevação de privilégios (UAC). A chamada `garantirAdmin()` em [src/Main.cpp](src/Main.cpp) tenta iniciar uma instância elevada e encerrar a instância atual.
 
 ## Estrutura do projeto
 
@@ -64,17 +66,18 @@ CodeQuestPlusPlus-Terminal/
 ├── CMakeLists.txt
 ├── CMakePresets.json
 ├── README.md
+├── scripts/
+│   ├── build/      # Scripts de compilação (.bat)
+│   └── tools/      # Scripts utilitários (Python)
 ├── src/
-│   ├── Principal.cpp
-│   ├── Core/
-│   │   ├── Controladores/
-│   │   └── Utilidades/
-│   ├── Entidades/
-│   │   ├── Classes/
-│   │   └── Racas/
-│   ├── Mapas/
-│   ├── Perspectiva/    # Raycaster + Modo IDE
-│   └── Sistemas/
+│   ├── Main.cpp
+│   ├── Core/       # Motor, Terminal e Utilitários
+│   ├── Domain/     # Entidades, Itens, Classes e Raças
+│   ├── Systems/    # Sistemas (Combate, Inventário, Progressão)
+│   ├── UI/         # Interfaces e Renderizadores (2D/3D Raycaster)
+│   └── World/      # Mapas e Transições de Cenário
+├── docs/           # Documentação
+├── tests/          # Testes (futuro)
 └── bin/
 	└── CodeQuestPlusPlus-Terminal.exe
 ```
@@ -103,10 +106,9 @@ A decisão de suspender esta versão e migrar a arquitetura base para o Direct2D
 
 ## Como adicionar novas telas
 
-1. Criar a tela base em `src/Perspectiva/TelasBase/` (ou pasta equivalente)
-2. Criar a tela terminal em `src/Perspectiva/Terminal/TelasIDE/` (ou caminho equivalente)
-3. Registrar a nova tela no gerenciador de perspectivas
-4. Compilar o projeto
+1. Criar a nova tela em `src/UI/Screens/`
+2. Registrar a nova tela no gerenciador de perspectivas (`src/UI/PerspectiveManager.h`/`.cpp`)
+3. Compilar o projeto
 
 ## Como mover o projeto
 
