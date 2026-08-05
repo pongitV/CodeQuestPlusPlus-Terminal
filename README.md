@@ -1,3 +1,9 @@
+## 📦 Versão histórica (código em português)
+
+O código original deste projeto, com identificadores (nomes de classes, funções, variáveis e arquivos) em português e inglês misturados, está preservado no branch:
+
+Este branch contém o estado do código *antes* da padronização para o inglês e é mantido apenas para fins históricos e de consulta. Todo o desenvolvimento ativo e futuras atualizações ocorrem na branch `main`.
+
 # CodeQuestPlusPlus-Terminal
 
 Um RPG de terminal implementado em C++ com duas perspectivas: um renderer estilo raycaster para gameplay e um "Modo IDE" que apresenta, em tempo de execução, como partes do código estão funcionando. O projeto é um exercício de aprendizado em C++ sem dependências externas.
