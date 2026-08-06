@@ -1,6 +1,6 @@
 /*
  * Arquivo: Item.h
- * Propósito: Classe base abstrata para representação de itens (Equipamentos, Consumíveis, Materiais e Missões).
+ * Proposito: Classe base abstrata para representacao de itens (Equipamentos, Consumiveis, Materiais e Missoes).
  */
 
 #pragma once
@@ -122,7 +122,7 @@ public:
     virtual int ensureDamageMinimum(int damageEnd) { return std::max(damageEnd, 1); }
 
     virtual int getPriceSale() const { return priceSale; }
-    virtual std::string getInfoStatus() const { return ""; } // Vazio por padrão para itens sem status extra
+    virtual std::string getInfoStatus() const { return ""; } // Vazio por padrao para itens sem status extra
     
     virtual void use(Character* user, Character* target) {
         if (user == nullptr || target == nullptr) return;

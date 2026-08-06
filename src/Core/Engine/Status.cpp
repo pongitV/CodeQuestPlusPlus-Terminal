@@ -1,6 +1,6 @@
 /*
  * Arquivo: Status.cpp
- * Propósito: Implementação das lógicas de aplicação e remoção de efeitos de status nos personagens.
+ * Proposito: Implementacao das logicas de aplicacao e remocao de efeitos de status nos personagens.
  */
 
 #include "Core/Engine/Status.h"

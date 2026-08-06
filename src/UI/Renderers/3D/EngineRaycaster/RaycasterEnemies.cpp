@@ -7,7 +7,7 @@
 #include <memory>
 
 namespace {
-    // getArte is currently unused but kept for reference if needed in future sprite scaling
+    // getArte atualmente nao e utilizado mas mantido para referencia caso necessario no escalonamento de sprites futuro
     /*
     std::vector<std::string> getArte(std::vector<std::unique_ptr<Personagem>> (*func)(int)) {
         auto vec = func(1);

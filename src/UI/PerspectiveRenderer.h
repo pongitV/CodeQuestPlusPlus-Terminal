@@ -1,7 +1,7 @@
 #pragma once
 
-#include "UI/IPopupRenderer.h"
-#include "UI/IScreenRenderer.h"
+#include "UI/Interfaces/IPopupRenderer.h"
+#include "UI/Interfaces/IScreenRenderer.h"
 
 class PerspectiveRenderer : public IRendererPopup, public IRendererScreen {
 public:

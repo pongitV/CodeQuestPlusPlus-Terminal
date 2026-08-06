@@ -1,3 +1,6 @@
+/*
+ * Utilidades multiplataforma para terminal
+ */
 #pragma once
 #include <string>
 #include <vector>
@@ -14,6 +17,7 @@
 #include <unistd.h>
 #endif
 
+// Funcoes de baixo nivel para terminal
 namespace TerminalUtils {
     inline void clearScreen() {
 #ifdef _WIN32

@@ -1,6 +1,6 @@
 /*
  * Arquivo: Shop.cpp
- * Propósito: Implementação das transações e telas de loja com NPCs.
+ * Proposito: Implementacao das transacoes e telas de loja com NPCs.
  */
 
 #include "Core/Engine/Shop.h"

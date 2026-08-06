@@ -80,7 +80,7 @@ void ScreenIntroductionRaycaster::display() {
                  charCount += 15;
             }
         }
-        charactersRevealed += 3; // Tipo 3x mais rápido
+        charactersRevealed += 3; // Tipo 3x mais rapido
 
         MenuRaycasterUtils::flushFrameForConsole(aprBuff.str());
         std::this_thread::sleep_for(std::chrono::milliseconds(30));

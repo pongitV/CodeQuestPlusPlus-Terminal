@@ -1,6 +1,6 @@
 /*
  * Arquivo: IAttacker.h
- * Propósito: Interface para entidades capazes de realizar ataques e causar dano físico/mágico.
+ * Proposito: Interface para entidades capazes de realizar ataques e causar dano fisico/magico.
  */
 
 #pragma once
@@ -16,7 +16,7 @@ public:
     // Calcula o dano base e perfurante gerado pelo atacante
     virtual std::pair<int, int> calculateDamageOffensiveBase() = 0;
     
-    // Assegura o patamar de dano mínimo considerando bônus ativos
+    // Assegura o patamar de dano minimo considerando bonus ativos
     virtual int ensureDamageMinimum(int damageCurrent) = 0;
 };
 

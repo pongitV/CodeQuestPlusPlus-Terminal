@@ -63,7 +63,7 @@ public:
     virtual bool ignoreShield() const { return false; }
 
     virtual void performDrops(Character* /*inimigo*/, Character* /*jogadorAtual*/, std::vector<std::string>& /*itensObtidos*/, int& /*ouroTotal*/, int& /*xpTotal*/) {
-        // Implementação padrão vazia (sem drops)
+        // Implementacao padrao vazia (sem drops)
     }
 
     virtual void aoCauseDamage(Character* /*atacante*/, Character* /*alvo*/, int /*danoCausado*/) {}

@@ -3,6 +3,10 @@
 #include "Systems/Progression/ProgressionFlags.h"
 #include "Systems/Progression/Diary.h"
 
+/*
+ * Instancia global do gerenciador de progresso (Singleton).
+ * Centraliza as regras de negocios e as bandeiras de enredo.
+ */
 Progression& Progression::instance() {
     static Progression inst;
     return inst;
@@ -10,6 +14,11 @@ Progression& Progression::instance() {
 
 Progression::Progression() {}
 
+/*
+ * Modificacao segura de Thread (Thread-Safe):
+ * Utilizamos std::mutex para garantir que o renderizador assincrono 3D 
+ * nao acesse o mapa de flags enquanto ele eh modificado pelo jogo principal.
+ */
 void Progression::setFlag(const std::string& key, bool value) {
     std::lock_guard<std::mutex> lock(mtx);
     flags[key] = value;
@@ -51,23 +60,34 @@ int Progression::getKingdomProgress(Character* currentPlayer) const {
     return (visited ? 50 : 0) + (talkedPriest ? 50 : 0);
 }
 
+/*
+ * Serializacao (Save Game):
+ * Exporta as chaves do mapa local para a persistencia em disco, garantindo
+ * a consistencia dos estados e missoes abertas em um formato iteravel seguro.
+ */
 void Progression::save(std::ofstream& out) const {
     std::lock_guard<std::mutex> lock(mtx);
     out << flags.size() << "\n";
     for (const auto& [key, value] : flags) out << key << "\n" << (value ? 1 : 0) << "\n";
 }
 
+/*
+ * Deserializacao (Load Game):
+ * Realimenta o mapa em memoria (RAM) a partir do estado do save anterior.
+ */
 void Progression::load(std::ifstream& in) {
     std::lock_guard<std::mutex> lock(mtx);
     flags.clear();
     size_t size;
     if (in >> size) {
-        std::string garbage; std::getline(in, garbage); // consome a quebra de linha
+        std::string garbage; std::getline(in, garbage); // Consome a quebra de linha inicial
         for (size_t i = 0; i < size; ++i) { std::string key; std::getline(in, key); int value; in >> value; std::getline(in, garbage); flags[key] = (value == 1); }
     }
 
-    // --- RETROCOMPATIBILIDADE DE SAVES ANTIGOS ---
-    // Evita que saves antigos (anteriores a atualizacao) percam o acesso a Viagem Rapida
+    /*
+     * --- RETROCOMPATIBILIDADE DE SAVES ANTIGOS ---
+     * Evita que saves antigos (anteriores a atualizacao) percam o acesso a Viagem Rapida
+     */
     auto itForest = flags.find("Visitou_Floresta");
     auto itBridgeKingdom = flags.find("Visitou_PonteReino");
     if ((itForest != flags.end() && itForest->second) || 

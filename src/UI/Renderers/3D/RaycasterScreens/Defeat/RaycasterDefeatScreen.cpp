@@ -74,7 +74,7 @@ void ScreenDefeatRaycaster::display(Character* currentPlayer, int quantityDeGold
 
     MenuRaycasterUtils::s_background3DMenu = screenBackground;
 
-    // Helper function to draw a gray box
+    // Funcao auxiliar para desenhar uma caixa cinza
     auto drawBoxGray = [&](std::ostringstream& buff, int y, int x, int width, int height) {
         std::string bg = "\033[48;2;25;25;25m"; 
         std::string colorEdge = "\033[38;2;255;255;255m"; 
@@ -94,7 +94,7 @@ void ScreenDefeatRaycaster::display(Character* currentPlayer, int quantityDeGold
 
     int indexSelected = 0;
     bool popupOpen = false;
-    bool leavingDoGame = false; // flag if we chose exit
+    bool leavingDoGame = false; // flag indicadora caso o jogador escolha sair
     
     while (true) {
         std::ostringstream buffer;

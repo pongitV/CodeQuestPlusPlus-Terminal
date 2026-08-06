@@ -1,6 +1,6 @@
 /*
  * Arquivo: Appearance.h
- * Propósito: Utilitários de estética do terminal (formatadores ANSI, movimentação de cursor e suporte a cores).
+ * Proposito: Utilitarios de estetica do terminal (formatadores ANSI, movimentacao de cursor e suporte a cores).
  */
 
 #pragma once
@@ -15,7 +15,7 @@
 #include <algorithm>
 
 /*
- * Fornece utilitários de formação, cores e posicionamento para o console/terminal.
+ * Fornece utilitarios de formacao, cores e posicionamento para o console/terminal.
  */
 class Appearance {
 public:

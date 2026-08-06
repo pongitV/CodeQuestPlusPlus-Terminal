@@ -25,11 +25,11 @@ public:
         return false;
     }
 
-    // Poll all registered keys using GetAsyncKeyState; executes the first match found.
+    // Verifica todas as teclas registradas; executa a primeira correspondencia encontrada
     using ActionWithReturn = std::function<char()>;
     struct PollEntry {
         int key;
-        ActionWithReturn action; // return '\\0' to continue, anything else to return
+        ActionWithReturn action; // retorna '\\0' para continuar, qualquer outro valor para retornar
     };
 
     void registerPoll(int key, ActionWithReturn action) {

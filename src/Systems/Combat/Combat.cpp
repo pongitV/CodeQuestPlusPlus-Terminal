@@ -1,6 +1,6 @@
 /*
  * Arquivo: Combat.cpp
- * Propósito: Implementação do loop de combate, gerenciamento de turnos e integração com a UI.
+ * Proposito: Implementacao do loop de combate, gerenciamento de turnos e integracao com a UI.
  */
 
 #include "Systems/Combat/Combat.h"
@@ -166,7 +166,7 @@ bool Combat::executeShiftPlayerOuAlly(Character* character, bool& firstRendering
                 }
             }
         }
-        // Remove definitivamente da memória os aliados que morreram pelo dreno
+        // Remove definitivamente da memoria os aliados que morreram pelo dreno
         if (cleanedAlly) {
             std::erase_if(listDeAllies, [](const auto& a) { return a->getHealth() <= 0; });
         }
@@ -478,7 +478,6 @@ void Combat::executeShiftDeEveryoneOsEnemies()
     ui->cleanMessagesFixed();
     if (currentPlayer->getJumpShiftEnemy()) 
     {
-        // A mensagem na UI foi removida para priorizar o combate limpo
         registerLog(DialogueFunctions::formatStatusMsg("Os inimigos estao atordoados e nao podem agir!", Color::GREEN));
         currentPlayer->setJumpShiftEnemy(false); 
     }
@@ -515,7 +514,6 @@ void Combat::executeShiftDeEveryoneOsEnemies()
             }
             else
             {
-                // A mensagem na UI foi removida para priorizar o combate limpo
                 registerLog(DialogueFunctions::formatStatusMsg(enemyCurrent->getName() + " esta sob efeito de " + reasonDisability + " e nao pode agir!", Color::GREEN));
             }
 
@@ -589,7 +587,7 @@ void Combat::processPostDamage(Character* attacker, Character* target, int damag
             ui->cheerDamageNoPlayer(getTitleDoCombat(), getEnemiesRaw(), target, currentPlayer, alliesAlive, false, damageEnd);
         }
 
-        // Aplicação dos efeitos no acerto
+        // Aplicacao dos efeitos no acerto
         int lifeAttackerBefore = attacker->getHealth();
         
         if (attacker->getWeapons()) {
@@ -638,7 +636,7 @@ void Combat::applyDamageAoTarget(Character* attackingCharacter, Character* chara
         return;
     }
 
-    // Logica da Quebra de Resistencia (Pó Mágico)
+    // Logica da Quebra de Resistencia (Po Magico)
     if (attackingCharacter->getWeapons()) attackingCharacter->getWeapons()->beforeDeCauseDamage(attackingCharacter, characterTarget);
 
     int damageBaseMitigated = CalculatorDamage::calculateMitigationDefensive(characterTarget, quantityDeDamageGross, damagePiercing);
@@ -745,12 +743,10 @@ void Combat::displayResultDoAttack(Character* target, int damageEnd, bool triedP
         }
         else if (damageEnd > 0) 
         {
-            // A mensagem estatica na UI de dano ao jogador foi comentada para priorizar o Texto de Dano Flutuante
             registerLog(DialogueFunctions::formatCombatMsg(target->getName() + " recebeu " + std::to_string(damageEnd) + " de dano", Color::ORANGE));
         }
         else if (damageEnd == 0 && target->getDefending()) 
         {
-            // A mensagem estatica na UI de dano ao jogador foi comentada para priorizar o Texto de Dano Flutuante
             registerLog(DialogueFunctions::formatCombatMsg("O dano foi totalmente absorvido pela defesa de " + target->getName() + "!", Color::BLUE));
         }
         
@@ -760,7 +756,6 @@ void Combat::displayResultDoAttack(Character* target, int damageEnd, bool triedP
     {
         if (damageEnd > stats_biggerDamageCaused) stats_biggerDamageCaused = damageEnd;
         if (target != currentPlayer) totalDeDamageCaused += damageEnd;
-        // A mensagem estatica na UI de dano aos inimigos foi comentada para priorizar o Texto de Dano Flutuante
         registerLog(DialogueFunctions::formatCombatMsg(target->getName() + " recebeu " + std::to_string(damageEnd) + " de dano", Color::RED));
     }
 }

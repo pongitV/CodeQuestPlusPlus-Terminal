@@ -34,8 +34,8 @@
 
 using namespace std;
 
-float Raycaster::sensitivityX = 0.0008f; // Original: 0.002f (40%)
-float Raycaster::sensitivityY = 0.048f;  // Original: 0.08f (60%)
+float Raycaster::sensitivityX = 0.0008f;
+float Raycaster::sensitivityY = 0.048f;
 
 std::string RaycasterFrame::s_lastFrameRendered;
 
@@ -125,11 +125,8 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
     bool themeForest = RaycasterWorld::isThemeForest(titleMap);
     int themeSky = RaycasterWorld::getThemeSky(titleMap);
 
-    // Obtem a resolucao dinamica do terminal para preencher a tela inteira
     int SCREEN_WIDTH = Appearance::getTerminalWidth();
     int SCREEN_HEIGHT = Appearance::getTerminalHeight();
-
-    // Fallback de seguranca caso nao consiga ler a resolucao
     if (SCREEN_WIDTH <= 0) SCREEN_WIDTH = 120;
     if (SCREEN_HEIGHT <= 0) SCREEN_HEIGHT = 40;
     
@@ -144,7 +141,7 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
 
 
     Appearance::clearScreen();
-    cout << "\033[?25l"; // Oculta o cursor piscante
+    cout << "\033[?25l";
 
     auto tp1 = chrono::steady_clock::now();
     auto tp2 = chrono::steady_clock::now();
@@ -345,7 +342,6 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
     }
 
 #ifdef _WIN32
-    // Aguarda o jogador soltar a tecla 'V' antes de iniciar o loop para nao fechar no mesmo instante
     while (GetAsyncKeyState('V') & 0x8000) std::this_thread::sleep_for(std::chrono::milliseconds(10));
 #endif
 
@@ -364,7 +360,6 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
         chrono::duration<float> diffHome = tp2 - timeHome;
         float timeAbsolute = diffHome.count();
 
-        // Limitador de delta para nao "pular" paredes ou quebrar o mapa se a thread travar
         if (timeDelta > 0.1f) timeDelta = 0.1f;
 
         if (player->getHealth() <= 0 || player->getReturnToMenu()) {
@@ -428,7 +423,6 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
         // --- RENDERIZACAO HUD E OVERLAYS (2D) ---
         RaycasterHUD::draw(screen, SCREEN_WIDTH, SCREEN_HEIGHT, playerX, playerY, angleVisa, mapMatrix, titleMap, themeForest, player);
 
-        // Envia o frame processado para o terminal de uma vez de forma linear (Zero Flickering!)
         string bufferFrame = "\033[?2026h\033[?25l\033[H"; 
         bufferFrame.reserve(SCREEN_WIDTH * SCREEN_HEIGHT * 15); 
 
@@ -437,7 +431,7 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
 
         for (int y = 0; y < SCREEN_HEIGHT; y++) {
             for (int x = 0; x < SCREEN_WIDTH; x++) {
-                if (y == SCREEN_HEIGHT - 1 && x == SCREEN_WIDTH - 1) break; // Pula o ultimo pixel
+                if (y == SCREEN_HEIGHT - 1 && x == SCREEN_WIDTH - 1) break;
                 
                 const string& hudStr = screen[y * SCREEN_WIDTH + x];
                 if (hudStr != " ") {
@@ -496,11 +490,10 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
             }
             if (y < SCREEN_HEIGHT - 1) bufferFrame += "\n";
         }
-        bufferFrame += "\033[0m\033[?2026l"; // Reset final das cores ao terminar o frame e desliga atualizacao sincronizada
-        s_lastFrameRendered = bufferFrame; // <--- SALVA O QUADRO FORMATADO EM ANSI
+        bufferFrame += "\033[0m\033[?2026l";
+        s_lastFrameRendered = bufferFrame;
         cout << bufferFrame << flush;
 
-        // Frame Pacing dinâmico para cravar ~60 FPS reais
         auto frameEnd = chrono::steady_clock::now();
         auto frameDuration = chrono::duration_cast<chrono::milliseconds>(frameEnd - tp2).count();
         int sleepTeam = 16 - static_cast<int>(frameDuration);
@@ -509,9 +502,7 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
         }
     }
 
-    // Ao apertar ESC, o loop morre, limpa o console e o controle volta para o jogo top-down padrao
     InputControl::clearBuffer();
-    // So limpa a tela se o fechamento foi manual (ESC). Se bateu em entidade, preserva a visao 3D como fundo pro Popup!
     if (outHitX == -1 && outHitY == -1) {
         cheerEye(false, screen);
         Appearance::clearScreen();

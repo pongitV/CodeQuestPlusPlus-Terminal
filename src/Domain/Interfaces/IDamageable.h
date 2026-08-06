@@ -1,6 +1,6 @@
 /*
  * Arquivo: IDamageable.h
- * Propósito: Interface para entidades receptores de dano físico e mágico.
+ * Proposito: Interface para entidades receptores de dano fisico e magico.
  */
 
 #pragma once

@@ -104,7 +104,7 @@ void MapControl::processCombat(
 
 // animarFlashbang movido para AnimadorMapa.cpp
 
-// Funções da câmera e renderização abstraídas para RenderizadorMapa.cpp
+// Funcoes da camera e renderizacao abstraidas para RenderizadorMapa.cpp
 
 std::string MapControl::formatCell(char cell, int x, int y, const std::string& mapTitle, const std::vector<std::string>& mapMatrix, bool isMinimap) {
     thread_local std::string lastTitle = "";
@@ -123,14 +123,14 @@ std::string MapControl::formatCell(char cell, int x, int y, const std::string& m
         isSpawn = (upperTitle.find("INICIO") != std::string::npos);
     }
     
-    // --- ESTÉTICA ENGINE IDE (VISÃO TERMINAL) ---
+    // --- ESTETICA ENGINE IDE (VISAO TERMINAL) ---
     bool isEngineIDE = !isMinimap && !PerspectiveManager::getInstance().is3DViewActive();
     if (isEngineIDE) {
         std::string npcs = "GOBFPMSTRCH";
         if (npcs.find(cell) == std::string::npos && cell != ' ' && !RaycasterWorld::isMapLabel(x, y, mapMatrix)) {
             
             if (cell == '.' && (!isInterior || upperTitle.find("CHEFE") != std::string::npos || upperTitle.find("CORACAO") != std::string::npos)) {
-                return "\033[38;2;40;40;40m·\033[0m"; // Floor trace for IDE
+                return "\033[38;2;40;40;40m·\033[0m"; // Rastro do chao para a IDE
             }
 
             const char syntaxChars[] = "{};/*<>&|!=";
@@ -164,10 +164,10 @@ std::string MapControl::formatCell(char cell, int x, int y, const std::string& m
     // Teleporte
     if (cell == '^') return Appearance::color(Color::BOLD, Color::TELEPORT) + "^" + Appearance::color(Color::RESET);
     
-    // Água
+    // Agua
     if (cell == '~') return Appearance::colorRGB(50, 150, 255) + "≈" + Appearance::color(Color::RESET);
     
-    // Árvores
+    // Arvores
     if (cell == '*') {
         bool isTrunk = false;
         if (y > 0 && mapMatrix[y-1][x] == '*') {
@@ -180,7 +180,7 @@ std::string MapControl::formatCell(char cell, int x, int y, const std::string& m
         return Appearance::color(Color::GREEN) + "▲" + Appearance::color(Color::RESET);
     }
     
-    // Verifica se é uma letra de placa de chão (Label) ANTES de checar as entidades
+    // Verifica se e uma letra de placa de chao (Label) ANTES de checar as entidades
     if (RaycasterWorld::isMapLabel(x, y, mapMatrix)) {
         return Appearance::color(Color::GRAY) + std::string(1, cell) + Appearance::color(Color::RESET);
     }
@@ -294,7 +294,7 @@ std::string MapControl::formatCell(char cell, int x, int y, const std::string& m
         }
     }
     
-    // Chão / Labels
+    // Chao / Labels
     if (cell == '.' && (!isInterior || upperTitle.find("CHEFE") != std::string::npos || upperTitle.find("CORACAO") != std::string::npos)) {
         if (isMinimap) return "\033[38;2;50;50;50m.\033[0m";
         return "\033[38;2;40;40;40m·\033[0m";
@@ -307,7 +307,7 @@ std::string MapControl::formatCell(char cell, int x, int y, const std::string& m
     return std::string(1, cell);
 }
 
-// renderizarMapa abstraído para RenderizadorMapa.cpp
+// renderizarMapa abstraido para RenderizadorMapa.cpp
 
 NextMapTransition MapControl::executeExplorationLoop(
     Character* currentPlayer,
@@ -414,7 +414,7 @@ NextMapTransition MapControl::executeExplorationLoop(
                     
                     if (cell == '@') {
                         if (HackConsole::startHack(currentPlayer)) {
-                            currentMapMatrix[hitY][hitX] = '.'; // Remove o terminal após hackeado
+                            currentMapMatrix[hitY][hitX] = '.'; // Remove o terminal apos hackeado
                             for(int dy = -5; dy <= 5; dy++) {
                                 for(int dx = -5; dx <= 5; dx++) {
                                     if(hitY+dy >= 0 && hitY+dy < static_cast<int>(currentMapMatrix.size()) && hitX+dx >= 0 && hitX+dx < static_cast<int>(currentMapMatrix[0].size())) {
@@ -432,8 +432,10 @@ NextMapTransition MapControl::executeExplorationLoop(
                     
                     // So empurra o jogador para tras se a posicao nao mudou (evita sobrescrever teleportes)
                     if (isTrigger && PerspectiveManager::getInstance().is3DViewActive() && playerPositionX == posXBefore && playerPositionY == posYBefore) {
-                        // Empurra o jogador para tras em 1 casa para evitar que ele fique preso no NPC
-                        // E previne loops onde ele volta pro jogo ja interagindo
+                        /*
+                         * Empurra o jogador para tras em 1 casa para evitar que ele fique preso no NPC
+                         * E previne loops onde ele volta pro jogo ja interagindo
+                         */
                         s_cameraPosX3D = static_cast<float>(hitX) + 0.5f - cos(s_cameraAngle3D) * 1.5f;
                         s_cameraPosY3D = static_cast<float>(hitY) + 0.5f - sin(s_cameraAngle3D) * 1.5f;
                         playerPositionX = static_cast<int>(s_cameraPosX3D);
@@ -487,7 +489,7 @@ NextMapTransition MapControl::executeExplorationLoop(
                     isExplorationActive = false; // Sinaliza para sair do loop e processar a viagem
                     break;
                 }
-                // Se nenhum destino foi escolhido, apenas restaura a tela e continua a exploração.
+                // Se nenhum destino foi escolhido, apenas restaura a tela e continua a exploracao.
                 if (!PerspectiveManager::getInstance().is3DViewActive()) {
                     restoreScreen();
                     needsRender = true;

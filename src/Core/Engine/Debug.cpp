@@ -1,6 +1,6 @@
 /*
  * Arquivo: Debug.cpp
- * Propósito: Implementação do menu de depuração e trapaças do jogo.
+ * Proposito: Implementacao do menu de depuracao e trapacas do jogo.
  */
 
 #include "Core/Engine/Debug.h"

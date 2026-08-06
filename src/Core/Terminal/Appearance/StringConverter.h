@@ -1,3 +1,7 @@
+/*
+ * Arquivo: StringConverter.h
+ * Proposito: Utilitarios para conversao e manipulacao de strings brutas.
+ */
 #pragma once
 
 #include <vector>

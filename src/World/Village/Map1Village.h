@@ -1,6 +1,6 @@
 /*
  * Arquivo: Map1Village.h
- * Propósito: Definição do mapa inicial (Vila Inicial / Vila 1) e suas sub-áreas.
+ * Proposito: Definicao do mapa inicial (Vila Inicial / Vila 1) e suas sub-areas.
  */
 
 #pragma once
@@ -15,7 +15,7 @@
 #include "World/InteractionMap.h"
 
 /*
- * Implementação do primeiro mapa jogável (Vila).
+ * Implementacao do primeiro mapa jogavel (Vila).
  */
 class Map1Village final : public IMap 
 {

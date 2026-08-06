@@ -60,7 +60,7 @@ public:
     static void boot();
     static ColorRGB getColor(TexID id, int tx, int ty);
     
-    // Lookup tables para otimização de funções trigonométricas
+    // Lookup tables para otimizacao de funcoes trigonometricas
     static float fastYes(float angle);
     static float fastCos(float angle);
 

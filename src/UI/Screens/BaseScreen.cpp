@@ -168,7 +168,7 @@ std::vector<std::string> BaseScreen::createBox(const std::vector<std::string>& l
     std::string top = "╔";
     int titleLen = Appearance::getVisualLength(title);
     
-    // Em modo 3D (raycaster), não colocamos o texto na borda, pois um título em ASCII flutua acima!
+    // Em modo 3D (raycaster), nao colocamos o texto na borda, pois um titulo em ASCII flutua acima!
     if (!isEngineIDE) {
         titleLen = 0;
     }

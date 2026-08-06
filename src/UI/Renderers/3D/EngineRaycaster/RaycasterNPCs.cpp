@@ -106,7 +106,7 @@ void RaycasterNPCs::bootSprites(std::map<char, SpriteCache>& cache) {
         "  //    ",
         " //     ",
         "        "
-    }, 100, 255, 100); // Comentário de Linha (Verde translúcido)
+    }, 100, 255, 100); // Comentario de Linha (Verde translucido)
 
     cache['%'] = RaycasterSprites::parsiSprite({
         "        ",
@@ -114,7 +114,7 @@ void RaycasterNPCs::bootSprites(std::map<char, SpriteCache>& cache) {
         "  ...   ",
         "   */   ",
         "        "
-    }, 100, 255, 100); // Comentário de Bloco (Verde translúcido)
+    }, 100, 255, 100); // Comentario de Bloco (Verde translucido)
 
     cache['@'] = RaycasterSprites::parsiSprite({
         "  ====  ",
@@ -122,7 +122,7 @@ void RaycasterNPCs::bootSprites(std::map<char, SpriteCache>& cache) {
         " |    | ",
         "  ====  ",
         "  [||]  "
-    }, 50, 255, 255); // Terminal Hackeável (Ciano Brilhante)
+    }, 50, 255, 255); // Terminal Hackeavel (Ciano Brilhante)
 
     cache['*'] = RaycasterSprites::parsiArt({
         "           \033[38;2;60;190;60m.o%8O%o.\033[0m           ",

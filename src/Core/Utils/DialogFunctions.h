@@ -1,6 +1,6 @@
 /*
  * Arquivo: DialogFunctions.h
- * Propósito: Funções para formatação de diálogos de NPCs, mensagens de sistema e narrativas.
+ * Proposito: Funcoes para formatacao de dialogos de NPCs, mensagens de sistema e narrativas.
  */
 
 #pragma once
@@ -10,11 +10,11 @@
 #include "Core/Terminal/Appearance/Appearance.h"
 
 /*
- * Utilitários de formatação visual de falas e mensagens registradas no terminal.
+ * Utilitarios de formatacao visual de falas e mensagens registradas no terminal.
  */
 class DialogueFunctions {
 public:
-    // Exibe diálogo de NPC formatado com cores e identação
+    // Exibe dialogo de NPC formatado com cores e identacao
     static void printDialogueNPC(const std::string& npcName, Color npcColor, const std::string& text, bool newLineBefore = true, bool newLineAfter = true);
     static void printDialogueNPC(const std::string& npcName, Color npcColor, const std::vector<std::string>& lines);
     
@@ -26,4 +26,4 @@ public:
     static std::string formatDropMsg(const std::string& text, Color themeColor = Color::WHITE);
     static std::string formatCombatMsg(const std::string& text, Color themeColor = Color::WHITE);
     static std::string formatInteractionMsg(const std::string& text, Color themeColor = Color::CYAN);
-};
+};

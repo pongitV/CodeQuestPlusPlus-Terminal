@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-#include "UI/IInventoryUI.h"
+#include "UI/Interfaces/IInventoryUI.h"
 
 class Character;
 class Item;

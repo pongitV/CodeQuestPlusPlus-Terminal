@@ -1,7 +1,9 @@
 #pragma once
 
-// Umbrella header — retrocompatibilidade total.
-// Projetos novos: inclua apenas os headers específicos necessários.
+/*
+ * Umbrella header — retrocompatibilidade total.
+ * Projetos novos: inclua apenas os headers especificos necessarios.
+ */
 
 #include "UI/Renderers/3D/RaycasterScreens/Utils/PixelArtUtils.h"
 #include "UI/Renderers/3D/RaycasterScreens/Utils/FrameOverlayUtils.h"

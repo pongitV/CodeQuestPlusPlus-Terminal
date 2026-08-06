@@ -50,7 +50,7 @@ void CombatRaycasterUIImpl::cleanContextEnemyDeadEDrops() {
 }
 
 std::string CombatRaycasterUIImpl::combatMargin() {
-    return ""; // TelaCombateRaycaster usually uses its own formatting or empty margin for fixed messages in 3D
+    return ""; // TelaCombateRaycaster usualmente utiliza sua propria formatacao ou margem vazia para mensagens fixas em 3D
 }
 
 void CombatRaycasterUIImpl::addFixedMessage(const std::string& msg) {

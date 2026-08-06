@@ -26,12 +26,14 @@ void ScreenVictoryRaycaster::display(Character* currentPlayer, int quantityDeGol
         enemiesGrouped[ini]++;
     }
 
-    // Usa o mesmo fundo gerado e cacheado durante a batalha,
-    // garantindo que a tela pareça estatica no momento em que o combate acabou
+    /*
+     * Usa o mesmo fundo gerado e cacheado durante a batalha,
+     * garantindo que a tela pareca estatica no momento em que o combate acabou
+     */
     std::vector<std::string> flatScreen = RaycasterRendererCombat::getLastBackgroundRendered();
     int height3D = std::max(10, Appearance::getTerminalHeight());
     
-    // Fallback de segurança se o cache falhar ou se o terminal mudar de tamanho do nada
+    // Fallback de seguranca se o cache falhar ou se o terminal mudar de tamanho do nada
     if (flatScreen.empty() || static_cast<int>(flatScreen.size()) < height3D * widthConsole) {
         std::vector<std::string> arena = RaycasterRendererCombat::getArenaByTitle(titleMap);
         float jX = static_cast<float>(arena[0].size()) / 2.0f;
@@ -83,7 +85,7 @@ void ScreenVictoryRaycaster::display(Character* currentPlayer, int quantityDeGol
 
     MenuRaycasterUtils::s_background3DMenu = screenBackground;
 
-    // Helper function to draw a gray box directly into the buffer string stream
+    // Funcao auxiliar para desenhar uma caixa cinza diretamente na stream de string do buffer
     auto drawBoxGray = [&](std::ostringstream& buff, int y, int x, int width, int height) {
         std::string bg = "\033[48;2;25;25;25m"; // Cinza HUD
         std::string colorEdge = "\033[38;2;255;255;255m"; // Branco
@@ -103,7 +105,7 @@ void ScreenVictoryRaycaster::display(Character* currentPlayer, int quantityDeGol
 
     while (true) {
         std::ostringstream buffer;
-        buffer << "\033[?25l\033[H"; // Cursor home LOGO NO INICIO para não rolar o terminal
+        buffer << "\033[?25l\033[H"; // Cursor home LOGO NO INICIO para nao rolar o terminal
 
         for (size_t y = 0; y < MenuRaycasterUtils::s_background3DMenu.size(); ++y) {
             buffer << MenuRaycasterUtils::s_background3DMenu[y];

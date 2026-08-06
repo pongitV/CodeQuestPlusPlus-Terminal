@@ -1,6 +1,6 @@
 /*
  * Arquivo: NPCInteraction.h
- * Propósito: Interface abstrata para interações de menu e diálogos com NPCs (Ferreiro, Alquimista, Mercador).
+ * Proposito: Interface abstrata para interacoes de menu e dialogos com NPCs (Ferreiro, Alquimista, Mercador).
  */
 
 #pragma once
@@ -13,7 +13,7 @@
 class Character;
 
 /*
- * Interface de contrato para comportamentos de diálogo e transações com NPCs.
+ * Interface de contrato para comportamentos de dialogo e transacoes com NPCs.
  */
 class InteractionNPC {
 public:

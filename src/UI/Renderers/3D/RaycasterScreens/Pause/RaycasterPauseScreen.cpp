@@ -112,13 +112,13 @@ int ScreenPauseRaycaster::renderMenuConfiguracoes(Character* player) {
         if (!player->getParryActivated()) {
             // DESLIGADO -> MOVIMENTO
             player->setModernParry(true);
-            return 1; // TelaPause toggles Ativado to true
+            return 1; // TelaPause alterna Ativado para verdadeiro
         } else if (player->getParryModern()) {
             // MOVIMENTO -> DIGITACAO
-            return 2; // TelaPause toggles Moderno to false
+            return 2; // TelaPause alterna Moderno para falso
         } else {
             // DIGITACAO -> DESLIGADO
-            return 1; // TelaPause toggles Ativado to false
+            return 1; // TelaPause alterna Ativado para falso
         }
     }
     if (res == 2) return 3;

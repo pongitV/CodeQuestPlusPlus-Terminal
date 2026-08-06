@@ -14,10 +14,12 @@
 #include "UI/Renderers/3D/RaycasterScreens/Pause/RaycasterPauseScreen.h"
 #include "UI/Renderers/3D/RaycasterScreens/Map/RaycasterWorldMapScreen.h"
 
-// ─── UI Adapters ────────────────────────────────────────────────────────────
-// Lightweight wrappers that implement the abstract UI interfaces by delegating
-// to the concrete static methods of the Raycaster (or IDE) renderers.
-// These keep concrete dependencies confined to the composition root.
+/*
+ * ─── UI Adapters ────────────────────────────────────────────────────────────
+ * Wrappers leves que implementam as interfaces abstratas da UI por delegacao
+ * para os metodos estaticos concretos dos renderizadores Raycaster (ou IDE).
+ * Isso mantem as dependencias concretas confinadas a raiz de composicao.
+ */
 
 class AttributesUIAdapter : public IAttributesUI {
     void display(Character* player) override { ScreenAttributesRaycaster::display(player); }

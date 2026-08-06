@@ -1,6 +1,6 @@
 /*
  * Arquivo: Progression.h
- * Propósito: Singleton gerenciador de flags globais de progresso da história e salvamento.
+ * Proposito: Singleton gerenciador de flags globais de progresso da historia e salvamento.
  */
 
 #pragma once
@@ -12,7 +12,7 @@
 class Character;
 
 /*
- * Gerenciador thread-safe do progresso das missões e eventos do jogo.
+ * Gerenciador thread-safe do progresso das missoes e eventos do jogo.
  */
 class Progression {
 private:
@@ -26,13 +26,13 @@ public:
     void setFlag(const std::string& key, bool value);
     bool getFlag(const std::string& key) const;
 
-    // Cálculos dinâmicos de progresso combinando dados do jogador com as flags salvas
+    // Calculos dinamicos de progresso combinando dados do jogador com as flags salvas
     int getVillageProgress(Character* currentPlayer) const;
     int getForestProgress(Character* currentPlayer) const;
     int getKingdomBridgeProgress(Character* currentPlayer) const;
     int getKingdomProgress(Character* currentPlayer) const;
 
-    // Funções para ligar ao sistema de salvamento
+    // Funcoes para ligar ao sistema de salvamento
     void save(std::ofstream& out) const;
     void load(std::ifstream& in);
 };

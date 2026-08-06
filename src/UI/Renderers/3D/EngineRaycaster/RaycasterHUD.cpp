@@ -195,7 +195,7 @@ void RaycasterHUD::drawBarStatus(vector<string>& screen, int SCREEN_WIDTH, int S
             string txtDamage = "-" + to_string(damageAmount);
             string colorDamage = "\033[1;38;2;255;50;50m";
             
-            // Procura onde está o "/" do HP na primeira linha do HUD
+            // Procura onde esta o "/" do HP na primeira linha do HUD
             int hpVisX = boxWidth / 2; // default centro
             if (linesHUD.size() > 0) {
                 size_t postHP = linesHUD[0].find("HP:");

@@ -51,7 +51,7 @@ RaceScreen::Result ScreenRaceRaycaster::display(const std::string& namePlayer) {
 
         int yBase = 7;
 
-        // Calculate art dimensions for positioning
+        // Calcula dimensoes da arte para posicionamento
         int artWidth = 0;
         int colCenter = (widthConsole - 50) / 2;
         if (!isReturn) {
@@ -79,7 +79,7 @@ RaceScreen::Result ScreenRaceRaycaster::display(const std::string& namePlayer) {
             // Center: Pixel art
             MenuRaycasterUtils::printArtPixelatedSimple(buffer, race->getAppearanceRace(), 200, 180, 220, colCenter, yBase);
 
-            // Right: just after the art
+            // Direita: logo apos a arte
             int colSay = colCenter + artWidth + 3;
             if (colSay > widthConsole - 20) colSay = widthConsole - 20;
 

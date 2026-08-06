@@ -1,6 +1,6 @@
 /*
  * Arquivo: DialogFunctions.cpp
- * Propósito: Implementação das rotinas de exibição e formatação de diálogos de NPCs e sistema.
+ * Proposito: Implementacao das rotinas de exibicao e formatacao de dialogos de NPCs e sistema.
  */
 
 #include "Core/Utils/DialogFunctions.h"
@@ -12,13 +12,13 @@ void DialogueFunctions::printDialogueNPC(const std::string& npcName, Color npcCo
         std::cout << "\n";
         // Imprime a tag colorida, depois reseta a cor
         std::cout << Appearance::color(npcColor) << "[" << npcName << "]: " << Appearance::color(Color::RESET);
-        // Imprime o texto com a cor padrão
+        // Imprime o texto com a cor padrao
         Appearance::printTyping(text, Appearance::typingDelayMS, newLineAfter);
     } else {
         // Calcula o preenchimento para alinhar com o texto da primeira linha e o imprime
         std::string tag = "[" + npcName + "]: ";
         std::cout << std::string(tag.length(), ' ');
-        // Imprime o texto com a cor padrão
+        // Imprime o texto com a cor padrao
         Appearance::printTyping(text, Appearance::typingDelayMS, newLineAfter);
     }
 }

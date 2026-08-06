@@ -161,7 +161,7 @@ namespace MenuRaycasterUtils {
                 if (y >= totalLines * 2 / 3) {
                     float fieldY = (float)(y - totalLines * 2 / 3) / (float)(totalLines / 3);
                     
-                    // Grass texture with smooth organic variation
+                    // Textura de grama com variacao organica suave
                     float noise = std::sin(cellX * 0.15f + y * 0.1f) + std::sin(y * 0.1f - cellX * 0.05f);
                     float details = std::sin(cellX * 0.8f) * std::sin(y * 0.8f);
                     

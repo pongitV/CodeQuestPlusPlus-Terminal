@@ -1,6 +1,6 @@
 /*
  * Arquivo: Parry.h
- * Propósito: Sistema de minigame de bloqueio perfeito (Parry) no momento de um ataque inimigo.
+ * Proposito: Sistema de minigame de bloqueio perfeito (Parry) no momento de um ataque inimigo.
  */
 
 #pragma once
@@ -11,7 +11,7 @@
 class Character;
 
 /*
- * Gerenciador da mecânica de parry/parada em combate.
+ * Gerenciador da mecanica de parry/parada em combate.
  */
 class Parry 
 {
@@ -25,7 +25,7 @@ public:
 
     static std::string getMessageFeedback(bool parrySuccess, int damageEnd);
 
-    // Minigames de parry (Reação rápida de teclado/movimento)
+    // Minigames de parry (Reacao rapida de teclado/movimento)
     static bool executeMinigameMovement(int difficulty, int damageMitigated, int& quantityDeDamageReduced);
     static bool executeMinigameTyping(int difficulty, int damageMitigated, int& quantityDeDamageReduced);
 };

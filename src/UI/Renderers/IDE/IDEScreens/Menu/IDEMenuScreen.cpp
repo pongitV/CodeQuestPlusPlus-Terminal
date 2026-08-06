@@ -256,14 +256,14 @@ std::vector<std::string> ScreenMenuGO::compressArtASCII(const std::vector<std::s
                     char cur = artOriginal[y + dy][x + dx];
                     if (cur != ' ' && cur != '\n' && cur != '\r' && c == ' ') {
                         c = cur;
-                    } else if (cur == '#' || cur == '@' || cur == '%' || cur == '*') { // Prioriza caracteres mais "visíveis"
+                    } else if (cur == '#' || cur == '@' || cur == '%' || cur == '*') { // Prioriza caracteres mais "visiveis"
                         c = cur;
                     }
                 }
             }
             newLine += c;
         }
-        // Trim right spaces to keep it clean
+        // Remove os espacos a direita para manter limpo
         size_t end = newLine.find_last_not_of(" ");
         if (end != std::string::npos) {
             newLine = newLine.substr(0, end + 1);

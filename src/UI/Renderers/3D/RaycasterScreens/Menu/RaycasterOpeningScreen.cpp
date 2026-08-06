@@ -61,7 +61,7 @@ void ScreenOpeningRaycaster::display() {
 
         MenuRaycasterUtils::superimposeNoFrame(heightConsole - 1, colVersion, version, 100, 100, 100);
 
-        // Saída única via console API (sem flickering)
+        // Saida unica via console API (sem flickering)
         std::ostringstream aprBuff;
         aprBuff << "\033[H";
         for (size_t y = 0; y < MenuRaycasterUtils::s_background3DMenu.size(); ++y) {

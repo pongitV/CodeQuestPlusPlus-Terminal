@@ -1,6 +1,6 @@
 /*
  * Arquivo: ICombatUI.h
- * Propósito: Interface abstrata para renderização da interface visual de combate (Console 2D e Raycaster 3D).
+ * Proposito: Interface abstrata para renderizacao da interface visual de combate (Console 2D e Raycaster 3D).
  */
 
 #pragma once
@@ -13,7 +13,7 @@ class Character;
 class Item;
 
 /*
- * Interface de exibição e controle visual de combate.
+ * Interface de exibicao e controle visual de combate.
  */
 class ICombatUI {
 public:

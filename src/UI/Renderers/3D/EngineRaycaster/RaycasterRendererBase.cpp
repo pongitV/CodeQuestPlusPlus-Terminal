@@ -12,6 +12,11 @@
 
 using namespace std;
 
+/*
+ * Estrutura de ThreadPool otimizada para o motor de Raycasting.
+ * Utiliza o maximo de nucleos disponiveis (hardware_concurrency) para processar 
+ * o laco principal de colunas da tela em paralelo, garantindo 60 FPS.
+ */
 struct ThreadPool {
     std::vector<std::thread> threads;
     std::atomic<bool> stop{false};
@@ -80,6 +85,11 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
 
     RaycasterWorld::updateMapHash(mapMatrix);
 
+    /*
+     * Sistema de Cache de Iluminacao:
+     * O mapa eh varrido apenas uma vez sempre que o jogador muda de sala ou layout, 
+     * armazenando a localizacao e a intensidade das fontes de luz (Fogo, NPCs, Portas).
+     */
     static thread_local size_t lastMapForLightsHash = 0;
     static thread_local std::vector<std::tuple<int, int, int>> cachedLights;
 
@@ -146,7 +156,11 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
         
         char charWall = '#';
 
-        // DDA algorithm setup
+        /*
+         * Algoritmo DDA (Digital Differential Analyzer):
+         * Traca a trajetoria do raio pulando perfeitamente pelas grades do mapa de forma rapida,
+         * sem a necessidade de pequenos incrementos variaveis, calculando a colisao exata.
+         */
         float raySayX = eyeX;
         float raySayY = eyeY;
 
@@ -206,7 +220,11 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
         float hitX = playerX + eyeX * distanceUntilWall;
         float hitY = playerY + eyeY * distanceUntilWall;
         
-        // Corrigindo Fisheye
+        /* 
+         * Correcao do Efeito "Olho de Peixe" (Fisheye):
+         * A distancia perpendicular ate a parede eh calculada ao inves da distancia Euclidiana 
+         * reta, evitando que as paredes parecam arredondadas nas bordas da tela.
+         */
         float perpWallDist = distanceUntilWall * cosf(radiusAngle - angleVisa);
         if (perpWallDist < 0.1f) perpWallDist = 0.1f;
 
@@ -322,13 +340,18 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
             if (floorChar == '~') screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getPixelWater(currentX, currentY, currentDist, depthMaximum, radiusAngle, timeAbsolute, themeSky);
             else screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getPixelChao(titleMap, currentX, currentY, currentDist, depthMaximum, lights, &mapMatrix, timeAbsolute);
         }
-        } // for x
+        } // para x
         }); // lambda
-    } // for i (tasks)
+    } // para i (tarefas)
     
     getThreadPool().execute(tasks);
 
-    // SPRITE CASTING (Multi-Pass)
+    /*
+     * Renderizacao de Sprites (Billboarding):
+     * Apos as paredes (Z-Buffer) terem sido desenhadas, entidades (Inimigos, NPCs, Arvores) 
+     * sao capturadas da matriz. O renderizador calcula a projecao 2D dessas entidades no 
+     * plano da camera, aplicando escalonamentos baseados no tipo do inimigo e distancia.
+     */
     struct SpriteProject { float x, y, dist; char c, sprCh; };
     std::vector<SpriteProject> spritesGlobal;
     for (int y = 0; y < heightMap; y++) {
@@ -457,7 +480,7 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
         if (altThen <= 0) continue;
 
         int spriteWidth = spriteHeight;
-        if (sp.sprCh == 'H') spriteWidth = (int)(spriteHeight * 4.0f); // Boss is very wide
+        if (sp.sprCh == 'H') spriteWidth = (int)(spriteHeight * 4.0f); // Chefe e muito largo
         if (sp.sprCh == '*') spriteWidth = (int)(spriteHeight * 1.5f); 
 
         int drawStartX = -spriteWidth / 2 + spriteScreenX;

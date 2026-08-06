@@ -1,6 +1,6 @@
 /*
  * Arquivo: Inventory.h
- * Propósito: Armazenamento e gerenciamento dos itens e moedas de ouro do personagem.
+ * Proposito: Armazenamento e gerenciamento dos itens e moedas de ouro do personagem.
  */
 
 #pragma once
@@ -15,7 +15,7 @@
 #include "Domain/Items/Item.h"
 
 /*
- * Classe responsável pela coleção de itens e contagem de ouro.
+ * Classe responsavel pela colecao de itens e contagem de ouro.
  */
 class Inventory
 {

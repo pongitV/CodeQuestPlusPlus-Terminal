@@ -337,7 +337,7 @@ namespace {
 
                 int height3D = frame3D.size();
 
-                // Wrap HUD panels with white UTF-8 border and black background
+                // Envolve os paineis do HUD com borda branca UTF-8 e fundo preto
                 std::string bgBlack = "\033[48;2;0;0;0m";
                 std::string colorEdgeWhite = "\033[38;2;255;255;255m";
 
@@ -517,7 +517,7 @@ namespace {
                     panelMessagesEmbroidery.push_back(baseMsg);
                 }
 
-                // Layout math for centered HUD panels at the bottom and message box directly above it
+                // Matematica de layout para centralizar paineis do HUD no fundo e a caixa de mensagens diretamente acima
                 int totalHUDWidth = maxLeftW + 6 + maxSayW;
                 int startHUDX = (terminalWidth - totalHUDWidth) / 2;
                 if (startHUDX < 0) startHUDX = 0;
@@ -553,11 +553,11 @@ namespace {
                     }
                 }
 
-                // Compile and overlay drops panel centered in the remaining 3D scene area above HUD/messages
+                // Compila e sobrepoe o painel de drops centralizado na area 3D restante acima do HUD e mensagens
                 std::vector<std::string> dropsUsed = dropsAnimation.empty() ? CombatScreen::context.dropsAssets : dropsAnimation;
                 std::vector<std::string> panelDrops;
                 if (!dropsUsed.empty()) {
-                    int maxDropsW = 12; // "DERROTADO!" length is 10
+                    int maxDropsW = 12; // Comprimento de "DERROTADO!" e 10
                     for (const auto& d : dropsUsed) {
                         std::string cleanD = d;
                         size_t first = cleanD.find_first_not_of(" \t");
@@ -574,7 +574,7 @@ namespace {
                     topDrops += "╗\033[0m";
                     panelDrops.push_back(topDrops);
                     
-                    // Row for "DERROTADO!"
+                    // Linha para "DERROTADO!"
                     {
                         std::string label = "DERROTADO!";
                         std::string innerTxt = "\033[5;1;38;2;255;50;50m" + label + "\033[0m";
@@ -586,7 +586,7 @@ namespace {
                         panelDrops.push_back(line);
                     }
                     
-                    // Rows for drops
+                    // Linhas para os drops
                     for (const auto& d : dropsUsed) {
                         std::string cleanD = d;
                         size_t first = cleanD.find_first_not_of(" \t");
@@ -612,7 +612,7 @@ namespace {
                     baseDrops += "╝\033[0m";
                     panelDrops.push_back(baseDrops);
 
-                    // Find index of dead enemy to position the drops box on its column
+                    // Encontra o indice do inimigo morto para posicionar a caixa de drops na sua coluna
                     Character* deadEnemy = (targetAnimation != nullptr && isDeath) ? targetAnimation : CombatScreen::context.enemyDeadWithDrops;
                     int deadIdx = -1;
                     if (deadEnemy != nullptr) {
@@ -634,7 +634,7 @@ namespace {
                     if (startDropsX < 0) startDropsX = 0;
                     if (startDropsX + boxW > terminalWidth) startDropsX = terminalWidth - boxW;
                     
-                    int areaAvailableY = startMsgY; // area above message box and HUD
+                    int areaAvailableY = startMsgY; // area acima da caixa de mensagens e HUD
                     int startDropsY = (areaAvailableY - panelDrops.size()) / 2;
                     if (startDropsY < 0) startDropsY = 0;
                     
@@ -650,7 +650,7 @@ namespace {
                     std::cout << line << "\n";
                 }
             } else {
-                // Desenha a horda classicamente (que imprime no std::cout e será interceptada pelo buffer)
+                // Desenha a horda classicamente (que imprime no std::cout e sera interceptada pelo buffer)
                 ScreenCombatGO::displayHordeDeEnemiesSideASide(enemies, targetAnimation, frame, isCure, animateEntrance, isDeath, weapon, damageAnimation, dropsAnimation);
 
                 BaseScreen::printLineDivider('=');
@@ -769,9 +769,11 @@ void ScreenCombatGO::cheerIntroductionCombat(const std::string& title, const std
         int heightHUD = 16;
         int height3D = std::max(10, terminalHeight - heightHUD);
 
-        // ═══════════════════════════════════════════════════════════════════
-        //  Fase 1: Fundo 3D em Fade In (sem inimigos)
-        // ═══════════════════════════════════════════════════════════════════
+        /*
+         * ═══════════════════════════════════════════════════════════════════
+         * Fase 1: Fundo 3D em Fade In (sem inimigos)
+         * ═══════════════════════════════════════════════════════════════════
+         */
         std::vector<std::string> frameBackground = RaycasterRendererCombat::renderFrame(
             CombatScreen::context.titleMapCurrent, 
             currentPlayer, 
@@ -1058,9 +1060,9 @@ void ScreenCombatGO::displayHordeDeEnemiesSideASide(const std::vector<Character*
     for (size_t idx = 0; idx < listDeEnemies.size(); ++idx) {
         Character* ini = listDeEnemies[idx];
         if (ini->getHealth() <= 0 || ini->getDeathLively() || (ini == targetAnimation && frameAnimation > 0 && !isDeath && !isCure)) {
-            offsetsIdle.push_back(0); // Mantém estático durante animações de dano ou morte
+            offsetsIdle.push_back(0); // Mantem estatico durante animacoes de dano ou morte
         } else {
-            // Ciclo de balanço: Move horizontalmente de forma suave (esquerda e direita)
+            // Ciclo de balanco: Move horizontalmente de forma suave (esquerda e direita)
             int cycle = ((timeMs + idx * 500) / 200) % 8;
             if (cycle < 0) cycle += 8;
             int offset = 0;
@@ -1219,7 +1221,7 @@ void ScreenCombatGO::displayHordeDeEnemiesSideASide(const std::vector<Character*
                 auto characters = splitUTF8(lineArt);
                 visibleLen = static_cast<int>(characters.size());
             } else {
-                visibleLen = static_cast<int>(splitUTF8(artDoEnemy[0]).size()); // Margem de segurança de tamanho
+                visibleLen = static_cast<int>(splitUTF8(artDoEnemy[0]).size()); // Margem de seguranca de tamanho
                 lineArt = std::string(visibleLen, ' ');
             }
             
@@ -1287,9 +1289,9 @@ void ScreenCombatGO::displayHordeDeEnemiesSideASide(const std::vector<Character*
                         }
                     }
                 } else {
-                    // Efeito de desintegração dithered (virando poeira) + fade de cor na visão top-down (2D)
+                    // Efeito de desintegracao dithered (virando poeira) + fade de cor na visao top-down (2D)
                     double progress = std::min(1.0, static_cast<double>(frameAnimation) / totalLinesArt);
-                    int baseR = 200, baseG = 200, baseB = 200; // Cinza claro solicitado pelo usuário
+                    int baseR = 200, baseG = 200, baseB = 200; // Cinza claro solicitado pelo usuario
                     double fade = 1.0 - progress;
                     int rMod = static_cast<int>(baseR * fade);
                     int gMod = static_cast<int>(baseG * fade);
@@ -1425,8 +1427,10 @@ int ScreenCombatGO::getActionDoPlayer(int shiftCurrent, Character* characterActi
         int action = ScreenCombatGO::displayMenuActions(characterActing, enemies);
         if (action < 0) return -1;
         
-        // 0=Atacar, 1=Defender, 2=Inventario/Habilidade, 3=Fuga, 4=Habilidade, 5=Escudo
-        // Mapear para os valores originais
+        /*
+         * 0=Atacar, 1=Defender, 2=Inventario/Habilidade, 3=Fuga, 4=Habilidade, 5=Escudo
+         * Mapear para os valores originais
+         */
         if (action == 0) return 1; // Atacar
         if (action == 1) return 2; // Defender
         if (action == 2) return 4; // Inventario
@@ -1784,7 +1788,7 @@ void ScreenCombatGO::cheerDeathEnemy(const std::string& titleCombat, const std::
 
     if (CombatScreen::context.isMode3D) {
         totalLines = 12; // 12 frames
-        intervalMs = 15; // 15ms por frame. Com o tempo de desenho de tela (~60-80ms), a animação dura cerca de 1,0 segundo no total.
+        intervalMs = 15; // 15ms por frame. Com o tempo de desenho de tela (~60-80ms), a animacao dura cerca de 1,0 segundo no total.
     } else {
         totalLines = static_cast<int>(enemyDead->getRace()->getAppearanceRace().size());
         if (totalLines <= 0) totalLines = 6;
@@ -1794,7 +1798,7 @@ void ScreenCombatGO::cheerDeathEnemy(const std::string& titleCombat, const std::
     executeAnimation(totalLines, intervalMs, stepAnime, [&](int frame) {
         renderScenePattern(titleCombat, listDeEnemies, enemyDead, frame, false, true, nullptr, currentPlayer, listDeAllies);
     }, [&]() {
-        // Frame final para garantir que toda a arte seja apagada e os DROPS apareçam centralizados no fantasma da imagem!
+        // Frame final para garantir que toda a arte seja apagada e os DROPS aparecam centralizados no fantasma da imagem!
         renderScenePattern(titleCombat, listDeEnemies, enemyDead, totalLines, false, true, nullptr, currentPlayer, listDeAllies, nullptr, Color::RESET, -1, drops);
     });
 }

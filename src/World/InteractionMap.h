@@ -1,6 +1,6 @@
 /*
  * Arquivo: InteractionMap.h
- * Propósito: Interface de mapas exploráveis (IMap) e enumerador de transição entre ambientes.
+ * Proposito: Interface de mapas exploraveis (IMap) e enumerador de transicao entre ambientes.
  */
 
 #pragma once
@@ -8,7 +8,7 @@
 #include <functional>
 #include <string>
 
-// Transições de destino ao trocar de mapa
+// Transicoes de destino ao trocar de mapa
 enum class NextMapTransition {
     None,
     ReturnMenu,
@@ -19,7 +19,7 @@ enum class NextMapTransition {
 };
 
 /*
- * Interface contrato de um mapa explorável do jogo.
+ * Interface contrato de um mapa exploravel do jogo.
  */
 class IMap {
 public:

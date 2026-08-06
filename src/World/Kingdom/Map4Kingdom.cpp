@@ -35,7 +35,7 @@ Map4Kingdom::Map4Kingdom(Character* playerCharacter) :
 {
     currentMapMatrix = Map4KingdomLayouts::getKingdomLayout();
     MapLoader::standardizeMapSize(currentMapMatrix);
-    savedMainMapMatrix = currentMapMatrix; // Caso necessário
+    savedMainMapMatrix = currentMapMatrix; // Caso necessario
 }
 
 Map4Kingdom::~Map4Kingdom() = default;
@@ -64,7 +64,7 @@ NextMapTransition Map4Kingdom::startExplorationLoop()
         std::vector<std::string> titleArt;
         int artWidth = 0;
         
-        // Ensure title is strictly REINO for the banner
+        // Garante que o titulo seja estritamente REINO para a bandeira
         if (currentMapTitle == "REINO" || currentMapTitle.find("Reino") != std::string::npos || currentMapTitle.find("REINO") != std::string::npos) {
             currentMapTitle = "REINO";
             titleArt = Map4KingdomLayouts::getKingdomSoon();
@@ -124,7 +124,7 @@ NextMapTransition Map4Kingdom::startExplorationLoop()
         }
     };
 
-    // Padre da Igreja (só funciona dentro do submapa da igreja)
+    // Padre da Igreja (so funciona dentro do submapa da igreja)
     interactions['P'] = [&](int px, int py, int width) {
         if (playerIsInsideSubMap) {
             NPCPriest priest;

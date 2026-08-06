@@ -1,13 +1,13 @@
 /*
  * Arquivo: Status.h
- * Propósito: Define o sistema de efeitos de status (buffs e debuffs) aplicáveis aos personagens.
+ * Proposito: Define o sistema de efeitos de status (buffs e debuffs) aplicaveis aos personagens.
  */
 
 #pragma once
 
 #include <string>
 
-// Enumeração de identificadores de efeitos temporários de status
+// Enumeracao de identificadores de efeitos temporarios de status
 enum class EffectID {
     None,
     Bleeding,
@@ -28,7 +28,7 @@ enum class EffectID {
 class Character;
 
 /*
- * Classe base para representação de um efeito de status ativo.
+ * Classe base para representacao de um efeito de status ativo.
  */
 class StatusEffect {
 protected:

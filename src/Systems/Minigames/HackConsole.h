@@ -1,6 +1,6 @@
 /*
  * Arquivo: HackConsole.h
- * Propósito: Minigame de terminal para hackear dispositivos/consoles interativos no mapa.
+ * Proposito: Minigame de terminal para hackear dispositivos/consoles interativos no mapa.
  */
 
 #pragma once

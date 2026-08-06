@@ -1,6 +1,6 @@
 /*
  * Arquivo: MapControl.h
- * Propósito: Fachada central de controle de mapas (coordenação de movimentação, gatilhos de combate e câmera 3D).
+ * Proposito: Fachada central de controle de mapas (coordenacao de movimentacao, gatilhos de combate e camera 3D).
  */
 
 #pragma once
@@ -14,23 +14,16 @@
 #include "World/InteractionMap.h"
 
 /*
- * Fachada para delegação dos sistemas de animação, colisão e renderização de mapa.
+ * Fachada para delegacao dos sistemas de animacao, colisao e renderizacao de mapa.
  */
 class MapControl 
 {
 public:
-    // Processa o input de movimento e de menus. 
-    // processarInputEComandos movido para ControladorInputMapa.h
-
     static void processCombat(
         Character* currentPlayer, std::vector<std::string>& currentMapMatrix, 
         int& playerPositionX, int& playerPositionY, bool& isExplorationActive,
         const std::string& combatTitle, const std::string& warningMessage, std::vector<std::unique_ptr<Character>> enemiesForBattle, 
         int positionXAfterCombat, int positionYAfterCombat, int initialEnemyPositionX, int occupiedCellsQuantity, int terminalWidth, const std::function<void()>& restoreScreen);
-
-    // animarIntroducaoMapa e animarFlashbang movidos para AnimadorMapa.h
-
-    // Funções de câmera e renderização movidas para RenderizadorMapa.h
 
     static bool is3DExplorationActive();
     static void signal3DMapChange();

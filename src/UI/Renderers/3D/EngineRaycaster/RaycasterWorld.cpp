@@ -230,7 +230,7 @@ Pixel3D RaycasterWorld::getInternalWallPixel(const std::string& titleMap, bool t
         else texID = TexID::StoneVillage;
     } else if (charWall == 'T') {
         if (flags.isChurch) texID = TexID::ChurchCeiling;
-        else texID = TexID::PatternStructure; // Default fallback for T
+        else texID = TexID::PatternStructure; // Fallback padrao para T
     } else if (!isKingdom) {
         if (flags.isSpawn) texID = TexID::StoneSpawn;
         else if (flags.isRoomBoss) texID = TexID::RoomBossWall;
@@ -422,7 +422,7 @@ Pixel3D RaycasterWorld::getPixelChao(const std::string& titleMap, float currentX
         else if (spiral > -0.3f) c = '.';
         else c = ' ';
     } else if (isHeart) {
-        // Chão de musgo e terra para Coracao da Floresta
+        // Chao de musgo e terra para Coracao da Floresta
         float cx = (globX & 255) - 128.0f;
         float cy = (globY & 255) - 128.0f;
         float dist = std::sqrt(cx*cx + cy*cy);
@@ -471,8 +471,10 @@ Pixel3D RaycasterWorld::getPixelChao(const std::string& titleMap, float currentX
         r = 30 + var; g = 30 + var; b = 30 + var;
         c = ' ';
     } else if (isEarth) {
-        // Mistura de terra e grama para Vila e Floresta
-        // Formula caotica sem padrao repetitivo
+        /*
+         * Mistura de terra e grama para Vila e Floresta
+         * Formula caotica sem padrao repetitivo
+         */
         float cx = globX * 0.123f;
         float cy = globY * 0.091f;
         float cx2 = (globX + globY) * 0.054f;
@@ -810,7 +812,7 @@ char RaycasterWorld::getSpriteChar(int /*mapX*/, int mapY, char c, const std::st
         return c; // Retorna ! ou % para serem desenhados como sprite pelo RaycasterRenderizador (IDE)
     }
     if (c == '@') {
-        return '@'; // Terminal hackeável
+        return '@'; // Terminal hackeavel
     }
     if (c == 'Y' || c == '*') {
         return c;
@@ -836,7 +838,7 @@ char RaycasterWorld::getSpriteChar(int /*mapX*/, int mapY, char c, const std::st
         return 'X';
     }
 
-    // Customizações para o PATIO DO REINO (e REINO) e Igreja
+    // Customizacoes para o PATIO DO REINO (e REINO) e Igreja
     if (flags.upperTitle.find("PATIO DO REINO") != std::string::npos || flags.upperTitle == "REINO") {
         if (c == 'F') return 'V'; // Franchesco
         if (c == 'N') return 'Z'; // Anok (Manequim)

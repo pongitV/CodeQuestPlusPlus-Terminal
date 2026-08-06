@@ -135,9 +135,11 @@ void Slime::aoCauseDamage(Character* attacker, Character* target, int damageCaus
     if (RandomGenerator::rollChance(15)) {
         if (!target->ownsEffect(EffectID::Slowness)) {
             target->addEffect(std::make_unique<SlownessEffect>(3));
-            // A mensagem na UI foi removida para priorizar o combate limpo
-            // std::string msg = TelaCombate::margemCombate() + Aparencia::cor(Cor::MAGENTA) + ">> [PASSIVA SLIME]: Uma gosma esverdeada grudou e deixou " + alvo->obterNome() + " mais lento!" + Aparencia::cor(Cor::RESET) + "\n";
-            // TelaCombate::adicionarMensagemFixa(msg);
+            /*
+             * A mensagem na UI foi removida para priorizar o combate limpo
+             * std::string msg = TelaCombate::margemCombate() + Aparencia::cor(Cor::MAGENTA) + ">> [PASSIVA SLIME]: Uma gosma esverdeada grudou e deixou " + alvo->obterNome() + " mais lento!" + Aparencia::cor(Cor::RESET) + "\n";
+             * TelaCombate::adicionarMensagemFixa(msg);
+             */
             Appearance::registerBattleLog(DialogueFunctions::formatSkillMsg("Uma gosma esverdeada grudou e deixou " + target->getName() + " mais lento!", Color::MAGENTA));
         }
     }

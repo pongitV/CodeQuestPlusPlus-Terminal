@@ -1,6 +1,6 @@
 /*
  * Arquivo: EnemyCreator.h
- * Propósito: Fábrica responsável pela instanciação de grupos de inimigos para combates.
+ * Proposito: Fabrica responsavel pela instanciacao de grupos de inimigos para combates.
  */
 
 #pragma once
@@ -12,12 +12,12 @@
 #include "Domain/Characters/Character.h"
 
 /*
- * Classe estática utilitária para fábrica de inimigos.
+ * Classe estatica utilitaria para fabrica de inimigos.
  */
 class EnemyCreator
 {
 public:
-    // Métodos de criação para cada tipo de inimigo pré-configurado
+    // Metodos de criacao para cada tipo de inimigo pre-configurado
     static std::vector<std::unique_ptr<Character>> createGoblinEnemy(int quantity = 3);
     static std::vector<std::unique_ptr<Character>> createSlimeEnemy(int quantity = 3);
     static std::vector<std::unique_ptr<Character>> createFairyEnemy(int quantity = 5);
@@ -28,9 +28,7 @@ public:
     static std::vector<std::unique_ptr<Character>> createMahoragaEnemy(int quantity = 1);
 
 private:
-    /*
-     * Função utilitária genérica para instanciação de lotes de inimigos com variação aleatória de atributos.
-     */
+    // Funcao utilitaria generica para instanciacao de lotes de inimigos com variacao aleatoria de atributos
     template<typename RaceType, typename ClasseType>
     static std::vector<std::unique_ptr<Character>> createGenericEnemies(int quantity, int maxVariation = 10);
 };

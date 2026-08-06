@@ -5,20 +5,26 @@
 #include <ostream>
 #include "Core/Utils/Appearance.h"
 
-// TelaBaseMenu — utilitarios compartilhados de layout para as telas de menu.
-// Centraliza calculos de posicionamento horizontal para evitar repeticao
-// em cada tela concreta (Raycaster, IDE, futuras perspectivas).
+/*
+ * TelaBaseMenu — utilitarios compartilhados de layout para as telas de menu.
+ * Centraliza calculos de posicionamento horizontal para evitar repeticao
+ * em cada tela concreta (Raycaster, IDE, futuras perspectivas).
+ */
 class ScreenBaseMenu {
 public:
-    // Retorna o offset X para centralizar horizontalmente um bloco de
-    // 'comprimentoTexto' caracteres dentro de um terminal de 'larguraConsole' colunas.
-    // Nunca retorna valor negativo.
+    /*
+     * Retorna o offset X para centralizar horizontalmente um bloco de
+     * 'comprimentoTexto' caracteres dentro de um terminal de 'larguraConsole' colunas.
+     * Nunca retorna valor negativo.
+     */
     static int calculateOffsetCentral(int textLength, int widthConsole) {
         return std::max(0, (widthConsole - textLength) / 2);
     }
 
-    // Sobrecarga conveniente: aceita a string diretamente e automaticamente
-    // ignora codigos de cor ANSI no calculo da largura visual.
+    /*
+     * Sobrecarga conveniente: aceita a string diretamente e automaticamente
+     * ignora codigos de cor ANSI no calculo da largura visual.
+     */
     static int calculateOffsetCentral(const std::string& text, int widthConsole) {
         return calculateOffsetCentral(Appearance::getVisualLength(text), widthConsole);
     }

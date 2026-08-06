@@ -60,9 +60,11 @@ void ForestAbomination::aoCauseDamage(Character* attacker, Character* target, in
             if (healing > 0)
             {
                 attacker->modifyHealth(healing);
-                // A mensagem na UI foi removida para priorizar o combate limpo
-                // std::string msg = TelaCombate::margemCombate() + Aparencia::cor(Cor::VERDE) + "[PASSIVA]: Raizes Parasitas! A Abominacao absorveu " + std::to_string(cura) + " de HP!" + Aparencia::cor(Cor::RESET) + "\n";
-                // TelaCombate::adicionarMensagemFixa(msg);
+                /*
+                 * A mensagem na UI foi removida para priorizar o combate limpo
+                 * std::string msg = TelaCombate::margemCombate() + Aparencia::cor(Cor::VERDE) + "[PASSIVA]: Raizes Parasitas! A Abominacao absorveu " + std::to_string(cura) + " de HP!" + Aparencia::cor(Cor::RESET) + "\n";
+                 * TelaCombate::adicionarMensagemFixa(msg);
+                 */
                 Appearance::registerBattleLog(DialogueFunctions::formatSkillMsg("Raizes Parasitas! A Abominacao absorveu " + std::to_string(healing) + " de HP!", Color::GREEN));
             }
         }

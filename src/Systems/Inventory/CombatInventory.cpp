@@ -263,7 +263,7 @@ void CombatInventory::manageInventory(Character* currentPlayer, bool* shiftWasCo
                 if (!item) return;
                 hasEq = true;
                 std::string name = item->getItemName();
-                // also add to interativos so it can be selected
+                // adiciona tambem aos interativos para que possa ser selecionado
                 int idx = (int)interactive.size();
                 interactive.push_back("(E) " + name);
                 indicesReal.push_back((int)mapIndexForItem.size());

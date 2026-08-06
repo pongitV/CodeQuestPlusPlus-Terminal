@@ -34,7 +34,7 @@ int ManagerScreensRaycaster::mainMenu() {
 }
 
 void ManagerScreensRaycaster::tutorialParry(const std::string& infoBox) {
-    ScreenTutorial::displayTutorialDeParry(infoBox); // Tutorial não é separado ainda
+    ScreenTutorial::displayTutorialDeParry(infoBox); // Tutorial nao e separado ainda
 }
 
 NameScreen::Result ManagerScreensRaycaster::screenName() {

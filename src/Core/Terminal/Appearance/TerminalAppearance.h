@@ -1,3 +1,7 @@
+/*
+ * Arquivo: TerminalAppearance.h
+ * Proposito: Define cores e estilos especificos para simular a aparencia de uma IDE/codigo no terminal.
+ */
 #pragma once
 
 #include <string>
@@ -40,7 +44,7 @@ public:
     static void printLogsCombat(const std::vector<std::string>& messages);
     static void printBoxDrops(const std::vector<std::string>& drops);
 
-    // --- UTILIDADES DE FORMATAO ---
+    // --- UTILIDADES DE FORMATACAO ---
     static std::string formatVarName(const std::string& name);
     static std::string formatType(const std::string& type);
     static std::string formatValue(const std::string& value);

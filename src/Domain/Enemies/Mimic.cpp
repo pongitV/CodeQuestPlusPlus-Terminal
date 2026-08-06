@@ -127,17 +127,19 @@ void Mimic::aoCauseDamage(Character* attacker, Character* target, int damageCaus
     if (damageCaused <= 0) return;
     
     int goldCurrent = target->getInventory()->getGold();
-    if (goldCurrent <= 0) return; // Jogador já está pobre
+    if (goldCurrent <= 0) return; // Jogador ja esta pobre
 
     int robbery = RandomGenerator::getInteger(30, 80);
-    if (robbery > goldCurrent) robbery = goldCurrent; // Não pode roubar mais do que o jogador tem
+    if (robbery > goldCurrent) robbery = goldCurrent; // Nao pode roubar mais do que o jogador tem
     
     target->getInventory()->addGold(-robbery);
     goldStolenTotal += robbery;
     
-    // A mensagem na UI foi removida para priorizar o combate limpo
-    // std::string msg = TelaCombate::margemCombate() + Aparencia::cor(Cor::AMARELO) + ">> [MIMICO]: Com uma lingua grotesca, o Mimico roubou " + std::to_string(roubo) + "G do seu bolso!" + Aparencia::cor(Cor::RESET) + "\n";
-    // TelaCombate::adicionarMensagemFixa(msg);
+    /*
+     * A mensagem na UI foi removida para priorizar o combate limpo
+     * std::string msg = TelaCombate::margemCombate() + Aparencia::cor(Cor::AMARELO) + ">> [MIMICO]: Com uma lingua grotesca, o Mimico roubou " + std::to_string(roubo) + "G do seu bolso!" + Aparencia::cor(Cor::RESET) + "\n";
+     * TelaCombate::adicionarMensagemFixa(msg);
+     */
     Appearance::registerBattleLog(DialogueFunctions::formatSkillMsg("Com uma lingua grotesca, o Mimico roubou " + std::to_string(robbery) + "G do seu bolso!", Color::YELLOW));
 }
 

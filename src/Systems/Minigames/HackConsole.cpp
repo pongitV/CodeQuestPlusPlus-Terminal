@@ -11,7 +11,7 @@ bool HackConsole::startHack(Character* player) {
     Appearance::clearScreen();
     
     vector<string> linesCode = {
-        "// Sistema de Segurança v1.2",
+        "// Sistema de Seguranca v1.2",
         "bool unlockDoor() {",
         "    int accessLevel = getPlayerAccess();",
         "    if (accessLevel < 5) {",

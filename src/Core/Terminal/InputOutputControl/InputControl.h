@@ -1,6 +1,6 @@
 /*
  * Arquivo: InputControl.h
- * Propósito: Controle de entrada do usuário pelo terminal (teclado, mouse e captura de caracteres).
+ * Proposito: Controle de entrada do usuario pelo terminal (teclado, mouse e captura de caracteres).
  */
 
 #pragma once
@@ -10,7 +10,7 @@
 #include "Core/Terminal/Appearance/Appearance.h"
 #include <functional>
 
-// Comandos de navegação mapeados a partir de teclas
+// Comandos de navegacao mapeados a partir de teclas
 enum class MapCommand {
     Up,
     Down,
@@ -31,7 +31,7 @@ public:
     // Verifica se alguma tecla foi pressionada
     static bool pressedKey();
 
-    // Lê um caractere do teclado sem necessidade de pressionar Enter
+    // Le um caractere do teclado sem necessidade de pressionar Enter
     static char readKey();
 
     // Converte a tecla pressionada no comando correspondente
@@ -40,14 +40,14 @@ public:
     // Limpa o buffer de entrada do terminal
     static void clearBuffer();
 
-    // Lê uma string digitada pelo usuário protegendo contra entradas inválidas
+    // Le uma string digitada pelo usuario protegendo contra entradas invalidas
     static std::string readEntryProtected(const std::string& promptMessage = "");
     
     // Habilita e gerencia captura de mouse no terminal Windows
     static void enableMouseInput();
     static bool readStateDragHorizontalMouse(int& deltaX);
     
-    // Leituras estruturadas de inteiros e seleções de menu
+    // Leituras estruturadas de inteiros e selecoes de menu
     static int readIntegerWithLimits(const std::string& promptMessage, int minimum, int maximum, bool centralizePrompt = false, const std::string& marginPersonalized = "");
     static int readSelectionMenuWithArrows(const std::vector<std::string>& options, bool centralize = true, const std::string& marginPersonalized = "", const std::vector<std::string>& panelRight = {});
     static int readMenuSelectionInPopup(const std::string& title, const std::vector<std::string>& text, const std::vector<std::string>& options, Color themeColor = Color::WHITE, const std::vector<std::string>& asciiArt = {}, bool animateEntrance = true);

@@ -3,7 +3,7 @@
 #include "Domain/Characters/Races/Elf.h"
 #include "Domain/Characters/Races/Human.h"
 #include "Domain/Characters/Races/Orc.h"
-// Adicione includes de inimigos se necessário no futuro
+// Adicione includes de inimigos se necessario no futuro
 
 std::unique_ptr<BaseRace> RaceFactory::createRace(TypeRace type) {
     switch (type) {

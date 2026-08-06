@@ -63,9 +63,6 @@ public:
 
 protected:
     void notifyMessageCombat(const std::string& msgWithColor, const std::string& /*msgSemCor*/) const {
-        // A mensagem na UI foi removida para priorizar o combate limpo
-        // std::string msgFinal = TelaCombate::margemCombate() + msgComCor + "\n";
-        // TelaCombate::adicionarMensagemFixa(msgFinal);
         Appearance::registerBattleLog(msgWithColor);
     }
 
@@ -105,7 +102,6 @@ public:
 protected:
     virtual void executeAttackArea(Character* attacker, Character* defender, int damageBase, int damagePiercing, std::vector<std::unique_ptr<Character>>& enemies, const std::function<void(Character*, Character*, int, int)>& applyDamage, bool isAttackerPlayer) {
         std::string msgInfo = attacker->getName() + " desfere um ataque em area!";
-        // A mensagem foi removida da UI para manter o combate limpo com Textos Flutuantes
         Appearance::registerBattleLog(msgInfo);
         int damageDivided = std::max(1, damageBase / static_cast<int>(enemies.size()));
         int piercingDivided = damagePiercing / static_cast<int>(enemies.size());
@@ -120,7 +116,6 @@ protected:
     virtual void executeAttackUnique(Character* attacker, Character* defender, int damageBase, int damagePiercing, std::vector<std::unique_ptr<Character>>& enemies, const std::function<void(Character*, Character*, int, int)>& applyDamage, bool isAttackerPlayer) {
         if (defender != nullptr) {
             std::string msgInfo = attacker->getName() + " ataca " + defender->getName() + "!";
-            // A mensagem foi removida da UI para manter o combate limpo com Textos Flutuantes
             Appearance::registerBattleLog(msgInfo);
             applyDamage(attacker, defender, damageBase, damagePiercing);
         }

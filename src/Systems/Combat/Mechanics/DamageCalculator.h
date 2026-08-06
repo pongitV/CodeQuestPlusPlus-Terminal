@@ -1,6 +1,6 @@
 /*
  * Arquivo: DamageCalculator.h
- * Propósito: Cálculo matemático de dano ofensivo (base + perfurante) e mitigação defensiva por armadura.
+ * Proposito: Calculo matematico de dano ofensivo (base + perfurante) e mitigacao defensiva por armadura.
  */
 
 #pragma once
@@ -10,14 +10,14 @@ class IAttacker;
 class IDamageable;
 
 /*
- * Calculadora de estatísticas de dano físico e mitigação.
+ * Calculadora de estatisticas de dano fisico e mitigacao.
  */
 class CalculatorDamage {
 public:
     // Calcula o dano base e perfurante de um atacante (baseado em arma e atributos)
     static std::pair<int, int> calculateDamageOffensiveBase(IAttacker* attacker);
     
-    // Calcula a mitigação defensiva do alvo (redução por resistência e constituição)
+    // Calcula a mitigacao defensiva do alvo (reducao por resistencia e constituicao)
     static int calculateMitigationDefensive(IDamageable* target, int damageGross, int damagePiercing);
 };
 

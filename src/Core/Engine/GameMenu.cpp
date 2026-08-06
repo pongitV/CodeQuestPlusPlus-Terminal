@@ -1,6 +1,6 @@
 /*
  * Arquivo: GameMenu.cpp
- * Propósito: Implementação do fluxo de menus principais e criação de personagem.
+ * Proposito: Implementacao do fluxo de menus principais e criacao de personagem.
  */
 
 #include "Core/Engine/GameMenu.h"

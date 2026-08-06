@@ -1,6 +1,6 @@
 /*
  * Arquivo: Combat.h
- * Propósito: Gerenciamento do fluxo de combate por turnos, ações dos personagens, cálculo de recompensas e estatísticas.
+ * Proposito: Gerenciamento do fluxo de combate por turnos, acoes dos personagens, calculo de recompensas e estatisticas.
  */
 
 #pragma once
@@ -15,7 +15,7 @@
 #include "Domain/Characters/Character.h"
 
 /*
- * Gerenciador da sessão ativa de combate por turnos.
+ * Gerenciador da sessao ativa de combate por turnos.
  */
 class Combat 
 {
@@ -86,28 +86,16 @@ public:
     bool executeShiftPlayerOuAlly(Character* character, bool& firstRendering, bool processEffectsHome = true);
     void addAllyEmCombat(std::unique_ptr<Character> ally);
     void addAllies(std::vector<std::unique_ptr<Character>> allies);
-    /**
-     * @brief Inicia o laco principal de combate.
-     */
+    // Inicia o laco principal de combate
     void startCombat();
 
-    /**
-     * @brief Executa a inteligencia e as acoes de todos os inimigos presentes.
-     */
+    // Executa a inteligencia e as acoes de todos os inimigos presentes
     void executeShiftDeEveryoneOsEnemies();
 
-    /**
-     * @brief Verifica se todos os inimigos estao mortos ou se o jogador morreu.
-     * @return true se o combate deve acabar.
-     */
+    // Verifica se todos os inimigos estao mortos ou se o jogador morreu. Retorna true se o combate deve acabar.
     bool checkConditionDeVictoryOuDefeat();
 
-    /**
-     * @brief Aplica o fluxo completo de dano fisico de um personagem a outro.
-     * @param personagemAtacante Ponteiro para quem ataca.
-     * @param personagemDefensor Ponteiro para quem defende.
-     * @param turnoAtualDoCombate Turno em que a acao ocorre.
-     */
+    // Aplica o fluxo completo de dano fisico de um personagem a outro
     void performAttackPhysical(Character* attackingCharacter, Character* characterDefender, int shiftCurrentDoCombat);
 
     // Getters para Estatisticas Avancadas

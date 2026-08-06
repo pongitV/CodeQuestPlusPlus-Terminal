@@ -166,7 +166,7 @@ std::vector<std::string> ScreenCombatRaycaster::getLinesBarDeStatusDoPlayer(Char
 #include <thread>
 #include <iostream>
 
-// Estado Estático do Contexto
+// Estado Estatico do Contexto
 static bool s_isContext3D = false;
 static std::vector<std::string> s_contextMap;
 static float s_contextPostX = 0.0f;
@@ -181,7 +181,7 @@ struct MsgLogRaycaster {
 };
 static std::vector<MsgLogRaycaster> logBattle;
 
-// ---- Início das Funções Implementadas ----
+// ---- Inicio das Funcoes Implementadas ----
 
 void ScreenCombatRaycaster::configureContext3D(bool mode3D, const std::vector<std::string>& matrix, float postX, float postY, float angle, const std::string& title) {
     s_isContext3D = mode3D;
@@ -494,7 +494,7 @@ void ScreenCombatRaycaster::cheerDeathEnemy(const std::string& titleCombat, cons
         std::cout << out << std::flush;
     });
 
-    // Drops removidos daqui conforme solicitado; eles já aparecem no log.
+    // Drops removidos daqui conforme solicitado; eles ja aparecem no log.
 }
 
 // Menus de Input

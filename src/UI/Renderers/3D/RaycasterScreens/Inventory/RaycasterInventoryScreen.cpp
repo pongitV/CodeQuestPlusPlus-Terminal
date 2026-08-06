@@ -26,7 +26,7 @@ void ScreenInventoryRaycaster::displayHeader(bool, int startY) {
     int soonX = (widthConsole - compVisualSoon) / 2;
     if (soonX < 0) soonX = 0;
     
-    // Apenas desenha o logo sobre a tela atual, pulando espaços para não pintar fundo preto
+    // Apenas desenha o logo sobre a tela atual, pulando espacos para nao pintar fundo preto
     std::string colorTitle = Appearance::color(Color::YELLOW);
     for (int i = 0; i < (int)ArtsInventory::soonInventory.size(); ++i) {
         Appearance::moveCursor(soonX, soonY + i);
@@ -69,7 +69,7 @@ void ScreenInventoryRaycaster::renderMenu(const std::vector<std::string>& lines,
     std::vector<std::string> linesBase = lines;
     int interactiveIdx = 0;
     
-    std::string strPocket = "BOLSO:"; // Helper to identify non-interactive lines if needed
+    std::string strPocket = "BOLSO:"; // Auxiliar para identificar linhas nao iterativas caso necessario
     
     for (size_t i = 0; i < linesBase.size(); ++i) {
         if (linesBase[i].empty() || linesBase[i].find(strPocket) != std::string::npos || linesBase[i].find("   ") == 0) {
@@ -84,8 +84,10 @@ void ScreenInventoryRaycaster::renderMenu(const std::vector<std::string>& lines,
         }
     }
     
-    // Add extra empty lines if needed to keep box size consistent? 
-    // It's better if InventarioCombate passes the exact lines.
+    /*
+     * Adicionar linhas vazias extras se necessario para manter o tamanho da caixa consistente?
+     * E melhor se o InventarioCombate passar as linhas exatas.
+     */
     std::vector<std::string> boxEnd = BaseScreen::createBox(linesBase, title, 0, Color::YELLOW, "\033[48;2;25;25;25m");
     
     if (outH > 0 && outW > 0) {

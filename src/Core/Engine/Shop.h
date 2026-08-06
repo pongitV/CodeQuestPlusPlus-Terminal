@@ -1,6 +1,6 @@
 /*
  * Arquivo: Shop.h
- * Propósito: Sistema genérico de loja para compra de itens de NPCs.
+ * Proposito: Sistema generico de loja para compra de itens de NPCs.
  */
 
 #pragma once
@@ -13,7 +13,7 @@
 #include "Core/Utils/Appearance.h"
 
 /*
- * Representa um produto disponível em uma loja.
+ * Representa um produto disponivel em uma loja.
  */
 struct ShopProduct {
     ItemID itemId;
@@ -22,13 +22,11 @@ struct ShopProduct {
 };
 
 /*
- * Gerenciador da interface e transações de loja.
+ * Gerenciador da interface e transacoes de loja.
  */
 class Shop {
 public:
-    /*
-     * Processa a interface interativa de compra com um NPC negociante.
-     */
+    // Processa a interface interativa de compra com um NPC negociante
     static void processPurchase(Character* currentPlayer, const std::string& shopTitle, Color shopColor, 
                                 std::map<int, ShopProduct>& currentStock, 
                                 const std::function<void(const std::string&)>& displayNPCDialog, 

@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include "UI/Screens/BaseScreen.h"
-#include "UI/IDiaryUI.h"
+#include "UI/Interfaces/IDiaryUI.h"
 
 class Character;
 

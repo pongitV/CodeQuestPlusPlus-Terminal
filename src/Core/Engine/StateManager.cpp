@@ -1,6 +1,6 @@
 /*
  * Arquivo: StateManager.cpp
- * Propósito: Implementação das transições de estados e loop principal de exploração.
+ * Proposito: Implementacao das transicoes de estados e loop principal de exploracao.
  */
 
 #include "Core/Engine/StateManager.h"
@@ -75,8 +75,10 @@ void ExplorationState::execute(Game& game, GameContext& ctx) {
             if (!Progression::instance().getFlag(Flags::Visited_Kingdom)) Progression::instance().setFlag(Flags::Visited_Kingdom, true);
         }
         else { // Inclui NextMapTransition::None
-            // Se nenhuma transição foi solicitada, encerra o loop de exploração por precaução
-            // e força o retorno seguro ao menu principal.
+            /*
+             * Se nenhuma transicao foi solicitada, encerra o loop de exploracao por precaucao
+             * e forca o retorno seguro ao menu principal.
+             */
             player->setReturnToMenu(true);
             break;
         }

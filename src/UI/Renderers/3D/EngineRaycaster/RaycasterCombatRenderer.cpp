@@ -10,9 +10,11 @@
 
 extern Character* g_enemyAttackerParry;
 
-// ═══════════════════════════════════════════════════════════════════
-//  Arena de Combate por Bioma
-// ═══════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════
+ * Arena de Combate por Bioma
+ * ═══════════════════════════════════════════════════════════════════
+ */
 std::vector<std::string> RaycasterRendererCombat::getArenaByTitle(const std::string& title) {
     std::string upper = title;
     for (char& c : upper) c = std::toupper(static_cast<unsigned char>(c));
@@ -141,9 +143,11 @@ std::vector<std::string> RaycasterRendererCombat::getArenaByTitle(const std::str
     };
 }
 
-// ═══════════════════════════════════════════════════════════════════
-//  Cor base do sprite do inimigo (mesmas cores do RaycasterInimigos)
-// ═══════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════
+ * Cor base do sprite do inimigo (mesmas cores do RaycasterInimigos)
+ * ═══════════════════════════════════════════════════════════════════
+ */
 std::tuple<int,int,int> RaycasterRendererCombat::getColorSpriteEnemy(Character* enemy) {
     if (!enemy) return {255, 255, 255};
     
@@ -161,9 +165,11 @@ std::tuple<int,int,int> RaycasterRendererCombat::getColorSpriteEnemy(Character* 
     }
 }
 
-// ═══════════════════════════════════════════════════════════════════
-//  Pintar texto no buffer 1D (overlay)
-// ═══════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════
+ * Pintar texto no buffer 1D (overlay)
+ * ═══════════════════════════════════════════════════════════════════
+ */
 void RaycasterRendererCombat::paintTextNoBuffer(std::vector<std::string>& screen, int widthScreen, int heightMax, int postX, int postY, const std::string& text, const std::string& colorFg, const std::string& colorBgOverride) {
     (void)widthScreen;
     if (postY < 0 || postY >= (int)screen.size() || postY >= heightMax) return;
@@ -173,9 +179,11 @@ void RaycasterRendererCombat::paintTextNoBuffer(std::vector<std::string>& screen
     screen[postY] = Appearance::superimposePanelNaLineAnsi(screen[postY], panelText, postX);
 }
 
-// ═══════════════════════════════════════════════════════════════════
-//  Renderizar Quadro Principal
-// ═══════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════
+ * Renderizar Quadro Principal
+ * ═══════════════════════════════════════════════════════════════════
+ */
 static std::vector<std::string> s_cachedBackground;
 static std::string s_cachedTitleMap;
 static int s_cachedWidthScreen = 0;
@@ -239,8 +247,10 @@ std::vector<std::string> RaycasterRendererCombat::renderFrame(
         }
     }
 
-    // Retorna a tela com a altura correspondente à cena 3D (o HUD clássico será impresso abaixo por TelaCombate)
-    // PREENCHENDO ATE A ALTURA_TELA TOTAL PARA EVITAR CRASH NO HUD!
+    /*
+     * Retorna a tela com a altura correspondente a cena 3D (o HUD classico sera impresso abaixo por TelaCombate)
+     * PREENCHENDO ATE A ALTURA_TELA TOTAL PARA EVITAR CRASH NO HUD!
+     */
     std::vector<std::string> linesRendered(terminalHeight);
     
     int cameraOffsetX = 0;
@@ -260,7 +270,7 @@ std::vector<std::string> RaycasterRendererCombat::renderFrame(
         }
         linesRendered[y] = std::move(line);
     }
-    // Pad the rest with empty space to avoid Out-Of-Bounds when the HUD draws at the bottom
+    // Preenche o resto com espaco vazio para evitar Out-Of-Bounds quando o HUD for desenhado no fundo
     for (int y = height3D; y < terminalHeight; y++) {
         linesRendered[y] = std::string(widthScreen, ' ');
     }
@@ -268,9 +278,11 @@ std::vector<std::string> RaycasterRendererCombat::renderFrame(
     return linesRendered;
 }
 
-// ═══════════════════════════════════════════════════════════════════
-//  Sobrepor Sprite do Inimigo (com arte 3D texturizada)
-// ═══════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════
+ * Sobrepor Sprite do Inimigo (com arte 3D texturizada)
+ * ═══════════════════════════════════════════════════════════════════
+ */
 void RaycasterRendererCombat::superimposeSprite(
     std::vector<std::string>& screen, 
     Character* enemy, 
@@ -362,7 +374,7 @@ void RaycasterRendererCombat::superimposeSprite(
         if (comp > artWidth) artWidth = comp;
     }
 
-    // Sway horizontal based on time (apenas se não estiver no meio da animação de morte)
+    // Sway horizontal based on time (apenas se nao estiver no meio da animacao de morte)
     int swayOff = 0;
     if (!isDeath) {
         int stepSway = (timeMs / 200) % 8;
@@ -377,7 +389,7 @@ void RaycasterRendererCombat::superimposeSprite(
     if (startY > maxStartY) startY = maxStartY;
     if (startY < 0) startY = 0;
     
-    int startX = 0; // Será recalculado após obter o croppedWidth
+    int startX = 0; // Sera recalculado apos obter o croppedWidth
 
     // Helper para extrair o background da celula do Raycaster
     auto getBg = [](const std::string& s) {
@@ -503,10 +515,10 @@ void RaycasterRendererCombat::superimposeSprite(
                         
                         if (c != ' ') {
                             if (isDeath) {
-                                // Efeito de desintegração dithered (virando poeira)
+                                // Efeito de desintegracao dithered (virando poeira)
                                 int hash = (rawX * 37 + y * 57) % 100;
                                 if (hash < progress * 100) {
-                                    // Renderiza partículas de poeira '.' flutuantes ou some o pixel
+                                    // Renderiza particulas de poeira '.' flutuantes ou some o pixel
                                     if (progress < 0.8 && (hash % 3 == 0)) {
                                         std::string bg = getBg(screen[screenY * widthScreen + screenX]);
                                         int dustIntensity = static_cast<int>(100 * (1.0 - progress));
@@ -517,7 +529,7 @@ void RaycasterRendererCombat::superimposeSprite(
                                 }
                             }
 
-                            // Checa se eh borda (pixel adjacente a espaço ou borda da arte)
+                            // Checa se eh borda (pixel adjacente a espaco ou borda da arte)
                             bool isEdge = false;
                             for (int dy = -1; dy <= 1; ++dy) {
                                 for (int dx = -1; dx <= 1; ++dx) {
@@ -620,7 +632,7 @@ void RaycasterRendererCombat::superimposeSprite(
         }
     };
 
-    // Helper para desenhar strings no buffer (com suporte a UTF-8, alinhado à esquerda)
+    // Helper para desenhar strings no buffer (com suporte a UTF-8, alinhado a esquerda)
     auto paintStrLeft = [&](int postX, int postY, const std::string& txt, const std::string& color, const std::string& forcedBg = "") {
         if (postY < 0 || postY >= heightVisible) return;
         std::vector<std::string> chars = splitUTF8(txt);
@@ -634,7 +646,7 @@ void RaycasterRendererCombat::superimposeSprite(
         }
     };
 
-    // Só desenha nameplate/HP bar se não estiver morrendo e se spriteOpacity >= 1.0f
+    // So desenha nameplate/HP bar se nao estiver morrendo e se spriteOpacity >= 1.0f
     if (drawBody && !isDeath && spriteOpacity >= 1.0f) {
         int nameY = startY - 2;
         if (nameY >= 0) {
@@ -669,7 +681,7 @@ void RaycasterRendererCombat::superimposeSprite(
                 paintStrLeft(drawX, hpY, "HP: [", "\033[38;2;180;180;180m");
                 drawX += 5;
                 
-                // 2. Blocks with gradient
+                // 2. Blocos com gradiente
                 int blocks = 8;
                 int qtyReal = static_cast<int>(pct * blocks * 8);
                 
@@ -685,7 +697,7 @@ void RaycasterRendererCombat::superimposeSprite(
                     if (qtyReal >= charIdx + 4) {
                         paintStrLeft(drawX + i, hpY, "█", colorCurrent);
                     } else {
-                        paintStrLeft(drawX + i, hpY, "░", "\033[38;2;140;140;140m"); // Cor::CINZA is 140, 140, 140
+                        paintStrLeft(drawX + i, hpY, "░", "\033[38;2;140;140;140m"); // Cor::CINZA e 140, 140, 140
                     }
                 }
                 drawX += blocks;

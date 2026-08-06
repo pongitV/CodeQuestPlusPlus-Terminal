@@ -1,6 +1,6 @@
 /*
  * Arquivo: StateManager.h
- * Propósito: Gerenciamento do ciclo de vida dos estados do jogo (Padrão State Pattern).
+ * Proposito: Gerenciamento do ciclo de vida dos estados do jogo (Padrao State Pattern).
  */
 
 #pragma once
@@ -18,7 +18,7 @@ struct GameContext {
 };
 
 /*
- * Interface base para os estados do jogo (Menu, Exploração, Combate).
+ * Interface base para os estados do jogo (Menu, Exploracao, Combate).
  */
 class GameState {
 public:
@@ -29,7 +29,7 @@ public:
 };
 
 /*
- * Máquina de estados principal do jogo.
+ * Maquina de estados principal do jogo.
  */
 class Game {
 private:
@@ -42,7 +42,7 @@ public:
     explicit Game(std::unique_ptr<GameState> initialState) noexcept 
         : currentState(std::move(initialState)) {}
     
-    // Solicita a transição para um novo estado no próximo ciclo
+    // Solicita a transicao para um novo estado no proximo ciclo
     void changeState(std::unique_ptr<GameState> newState) noexcept { 
         nextState = std::move(newState);
         pendingChange = true;
@@ -51,7 +51,7 @@ public:
     GameContext& getContext() noexcept { return context; }
     const GameContext& getContext() const noexcept { return context; }
     
-    // Loop principal de execução da máquina de estados
+    // Loop principal de execucao da maquina de estados
     void run() {
         if (currentState) currentState->onEnter(*this, context);
         while (currentState) {
@@ -68,7 +68,7 @@ public:
 };
 
 /*
- * Estado ativo durante a exploração do mapa.
+ * Estado ativo durante a exploracao do mapa.
  */
 class ExplorationState final : public GameState {
 public:
@@ -77,7 +77,7 @@ public:
 };
 
 /*
- * Estado ativo durante a exibição de menus.
+ * Estado ativo durante a exibicao de menus.
  */
 class MenuState final : public GameState {
 public:

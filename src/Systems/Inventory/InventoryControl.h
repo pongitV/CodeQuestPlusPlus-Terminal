@@ -1,6 +1,6 @@
 /*
  * Arquivo: InventoryControl.h
- * Propósito: Regras de uso e equipagem de itens no inventário (processamento de resultados e erros).
+ * Proposito: Regras de uso e equipagem de itens no inventario (processamento de resultados e erros).
  */
 
 #pragma once

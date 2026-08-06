@@ -7,8 +7,10 @@
 
 class RaycasterRendererCombat {
 public:
-    // Renderiza o fundo 3D estatico e sobrepoe a arte do inimigo
-    // Retorna o quadro renderizado na resolucao da tela para ser exibido acima do HUD do combate.
+    /*
+     * Renderiza o fundo 3D estatico e sobrepoe a arte do inimigo
+     * Retorna o quadro renderizado na resolucao da tela para ser exibido acima do HUD do combate.
+     */
     static std::vector<std::string> renderFrame(
         const std::string& titleMap, 
         Character* player, 

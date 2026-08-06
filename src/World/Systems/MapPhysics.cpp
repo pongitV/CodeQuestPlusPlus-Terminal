@@ -1,6 +1,10 @@
 #include "World/Systems/MapPhysics.h"
 #include <algorithm>
 
+/*
+ * Garante que a posicao atual (X,Y) nao extrapole as bordas matriz do mapa.
+ * Previne falhas de segmentacao durante a movimentacao do jogador ou entidades.
+ */
 void MapPhysics::applyMapLimits(int& positionX, int& positionY, const std::vector<std::string>& mapMatrix) {
     if (positionY < 0) positionY = 0; 
     else if (positionY >= static_cast<int>(mapMatrix.size())) positionY = static_cast<int>(mapMatrix.size()) - 1;
@@ -15,6 +19,10 @@ void MapPhysics::applyMapLimits(int& positionX, int& positionY, const std::vecto
 #include "Core/Utils/RandomGenerator.h"
 #include <cmath>
 
+/*
+ * Movimentacao Autonoma de Inimigos (Roaming):
+ * Varre a matriz atras de entidades definidas em 'enemySymbols' e aplica logica de patrulha.
+ */
 void MapPhysics::moveEnemiesRandomly(std::vector<std::string>& currentMapMatrix, const std::vector<std::string>& originalMatrix, const std::string& enemySymbols, int playerX, int playerY) {
     if (enemySymbols.empty()) return;
 
@@ -24,7 +32,7 @@ void MapPhysics::moveEnemiesRandomly(std::vector<std::string>& currentMapMatrix,
     for (int y = 0; y < static_cast<int>(currentMapMatrix.size()); ++y) {
         for (int x = 0; x < static_cast<int>(currentMapMatrix[y].size()); ++x) {
             if (enemySymbols.find(currentMapMatrix[y][x]) != std::string::npos) {
-                // Ignora o caractere se ele fizer parte de um marcador de mapa/teleporte (ex: ^S, ^Vila)
+                // Ignora caracteres que fazem parte de um rotulo de mapa/teleporte (ex: ^S, ^Vila)
                 if (x > 0 && currentMapMatrix[y][x-1] == '^') continue;
 
                 currentEnemies.push_back({x, y, currentMapMatrix[y][x]});
@@ -33,10 +41,14 @@ void MapPhysics::moveEnemiesRandomly(std::vector<std::string>& currentMapMatrix,
     }
 
     for (const auto& enemy : currentEnemies) {
-        if (currentMapMatrix[enemy.y][enemy.x] != enemy.c) continue; // Pode ter sido alterado (morto/já movido)
+        if (currentMapMatrix[enemy.y][enemy.x] != enemy.c) continue; 
         
         int originX = -1, originY = -1;
-        // Encontra o spawn original no raio 3x3
+        /*
+         * Mapeamento de Ponto de Origem:
+         * Inimigos so podem patrulhar proximos de sua area original de "spawn".
+         * Aqui comparamos com a matriz original do mapa para encontrar o centro do perimetro.
+         */
         for (int dy = -1; dy <= 1; ++dy) {
             for (int dx = -1; dx <= 1; ++dx) {
                 int oy = enemy.y + dy;
@@ -59,10 +71,11 @@ void MapPhysics::moveEnemiesRandomly(std::vector<std::string>& currentMapMatrix,
             for (int dx = -1; dx <= 1; ++dx) {
                 int ty = originY + dy;
                 int tx = originX + dx;
+                
+                // Valida se a futura celula eh andavel ('.') e se o espaco esta livre
                 if (ty >= 0 && ty < static_cast<int>(currentMapMatrix.size()) && tx >= 0 && tx < static_cast<int>(currentMapMatrix[ty].size())) {
-                    // Só pode se mover para células vazias, e não pode pisar em cima do jogador
                     if (currentMapMatrix[ty][tx] == '.' && (tx != playerX || ty != playerY)) {
-                        // O inimigo anda 1 de cada vez, então limitamos aos adjacentes atuais dele dentro do raio 3x3 da origem
+                        // Limita o movimento a celulas diretamente adjacentes a posicao atual
                         if (std::abs(tx - enemy.x) <= 1 && std::abs(ty - enemy.y) <= 1) {
                             possibleMoves.push_back({tx, ty});
                         }
@@ -71,7 +84,7 @@ void MapPhysics::moveEnemiesRandomly(std::vector<std::string>& currentMapMatrix,
             }
         }
 
-        possibleMoves.push_back({enemy.x, enemy.y}); // Opção de permanecer parado
+        possibleMoves.push_back({enemy.x, enemy.y}); // Opcao de permanecer parado
 
         int choice = RandomGenerator::getInteger(0, static_cast<int>(possibleMoves.size()) - 1);
         int nx = possibleMoves[choice].first;

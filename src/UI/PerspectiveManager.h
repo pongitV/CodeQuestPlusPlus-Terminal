@@ -1,25 +1,25 @@
 /*
  * Arquivo: PerspectiveManager.h
- * Propósito: Singleton gerenciador de alternância de perspectiva (Modo IDE/Console 2D vs Raycaster 3D).
+ * Proposito: Singleton gerenciador de alternancia de perspectiva (Modo IDE/Console 2D vs Raycaster 3D).
  */
 
 #pragma once
 
 #include "UI/PerspectiveRenderer.h"
 #include "UI/Screens/IScreenManager.h"
-#include "UI/IDiaryUI.h"
-#include "UI/IInventoryUI.h"
-#include "UI/IAttributesUI.h"
-#include "UI/IBestiaryUI.h"
-#include "UI/ICombatScreenUI.h"
-#include "UI/IDefeatUI.h"
-#include "UI/IVictoryUI.h"
-#include "UI/IPauseUI.h"
-#include "UI/IWorldMapUI.h"
+#include "UI/Interfaces/IDiaryUI.h"
+#include "UI/Interfaces/IInventoryUI.h"
+#include "UI/Interfaces/IAttributesUI.h"
+#include "UI/Interfaces/IBestiaryUI.h"
+#include "UI/Interfaces/ICombatScreenUI.h"
+#include "UI/Interfaces/IDefeatUI.h"
+#include "UI/Interfaces/IVictoryUI.h"
+#include "UI/Interfaces/IPauseUI.h"
+#include "UI/Interfaces/IWorldMapUI.h"
 #include <memory>
 
 /*
- * Gerenciador central de perspectiva visual e fábricas de interfaces.
+ * Gerenciador central de perspectiva visual e fabricas de interfaces.
  */
 class PerspectiveManager {
 public:

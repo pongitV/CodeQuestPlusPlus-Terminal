@@ -173,8 +173,10 @@ namespace Highlighter {
         float baseSunG = g * (info.sunG / 255.0f) * sunFactor;
         float baseSunB = b * (info.sunB / 255.0f) * sunFactor;
 
-        // Point lights: Emissive (pure light) + Reflected (based on texture)
-        // Scaled down to prevent severe over-exposure/clipping which caused flat white blobs ("manchas")
+        /*
+         * Point lights: Emissive (pure light) + Reflected (based on texture)
+         * Escalonado para baixo para prevenir sobre-exposicao severa ou clipping que causava manchas brancas achatadas
+         */
         float emissiveR = lR * 0.25f;
         float emissiveG = lG * 0.25f;
         float emissiveB = lB * 0.25f;

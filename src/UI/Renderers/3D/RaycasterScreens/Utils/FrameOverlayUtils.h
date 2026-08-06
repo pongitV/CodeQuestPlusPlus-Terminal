@@ -167,7 +167,7 @@ namespace MenuRaycasterUtils {
 
                 int rMod = colorR, gMod = colorG, bMod = colorB;
                 
-                // Color Palette by Character for Heroes
+                // Paleta de cores por personagem para os herois
                 if (c == 'O' || c == 'o') { rMod = 230; gMod = 190; bMod = 160; } // Skin
                 else if (c == '#') { rMod = 180; gMod = 185; bMod = 190; } // Metal / Silver Armor
                 else if (c == '|' || c == '(' || c == ')') { rMod = 139; gMod = 69; bMod = 19; } // Wood (Bow/Staff)

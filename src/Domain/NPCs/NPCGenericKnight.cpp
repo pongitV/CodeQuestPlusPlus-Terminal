@@ -53,8 +53,10 @@ namespace {
         }
     };
 
-    // Comentario adicionado para forcar a recompilacao e resolver erros de linkagem do Guerreiro
-    // --- APARENCIA E DIALOGOS ---
+    /*
+     * Comentario adicionado para forcar a recompilacao e resolver erros de linkagem do Guerreiro
+     * --- APARENCIA E DIALOGOS ---
+     */
     void dialogueKnight(const std::vector<std::string>& lines) {
         DialogueFunctions::printDialogueNPC("Cavaleiro Real", Color::GRAY, lines);
     }

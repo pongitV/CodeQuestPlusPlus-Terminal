@@ -1,6 +1,6 @@
 /*
  * Arquivo: InputControl.cpp
- * Propósito: Implementação das rotinas de baixo nível e menus interativos de entrada.
+ * Proposito: Implementacao das rotinas de baixo nivel e menus interativos de entrada.
  */
 
 #include "Core/Terminal/InputOutputControl/InputControl.h"
@@ -25,6 +25,11 @@
 std::function<void()> InputControl::onWaitEnterUpdate = nullptr;
 std::string InputControl::enterPromptText = "";
 
+/*
+ * Verifica se ha alguma tecla aguardando no buffer de entrada (Non-blocking).
+ * Utilizado primariamente pelo motor 3D e loops assincronos para evitar 
+ * que a thread de renderizacao trave esperando input.
+ */
 bool InputControl::pressedKey() 
 {
 #ifdef _WIN32
@@ -79,6 +84,11 @@ void InputControl::enableMouseInput() {
 #endif
 }
 
+/*
+ * Captura e processa eventos complexos de mouse na API do Windows (Win32 Console).
+ * Intercepta MOUSE_EVENTs diretamente da stream STDIN, permitindo drag-and-drop
+ * de camera no modo 3D sem interferir no buffer de teclado (_kbhit).
+ */
 bool InputControl::readStateDragHorizontalMouse(int& deltaX) {
     deltaX = 0;
 #ifdef _WIN32
@@ -89,7 +99,10 @@ bool InputControl::readStateDragHorizontalMouse(int& deltaX) {
 
     INPUT_RECORD ir[128];
     DWORD inaRead;
-    // We use ReadConsoleInput, but we must restore KEYBOARD_EVENTs so _kbhit() doesn't break
+    /*
+     * Lemos os eventos brutos, mas precisamos devolver os KEYBOARD_EVENTs
+     * para a stream senao o _kbhit() vai parar de funcionar para movimentacao.
+     */
     ReadConsoleInput(hStdin, ir, 128, &inaRead);
     
     static int lastMouseX = -1;
@@ -170,6 +183,11 @@ int InputControl::readIntegerWithLimits(const std::string& promptMessage, int mi
     return value;
 }
 
+/*
+ * Renderiza e controla um menu iterativo direto no console (ANSI).
+ * Utiliza escape sequences para pular linhas (ex: \033[NA) e atualizar os icones 
+ * sem que o terminal 'pisque' inteiramente (Zero-Flicker approach).
+ */
 int InputControl::readSelectionMenuWithArrows(const std::vector<std::string>& options, bool centralize, const std::string& marginPersonalized, const std::vector<std::string>& panelRight) {
     if (options.empty()) return -1;
     
@@ -193,13 +211,12 @@ int InputControl::readSelectionMenuWithArrows(const std::vector<std::string>& op
         int comp = Appearance::getVisualLength(text);
         if (comp > maxWidth) maxWidth = comp;
     }
-    int larguraMenuEsq = maxWidth + 15; // 3 para " > " + 12 de espacamento
-
+    int larguraMenuEsq = maxWidth + 15;
+    
     if (centralize) {
         margin = Appearance::spacesToCenter(larguraMenuEsq + (totalDir > 0 ? 40 : 0));
     }
 
-    // Oculta o cursor do console temporariamente para evitar piscadas visuais na atualização
     Appearance::hideCursor();
 
     while (true) {
@@ -241,14 +258,14 @@ int InputControl::readSelectionMenuWithArrows(const std::vector<std::string>& op
             }
         }
 
-        std::cout << std::flush; // Garante que a tela sempre atualize antes de esperar a tecla
+        std::cout << std::flush; 
 
         if (pressedKey()) {
             unsigned char key = static_cast<unsigned char>(readKey());
             
             if (key == 224 || key == 0 || key == '\033') {
                 unsigned char nextKey = static_cast<unsigned char>(readKey());
-                if (nextKey == '[') nextKey = static_cast<unsigned char>(readKey()); // Para lidar com sequências de escape POSIX (\033[A)
+                if (nextKey == '[') nextKey = static_cast<unsigned char>(readKey()); 
                 
                 if (nextKey == 72 || nextKey == 'A') key = 'w';
                 else if (nextKey == 80 || nextKey == 'B') key = 's';
@@ -268,12 +285,12 @@ int InputControl::readSelectionMenuWithArrows(const std::vector<std::string>& op
                     if (selectionCurrent >= totalOptions) selectionCurrent = 0; 
                 } while (options[selectionCurrent].find("#HEADER#") == 0 && selectionCurrent != home);
             }
-            else if (key == '\r' || key == '\n') { Appearance::concertCursor(); return selectionCurrent; } // Restaura o cursor
+            else if (key == '\r' || key == '\n') { Appearance::concertCursor(); return selectionCurrent; } 
 
-            std::cout << "\r\033[" << maxLines << "A"; // Retorna o cursor para cima a fim de reescrever o texto
+            std::cout << "\r\033[" << maxLines << "A"; 
         } else {
             std::this_thread::sleep_for(std::chrono::milliseconds(20));
-            std::cout << "\r\033[" << maxLines << "A"; // Retorna o cursor para cima a fim de reescrever o texto
+            std::cout << "\r\033[" << maxLines << "A"; 
         }
     }
 }

@@ -72,7 +72,7 @@ NextMapTransition Map3KingdomBridge::startExplorationLoop()
         initialLineToDrawMap = MapAnimator::animateMapIntroduction(currentMapTitle, titleArt, artWidth, transArt, transWidth, Color::CYAN, currentMapMatrix, playerPositionX, playerPositionY, formatter, true, true, nullptr);
     };
 
-    auto animateScreen_ = animateScreen; // Para fins estáticos
+    auto animateScreen_ = animateScreen; // Para fins estaticos
     animateScreen();
 
     std::unordered_map<char, std::function<void(int, int, int)>> interactions;

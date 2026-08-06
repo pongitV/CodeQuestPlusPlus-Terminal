@@ -1,6 +1,6 @@
 /*
  * Arquivo: BaseScreen.h
- * Propósito: Classe base estática para construção e renderização de molduras, barras e loops de menu de telas.
+ * Proposito: Classe base estatica para construcao e renderizacao de molduras, barras e loops de menu de telas.
  */
 
 #pragma once
@@ -14,7 +14,7 @@
 class Character;
 
 /*
- * Provedor de utilitários de renderização de telas e loops interativos.
+ * Provedor de utilitarios de renderizacao de telas e loops interativos.
  */
 class BaseScreen {
 public:

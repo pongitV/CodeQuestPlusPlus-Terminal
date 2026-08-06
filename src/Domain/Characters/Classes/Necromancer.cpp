@@ -135,7 +135,7 @@ std::string Necromancer::getDescriptionPassiveClass() const {
 }
 
 void Necromancer::executeAttackWithPassiveDaClass(Character* attacker, Character* defender, int damageBase, int damagePiercing, std::vector<std::unique_ptr<Character>>& listDeEnemies, const std::function<void(Character*, Character*, int, int)>& applyDamage, bool applyPassive) {
-    // Comportamento padrão: apenas ataca o alvo principal ou todos se a arma for de área
+    // Comportamento padrao: apenas ataca o alvo principal ou todos se a arma for de area
     BaseClass::executeAttackWithPassiveDaClass(attacker, defender, damageBase, damagePiercing, listDeEnemies,
         [&](Character* atk, Character* def, int dmg, int perf) {
             // Callback para aplicar o dano e depois o efeito da passiva

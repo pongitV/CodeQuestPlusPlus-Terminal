@@ -9,7 +9,7 @@
 #include "UI/Screens/Menu/DifficultyScreen.h"
 #include "UI/Screens/Menu/ParryScreen.h"
 
-// Interface abstrata (DIP) para que RegistroTelas não dependa de implementações concretas (Raycaster ou IDE)
+// Interface abstrata (DIP) para que RegistroTelas nao dependa de implementacoes concretas (Raycaster ou IDE)
 class IManagerScreens {
 public:
     virtual ~IManagerScreens() = default;

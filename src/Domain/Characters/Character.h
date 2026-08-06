@@ -1,6 +1,6 @@
 /*
  * Arquivo: Character.h
- * Propósito: Classe base central do personagem (Jogador e Inimigos), atributos, status e inventário.
+ * Proposito: Classe base central do personagem (Jogador e Inimigos), atributos, status e inventario.
  */
 
 #pragma once
@@ -28,13 +28,13 @@
  */
 struct Attributes 
 {
-    int health;         // Pontos de vida (HP) maximos do personagem
-    int strength;        // Influencia o dano de ataques fisicos frontais e armas pesadas
-    int dexterity;     // Define a ordem do turno, dano de armas ageis e acerto critico/esquiva
-    int resistance;  // Reduz dano fisico recebido e atua como requisito para escudos pesados
+    int health;       // Pontos de vida (HP) maximos do personagem
+    int strength;     // Influencia o dano de ataques fisicos frontais e armas pesadas
+    int dexterity;    // Define a ordem do turno, dano de armas ageis e acerto critico/esquiva
+    int resistance;   // Reduz dano fisico recebido e atua como requisito para escudos pesados
     int constitution; // Vitalidade geral, reduz efetividade de debuffs e atua como requisito para armaduras
     int intelligence; // Multiplicador base do dano magico e requisito para usar cajados/varinhas
-    int wisdom;    // Aumenta atributos magicos secundarios, forca das curas e defesa magica
+    int wisdom;       // Aumenta atributos magicos secundarios, forca das curas e defesa magica
 
     void addAttributes(const Attributes& other) 
     {
@@ -78,8 +78,8 @@ enum class GameDifficulty
     Difficult = 3
 };
 
-/**
- * @brief Classe central do jogo que representa qualquer entidade viva (Jogador, Inimigos, NPCs).
+/*
+ * Classe central do jogo que representa qualquer entidade viva (Jogador, Inimigos, NPCs).
  * Agrega status, atributos, inventario e logica de persistencia e interacao.
  */
 class Character : public IAttacker, public IDamageable
@@ -150,9 +150,11 @@ protected:
     std::map<SlotEquipment, Item*> equipment;
     Item* itemSelectedForUse;
 
-    // Cache de getters calculados
-    // ATENCAO: Esta estrutura usando 'mutable' nao e thread-safe.
-    // Caso o jogo passe a utilizar multi-threading (ex: IA rodando em background), e necessario proteger com std::mutex ou std::atomic.
+    /*
+     * Cache de getters calculados
+     * ATENCAO: Esta estrutura usando 'mutable' nao e thread-safe.
+     * Caso o jogo passe a utilizar multi-threading (ex: IA rodando em background), e necessario proteger com std::mutex ou std::atomic.
+     */
     struct CacheAttributes {
         int lifeMaximum = 0;
         int strength = 0;
@@ -248,24 +250,16 @@ public:
         return false;
     }
 
-    /**
-     * @brief Verifica se a entidade esta ativamente no loop de combate.
-     */
+    // Verifica se a entidade esta ativamente no loop de combate
     bool thisEmCombat() const;
 
-    /**
-     * @brief Define o estado da entidade para combate.
-     */
+    // Define o estado da entidade para combate
     void enterEmCombat();
 
-    /**
-     * @brief Limpa o estado de combate da entidade (CDs, flags).
-     */
+    // Limpa o estado de combate da entidade (CDs, flags)
     void leaveDoCombat();
 
-    /**
-     * @brief Inicializa a entidade antes da luta.
-     */
+    // Inicializa a entidade antes da luta
     void prepareForCombat();
 
     void setItemSelectedForUse(Item* item) { itemSelectedForUse = item; }
@@ -359,7 +353,7 @@ public:
     void processEffectsHomeShift();
     bool canAct(std::string& outReasonDisability) const;
 
-    // Preenche o vetor com os IDs de todos os efeitos ativos (evita alocações indesejadas)
+    // Preenche o vetor com os IDs de todos os efeitos ativos (evita alocacoes indesejadas)
     void getIDsEffectsAssets(std::vector<EffectID>& outIDs) const;
     void cleanEffects();
     void removeEffect(EffectID id);
