@@ -72,7 +72,7 @@ Attributes Archer::getAttributesClass() const
 
 std::vector<std::unique_ptr<Item>> Archer::getEquipmentClass() const 
 {
-    auto equipment = ItemFactory::createKitPocoes();
+    auto equipment = ItemFactory::createPotionKit();
 
     equipment.push_back(ItemFactory::createItem(ItemID::BowWood));
     equipment.push_back(ItemFactory::createItem(ItemID::ArmbandsSilver));

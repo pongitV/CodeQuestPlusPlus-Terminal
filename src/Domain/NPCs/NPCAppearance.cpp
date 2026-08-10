@@ -10,19 +10,19 @@ void NPCAppearance::interact(Character* player) {
         [this, player]() { this->displayDialogue(player); },
         [this, player]() { return this->getOptionsMenu(player, Appearance::getTerminalWidth()); },
         [this, player](const std::string& op) { this->processOption(player, op, Appearance::getTerminalWidth()); return true; },
-        getNameDoPlace(), getColorDoHeader(), getArtASCII()
+        getPlaceName(), getHeaderColor(), getArtASCII()
     );
 }
 
-std::string NPCAppearance::getNameDoPlace() const {
+std::string NPCAppearance::getPlaceName() const {
     return "SALA DE CUSTOMIZACAO";
 }
 
-Color NPCAppearance::getColorDoHeader() const {
+Color NPCAppearance::getHeaderColor() const {
     return Color::BROWN_OFCOURSE;
 }
 
-Color NPCAppearance::getColorDaArt() const {
+Color NPCAppearance::getArtColor() const {
     return Color::BROWN_OFCOURSE;
 }
 

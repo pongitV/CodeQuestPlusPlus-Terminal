@@ -4,18 +4,18 @@
 #include <string>
 
 struct StatisticsCombat {
-    int quantityDeGoldObtained = 0;
-    int quantityDeXpObtained = 0;
-    int totalDeDamageCaused = 0;
-    int totalDeDamageReceived = 0;
-    int cureTotalReceived = 0;
-    int shiftsCombat = 1;
+    int goldObtained = 0;
+    int xpObtained = 0;
+    int totalDamageCaused = 0;
+    int totalDamageReceived = 0;
+    int totalCureReceived = 0;
+    int combatTurns = 1;
     std::vector<std::string> obtainedItems;
     std::vector<std::string> enemiesDefeated;
-    int parriesTempted = 0;
-    int parriesEffective = 0;
-    int parriesPerfect = 0;
-    int biggerDamageCaused = 0;
+    int parriesAttempted = 0;
+    int effectiveParries = 0;
+    int perfectParries = 0;
+    int highestDamageCaused = 0;
     int itemsConsumed = 0;
     std::vector<std::string> newDiscoveries;
 };

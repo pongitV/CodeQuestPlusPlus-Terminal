@@ -15,10 +15,10 @@ public:
     std::string getNameSkillClass() const override;
     std::string getDescriptionSkillClass() const override;
     std::string getRechargeSkillClass() const override;
-    void useSkillClass(Combat* combat, Character* characterUser, std::vector<Character*>& listDeEnemies) override;
+    void useSkillClass(Combat* combat, Character* characterUser, std::vector<Character*>& enemies) override;
 
     // --- PASSIVA DA CLASSE ---
     std::string getNamePassiveClass() const override;
     std::string getDescriptionPassiveClass() const override;
-    void executeAttackWithPassiveDaClass(Character* attacker, Character* defender, int damageBase, int damagePiercing, std::vector<std::unique_ptr<Character>>& listDeEnemies, const std::function<void(Character*, Character*, int, int)>& applyDamage, bool applyPassive) override;
+    void executeAttackWithClassPassive(Character* attacker, Character* defender, int damageBase, int damagePiercing, std::vector<std::unique_ptr<Character>>& enemies, const std::function<void(Character*, Character*, int, int)>& applyDamage, bool applyPassive) override;
 };

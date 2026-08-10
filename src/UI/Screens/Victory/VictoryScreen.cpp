@@ -15,7 +15,7 @@ void ScreenVictory::display(Character* currentPlayer, int quantityDeGoldObtained
     std::vector<std::pair<std::string, int>> dropsUnique;
     for (auto const& [name, qty] : count) dropsUnique.push_back({name, qty});
 
-    bool canRiseLevel = currentPlayer->canRiseDeLevel();
+    bool canRiseLevel = currentPlayer->canLevelUp();
 
     const std::string& titleMap = CombatScreen::context.titleMapCurrent;
 

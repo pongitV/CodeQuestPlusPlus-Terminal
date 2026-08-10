@@ -16,7 +16,7 @@ public:
     virtual ~IDamageable() = default;
     
     // Processa o recebimento de dano e retorna o resultado detalhado
-    virtual ResultDamage receiveDamage(int damageGross, int damagePiercing, int damageReducedParry, IAttacker* attacker, bool applyPassive = true) = 0;
+    virtual DamageResult receiveDamage(int damageGross, int damagePiercing, int damageReducedParry, IAttacker* attacker, bool applyPassive = true) = 0;
     
     // Calcula o valor de defesa base do alvo
     virtual int calculateDefenseBase(int damageGross, int damagePiercing) = 0;

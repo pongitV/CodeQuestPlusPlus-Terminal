@@ -48,31 +48,31 @@ Character* g_enemyAttackerParry = nullptr;
 int g_parryStatus = 0;
 
 void Combat::resetStatisticsAdvanced() {
-    stats_parriesTempted = 0;
-    stats_parriesEffective = 0;
-    stats_parriesPerfect = 0;
-    stats_biggerDamageCaused = 0;
+    parriesAttempted = 0;
+    effectiveParries = 0;
+    perfectParries = 0;
+    highestDamageCaused = 0;
     stats_itemsConsumed = 0;
-    stats_newDiscoveries.clear();
+    newDiscoveries.clear();
 }
 
-Combat::Combat(Character* playerForOCombat, std::vector<std::unique_ptr<Character>>&& enemiesForOCombat, std::unique_ptr<ICombatUI> interfaceVisual) 
-    : currentPlayer(playerForOCombat), listDeEnemies(std::move(enemiesForOCombat)), quantityDeGoldObtained(0), quantityDeXpObtained(0), totalDeDamageCaused(0), totalDeDamageReceived(0), accountantDoShiftCurrent(1),
+Combat::Combat(Character* combatPlayer, std::vector<std::unique_ptr<Character>>&& combatEnemies, std::unique_ptr<ICombatUI> interfaceVisual) 
+    : currentPlayer(combatPlayer), enemies(std::move(combatEnemies)), goldObtained(0), xpObtained(0), totalDamageCaused(0), totalDamageReceived(0), currentTurnCount(1),
       ui(interfaceVisual ? std::move(interfaceVisual) : std::make_unique<CombatUIImpl>())
 {
 
-    int levelDeDifficulty = static_cast<int>(currentPlayer->getDifficulty());
-    double multiplierDeDifficultyOfEnemies = 1.0;
+    int difficultyLevel = static_cast<int>(currentPlayer->getDifficulty());
+    double enemyDifficultyMultiplier = 1.0;
 
-    if (levelDeDifficulty == 2) {
-        multiplierDeDifficultyOfEnemies = 1.5;
-    } else if (levelDeDifficulty == 3) {
-        multiplierDeDifficultyOfEnemies = 2.0;
+    if (difficultyLevel == 2) {
+        enemyDifficultyMultiplier = 1.5;
+    } else if (difficultyLevel == 3) {
+        enemyDifficultyMultiplier = 2.0;
     }
 
-    for (auto& enemyCurrentPtr : this->listDeEnemies) 
+    for (auto& enemyCurrentPtr : this->enemies) 
     {
-        enemyCurrentPtr->applyMultiplierDifficulty(multiplierDeDifficultyOfEnemies);
+        enemyCurrentPtr->applyMultiplierDifficulty(enemyDifficultyMultiplier);
         enemyCurrentPtr->prepareForNewBattle();
     }
 }
@@ -85,11 +85,11 @@ void Combat::set3DContext(bool mode3D, const std::vector<std::string>& matrix, f
 
 void Combat::addAllies(std::vector<std::unique_ptr<Character>> allies)
 {
-    listDeAllies = std::move(allies);
+    this->allies = std::move(allies);
 }
 
-void Combat::addAllyEmCombat(std::unique_ptr<Character> ally) {
-    listDeAllies.push_back(std::move(ally));
+void Combat::addAllyInCombat(std::unique_ptr<Character> ally) {
+    allies.push_back(std::move(ally));
 }
 
 Combat::~Combat()
@@ -98,20 +98,20 @@ Combat::~Combat()
     InputControl::onWaitEnterUpdate = nullptr;
 }
 
-std::string Combat::getTitleDoCombat() const
+std::string Combat::getCombatTitle() const
 {
     std::string title = "EM COMBATE (";
-    for (size_t i = 0; i < listDeEnemies.size(); ++i) {
-        title += listDeEnemies[i]->getName();
-        if (i < listDeEnemies.size() - 1) title += ", ";
+    for (size_t i = 0; i < enemies.size(); ++i) {
+        title += enemies[i]->getName();
+        if (i < enemies.size() - 1) title += ", ";
     }
     title += ")";
     return title;
 }
 
-bool Combat::isCharacterPlayerOuAlly(Character* character) const {
+bool Combat::isPlayerOrAlly(Character* character) const {
     if (character == currentPlayer) return true;
-    for (const auto& allyCurrent : listDeAllies) {
+    for (const auto& allyCurrent : allies) {
         if (allyCurrent.get() == character) return true;
     }
     return false;
@@ -119,19 +119,19 @@ bool Combat::isCharacterPlayerOuAlly(Character* character) const {
 
 std::vector<Character*> Combat::getEnemiesRaw() const
 {
-    std::vector<Character*> pointersEnemies(listDeEnemies.size());
-    std::transform(listDeEnemies.begin(), listDeEnemies.end(), pointersEnemies.begin(), [](const std::unique_ptr<Character>& ptr) { return ptr.get(); });
+    std::vector<Character*> pointersEnemies(enemies.size());
+    std::transform(enemies.begin(), enemies.end(), pointersEnemies.begin(), [](const std::unique_ptr<Character>& ptr) { return ptr.get(); });
     return pointersEnemies;
 }
 
-void Combat::displayScreenDeCombat(bool animateEntrance) const
+void Combat::displayCombatScreen(bool animateEntrance) const
 {
-    ui->updateScreenStatic(getTitleDoCombat(), getEnemiesRaw(), currentPlayer, getAlliesAliveRaw(), animateEntrance);
+    ui->updateScreenStatic(getCombatTitle(), getEnemiesRaw(), currentPlayer, getAlliesAliveRaw(), animateEntrance);
 }
 
 std::vector<Character*> Combat::getAlliesAliveRaw() const {
     std::vector<Character*> alliesAlive;
-    for (const auto& ally : listDeAllies) {
+    for (const auto& ally : allies) {
         if (ally->getHealth() > 0) alliesAlive.push_back(ally.get());
     }
     return alliesAlive;
@@ -140,13 +140,13 @@ std::vector<Character*> Combat::getAlliesAliveRaw() const {
 void Combat::prepareShiftCharacter(Character* character) {
     ui->cleanMessagesFixed();
     registerLog("");
-    registerLog("═══ TURNO " + std::to_string(accountantDoShiftCurrent) + " ║ VEZ DE " + character->getName() + " ═══");
-    ui->setShiftVisible(accountantDoShiftCurrent, character->getName());
+    registerLog("═══ TURNO " + std::to_string(currentTurnCount) + " ║ VEZ DE " + character->getName() + " ═══");
+    ui->setShiftVisible(currentTurnCount, character->getName());
     character->reduceCooldowns();
     character->processEffectsHomeShift();
 }
 
-bool Combat::executeShiftPlayerOuAlly(Character* character, bool& firstRendering, bool processEffectsHome) {
+bool Combat::executePlayerOrAllyTurn(Character* character, bool& firstRendering, bool processEffectsHome) {
     if (processEffectsHome) {
         prepareShiftCharacter(character);
     }
@@ -154,7 +154,7 @@ bool Combat::executeShiftPlayerOuAlly(Character* character, bool& firstRendering
 
     if (character == currentPlayer) {
         bool cleanedAlly = false;
-        for (auto& ally : listDeAllies) {
+        for (auto& ally : allies) {
             if (ally->isMinion() && ally->getHealth() > 0) {
                 int damage = std::max(1, static_cast<int>(ally->getMaxHealth() * 0.15));
                 ally->modifyHealth(-damage);
@@ -168,24 +168,24 @@ bool Combat::executeShiftPlayerOuAlly(Character* character, bool& firstRendering
         }
         // Remove definitivamente da memoria os aliados que morreram pelo dreno
         if (cleanedAlly) {
-            std::erase_if(listDeAllies, [](const auto& a) { return a->getHealth() <= 0; });
+            std::erase_if(allies, [](const auto& a) { return a->getHealth() <= 0; });
         }
     }
 
     bool shiftConsumed = false;
     bool usedInventory = false;
 
-    while (!shiftConsumed && character->getHealth() > 0 && !listDeEnemies.empty()) {
-        displayScreenDeCombat(firstRendering);
+    while (!shiftConsumed && character->getHealth() > 0 && !enemies.empty()) {
+        displayCombatScreen(firstRendering);
         firstRendering = false;
-        processMenuDeActionsDoPlayer(character, shiftConsumed, usedInventory);
+        processPlayerActionMenu(character, shiftConsumed, usedInventory);
         
         cleanEnemiesDead();
-        if (checkConditionDeVictoryOuDefeat()) return true; 
+        if (checkVictoryOrDefeatCondition()) return true; 
     }
 
     if (usedInventory) {
-        displayScreenDeCombat();
+        displayCombatScreen();
         ui->notifyUnpreventionInventory();
     }
     return false;
@@ -194,25 +194,25 @@ bool Combat::executeShiftPlayerOuAlly(Character* character, bool& firstRendering
 void Combat::startCombat() 
 {
     Parry::onUpdateScreen = [this]() {
-        this->displayScreenDeCombat(false);
+        this->displayCombatScreen(false);
     };
     InputControl::onWaitEnterUpdate = [this]() {
-        this->displayScreenDeCombat(false);
+        this->displayCombatScreen(false);
     };
     resetStatisticsAdvanced();
     currentPlayer->prepareForNewBattle();
     Appearance::cleanLogBattle();
     ui->cleanMessagesFixed();
 
-    for (auto& ally : listDeAllies) {
+    for (auto& ally : allies) {
         ally->prepareForNewBattle();
     }
-    ui->cheerIntroductionCombat(getTitleDoCombat(), getEnemiesRaw(), currentPlayer);
+    ui->animateCombatIntro(getCombatTitle(), getEnemiesRaw(), currentPlayer);
 
     ui->clearScreen();
 
-    int maxDexterityEnemies = ManagerShifts::calculateMaxDexterityEnemies(listDeEnemies);
-    for (const auto& enemyPtr : listDeEnemies) {
+    int maxEnemyDexterity = ShiftManager::calculateMaxDexterityEnemies(enemies);
+    for (const auto& enemyPtr : enemies) {
         Bestiary::instance().registerFirstView(enemyPtr->getRace()->getRaceName());
         Diary::instance().registerRace(enemyPtr->getRace()->getRaceName());
         if (enemyPtr->getClassName() != "Monstro") {
@@ -220,67 +220,67 @@ void Combat::startCombat()
         }
     }
     
-    bool shiftExtraFirstTurn = ManagerShifts::playerHasShiftExtraNoHome(currentPlayer, maxDexterityEnemies);
+    bool shiftExtraFirstTurn = ShiftManager::playerHasExtraTurnAtStart(currentPlayer, maxEnemyDexterity);
     bool firstRendering = false; // Modificado, pois ja animamos na intro
     
-    if (ManagerShifts::enemiesAreMoreAct(currentPlayer, maxDexterityEnemies)) {
-        displayScreenDeCombat(firstRendering);
+    if (ShiftManager::enemiesActFirst(currentPlayer, maxEnemyDexterity)) {
+        displayCombatScreen(firstRendering);
         firstRendering = false;
         
-        if (ManagerShifts::enemiesHasDoubleDeAgility(currentPlayer, maxDexterityEnemies)) {
-            std::string msg = DialogueFunctions::formatSystemMsg("A agilidade extrema dos inimigos (" + std::to_string(maxDexterityEnemies) + " VS " + std::to_string(currentPlayer->getDexterity()) + ") permite que eles ataquem duas vezes seguidas!", Color::RED);
+        if (ShiftManager::enemiesHaveDoubleAgility(currentPlayer, maxEnemyDexterity)) {
+            std::string msg = DialogueFunctions::formatSystemMsg("A agilidade extrema dos inimigos (" + std::to_string(maxEnemyDexterity) + " VS " + std::to_string(currentPlayer->getDexterity()) + ") permite que eles ataquem duas vezes seguidas!", Color::RED);
             std::cout << "\n" << ui->combatMargin() << msg << "\n";
             Appearance::registerBattleLog(msg);
             InputControl::waitForEnter();
 
-            executeShiftDeEveryoneOsEnemies();
+            executeTurnForAllEnemies();
             cleanEnemiesDead();
-            if (checkConditionDeVictoryOuDefeat()) return;
-            executeShiftDeEveryoneOsEnemies();
+            if (checkVictoryOrDefeatCondition()) return;
+            executeTurnForAllEnemies();
             cleanEnemiesDead();
-            if (checkConditionDeVictoryOuDefeat()) return;
+            if (checkVictoryOrDefeatCondition()) return;
             
-            accountantDoShiftCurrent++; // Jogador comeca no Turno 2
+            currentTurnCount++; // Jogador comeca no Turno 2
         } else {
             ui->notifyEnemiesMoreAct();
-            executeShiftDeEveryoneOsEnemies();
+            executeTurnForAllEnemies();
             cleanEnemiesDead();
-            if (checkConditionDeVictoryOuDefeat()) return;
+            if (checkVictoryOrDefeatCondition()) return;
         }
     }
 
-    while (currentPlayer->getHealth() > 0 && !listDeEnemies.empty()) {
+    while (currentPlayer->getHealth() > 0 && !enemies.empty()) {
         // Turno do Jogador
         if (currentPlayer->getHealth() > 0) {
-            if (executeShiftPlayerOuAlly(currentPlayer, firstRendering)) return;
+            if (executePlayerOrAllyTurn(currentPlayer, firstRendering)) return;
 
-            if (shiftExtraFirstTurn && accountantDoShiftCurrent == 1) {
-                ui->notifyShiftExtra(currentPlayer->getDexterity(), maxDexterityEnemies);
+            if (shiftExtraFirstTurn && currentTurnCount == 1) {
+                ui->notifyShiftExtra(currentPlayer->getDexterity(), maxEnemyDexterity);
                 shiftExtraFirstTurn = false;
-                if (executeShiftPlayerOuAlly(currentPlayer, firstRendering, false)) return;
+                if (executePlayerOrAllyTurn(currentPlayer, firstRendering, false)) return;
             }
         }
         
         // Turnos dos Aliados
-        for (size_t i = 0; i < listDeAllies.size(); ++i) {
-            Character* ally = listDeAllies[i].get();
-            if (ally->getHealth() <= 0 || listDeEnemies.empty()) continue;
+        for (size_t i = 0; i < allies.size(); ++i) {
+            Character* ally = allies[i].get();
+            if (ally->getHealth() <= 0 || enemies.empty()) continue;
             
             bool isFirstRender = false;
-            if (executeShiftPlayerOuAlly(ally, isFirstRender)) return;
+            if (executePlayerOrAllyTurn(ally, isFirstRender)) return;
         }
         
-        executeShiftDeEveryoneOsEnemies();
+        executeTurnForAllEnemies();
         cleanEnemiesDead();
-        if (checkConditionDeVictoryOuDefeat()) return;
+        if (checkVictoryOrDefeatCondition()) return;
 
-        accountantDoShiftCurrent++;
+        currentTurnCount++;
     }
 }
 
-void Combat::processMenuDeActionsDoPlayer(Character* characterActing, bool& shiftWasConsumed, bool& usedInventoryNoShift)
+void Combat::processPlayerActionMenu(Character* characterActing, bool& shiftWasConsumed, bool& inventoryUsedThisTurn)
 {
-    int actionChosen = ui->getActionDoPlayer(accountantDoShiftCurrent, characterActing, getEnemiesRaw(), currentPlayer, getAlliesAliveRaw());
+    int actionChosen = ui->getPlayerAction(currentTurnCount, characterActing, getEnemiesRaw(), currentPlayer, getAlliesAliveRaw());
     
     ui->cleanContextCharacterHUD(); // Forca reset visual ao retornar para evitar bugs de persistencia de interface
 
@@ -289,7 +289,7 @@ void Combat::processMenuDeActionsDoPlayer(Character* characterActing, bool& shif
         case 1: processActionAttack(characterActing, shiftWasConsumed); break;
         case 2: processActionDefend(characterActing, shiftWasConsumed); break;
         case 3: processActionSkill(characterActing, shiftWasConsumed); break;
-        case 4: processActionInventory(characterActing, shiftWasConsumed, usedInventoryNoShift); break;
+        case 4: processInventoryAction(characterActing, shiftWasConsumed, inventoryUsedThisTurn); break;
         case 5: ui->displayScreenAttributes(characterActing); break;
         case 6: ui->displayScreenDiary(characterActing); break;
         case 7: Appearance::displayHistoryComplete(); break;
@@ -303,37 +303,37 @@ void Combat::processActionAttack(Character* characterActing, bool& shiftWasConsu
 {
     if (characterActing->getTypeAttack() == TypeAttack::AREA) 
     {
-        performAttackPhysical(characterActing, nullptr, accountantDoShiftCurrent);
+        performPhysicalAttack(characterActing, nullptr, currentTurnCount);
         shiftWasConsumed = true;
     }
     else 
     {
-        int indexDoTargetChosen = ui->getTargetAttack(getTitleDoCombat(), getEnemiesRaw(), currentPlayer, getAlliesAliveRaw());
-        if (indexDoTargetChosen == -1) return;
+        int targetIndexChosen = ui->getTargetAttack(getCombatTitle(), getEnemiesRaw(), currentPlayer, getAlliesAliveRaw());
+        if (targetIndexChosen == -1) return;
 
-        performAttackPhysical(characterActing, listDeEnemies[indexDoTargetChosen].get(), accountantDoShiftCurrent);
+        performPhysicalAttack(characterActing, enemies[targetIndexChosen].get(), currentTurnCount);
         shiftWasConsumed = true;
     }
 }
 
 Item* Combat::selectShield(Character* characterActing) 
 {
-    std::vector<Item*> listDeShields;
+    std::vector<Item*> shields;
     for (auto* item : characterActing->getInventory()->getAllItems()) 
     {
         if (item->getType() == EquipmentType::SHIELD) {
-            listDeShields.push_back(item);
+            shields.push_back(item);
         }
     }
 
-    if (listDeShields.empty()) 
+    if (shields.empty()) 
     {
         ui->notifyWithoutShields(characterActing->getName());
         return nullptr;
     }
 
-    int optionChosen = ui->getChooseDeShield(characterActing->getName(), listDeShields);
-    return (optionChosen == 0) ? nullptr : listDeShields[optionChosen - 1];
+    int optionChosen = ui->chooseShield(characterActing->getName(), shields);
+    return (optionChosen == 0) ? nullptr : shields[optionChosen - 1];
 }
 
 void Combat::processActionDefend(Character* characterActing, bool& shiftWasConsumed)
@@ -344,24 +344,24 @@ void Combat::processActionDefend(Character* characterActing, bool& shiftWasConsu
         return; 
     }
     
-    Item* shieldChosen = selectShield(characterActing);
-    if (shieldChosen != nullptr) 
+    Item* chosenShield = selectShield(characterActing);
+    if (chosenShield != nullptr) 
     {
-        if (shieldChosen->getDurabilityCurrentShield() <= 0) {
-            std::string msg = DialogueFunctions::formatSystemMsg("O escudo [" + shieldChosen->getItemName() + "] esta quebrado e nao pode ser usado!", Color::RED);
+        if (chosenShield->getDurabilityCurrentShield() <= 0) {
+            std::string msg = DialogueFunctions::formatSystemMsg("O escudo [" + chosenShield->getItemName() + "] esta quebrado e nao pode ser usado!", Color::RED);
             std::cout << "\n" << ui->combatMargin() << msg << "\n";
             InputControl::waitForEnter();
             return; // Nao consome o turno
         }
 
-        if (!shieldChosen->canBeEquippedBy(characterActing)) {
-            ui->notifyRequirementNoServed(shieldChosen->getMessageRequirement());
+        if (!chosenShield->canBeEquippedBy(characterActing)) {
+            ui->notifyUnmetRequirement(chosenShield->getMessageRequirement());
             return;
         }
 
-        characterActing->equipItem(shieldChosen);
+        characterActing->equipItem(chosenShield);
         characterActing->setDefending(true);
-        ui->notifyPostureDefensive(characterActing->getName(), shieldChosen->getItemName());
+        ui->notifyPostureDefensive(characterActing->getName(), chosenShield->getItemName());
         shiftWasConsumed = true;
     }
 }
@@ -375,47 +375,47 @@ void Combat::processActionSkill(Character* characterActing, bool& shiftWasConsum
     
     if (characterActing->getSkillCanceled()) return;
 
-    if (characterActing->skillDaClassConsumeShift()) shiftWasConsumed = true;
+    if (characterActing->classSkillConsumesTurn()) shiftWasConsumed = true;
     else InputControl::waitForEnter();
 }
 
-void Combat::processActionInventory(Character* characterActing, bool& shiftWasConsumed, bool& usedInventoryNoShift)
+void Combat::processInventoryAction(Character* characterActing, bool& shiftWasConsumed, bool& inventoryUsedThisTurn)
 {
     int lifeBefore = characterActing->getHealth();
-    bool inventoryConsumiu = false;
+    bool inventoryConsumed = false;
     
-    CombatInventory::manageInventory(characterActing, &inventoryConsumiu);
-    if (inventoryConsumiu) {
+    CombatInventory::manageInventory(characterActing, &inventoryConsumed);
+    if (inventoryConsumed) {
         shiftWasConsumed = true;
-        usedInventoryNoShift = true;
+        inventoryUsedThisTurn = true;
     }
     
     if (characterActing->getHealth() > lifeBefore) {
-        ui->cheerCureNoPlayer(getTitleDoCombat(), getEnemiesRaw(), characterActing, currentPlayer, getAlliesAliveRaw(), characterActing->getHealth() - lifeBefore);
+        ui->animateCureToPlayer(getCombatTitle(), getEnemiesRaw(), characterActing, currentPlayer, getAlliesAliveRaw(), characterActing->getHealth() - lifeBefore);
     }
 
     if (characterActing->getItemSelectedForUse() != nullptr) 
     {
         Item* itemSelected = characterActing->getItemSelectedForUse();
         
-        int indexDoTargetChosen = ui->getTargetItem(getTitleDoCombat(), getEnemiesRaw(), currentPlayer, getAlliesAliveRaw());
+        int targetIndexChosen = ui->getTargetItem(getCombatTitle(), getEnemiesRaw(), currentPlayer, getAlliesAliveRaw());
 
-        if (indexDoTargetChosen == -1) 
+        if (targetIndexChosen == -1) 
         {
             ui->notifyCancellationItem();
             characterActing->setItemSelectedForUse(nullptr);
         } 
         else 
         {
-            Character* target = listDeEnemies[indexDoTargetChosen].get();
+            Character* target = enemies[targetIndexChosen].get();
             
             itemSelected->use(characterActing, target);
             
             if (characterActing->getConsumableQuickly() == itemSelected) {
                 characterActing->unequipConsumable();
-                std::string nameOfthisItem = itemSelected->getItemName();
+                std::string thisItemName = itemSelected->getItemName();
                 for (auto* otherItem : characterActing->getInventory()->getAllItems()) {
-                    if (otherItem != itemSelected && otherItem->getItemName() == nameOfthisItem) {
+                    if (otherItem != itemSelected && otherItem->getItemName() == thisItemName) {
                         characterActing->equipItem(otherItem);
                         break;
                     }
@@ -425,7 +425,7 @@ void Combat::processActionInventory(Character* characterActing, bool& shiftWasCo
             characterActing->getInventory()->removeItem(itemSelected);
             characterActing->setItemSelectedForUse(nullptr);
             shiftWasConsumed = true;
-            usedInventoryNoShift = true;
+            inventoryUsedThisTurn = true;
             stats_itemsConsumed++;
         }
     }
@@ -433,47 +433,47 @@ void Combat::processActionInventory(Character* characterActing, bool& shiftWasCo
 
 void Combat::cleanEnemiesDead()
 {
-    for (auto& enemyPtr : listDeEnemies) 
+    for (auto& enemyPtr : enemies) 
     {
         if (enemyPtr->getHealth() <= 0) 
         {
-                int xpBefore = quantityDeXpObtained;
-                int goldBefore = quantityDeGoldObtained;
+                int xpBefore = xpObtained;
+                int goldBefore = goldObtained;
                 size_t itemsBefore = obtainedItems.size();
 
-                processDeathDeEnemy(enemyPtr.get());
+                processEnemyDeath(enemyPtr.get());
 
-                int xpDrop = quantityDeXpObtained - xpBefore;
-                int goldDrop = quantityDeGoldObtained - goldBefore;
+                int xpDrop = xpObtained - xpBefore;
+                int goldDrop = goldObtained - goldBefore;
                 
-                std::vector<std::string> dropsDaDeath;
-                if (xpDrop > 0) dropsDaDeath.push_back("+" + std::to_string(xpDrop) + " XP");
-                if (goldDrop > 0) dropsDaDeath.push_back("+" + std::to_string(goldDrop) + "G");
+                std::vector<std::string> deathDrops;
+                if (xpDrop > 0) deathDrops.push_back("+" + std::to_string(xpDrop) + " XP");
+                if (goldDrop > 0) deathDrops.push_back("+" + std::to_string(goldDrop) + "G");
                 
                 std::map<std::string, int> countItems;
                 for (size_t i = itemsBefore; i < obtainedItems.size(); ++i) {
                     countItems[obtainedItems[i]]++;
                 }
                 for (auto const& [name, qty] : countItems) {
-                    dropsDaDeath.push_back("+" + std::to_string(qty) + "x " + name);
+                    deathDrops.push_back("+" + std::to_string(qty) + "x " + name);
                 }
 
                 std::vector<Character*> alliesAlive = getAlliesAliveRaw();
-                ui->cheerDeathEnemy(getTitleDoCombat(), getEnemiesRaw(), enemyPtr.get(), currentPlayer, alliesAlive, dropsDaDeath);
+                ui->animateEnemyDeath(getCombatTitle(), getEnemiesRaw(), enemyPtr.get(), currentPlayer, alliesAlive, deathDrops);
                 enemyPtr->setDeathLively(true);
-                if (listDeEnemies.size() > 1) {
+                if (enemies.size() > 1) {
                     InputControl::waitForEnter();
                 } else {
                     std::this_thread::sleep_for(std::chrono::milliseconds(500));
                 }
-                ui->cleanContextEnemyDeadEDrops();
+                ui->cleanContextEnemyDeathAndDrops();
         }
     }
 
-    std::erase_if(listDeEnemies, [](const auto& enemy) { return enemy->getHealth() <= 0; });
+    std::erase_if(enemies, [](const auto& enemy) { return enemy->getHealth() <= 0; });
 }
 
-void Combat::executeShiftDeEveryoneOsEnemies() 
+void Combat::executeTurnForAllEnemies() 
 {
     ui->cleanMessagesFixed();
     if (currentPlayer->getJumpShiftEnemy()) 
@@ -483,14 +483,14 @@ void Combat::executeShiftDeEveryoneOsEnemies()
     }
     else
     {
-        std::string textShiftEnemies = "═══ TURNO " + std::to_string(accountantDoShiftCurrent) + " ║ VEZ DOS INIMIGOS ═══";
+        std::string textShiftEnemies = "═══ TURNO " + std::to_string(currentTurnCount) + " ║ VEZ DOS INIMIGOS ═══";
         registerLog("");
         registerLog(textShiftEnemies);
-            ui->setShiftVisible(accountantDoShiftCurrent, "INIMIGOS");
-            displayScreenDeCombat(false); // Forca o HUD a atualizar o nome do Turno para os inimigos antes do ataque iniciar
-        for (size_t i = 0; i < listDeEnemies.size(); ++i) 
+            ui->setShiftVisible(currentTurnCount, "INIMIGOS");
+            displayCombatScreen(false); // Forca o HUD a atualizar o nome do Turno para os inimigos antes do ataque iniciar
+        for (size_t i = 0; i < enemies.size(); ++i) 
         {
-            auto& enemyCurrentPtr = listDeEnemies[i];
+            auto& enemyCurrentPtr = enemies[i];
             if (currentPlayer->getHealth() <= 0) break; // Interrompe se o jogador morrer
             
             Character* enemyCurrent = enemyCurrentPtr.get();
@@ -504,12 +504,12 @@ void Combat::executeShiftDeEveryoneOsEnemies()
                 acted = true;
 
                 // Logica de escolha de alvo do inimigo
-                Character* target = MechanicsEnemy::chooseTarget(getAlliesAliveRaw(), currentPlayer);
+                Character* target = EnemyMechanics::chooseTarget(getAlliesAliveRaw(), currentPlayer);
 
                 bool shiftConsumedBySkill = enemyCurrent->getRace()->tryUseSkillActive(enemyCurrent, target, static_cast<int>(currentPlayer->getDifficulty()));
                 
                 if (!shiftConsumedBySkill) {
-                    performAttackPhysical(enemyCurrent, target, accountantDoShiftCurrent);
+                    performPhysicalAttack(enemyCurrent, target, currentTurnCount);
                 }
             }
             else
@@ -517,7 +517,7 @@ void Combat::executeShiftDeEveryoneOsEnemies()
                 registerLog(DialogueFunctions::formatStatusMsg(enemyCurrent->getName() + " esta sob efeito de " + reasonDisability + " e nao pode agir!", Color::GREEN));
             }
 
-            if (acted && i < listDeEnemies.size() - 1 && currentPlayer->getHealth() > 0) {
+            if (acted && i < enemies.size() - 1 && currentPlayer->getHealth() > 0) {
                 InputControl::waitForEnter("... o ataque continua ...");
                 std::this_thread::sleep_for(std::chrono::milliseconds(200));
                 InputControl::clearBuffer();
@@ -541,66 +541,66 @@ void Combat::executeShiftDeEveryoneOsEnemies()
     InputControl::waitForEnter();
 }
 
-void Combat::performAttackPhysical(Character* attackingCharacter, Character* characterDefender, int shiftCurrentDoCombat) 
+void Combat::performPhysicalAttack(Character* attackingCharacter, Character* defenderCharacter, int currentCombatTurn) 
 {
-    auto [damageBaseCalculated, damagePiercing] = CalculatorDamage::calculateDamageOffensiveBase(attackingCharacter);
+    auto [damageBaseCalculated, damagePiercing] = DamageCalculator::calculateDamageOffensiveBase(attackingCharacter);
 
-    bool isAttackerPlayerOuAlly = isCharacterPlayerOuAlly(attackingCharacter);
+    bool isAttackerPlayerOrAlly = isPlayerOrAlly(attackingCharacter);
 
-    if (isAttackerPlayerOuAlly || static_cast<int>(currentPlayer->getDifficulty()) >= 2) 
+    if (isAttackerPlayerOrAlly || static_cast<int>(currentPlayer->getDifficulty()) >= 2) 
     {
         damageBaseCalculated = attackingCharacter->getRace()->processDamageOffensive(damageBaseCalculated, attackingCharacter);
     }
 
-    auto callbackApplyDamage = [this, shiftCurrentDoCombat](Character* attacker, Character* target, int damageGross, int piercing) {
-        this->applyDamageAoTarget(attacker, target, damageGross, piercing, shiftCurrentDoCombat);
+    auto callbackApplyDamage = [this, currentCombatTurn](Character* attacker, Character* target, int damageGross, int piercing) {
+        this->applyDamageToTarget(attacker, target, damageGross, piercing, currentCombatTurn);
     };
 
-    bool applyPassiveClass = isAttackerPlayerOuAlly || static_cast<int>(currentPlayer->getDifficulty()) == 3;
+    bool applyPassiveClass = isAttackerPlayerOrAlly || static_cast<int>(currentPlayer->getDifficulty()) == 3;
 
-    attackingCharacter->getClass()->executeAttackWithPassiveDaClass(attackingCharacter, characterDefender, damageBaseCalculated, damagePiercing, listDeEnemies, callbackApplyDamage, applyPassiveClass);
+    attackingCharacter->getClass()->executeAttackWithClassPassive(attackingCharacter, defenderCharacter, damageBaseCalculated, damagePiercing, enemies, callbackApplyDamage, applyPassiveClass);
 }
 
 
 
-void Combat::processPostDamage(Character* attacker, Character* target, int damageEnd, bool triedParry, bool parrySuccess) {
+void Combat::processPostDamage(Character* attacker, Character* target, int finalDamage, bool triedParry, bool parrySuccess) {
     std::vector<Character*> alliesAlive = getAlliesAliveRaw();
 
     g_enemyAttackerParry = attacker;
     g_parryStatus = 0;
     if (triedParry) {
         if (parrySuccess) {
-            if (damageEnd <= 0) g_parryStatus = 1;
+            if (finalDamage <= 0) g_parryStatus = 1;
             else g_parryStatus = 2;
         } else {
             g_parryStatus = 3;
         }
     }
 
-    if (damageEnd > 0) 
+    if (finalDamage > 0) 
     {
         // ANIMACAO DO DANO NO INIMIGO (Piscar Vermelho + Flicker)
-        if (!isCharacterPlayerOuAlly(target)) {
-            ui->cheerDamageNoEnemy(getTitleDoCombat(), getEnemiesRaw(), target, attacker, currentPlayer, alliesAlive, damageEnd);
+        if (!isPlayerOrAlly(target)) {
+            ui->animateDamageToEnemy(getCombatTitle(), getEnemiesRaw(), target, attacker, currentPlayer, alliesAlive, finalDamage);
         }
         else {
-            ui->cheerDamageNoPlayer(getTitleDoCombat(), getEnemiesRaw(), target, currentPlayer, alliesAlive, false, damageEnd);
+            ui->animateDamageToPlayer(getCombatTitle(), getEnemiesRaw(), target, currentPlayer, alliesAlive, false, finalDamage);
         }
 
         // Aplicacao dos efeitos no acerto
         int lifeAttackerBefore = attacker->getHealth();
         
         if (attacker->getWeapons()) {
-            attacker->getWeapons()->aoCauseDamage(attacker, target, damageEnd);
+            attacker->getWeapons()->onCausingDamage(attacker, target, finalDamage);
         }
-        attacker->getRace()->aoCauseDamage(attacker, target, damageEnd);
+        attacker->getRace()->onCausingDamage(attacker, target, finalDamage);
         
         // Verifica se o atacante se curou (Ex: Passiva da Abominacao)
         if (attacker->getHealth() > lifeAttackerBefore) {
-            if (!isCharacterPlayerOuAlly(attacker)) {
-                ui->cheerCureNoEnemy(getTitleDoCombat(), getEnemiesRaw(), attacker, currentPlayer, alliesAlive, attacker->getHealth() - lifeAttackerBefore);
+            if (!isPlayerOrAlly(attacker)) {
+                ui->animateCureToEnemy(getCombatTitle(), getEnemiesRaw(), attacker, currentPlayer, alliesAlive, attacker->getHealth() - lifeAttackerBefore);
             } else {
-                ui->cheerCureNoPlayer(getTitleDoCombat(), getEnemiesRaw(), attacker, currentPlayer, alliesAlive, attacker->getHealth() - lifeAttackerBefore);
+                ui->animateCureToPlayer(getCombatTitle(), getEnemiesRaw(), attacker, currentPlayer, alliesAlive, attacker->getHealth() - lifeAttackerBefore);
             }
         }
         
@@ -612,10 +612,10 @@ void Combat::processPostDamage(Character* attacker, Character* target, int damag
             }
         }
     }
-    else if (triedParry && parrySuccess && isCharacterPlayerOuAlly(target)) {
-        ui->cheerDamageNoPlayer(getTitleDoCombat(), getEnemiesRaw(), target, currentPlayer, alliesAlive, true, damageEnd);
+    else if (triedParry && parrySuccess && isPlayerOrAlly(target)) {
+        ui->animateDamageToPlayer(getCombatTitle(), getEnemiesRaw(), target, currentPlayer, alliesAlive, true, finalDamage);
     } else {
-        ui->updateScreenStatic(getTitleDoCombat(), getEnemiesRaw(), currentPlayer, alliesAlive);
+        ui->updateScreenStatic(getCombatTitle(), getEnemiesRaw(), currentPlayer, alliesAlive);
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
     }
 
@@ -623,31 +623,31 @@ void Combat::processPostDamage(Character* attacker, Character* target, int damag
     g_parryStatus = 0;
 }
 
-void Combat::applyDamageAoTarget(Character* attackingCharacter, Character* characterTarget, int quantityDeDamageGross, int damagePiercing, int /*turnoAtualDoCombate*/) 
+void Combat::applyDamageToTarget(Character* attackingCharacter, Character* targetCharacter, int grossDamage, int damagePiercing, int /*turnoAtualDoCombate*/) 
 {
-    if (characterTarget->ownsEffect(EffectID::Invincible))
+    if (targetCharacter->ownsEffect(EffectID::Invincible))
     {
-        std::string msgDodge = characterTarget->getName() + " evitou o ataque de " + attackingCharacter->getName();
-        registerLog(DialogueFunctions::formatCombatMsg(msgDodge, Color::CYAN));
+        std::string dodgeMessage = targetCharacter->getName() + " evitou o ataque de " + attackingCharacter->getName();
+        registerLog(DialogueFunctions::formatCombatMsg(dodgeMessage, Color::CYAN));
         
         std::vector<Character*> alliesAlive = getAlliesAliveRaw();
-        ui->updateScreenStatic(getTitleDoCombat(), getEnemiesRaw(), currentPlayer, alliesAlive);
+        ui->updateScreenStatic(getCombatTitle(), getEnemiesRaw(), currentPlayer, alliesAlive);
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
         return;
     }
 
     // Logica da Quebra de Resistencia (Po Magico)
-    if (attackingCharacter->getWeapons()) attackingCharacter->getWeapons()->beforeDeCauseDamage(attackingCharacter, characterTarget);
+    if (attackingCharacter->getWeapons()) attackingCharacter->getWeapons()->beforeCausingDamage(attackingCharacter, targetCharacter);
 
-    int damageBaseMitigated = CalculatorDamage::calculateMitigationDefensive(characterTarget, quantityDeDamageGross, damagePiercing);
-    int quantityDeDamageReducedFurParry = 0;
+    int damageBaseMitigated = DamageCalculator::calculateMitigationDefensive(targetCharacter, grossDamage, damagePiercing);
+    int parryReducedDamage = 0;
     bool triedParry = false;
     bool parryWasWellSuccessful = false;
     
     bool attackUnstoppable = attackingCharacter && attackingCharacter->getRace()->ignoreParry();
 
     // Logica do Parry
-    if (characterTarget->getParryActivated() && !characterTarget->getDefending()) 
+    if (targetCharacter->getParryActivated() && !targetCharacter->getDefending()) 
     {
         if (attackUnstoppable) {
             std::string msgUnstoppable = DialogueFunctions::formatCombatMsg(attackingCharacter->getName() + " desfere um ATAQUE IMPARAVEL! O Parry foi ignorado!", Color::BG_RED);
@@ -655,44 +655,44 @@ void Combat::applyDamageAoTarget(Character* attackingCharacter, Character* chara
             ui->addFixedMessage(ui->combatMargin() + msgUnstoppable + "\n");
         } else {
             triedParry = true;
-            parryWasWellSuccessful = Parry::tryParry(attackingCharacter, characterTarget, damageBaseMitigated, quantityDeDamageReducedFurParry);
-            stats_parriesTempted++;
-            if (parryWasWellSuccessful) stats_parriesEffective++;
+            parryWasWellSuccessful = Parry::tryParry(attackingCharacter, targetCharacter, damageBaseMitigated, parryReducedDamage);
+            parriesAttempted++;
+            if (parryWasWellSuccessful) effectiveParries++;
         }
     }
 
-    bool applyPassive = (isCharacterPlayerOuAlly(characterTarget) || static_cast<int>(currentPlayer->getDifficulty()) >= 2);
+    bool applyPassive = (isPlayerOrAlly(targetCharacter) || static_cast<int>(currentPlayer->getDifficulty()) >= 2);
 
-    ResultDamage res = characterTarget->receiveDamage(quantityDeDamageGross, damagePiercing, quantityDeDamageReducedFurParry, attackingCharacter, applyPassive);
+    DamageResult res = targetCharacter->receiveDamage(grossDamage, damagePiercing, parryReducedDamage, attackingCharacter, applyPassive);
 
     // Logica de adaptacao do Mahoraga ao ter seu ataque bloqueado por escudo
     if (res.damageBlocked > 0 && attackingCharacter->getTypeRace() == TypeRace::Mahoraga) {
         // Precisamos de um cast para chamar o metodo especifico da raca Mahoraga
         auto* mahoraga = dynamic_cast<Mahoraga*>(attackingCharacter->getRace());
         if (mahoraga) {
-            mahoraga->aoHaveAttackBlockedByShield();
+            mahoraga->onAttackBlockedByShield();
         }
     }
 
     // Burlar o limite de "minimo de 1 de dano" do sistema base caso o Parry absorva todo o impacto
-    if (triedParry && parryWasWellSuccessful && quantityDeDamageReducedFurParry >= damageBaseMitigated) 
+    if (triedParry && parryWasWellSuccessful && parryReducedDamage >= damageBaseMitigated) 
     {
-        if (characterTarget == currentPlayer) stats_parriesPerfect++;
-        if (res.damageEnd > 0) 
+        if (targetCharacter == currentPlayer) perfectParries++;
+        if (res.finalDamage > 0) 
         {
-            characterTarget->modifyHealth(res.damageEnd); // Restaura o HP retirado pela trava de minimo de dano
-            res.damageEnd = 0; // Anula o dano para ativar a Reflexao de Parry Perfeito
+            targetCharacter->modifyHealth(res.finalDamage); // Restaura o HP retirado pela trava de minimo de dano
+            res.finalDamage = 0; // Anula o dano para ativar a Reflexao de Parry Perfeito
         }
     }
 
-    displayResultDoAttack(characterTarget, res.damageEnd, triedParry, parryWasWellSuccessful, res.damageBlocked, res.shieldBroke, res.nameShieldBroken);
+    displayAttackResult(targetCharacter, res.finalDamage, triedParry, parryWasWellSuccessful, res.damageBlocked, res.shieldBroken, res.brokenShieldName);
 
-    processPostDamage(attackingCharacter, characterTarget, res.damageEnd, triedParry, parryWasWellSuccessful);
+    processPostDamage(attackingCharacter, targetCharacter, res.finalDamage, triedParry, parryWasWellSuccessful);
 
-    if (triedParry && parryWasWellSuccessful && res.damageEnd <= 0 && isCharacterPlayerOuAlly(characterTarget) && attackingCharacter) {
-        attackingCharacter->getRace()->aoSufferParryPerfect();
+    if (triedParry && parryWasWellSuccessful && res.finalDamage <= 0 && isPlayerOrAlly(targetCharacter) && attackingCharacter) {
+        attackingCharacter->getRace()->onSufferPerfectParry();
 
-        int damageReflected = std::max(1, (quantityDeDamageGross + damagePiercing) / 2);
+        int damageReflected = std::max(1, (grossDamage + damagePiercing) / 2);
         attackingCharacter->modifyHealth(-damageReflected);
         std::string attackerReflection = attackingCharacter->getName();
         auto enemiesRaw = getEnemiesRaw();
@@ -707,62 +707,62 @@ void Combat::applyDamageAoTarget(Character* attackingCharacter, Character* chara
             attackerReflection += "(" + std::to_string(enemyIdx) + ")";
         }
         
-        std::string msgReflection = DialogueFunctions::formatCombatMsg("Reflexao! Inimigo tomou " + std::to_string(damageReflected) + " de dano", Color::YELLOW);
-        registerLog(msgReflection);
+        std::string reflectionMessage = DialogueFunctions::formatCombatMsg("Reflexao! Inimigo tomou " + std::to_string(damageReflected) + " de dano", Color::YELLOW);
+        registerLog(reflectionMessage);
         
         std::vector<Character*> alliesAlive = getAlliesAliveRaw();
-        if (!isCharacterPlayerOuAlly(attackingCharacter)) {
-            ui->cheerDamageNoEnemy(getTitleDoCombat(), getEnemiesRaw(), attackingCharacter, characterTarget, currentPlayer, alliesAlive, damageReflected);
-            totalDeDamageCaused += damageReflected;
+        if (!isPlayerOrAlly(attackingCharacter)) {
+            ui->animateDamageToEnemy(getCombatTitle(), getEnemiesRaw(), attackingCharacter, targetCharacter, currentPlayer, alliesAlive, damageReflected);
+            totalDamageCaused += damageReflected;
         } else {
-            ui->cheerDamageNoPlayer(getTitleDoCombat(), getEnemiesRaw(), attackingCharacter, currentPlayer, alliesAlive, false, damageReflected);
+            ui->animateDamageToPlayer(getCombatTitle(), getEnemiesRaw(), attackingCharacter, currentPlayer, alliesAlive, false, damageReflected);
         }
     }
 }
 
-void Combat::displayResultDoAttack(Character* target, int damageEnd, bool triedParry, bool parrySuccess, int damageBlocked, bool shieldBroke, const std::string& nameShieldBroken)
+void Combat::displayAttackResult(Character* target, int finalDamage, bool triedParry, bool parrySuccess, int damageBlocked, bool shieldBroken, const std::string& brokenShieldName)
 {
-    bool isPlayerOuAlly = isCharacterPlayerOuAlly(target);
+    bool targetIsPlayerOrAlly = isPlayerOrAlly(target);
 
     if (damageBlocked > 0) {
-        std::string defenseMsg = DialogueFunctions::formatCombatMsg("O escudo bloqueou " + std::to_string(damageBlocked) + " de dano!", Color::BLUE);
-        registerLog(defenseMsg);
+        std::string defenseMessage = DialogueFunctions::formatCombatMsg("O escudo bloqueou " + std::to_string(damageBlocked) + " de dano!", Color::BLUE);
+        registerLog(defenseMessage);
         
-        if (shieldBroke) {
-            std::string msgBreak = DialogueFunctions::formatCombatMsg("ALERTA: O escudo " + nameShieldBroken + " foi DESTRUIDO em pedacos e desequipado!", Color::BLUE);
-            registerLog(msgBreak);
+        if (shieldBroken) {
+            std::string breakMessage = DialogueFunctions::formatCombatMsg("ALERTA: O escudo " + brokenShieldName + " foi DESTRUIDO em pedacos e desequipado!", Color::BLUE);
+            registerLog(breakMessage);
             target->unequipShield();
         }
     }
 
-    if (isPlayerOuAlly) 
+    if (targetIsPlayerOrAlly) 
     {
         if (triedParry) {
-            std::string messageParryLog = Parry::getMessageFeedback(parrySuccess, damageEnd);
+            std::string messageParryLog = Parry::getMessageFeedback(parrySuccess, finalDamage);
             registerLog(DialogueFunctions::formatCombatMsg(messageParryLog, Color::ORANGE));
         }
-        else if (damageEnd > 0) 
+        else if (finalDamage > 0) 
         {
-            registerLog(DialogueFunctions::formatCombatMsg(target->getName() + " recebeu " + std::to_string(damageEnd) + " de dano", Color::ORANGE));
+            registerLog(DialogueFunctions::formatCombatMsg(target->getName() + " recebeu " + std::to_string(finalDamage) + " de dano", Color::ORANGE));
         }
-        else if (damageEnd == 0 && target->getDefending()) 
+        else if (finalDamage == 0 && target->getDefending()) 
         {
             registerLog(DialogueFunctions::formatCombatMsg("O dano foi totalmente absorvido pela defesa de " + target->getName() + "!", Color::BLUE));
         }
         
-        if (damageEnd > 0 && target == currentPlayer) totalDeDamageReceived += damageEnd;
+        if (finalDamage > 0 && target == currentPlayer) totalDamageReceived += finalDamage;
     }
-    else if (damageEnd > 0) 
+    else if (finalDamage > 0) 
     {
-        if (damageEnd > stats_biggerDamageCaused) stats_biggerDamageCaused = damageEnd;
-        if (target != currentPlayer) totalDeDamageCaused += damageEnd;
-        registerLog(DialogueFunctions::formatCombatMsg(target->getName() + " recebeu " + std::to_string(damageEnd) + " de dano", Color::RED));
+        if (finalDamage > highestDamageCaused) highestDamageCaused = finalDamage;
+        if (target != currentPlayer) totalDamageCaused += finalDamage;
+        registerLog(DialogueFunctions::formatCombatMsg(target->getName() + " recebeu " + std::to_string(finalDamage) + " de dano", Color::RED));
     }
 }
 
-bool Combat::checkConditionDeVictoryOuDefeat() 
+bool Combat::checkVictoryOrDefeatCondition() 
 {
-    bool isVictory = listDeEnemies.empty();
+    bool isVictory = enemies.empty();
     bool isDefeat = currentPlayer->getHealth() <= 0;
 
     if (isVictory || isDefeat) 
@@ -770,11 +770,11 @@ bool Combat::checkConditionDeVictoryOuDefeat()
         currentPlayer->cleanEffects(); // Remove buffs e debuffs ao final da batalha
         InputControl::onWaitEnterUpdate = nullptr; // Impede que o aguardarEnter da tela de vitoria/derrota redesenhe o combate
         if (isVictory) {
-            ui->displayScreenVictory(currentPlayer, quantityDeGoldObtained, quantityDeXpObtained, totalDeDamageCaused, 
-                                totalDeDamageReceived, currentPlayer->getCureTotalReceived(), accountantDoShiftCurrent, 
-                                obtainedItems, enemiesDefeated, stats_parriesPerfect, stats_biggerDamageCaused, stats_parriesTempted, stats_parriesEffective, stats_itemsConsumed, stats_newDiscoveries);
+            ui->displayVictoryScreen(currentPlayer, goldObtained, xpObtained, totalDamageCaused, 
+                                totalDamageReceived, currentPlayer->getTotalCureReceived(), currentTurnCount, 
+                                obtainedItems, enemiesDefeated, perfectParries, highestDamageCaused, parriesAttempted, effectiveParries, stats_itemsConsumed, newDiscoveries);
         } else {
-            ui->displayScreenDefeat(currentPlayer, quantityDeGoldObtained, quantityDeXpObtained, totalDeDamageCaused, totalDeDamageReceived, currentPlayer->getCureTotalReceived(), accountantDoShiftCurrent); 
+            ui->displayDefeatScreen(currentPlayer, goldObtained, xpObtained, totalDamageCaused, totalDamageReceived, currentPlayer->getTotalCureReceived(), currentTurnCount); 
         }
         currentPlayer->finishBattle();
         return true; 
@@ -782,14 +782,14 @@ bool Combat::checkConditionDeVictoryOuDefeat()
     return false;
 }
 
-void Combat::processDeathDeEnemy(Character* enemy)
+void Combat::processEnemyDeath(Character* enemy)
 {
     registerLog(DialogueFunctions::formatCombatMsg(enemy->getName() + " derrotado!", Color::RED));
     enemiesDefeated.push_back(enemy->getName());
 
     std::string raceName = enemy->getRace()->getRaceName();
     if (!Bestiary::instance().jaDefeated(raceName)) {
-        stats_newDiscoveries.push_back("Novo monstro catalogado: " + raceName);
+        newDiscoveries.push_back("Novo monstro catalogado: " + raceName);
     }
 
     Bestiary::instance().registerDefeat(enemy->getRace()->getRaceName());
@@ -808,10 +808,10 @@ void Combat::processDeathDeEnemy(Character* enemy)
     registerLog("═══ DROPS ═══", Color::YELLOW);
 
     size_t itemsBefore = obtainedItems.size();
-    enemy->executeDrops(currentPlayer, obtainedItems, quantityDeGoldObtained, quantityDeXpObtained);
+    enemy->executeDrops(currentPlayer, obtainedItems, goldObtained, xpObtained);
     for (size_t i = itemsBefore; i < obtainedItems.size(); ++i) {
         if (!Bestiary::instance().jaCollectedDrop(raceName, obtainedItems[i])) {
-            stats_newDiscoveries.push_back("Novo drop descoberto: " + obtainedItems[i]);
+            newDiscoveries.push_back("Novo drop descoberto: " + obtainedItems[i]);
         }
         Bestiary::instance().registerDrop(enemy->getRace()->getRaceName(), obtainedItems[i]);
     }

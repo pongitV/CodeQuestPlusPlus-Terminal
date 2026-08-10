@@ -32,36 +32,36 @@ void NecrosisEffect::applyTurnStart(Character* target) {
 }
 
 void SlownessEffect::onEnterMap(Character* target) {
-    if (target->getClass()) target->getEndAttributes().dexterity = target->getClass()->applyArcherPassiveSlownessPenalty(target->getEndAttributes().dexterity);
-    else target->getEndAttributes().dexterity /= 2;
+    if (target->getClass()) target->getFinalAttributes().dexterity = target->getClass()->applyArcherPassiveSlownessPenalty(target->getFinalAttributes().dexterity);
+    else target->getFinalAttributes().dexterity /= 2;
 }
 
 void SlownessEffect::onExitMap(Character* target) {
-    if (target->getClass()) target->getEndAttributes().dexterity = target->getClass()->revertArcherPassiveSlownessPenalty(target->getEndAttributes().dexterity);
-    else target->getEndAttributes().dexterity *= 2;
+    if (target->getClass()) target->getFinalAttributes().dexterity = target->getClass()->revertArcherPassiveSlownessPenalty(target->getFinalAttributes().dexterity);
+    else target->getFinalAttributes().dexterity *= 2;
     Appearance::registerBattleLog(DialogueFunctions::formatStatusMsg(target->getName() + " se livrou da gosma e recuperou sua agilidade.", Color::MAGENTA));
 }
 
 void WeaknessEffect::onEnterMap(Character* target) {
-    lostStrength = target->getEndAttributes().strength / 4;
-    target->getEndAttributes().strength -= lostStrength;
+    lostStrength = target->getFinalAttributes().strength / 4;
+    target->getFinalAttributes().strength -= lostStrength;
 }
 
 void WeaknessEffect::onExitMap(Character* target) {
-    target->getEndAttributes().strength += lostStrength;
+    target->getFinalAttributes().strength += lostStrength;
     Appearance::registerBattleLog(DialogueFunctions::formatStatusMsg(target->getName() + " recuperou sua forca original.", Color::RED));
 }
 
 void ResistanceBreakEffect::onEnterMap(Character* target) {
-    lostResistance = static_cast<int>(target->getEndAttributes().resistance * 0.20);
-    lostConstitution = static_cast<int>(target->getEndAttributes().constitution * 0.10);
-    target->getEndAttributes().resistance -= lostResistance;
-    target->getEndAttributes().constitution -= lostConstitution;
+    lostResistance = static_cast<int>(target->getFinalAttributes().resistance * 0.20);
+    lostConstitution = static_cast<int>(target->getFinalAttributes().constitution * 0.10);
+    target->getFinalAttributes().resistance -= lostResistance;
+    target->getFinalAttributes().constitution -= lostConstitution;
 }
 
 void ResistanceBreakEffect::onExitMap(Character* target) {
-    target->getEndAttributes().resistance += lostResistance;
-    target->getEndAttributes().constitution += lostConstitution;
+    target->getFinalAttributes().resistance += lostResistance;
+    target->getFinalAttributes().constitution += lostConstitution;
 }
 
 void ResistanceBreakEffect::applyTurnStart(Character* target) {
@@ -82,13 +82,13 @@ int HalfDamageEffect::processReceivedDamage(int damage) {
 }
 
 void WarCryEffect::onEnterMap(Character* target) {
-    target->getEndAttributes().strength += strengthBonus;
-    target->getEndAttributes().dexterity += dexterityBonus;
+    target->getFinalAttributes().strength += strengthBonus;
+    target->getFinalAttributes().dexterity += dexterityBonus;
 }
 
 void WarCryEffect::onExitMap(Character* target) {
-    target->getEndAttributes().strength -= strengthBonus;
-    target->getEndAttributes().dexterity -= dexterityBonus;
+    target->getFinalAttributes().strength -= strengthBonus;
+    target->getFinalAttributes().dexterity -= dexterityBonus;
 }
 
 void AttributesBuffEffect::onExitMap(Character* target) {
@@ -111,12 +111,12 @@ void AdaptationWheelEffect::applyTurnStart(Character* target) {
 }
 
 void AdaptationWheelEffect::onExitMap(Character* target) {
-    target->getEndAttributes().strength -= bStrength;
-    target->getEndAttributes().dexterity -= bDexterity;
-    target->getEndAttributes().resistance -= bResistance;
-    target->getEndAttributes().constitution -= bConstitution;
-    target->getEndAttributes().intelligence -= bIntelligence;
-    target->getEndAttributes().wisdom -= bWisdom;
+    target->getFinalAttributes().strength -= bStrength;
+    target->getFinalAttributes().dexterity -= bDexterity;
+    target->getFinalAttributes().resistance -= bResistance;
+    target->getFinalAttributes().constitution -= bConstitution;
+    target->getFinalAttributes().intelligence -= bIntelligence;
+    target->getFinalAttributes().wisdom -= bWisdom;
     target->forceCacheRecalculation();
 }
 

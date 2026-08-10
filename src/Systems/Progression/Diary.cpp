@@ -9,7 +9,7 @@ Diary::Diary() {}
 
 void Diary::registerItem(const std::string& itemName) {
     std::lock_guard<std::mutex> lock(mtx);
-    itemsDiscovered.insert(itemName);
+    discoveredItems.insert(itemName);
 }
 
 void Diary::registerNPC(const std::string& nameNPC) {
@@ -24,7 +24,7 @@ void Diary::registerRace(const std::string& raceName) {
 
 void Diary::registerClass(const std::string& className) {
     std::lock_guard<std::mutex> lock(mtx);
-    classesDiscoveries.insert(className);
+    discoveredClasses.insert(className);
 }
 
 void Diary::registerMissionAccept(const std::string& idMission) {
@@ -39,7 +39,7 @@ void Diary::registerMissionCompleted(const std::string& idMission) {
 
 bool Diary::itemDiscovered(const std::string& itemName) const {
     std::lock_guard<std::mutex> lock(mtx);
-    return itemsDiscovered.count(itemName) > 0;
+    return discoveredItems.count(itemName) > 0;
 }
 
 bool Diary::npcDiscovered(const std::string& nameNPC) const {
@@ -54,7 +54,7 @@ bool Diary::raceDiscovery(const std::string& raceName) const {
 
 bool Diary::classDiscovery(const std::string& className) const {
     std::lock_guard<std::mutex> lock(mtx);
-    return classesDiscoveries.count(className) > 0;
+    return discoveredClasses.count(className) > 0;
 }
 
 bool Diary::missionAccept(const std::string& idMission) const {
@@ -69,7 +69,7 @@ bool Diary::missionCompleted(const std::string& idMission) const {
 
 std::vector<std::string> Diary::getItemsDiscovered() const {
     std::lock_guard<std::mutex> lock(mtx);
-    return std::vector<std::string>(itemsDiscovered.begin(), itemsDiscovered.end());
+    return std::vector<std::string>(discoveredItems.begin(), discoveredItems.end());
 }
 
 std::vector<std::string> Diary::getNPCsDiscovered() const {
@@ -84,7 +84,7 @@ std::vector<std::string> Diary::getBreedsDiscoveries() const {
 
 std::vector<std::string> Diary::getClassesDiscoveries() const {
     std::lock_guard<std::mutex> lock(mtx);
-    return std::vector<std::string>(classesDiscoveries.begin(), classesDiscoveries.end());
+    return std::vector<std::string>(discoveredClasses.begin(), discoveredClasses.end());
 }
 
 std::vector<std::string> Diary::getMissionsAccepted() const {
@@ -105,10 +105,10 @@ void Diary::save(std::ofstream& out) const {
         for (const auto& item : set) out << item << "\n";
     };
 
-    writeSet(itemsDiscovered);
+    writeSet(discoveredItems);
     writeSet(npcsDiscovered);
     writeSet(breedsDiscoveries);
-    writeSet(classesDiscoveries);
+    writeSet(discoveredClasses);
     writeSet(missionsAccepted);
     writeSet(missionsCompleted);
 }
@@ -116,10 +116,10 @@ void Diary::save(std::ofstream& out) const {
 void Diary::load(std::ifstream& in) {
     std::lock_guard<std::mutex> lock(mtx);
     
-    itemsDiscovered.clear();
+    discoveredItems.clear();
     npcsDiscovered.clear();
     breedsDiscoveries.clear();
-    classesDiscoveries.clear();
+    discoveredClasses.clear();
     missionsAccepted.clear();
     missionsCompleted.clear();
 
@@ -134,10 +134,10 @@ void Diary::load(std::ifstream& in) {
         return true;
     };
     
-    readSet(itemsDiscovered);
+    readSet(discoveredItems);
     readSet(npcsDiscovered);
     readSet(breedsDiscoveries);
-    readSet(classesDiscoveries);
+    readSet(discoveredClasses);
     readSet(missionsAccepted);
     readSet(missionsCompleted);
 }

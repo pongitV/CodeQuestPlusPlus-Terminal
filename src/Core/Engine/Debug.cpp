@@ -31,13 +31,13 @@ bool Debug::isNoclipActive = false;
 
 namespace {
     void activateGodMode(Character* player) {
-        player->getEndAttributes().health += 999999;
-        player->getEndAttributes().strength += 99999;
-        player->getEndAttributes().dexterity += 99999;
-        player->getEndAttributes().resistance += 99999;
-        player->getEndAttributes().constitution += 99999;
-        player->getEndAttributes().intelligence += 99999;
-        player->getEndAttributes().wisdom += 99999;
+        player->getFinalAttributes().health += 999999;
+        player->getFinalAttributes().strength += 99999;
+        player->getFinalAttributes().dexterity += 99999;
+        player->getFinalAttributes().resistance += 99999;
+        player->getFinalAttributes().constitution += 99999;
+        player->getFinalAttributes().intelligence += 99999;
+        player->getFinalAttributes().wisdom += 99999;
         player->forceCacheRecalculation();
         player->setHealth(player->getMaxHealth());
         
@@ -52,7 +52,7 @@ namespace {
             "DEFINIR ATRIBUTOS (CHEAT)", Color::YELLOW,
             nullptr,
             [player]() {
-                auto& attrs = player->getEndAttributes();
+                auto& attrs = player->getFinalAttributes();
                 return std::vector<std::string>{
                     "Vida Maxima  : " + std::to_string(attrs.health), "Forca        : " + std::to_string(attrs.strength),
                     "Destreza     : " + std::to_string(attrs.dexterity), "Resistencia  : " + std::to_string(attrs.resistance),
@@ -63,7 +63,7 @@ namespace {
             [player](int attrChoice) {
                 if (attrChoice == 7 || attrChoice == -1) return false;
                 
-                auto& attrs = player->getEndAttributes();
+                auto& attrs = player->getFinalAttributes();
                 std::string attrName; int* ptrAttr = nullptr;
                 switch (attrChoice) {
                     case 0: attrName = "Vida Maxima"; ptrAttr = &attrs.health; break;

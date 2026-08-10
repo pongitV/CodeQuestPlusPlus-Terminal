@@ -10,8 +10,8 @@ class EquipmentWeapon : public Item
 private:
     std::string name;
     int damagePhysical;
-    int damageMagician;
-    int reqGallows;
+    int damageMagical;
+    int reqStrength;
     int reqDexterity;
     int reqIntelligence;
     int reqWisdom;
@@ -19,9 +19,9 @@ private:
     bool effectSlow;
 
 public:
-    EquipmentWeapon(const std::string& name, int damagePhysical, int damageMagician, int reqGallows, int reqDexterity, int reqIntelligence, int reqWisdom, int price = 3);
+    EquipmentWeapon(const std::string& name, int damagePhysical, int damageMagical, int reqStrength, int reqDexterity, int reqIntelligence, int reqWisdom, int price = 3);
     
-    int getReqGallows() const;
+    int getReqStrength() const;
     int getReqDexterity() const;
     int getReqIntelligence() const;
     int getReqWisdom() const;
@@ -45,9 +45,9 @@ public:
     void applyEffectBleeding() override;
     void applyEffectSlow() override;
     
-    void beforeDeCauseDamage(Character* attacker, Character* target) override;
-    void aoCauseDamage(Character* attacker, Character* target, int damageCaused) override;
-    int ensureDamageMinimum(int damageEnd) override;
+    void beforeCausingDamage(Character* attacker, Character* target) override;
+    void onCausingDamage(Character* attacker, Character* target, int damageCaused) override;
+    int ensureDamageMinimum(int finalDamage) override;
 
     std::unique_ptr<Item> generateCopyImproved() const override;
 };

@@ -12,39 +12,39 @@ void CombatRaycasterUIImpl::configureContext3D(bool mode3D, const std::vector<st
     ScreenCombatRaycaster::configureContext3D(mode3D, matrix, postX, postY, angle, title);
 }
 
-void CombatRaycasterUIImpl::cheerIntroductionCombat(const std::string& title, const std::vector<Character*>& enemies, Character* currentPlayer) {
-    ScreenCombatRaycaster::cheerIntroductionCombat(title, enemies, currentPlayer);
+void CombatRaycasterUIImpl::animateCombatIntro(const std::string& title, const std::vector<Character*>& enemies, Character* currentPlayer) {
+    ScreenCombatRaycaster::animateCombatIntro(title, enemies, currentPlayer);
 }
 
-void CombatRaycasterUIImpl::updateScreenStatic(const std::string& titleCombat, const std::vector<Character*>& listDeEnemies, Character* currentPlayer, const std::vector<Character*>& listDeAllies, bool animateEntrance) {
-    ScreenCombatRaycaster::updateScreenStatic(titleCombat, listDeEnemies, currentPlayer, listDeAllies, animateEntrance, nullptr);
+void CombatRaycasterUIImpl::updateScreenStatic(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies, bool animateEntrance) {
+    ScreenCombatRaycaster::updateScreenStatic(combatTitle, enemies, currentPlayer, allies, animateEntrance, nullptr);
 }
 
-void CombatRaycasterUIImpl::cheerDamageNoEnemy(const std::string& titleCombat, const std::vector<Character*>& listDeEnemies, Character* targetAnimation, Character* attacker, Character* currentPlayer, const std::vector<Character*>& listDeAllies, int damageAnimation) {
-    ScreenCombatRaycaster::cheerDamageNoEnemy(titleCombat, listDeEnemies, targetAnimation, attacker, currentPlayer, listDeAllies, damageAnimation);
+void CombatRaycasterUIImpl::animateDamageToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* attacker, Character* currentPlayer, const std::vector<Character*>& allies, int damageAnimation) {
+    ScreenCombatRaycaster::animateDamageToEnemy(combatTitle, enemies, targetAnimation, attacker, currentPlayer, allies, damageAnimation);
 }
 
-void CombatRaycasterUIImpl::cheerCureNoEnemy(const std::string& titleCombat, const std::vector<Character*>& listDeEnemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& listDeAllies, int cureAnimation) {
-    ScreenCombatRaycaster::cheerCureNoEnemy(titleCombat, listDeEnemies, targetAnimation, currentPlayer, listDeAllies, cureAnimation);
+void CombatRaycasterUIImpl::animateCureToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int cureAnimation) {
+    ScreenCombatRaycaster::animateCureToEnemy(combatTitle, enemies, targetAnimation, currentPlayer, allies, cureAnimation);
 }
 
-void CombatRaycasterUIImpl::cheerDamageNoPlayer(const std::string& titleCombat, const std::vector<Character*>& listDeEnemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& listDeAllies, bool isParry, int damageAnimation) {
-    ScreenCombatRaycaster::cheerDamageNoPlayer(titleCombat, listDeEnemies, targetAnimation, currentPlayer, listDeAllies, isParry, damageAnimation);
+void CombatRaycasterUIImpl::animateDamageToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, bool isParry, int damageAnimation) {
+    ScreenCombatRaycaster::animateDamageToPlayer(combatTitle, enemies, targetAnimation, currentPlayer, allies, isParry, damageAnimation);
 }
 
-void CombatRaycasterUIImpl::cheerCureNoPlayer(const std::string& titleCombat, const std::vector<Character*>& listDeEnemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& listDeAllies, int cureAnimation) {
-    ScreenCombatRaycaster::cheerCureNoPlayer(titleCombat, listDeEnemies, targetAnimation, currentPlayer, listDeAllies, cureAnimation);
+void CombatRaycasterUIImpl::animateCureToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int cureAnimation) {
+    ScreenCombatRaycaster::animateCureToPlayer(combatTitle, enemies, targetAnimation, currentPlayer, allies, cureAnimation);
 }
 
-void CombatRaycasterUIImpl::cheerDeathEnemy(const std::string& titleCombat, const std::vector<Character*>& listDeEnemies, Character* enemyDead, Character* currentPlayer, const std::vector<Character*>& listDeAllies, const std::vector<std::string>& drops) {
-    ScreenCombatRaycaster::cheerDeathEnemy(titleCombat, listDeEnemies, enemyDead, currentPlayer, listDeAllies, drops);
+void CombatRaycasterUIImpl::animateEnemyDeath(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* enemyDead, Character* currentPlayer, const std::vector<Character*>& allies, const std::vector<std::string>& drops) {
+    ScreenCombatRaycaster::animateEnemyDeath(combatTitle, enemies, enemyDead, currentPlayer, allies, drops);
 }
 
 void CombatRaycasterUIImpl::cleanContextCharacterHUD() {
     CombatScreen::context.characterHUD = nullptr;
 }
 
-void CombatRaycasterUIImpl::cleanContextEnemyDeadEDrops() {
+void CombatRaycasterUIImpl::cleanContextEnemyDeathAndDrops() {
     CombatScreen::context.enemyDeadWithDrops = nullptr;
     CombatScreen::context.dropsAssets.clear();
 }
@@ -65,44 +65,44 @@ void CombatRaycasterUIImpl::setShiftVisible(int shift, const std::string& name) 
     ScreenCombatRaycaster::setShiftVisible(shift, name);
 }
 
-int CombatRaycasterUIImpl::getActionDoPlayer(int shiftCurrent, Character* characterActing, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
-    return ScreenCombatRaycaster::getActionDoPlayer(shiftCurrent, characterActing, enemies, currentPlayer, allies);
+int CombatRaycasterUIImpl::getPlayerAction(int currentTurn, Character* characterActing, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
+    return ScreenCombatRaycaster::getPlayerAction(currentTurn, characterActing, enemies, currentPlayer, allies);
 }
 
-int CombatRaycasterUIImpl::getTargetAttack(const std::string& titleCombat, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
-    return ScreenCombatRaycaster::getTargetAttack(titleCombat, enemies, currentPlayer, allies);
+int CombatRaycasterUIImpl::getTargetAttack(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
+    return ScreenCombatRaycaster::getTargetAttack(combatTitle, enemies, currentPlayer, allies);
 }
 
-int CombatRaycasterUIImpl::getTargetItem(const std::string& titleCombat, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
-    return ScreenCombatRaycaster::getTargetItem(titleCombat, enemies, currentPlayer, allies);
+int CombatRaycasterUIImpl::getTargetItem(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
+    return ScreenCombatRaycaster::getTargetItem(combatTitle, enemies, currentPlayer, allies);
 }
 
-int CombatRaycasterUIImpl::getChooseDeShield(const std::string& nameCharacter, const std::vector<Item*>& listDeShields) {
-    return ScreenCombatRaycaster::getChooseDeShield(nameCharacter, listDeShields);
+int CombatRaycasterUIImpl::chooseShield(const std::string& characterName, const std::vector<Item*>& shields) {
+    return ScreenCombatRaycaster::chooseShield(characterName, shields);
 }
 
 void CombatRaycasterUIImpl::notifyEnemiesMoreAct() {
     ScreenCombatRaycaster::notifyEnemiesMoreAct();
 }
 
-void CombatRaycasterUIImpl::notifyShiftExtra(int dexterityPlayer, int maxDexterityEnemies) {
-    ScreenCombatRaycaster::notifyShiftExtra(dexterityPlayer, maxDexterityEnemies);
+void CombatRaycasterUIImpl::notifyShiftExtra(int dexterityPlayer, int maxEnemyDexterity) {
+    ScreenCombatRaycaster::notifyShiftExtra(dexterityPlayer, maxEnemyDexterity);
 }
 
 void CombatRaycasterUIImpl::notifyUnpreventionInventory() {
     ScreenCombatRaycaster::notifyUnpreventionInventory();
 }
 
-void CombatRaycasterUIImpl::notifyWithoutShields(const std::string& nameCharacter) {
-    ScreenCombatRaycaster::notifyWithoutShields(nameCharacter);
+void CombatRaycasterUIImpl::notifyWithoutShields(const std::string& characterName) {
+    ScreenCombatRaycaster::notifyWithoutShields(characterName);
 }
 
-void CombatRaycasterUIImpl::notifyImbalanceDefense(const std::string& nameCharacter) {
-    ScreenCombatRaycaster::notifyImbalanceDefense(nameCharacter);
+void CombatRaycasterUIImpl::notifyImbalanceDefense(const std::string& characterName) {
+    ScreenCombatRaycaster::notifyImbalanceDefense(characterName);
 }
 
-void CombatRaycasterUIImpl::notifyPostureDefensive(const std::string& nameCharacter, const std::string& nameShield) {
-    ScreenCombatRaycaster::notifyPostureDefensive(nameCharacter, nameShield);
+void CombatRaycasterUIImpl::notifyPostureDefensive(const std::string& characterName, const std::string& nameShield) {
+    ScreenCombatRaycaster::notifyPostureDefensive(characterName, nameShield);
 }
 
 void CombatRaycasterUIImpl::notifyActionInvalidates() {
@@ -113,11 +113,11 @@ void CombatRaycasterUIImpl::notifyCancellationItem() {
     ScreenCombatRaycaster::notifyCancellationItem();
 }
 
-void CombatRaycasterUIImpl::notifyRequirementNoServed(const std::string& messageRequirement) {
-    ScreenCombatRaycaster::notifyRequirementNoServed(messageRequirement);
+void CombatRaycasterUIImpl::notifyUnmetRequirement(const std::string& requirementMessage) {
+    ScreenCombatRaycaster::notifyUnmetRequirement(requirementMessage);
 }
 
-void CombatRaycasterUIImpl::displayScreenVictory(Character* currentPlayer, int quantityDeGoldObtained, int quantityDeXpObtained, int totalDeDamageCaused, int totalDeDamageReceived, int cureTotalReceived, int shiftsCombat, const std::vector<std::string>& obtainedItems, const std::vector<std::string>& enemiesDefeated, int parriesPerfect, int biggerDamage, int parriesTempted, int parriesEffective, int itemsConsumed, const std::vector<std::string>& newDiscoveries) {
+void CombatRaycasterUIImpl::displayVictoryScreen(Character* currentPlayer, int goldObtained, int xpObtained, int totalDamageCaused, int totalDamageReceived, int totalCureReceived, int combatTurns, const std::vector<std::string>& obtainedItems, const std::vector<std::string>& enemiesDefeated, int perfectParries, int highestDamage, int parriesAttempted, int effectiveParries, int itemsConsumed, const std::vector<std::string>& newDiscoveries) {
     std::unordered_map<std::string, int> frequencyDrops;
     for (const auto& item : obtainedItems) {
         frequencyDrops[item]++;
@@ -127,13 +127,13 @@ void CombatRaycasterUIImpl::displayScreenVictory(Character* currentPlayer, int q
         dropsUnique.push_back(pair);
     }
 
-    bool canRiseLevel = currentPlayer->getCurrentXp() + quantityDeXpObtained >= currentPlayer->getXpForRise();
+    bool canLevelUp = currentPlayer->getCurrentXp() + xpObtained >= currentPlayer->getXpForRise();
 
-    ScreenVictoryRaycaster::display(currentPlayer, quantityDeGoldObtained, quantityDeXpObtained, totalDeDamageCaused, totalDeDamageReceived, cureTotalReceived, shiftsCombat, enemiesDefeated, parriesPerfect, biggerDamage, parriesTempted, parriesEffective, itemsConsumed, dropsUnique, canRiseLevel, newDiscoveries, "");
+    ScreenVictoryRaycaster::display(currentPlayer, goldObtained, xpObtained, totalDamageCaused, totalDamageReceived, totalCureReceived, combatTurns, enemiesDefeated, perfectParries, highestDamage, parriesAttempted, effectiveParries, itemsConsumed, dropsUnique, canLevelUp, newDiscoveries, "");
 }
 
-void CombatRaycasterUIImpl::displayScreenDefeat(Character* currentPlayer, int quantityDeGoldObtained, int quantityDeXpObtained, int totalDeDamageCaused, int totalDeDamageReceived, int cureTotalReceived, int shiftsCombat) {
-    ScreenDefeatRaycaster::display(currentPlayer, quantityDeGoldObtained, quantityDeXpObtained, totalDeDamageCaused, totalDeDamageReceived, cureTotalReceived, shiftsCombat);
+void CombatRaycasterUIImpl::displayDefeatScreen(Character* currentPlayer, int goldObtained, int xpObtained, int totalDamageCaused, int totalDamageReceived, int totalCureReceived, int combatTurns) {
+    ScreenDefeatRaycaster::display(currentPlayer, goldObtained, xpObtained, totalDamageCaused, totalDamageReceived, totalCureReceived, combatTurns);
 }
 
 void CombatRaycasterUIImpl::displayScreenAttributes(Character* character) {

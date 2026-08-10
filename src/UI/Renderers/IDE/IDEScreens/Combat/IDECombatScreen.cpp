@@ -752,7 +752,7 @@ void ScreenCombatGO::displaySoonForScreenDeCombat(const std::string& titleDaScre
     Appearance::displayArtPanel(ScreenCombatLayouts::getSoonCombat(), 95, Color::RED, titleDaScreen, animate);
 }
 
-void ScreenCombatGO::cheerIntroductionCombat(const std::string& title, const std::vector<Character*>& enemies, Character* currentPlayer) {
+void ScreenCombatGO::animateCombatIntro(const std::string& title, const std::vector<Character*>& enemies, Character* currentPlayer) {
     // Terminal/IDE view: intro sera exibida por renderizarCenaPadrao
     if (!PerspectiveManager::getInstance().is3DViewActive()) {
         return;
@@ -1018,12 +1018,12 @@ std::vector<std::string> ScreenCombatGO::getLinesBarDeStatusDoPlayer(Character* 
     return linesForPrint;
 }
 
-void ScreenCombatGO::displayHordeDeEnemiesSideASide(const std::vector<Character*>& listDeEnemies, Character* targetAnimation, int frameAnimation, bool isCure, bool cheerEmergence, bool isDeath, Item* /*armaAtacante*/, int damageAnimation, const std::vector<std::string>& dropsAnimation) 
+void ScreenCombatGO::displayHordeDeEnemiesSideASide(const std::vector<Character*>& enemies, Character* targetAnimation, int frameAnimation, bool isCure, bool cheerEmergence, bool isDeath, Item* /*armaAtacante*/, int damageAnimation, const std::vector<std::string>& dropsAnimation) 
 {
-    if (listDeEnemies.empty()) return;
+    if (enemies.empty()) return;
     int terminalWidth = Appearance::getTerminalWidth();
     int terminalHeight = Appearance::getTerminalHeight();
-    const std::vector<std::string>& artOriginalDoEnemy = listDeEnemies[0]->getRace()->getAppearanceRace();
+    const std::vector<std::string>& artOriginalDoEnemy = enemies[0]->getRace()->getAppearanceRace();
     
     std::vector<std::string> artReducedLocation;
     const std::vector<std::string>* artDoEnemyPtr = &artOriginalDoEnemy;
@@ -1035,7 +1035,7 @@ void ScreenCombatGO::displayHordeDeEnemiesSideASide(const std::vector<Character*
     }
     const std::vector<std::string>& artDoEnemy = *artDoEnemyPtr;
     
-    int quantityTotalDeEnemiesNaHorde = static_cast<int>(listDeEnemies.size());
+    int quantityTotalDeEnemiesNaHorde = static_cast<int>(enemies.size());
     int widthSeparateForEachColumn = terminalWidth / quantityTotalDeEnemiesNaHorde; 
 
     auto splitUTF8 = [](const std::string& s) {
@@ -1057,9 +1057,9 @@ void ScreenCombatGO::displayHordeDeEnemiesSideASide(const std::vector<Character*
     int timeMs = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count());
     
     std::vector<int> offsetsIdle;
-    for (size_t idx = 0; idx < listDeEnemies.size(); ++idx) {
-        Character* ini = listDeEnemies[idx];
-        if (ini->getHealth() <= 0 || ini->getDeathLively() || (ini == targetAnimation && frameAnimation > 0 && !isDeath && !isCure)) {
+    for (size_t idx = 0; idx < enemies.size(); ++idx) {
+        Character* enemy = enemies[idx];
+        if (enemy->getHealth() <= 0 || enemy->getDeathLively() || (enemy == targetAnimation && frameAnimation > 0 && !isDeath && !isCure)) {
             offsetsIdle.push_back(0); // Mantem estatico durante animacoes de dano ou morte
         } else {
             // Ciclo de balanco: Move horizontalmente de forma suave (esquerda e direita)
@@ -1075,15 +1075,15 @@ void ScreenCombatGO::displayHordeDeEnemiesSideASide(const std::vector<Character*
     }
 
     auto printLineHorde = [&](const std::function<std::pair<std::string, std::string>(Character*, size_t)>& generator) {
-        for (size_t i = 0; i < listDeEnemies.size(); ++i) {
-            auto [textVisual, textPrint] = generator(listDeEnemies[i], i);
+        for (size_t i = 0; i < enemies.size(); ++i) {
+            auto [textVisual, textPrint] = generator(enemies[i], i);
             int compVisual = Appearance::getVisualLength(textVisual);
             int spacesLeft = std::max(0, (widthSeparateForEachColumn - compVisual) / 2);
             spacesLeft += offsetsIdle[i];
             if (spacesLeft < 0) spacesLeft = 0;
             
             std::cout << std::string(spacesLeft, ' ') << textPrint;
-            if (i < listDeEnemies.size() - 1) {
+            if (i < enemies.size() - 1) {
                 int spacesSay = std::max(0, widthSeparateForEachColumn - spacesLeft - compVisual);
                 std::cout << std::string(spacesSay, ' ');
             }
@@ -1142,8 +1142,8 @@ void ScreenCombatGO::displayHordeDeEnemiesSideASide(const std::vector<Character*
     }
 
     bool hordeHasDebuffs = false;
-    for (auto* ini : listDeEnemies) {
-        std::vector<EffectID> effs; ini->getIDsEffectsAssets(effs);
+    for (auto* enemy : enemies) {
+        std::vector<EffectID> effs; enemy->getIDsEffectsAssets(effs);
         if (!effs.empty()) { hordeHasDebuffs = true; break; }
     }
 
@@ -1166,7 +1166,7 @@ void ScreenCombatGO::displayHordeDeEnemiesSideASide(const std::vector<Character*
 
     printLineHorde([&](Character* enemy, size_t i) {
         std::string tag = enemy->getName();
-        if (listDeEnemies.size() > 1) {
+        if (enemies.size() > 1) {
             tag += " (" + std::to_string(i + 1) + ")";
         }
         std::string printTag = tag;
@@ -1207,9 +1207,9 @@ void ScreenCombatGO::displayHordeDeEnemiesSideASide(const std::vector<Character*
     for (size_t indexDaLineDaArt = 0; indexDaLineDaArt < artDoEnemy.size(); indexDaLineDaArt++) 
     {
         std::string lineCurrent = "";
-        for (size_t indexDoEnemyForDraw = 0; indexDoEnemyForDraw < listDeEnemies.size(); indexDoEnemyForDraw++) 
+        for (size_t indexDoEnemyForDraw = 0; indexDoEnemyForDraw < enemies.size(); indexDoEnemyForDraw++) 
         {
-            Character* enemyCurrent = listDeEnemies[indexDoEnemyForDraw];
+            Character* enemyCurrent = enemies[indexDoEnemyForDraw];
             
             int offset = offsetsIdle[indexDoEnemyForDraw];
             int lineReal = static_cast<int>(indexDaLineDaArt);
@@ -1255,17 +1255,17 @@ void ScreenCombatGO::displayHordeDeEnemiesSideASide(const std::vector<Character*
                         std::string colorEdge = Appearance::color(Color::GRAY);
                         std::string colorReset = Appearance::color(Color::RESET);
                         
-                        int esp = (visibleLen - (maxTextLen + 4)) / 2;
-                        if (esp < 0) esp = 0;
-                        int rem = visibleLen - esp - (maxTextLen + 4);
+                        int space = (visibleLen - (maxTextLen + 4)) / 2;
+                        if (space < 0) space = 0;
+                        int rem = visibleLen - space - (maxTextLen + 4);
                         if (rem < 0) rem = 0;
                         
                         if (currentLineIndex == 0) {
                             std::string b = "╔"; for(int k=0; k<maxTextLen+2; ++k) b += "═"; b += "╗";
-                            lineArt = std::string(esp, ' ') + colorEdge + b + colorReset + std::string(rem, ' ');
+                            lineArt = std::string(space, ' ') + colorEdge + b + colorReset + std::string(rem, ' ');
                         } else if (currentLineIndex == totalBoxLines - 1) {
                             std::string b = "╚"; for(int k=0; k<maxTextLen+2; ++k) b += "═"; b += "╝";
-                            lineArt = std::string(esp, ' ') + colorEdge + b + colorReset + std::string(rem, ' ');
+                            lineArt = std::string(space, ' ') + colorEdge + b + colorReset + std::string(rem, ' ');
                         } else {
                             int textIdx = currentLineIndex - 1;
                             std::string innerTxt = (textIdx == 0) ? "DERROTADO!" : dropsAnimation[textIdx - 1];
@@ -1285,7 +1285,7 @@ void ScreenCombatGO::displayHordeDeEnemiesSideASide(const std::vector<Character*
                             int pSay = maxTextLen - txtLen - pLeft;
                             
                             std::string middle = colorEdge + "║ " + std::string(pLeft, ' ') + colorDrop + innerTxt + colorReset + colorEdge + std::string(pSay, ' ') + " ║" + colorReset;
-                            lineArt = std::string(esp, ' ') + middle + std::string(rem, ' ');
+                            lineArt = std::string(space, ' ') + middle + std::string(rem, ' ');
                         }
                     }
                 } else {
@@ -1359,7 +1359,7 @@ void ScreenCombatGO::displayHordeDeEnemiesSideASide(const std::vector<Character*
             }
             
             int spacesRight = widthSeparateForEachColumn - spacesForCentralizeAArt - visibleLen;
-            if (indexDoEnemyForDraw < listDeEnemies.size() - 1) {
+            if (indexDoEnemyForDraw < enemies.size() - 1) {
                 lineCurrent += std::string(spacesRight > 0 ? spacesRight : 0, ' ');
             }
         }
@@ -1375,7 +1375,7 @@ void ScreenCombatGO::displayHordeDeEnemiesSideASide(const std::vector<Character*
     std::cout << "\n";
 }
 
-void ScreenCombatGO::cheerDamageNoEnemy(const std::string& titleCombat, const std::vector<Character*>& listDeEnemies, Character* targetAnimation, Character* attacker, Character* currentPlayer, const std::vector<Character*>& listDeAllies, int damageAnimation)
+void ScreenCombatGO::animateDamageToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* attacker, Character* currentPlayer, const std::vector<Character*>& allies, int damageAnimation)
 {
     if (CombatScreen::context.isTerminalView) {
         std::string nameTarget = targetAnimation ? targetAnimation->getName() : "desconhecido";
@@ -1392,13 +1392,13 @@ void ScreenCombatGO::cheerDamageNoEnemy(const std::string& titleCombat, const st
     Item* weaponAttacker = (attacker != nullptr) ? attacker->getWeapons() : nullptr;
     
     executeAnimation(8, 100, 1, [&](int frame) {
-        renderScenePattern(titleCombat, listDeEnemies, targetAnimation, frame, false, false, weaponAttacker, currentPlayer, listDeAllies, nullptr, Color::RESET, damageAnimation);
+        renderScenePattern(combatTitle, enemies, targetAnimation, frame, false, false, weaponAttacker, currentPlayer, allies, nullptr, Color::RESET, damageAnimation);
     }, [&]() {
-        renderScenePattern(titleCombat, listDeEnemies, targetAnimation, 0, false, false, nullptr, currentPlayer, listDeAllies);
+        renderScenePattern(combatTitle, enemies, targetAnimation, 0, false, false, nullptr, currentPlayer, allies);
     });
 }
 
-void ScreenCombatGO::cheerCureNoPlayer(const std::string& titleCombat, const std::vector<Character*>& listDeEnemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& listDeAllies, int cureAnimation)
+void ScreenCombatGO::animateCureToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int cureAnimation)
 {
     if (CombatScreen::context.isTerminalView) {
         std::string nameTarget = targetAnimation ? targetAnimation->getName() : "desconhecido";
@@ -1412,14 +1412,14 @@ void ScreenCombatGO::cheerCureNoPlayer(const std::string& titleCombat, const std
 
     executeAnimation(12, 100, 1, [&](int frame) {
         Color colorApplied = (frame % 2 == 1 && frame <= 6) ? Color::GREEN : Color::RESET;
-        renderScenePattern(titleCombat, listDeEnemies, nullptr, frame, true, false, nullptr, currentPlayer, listDeAllies, targetAnimation, colorApplied, cureAnimation);
+        renderScenePattern(combatTitle, enemies, nullptr, frame, true, false, nullptr, currentPlayer, allies, targetAnimation, colorApplied, cureAnimation);
     }, [&]() {
-        renderScenePattern(titleCombat, listDeEnemies, nullptr, 0, false, false, nullptr, currentPlayer, listDeAllies);
+        renderScenePattern(combatTitle, enemies, nullptr, 0, false, false, nullptr, currentPlayer, allies);
     });
 }
 
-int ScreenCombatGO::getActionDoPlayer(int shiftCurrent, Character* characterActing, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
-    setShiftVisible(shiftCurrent, characterActing->getName());
+int ScreenCombatGO::getPlayerAction(int currentTurn, Character* characterActing, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
+    setShiftVisible(currentTurn, characterActing->getName());
     CombatScreen::context.characterHUD = characterActing;
     CombatScreen::context.selectionActionCurrent = 0;
     
@@ -1451,7 +1451,7 @@ int ScreenCombatGO::getActionDoPlayer(int shiftCurrent, Character* characterActi
             
             std::string habOption = "Habilidade";
             if (characterActing->getTypeClass() == TypeClass::NECROMANCER) {
-                size_t souls = characterActing->getNumberDeSouls();
+                size_t souls = characterActing->getSoulCount();
                 if (souls == 0) habOption += Appearance::color(Color::RED) + " (0 Almas)" + Appearance::color(Color::RESET);
                 else habOption += " (" + std::to_string(souls) + " Alma" + (souls > 1 ? "s" : "") + ")";
             }
@@ -1514,7 +1514,7 @@ int ScreenCombatGO::getActionDoPlayer(int shiftCurrent, Character* characterActi
             else if (key == '\r' || key == '\n') { 
                 std::string op = CombatScreen::context.optionsMenuCurrent[CombatScreen::context.selectionActionCurrent];
                 if (op == "Ver Aliados") {
-                    selectHUDDeAlly(currentPlayer, allies);
+                    selectHUDAlly(currentPlayer, allies);
                     CombatScreen::context.selectionActionCurrent = 0; 
                     buildOptions();
                     updateScreenStatic("", enemies, currentPlayer, allies);
@@ -1547,7 +1547,7 @@ int ScreenCombatGO::getActionDoPlayer(int shiftCurrent, Character* characterActi
     }
 }
 
-int ScreenCombatGO::getTargetAttack(const std::string& titleCombat, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
+int ScreenCombatGO::getTargetAttack(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
     if (CombatScreen::context.isTerminalView) {
         int target = ScreenCombatGO::displaySelectionTarget(enemies);
         return target;
@@ -1559,7 +1559,7 @@ int ScreenCombatGO::getTargetAttack(const std::string& titleCombat, const std::v
     CombatScreen::context.selectionActionCurrent = -1; // Esconde o cursor do menu de acoes
 
     CombatScreen::context.blinkSelection = true;
-    updateScreenStatic(titleCombat, enemies, currentPlayer, allies);
+    updateScreenStatic(combatTitle, enemies, currentPlayer, allies);
     auto timeBlink = std::chrono::steady_clock::now();
     auto lastUpdate = std::chrono::steady_clock::now();
 
@@ -1573,7 +1573,7 @@ int ScreenCombatGO::getTargetAttack(const std::string& titleCombat, const std::v
 
         if (std::chrono::duration_cast<std::chrono::milliseconds>(now - lastUpdate).count() >= 33) {
             lastUpdate = now;
-            updateScreenStatic(titleCombat, enemies, currentPlayer, allies);
+            updateScreenStatic(combatTitle, enemies, currentPlayer, allies);
         }
 
         if (InputControl::pressedKey()) {
@@ -1598,28 +1598,28 @@ int ScreenCombatGO::getTargetAttack(const std::string& titleCombat, const std::v
                 if (CombatScreen::context.selectionTargetCurrent < 0) CombatScreen::context.selectionTargetCurrent = totalEnemies - 1; 
                 CombatScreen::context.blinkSelection = true;
                 timeBlink = std::chrono::steady_clock::now();
-                updateScreenStatic(titleCombat, enemies, currentPlayer, allies);
+                updateScreenStatic(combatTitle, enemies, currentPlayer, allies);
             }
             else if (key == 'd' || key == 'D') { 
                 CombatScreen::context.selectionTargetCurrent++; 
                 if (CombatScreen::context.selectionTargetCurrent >= totalEnemies) CombatScreen::context.selectionTargetCurrent = 0; 
                 CombatScreen::context.blinkSelection = true;
                 timeBlink = std::chrono::steady_clock::now();
-                updateScreenStatic(titleCombat, enemies, currentPlayer, allies);
+                updateScreenStatic(combatTitle, enemies, currentPlayer, allies);
             }
             else if (key == '\r' || key == '\n') { 
                 int choice = CombatScreen::context.selectionTargetCurrent;
                 CombatScreen::context.selectionTargetCurrent = -1; 
                 CombatScreen::context.selectionActionCurrent = oldAction;
                 CombatScreen::context.blinkSelection = true;
-                updateScreenStatic(titleCombat, enemies, currentPlayer, allies);
+                updateScreenStatic(combatTitle, enemies, currentPlayer, allies);
                 return choice; 
             }
             else if (key == '\033' || key == 'x' || key == 'X' || key == '0' || key == '\b') {
                 CombatScreen::context.selectionTargetCurrent = -1;
                 CombatScreen::context.selectionActionCurrent = oldAction;
                 CombatScreen::context.blinkSelection = true;
-                updateScreenStatic(titleCombat, enemies, currentPlayer, allies);
+                updateScreenStatic(combatTitle, enemies, currentPlayer, allies);
                 return -1;
             }
         } else {
@@ -1628,7 +1628,7 @@ int ScreenCombatGO::getTargetAttack(const std::string& titleCombat, const std::v
     }
 }
 
-void ScreenCombatGO::selectHUDDeAlly(Character* currentPlayer, const std::vector<Character*>& allies) {
+void ScreenCombatGO::selectHUDAlly(Character* currentPlayer, const std::vector<Character*>& allies) {
     std::vector<std::string> optionsHUD;
     optionsHUD.push_back(currentPlayer->getName());
     for (auto* ally : allies) {
@@ -1645,21 +1645,21 @@ void ScreenCombatGO::selectHUDDeAlly(Character* currentPlayer, const std::vector
     }
 }
 
-int ScreenCombatGO::getTargetItem(const std::string& titleCombat, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
-    return getTargetAttack(titleCombat, enemies, currentPlayer, allies);
+int ScreenCombatGO::getTargetItem(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
+    return getTargetAttack(combatTitle, enemies, currentPlayer, allies);
 }
 
-int ScreenCombatGO::getChooseDeShield(const std::string& nameCharacter, const std::vector<Item*>& listDeShields) {
+int ScreenCombatGO::chooseShield(const std::string& characterName, const std::vector<Item*>& shields) {
     if (CombatScreen::context.isTerminalView) {
-        int choice = ScreenCombatGO::displaySelectionShield(CombatScreen::context.characterHUD, listDeShields);
+        int choice = ScreenCombatGO::displaySelectionShield(CombatScreen::context.characterHUD, shields);
         if (choice < 0) return 0;
         return choice + 1;
     }
     
-    std::cout << "\n" << CombatScreen::combatMargin() << "═══ SELECIONE UM ESCUDO PARA " << nameCharacter << " ═══\n";
+    std::cout << "\n" << CombatScreen::combatMargin() << "═══ SELECIONE UM ESCUDO PARA " << characterName << " ═══\n";
     std::vector<std::string> options;
-    for (size_t index = 0; index < listDeShields.size(); index++) {
-        options.push_back(listDeShields[index]->getItemName() + listDeShields[index]->getInfoStatus());
+    for (size_t index = 0; index < shields.size(); index++) {
+        options.push_back(shields[index]->getItemName() + shields[index]->getInfoStatus());
     }
     options.push_back("Cancelar");
     int choice = InputControl::readSelectionMenuWithArrows(options, false, CombatScreen::combatMargin());
@@ -1678,12 +1678,12 @@ void ScreenCombatGO::notifyEnemiesMoreAct() {
     InputControl::waitForEnter();
 }
 
-void ScreenCombatGO::notifyShiftExtra(int dexterityPlayer, int maxDexterityEnemies) {
+void ScreenCombatGO::notifyShiftExtra(int dexterityPlayer, int maxEnemyDexterity) {
     if (CombatScreen::context.isTerminalView) {
-        ScreenCombatGO::displayMessageCombat("Turno extra! Agilidade (" + std::to_string(dexterityPlayer) + " VS " + std::to_string(maxDexterityEnemies) + ")", 0);
+        ScreenCombatGO::displayMessageCombat("Turno extra! Agilidade (" + std::to_string(dexterityPlayer) + " VS " + std::to_string(maxEnemyDexterity) + ")", 0);
         return;
     }
-    std::string msg = DialogueFunctions::formatSystemMsg("Sua agilidade extrema (" + std::to_string(dexterityPlayer) + " VS " + std::to_string(maxDexterityEnemies) + ") permite que voce aja novamente!", Color::CYAN);
+    std::string msg = DialogueFunctions::formatSystemMsg("Sua agilidade extrema (" + std::to_string(dexterityPlayer) + " VS " + std::to_string(maxEnemyDexterity) + ") permite que voce aja novamente!", Color::CYAN);
     std::cout << "\n" << CombatScreen::combatMargin() << msg << "\n";
     Appearance::registerBattleLog(msg);
     InputControl::waitForEnter();
@@ -1699,31 +1699,31 @@ void ScreenCombatGO::notifyUnpreventionInventory() {
     Appearance::registerBattleLog(msg);
 }
 
-void ScreenCombatGO::notifyWithoutShields(const std::string& nameCharacter) {
+void ScreenCombatGO::notifyWithoutShields(const std::string& characterName) {
     if (CombatScreen::context.isTerminalView) {
-        ScreenCombatGO::displayMessageCombat(nameCharacter + " nao possui escudos no inventario!", 0);
+        ScreenCombatGO::displayMessageCombat(characterName + " nao possui escudos no inventario!", 0);
         return;
     }
-    std::cout << "\n" << CombatScreen::combatMargin() << DialogueFunctions::formatSystemMsg(nameCharacter + " nao possui escudos no inventario para usar!", Color::RED) << "\n";
+    std::cout << "\n" << CombatScreen::combatMargin() << DialogueFunctions::formatSystemMsg(characterName + " nao possui escudos no inventario para usar!", Color::RED) << "\n";
 }
 
-void ScreenCombatGO::notifyImbalanceDefense(const std::string& nameCharacter) {
+void ScreenCombatGO::notifyImbalanceDefense(const std::string& characterName) {
     if (CombatScreen::context.isTerminalView) {
         ScreenCombatGO::displayImbalanceDefense(nullptr);
         return;
     }
-    std::string msg = DialogueFunctions::formatSystemMsg(nameCharacter + " se desequilibrou e precisa de 1 turno para poder defender novamente!", Color::RED);
+    std::string msg = DialogueFunctions::formatSystemMsg(characterName + " se desequilibrou e precisa de 1 turno para poder defender novamente!", Color::RED);
     std::cout << "\n" << CombatScreen::combatMargin() << msg << "\n";
     Appearance::registerBattleLog(msg);
     InputControl::waitForEnter();
 }
 
-void ScreenCombatGO::notifyPostureDefensive(const std::string& nameCharacter, const std::string& nameShield) {
+void ScreenCombatGO::notifyPostureDefensive(const std::string& characterName, const std::string& nameShield) {
     if (CombatScreen::context.isTerminalView) {
         ScreenCombatGO::displayPostureDefensive(nullptr, nameShield);
         return;
     }
-    std::string msg = DialogueFunctions::formatSystemMsg(nameCharacter + " assumiu uma postura defensiva com " + nameShield + "!", Color::WHITE);
+    std::string msg = DialogueFunctions::formatSystemMsg(characterName + " assumiu uma postura defensiva com " + nameShield + "!", Color::WHITE);
     std::cout << "\n" << CombatScreen::combatMargin() << msg << "\n";
     Appearance::registerBattleLog(msg);
     InputControl::waitForEnter();
@@ -1746,29 +1746,29 @@ void ScreenCombatGO::notifyCancellationItem() {
     std::cout << "\n" << CombatScreen::combatMargin() << DialogueFunctions::formatSystemMsg("Uso do item cancelado. Ele retornou para a mochila.") << "\n";
 }
 
-void ScreenCombatGO::notifyRequirementNoServed(const std::string& messageRequirement) {
+void ScreenCombatGO::notifyUnmetRequirement(const std::string& requirementMessage) {
     if (CombatScreen::context.isTerminalView) {
-        std::string msg = messageRequirement;
+        std::string msg = requirementMessage;
         if (msg.substr(0, 1) == "\n") msg = msg.substr(1);
         ScreenCombatGO::displayMessageCombat(msg, 0);
         return;
     }
-    if (messageRequirement.substr(0, 1) == "\n") {
-        std::cout << "\n" << CombatScreen::combatMargin() << messageRequirement.substr(1);
+    if (requirementMessage.substr(0, 1) == "\n") {
+        std::cout << "\n" << CombatScreen::combatMargin() << requirementMessage.substr(1);
     } else {
-        std::cout << CombatScreen::combatMargin() << messageRequirement;
+        std::cout << CombatScreen::combatMargin() << requirementMessage;
     }
     InputControl::waitForEnter();
 }
 
-void ScreenCombatGO::updateScreenStatic(const std::string& titleCombat, const std::vector<Character*>& listDeEnemies, Character* currentPlayer, const std::vector<Character*>& listDeAllies, bool animateEntrance)
+void ScreenCombatGO::updateScreenStatic(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies, bool animateEntrance)
 {
-    renderScenePattern(titleCombat, listDeEnemies, nullptr, 0, false, false, nullptr, currentPlayer, listDeAllies, nullptr, Color::RESET, -1, {}, animateEntrance);
+    renderScenePattern(combatTitle, enemies, nullptr, 0, false, false, nullptr, currentPlayer, allies, nullptr, Color::RESET, -1, {}, animateEntrance);
 }
 
-void ScreenCombatGO::cheerDeathEnemy(const std::string& titleCombat, const std::vector<Character*>& listDeEnemies, Character* enemyDead, Character* currentPlayer, const std::vector<Character*>& listDeAllies, const std::vector<std::string>& drops)
+void ScreenCombatGO::animateEnemyDeath(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* enemyDead, Character* currentPlayer, const std::vector<Character*>& allies, const std::vector<std::string>& drops)
 {
-    if (listDeEnemies.empty()) return;
+    if (enemies.empty()) return;
 
     if (CombatScreen::context.isTerminalView) {
         CombatScreen::context.enemyDeadWithDrops = enemyDead;
@@ -1796,14 +1796,14 @@ void ScreenCombatGO::cheerDeathEnemy(const std::string& titleCombat, const std::
     }
 
     executeAnimation(totalLines, intervalMs, stepAnime, [&](int frame) {
-        renderScenePattern(titleCombat, listDeEnemies, enemyDead, frame, false, true, nullptr, currentPlayer, listDeAllies);
+        renderScenePattern(combatTitle, enemies, enemyDead, frame, false, true, nullptr, currentPlayer, allies);
     }, [&]() {
         // Frame final para garantir que toda a arte seja apagada e os DROPS aparecam centralizados no fantasma da imagem!
-        renderScenePattern(titleCombat, listDeEnemies, enemyDead, totalLines, false, true, nullptr, currentPlayer, listDeAllies, nullptr, Color::RESET, -1, drops);
+        renderScenePattern(combatTitle, enemies, enemyDead, totalLines, false, true, nullptr, currentPlayer, allies, nullptr, Color::RESET, -1, drops);
     });
 }
 
-void ScreenCombatGO::cheerCureNoEnemy(const std::string& titleCombat, const std::vector<Character*>& listDeEnemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& listDeAllies, int cureAnimation)
+void ScreenCombatGO::animateCureToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int cureAnimation)
 {
     if (CombatScreen::context.isTerminalView) {
         std::string nameTarget = targetAnimation ? targetAnimation->getName() : "desconhecido";
@@ -1816,13 +1816,13 @@ void ScreenCombatGO::cheerCureNoEnemy(const std::string& titleCombat, const std:
     }
 
     executeAnimation(4, 100, 1, [&](int frame) {
-        renderScenePattern(titleCombat, listDeEnemies, targetAnimation, frame, true, false, nullptr, currentPlayer, listDeAllies, nullptr, Color::RESET, cureAnimation);
+        renderScenePattern(combatTitle, enemies, targetAnimation, frame, true, false, nullptr, currentPlayer, allies, nullptr, Color::RESET, cureAnimation);
     }, [&]() {
-        renderScenePattern(titleCombat, listDeEnemies, targetAnimation, 0, true, false, nullptr, currentPlayer, listDeAllies);
+        renderScenePattern(combatTitle, enemies, targetAnimation, 0, true, false, nullptr, currentPlayer, allies);
     });
 }
 
-void ScreenCombatGO::cheerDamageNoPlayer(const std::string& titleCombat, const std::vector<Character*>& listDeEnemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& listDeAllies, bool isParry, int damageAnimation)
+void ScreenCombatGO::animateDamageToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, bool isParry, int damageAnimation)
 {
     if (CombatScreen::context.isTerminalView) {
         std::string nameTarget = targetAnimation ? targetAnimation->getName() : currentPlayer ? currentPlayer->getName() : "desconhecido";
@@ -1839,15 +1839,15 @@ void ScreenCombatGO::cheerDamageNoPlayer(const std::string& titleCombat, const s
 
     executeAnimation(12, 100, 1, [&](int frame) {
         Color colorApplied = (frame % 2 == 1 && frame <= 6) ? colorHighlight : Color::RESET;
-        renderScenePattern(titleCombat, listDeEnemies, nullptr, frame, false, false, nullptr, currentPlayer, listDeAllies, targetAnimation, colorApplied, damageAnimation);
+        renderScenePattern(combatTitle, enemies, nullptr, frame, false, false, nullptr, currentPlayer, allies, targetAnimation, colorApplied, damageAnimation);
     }, [&]() {
-        renderScenePattern(titleCombat, listDeEnemies, nullptr, 0, false, false, nullptr, currentPlayer, listDeAllies);
+        renderScenePattern(combatTitle, enemies, nullptr, 0, false, false, nullptr, currentPlayer, allies);
     });
 }
 
 // === Old TelaCombateIDE methods ===
 
-void ScreenCombatGO::display(Character* currentPlayer, const std::vector<Character*>& enemies, const std::string& titleCombat) {
+void ScreenCombatGO::display(Character* currentPlayer, const std::vector<Character*>& enemies, const std::string& combatTitle) {
     Appearance::clearScreen();
     std::string titleGO = "\033[38;2;86;156;214mclass\033[0m \033[38;2;78;201;176mCombate" + std::to_string(enemies.size()) + "\033[0m {";
     Appearance::printCentralized(titleGO);
@@ -1868,7 +1868,7 @@ void ScreenCombatGO::display(Character* currentPlayer, const std::vector<Charact
     std::vector<std::string> code = {
         "\033[38;2;86;156;214mpublic:\033[0m",
         "    \033[38;2;78;201;176mint\033[0m \033[38;2;156;220;254mturnoAtual\033[0m = \033[38;2;181;206;168m0\033[0m;",
-        "    \033[38;2;156;220;254mstring\033[0m \033[38;2;156;220;254mtitulo\033[0m = \033[38;2;214;157;133m\"" + titleCombat + "\"\033[0m;",
+        "    \033[38;2;156;220;254mstring\033[0m \033[38;2;156;220;254mtitulo\033[0m = \033[38;2;214;157;133m\"" + combatTitle + "\"\033[0m;",
         "    \033[38;2;78;201;176mbool\033[0m \033[38;2;156;220;254mataqueRealizado\033[0m = \033[38;2;86;156;214mfalse\033[0m;",
         "",
         "    \033[38;2;220;220;170mvoid\033[0m \033[38;2;220;220;170executar\033[0m() {",

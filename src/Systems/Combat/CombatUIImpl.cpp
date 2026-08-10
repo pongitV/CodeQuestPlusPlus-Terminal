@@ -11,39 +11,39 @@ void CombatUIImpl::configureContext3D(bool mode3D, const std::vector<std::string
     CombatScreen::configureContext3D(mode3D, matrix, postX, postY, angle, title);
 }
 
-void CombatUIImpl::cheerIntroductionCombat(const std::string& title, const std::vector<Character*>& enemies, Character* currentPlayer) {
-    CombatScreen::cheerIntroductionCombat(title, enemies, currentPlayer);
+void CombatUIImpl::animateCombatIntro(const std::string& title, const std::vector<Character*>& enemies, Character* currentPlayer) {
+    CombatScreen::animateCombatIntro(title, enemies, currentPlayer);
 }
 
-void CombatUIImpl::updateScreenStatic(const std::string& titleCombat, const std::vector<Character*>& listDeEnemies, Character* currentPlayer, const std::vector<Character*>& listDeAllies, bool animateEntrance) {
-    CombatScreen::updateScreenStatic(titleCombat, listDeEnemies, currentPlayer, listDeAllies, animateEntrance);
+void CombatUIImpl::updateScreenStatic(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies, bool animateEntrance) {
+    CombatScreen::updateScreenStatic(combatTitle, enemies, currentPlayer, allies, animateEntrance);
 }
 
-void CombatUIImpl::cheerDamageNoEnemy(const std::string& titleCombat, const std::vector<Character*>& listDeEnemies, Character* targetAnimation, Character* attacker, Character* currentPlayer, const std::vector<Character*>& listDeAllies, int damageAnimation) {
-    CombatScreen::cheerDamageNoEnemy(titleCombat, listDeEnemies, targetAnimation, attacker, currentPlayer, listDeAllies, damageAnimation);
+void CombatUIImpl::animateDamageToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* attacker, Character* currentPlayer, const std::vector<Character*>& allies, int damageAnimation) {
+    CombatScreen::animateDamageToEnemy(combatTitle, enemies, targetAnimation, attacker, currentPlayer, allies, damageAnimation);
 }
 
-void CombatUIImpl::cheerCureNoEnemy(const std::string& titleCombat, const std::vector<Character*>& listDeEnemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& listDeAllies, int cureAnimation) {
-    CombatScreen::cheerCureNoEnemy(titleCombat, listDeEnemies, targetAnimation, currentPlayer, listDeAllies, cureAnimation);
+void CombatUIImpl::animateCureToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int cureAnimation) {
+    CombatScreen::animateCureToEnemy(combatTitle, enemies, targetAnimation, currentPlayer, allies, cureAnimation);
 }
 
-void CombatUIImpl::cheerDamageNoPlayer(const std::string& titleCombat, const std::vector<Character*>& listDeEnemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& listDeAllies, bool isParry, int damageAnimation) {
-    CombatScreen::cheerDamageNoPlayer(titleCombat, listDeEnemies, targetAnimation, currentPlayer, listDeAllies, isParry, damageAnimation);
+void CombatUIImpl::animateDamageToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, bool isParry, int damageAnimation) {
+    CombatScreen::animateDamageToPlayer(combatTitle, enemies, targetAnimation, currentPlayer, allies, isParry, damageAnimation);
 }
 
-void CombatUIImpl::cheerCureNoPlayer(const std::string& titleCombat, const std::vector<Character*>& listDeEnemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& listDeAllies, int cureAnimation) {
-    CombatScreen::cheerCureNoPlayer(titleCombat, listDeEnemies, targetAnimation, currentPlayer, listDeAllies, cureAnimation);
+void CombatUIImpl::animateCureToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int cureAnimation) {
+    CombatScreen::animateCureToPlayer(combatTitle, enemies, targetAnimation, currentPlayer, allies, cureAnimation);
 }
 
-void CombatUIImpl::cheerDeathEnemy(const std::string& titleCombat, const std::vector<Character*>& listDeEnemies, Character* enemyDead, Character* currentPlayer, const std::vector<Character*>& listDeAllies, const std::vector<std::string>& drops) {
-    CombatScreen::cheerDeathEnemy(titleCombat, listDeEnemies, enemyDead, currentPlayer, listDeAllies, drops);
+void CombatUIImpl::animateEnemyDeath(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* enemyDead, Character* currentPlayer, const std::vector<Character*>& allies, const std::vector<std::string>& drops) {
+    CombatScreen::animateEnemyDeath(combatTitle, enemies, enemyDead, currentPlayer, allies, drops);
 }
 
 void CombatUIImpl::cleanContextCharacterHUD() {
     CombatScreen::context.characterHUD = nullptr;
 }
 
-void CombatUIImpl::cleanContextEnemyDeadEDrops() {
+void CombatUIImpl::cleanContextEnemyDeathAndDrops() {
     CombatScreen::context.enemyDeadWithDrops = nullptr;
     CombatScreen::context.dropsAssets.clear();
 }
@@ -64,44 +64,44 @@ void CombatUIImpl::setShiftVisible(int shift, const std::string& name) {
     CombatScreen::setShiftVisible(shift, name);
 }
 
-int CombatUIImpl::getActionDoPlayer(int shiftCurrent, Character* characterActing, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
-    return CombatScreen::getActionDoPlayer(shiftCurrent, characterActing, enemies, currentPlayer, allies);
+int CombatUIImpl::getPlayerAction(int currentTurn, Character* characterActing, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
+    return CombatScreen::getPlayerAction(currentTurn, characterActing, enemies, currentPlayer, allies);
 }
 
-int CombatUIImpl::getTargetAttack(const std::string& titleCombat, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
-    return CombatScreen::getTargetAttack(titleCombat, enemies, currentPlayer, allies);
+int CombatUIImpl::getTargetAttack(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
+    return CombatScreen::getTargetAttack(combatTitle, enemies, currentPlayer, allies);
 }
 
-int CombatUIImpl::getTargetItem(const std::string& titleCombat, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
-    return CombatScreen::getTargetItem(titleCombat, enemies, currentPlayer, allies);
+int CombatUIImpl::getTargetItem(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
+    return CombatScreen::getTargetItem(combatTitle, enemies, currentPlayer, allies);
 }
 
-int CombatUIImpl::getChooseDeShield(const std::string& nameCharacter, const std::vector<Item*>& listDeShields) {
-    return CombatScreen::getChooseDeShield(nameCharacter, listDeShields);
+int CombatUIImpl::chooseShield(const std::string& characterName, const std::vector<Item*>& shields) {
+    return CombatScreen::chooseShield(characterName, shields);
 }
 
 void CombatUIImpl::notifyEnemiesMoreAct() {
     CombatScreen::notifyEnemiesMoreAct();
 }
 
-void CombatUIImpl::notifyShiftExtra(int dexterityPlayer, int maxDexterityEnemies) {
-    CombatScreen::notifyShiftExtra(dexterityPlayer, maxDexterityEnemies);
+void CombatUIImpl::notifyShiftExtra(int dexterityPlayer, int maxEnemyDexterity) {
+    CombatScreen::notifyShiftExtra(dexterityPlayer, maxEnemyDexterity);
 }
 
 void CombatUIImpl::notifyUnpreventionInventory() {
     CombatScreen::notifyUnpreventionInventory();
 }
 
-void CombatUIImpl::notifyWithoutShields(const std::string& nameCharacter) {
-    CombatScreen::notifyWithoutShields(nameCharacter);
+void CombatUIImpl::notifyWithoutShields(const std::string& characterName) {
+    CombatScreen::notifyWithoutShields(characterName);
 }
 
-void CombatUIImpl::notifyImbalanceDefense(const std::string& nameCharacter) {
-    CombatScreen::notifyImbalanceDefense(nameCharacter);
+void CombatUIImpl::notifyImbalanceDefense(const std::string& characterName) {
+    CombatScreen::notifyImbalanceDefense(characterName);
 }
 
-void CombatUIImpl::notifyPostureDefensive(const std::string& nameCharacter, const std::string& nameShield) {
-    CombatScreen::notifyPostureDefensive(nameCharacter, nameShield);
+void CombatUIImpl::notifyPostureDefensive(const std::string& characterName, const std::string& nameShield) {
+    CombatScreen::notifyPostureDefensive(characterName, nameShield);
 }
 
 void CombatUIImpl::notifyActionInvalidates() {
@@ -112,16 +112,16 @@ void CombatUIImpl::notifyCancellationItem() {
     CombatScreen::notifyCancellationItem();
 }
 
-void CombatUIImpl::notifyRequirementNoServed(const std::string& messageRequirement) {
-    CombatScreen::notifyRequirementNoServed(messageRequirement);
+void CombatUIImpl::notifyUnmetRequirement(const std::string& requirementMessage) {
+    CombatScreen::notifyUnmetRequirement(requirementMessage);
 }
 
-void CombatUIImpl::displayScreenVictory(Character* currentPlayer, int quantityDeGoldObtained, int quantityDeXpObtained, int totalDeDamageCaused, int totalDeDamageReceived, int cureTotalReceived, int shiftsCombat, const std::vector<std::string>& obtainedItems, const std::vector<std::string>& enemiesDefeated, int parriesPerfect, int biggerDamage, int parriesTempted, int parriesEffective, int itemsConsumed, const std::vector<std::string>& newDiscoveries) {
-    ScreenVictory::display(currentPlayer, quantityDeGoldObtained, quantityDeXpObtained, totalDeDamageCaused, totalDeDamageReceived, cureTotalReceived, shiftsCombat, obtainedItems, enemiesDefeated, parriesPerfect, biggerDamage, parriesTempted, parriesEffective, itemsConsumed, newDiscoveries);
+void CombatUIImpl::displayVictoryScreen(Character* currentPlayer, int goldObtained, int xpObtained, int totalDamageCaused, int totalDamageReceived, int totalCureReceived, int combatTurns, const std::vector<std::string>& obtainedItems, const std::vector<std::string>& enemiesDefeated, int perfectParries, int highestDamage, int parriesAttempted, int effectiveParries, int itemsConsumed, const std::vector<std::string>& newDiscoveries) {
+    ScreenVictory::display(currentPlayer, goldObtained, xpObtained, totalDamageCaused, totalDamageReceived, totalCureReceived, combatTurns, obtainedItems, enemiesDefeated, perfectParries, highestDamage, parriesAttempted, effectiveParries, itemsConsumed, newDiscoveries);
 }
 
-void CombatUIImpl::displayScreenDefeat(Character* currentPlayer, int quantityDeGoldObtained, int quantityDeXpObtained, int totalDeDamageCaused, int totalDeDamageReceived, int cureTotalReceived, int shiftsCombat) {
-    ScreenDefeat::display(currentPlayer, quantityDeGoldObtained, quantityDeXpObtained, totalDeDamageCaused, totalDeDamageReceived, cureTotalReceived, shiftsCombat);
+void CombatUIImpl::displayDefeatScreen(Character* currentPlayer, int goldObtained, int xpObtained, int totalDamageCaused, int totalDamageReceived, int totalCureReceived, int combatTurns) {
+    ScreenDefeat::display(currentPlayer, goldObtained, xpObtained, totalDamageCaused, totalDamageReceived, totalCureReceived, combatTurns);
 }
 
 void CombatUIImpl::displayScreenAttributes(Character* character) {

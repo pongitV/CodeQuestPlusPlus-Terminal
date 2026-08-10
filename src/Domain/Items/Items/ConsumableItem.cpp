@@ -9,7 +9,7 @@
 #include <unordered_map>
 #include "Domain/Items/ItemFactory.h"
 
-static void showWarningConsumable(const std::string& msg, Color colorMsg = Color::WHITE) {
+static void showConsumableWarning(const std::string& msg, Color colorMsg = Color::WHITE) {
     if (PerspectiveManager::getInstance().is3DViewActive()) {
         std::vector<std::string> msgBroken = { msg };
         InputControl::readMenuSelectionInPopup(" SISTEMA ", msgBroken, {"[<] VOLTAR"}, colorMsg);
@@ -44,7 +44,7 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
         healing->setDescriptionInspection("Restaura 30% da sua Vida Maxima.");
         healing->setActionInventory([](Item* item, Character* user, bool* shiftWasConsumed) {
             if (user->getHealth() >= user->getMaxHealth()) {
-                showWarningConsumable("Sua vida ja esta cheia!");
+                showConsumableWarning("Sua vida ja esta cheia!");
                 return true;
             }
             int lifeBefore = user->getHealth();
@@ -52,7 +52,7 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
             user->modifyHealth(cureEstimated);
             int lifeAfter = user->getHealth();
             int cureReal = lifeAfter - lifeBefore;
-            showWarningConsumable(item->getItemName() + " usada! +" + std::to_string(cureReal) + " HP. (Vida atual: " + std::to_string(lifeAfter) + "/" + std::to_string(user->getMaxHealth()) + ")", Color::GREEN);
+            showConsumableWarning(item->getItemName() + " usada! +" + std::to_string(cureReal) + " HP. (Vida atual: " + std::to_string(lifeAfter) + "/" + std::to_string(user->getMaxHealth()) + ")", Color::GREEN);
             Appearance::registerBattleLog(Appearance::color(Color::GREEN) + "[SISTEMA]: " + item->getItemName() + " usada! +" + std::to_string(cureReal) + " HP." + Appearance::color(Color::RESET));
             
             if (user->getConsumableQuickly() == item) {
@@ -80,7 +80,7 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
         t->setActionInventory([buffAtr, debuffAtr](Item* item, Character* user, bool* shiftWasConsumed) {
             user->changeStaticAttribute(buffAtr, 5);
             user->changeStaticAttribute(debuffAtr, -5);
-            showWarningConsumable(item->getItemName() + " consumido!");
+            showConsumableWarning(item->getItemName() + " consumido!");
             
             if (user->getConsumableQuickly() == item) {
                 user->unequipConsumable();
@@ -105,10 +105,10 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
         buff->addProperty(Property::BuffConsumable);
         buff->setDescriptionInspection("Aumenta seus atributos em 1.5x por 2 turnos.");
         buff->setActionInventory([](Item* item, Character* user, bool* shiftWasConsumed) {
-            if (!shiftWasConsumed) { showWarningConsumable("Pocoes de buff so podem ser usadas em combate!"); return true; }
+            if (!shiftWasConsumed) { showConsumableWarning("Pocoes de buff so podem ser usadas em combate!"); return true; }
             user->addEffect(std::make_unique<AttributesBuffEffect>(2));
             user->setMultiplier(1.5);
-            showWarningConsumable(item->getItemName() + " consumida! Atributos ampliados em 1.5x por 2 turnos!", Color::LIGHT_GREEN);
+            showConsumableWarning(item->getItemName() + " consumida! Atributos ampliados em 1.5x por 2 turnos!", Color::LIGHT_GREEN);
             Appearance::registerBattleLog(Appearance::color(Color::LIGHT_GREEN) + "[SISTEMA]: " + item->getItemName() + " consumida! Atributos ampliados em 1.5x por 2 turnos!" + Appearance::color(Color::RESET));
             
             if (user->getConsumableQuickly() == item) {
@@ -135,14 +135,14 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
         food->setDescriptionInspection(desc);
         food->setActionInventory([cureHP](Item* item, Character* user, bool* shiftWasConsumed) {
             if (user->getHealth() >= user->getMaxHealth()) {
-                showWarningConsumable("Sua vida ja esta cheia!");
+                showConsumableWarning("Sua vida ja esta cheia!");
                 return true;
             }
             int lifeBefore = user->getHealth();
             user->modifyHealth(cureHP);
             int lifeAfter = user->getHealth();
             int cureReal = lifeAfter - lifeBefore;
-            showWarningConsumable(item->getItemName() + " consumido(a)! +" + std::to_string(cureReal) + " HP. (Vida atual: " + std::to_string(lifeAfter) + "/" + std::to_string(user->getMaxHealth()) + ")", Color::GREEN);
+            showConsumableWarning(item->getItemName() + " consumido(a)! +" + std::to_string(cureReal) + " HP. (Vida atual: " + std::to_string(lifeAfter) + "/" + std::to_string(user->getMaxHealth()) + ")", Color::GREEN);
             
             if (user->getConsumableQuickly() == item) {
                 user->unequipConsumable();
@@ -160,7 +160,7 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
         healing->setDescriptionInspection("Restaura 50% da sua Vida Maxima.");
         healing->setActionInventory([](Item* item, Character* user, bool* shiftWasConsumed) {
             if (user->getHealth() >= user->getMaxHealth()) {
-                showWarningConsumable("Sua vida ja esta cheia!");
+                showConsumableWarning("Sua vida ja esta cheia!");
                 return true;
             }
             int lifeBefore = user->getHealth();
@@ -168,7 +168,7 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
             user->modifyHealth(cureEstimated);
             int lifeAfter = user->getHealth();
             int cureReal = lifeAfter - lifeBefore;
-            showWarningConsumable(item->getItemName() + " usada! +" + std::to_string(cureReal) + " HP. (Vida atual: " + std::to_string(lifeAfter) + "/" + std::to_string(user->getMaxHealth()) + ")", Color::GREEN);
+            showConsumableWarning(item->getItemName() + " usada! +" + std::to_string(cureReal) + " HP. (Vida atual: " + std::to_string(lifeAfter) + "/" + std::to_string(user->getMaxHealth()) + ")", Color::GREEN);
             
             if (user->getConsumableQuickly() == item) {
                 user->unequipConsumable();
@@ -185,9 +185,9 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
         buff->addProperty(Property::BuffConsumable);
         buff->setDescriptionInspection("Aumenta Forca em +5 e Destreza em +3 por 3 turnos em combate.");
         buff->setActionInventory([](Item* item, Character* user, bool* shiftWasConsumed) {
-            if (!shiftWasConsumed) { showWarningConsumable("Pocoes de buff so podem ser usadas em combate!"); return true; }
+            if (!shiftWasConsumed) { showConsumableWarning("Pocoes de buff so podem ser usadas em combate!"); return true; }
             user->addEffect(std::make_unique<WarCryEffect>(3, 5, 3));
-            showWarningConsumable(item->getItemName() + " consumida! +5 Forca e +3 Destreza por 3 turnos!", Color::LIGHT_GREEN);
+            showConsumableWarning(item->getItemName() + " consumida! +5 Forca e +3 Destreza por 3 turnos!", Color::LIGHT_GREEN);
             
             if (user->getConsumableQuickly() == item) {
                 user->unequipConsumable();
@@ -204,7 +204,7 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
         debuff->addProperty(Property::ConsumableDebuffWeakness);
         debuff->setDescriptionInspection("Aplica Necrose no alvo por 3 turnos (causa 12 de dano por turno).");
         debuff->setActionInventory([](Item* item, Character* user, bool* shiftWasConsumed) {
-            if (!shiftWasConsumed) { showWarningConsumable("Pocoes de arremesso so podem ser usadas em combate!"); return true; }
+            if (!shiftWasConsumed) { showConsumableWarning("Pocoes de arremesso so podem ser usadas em combate!"); return true; }
             user->setItemSelectedForUse(item);
             return true;
         });
@@ -221,7 +221,7 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
         debuff->addProperty(Property::ConsumableDebuffSlow);
         debuff->setDescriptionInspection("Aplica Lentidao no alvo por 3 turnos (Reduz Destreza).");
         debuff->setActionInventory([](Item* item, Character* user, bool* shiftWasConsumed) {
-            if (!shiftWasConsumed) { showWarningConsumable("Pocoes de arremesso so podem ser usadas em combate!"); return true; }
+            if (!shiftWasConsumed) { showConsumableWarning("Pocoes de arremesso so podem ser usadas em combate!"); return true; }
             user->setItemSelectedForUse(item);
             return true;
         });
@@ -250,7 +250,7 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
             debuff->addProperty(Property::ConsumableDebuffSlow);
             debuff->setDescriptionInspection("Aplica Lentidao no alvo por 3 turnos (Reduz Destreza).");
             debuff->setActionInventory([](Item* item, Character* user, bool* shiftWasConsumed) {
-                if (!shiftWasConsumed) { showWarningConsumable("Frascos de debuff so podem ser usados em combate!"); return true; }
+                if (!shiftWasConsumed) { showConsumableWarning("Frascos de debuff so podem ser usados em combate!"); return true; }
                 user->setItemSelectedForUse(item);
                 return true;
             });
@@ -266,7 +266,7 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
             debuff->addProperty(Property::ConsumableDebuffWeakness);
             debuff->setDescriptionInspection("Aplica Fraqueza no alvo por 3 turnos (-25% Forca).");
             debuff->setActionInventory([](Item* item, Character* user, bool* shiftWasConsumed) {
-                if (!shiftWasConsumed) { showWarningConsumable("Frascos de debuff so podem ser usados em combate!"); return true; }
+                if (!shiftWasConsumed) { showConsumableWarning("Frascos de debuff so podem ser usados em combate!"); return true; }
                 user->setItemSelectedForUse(item);
                 return true;
             });
@@ -283,11 +283,11 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
             buff->setDescriptionInspection("Concede a regeneracao do Troll permanentemente (cura 100% HP apos batalhas).");
             buff->setActionInventory([](Item* item, Character* user, bool* shiftWasConsumed) {
                 if (user->ownsRegenerationTroll()) {
-                    showWarningConsumable("O poder regenerador do Troll ja corre em suas veias!");
+                    showConsumableWarning("O poder regenerador do Troll ja corre em suas veias!");
                 } else {
                     user->unlockRegenerationTroll();
                     user->modifyHealth(user->getMaxHealth());
-                    showWarningConsumable(item->getItemName() + " consumido! Voce agora curara 100% do seu HP apos cada combate!", Color::GREEN);
+                    showConsumableWarning(item->getItemName() + " consumido! Voce agora curara 100% do seu HP apos cada combate!", Color::GREEN);
                     
                     if (user->getConsumableQuickly() == item) user->unequipConsumable();
                     

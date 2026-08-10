@@ -15,6 +15,6 @@ std::unique_ptr<BaseRace> RaceFactory::createRace(TypeRace type) {
     }
 }
 
-std::vector<TypeRace> RaceFactory::getBreedsPlayable() {
+std::vector<TypeRace> RaceFactory::getPlayableBreeds() {
     return {TypeRace::Dwarf, TypeRace::Elf, TypeRace::Human, TypeRace::Ork};
 }

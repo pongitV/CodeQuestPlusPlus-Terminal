@@ -85,35 +85,35 @@ enum class GameDifficulty
 class Character : public IAttacker, public IDamageable
 {
 private:
-    struct ControlCombat {
-        bool thisDefending = false;
+    struct CombatControl {
+        bool isDefending = false;
         std::vector<std::unique_ptr<Character>> soulsCollected;
-        bool rechargeDefense = false;
+        bool defenseRecharge = false;
         bool rechargeSkill = false;
         bool jumpShiftEnemy = false;
         bool skillCanceled = false;
         bool deathLively = false;
         double multiplierCurrent = 1.0;
-        int cureTotalReceived = 0;
+        int totalCureReceived = 0;
         int lifeMaximumFixed = 0;
         std::unordered_map<SkillID, int> cooldownsAssets;
         
         void reset() {
-            thisDefending = false;
-            rechargeDefense = false;
+            isDefending = false;
+            defenseRecharge = false;
             rechargeSkill = false;
             jumpShiftEnemy = false;
             skillCanceled = false;
             deathLively = false;
             multiplierCurrent = 1.0;
-            cureTotalReceived = 0;
+            totalCureReceived = 0;
             lifeMaximumFixed = 0;
             cooldownsAssets.clear();
         }
     };
 
     struct ControlSystem {
-        bool wantReturnProMenu = false;
+        bool returnToMenuRequested = false;
         bool labyrinthUnlocked = false;
         bool canRevive = true;
         bool parryActivated = false;
@@ -122,7 +122,7 @@ private:
         bool godModeActive = false;
         bool noclipActive = false;
         bool isMinion = false;
-        GameDifficulty difficultyCurrent = GameDifficulty::Normal;
+        GameDifficulty currentDifficulty = GameDifficulty::Normal;
         double difficultyMultiplier = 1.0;
         char iconPlayer = '@';
         Color colorPlayer = Color::GREEN;
@@ -131,15 +131,15 @@ private:
 
     static std::unordered_set<Character*> charactersAssets;
 
-    ControlCombat combat;
+    CombatControl combat;
     ControlSystem system;
 
 protected:
-    std::string nameCharacter;
+    std::string characterName;
     int lifeCurrent;
     std::unique_ptr<BaseRace> race;
     std::unique_ptr<BaseClass> classObj;
-    Attributes statsFinals;
+    Attributes finalStats;
     std::unique_ptr<Inventory> backpack;
 
     std::vector<std::unique_ptr<StatusEffect>> effectsAssets;
@@ -168,11 +168,11 @@ protected:
     };
     mutable CacheAttributes cache_;
     mutable std::mutex mutexCache_; // Protege o acesso ao cache em ambientes multithread
-    void updateCacheSeNecessary() const;
+    void updateCacheIfNecessary() const;
     
     
     
-    std::unique_ptr<SystemDeLevel> systemDeLevel;
+    std::unique_ptr<LevelSystem> levelSystem;
 
 
     int* getPointerAttributeStatic(AttributeType attribute);
@@ -188,45 +188,45 @@ public:
     std::unique_ptr<Character> clone() const;
     void showStatus() const;
     void modifyHealth(int value);
-    void changeName(const std::string& newName) { nameCharacter = newName; }
+    void changeName(const std::string& newName) { characterName = newName; }
     void equipItem(Item* item);
 
     // Getters e Setters em camelCase
-    std::string getName() const { return nameCharacter; }
+    std::string getName() const { return characterName; }
     int getHealth() const { return lifeCurrent; }
     int getMaxHealth() const {
         if (combat.lifeMaximumFixed > 0) return combat.lifeMaximumFixed;
-        updateCacheSeNecessary(); return cache_.lifeMaximum;
+        updateCacheIfNecessary(); return cache_.lifeMaximum;
     }
-    int getStrength() const { updateCacheSeNecessary(); return cache_.strength; }
-    int getDexterity() const { updateCacheSeNecessary(); return cache_.dexterity; }
-    int getResistance() const { updateCacheSeNecessary(); return cache_.resistance; }
-    int getConstitution() const { updateCacheSeNecessary(); return cache_.constitution; }
-    int getIntelligence() const { updateCacheSeNecessary(); return cache_.intelligence; }
-    int getWisdom() const { updateCacheSeNecessary(); return cache_.wisdom; }
+    int getStrength() const { updateCacheIfNecessary(); return cache_.strength; }
+    int getDexterity() const { updateCacheIfNecessary(); return cache_.dexterity; }
+    int getResistance() const { updateCacheIfNecessary(); return cache_.resistance; }
+    int getConstitution() const { updateCacheIfNecessary(); return cache_.constitution; }
+    int getIntelligence() const { updateCacheIfNecessary(); return cache_.intelligence; }
+    int getWisdom() const { updateCacheIfNecessary(); return cache_.wisdom; }
     
-    int getLevel() const { return systemDeLevel->getLevel(); }
-    int getCurrentXp() const { return systemDeLevel->getCurrentXp(); }
-    int getXpForRise() const { return systemDeLevel->getXpForRise(); }
-    void setLevel(int newLevel) { systemDeLevel->setLevel(newLevel); }
-    void setCurrentXp(int newXp) { systemDeLevel->setCurrentXp(newXp); }
-    void setXpForRise(int newXpForRise) { systemDeLevel->setXpForRise(newXpForRise); }
+    int getLevel() const { return levelSystem->getLevel(); }
+    int getCurrentXp() const { return levelSystem->getCurrentXp(); }
+    int getXpForRise() const { return levelSystem->getXpForRise(); }
+    void setLevel(int newLevel) { levelSystem->setLevel(newLevel); }
+    void setCurrentXp(int newXp) { levelSystem->setCurrentXp(newXp); }
+    void setXpForRise(int newXpForRise) { levelSystem->setXpForRise(newXpForRise); }
     void setHealth(int newLife) { lifeCurrent = newLife; }
-    void gainXp(int value) { systemDeLevel->gainXp(value); }
-    bool canRiseDeLevel() const { return systemDeLevel->canRiseDeLevel(); }
-    bool riseDeLevel(AttributeType attribute);
+    void gainXp(int value) { levelSystem->gainXp(value); }
+    bool canLevelUp() const { return levelSystem->canLevelUp(); }
+    bool levelUp(AttributeType attribute);
     void climbAttributes(double factor);
     void addSoul(std::unique_ptr<Character> soul);
     std::vector<std::unique_ptr<Character>>& getSouls();
-    size_t getNumberDeSouls() const;
+    size_t getSoulCount() const;
     std::unique_ptr<Character> removeSoul(int index);
 
     void forceCacheRecalculation() { cache_.dirty = true; }
     
-    int getCureTotalReceived() const { return combat.cureTotalReceived; }
+    int getTotalCureReceived() const { return combat.totalCureReceived; }
 
     void changeStaticAttribute(AttributeType attribute, int value);
-    Attributes& getEndAttributes() { return statsFinals; }
+    Attributes& getFinalAttributes() { return finalStats; }
 
     BaseRace* getRace() const;
     BaseClass* getClass() const;
@@ -251,13 +251,13 @@ public:
     }
 
     // Verifica se a entidade esta ativamente no loop de combate
-    bool thisEmCombat() const;
+    bool isInCombat() const;
 
     // Define o estado da entidade para combate
-    void enterEmCombat();
+    void enterCombat();
 
     // Limpa o estado de combate da entidade (CDs, flags)
-    void leaveDoCombat();
+    void leaveCombat();
 
     // Inicializa a entidade antes da luta
     void prepareForCombat();
@@ -290,8 +290,8 @@ public:
     void setJumpShiftEnemy(bool jumpShift) { combat.jumpShiftEnemy = jumpShift; }
     bool getJumpShiftEnemy() const { return combat.jumpShiftEnemy; }
     
-    void setReturnToMenu(bool returnVal) { system.wantReturnProMenu = returnVal; }
-    bool getReturnToMenu() const { return system.wantReturnProMenu; }
+    void setReturnToMenu(bool returnVal) { system.returnToMenuRequested = returnVal; }
+    bool getReturnToMenu() const { return system.returnToMenuRequested; }
 
     void unlockMaze() { system.labyrinthUnlocked = true; }
     bool getUnlockedMaze() const { return system.labyrinthUnlocked; }
@@ -314,10 +314,10 @@ public:
     const StatusEffect* findEffect(EffectID id) const;
 
 
-    void setDefending(bool d) { combat.thisDefending = d; }
-    bool getDefending() const { return combat.thisDefending; }
-    void setRechargeDefense(bool r) { combat.rechargeDefense = r; }
-    bool getRechargeDefense() const { return combat.rechargeDefense; }
+    void setDefending(bool d) { combat.isDefending = d; }
+    bool getDefending() const { return combat.isDefending; }
+    void setRechargeDefense(bool r) { combat.defenseRecharge = r; }
+    bool getRechargeDefense() const { return combat.defenseRecharge; }
     void unequipShield() { equipment.erase(SlotEquipment::MAO_SECONDARY); cache_.dirty = true; }
     void unequipWeapon() { equipment.erase(SlotEquipment::MAO_MAIN); cache_.dirty = true; }
     void unequipArmor() { equipment.erase(SlotEquipment::ARMOR); cache_.dirty = true; }
@@ -333,8 +333,8 @@ public:
     void setAsMinion(bool minion) { system.isMinion = minion; }
     bool isMinion() const { return system.isMinion; }
 
-    void setDifficulty(GameDifficulty d) { system.difficultyCurrent = d; }
-    GameDifficulty getDifficulty() const { return system.difficultyCurrent; }
+    void setDifficulty(GameDifficulty d) { system.currentDifficulty = d; }
+    GameDifficulty getDifficulty() const { return system.currentDifficulty; }
     void applyMultiplierDifficulty(double mult);
 
     void setIconPlayer(char icon) { system.iconPlayer = icon; }
@@ -347,11 +347,11 @@ public:
     Color getColorBackgroundTerminal() const { return system.colorBackgroundTerminal; }
 
     TypeAttack getTypeAttack() const;
-    bool skillDaClassConsumeShift() const;
+    bool classSkillConsumesTurn() const;
 
     void addEffect(std::unique_ptr<StatusEffect> effect);
     void processEffectsHomeShift();
-    bool canAct(std::string& outReasonDisability) const;
+    bool canAct(std::string& reasonDisability) const;
 
     // Preenche o vetor com os IDs de todos os efeitos ativos (evita alocacoes indesejadas)
     void getIDsEffectsAssets(std::vector<EffectID>& outIDs) const;
@@ -359,7 +359,7 @@ public:
     void removeEffect(EffectID id);
 
     int calculateDefenseBase(int damageGross, int damagePiercing) override;
-    ResultDamage receiveDamage(int damageGross, int damagePiercing, int damageReducedParry, IAttacker* attacker, bool applyPassive = true) override;
+    DamageResult receiveDamage(int damageGross, int damagePiercing, int damageReducedParry, IAttacker* attacker, bool applyPassive = true) override;
     std::pair<int, int> calculateDamageOffensiveBase() override;
     int ensureDamageMinimum(int damageCurrent) override;
 

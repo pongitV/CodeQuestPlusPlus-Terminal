@@ -32,16 +32,16 @@ public:
     static NameScreen::Result screenName();
 
     // --- TelaRaca ---
-    static RaceScreen::Result screenRace(const std::string& nameCharacter);
+    static RaceScreen::Result screenRace(const std::string& characterName);
 
     // --- TelaClasse ---
-    static ClassScreen::Result screenClass(const std::string& nameCharacter, const std::string& race);
+    static ClassScreen::Result screenClass(const std::string& characterName, const std::string& race);
 
     // --- TelaDificuldade ---
-    static DifficultyScreen::Result screenDifficulty(const std::string& nameCharacter, const std::string& race, const std::string& classObj);
+    static DifficultyScreen::Result screenDifficulty(const std::string& characterName, const std::string& race, const std::string& classObj);
 
     // --- TelaParry ---
-    static ParryScreen::Result screenParry(const std::string& nameCharacter, const std::string& race, const std::string& classObj);
+    static ParryScreen::Result screenParry(const std::string& characterName, const std::string& race, const std::string& classObj);
 
     // --- TelaIntroducao ---
     static void screenIntroduction();

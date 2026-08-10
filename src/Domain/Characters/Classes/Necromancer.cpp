@@ -118,7 +118,7 @@ Attributes Necromancer::getAttributesClass() const {
 }
 
 std::vector<std::unique_ptr<Item>> Necromancer::getEquipmentClass() const {
-    auto equipment = ItemFactory::createKitPocoes();
+    auto equipment = ItemFactory::createPotionKit();
     equipment.push_back(ItemFactory::createItem(ItemID::StaffBone));
     equipment.push_back(ItemFactory::createItem(ItemID::ClothesRitualist));
     return equipment;
@@ -134,9 +134,9 @@ std::string Necromancer::getDescriptionPassiveClass() const {
            "Ao derrotar um inimigo, coleta sua alma.";
 }
 
-void Necromancer::executeAttackWithPassiveDaClass(Character* attacker, Character* defender, int damageBase, int damagePiercing, std::vector<std::unique_ptr<Character>>& listDeEnemies, const std::function<void(Character*, Character*, int, int)>& applyDamage, bool applyPassive) {
+void Necromancer::executeAttackWithClassPassive(Character* attacker, Character* defender, int damageBase, int damagePiercing, std::vector<std::unique_ptr<Character>>& enemies, const std::function<void(Character*, Character*, int, int)>& applyDamage, bool applyPassive) {
     // Comportamento padrao: apenas ataca o alvo principal ou todos se a arma for de area
-    BaseClass::executeAttackWithPassiveDaClass(attacker, defender, damageBase, damagePiercing, listDeEnemies,
+    BaseClass::executeAttackWithClassPassive(attacker, defender, damageBase, damagePiercing, enemies,
         [&](Character* atk, Character* def, int dmg, int perf) {
             // Callback para aplicar o dano e depois o efeito da passiva
             applyDamage(atk, def, dmg, perf);
@@ -192,7 +192,7 @@ void Necromancer::useSkillClass(Combat* combat, Character* characterUser, std::v
         return;
     }
 
-    if (characterUser->getNumberDeSouls() == 0) {
+    if (characterUser->getSoulCount() == 0) {
         std::string msg = DialogueFunctions::formatSystemMsg("Voce nao possui almas para invocar!", Color::RED);
         std::cout << "\n" << CombatScreen::combatMargin() << msg << "\n";
         Appearance::registerBattleLog(msg);
@@ -200,7 +200,7 @@ void Necromancer::useSkillClass(Combat* combat, Character* characterUser, std::v
         return;
     }
 
-    int maxPossible = std::min(3 - minionCount, static_cast<int>(characterUser->getNumberDeSouls()));
+    int maxPossible = std::min(3 - minionCount, static_cast<int>(characterUser->getSoulCount()));
 
     std::cout << "\n" << CombatScreen::combatMargin() << "═══ QUANTIDADE DE INVOCACOES ═══\n";
     std::vector<std::string> qtyOptions;
@@ -291,7 +291,7 @@ void Necromancer::useSkillClass(Combat* combat, Character* characterUser, std::v
 
         Character* minionPtr = minion.get();
         bool wasBoss = minionPtr->isBoss();
-        combat->addAllyEmCombat(std::move(minion));
+        combat->addAllyInCombat(std::move(minion));
         minionsRecentlyInvoked.push_back(minionPtr);
 
         if (wasBoss) {

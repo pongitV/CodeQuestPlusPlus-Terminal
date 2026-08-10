@@ -31,7 +31,7 @@ enum class SkillID
     OnSight,
     ThroughTheWire,
     WithdrawalWithAim,
-    InvocationDeSpectrum
+    SpectralInvocation
 };
 
 class Character;
@@ -57,7 +57,7 @@ public:
     // HABILIDADE DA CLASSE
     virtual std::string getNameSkillClass() const = 0;
     virtual std::string getDescriptionSkillClass() const = 0;
-    virtual void useSkillClass(Combat* combat, Character* characterUser, std::vector<Character*>& listDeEnemies) = 0;
+    virtual void useSkillClass(Combat* combat, Character* characterUser, std::vector<Character*>& enemies) = 0;
     virtual TypeAttack getTypeAttack() const { return TypeAttack::UNIQUE; }
     virtual bool skillConsumeShift() const { return true; }
 
@@ -86,7 +86,7 @@ public:
     virtual int revertArcherPassiveSlownessPenalty(int dexterityCurrent) const { return dexterityCurrent * 2; }
 
     // PROCESSAMENTO DE DANO
-    virtual void executeAttackWithPassiveDaClass(Character* attacker, Character* defender, int damageBase, int damagePiercing, std::vector<std::unique_ptr<Character>>& enemies, const std::function<void(Character*, Character*, int, int)>& applyDamage, bool isAttackerPlayer) {
+    virtual void executeAttackWithClassPassive(Character* attacker, Character* defender, int damageBase, int damagePiercing, std::vector<std::unique_ptr<Character>>& enemies, const std::function<void(Character*, Character*, int, int)>& applyDamage, bool isAttackerPlayer) {
 
         damageBase = processDamagePreAttack(attacker, defender, damageBase, isAttackerPlayer, enemies.size());
 

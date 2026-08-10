@@ -15,10 +15,10 @@ public:
     int mainMenu() override;
     void tutorialParry(const std::string& infoBox) override;
     NameScreen::Result screenName() override;
-    RaceScreen::Result screenRace(const std::string& nameCharacter) override;
-    ClassScreen::Result screenClass(const std::string& nameCharacter, const std::string& race) override;
-    DifficultyScreen::Result screenDifficulty(const std::string& nameCharacter, const std::string& race, const std::string& classObj) override;
-    ParryScreen::Result screenParry(const std::string& nameCharacter, const std::string& race, const std::string& classObj) override;
+    RaceScreen::Result screenRace(const std::string& characterName) override;
+    ClassScreen::Result screenClass(const std::string& characterName, const std::string& race) override;
+    DifficultyScreen::Result screenDifficulty(const std::string& characterName, const std::string& race, const std::string& classObj) override;
+    ParryScreen::Result screenParry(const std::string& characterName, const std::string& race, const std::string& classObj) override;
     void screenIntroduction() override;
     bool confirmExit() override;
 };

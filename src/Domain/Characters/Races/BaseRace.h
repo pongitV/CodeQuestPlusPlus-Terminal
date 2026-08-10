@@ -54,11 +54,11 @@ public:
         return damageBase;
     }
 
-    virtual int processDamageDefensive(int damageEnd, Character* /*defensor*/) {
-        return damageEnd;
+    virtual int processDamageDefensive(int finalDamage, Character* /*defensor*/) {
+        return finalDamage;
     }
     
-    virtual void aoSufferParryPerfect() {}
+    virtual void onSufferPerfectParry() {}
     virtual bool ignoreParry() const { return false; }
     virtual bool ignoreShield() const { return false; }
 
@@ -66,7 +66,7 @@ public:
         // Implementacao padrao vazia (sem drops)
     }
 
-    virtual void aoCauseDamage(Character* /*atacante*/, Character* /*alvo*/, int /*danoCausado*/) {}
+    virtual void onCausingDamage(Character* /*atacante*/, Character* /*alvo*/, int /*danoCausado*/) {}
 
     virtual bool tryUseSkillActive(Character* /*esteInimigo*/, Character* /*alvo*/, int /*dificuldade*/) {
         return false; // Por padrao, inimigos nao possuem habilidades ativas que consomem o turno

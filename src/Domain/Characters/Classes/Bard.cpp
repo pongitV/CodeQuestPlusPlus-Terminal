@@ -78,7 +78,7 @@ Attributes Bard::getAttributesClass() const
 
 std::vector<std::unique_ptr<Item>> Bard::getEquipmentClass() const 
 {
-    auto equipment = ItemFactory::createKitPocoes();
+    auto equipment = ItemFactory::createPotionKit();
     
     equipment.push_back(ItemFactory::createItem(ItemID::ViolaEnchanted));
     equipment.push_back(ItemFactory::createItem(ItemID::CoverMagic));

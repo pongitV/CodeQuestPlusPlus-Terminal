@@ -131,7 +131,7 @@ void Slime::performDrops(Character* enemy, Character* currentPlayer, std::vector
 }
 
 // --- PROCESSAMENTO DE DANO  ---
-void Slime::aoCauseDamage(Character* attacker, Character* target, int damageCaused) {
+void Slime::onCausingDamage(Character* attacker, Character* target, int damageCaused) {
     if (RandomGenerator::rollChance(15)) {
         if (!target->ownsEffect(EffectID::Slowness)) {
             target->addEffect(std::make_unique<SlownessEffect>(3));

@@ -123,7 +123,7 @@ const std::vector<std::string>& Mimic::getAppearanceRace() const
 
 
 // --- LOGICA DE ROUBO ---
-void Mimic::aoCauseDamage(Character* attacker, Character* target, int damageCaused) {
+void Mimic::onCausingDamage(Character* attacker, Character* target, int damageCaused) {
     if (damageCaused <= 0) return;
     
     int goldCurrent = target->getInventory()->getGold();

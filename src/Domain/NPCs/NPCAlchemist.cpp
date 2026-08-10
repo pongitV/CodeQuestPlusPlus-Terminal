@@ -10,19 +10,19 @@ void NPCAlchemist::interact(Character* player) {
         [this, player]() { this->displayDialogue(player); },
         [this, player]() { return this->getOptionsMenu(player, Appearance::getTerminalWidth()); },
         [this, player](const std::string& op) { this->processOption(player, op, Appearance::getTerminalWidth()); return true; },
-        getNameDoPlace(), getColorDoHeader(), getArtASCII()
+        getPlaceName(), getHeaderColor(), getArtASCII()
     );
 }
 
-std::string NPCAlchemist::getNameDoPlace() const {
+std::string NPCAlchemist::getPlaceName() const {
     return "LABORATORIO DE ALQUIMIA";
 }
 
-Color NPCAlchemist::getColorDoHeader() const {
+Color NPCAlchemist::getHeaderColor() const {
     return Color::GREEN_DARK;
 }
 
-Color NPCAlchemist::getColorDaArt() const {
+Color NPCAlchemist::getArtColor() const {
     return Color::GREEN_DARK;
 }
 
@@ -52,47 +52,47 @@ std::vector<std::string> NPCAlchemist::getOptionsMenu(Character* player, int /*l
 
 void NPCAlchemist::processOption(Character* player, const std::string& option, int /*larguraDoTerminal*/) {
     std::string foodReq = "";
-    std::string dropReq = "";
+    std::string requiredDrop = "";
     ItemID productId = ItemID::None;
 
     if (option.find("Cura Grande") != std::string::npos) {
         foodReq = "Maca";
-        dropReq = "Po magico";
+        requiredDrop = "Po magico";
         productId = ItemID::LittleCureBig;
     }
     else if (option.find("Forca Alquimica") != std::string::npos) {
         foodReq = "Pao";
-        dropReq = "Dente de goblin";
+        requiredDrop = "Dente de goblin";
         productId = ItemID::LittleGallowsAlchemy;
     }
     else if (option.find("Veneno Alquimica") != std::string::npos) {
         foodReq = "Carne Seca";
-        dropReq = "Gosma acida";
+        requiredDrop = "Gosma acida";
         productId = ItemID::LittlePoisonAlchemy;
     }
     else if (option.find("Lentidao Alquimica") != std::string::npos) {
         foodReq = "Queijo";
-        dropReq = "Nucleo pegajoso";
+        requiredDrop = "Nucleo pegajoso";
         productId = ItemID::LittleSlowAlchemy;
     }
 
     if (productId != ItemID::None) {
         auto* backpack = player->getInventory();
-        int qtyFood = backpack->countItem(foodReq);
-        int qtyDrop = backpack->countItem(dropReq);
+        int foodQuantity = backpack->countItem(foodReq);
+        int dropQuantity = backpack->countItem(requiredDrop);
 
-        if (qtyFood >= 1 && qtyDrop >= 1) {
+        if (foodQuantity >= 1 && dropQuantity >= 1) {
             backpack->removeItem(foodReq);
-            backpack->removeItem(dropReq);
+            backpack->removeItem(requiredDrop);
 
-            auto itemNew = ItemFactory::createItem(productId);
-            if (itemNew) {
-                std::string nameProduct = itemNew->getItemName();
-                backpack->addItem(std::move(itemNew));
+            auto newItem = ItemFactory::createItem(productId);
+            if (newItem) {
+                std::string productName = newItem->getItemName();
+                backpack->addItem(std::move(newItem));
 
                 std::vector<std::string> msgSuccess = {
                     "Mistura fervilhando... Vapor borbulhando...",
-                    "Sucesso! VocÃª obteve: " + nameProduct
+                    "Sucesso! VocÃª obteve: " + productName
                 };
                 Appearance::displayPopup("TRANSMUTACAO COMPLETA", msgSuccess, Color::GREEN_DARK, getArtASCII());
             }
@@ -100,8 +100,8 @@ void NPCAlchemist::processOption(Character* player, const std::string& option, i
             std::vector<std::string> msgError = {
                 "Ingredientes insuficientes!",
                 "VocÃª precisa de:",
-                " -> 1x " + foodReq + " (Possui: " + std::to_string(qtyFood) + ")",
-                " -> 1x " + dropReq + " (Possui: " + std::to_string(qtyDrop) + ")"
+                " -> 1x " + foodReq + " (Possui: " + std::to_string(foodQuantity) + ")",
+                " -> 1x " + requiredDrop + " (Possui: " + std::to_string(dropQuantity) + ")"
             };
             Appearance::displayPopup("FALHA NA TRANSMUTACAO", msgError, Color::RED, getArtASCII());
         }

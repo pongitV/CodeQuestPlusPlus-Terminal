@@ -33,13 +33,13 @@ int ScreenMenuRaycaster::displayMainMenuOptions() {
         MenuRaycasterUtils::displayBackground3D(buffer);
         std::string title = "MENU PRINCIPAL";
         std::string colorTitle = "\033[38;2;255;215;0m";
-        int espTitle = ScreenBaseMenu::calculateOffsetCentral(title, widthConsole);
-        MenuRaycasterUtils::superimposeText3D(buffer, colorTitle + title + "\033[0m", 3, espTitle, widthConsole);
-        int espNav = ScreenBaseMenu::calculateOffsetCentral(10, widthConsole);
-        MenuRaycasterUtils::superimposeText3D(buffer, "\033[38;2;100;100;100m<  \u2191  |  \u2193  >\033[0m", 4, espNav, widthConsole);
+        int offsetTitle = ScreenBaseMenu::calculateOffsetCentral(title, widthConsole);
+        MenuRaycasterUtils::superimposeText3D(buffer, colorTitle + title + "\033[0m", 3, offsetTitle, widthConsole);
+        int offsetNav = ScreenBaseMenu::calculateOffsetCentral(10, widthConsole);
+        MenuRaycasterUtils::superimposeText3D(buffer, "\033[38;2;100;100;100m<  \u2191  |  \u2193  >\033[0m", 4, offsetNav, widthConsole);
 
         int lineHome = 6;
-        int espOptions = std::max(0, (widthConsole - 30) / 2 - 10);
+        int offsetOptions = std::max(0, (widthConsole - 30) / 2 - 10);
 
         int maxArtH = 0;
         int maxArtW = 0;
@@ -56,24 +56,24 @@ int ScreenMenuRaycaster::displayMainMenuOptions() {
         }
         int boxW = 32 + maxArtW + 2; 
         if (confirmingExit && boxW < 40) boxW = 40; 
-        ScreenBaseMenu::drawBoxBlack(buffer, lineHome - 1, espOptions - 2, boxW, boxH);
+        ScreenBaseMenu::drawBoxBlack(buffer, lineHome - 1, offsetOptions - 2, boxW, boxH);
 
         for (int i = 0; i < (int)options.size(); ++i) {
             std::string cursor = (i == selectionCurrent && !confirmingExit) ? "> " : "  ";
             std::string colorOption = (i == selectionCurrent && !confirmingExit)
                 ? "\033[38;2;255;215;0m"
                 : "\033[38;2;180;180;180m";
-            MenuRaycasterUtils::superimposeTextAbsolute(buffer, colorOption + cursor + options[i] + "\033[0m", lineHome + i, espOptions);
+            MenuRaycasterUtils::superimposeTextAbsolute(buffer, colorOption + cursor + options[i] + "\033[0m", lineHome + i, offsetOptions);
         }
 
         if (confirmingExit) {
             std::string msgConf = "Confirmar saida? [S]im / [N]ao";
-            MenuRaycasterUtils::superimposeTextAbsolute(buffer, "\033[38;2;255;100;100m" + msgConf + "\033[0m", lineHome + inaOptions + 1, espOptions);
+            MenuRaycasterUtils::superimposeTextAbsolute(buffer, "\033[38;2;255;100;100m" + msgConf + "\033[0m", lineHome + inaOptions + 1, offsetOptions);
         }
 
         if (selectionCurrent >= 0 && selectionCurrent < (int)arts.size()) {
             const auto& art = arts[selectionCurrent];
-            int artX = espOptions + 32;
+            int artX = offsetOptions + 32;
             int artY = lineHome;
             
             if (selectionCurrent == 0) {
@@ -165,16 +165,16 @@ void ScreenMenuRaycaster::displayPanelSoonGame(const std::string& titleDaScreen,
             if (shine > 255) shine = 255;
             std::string color = "\033[38;2;" + std::to_string(shine) + ";" +
                               std::to_string(shine) + ";" + std::to_string(shine) + "m";
-            int esp = ScreenBaseMenu::calculateOffsetCentral(titleDaScreen, widthConsole);
-            MenuRaycasterUtils::superimposeText3D(buffer, color + titleDaScreen + "\033[0m", 3, esp, widthConsole);
+            int offset = ScreenBaseMenu::calculateOffsetCentral(titleDaScreen, widthConsole);
+            MenuRaycasterUtils::superimposeText3D(buffer, color + titleDaScreen + "\033[0m", 3, offset, widthConsole);
             MenuRaycasterUtils::flushFrameForConsole(buffer.str());
             std::this_thread::sleep_for(std::chrono::milliseconds(30));
         }
     } else {
         std::ostringstream buffer;
         MenuRaycasterUtils::displayBackground3D(buffer);
-        int esp = ScreenBaseMenu::calculateOffsetCentral(titleDaScreen, widthConsole);
-        MenuRaycasterUtils::superimposeText3D(buffer, "\033[38;2;255;215;0m" + titleDaScreen + "\033[0m", 3, esp, widthConsole);
+        int offset = ScreenBaseMenu::calculateOffsetCentral(titleDaScreen, widthConsole);
+        MenuRaycasterUtils::superimposeText3D(buffer, "\033[38;2;255;215;0m" + titleDaScreen + "\033[0m", 3, offset, widthConsole);
         MenuRaycasterUtils::flushFrameForConsole(buffer.str());
     }
 }
@@ -195,8 +195,8 @@ bool ScreenMenuRaycaster::displayConfirmationDeChooseWithArtSideASide(
     MenuRaycasterUtils::displayBackground3D(buffer);
 
     std::string title = "PREVIA DA " + typeDeChoose + ": " + nameDaChoose;
-    int esp = ScreenBaseMenu::calculateOffsetCentral(title, widthConsole);
-    MenuRaycasterUtils::superimposeText3D(buffer, "\033[38;2;255;215;0m" + title + "\033[0m", 3, esp, widthConsole);
+    int offset = ScreenBaseMenu::calculateOffsetCentral(title, widthConsole);
+    MenuRaycasterUtils::superimposeText3D(buffer, "\033[38;2;255;215;0m" + title + "\033[0m", 3, offset, widthConsole);
 
     int infoY = 5;
     int artY = 5;
@@ -295,14 +295,14 @@ bool ScreenMenuRaycaster::displayConfirmationExit() {
         
         ScreenBaseMenu::drawBoxBlack(buffer, boxY, boxX, boxW, boxH);
         
-        int espQuestion = ScreenBaseMenu::calculateOffsetCentral(question, widthConsole);
-        MenuRaycasterUtils::superimposeTextAbsolute(buffer, "\033[38;2;255;255;255m" + question + "\033[0m", boxY + 2, espQuestion);
+        int offsetQuestion = ScreenBaseMenu::calculateOffsetCentral(question, widthConsole);
+        MenuRaycasterUtils::superimposeTextAbsolute(buffer, "\033[38;2;255;255;255m" + question + "\033[0m", boxY + 2, offsetQuestion);
 
         for (int i = 0; i < (int)options.size(); ++i) {
             std::string cursor = (i == selectionCurrent) ? "> " : "  ";
             std::string colorOption = (i == selectionCurrent) ? "\033[38;2;255;215;0m" : "\033[38;2;180;180;180m";
-            int espOptions = ScreenBaseMenu::calculateOffsetCentral(options[i] + cursor, widthConsole);
-            MenuRaycasterUtils::superimposeTextAbsolute(buffer, colorOption + cursor + options[i] + "\033[0m", boxY + 4 + i, espOptions);
+            int offsetOptions = ScreenBaseMenu::calculateOffsetCentral(options[i] + cursor, widthConsole);
+            MenuRaycasterUtils::superimposeTextAbsolute(buffer, colorOption + cursor + options[i] + "\033[0m", boxY + 4 + i, offsetOptions);
         }
         
         int artY = std::max(2, boxY - 11);

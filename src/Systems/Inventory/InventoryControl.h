@@ -14,10 +14,10 @@ enum class ResultItem {
     Unequipped,
     Used_Shift,
     Used_WithoutShift,
-    Error_ShiftJaUsed,
+    Error_TurnAlreadyUsed,
     Error_ShieldBroken,
     Error_Requirements,
-    Error_NoCanUse,
+    Error_CannotUse,
     Nothing
 };
 
@@ -25,11 +25,11 @@ struct UseItemInfo {
     ResultItem result;
     std::string itemName;
     std::string messageExtra;
-    bool consumiuShift = false;
+    bool consumedTurn = false;
 };
 
 class ControlInventory {
 public:
-    static UseItemInfo useOuEquip(Character* player, Item* item, bool shiftJaWasConsumed);
-    static std::string getMessageError(Item* item, bool emCombat);
+    static UseItemInfo useOrEquip(Character* player, Item* item, bool turnAlreadyConsumed);
+    static std::string getMessageError(Item* item, bool inCombat);
 };

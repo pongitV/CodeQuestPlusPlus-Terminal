@@ -25,5 +25,5 @@ public:
     std::string getRechargeSkillClass() const override;
     std::string getNameSkillClass() const override;
     std::string getDescriptionSkillClass() const override;
-    void useSkillClass(Combat* combat, Character* characterUser, std::vector<Character*>& listDeEnemies) override;
+    void useSkillClass(Combat* combat, Character* characterUser, std::vector<Character*>& enemies) override;
 };

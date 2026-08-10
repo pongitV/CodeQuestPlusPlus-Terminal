@@ -41,20 +41,20 @@ NameScreen::Result ManagerScreensRaycaster::screenName() {
     return ScreenNameRaycaster::display();
 }
 
-RaceScreen::Result ManagerScreensRaycaster::screenRace(const std::string& nameCharacter) {
-    return ScreenRaceRaycaster::display(nameCharacter);
+RaceScreen::Result ManagerScreensRaycaster::screenRace(const std::string& characterName) {
+    return ScreenRaceRaycaster::display(characterName);
 }
 
-ClassScreen::Result ManagerScreensRaycaster::screenClass(const std::string& nameCharacter, const std::string& race) {
-    return ScreenClassRaycaster::display(nameCharacter, race);
+ClassScreen::Result ManagerScreensRaycaster::screenClass(const std::string& characterName, const std::string& race) {
+    return ScreenClassRaycaster::display(characterName, race);
 }
 
-DifficultyScreen::Result ManagerScreensRaycaster::screenDifficulty(const std::string& nameCharacter, const std::string& race, const std::string& classObj) {
-    return ScreenDifficultyRaycaster::display(nameCharacter, race, classObj);
+DifficultyScreen::Result ManagerScreensRaycaster::screenDifficulty(const std::string& characterName, const std::string& race, const std::string& classObj) {
+    return ScreenDifficultyRaycaster::display(characterName, race, classObj);
 }
 
-ParryScreen::Result ManagerScreensRaycaster::screenParry(const std::string& nameCharacter, const std::string& race, const std::string& classObj) {
-    return ScreenParryRaycaster::display(nameCharacter, race, classObj);
+ParryScreen::Result ManagerScreensRaycaster::screenParry(const std::string& characterName, const std::string& race, const std::string& classObj) {
+    return ScreenParryRaycaster::display(characterName, race, classObj);
 }
 
 void ManagerScreensRaycaster::screenIntroduction() {

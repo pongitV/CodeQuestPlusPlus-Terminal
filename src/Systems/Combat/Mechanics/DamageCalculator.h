@@ -12,7 +12,7 @@ class IDamageable;
 /*
  * Calculadora de estatisticas de dano fisico e mitigacao.
  */
-class CalculatorDamage {
+class DamageCalculator {
 public:
     // Calcula o dano base e perfurante de um atacante (baseado em arma e atributos)
     static std::pair<int, int> calculateDamageOffensiveBase(IAttacker* attacker);

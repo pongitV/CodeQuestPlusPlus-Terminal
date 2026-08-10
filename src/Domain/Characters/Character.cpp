@@ -20,26 +20,26 @@ bool Character::isValid(Character* p) {
 }
 
 Character::Character(const Character& others)
-    : nameCharacter(others.nameCharacter),
+    : characterName(others.characterName),
       lifeCurrent(others.lifeCurrent),
       race(std::make_unique<RaceClone>(others.race ? others.race->getRaceName() : "Desconhecido", others.race ? others.race->getAppearanceRace() : std::vector<std::string>())),
       classObj(std::make_unique<ClassClone>()),
-      statsFinals(others.statsFinals),
+      finalStats(others.finalStats),
       backpack(std::make_unique<Inventory>()),
       itemSelectedForUse(nullptr),
-      systemDeLevel(std::make_unique<SystemDeLevel>(others.systemDeLevel->getLevel(), others.systemDeLevel->getCurrentXp(), others.systemDeLevel->getXpForRise()))
+      levelSystem(std::make_unique<LevelSystem>(others.levelSystem->getLevel(), others.levelSystem->getCurrentXp(), others.levelSystem->getXpForRise()))
 {
     system = others.system;
     
-    combat.thisDefending = others.combat.thisDefending;
+    combat.isDefending = others.combat.isDefending;
     // almasColetadas nao sao copiadas
-    combat.rechargeDefense = others.combat.rechargeDefense;
+    combat.defenseRecharge = others.combat.defenseRecharge;
     combat.rechargeSkill = others.combat.rechargeSkill;
     combat.jumpShiftEnemy = others.combat.jumpShiftEnemy;
     combat.skillCanceled = others.combat.skillCanceled;
     combat.deathLively = others.combat.deathLively;
     combat.multiplierCurrent = others.combat.multiplierCurrent;
-    combat.cureTotalReceived = others.combat.cureTotalReceived;
+    combat.totalCureReceived = others.combat.totalCureReceived;
     combat.lifeMaximumFixed = others.combat.lifeMaximumFixed;
     combat.cooldownsAssets = others.combat.cooldownsAssets;
 
@@ -56,20 +56,20 @@ Character::Character(const Character& others)
             }
         }
     }
-    updateCacheSeNecessary();
+    updateCacheIfNecessary();
 }
 
 Character::Character(const std::string& name, std::unique_ptr<BaseRace> chosenRace, std::unique_ptr<BaseClass> chosenClass)
-    : nameCharacter(name),
+    : characterName(name),
       lifeCurrent(0),
       race(std::move(chosenRace)),
       classObj(std::move(chosenClass)),
-      statsFinals{ 0, 0, 0, 0, 0, 0, 0 },
+      finalStats{ 0, 0, 0, 0, 0, 0, 0 },
       backpack(std::make_unique<Inventory>()),
       itemSelectedForUse(nullptr),
-      systemDeLevel(std::make_unique<SystemDeLevel>(1, 0, Constants::BASE_XP_TO_LEVEL_UP))
+      levelSystem(std::make_unique<LevelSystem>(1, 0, Constants::BASE_XP_TO_LEVEL_UP))
 {
-    auto receiveEEquipKit = [this](std::vector<std::unique_ptr<Item>> kit) {
+    auto receiveEquipKit = [this](std::vector<std::unique_ptr<Item>> kit) {
         for (auto& itemUnique : kit) {
             Item* ptr = itemUnique.get();
             this->backpack->addItem(std::move(itemUnique)); 
@@ -77,8 +77,8 @@ Character::Character(const std::string& name, std::unique_ptr<BaseRace> chosenRa
         }
     };
 
-    receiveEEquipKit(this->classObj->getEquipmentClass());
-    receiveEEquipKit(this->race->getEquipmentRace());
+    receiveEquipKit(this->classObj->getEquipmentClass());
+    receiveEquipKit(this->race->getEquipmentRace());
 
     calculateAttributes();
     charactersAssets.insert(this);
@@ -94,14 +94,14 @@ std::unique_ptr<Character> Character::clone() const {
 }
 
 void Character::climbAttributes(double factor) {
-    statsFinals.health = std::max(1, static_cast<int>(statsFinals.health * factor));
-    statsFinals.strength = static_cast<int>(statsFinals.strength * factor);
-    statsFinals.dexterity = static_cast<int>(statsFinals.dexterity * factor);
-    statsFinals.resistance = static_cast<int>(statsFinals.resistance * factor);
-    statsFinals.constitution = static_cast<int>(statsFinals.constitution * factor);
-    statsFinals.intelligence = static_cast<int>(statsFinals.intelligence * factor);
-    statsFinals.wisdom = static_cast<int>(statsFinals.wisdom * factor);
-    combat.lifeMaximumFixed = statsFinals.health; 
+    finalStats.health = std::max(1, static_cast<int>(finalStats.health * factor));
+    finalStats.strength = static_cast<int>(finalStats.strength * factor);
+    finalStats.dexterity = static_cast<int>(finalStats.dexterity * factor);
+    finalStats.resistance = static_cast<int>(finalStats.resistance * factor);
+    finalStats.constitution = static_cast<int>(finalStats.constitution * factor);
+    finalStats.intelligence = static_cast<int>(finalStats.intelligence * factor);
+    finalStats.wisdom = static_cast<int>(finalStats.wisdom * factor);
+    combat.lifeMaximumFixed = finalStats.health; 
     forceCacheRecalculation();
     lifeCurrent = getMaxHealth();
 }
@@ -110,7 +110,7 @@ void Character::addSoul(std::unique_ptr<Character> soul) { combat.soulsCollected
 
 std::vector<std::unique_ptr<Character>>& Character::getSouls() { return combat.soulsCollected; }
 
-size_t Character::getNumberDeSouls() const { return combat.soulsCollected.size(); }
+size_t Character::getSoulCount() const { return combat.soulsCollected.size(); }
 
 std::unique_ptr<Character> Character::removeSoul(int index) {
     if (index < 0 || index >= static_cast<int>(combat.soulsCollected.size())) return nullptr;
@@ -121,22 +121,22 @@ std::unique_ptr<Character> Character::removeSoul(int index) {
 
 int* Character::getPointerAttributeStatic(AttributeType attribute) {
     switch (attribute) {
-        case AttributeType::Strength: return &statsFinals.strength;
-        case AttributeType::Dexterity: return &statsFinals.dexterity;
-        case AttributeType::Resistance: return &statsFinals.resistance;
-        case AttributeType::Constitution: return &statsFinals.constitution;
-        case AttributeType::Intelligence: return &statsFinals.intelligence;
-        case AttributeType::Wisdom: return &statsFinals.wisdom;
+        case AttributeType::Strength: return &finalStats.strength;
+        case AttributeType::Dexterity: return &finalStats.dexterity;
+        case AttributeType::Resistance: return &finalStats.resistance;
+        case AttributeType::Constitution: return &finalStats.constitution;
+        case AttributeType::Intelligence: return &finalStats.intelligence;
+        case AttributeType::Wisdom: return &finalStats.wisdom;
         default: return nullptr;
     }
 }
 
-bool Character::riseDeLevel(AttributeType attribute)
+bool Character::levelUp(AttributeType attribute)
 {
-    if (systemDeLevel->getCurrentXp() < systemDeLevel->getXpForRise()) return false;
+    if (levelSystem->getCurrentXp() < levelSystem->getXpForRise()) return false;
 
     if (attribute == AttributeType::Life) {
-        statsFinals.health += Constants::HEALTH_GAIN_PER_LEVEL;
+        finalStats.health += Constants::HEALTH_GAIN_PER_LEVEL;
         lifeCurrent += Constants::HEALTH_GAIN_PER_LEVEL;
     } else if (int* attr = getPointerAttributeStatic(attribute)) {
         *attr += Constants::ATTRIBUTE_GAIN_PER_LEVEL;
@@ -144,9 +144,9 @@ bool Character::riseDeLevel(AttributeType attribute)
         return false;
     }
 
-    systemDeLevel->setCurrentXp(systemDeLevel->getCurrentXp() - systemDeLevel->getXpForRise());
-    systemDeLevel->setXpForRise(static_cast<int>(std::min(systemDeLevel->getXpForRise() * Constants::XP_MULTIPLIER_PER_LEVEL, Constants::MAX_XP)));
-    systemDeLevel->setLevel(systemDeLevel->getLevel() + 1);
+    levelSystem->setCurrentXp(levelSystem->getCurrentXp() - levelSystem->getXpForRise());
+    levelSystem->setXpForRise(static_cast<int>(std::min(levelSystem->getXpForRise() * Constants::XP_MULTIPLIER_PER_LEVEL, Constants::MAX_XP)));
+    levelSystem->setLevel(levelSystem->getLevel() + 1);
     cache_.dirty = true;
     return true;
 }
@@ -161,7 +161,7 @@ void Character::changeStaticAttribute(AttributeType attribute, int value)
 
 void Character::reduceCooldowns()
 {
-    if (combat.rechargeDefense) combat.rechargeDefense = false;
+    if (combat.defenseRecharge) combat.defenseRecharge = false;
     if (combat.rechargeSkill) combat.rechargeSkill = false;
     if (combat.cooldownsAssets.empty()) return;
     for (auto& pair : combat.cooldownsAssets)
@@ -183,30 +183,30 @@ void Character::prepareForNewBattle()
 
 void Character::calculateAttributes()
 {
-    this->statsFinals.addAttributes(race->getAttributesRace());
-    this->statsFinals.addAttributes(classObj->getAttributesClass());
+    this->finalStats.addAttributes(race->getAttributesRace());
+    this->finalStats.addAttributes(classObj->getAttributesClass());
     this->lifeCurrent = getMaxHealth();
     cache_.dirty = true;
 }
 
-void Character::updateCacheSeNecessary() const {
+void Character::updateCacheIfNecessary() const {
     if (!cache_.dirty) return;
     
     double mult = system.difficultyMultiplier;
     auto applyMult = [mult](int val) { return static_cast<int>(val * mult); };
 
-    cache_.lifeMaximum = applyMult(statsFinals.health);
-    cache_.strength = applyMult(statsFinals.strength);
-    cache_.resistance = applyMult(statsFinals.resistance);
-    cache_.constitution = applyMult(statsFinals.constitution);
-    cache_.intelligence = applyMult(statsFinals.intelligence);
-    cache_.wisdom = applyMult(statsFinals.wisdom);
+    cache_.lifeMaximum = applyMult(finalStats.health);
+    cache_.strength = applyMult(finalStats.strength);
+    cache_.resistance = applyMult(finalStats.resistance);
+    cache_.constitution = applyMult(finalStats.constitution);
+    cache_.intelligence = applyMult(finalStats.intelligence);
+    cache_.wisdom = applyMult(finalStats.wisdom);
 
     int penalty = getArmor() ? (getArmor()->getReductionFixed() / 3) : 0;
     if (getArmor() && getArmor()->getItemName() == "Armadura de bau") penalty = 10;
     if (classObj) penalty = classObj->processPenaltyArmorPassiveArcher(penalty);
     
-    int dexterityBase = static_cast<int>(statsFinals.dexterity * mult);
+    int dexterityBase = static_cast<int>(finalStats.dexterity * mult);
     int dexterityEnd = dexterityBase - penalty;
     cache_.dexterity = dexterityEnd > 0 ? dexterityEnd : 0;
 
@@ -247,7 +247,7 @@ void Character::modifyHealth(int value)
 
     if (this->lifeCurrent > lifeBefore) 
     {
-        combat.cureTotalReceived += (this->lifeCurrent - lifeBefore);
+        combat.totalCureReceived += (this->lifeCurrent - lifeBefore);
     }
 }
 
@@ -269,7 +269,7 @@ int Character::getShiftsEffect(EffectID id) const {
 
 void Character::showStatus() const 
 {
-    std::cout << "[" << nameCharacter << "] HP: " << lifeCurrent << "/" << getMaxHealth() << std::endl;
+    std::cout << "[" << characterName << "] HP: " << lifeCurrent << "/" << getMaxHealth() << std::endl;
 }
 
 std::string Character::getClassName() const 
@@ -323,7 +323,7 @@ TypeAttack Character::getTypeAttack() const
     return TypeAttack::UNIQUE;
 }
 
-bool Character::skillDaClassConsumeShift() const 
+bool Character::classSkillConsumesTurn() const 
 {
     if (this->classObj) return this->classObj->skillConsumeShift();
     return true;
@@ -332,47 +332,47 @@ bool Character::skillDaClassConsumeShift() const
 int Character::calculateDefenseBase(int damageGross, int damagePiercing) {
     int damageWithoutDrilling = std::max(0, damageGross - damagePiercing);
 
-    updateCacheSeNecessary();
+    updateCacheIfNecessary();
 
-    int damageEnd = static_cast<int>(damageWithoutDrilling - cache_.reductionPercentage);
-    if (damageEnd < 1 && damageWithoutDrilling > 0) damageEnd = 1;
-    else if (damageWithoutDrilling == 0) damageEnd = 0;
+    int finalDamage = static_cast<int>(damageWithoutDrilling - cache_.reductionPercentage);
+    if (finalDamage < 1 && damageWithoutDrilling > 0) finalDamage = 1;
+    else if (damageWithoutDrilling == 0) finalDamage = 0;
 
-    return damageEnd + damagePiercing;
+    return finalDamage + damagePiercing;
 }
 
-ResultDamage Character::receiveDamage(int damageGross, int damagePiercing, int damageReducedParry, IAttacker* attacker, bool applyPassive) {
-    ResultDamage result;
+DamageResult Character::receiveDamage(int damageGross, int damagePiercing, int damageReducedParry, IAttacker* attacker, bool applyPassive) {
+    DamageResult result;
 
-    int damageEnd = calculateDefenseBase(damageGross, damagePiercing);
+    int finalDamage = calculateDefenseBase(damageGross, damagePiercing);
 
-    for (auto& ef : effectsAssets) {
-        damageEnd = ef->processReceivedDamage(damageEnd);
+    for (auto& effect : effectsAssets) {
+        finalDamage = effect->processReceivedDamage(finalDamage);
     }
 
-    damageEnd = std::max(0, damageEnd - damageReducedParry);
+    finalDamage = std::max(0, finalDamage - damageReducedParry);
 
-    if (combat.thisDefending && getShield() != nullptr) {
-        Item* esc = getShield();
-        result.damageBlocked = esc->getReductionDamageFixedShield();
-        damageEnd = std::max(0, damageEnd - result.damageBlocked);
+    if (combat.isDefending && getShield() != nullptr) {
+        Item* shield = getShield();
+        result.damageBlocked = shield->getReductionDamageFixedShield();
+        finalDamage = std::max(0, finalDamage - result.damageBlocked);
 
-        esc->reduceDurability(1);
-        if (esc->getDurabilityCurrentShield() <= 0) {
-            result.shieldBroke = true;
-            result.nameShieldBroken = esc->getItemName();
-            backpack->removeItem(esc);
+        shield->reduceDurability(1);
+        if (shield->getDurabilityCurrentShield() <= 0) {
+            result.shieldBroken = true;
+            result.brokenShieldName = shield->getItemName();
+            backpack->removeItem(shield);
             unequipShield();
         }
     }
 
-    if (applyPassive && race) damageEnd = race->processDamageDefensive(damageEnd, this);
+    if (applyPassive && race) finalDamage = race->processDamageDefensive(finalDamage, this);
     
-    if (attacker) damageEnd = attacker->ensureDamageMinimum(damageEnd);
+    if (attacker) finalDamage = attacker->ensureDamageMinimum(finalDamage);
 
-    if (damageEnd > 0) modifyHealth(-damageEnd);
+    if (finalDamage > 0) modifyHealth(-finalDamage);
 
-    result.damageEnd = damageEnd;
+    result.finalDamage = finalDamage;
     return result;
 }
 
@@ -444,12 +444,12 @@ void Character::removeEffect(EffectID id) {
     }
 }
 
-bool Character::canAct(std::string& outReasonDisability) const {
+bool Character::canAct(std::string& reasonDisability) const {
     auto it = std::find_if(effectsAssets.begin(), effectsAssets.end(), [](const auto& ef) {
         return ef->preventsAction();
     });
     if (it != effectsAssets.end()) {
-        outReasonDisability = (*it)->getName();
+        reasonDisability = (*it)->getName();
         return false;
     }
     return true;
@@ -477,57 +477,57 @@ int Character::ensureDamageMinimum(int damageCurrent) {
 }
 
 std::pair<int, int> Character::calculateDamageOffensiveBase() {
-    double multiplierDeAttributes = getMultiplier();
+    double attributeMultiplier = getMultiplier();
 
-    int damagePhysicalDaWeapon = 1;
-    int damageMagicianDaWeapon = 0;
+    int weaponPhysicalDamage = 1;
+    int weaponMagicalDamage = 0;
     int piercingCurrent = 0;
 
     if (getWeapons()) 
     {
-        damagePhysicalDaWeapon = getWeapons()->getPhysicsDamage();
-        damageMagicianDaWeapon = getWeapons()->getMagicalDamage();
+        weaponPhysicalDamage = getWeapons()->getPhysicsDamage();
+        weaponMagicalDamage = getWeapons()->getMagicalDamage();
 
         if (getWeapons()->hasProperty(Property::Magic)) {
-            int bonusMagician = damagePhysicalDaWeapon / 2;
-            double bonusClimbed = bonusMagician * (1.0 + (getWisdom() / 100.0));
-            piercingCurrent = static_cast<int>(bonusClimbed * multiplierDeAttributes);
+            int magicBonus = weaponPhysicalDamage / 2;
+            double scaledBonus = magicBonus * (1.0 + (getWisdom() / 100.0));
+            piercingCurrent = static_cast<int>(scaledBonus * attributeMultiplier);
         }
     }
 
-    int gallowsEffective = getStrength();
+    int strengthEffective = getStrength();
     int dexterityEffective = getDexterity();
     int intelligenceEffective = getIntelligence();
     int wisdomEffective = getWisdom();
 
-    if (damagePhysicalDaWeapon == 0 && damageMagicianDaWeapon > 0) {
-        gallowsEffective /= 10; dexterityEffective /= 10;
-    } else if (damagePhysicalDaWeapon > 0 && damageMagicianDaWeapon == 0) {
+    if (weaponPhysicalDamage == 0 && weaponMagicalDamage > 0) {
+        strengthEffective /= 10; dexterityEffective /= 10;
+    } else if (weaponPhysicalDamage > 0 && weaponMagicalDamage == 0) {
         intelligenceEffective /= 10; wisdomEffective /= 10;
     }
 
-    int damagePhysicalCalculated = std::max(0, static_cast<int>((damagePhysicalDaWeapon + gallowsEffective) * (1.0 + (dexterityEffective / 100.0))));
-    int damageMagicianCalculated = std::max(0, static_cast<int>((damageMagicianDaWeapon + intelligenceEffective) * (1.0 + (wisdomEffective / 100.0))));
+    int damagePhysicalCalculated = std::max(0, static_cast<int>((weaponPhysicalDamage + strengthEffective) * (1.0 + (dexterityEffective / 100.0))));
+    int damageMagicianCalculated = std::max(0, static_cast<int>((weaponMagicalDamage + intelligenceEffective) * (1.0 + (wisdomEffective / 100.0))));
     
     int total = std::max(1, damagePhysicalCalculated + damageMagicianCalculated);
-    int totalEnd = static_cast<int>(total * multiplierDeAttributes);
-    int piercingEnd = piercingCurrent;
+    int finalTotal = static_cast<int>(total * attributeMultiplier);
+    int finalPiercing = piercingCurrent;
 
     if (getWeapons() && getWeapons()->hasProperty(Property::IgnoreDefense)) {
-        piercingEnd = totalEnd;
+        finalPiercing = finalTotal;
     }
 
     if (race && race->ignoreShield()) {
-        piercingEnd = totalEnd;
+        finalPiercing = finalTotal;
     }
 
     if (ownsEffect(EffectID::SureStrike)) {
-        totalEnd *= 2;
-        piercingEnd *= 2;
+        finalTotal *= 2;
+        finalPiercing *= 2;
         removeEffect(EffectID::SureStrike);
     }
 
-    return { totalEnd, piercingEnd };
+    return { finalTotal, finalPiercing };
 }
 
 void Character::finishBattle() { 

@@ -56,8 +56,8 @@ void ScreenOpeningRaycaster::display() {
         }
 
         std::string prompt = "[PRESSIONE ENTER PARA CONTINUAR]";
-        int espPrompt = ScreenBaseMenu::calculateOffsetCentral(static_cast<int>(prompt.size()), widthConsole);
-        MenuRaycasterUtils::superimposeNoFrame(yPrompt, espPrompt, prompt, 255, 255, 255);
+        int offsetPrompt = ScreenBaseMenu::calculateOffsetCentral(static_cast<int>(prompt.size()), widthConsole);
+        MenuRaycasterUtils::superimposeNoFrame(yPrompt, offsetPrompt, prompt, 255, 255, 255);
 
         MenuRaycasterUtils::superimposeNoFrame(heightConsole - 1, colVersion, version, 100, 100, 100);
 

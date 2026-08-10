@@ -37,10 +37,10 @@ public:
 private:
     Diary();
     
-    std::set<std::string> itemsDiscovered;
+    std::set<std::string> discoveredItems;
     std::set<std::string> npcsDiscovered;
     std::set<std::string> breedsDiscoveries;
-    std::set<std::string> classesDiscoveries;
+    std::set<std::string> discoveredClasses;
     std::set<std::string> missionsAccepted;
     std::set<std::string> missionsCompleted;
 

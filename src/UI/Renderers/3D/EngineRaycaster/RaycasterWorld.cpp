@@ -163,10 +163,10 @@ bool RaycasterWorld::isMapLabel(int mapX, int mapY, const std::vector<std::strin
     return result;
 }
 
-Pixel3D RaycasterWorld::getInternalWallPixel(const std::string& titleMap, bool themeForest, float distanceUntilWall, float depthMaximum, char charWall, int y, int ceiling, int chao, float texX, float timeAnimation, const Highlighter::InfoLight& infoLight, float hitX, float hitY, bool isSideWall, char npcFound, float nx, float ny) {
+Pixel3D RaycasterWorld::getInternalWallPixel(const std::string& titleMap, bool themeForest, float distanceUntilWall, float depthMaximum, char charWall, int y, int ceiling, int floor, float texX, float timeAnimation, const Highlighter::InfoLight& infoLight, float hitX, float hitY, bool isSideWall, char npcFound, float nx, float ny) {
     (void)isSideWall; (void)distanceUntilWall; (void)depthMaximum; (void)timeAnimation;
     const auto& flags = getFlagsMap(titleMap);
-    int heightWall = chao - ceiling;
+    int heightWall = floor - ceiling;
     
     float texY = 0.0f;
     if (heightWall > 0) texY = (float)(y - ceiling) / (float)heightWall;
@@ -249,22 +249,22 @@ Pixel3D RaycasterWorld::getInternalWallPixel(const std::string& titleMap, bool t
     ColorRGB color = ManagerTextures::getColor(texID, tx, ty);
     return Highlighter::applyLightPrecalculated(color.r, color.g, color.b, infoLight, false, true, nx, ny);
 }
-Pixel3D RaycasterWorld::getInternalWallPixel(const std::string& titleMap, bool themeForest, float distanceUntilWall, float depthMaximum, char charWall, int y, int ceiling, int chao, float texX, float timeAnimation, const std::vector<std::tuple<int, int, int>>& lights, float hitX, float hitY, bool isSideWall, char npcFound, float nx, float ny) {
+Pixel3D RaycasterWorld::getInternalWallPixel(const std::string& titleMap, bool themeForest, float distanceUntilWall, float depthMaximum, char charWall, int y, int ceiling, int floor, float texX, float timeAnimation, const std::vector<std::tuple<int, int, int>>& lights, float hitX, float hitY, bool isSideWall, char npcFound, float nx, float ny) {
     const auto& flags = getFlagsMap(titleMap);
     Highlighter::InfoLight info = Highlighter::calculateInfoLight(distanceUntilWall * 0.55f, depthMaximum, flags.themeSky, lights, hitX, hitY, nullptr, timeAnimation);
-    return getInternalWallPixel(titleMap, themeForest, distanceUntilWall, depthMaximum, charWall, y, ceiling, chao, texX, timeAnimation, info, hitX, hitY, isSideWall, npcFound, nx, ny);
+    return getInternalWallPixel(titleMap, themeForest, distanceUntilWall, depthMaximum, charWall, y, ceiling, floor, texX, timeAnimation, info, hitX, hitY, isSideWall, npcFound, nx, ny);
 }
 
-Pixel3D RaycasterWorld::getPixelWall(const std::string& titleMap, bool themeForest, float distanceUntilWall, float depthMaximum, char charWall, int y, int ceiling, int chao, float texX, float timeAnimation, bool isSideWall, const Highlighter::InfoLight& infoLight, float hitX, float hitY, char npcFound, float nx, float ny) {
-    return getInternalWallPixel(titleMap, themeForest, distanceUntilWall, depthMaximum, charWall, y, ceiling, chao, texX, timeAnimation, infoLight, hitX, hitY, isSideWall, npcFound, nx, ny);
+Pixel3D RaycasterWorld::getPixelWall(const std::string& titleMap, bool themeForest, float distanceUntilWall, float depthMaximum, char charWall, int y, int ceiling, int floor, float texX, float timeAnimation, bool isSideWall, const Highlighter::InfoLight& infoLight, float hitX, float hitY, char npcFound, float nx, float ny) {
+    return getInternalWallPixel(titleMap, themeForest, distanceUntilWall, depthMaximum, charWall, y, ceiling, floor, texX, timeAnimation, infoLight, hitX, hitY, isSideWall, npcFound, nx, ny);
 }
 
-Pixel3D RaycasterWorld::getPixelWall(const std::string& titleMap, bool themeForest, float distanceUntilWall, float depthMaximum, char charWall, int y, int ceiling, int chao, float texX, float timeAnimation, bool isSideWall, const std::vector<std::tuple<int, int, int>>& lights, float hitX, float hitY, char npcFound, float nx, float ny) {
-    return getInternalWallPixel(titleMap, themeForest, distanceUntilWall, depthMaximum, charWall, y, ceiling, chao, texX, timeAnimation, lights, hitX, hitY, isSideWall, npcFound, nx, ny);
+Pixel3D RaycasterWorld::getPixelWall(const std::string& titleMap, bool themeForest, float distanceUntilWall, float depthMaximum, char charWall, int y, int ceiling, int floor, float texX, float timeAnimation, bool isSideWall, const std::vector<std::tuple<int, int, int>>& lights, float hitX, float hitY, char npcFound, float nx, float ny) {
+    return getInternalWallPixel(titleMap, themeForest, distanceUntilWall, depthMaximum, charWall, y, ceiling, floor, texX, timeAnimation, lights, hitX, hitY, isSideWall, npcFound, nx, ny);
 }
 
 
-Pixel3D RaycasterWorld::getPixelChao(const std::string& titleMap, float currentX, float currentY, float currentDist, float depthMaximum, const std::vector<std::tuple<int, int, int>>& lights, const std::vector<std::string>* mapMatrix, float timeAnimation) {
+Pixel3D RaycasterWorld::getFloorPixel(const std::string& titleMap, float currentX, float currentY, float currentDist, float depthMaximum, const std::vector<std::tuple<int, int, int>>& lights, const std::vector<std::string>* mapMatrix, float timeAnimation) {
     const auto& flags = getFlagsMap(titleMap);
     int themeSky = flags.themeSky;
     currentDist *= 0.55f;
@@ -380,7 +380,7 @@ Pixel3D RaycasterWorld::getPixelChao(const std::string& titleMap, float currentX
     }
     return px;
 }
-Pixel3D RaycasterWorld::getPixelChao(const std::string& titleMap, float currentX, float currentY, float currentDist, float depthMaximum, const Highlighter::InfoLight& infoLight) {
+Pixel3D RaycasterWorld::getFloorPixel(const std::string& titleMap, float currentX, float currentY, float currentDist, float depthMaximum, const Highlighter::InfoLight& infoLight) {
     const auto& flags = getFlagsMap(titleMap);
     currentDist *= 0.55f;
 

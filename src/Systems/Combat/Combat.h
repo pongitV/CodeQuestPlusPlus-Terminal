@@ -33,75 +33,75 @@ public:
 private:
     // Referencias aos participantes do combate ativo
     Character* currentPlayer;
-    std::vector<std::unique_ptr<Character>> listDeEnemies;
-    std::vector<std::unique_ptr<Character>> listDeAllies;
+    std::vector<std::unique_ptr<Character>> enemies;
+    std::vector<std::unique_ptr<Character>> allies;
 
     // Interface visual de combate (Injecao de Dependencia)
     std::unique_ptr<ICombatUI> ui;
 
     // Estatisticas gerais e controle da sessao de combate
-    int quantityDeGoldObtained;
-    int quantityDeXpObtained;
-    int totalDeDamageCaused;
-    int totalDeDamageReceived;
-    int accountantDoShiftCurrent;
+    int goldObtained;
+    int xpObtained;
+    int totalDamageCaused;
+    int totalDamageReceived;
+    int currentTurnCount;
     std::vector<std::string> obtainedItems;
     std::vector<std::string> enemiesDefeated;
 
     // Estatisticas Avancadas da Sessao
-    int stats_parriesTempted;
-    int stats_parriesEffective;
-    int stats_parriesPerfect;
-    int stats_biggerDamageCaused;
+    int parriesAttempted;
+    int effectiveParries;
+    int perfectParries;
+    int highestDamageCaused;
     int stats_itemsConsumed;
-    std::vector<std::string> stats_newDiscoveries;
+    std::vector<std::string> newDiscoveries;
     void resetStatisticsAdvanced();
 
-    void applyDamageAoTarget(Character* attackingCharacter, Character* characterTarget, int quantityDeDamageGross, int damagePiercing, int shiftCurrentDoCombat);
-    void processDeathDeEnemy(Character* enemy);
-    void displayResultDoAttack(Character* target, int damageEnd, bool triedParry, bool parrySuccess, int damageBlocked, bool shieldBroke, const std::string& nameShieldBroken);
+    void applyDamageToTarget(Character* attackingCharacter, Character* targetCharacter, int grossDamage, int damagePiercing, int currentCombatTurn);
+    void processEnemyDeath(Character* enemy);
+    void displayAttackResult(Character* target, int finalDamage, bool triedParry, bool parrySuccess, int damageBlocked, bool shieldBroken, const std::string& brokenShieldName);
 
     void prepareShiftCharacter(Character* character);
-    void processPostDamage(Character* attacker, Character* target, int damageEnd, bool triedParry, bool parrySuccess);
-    bool isCharacterPlayerOuAlly(Character* character) const;
-    void processMenuDeActionsDoPlayer(Character* characterActing, bool& shiftWasConsumed, bool& usedInventoryNoShift);
+    void processPostDamage(Character* attacker, Character* target, int finalDamage, bool triedParry, bool parrySuccess);
+    bool isPlayerOrAlly(Character* character) const;
+    void processPlayerActionMenu(Character* characterActing, bool& shiftWasConsumed, bool& inventoryUsedThisTurn);
     void processActionAttack(Character* characterActing, bool& shiftWasConsumed);
     void processActionDefend(Character* characterActing, bool& shiftWasConsumed);
     void processActionSkill(Character* characterActing, bool& shiftWasConsumed);
-    void processActionInventory(Character* characterActing, bool& shiftWasConsumed, bool& usedInventoryNoShift);
+    void processInventoryAction(Character* characterActing, bool& shiftWasConsumed, bool& inventoryUsedThisTurn);
     void cleanEnemiesDead();
     Item* selectShield(Character* characterActing);
 
-    std::string getTitleDoCombat() const;
+    std::string getCombatTitle() const;
     std::vector<Character*> getEnemiesRaw() const;
-    void displayScreenDeCombat(bool animateEntrance = false) const;
+    void displayCombatScreen(bool animateEntrance = false) const;
 
 public:
-    Combat(Character* playerForOCombat, std::vector<std::unique_ptr<Character>>&& enemiesForOCombat, std::unique_ptr<ICombatUI> interfaceVisual = nullptr);
+    Combat(Character* combatPlayer, std::vector<std::unique_ptr<Character>>&& combatEnemies, std::unique_ptr<ICombatUI> interfaceVisual = nullptr);
     virtual ~Combat();
 
     void set3DContext(bool mode3D, const std::vector<std::string>& matrix, float postX, float postY, float angle, const std::string& title);
 
     std::vector<Character*> getAlliesAliveRaw() const;
-    bool executeShiftPlayerOuAlly(Character* character, bool& firstRendering, bool processEffectsHome = true);
-    void addAllyEmCombat(std::unique_ptr<Character> ally);
+    bool executePlayerOrAllyTurn(Character* character, bool& firstRendering, bool processEffectsHome = true);
+    void addAllyInCombat(std::unique_ptr<Character> ally);
     void addAllies(std::vector<std::unique_ptr<Character>> allies);
     // Inicia o laco principal de combate
     void startCombat();
 
     // Executa a inteligencia e as acoes de todos os inimigos presentes
-    void executeShiftDeEveryoneOsEnemies();
+    void executeTurnForAllEnemies();
 
     // Verifica se todos os inimigos estao mortos ou se o jogador morreu. Retorna true se o combate deve acabar.
-    bool checkConditionDeVictoryOuDefeat();
+    bool checkVictoryOrDefeatCondition();
 
     // Aplica o fluxo completo de dano fisico de um personagem a outro
-    void performAttackPhysical(Character* attackingCharacter, Character* characterDefender, int shiftCurrentDoCombat);
+    void performPhysicalAttack(Character* attackingCharacter, Character* defenderCharacter, int currentCombatTurn);
 
     // Getters para Estatisticas Avancadas
-    int getParriesTempted() const { return stats_parriesTempted; }
-    int getParriesEffective() const { return stats_parriesEffective; }
-    int getBiggerDamageCaused() const { return stats_biggerDamageCaused; }
+    int getParriesAttempted() const { return parriesAttempted; }
+    int getEffectiveParries() const { return effectiveParries; }
+    int getHighestDamageCaused() const { return highestDamageCaused; }
     int getItemsConsumed() const { return stats_itemsConsumed; }
-    const std::vector<std::string>& getNewDiscoveries() const { return stats_newDiscoveries; }
+    const std::vector<std::string>& getNewDiscoveries() const { return newDiscoveries; }
 };

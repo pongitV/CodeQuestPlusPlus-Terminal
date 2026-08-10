@@ -12,7 +12,7 @@ void InteractionNPC::interact(Character* currentPlayer) {
     
     do {
         Appearance::clearScreen();
-        Appearance::displayTextPanel(getNameDoPlace(), getColorDoHeader());
+        Appearance::displayTextPanel(getPlaceName(), getHeaderColor());
 
         int terminalWidth = Appearance::getTerminalWidth();
         
@@ -70,7 +70,7 @@ bool InteractionNPC::checkMaterialNoInventory(Character* currentPlayer, const st
     return true;
 }
 
-Item* InteractionNPC::readItemDoInventory(Character* currentPlayer, const std::string& messageDialogue, const std::string& nameNPC, Color colorNPC, std::string& codeExit, bool displayPrices) {
+Item* InteractionNPC::readItemFromInventory(Character* currentPlayer, const std::string& messageDialogue, const std::string& nameNPC, Color colorNPC, std::string& codeExit, bool displayPrices) {
     Item* itemSelected = nullptr;
 
     BaseScreen::executeLoop(
@@ -128,7 +128,7 @@ Item* InteractionNPC::readItemDoInventory(Character* currentPlayer, const std::s
     return itemSelected;
 }
 
-void InteractionNPC::displayScreenDeSuccess(const std::string& titleHeader, Color colorHeader, const std::string& equation, const std::vector<std::string>& asciiArt, const std::string& nameNPC, const std::string& speakNPC) {
+void InteractionNPC::displaySuccessScreen(const std::string& titleHeader, Color colorHeader, const std::string& equation, const std::vector<std::string>& asciiArt, const std::string& nameNPC, const std::string& speakNPC) {
     Appearance::clearScreen();
     Appearance::displayTextPanel(titleHeader, colorHeader);
     Appearance::printCentralizedMultiline({equation, ""}, 0, Appearance::color(colorHeader));

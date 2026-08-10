@@ -12,9 +12,9 @@ public:
 
 protected:
     // INFORMACOES DO LUGAR E APARENCIA
-    std::string getNameDoPlace() const override;
-    Color getColorDoHeader() const override;
-    Color getColorDaArt() const override;
+    std::string getPlaceName() const override;
+    Color getHeaderColor() const override;
+    Color getArtColor() const override;
     const std::vector<std::string>& getArtASCII() const override;
 
     // INTERACAO E MENU

@@ -25,10 +25,10 @@ public:
     virtual int mainMenu() = 0;
     virtual void tutorialParry(const std::string& infoBox) = 0;
     virtual NameScreen::Result screenName() = 0;
-    virtual RaceScreen::Result screenRace(const std::string& nameCharacter) = 0;
-    virtual ClassScreen::Result screenClass(const std::string& nameCharacter, const std::string& race) = 0;
-    virtual DifficultyScreen::Result screenDifficulty(const std::string& nameCharacter, const std::string& race, const std::string& classObj) = 0;
-    virtual ParryScreen::Result screenParry(const std::string& nameCharacter, const std::string& race, const std::string& classObj) = 0;
+    virtual RaceScreen::Result screenRace(const std::string& characterName) = 0;
+    virtual ClassScreen::Result screenClass(const std::string& characterName, const std::string& race) = 0;
+    virtual DifficultyScreen::Result screenDifficulty(const std::string& characterName, const std::string& race, const std::string& classObj) = 0;
+    virtual ParryScreen::Result screenParry(const std::string& characterName, const std::string& race, const std::string& classObj) = 0;
     virtual void screenIntroduction() = 0;
     virtual bool confirmExit() = 0;
 };

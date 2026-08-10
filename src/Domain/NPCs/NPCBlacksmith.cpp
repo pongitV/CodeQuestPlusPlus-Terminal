@@ -50,15 +50,15 @@ namespace {
 }
 
 // --- INFORMACOES DO LUGAR ---
-std::string NPCBlacksmith::getNameDoPlace() const {
+std::string NPCBlacksmith::getPlaceName() const {
     return "FORJA DO BJORN";
 }
 
-Color NPCBlacksmith::getColorDoHeader() const {
+Color NPCBlacksmith::getHeaderColor() const {
     return Color::CYAN;
 }
 
-Color NPCBlacksmith::getColorDaArt() const {
+Color NPCBlacksmith::getArtColor() const {
     return Color::CYAN;
 }
 
@@ -72,7 +72,7 @@ void NPCBlacksmith::interact(Character* player) {
         [this, player]() { this->displayDialogue(player); },
         [this, player]() { return this->getOptionsMenu(player, Appearance::getTerminalWidth()); },
         [this, player](const std::string& op) { this->processOption(player, op, Appearance::getTerminalWidth()); return true; },
-        getNameDoPlace(), getColorDoHeader(), getArtASCII()
+        getPlaceName(), getHeaderColor(), getArtASCII()
     );
 }
 

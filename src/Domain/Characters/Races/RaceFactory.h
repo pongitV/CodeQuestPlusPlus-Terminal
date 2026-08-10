@@ -6,5 +6,5 @@
 class RaceFactory {
 public:
     static std::unique_ptr<BaseRace> createRace(TypeRace type);
-    static std::vector<TypeRace> getBreedsPlayable();
+    static std::vector<TypeRace> getPlayableBreeds();
 };

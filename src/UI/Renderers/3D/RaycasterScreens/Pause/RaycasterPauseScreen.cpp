@@ -22,7 +22,7 @@ static int renderMenuSimple(const std::string& title, const std::vector<std::str
         std::ostringstream buffer;
         MenuRaycasterUtils::displayBackground3D(buffer);
 
-        int espTit = ScreenBaseMenu::calculateOffsetCentral(title, widthConsole);
+        int offsetTitle = ScreenBaseMenu::calculateOffsetCentral(title, widthConsole);
         
         int boxW = Appearance::getVisualLength(title) + 10;
         for (const auto& op : options) {
@@ -34,13 +34,13 @@ static int renderMenuSimple(const std::string& title, const std::vector<std::str
         int yBase = 8;
         
         ScreenBaseMenu::drawBoxBlack(buffer, yBase - 2, boxX, boxW, (int)options.size() + 4);
-        MenuRaycasterUtils::superimposeTextAbsolute(buffer, "\033[38;2;255;215;0m" + title + "\033[0m", yBase - 1, espTit);
+        MenuRaycasterUtils::superimposeTextAbsolute(buffer, "\033[38;2;255;215;0m" + title + "\033[0m", yBase - 1, offsetTitle);
 
         for (int i = 0; i < (int)options.size(); ++i) {
             std::string icon = (i == selectionCurrent) ? "> " : "  ";
             std::string color = (i == selectionCurrent) ? "\033[38;2;0;255;0m" : "\033[38;2;120;120;120m";
-            int espOption = ScreenBaseMenu::calculateOffsetCentral(options[i] + "  ", widthConsole);
-            MenuRaycasterUtils::superimposeTextAbsolute(buffer, color + icon + options[i] + "\033[0m", yBase + 1 + i, espOption - 2);
+            int offsetOption = ScreenBaseMenu::calculateOffsetCentral(options[i] + "  ", widthConsole);
+            MenuRaycasterUtils::superimposeTextAbsolute(buffer, color + icon + options[i] + "\033[0m", yBase + 1 + i, offsetOption - 2);
         }
 
         MenuRaycasterUtils::flushFrameForConsole(buffer.str());

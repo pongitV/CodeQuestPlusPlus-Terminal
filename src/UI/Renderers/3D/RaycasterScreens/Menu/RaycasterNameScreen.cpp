@@ -26,25 +26,25 @@ NameScreen::Result ScreenNameRaycaster::display() {
         MenuRaycasterUtils::displayBackground3D(buffer);
 
         int y = 3;
-        int espTitle = std::max(0, (width - 17) / 2);
-        int espNarrative = std::max(0, (width - 50) / 2);
+        int offsetTitle = std::max(0, (width - 17) / 2);
+        int offsetNarrative = std::max(0, (width - 50) / 2);
         
         std::string promptStr = "> Digite o nome do seu personagem [0 para voltar]: ";
         int boxW = std::max(54, (int)promptStr.length() + (int)name.length() + 5);
         int boxX = ScreenBaseMenu::calculateOffsetCentral(boxW, width);
         ScreenBaseMenu::drawBoxBlack(buffer, 2, boxX, boxW, 8);
 
-        MenuRaycasterUtils::superimposeTextAbsolute(buffer, colorTitle + "O NOME DO DESTINO\033[0m", y++, espTitle); y++;
-        MenuRaycasterUtils::superimposeTextAbsolute(buffer, colorNarrative + "O mundo clama por um novo destino...\033[0m", y++, espNarrative);
-        MenuRaycasterUtils::superimposeTextAbsolute(buffer, colorNarrative + "E todas as lendas possuem um nome.\033[0m", y++, espNarrative); y++;
+        MenuRaycasterUtils::superimposeTextAbsolute(buffer, colorTitle + "O NOME DO DESTINO\033[0m", y++, offsetTitle); y++;
+        MenuRaycasterUtils::superimposeTextAbsolute(buffer, colorNarrative + "O mundo clama por um novo destino...\033[0m", y++, offsetNarrative);
+        MenuRaycasterUtils::superimposeTextAbsolute(buffer, colorNarrative + "E todas as lendas possuem um nome.\033[0m", y++, offsetNarrative); y++;
 
         int yPrompt = y;
-        int espPrompt = ScreenBaseMenu::calculateOffsetCentral(promptStr + name + "_", width);
-        MenuRaycasterUtils::superimposeTextAbsolute(buffer, promptStr + "\033[38;2;100;255;100m" + name + "\033[38;2;150;255;150m_\033[0m", yPrompt, espPrompt);
+        int offsetPrompt = ScreenBaseMenu::calculateOffsetCentral(promptStr + name + "_", width);
+        MenuRaycasterUtils::superimposeTextAbsolute(buffer, promptStr + "\033[38;2;100;255;100m" + name + "\033[38;2;150;255;150m_\033[0m", yPrompt, offsetPrompt);
         
         if (!messageError.empty()) {
-            int espErr = ScreenBaseMenu::calculateOffsetCentral(messageError, width);
-            MenuRaycasterUtils::superimposeTextAbsolute(buffer, "\033[38;2;255;100;100m" + messageError + "\033[0m", yPrompt + 2, espErr);
+            int offsetError = ScreenBaseMenu::calculateOffsetCentral(messageError, width);
+            MenuRaycasterUtils::superimposeTextAbsolute(buffer, "\033[38;2;255;100;100m" + messageError + "\033[0m", yPrompt + 2, offsetError);
         }
 
         MenuRaycasterUtils::flushFrameForConsole(buffer.str());

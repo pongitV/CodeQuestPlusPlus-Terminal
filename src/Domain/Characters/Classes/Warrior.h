@@ -23,9 +23,9 @@ public:
     std::string getRechargeSkillClass() const override;
     std::string getNameSkillClass() const override;
     std::string getDescriptionSkillClass() const override;
-    void useSkillClass(Combat* combat, Character* characterUser, std::vector<Character*>& listDeEnemies) override;
+    void useSkillClass(Combat* combat, Character* characterUser, std::vector<Character*>& enemies) override;
 
 protected:
     // PROCESSAMENTO DE DANO 
-    int processDamagePreAttack(Character* attacker, Character* defender, int damageBase, bool isAttackerPlayer, size_t qtyEnemies) override;
+    int processDamagePreAttack(Character* attacker, Character* defender, int damageBase, bool isAttackerPlayer, size_t enemyCount) override;
 };  

@@ -117,9 +117,9 @@ public:
     virtual void reduceDurability(int /*qtd*/) {}
     virtual void increaseDurability(int /*qtd*/) {}
     
-    virtual void beforeDeCauseDamage(Character* /*atacante*/, Character* /*alvo*/) {}
-    virtual void aoCauseDamage(Character* /*atacante*/, Character* /*alvo*/, int /*danoCausado*/) {}
-    virtual int ensureDamageMinimum(int damageEnd) { return std::max(damageEnd, 1); }
+    virtual void beforeCausingDamage(Character* /*atacante*/, Character* /*alvo*/) {}
+    virtual void onCausingDamage(Character* /*atacante*/, Character* /*alvo*/, int /*danoCausado*/) {}
+    virtual int ensureDamageMinimum(int finalDamage) { return std::max(finalDamage, 1); }
 
     virtual int getPriceSale() const { return priceSale; }
     virtual std::string getInfoStatus() const { return ""; } // Vazio por padrao para itens sem status extra
@@ -131,7 +131,7 @@ public:
     virtual void setActionUse(std::function<void(Character*, Character*)> action) { actionUse = action; }
     
     virtual void setActionInventory(std::function<bool(Item*, Character*, bool*)> action) { actionInventory = action; }
-    virtual bool useDoInventory(Character* user, bool* shiftWasConsumed) {
+    virtual bool useFromInventory(Character* user, bool* shiftWasConsumed) {
         if (actionInventory) return actionInventory(this, user, shiftWasConsumed);
         return false;
     }

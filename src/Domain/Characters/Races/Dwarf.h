@@ -12,5 +12,5 @@ public:
 
     std::string getNameSkillRace() const override;
     std::string getDescriptionSkillRace() const override;
-    int processDamageDefensive(int damageEnd, Character* defender) override;
+    int processDamageDefensive(int finalDamage, Character* defender) override;
 };

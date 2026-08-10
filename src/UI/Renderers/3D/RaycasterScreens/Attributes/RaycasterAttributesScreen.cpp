@@ -90,7 +90,7 @@ void ScreenAttributesRaycaster::managePlayerCharacterSheet(Character* currentPla
         std::cout << "\033[?25l";
         
         int widthConsole = Appearance::getTerminalWidth();
-        double multiplierDeAttributesCurrent = currentPlayer->getMultiplier();
+        double currentAttributeMultiplier = currentPlayer->getMultiplier();
         DebuffInfo debuff = AttributesScreen::calculateDebuff(currentPlayer);
         bool hasBuff = debuff.hasBuff;
         
@@ -144,23 +144,23 @@ void ScreenAttributesRaycaster::managePlayerCharacterSheet(Character* currentPla
         linesMain.push_back(statusCurrent);
         linesMain.push_back("");
 
-        auto formatAtr = [hasBuff, multiplierDeAttributesCurrent](std::string nameDoAttribute, int valueBaseDoAttribute, int valueLostByDebuff, Color colorBase) -> std::string {
-            int bonusBuff = hasBuff ? static_cast<int>(valueBaseDoAttribute * multiplierDeAttributesCurrent) - valueBaseDoAttribute : 0;
-            double pct = std::min(1.0, valueBaseDoAttribute / 50.0);
+        auto formatAttribute = [hasBuff, currentAttributeMultiplier](std::string attributeName, int baseAttributeValue, int valueLostByDebuff, Color colorBase) -> std::string {
+            int bonusBuff = hasBuff ? static_cast<int>(baseAttributeValue * currentAttributeMultiplier) - baseAttributeValue : 0;
+            double pct = std::min(1.0, baseAttributeValue / 50.0);
             std::string bar = BaseScreen::generateBarGradient(pct, 10, colorBase);
             std::ostringstream ss;
-            ss << std::left << std::setw(13) << nameDoAttribute << ": " << std::setw(3) << valueBaseDoAttribute << " [" << bar << Appearance::color(Color::RESET) << "]";
+            ss << std::left << std::setw(13) << attributeName << ": " << std::setw(3) << baseAttributeValue << " [" << bar << Appearance::color(Color::RESET) << "]";
             if (hasBuff && bonusBuff > 0) ss << " " << Appearance::color(Color::LIGHT_GREEN) << "(+" << bonusBuff << ")" << Appearance::color(Color::RESET);
             else if (valueLostByDebuff > 0) ss << " " << Appearance::color(Color::RED) << "(-" << valueLostByDebuff << ")" << Appearance::color(Color::RESET);
             return ss.str();
         };
 
-        linesMain.push_back(formatAtr("Forca", currentPlayer->getStrength(), debuff.lostStrength, Color::RED) + "   " + formatAtr("Inteligencia", currentPlayer->getIntelligence(), 0, Color::PURPLE));
-        linesMain.push_back(formatAtr("Destreza", currentPlayer->getDexterity(), debuff.dexterityLost, Color::ORANGE) + "   " + formatAtr("Sabedoria", currentPlayer->getWisdom(), 0, Color::LILAC));
-        linesMain.push_back(formatAtr("Resistencia", currentPlayer->getResistance(), debuff.resLost, Color::BLUE) + "   " + formatAtr("Constituicao", currentPlayer->getConstitution(), debuff.constLost, Color::CYAN));
+        linesMain.push_back(formatAttribute("Forca", currentPlayer->getStrength(), debuff.lostStrength, Color::RED) + "   " + formatAttribute("Inteligencia", currentPlayer->getIntelligence(), 0, Color::PURPLE));
+        linesMain.push_back(formatAttribute("Destreza", currentPlayer->getDexterity(), debuff.dexterityLost, Color::ORANGE) + "   " + formatAttribute("Sabedoria", currentPlayer->getWisdom(), 0, Color::LILAC));
+        linesMain.push_back(formatAttribute("Resistencia", currentPlayer->getResistance(), debuff.resLost, Color::BLUE) + "   " + formatAttribute("Constituicao", currentPlayer->getConstitution(), debuff.constLost, Color::CYAN));
         linesMain.push_back("");
 
-        PowerCombat power = AttributesScreen::calculatePowerCombat(currentPlayer, multiplierDeAttributesCurrent);
+        PowerCombat power = AttributesScreen::calculatePowerCombat(currentPlayer, currentAttributeMultiplier);
         std::string sFis = Appearance::color(Color::RED) + std::to_string(power.damageFisIs) + Appearance::color(Color::RESET);
         std::string sMag = Appearance::color(Color::RED) + std::to_string(power.damageMagIs) + Appearance::color(Color::RESET);
         std::string sDef = Appearance::color(Color::BLUE) + std::to_string(power.defFixed) + Appearance::color(Color::RESET);
@@ -256,7 +256,7 @@ void ScreenAttributesRaycaster::managePlayerCharacterSheet(Character* currentPla
         std::vector<std::string> optionsAtr;
         for (int i = 1; i <= 7; ++i) {
             auto clonePreview = currentPlayer->clone();
-            clonePreview->riseDeLevel(static_cast<AttributeType>(i));
+            clonePreview->levelUp(static_cast<AttributeType>(i));
 
             int valCurrent = 0, valNew = 0;
             switch (i) {
@@ -339,7 +339,7 @@ void ScreenAttributesRaycaster::managePlayerCharacterSheet(Character* currentPla
                 selectionCurrent++; if (selectionCurrent >= (int)options.size()) selectionCurrent = 0;
             } else if (c == '\r' || c == '\n') {
                 if (selectionCurrent == 0) {
-                    if (!currentPlayer->canRiseDeLevel()) state = ERROR_LEVEL;
+                    if (!currentPlayer->canLevelUp()) state = ERROR_LEVEL;
                     else { state = RISE_LEVEL; selectionRise = 0; }
                 }
                 else if (selectionCurrent == 1) state = SKILLS;
@@ -357,7 +357,7 @@ void ScreenAttributesRaycaster::managePlayerCharacterSheet(Character* currentPla
                 if (selectionRise == 7) { 
                     state = MAIN;
                 } else {
-                    currentPlayer->riseDeLevel(static_cast<AttributeType>(selectionRise + 1));
+                    currentPlayer->levelUp(static_cast<AttributeType>(selectionRise + 1));
                     state = MAIN;
                 }
             } else if (c == 27) {

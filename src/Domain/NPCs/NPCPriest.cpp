@@ -31,15 +31,15 @@ void NPCPriest::interact(Character* player) {
     }
 }
 
-std::string NPCPriest::getNameDoPlace() const {
+std::string NPCPriest::getPlaceName() const {
     return "ALTAR DA IGREJA";
 }
 
-Color NPCPriest::getColorDoHeader() const {
+Color NPCPriest::getHeaderColor() const {
     return Color::CYAN;
 }
 
-Color NPCPriest::getColorDaArt() const {
+Color NPCPriest::getArtColor() const {
     return Color::CYAN;
 }
 

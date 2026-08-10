@@ -6,9 +6,9 @@
 #include "Domain/Characters/Character.h"
 #include <string>
 
-UseItemInfo ControlInventory::useOuEquip(Character* player, Item* item, bool shiftJaWasConsumed) {
-    if (shiftJaWasConsumed) {
-        return {ResultItem::Error_ShiftJaUsed, "", "", false};
+UseItemInfo ControlInventory::useOrEquip(Character* player, Item* item, bool turnAlreadyConsumed) {
+    if (turnAlreadyConsumed) {
+        return {ResultItem::Error_TurnAlreadyUsed, "", "", false};
     }
 
     if (item->isEquipable()) {
@@ -40,22 +40,22 @@ UseItemInfo ControlInventory::useOuEquip(Character* player, Item* item, bool shi
         return {ResultItem::Equipped, item->getItemName(), "", true};
     }
 
-    bool consumiu = false;
-    if (item->useDoInventory(player, &consumiu)) {
-        return {ResultItem::Used_Shift, item->getItemName(), "", consumiu};
+    bool consumed = false;
+    if (item->useFromInventory(player, &consumed)) {
+        return {ResultItem::Used_Shift, item->getItemName(), "", consumed};
     }
 
-    return {ResultItem::Error_NoCanUse, item->getItemName(), "", false};
+    return {ResultItem::Error_CannotUse, item->getItemName(), "", false};
 }
 
-std::string ControlInventory::getMessageError(Item* item, bool emCombat) {
+std::string ControlInventory::getMessageError(Item* item, bool inCombat) {
     switch (item->getType()) {
         case EquipmentType::MATERIAL:
             return "Materiais sao utilizados para NPCs especializados.";
         case EquipmentType::MISSION:
             return "Itens de missao sao ativados automaticamente.";
         case EquipmentType::CONSUMABLE:
-            return "Este consumivel nao pode ser usado " + std::string(emCombat ? "no combate!" : "fora de combate!");
+            return "Este consumivel nao pode ser usado " + std::string(inCombat ? "no combate!" : "fora de combate!");
         default:
             return "Este item nao possui uso direto no inventario.";
     }

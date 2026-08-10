@@ -19,12 +19,12 @@ std::vector<std::string> RaycasterRendererCombat::getArenaByTitle(const std::str
     std::string upper = title;
     for (char& c : upper) c = std::toupper(static_cast<unsigned char>(c));
 
-    char chao = '.';
+    char floor = '.';
     if (upper.find("VILA") != std::string::npos || upper.find("FLORESTA") != std::string::npos || upper.find("BOSQUE") != std::string::npos || upper.find("INICIO") != std::string::npos) {
-        chao = ',';
+        floor = ',';
     }
 
-    auto chaoStr = [&](int n) { return std::string(n, chao); };
+    auto floorStr = [&](int n) { return std::string(n, floor); };
 
     if (upper.find("CHEFE") != std::string::npos) {
         return {
@@ -65,52 +65,52 @@ std::vector<std::string> RaycasterRendererCombat::getArenaByTitle(const std::str
     if (upper.find("CAVERNA") != std::string::npos || upper.find("CORACAO") != std::string::npos) {
         return {
             "################################",
-            "#" + chaoStr(30) + "#",
-            "#" + chaoStr(30) + "#",
-            "#" + chaoStr(30) + "#",
-            "#" + chaoStr(30) + "#",
-            "#" + chaoStr(30) + "#",
-            "#" + chaoStr(30) + "#",
-            "#" + chaoStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
             "################################"
         };
     }
     if (upper.find("PATIO DO REINO") != std::string::npos || upper.find("REINO") != std::string::npos) {
         return {
             "#|||||||||||||||||||||||||||||||#",
-            "#" + chaoStr(30) + "#",
-            "#" + chaoStr(30) + "#",
-            "#" + chaoStr(30) + "#",
-            "#" + chaoStr(30) + "#",
-            "#" + chaoStr(30) + "#",
-            "#" + chaoStr(30) + "#",
-            "#" + chaoStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
             "#|||||||||||||||||||||||||||||||#"
         };
     }
     if (upper.find("CEMITERIO") != std::string::npos) {
         return {
             "################################",
-            "#" + chaoStr(30) + "#",
-            "#" + chaoStr(30) + "#",
-            "#" + chaoStr(30) + "#",
-            "#" + chaoStr(30) + "#",
-            "#" + chaoStr(30) + "#",
-            "#" + chaoStr(30) + "#",
-            "#" + chaoStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
             "################################"
         };
     }
     if (upper.find("FLORESTA") != std::string::npos || upper.find("BOSQUE") != std::string::npos) {
         return {
             "################################",
-            "#" + chaoStr(30) + "#",
-            "#" + chaoStr(30) + "#",
-            "#" + chaoStr(30) + "#",
-            "#" + chaoStr(30) + "#",
-            "#" + chaoStr(30) + "#",
-            "#" + chaoStr(30) + "#",
-            "#" + chaoStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
             "################################"
         };
     }
@@ -118,13 +118,13 @@ std::vector<std::string> RaycasterRendererCombat::getArenaByTitle(const std::str
     if (upper.find("VILA") != std::string::npos || upper.find("INICIO") != std::string::npos) {
         return {
             "T=====[]=======================T",
-            "T" + chaoStr(30) + "T",
-            "T" + chaoStr(30) + "T",
-            "T" + chaoStr(30) + "T",
-            "T" + chaoStr(30) + "T",
-            "T" + chaoStr(30) + "T",
-            "T" + chaoStr(30) + "T",
-            "T" + chaoStr(30) + "T",
+            "T" + floorStr(30) + "T",
+            "T" + floorStr(30) + "T",
+            "T" + floorStr(30) + "T",
+            "T" + floorStr(30) + "T",
+            "T" + floorStr(30) + "T",
+            "T" + floorStr(30) + "T",
+            "T" + floorStr(30) + "T",
             "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
         };
     }
@@ -132,13 +132,13 @@ std::vector<std::string> RaycasterRendererCombat::getArenaByTitle(const std::str
     // Default
     return {
         "####_[]_########################",
-        "#" + chaoStr(30) + "#",
-        "#" + chaoStr(30) + "#",
-        "#" + chaoStr(30) + "#",
-        "#" + chaoStr(30) + "#",
-        "#" + chaoStr(30) + "#",
-        "#" + chaoStr(30) + "#",
-        "#" + chaoStr(30) + "#",
+        "#" + floorStr(30) + "#",
+        "#" + floorStr(30) + "#",
+        "#" + floorStr(30) + "#",
+        "#" + floorStr(30) + "#",
+        "#" + floorStr(30) + "#",
+        "#" + floorStr(30) + "#",
+        "#" + floorStr(30) + "#",
         "################################"
     };
 }

@@ -27,18 +27,18 @@ public:
 
     void bootEnemies();
 
-    void registerFirstView(const std::string& nameEnemy);
-    void registerDefeat(const std::string& nameEnemy);
-    void registerSkillView(const std::string& nameEnemy, const std::string& skill);
-    void registerDrop(const std::string& nameEnemy, const std::string& drop);
+    void registerFirstView(const std::string& enemyName);
+    void registerDefeat(const std::string& enemyName);
+    void registerSkillView(const std::string& enemyName, const std::string& skill);
+    void registerDrop(const std::string& enemyName, const std::string& drop);
 
-    bool thisDiscovered(const std::string& nameEnemy) const;
-    bool jaDefeated(const std::string& nameEnemy) const;
-    int getQuantityDefeats(const std::string& nameEnemy) const;
-    bool jaSawSkill(const std::string& nameEnemy, const std::string& skill) const;
-    bool jaCollectedDrop(const std::string& nameEnemy, const std::string& drop) const;
+    bool thisDiscovered(const std::string& enemyName) const;
+    bool jaDefeated(const std::string& enemyName) const;
+    int getQuantityDefeats(const std::string& enemyName) const;
+    bool jaSawSkill(const std::string& enemyName, const std::string& skill) const;
+    bool jaCollectedDrop(const std::string& enemyName, const std::string& drop) const;
 
-    const SystemBestiaryEnemyInfo* getInfo(const std::string& nameEnemy) const;
+    const SystemBestiaryEnemyInfo* getInfo(const std::string& enemyName) const;
     std::vector<std::string> getEnemiesOrderedByDifficulty() const;
 
     void save(std::ofstream& out) const;
@@ -46,7 +46,7 @@ public:
 
 private:
     Bestiary();
-    std::map<std::string, SystemBestiaryEnemyInfo> enemiesBase;
+    std::map<std::string, SystemBestiaryEnemyInfo> baseEnemies;
     
     std::set<std::string> visas;
     std::set<std::string> defeated;

@@ -73,8 +73,8 @@ void ScreenIntroductionRaycaster::display() {
                     break;
                 }
             }
-            int esp = ScreenBaseMenu::calculateOffsetCentral(msg, widthConsole);
-            MenuRaycasterUtils::superimposeTextAbsolute(aprBuff, "\033[38;2;200;200;200m" + textActive + "\033[0m", yMsg, esp);
+            int offset = ScreenBaseMenu::calculateOffsetCentral(msg, widthConsole);
+            MenuRaycasterUtils::superimposeTextAbsolute(aprBuff, "\033[38;2;200;200;200m" + textActive + "\033[0m", yMsg, offset);
             yMsg++;
             if (textActive == msg) {
                  charCount += 15;

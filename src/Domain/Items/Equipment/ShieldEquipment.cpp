@@ -66,12 +66,12 @@ std::vector<std::string> EquipmentShield::getDetailsInspection(Character* charac
     bool hasReq = false;
     if (reqResistance > 0) { lines.push_back("   - Resistencia Base: " + std::to_string(reqResistance)); hasReq = true; }
     if (reqSecondary > 0) {
-        std::string atrSec = "";
-        if (typeSecondary == AttributeType::Strength) atrSec = "Forca";
-        else if (typeSecondary == AttributeType::Dexterity) atrSec = "Destreza";
-        else if (typeSecondary == AttributeType::Intelligence) atrSec = "Inteligencia";
-        else if (typeSecondary == AttributeType::Wisdom) atrSec = "Sabedoria";
-        lines.push_back("   - Atributo Secundario (" + atrSec + "): " + std::to_string(reqSecondary));
+        std::string secondaryAttribute = "";
+        if (typeSecondary == AttributeType::Strength) secondaryAttribute = "Forca";
+        else if (typeSecondary == AttributeType::Dexterity) secondaryAttribute = "Destreza";
+        else if (typeSecondary == AttributeType::Intelligence) secondaryAttribute = "Inteligencia";
+        else if (typeSecondary == AttributeType::Wisdom) secondaryAttribute = "Sabedoria";
+        lines.push_back("   - Atributo Secundario (" + secondaryAttribute + "): " + std::to_string(reqSecondary));
         hasReq = true;
     }
     if (!hasReq) lines.push_back("   - Nenhum requisito.");

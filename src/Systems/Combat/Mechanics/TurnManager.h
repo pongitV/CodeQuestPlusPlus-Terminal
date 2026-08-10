@@ -4,17 +4,17 @@
 
 class Character;
 
-class ManagerShifts {
+class ShiftManager {
 public:
     // Retorna a maior destreza entre todos os inimigos
     static int calculateMaxDexterityEnemies(const std::vector<std::unique_ptr<Character>>& enemies);
     
     // Verifica se os inimigos atacam antes do jogador (destreza inimiga > destreza jogador)
-    static bool enemiesAreMoreAct(Character* player, int maxDexterityEnemies);
+    static bool enemiesActFirst(Character* player, int maxEnemyDexterity);
     
     // Verifica se os inimigos possuem o dobro da destreza do jogador (atacam 2x seguidas no inicio)
-    static bool enemiesHasDoubleDeAgility(Character* player, int maxDexterityEnemies);
+    static bool enemiesHaveDoubleAgility(Character* player, int maxEnemyDexterity);
     
     // Verifica se o jogador possui o dobro de agilidade (ganha turno extra no inicio)
-    static bool playerHasShiftExtraNoHome(Character* player, int maxDexterityEnemies);
+    static bool playerHasExtraTurnAtStart(Character* player, int maxEnemyDexterity);
 };

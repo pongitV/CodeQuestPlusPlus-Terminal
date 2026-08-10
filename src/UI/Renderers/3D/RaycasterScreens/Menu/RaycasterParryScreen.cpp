@@ -23,10 +23,10 @@ namespace {
             std::ostringstream buff;
             MenuRaycasterUtils::displayBackground3D(buff);
 
-            int visTit = Appearance::getVisualLength(title);
-            int espTit = std::max(0, (widthConsole - visTit) / 2);
+            int titleVisualWidth = Appearance::getVisualLength(title);
+            int offsetTitle = std::max(0, (widthConsole - titleVisualWidth) / 2);
 
-            int maxW = visTit;
+            int maxW = titleVisualWidth;
             for (size_t i = 0; i < lines.size(); ++i) {
                 maxW = std::max(maxW, Appearance::getVisualLength(lines[i]));
             }
@@ -36,12 +36,12 @@ namespace {
             int inaLines = (int)lines.size() + 4;
             ScreenBaseMenu::drawBoxBlack(buff, 2, boxX, boxW, inaLines);
 
-            MenuRaycasterUtils::superimposeTextAbsolute(buff, "\033[38;2;255;215;0m" + title + "\033[0m", 3, espTit);
+            MenuRaycasterUtils::superimposeTextAbsolute(buff, "\033[38;2;255;215;0m" + title + "\033[0m", 3, offsetTitle);
 
             for (size_t i = 0; i < lines.size(); ++i) {
-                int visLen = Appearance::getVisualLength(lines[i]);
-                int esp = ScreenBaseMenu::calculateOffsetCentral(visLen, widthConsole);
-                MenuRaycasterUtils::superimposeTextAbsolute(buff, lines[i], 5 + (int)i, esp);
+                int visualLength = Appearance::getVisualLength(lines[i]);
+                int offset = ScreenBaseMenu::calculateOffsetCentral(visualLength, widthConsole);
+                MenuRaycasterUtils::superimposeTextAbsolute(buff, lines[i], 5 + (int)i, offset);
             }
 
             MenuRaycasterUtils::flushFrameForConsole(buff.str());
@@ -60,10 +60,10 @@ namespace {
                 MenuRaycasterUtils::displayBackground3D(buff);
 
                 std::string ina = std::to_string(i);
-                int esp = ScreenBaseMenu::calculateOffsetCentral(ina, widthConsole);
+                int offset = ScreenBaseMenu::calculateOffsetCentral(ina, widthConsole);
                 int boxX = ScreenBaseMenu::calculateOffsetCentral(6, widthConsole);
                 ScreenBaseMenu::drawBoxBlack(buff, 9, boxX, 6, 3);
-                MenuRaycasterUtils::superimposeTextAbsolute(buff, "\033[38;2;255;255;100m" + ina + "\033[0m", 10, esp);
+                MenuRaycasterUtils::superimposeTextAbsolute(buff, "\033[38;2;255;255;100m" + ina + "\033[0m", 10, offset);
 
                 MenuRaycasterUtils::flushFrameForConsole(buff.str());
                 std::this_thread::sleep_for(std::chrono::milliseconds(65));
@@ -75,10 +75,10 @@ namespace {
             MenuRaycasterUtils::displayBackground3D(buff);
 
             std::string go = "VAI!";
-            int esp = ScreenBaseMenu::calculateOffsetCentral(go, widthConsole);
+            int offset = ScreenBaseMenu::calculateOffsetCentral(go, widthConsole);
             int boxX = ScreenBaseMenu::calculateOffsetCentral(8, widthConsole);
             ScreenBaseMenu::drawBoxBlack(buff, 9, boxX, 8, 3);
-            MenuRaycasterUtils::superimposeTextAbsolute(buff, "\033[38;2;100;255;100m" + go + "\033[0m", 10, esp);
+            MenuRaycasterUtils::superimposeTextAbsolute(buff, "\033[38;2;100;255;100m" + go + "\033[0m", 10, offset);
 
             MenuRaycasterUtils::flushFrameForConsole(buff.str());
             std::this_thread::sleep_for(std::chrono::milliseconds(80));
@@ -118,31 +118,31 @@ namespace {
                     std::string title = "PARRY DE MOVIMENTO - DEMO";
                     std::string subtitle = "Teste " + std::to_string(test) + "/5 - " + levels[i].name;
 
-                    int espTit = ScreenBaseMenu::calculateOffsetCentral(title, widthConsole);
-                    int espSub = ScreenBaseMenu::calculateOffsetCentral(subtitle, widthConsole);
+                    int offsetTitle = ScreenBaseMenu::calculateOffsetCentral(title, widthConsole);
+                    int offsetSubtitle = ScreenBaseMenu::calculateOffsetCentral(subtitle, widthConsole);
 
                     int boxW = std::max((int)title.length(), (int)subtitle.length()) + 50;
                     if (boxW > widthConsole - 4) boxW = widthConsole - 4;
                     int boxX = ScreenBaseMenu::calculateOffsetCentral(boxW, widthConsole);
                     ScreenBaseMenu::drawBoxBlack(buff, 1, boxX, boxW, 21);
 
-                    MenuRaycasterUtils::superimposeTextAbsolute(buff, "\033[38;2;255;215;0m" + title + "\033[0m", 2, espTit);
-                    MenuRaycasterUtils::superimposeTextAbsolute(buff, "\033[38;2;180;180;255m" + subtitle + "\033[0m", 3, espSub);
+                    MenuRaycasterUtils::superimposeTextAbsolute(buff, "\033[38;2;255;215;0m" + title + "\033[0m", 2, offsetTitle);
+                    MenuRaycasterUtils::superimposeTextAbsolute(buff, "\033[38;2;180;180;255m" + subtitle + "\033[0m", 3, offsetSubtitle);
 
                     if (!Parry::minigameMessage.empty()) {
                         int compMsg = Appearance::getVisualLength(Parry::minigameMessage);
-                        int espMsg = ScreenBaseMenu::calculateOffsetCentral(compMsg, widthConsole);
-                        MenuRaycasterUtils::superimposeTextAbsolute(buff, Parry::minigameMessage, 15, espMsg);
+                        int offsetMessage = ScreenBaseMenu::calculateOffsetCentral(compMsg, widthConsole);
+                        MenuRaycasterUtils::superimposeTextAbsolute(buff, Parry::minigameMessage, 15, offsetMessage);
                     }
                     if (!Parry::minigameBar.empty()) {
                         int compBar = Appearance::getVisualLength(Parry::minigameBar);
-                        int espBar = ScreenBaseMenu::calculateOffsetCentral(compBar, widthConsole);
-                        MenuRaycasterUtils::superimposeTextAbsolute(buff, Parry::minigameBar, 17, espBar);
+                        int offsetBar = ScreenBaseMenu::calculateOffsetCentral(compBar, widthConsole);
+                        MenuRaycasterUtils::superimposeTextAbsolute(buff, Parry::minigameBar, 17, offsetBar);
                     }
 
                     if (!msgResult.empty()) {
-                        int espRes = ScreenBaseMenu::calculateOffsetCentral(msgResult, widthConsole);
-                        MenuRaycasterUtils::superimposeTextAbsolute(buff, colorResult + msgResult + "\033[0m", 20, espRes);
+                        int offsetResult = ScreenBaseMenu::calculateOffsetCentral(msgResult, widthConsole);
+                        MenuRaycasterUtils::superimposeTextAbsolute(buff, colorResult + msgResult + "\033[0m", 20, offsetResult);
                     }
 
                     MenuRaycasterUtils::flushFrameForConsole(buff.str());
@@ -226,31 +226,31 @@ namespace {
                     std::string title = "PARRY DE DIGITACAO - DEMO";
                     std::string subtitle = "Teste " + std::to_string(test) + "/5 - " + levels[i].name;
 
-                    int espTit = ScreenBaseMenu::calculateOffsetCentral(title, widthConsole);
-                    int espSub = ScreenBaseMenu::calculateOffsetCentral(subtitle, widthConsole);
+                    int offsetTitle = ScreenBaseMenu::calculateOffsetCentral(title, widthConsole);
+                    int offsetSubtitle = ScreenBaseMenu::calculateOffsetCentral(subtitle, widthConsole);
 
                     int boxW = std::max((int)title.length(), (int)subtitle.length()) + 50;
                     if (boxW > widthConsole - 4) boxW = widthConsole - 4;
                     int boxX = ScreenBaseMenu::calculateOffsetCentral(boxW, widthConsole);
                     ScreenBaseMenu::drawBoxBlack(buff, 1, boxX, boxW, 21);
 
-                    MenuRaycasterUtils::superimposeTextAbsolute(buff, "\033[38;2;255;215;0m" + title + "\033[0m", 2, espTit);
-                    MenuRaycasterUtils::superimposeTextAbsolute(buff, "\033[38;2;180;180;255m" + subtitle + "\033[0m", 3, espSub);
+                    MenuRaycasterUtils::superimposeTextAbsolute(buff, "\033[38;2;255;215;0m" + title + "\033[0m", 2, offsetTitle);
+                    MenuRaycasterUtils::superimposeTextAbsolute(buff, "\033[38;2;180;180;255m" + subtitle + "\033[0m", 3, offsetSubtitle);
 
                     if (!Parry::minigameMessage.empty()) {
                         int compMsg = Appearance::getVisualLength(Parry::minigameMessage);
-                        int espMsg = ScreenBaseMenu::calculateOffsetCentral(compMsg, widthConsole);
-                        MenuRaycasterUtils::superimposeTextAbsolute(buff, Parry::minigameMessage, 15, espMsg);
+                        int offsetMessage = ScreenBaseMenu::calculateOffsetCentral(compMsg, widthConsole);
+                        MenuRaycasterUtils::superimposeTextAbsolute(buff, Parry::minigameMessage, 15, offsetMessage);
                     }
                     if (!Parry::minigameBar.empty()) {
                         int compBar = Appearance::getVisualLength(Parry::minigameBar);
-                        int espBar = ScreenBaseMenu::calculateOffsetCentral(compBar, widthConsole);
-                        MenuRaycasterUtils::superimposeTextAbsolute(buff, Parry::minigameBar, 17, espBar);
+                        int offsetBar = ScreenBaseMenu::calculateOffsetCentral(compBar, widthConsole);
+                        MenuRaycasterUtils::superimposeTextAbsolute(buff, Parry::minigameBar, 17, offsetBar);
                     }
 
                     if (!msgResult.empty()) {
-                        int espRes = ScreenBaseMenu::calculateOffsetCentral(msgResult, widthConsole);
-                        MenuRaycasterUtils::superimposeTextAbsolute(buff, colorResult + msgResult + "\033[0m", 20, espRes);
+                        int offsetResult = ScreenBaseMenu::calculateOffsetCentral(msgResult, widthConsole);
+                        MenuRaycasterUtils::superimposeTextAbsolute(buff, colorResult + msgResult + "\033[0m", 20, offsetResult);
                     }
 
                     MenuRaycasterUtils::flushFrameForConsole(buff.str());
@@ -335,14 +335,14 @@ ParryScreen::Result ScreenParryRaycaster::display(const std::string& namePlayer,
         MenuRaycasterUtils::superimposeText3D(buffer, "\033[38;2;255;255;255m\u2514" + edge + "\u2518\033[0m", 4, boxX, widthConsole);
 
         int yBase = 7;
-        int espOption = ScreenBaseMenu::calculateOffsetCentral(50, widthConsole);
+        int offsetOption = ScreenBaseMenu::calculateOffsetCentral(50, widthConsole);
         
-        ScreenBaseMenu::drawBoxBlack(buffer, yBase - 1, espOption - 2, 54, (int)options.size() + 2);
+        ScreenBaseMenu::drawBoxBlack(buffer, yBase - 1, offsetOption - 2, 54, (int)options.size() + 2);
 
         for (int i = 0; i < (int)options.size(); ++i) {
             std::string icon = (i == selectionCurrent) ? "> " : "  ";
             std::string color = (i == selectionCurrent) ? "\033[38;2;0;255;0m" : "\033[38;2;120;120;120m";
-            MenuRaycasterUtils::superimposeTextAbsolute(buffer, color + icon + options[i] + "\033[0m", yBase + i, espOption);
+            MenuRaycasterUtils::superimposeTextAbsolute(buffer, color + icon + options[i] + "\033[0m", yBase + i, offsetOption);
         }
 
         MenuRaycasterUtils::flushFrameForConsole(buffer.str());

@@ -39,14 +39,14 @@ std::vector<std::unique_ptr<Character>> EnemyCreator::createGenericEnemies(int q
 
         // Aplica variacao percentual aleatoria nos atributos para individualizar cada inimigo da horda
         int healthVariation = RandomGenerator::getInteger(-maxVariation, maxVariation);
-        enemy->getEndAttributes().health += (enemy->getEndAttributes().health * healthVariation) / 100;
-        enemy->setHealth(enemy->getEndAttributes().health); // Sincroniza os pontos de vida atuais com a nova vida maxima
+        enemy->getFinalAttributes().health += (enemy->getFinalAttributes().health * healthVariation) / 100;
+        enemy->setHealth(enemy->getFinalAttributes().health); // Sincroniza os pontos de vida atuais com a nova vida maxima
         
         int strengthVariation = RandomGenerator::getInteger(-maxVariation, maxVariation);
-        enemy->getEndAttributes().strength += (enemy->getEndAttributes().strength * strengthVariation) / 100;
+        enemy->getFinalAttributes().strength += (enemy->getFinalAttributes().strength * strengthVariation) / 100;
         
         int dexterityVariation = RandomGenerator::getInteger(-maxVariation, maxVariation);
-        enemy->getEndAttributes().dexterity += (enemy->getEndAttributes().dexterity * dexterityVariation) / 100;
+        enemy->getFinalAttributes().dexterity += (enemy->getFinalAttributes().dexterity * dexterityVariation) / 100;
 
         horde.push_back(std::move(enemy));
     }

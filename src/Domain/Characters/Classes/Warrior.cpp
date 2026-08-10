@@ -74,7 +74,7 @@ Attributes Warrior::getAttributesClass() const
 
 std::vector<std::unique_ptr<Item>> Warrior::getEquipmentClass() const 
 {
-    auto equipment = ItemFactory::createKitPocoes();
+    auto equipment = ItemFactory::createPotionKit();
 
     equipment.push_back(ItemFactory::createItem(ItemID::SwordIron));
     equipment.push_back(ItemFactory::createItem(ItemID::ShieldMetal));
@@ -135,9 +135,9 @@ void Warrior::useSkillClass(Combat* /*combate*/, Character* characterUser, std::
 
 // --- PROCESSAMENTO DE DANO  ---
 int Warrior::processDamagePreAttack(Character* /*atacante*/, Character* defender, int damageBase, bool /*isAtacanteJogador*/, size_t /*qtdInimigos*/) {
-    int damageEnd = damageBase;
+    int finalDamage = damageBase;
     
-    if (!defender) return damageEnd;
+    if (!defender) return finalDamage;
 
     double percLife = (double)defender->getHealth() / defender->getMaxHealth();
     int bonus = 0;
@@ -148,10 +148,10 @@ int Warrior::processDamagePreAttack(Character* /*atacante*/, Character* defender
     else if (percLife < 0.30) { bonus = 10; state = "ferido"; }
     
     if (bonus > 0) {
-        damageEnd = static_cast<int>(damageEnd * (1.0 + bonus / 100.0));
+        finalDamage = static_cast<int>(finalDamage * (1.0 + bonus / 100.0));
         std::string textLog = DialogueFunctions::formatSkillMsg("Golpe Decisivo: O inimigo esta " + state + "! Dano aumentado em " + std::to_string(bonus) + "%!", Color::RED);
         notifyMessageCombat(textLog, textLog);
     }
     
-    return damageEnd;
+    return finalDamage;
 }

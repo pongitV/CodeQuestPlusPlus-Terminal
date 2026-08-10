@@ -22,7 +22,7 @@ Bestiary::Bestiary() {
 
 namespace {
     template<typename T>
-    void registerNoBestiary(std::map<std::string, SystemBestiaryEnemyInfo>& enemiesBase) {
+    void registerInBestiary(std::map<std::string, SystemBestiaryEnemyInfo>& baseEnemies) {
         T race;
         BaseEnemyClass classPattern;
         Attributes attr = race.getAttributesRace();
@@ -38,7 +38,7 @@ namespace {
             " > Sabedoria      : " + std::to_string(attr.wisdom)
         };
 
-        enemiesBase[race.getRaceName()] = {
+        baseEnemies[race.getRaceName()] = {
             race.getRaceName(), info.map, info.habitat,
             race.getAppearanceRace(),
             info.lore,
@@ -53,88 +53,88 @@ namespace {
 }
 
 void Bestiary::bootEnemies() {
-    registerNoBestiary<Goblin>(enemiesBase);
-    registerNoBestiary<Slime>(enemiesBase);
-    registerNoBestiary<Fairy>(enemiesBase);
-    registerNoBestiary<ExiledOrc>(enemiesBase);
-    registerNoBestiary<ForestAbomination>(enemiesBase);
-    registerNoBestiary<Troll>(enemiesBase);
-    registerNoBestiary<Mimic>(enemiesBase);
-    registerNoBestiary<Mahoraga>(enemiesBase);
+    registerInBestiary<Goblin>(baseEnemies);
+    registerInBestiary<Slime>(baseEnemies);
+    registerInBestiary<Fairy>(baseEnemies);
+    registerInBestiary<ExiledOrc>(baseEnemies);
+    registerInBestiary<ForestAbomination>(baseEnemies);
+    registerInBestiary<Troll>(baseEnemies);
+    registerInBestiary<Mimic>(baseEnemies);
+    registerInBestiary<Mahoraga>(baseEnemies);
 }
 
-void Bestiary::registerFirstView(const std::string& nameEnemy) {
+void Bestiary::registerFirstView(const std::string& enemyName) {
     std::lock_guard<std::mutex> lock(mtx);
-    if (enemiesBase.count(nameEnemy)) visas.insert(nameEnemy);
+    if (baseEnemies.count(enemyName)) visas.insert(enemyName);
 }
 
-void Bestiary::registerDefeat(const std::string& nameEnemy) {
+void Bestiary::registerDefeat(const std::string& enemyName) {
     std::lock_guard<std::mutex> lock(mtx);
-    if (enemiesBase.count(nameEnemy)) {
-        visas.insert(nameEnemy);
-        defeated.insert(nameEnemy);
-        quantityDefeats[nameEnemy]++;
+    if (baseEnemies.count(enemyName)) {
+        visas.insert(enemyName);
+        defeated.insert(enemyName);
+        quantityDefeats[enemyName]++;
     }
 }
 
-void Bestiary::registerSkillView(const std::string& nameEnemy, const std::string& skill) {
+void Bestiary::registerSkillView(const std::string& enemyName, const std::string& skill) {
     std::lock_guard<std::mutex> lock(mtx);
-    if (enemiesBase.count(nameEnemy)) skillsViews[nameEnemy].insert(skill);
+    if (baseEnemies.count(enemyName)) skillsViews[enemyName].insert(skill);
 }
 
-void Bestiary::registerDrop(const std::string& nameEnemy, const std::string& drop) {
+void Bestiary::registerDrop(const std::string& enemyName, const std::string& drop) {
     std::lock_guard<std::mutex> lock(mtx);
-    if (enemiesBase.count(nameEnemy)) dropsCollected[nameEnemy].insert(drop);
+    if (baseEnemies.count(enemyName)) dropsCollected[enemyName].insert(drop);
 }
 
-bool Bestiary::thisDiscovered(const std::string& nameEnemy) const {
+bool Bestiary::thisDiscovered(const std::string& enemyName) const {
     std::lock_guard<std::mutex> lock(mtx);
-    return visas.count(nameEnemy) > 0;
+    return visas.count(enemyName) > 0;
 }
 
-bool Bestiary::jaDefeated(const std::string& nameEnemy) const {
+bool Bestiary::jaDefeated(const std::string& enemyName) const {
     std::lock_guard<std::mutex> lock(mtx);
-    return defeated.count(nameEnemy) > 0;
+    return defeated.count(enemyName) > 0;
 }
 
-int Bestiary::getQuantityDefeats(const std::string& nameEnemy) const {
+int Bestiary::getQuantityDefeats(const std::string& enemyName) const {
     std::lock_guard<std::mutex> lock(mtx);
-    auto it = quantityDefeats.find(nameEnemy);
+    auto it = quantityDefeats.find(enemyName);
     if (it != quantityDefeats.end()) {
         return it->second;
     }
     return 0;
 }
 
-bool Bestiary::jaSawSkill(const std::string& nameEnemy, const std::string& skill) const {
+bool Bestiary::jaSawSkill(const std::string& enemyName, const std::string& skill) const {
     std::lock_guard<std::mutex> lock(mtx);
-    auto it = skillsViews.find(nameEnemy);
+    auto it = skillsViews.find(enemyName);
     if (it != skillsViews.end()) return it->second.count(skill) > 0;
     return false;
 }
 
-bool Bestiary::jaCollectedDrop(const std::string& nameEnemy, const std::string& drop) const {
+bool Bestiary::jaCollectedDrop(const std::string& enemyName, const std::string& drop) const {
     std::lock_guard<std::mutex> lock(mtx);
-    auto it = dropsCollected.find(nameEnemy);
+    auto it = dropsCollected.find(enemyName);
     if (it != dropsCollected.end()) return it->second.count(drop) > 0;
     return false;
 }
 
-const SystemBestiaryEnemyInfo* Bestiary::getInfo(const std::string& nameEnemy) const {
+const SystemBestiaryEnemyInfo* Bestiary::getInfo(const std::string& enemyName) const {
     std::lock_guard<std::mutex> lock(mtx);
-    auto it = enemiesBase.find(nameEnemy);
-    if (it != enemiesBase.end()) return &it->second;
+    auto it = baseEnemies.find(enemyName);
+    if (it != baseEnemies.end()) return &it->second;
     return nullptr;
 }
 
 std::vector<std::string> Bestiary::getEnemiesOrderedByDifficulty() const {
     std::lock_guard<std::mutex> lock(mtx);
     std::vector<std::string> names;
-    names.reserve(enemiesBase.size());
-    for (const auto& pair : enemiesBase) names.push_back(pair.first);
+    names.reserve(baseEnemies.size());
+    for (const auto& pair : baseEnemies) names.push_back(pair.first);
     
     std::sort(names.begin(), names.end(), [this](const std::string& a, const std::string& b) {
-        return enemiesBase.at(a).difficulty < enemiesBase.at(b).difficulty;
+        return baseEnemies.at(a).difficulty < baseEnemies.at(b).difficulty;
     });
     
     return names;

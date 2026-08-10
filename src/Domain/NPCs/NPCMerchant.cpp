@@ -48,15 +48,15 @@ namespace {
 }
 
 // --- INFORMACOES DO LUGAR ---
-std::string NPCMerchant::getNameDoPlace() const {
+std::string NPCMerchant::getPlaceName() const {
     return "MERCADOR AMBULANTE";
 }
 
-Color NPCMerchant::getColorDoHeader() const {
+Color NPCMerchant::getHeaderColor() const {
     return Color::YELLOW;
 }
 
-Color NPCMerchant::getColorDaArt() const {
+Color NPCMerchant::getArtColor() const {
     return Color::YELLOW;
 }
 
@@ -70,7 +70,7 @@ void NPCMerchant::interact(Character* player) {
         [this, player]() { this->displayDialogue(player); },
         [this, player]() { return this->getOptionsMenu(player, Appearance::getTerminalWidth()); },
         [this, player](const std::string& op) { this->processOption(player, op, Appearance::getTerminalWidth()); return true; },
-        getNameDoPlace(), getColorDoHeader(), getArtASCII()
+        getPlaceName(), getHeaderColor(), getArtASCII()
     );
 }
 

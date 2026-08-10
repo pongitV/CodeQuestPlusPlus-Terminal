@@ -26,10 +26,10 @@ public:
     std::string getRechargeSkillClass() const override;
     std::string getNameSkillClass() const override;
     std::string getDescriptionSkillClass() const override;
-    void useSkillClass(Combat* combat, Character* characterUser, std::vector<Character*>& listDeEnemies) override;
+    void useSkillClass(Combat* combat, Character* characterUser, std::vector<Character*>& enemies) override;
 
 protected:
     // PROCESSAMENTO DE DANO 
-    int processDamagePreAttack(Character* attacker, Character* defender, int damageBase, bool isAttackerPlayer, size_t qtyEnemies) override;
+    int processDamagePreAttack(Character* attacker, Character* defender, int damageBase, bool isAttackerPlayer, size_t enemyCount) override;
     void processDamagePostAttack(Character* attacker, Character* targetCurrent, Character* defenderMain, int damageBase, int damagePiercing, const std::function<void(Character*, Character*, int, int)>& applyDamage, bool isAttackerPlayer, bool isArea, bool& activatedPassive) override;
 };

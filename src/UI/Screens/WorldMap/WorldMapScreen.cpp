@@ -31,38 +31,38 @@ NextMapTransition WorldMapScreen::display(Character* currentPlayer, MapLocation 
         case MapLocation::Kingdom:      nameLocationCurrent = "Reino Distante"; break;
     }
 
-    int sel = 0;
+    int selection = 0;
     bool running = true;
     bool redesignComplete = true;
 
     while (running) {
-        PerspectiveManager::getMapWorldUI().renderPopup(ArtsMapWorld::planetEarth, places, sel, redesignComplete);
+        PerspectiveManager::getMapWorldUI().renderPopup(ArtsMapWorld::planetEarth, places, selection, redesignComplete);
 
         redesignComplete = false;
         char key = InputControl::readKey();
-        int totalOp = 1 + (int)places.size();
+        int totalOptions = 1 + (int)places.size();
 
         if (key == 'w' || key == 'W') {
-            sel--;
-            if (sel < 0) sel = totalOp - 1;
+            selection--;
+            if (selection < 0) selection = totalOptions - 1;
         } else if (key == 's' || key == 'S') {
-            sel++;
-            if (sel >= totalOp) sel = 0;
+            selection++;
+            if (selection >= totalOptions) selection = 0;
         } else if (key == '\n' || key == '\r') {
             redesignComplete = true;
-            if (sel == 0) {
+            if (selection == 0) {
                 running = false;
             } else {
-                std::string& nameSel = places[sel - 1];
-                if (nameSel == nameLocationCurrent)
+                std::string& selectedName = places[selection - 1];
+                if (selectedName == nameLocationCurrent)
                     running = false;
-                else if (nameSel.find("Vila") != std::string::npos)
+                else if (selectedName.find("Vila") != std::string::npos)
                     { running = false; return NextMapTransition::Village; }
-                else if (nameSel.find("Floresta") != std::string::npos)
+                else if (selectedName.find("Floresta") != std::string::npos)
                     { running = false; return NextMapTransition::Forest; }
-                else if (nameSel.find("Ponte") != std::string::npos)
+                else if (selectedName.find("Ponte") != std::string::npos)
                     { running = false; return NextMapTransition::KingdomBridge; }
-                else if (nameSel.find("Reino") != std::string::npos)
+                else if (selectedName.find("Reino") != std::string::npos)
                     { running = false; return NextMapTransition::Kingdom; }
             }
         }

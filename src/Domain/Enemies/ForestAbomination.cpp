@@ -30,7 +30,7 @@ std::string ForestAbomination::getDescriptionSkillRace() const
 }
 
 // --- PROCESSAMENTO DE DANO  ---
-void ForestAbomination::aoCauseDamage(Character* attacker, Character* target, int damageCaused) 
+void ForestAbomination::onCausingDamage(Character* attacker, Character* target, int damageCaused) 
 {
     int lifeMax = attacker->getMaxHealth();
     int lifeCurrent = attacker->getHealth();

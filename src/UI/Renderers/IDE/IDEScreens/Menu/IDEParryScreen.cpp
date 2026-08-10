@@ -61,8 +61,8 @@ namespace {
                         screen.push_back(colorResult + msgResult + "\033[0m");
                     }
 
-                    int espY = ScreenMenuGO::calculateSpaceY(screen.size());
-                    for (int e = 0; e < espY; e++) std::cout << "\n";
+                    int offsetY = ScreenMenuGO::calculateSpaceY(screen.size());
+                    for (int e = 0; e < offsetY; e++) std::cout << "\n";
                     ScreenMenuGO::printBlockCentralizedGO(screen);
                 };
 
@@ -149,8 +149,8 @@ namespace {
                         screen.push_back(colorResult + msgResult + "\033[0m");
                     }
 
-                    int espY = ScreenMenuGO::calculateSpaceY(screen.size());
-                    for (int e = 0; e < espY; e++) std::cout << "\n";
+                    int offsetY = ScreenMenuGO::calculateSpaceY(screen.size());
+                    for (int e = 0; e < offsetY; e++) std::cout << "\n";
                     ScreenMenuGO::printBlockCentralizedGO(screen);
                 };
 

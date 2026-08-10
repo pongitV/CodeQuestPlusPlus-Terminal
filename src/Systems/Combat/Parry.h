@@ -21,12 +21,12 @@ public:
     static std::string minigameBar;
 
     // Executa a tentativa de parry e retorna verdadeiro em caso de bloqueio bem-sucedido
-    static bool tryParry(Character* attacker, Character* defender, int damageMitigated, int& quantityDeDamageReduced);
+    static bool tryParry(Character* attacker, Character* defender, int damageMitigated, int& damageReduced);
 
-    static std::string getMessageFeedback(bool parrySuccess, int damageEnd);
+    static std::string getMessageFeedback(bool parrySuccess, int finalDamage);
 
     // Minigames de parry (Reacao rapida de teclado/movimento)
-    static bool executeMinigameMovement(int difficulty, int damageMitigated, int& quantityDeDamageReduced);
-    static bool executeMinigameTyping(int difficulty, int damageMitigated, int& quantityDeDamageReduced);
+    static bool executeMinigameMovement(int difficulty, int damageMitigated, int& damageReduced);
+    static bool executeMinigameTyping(int difficulty, int damageMitigated, int& damageReduced);
 };
 

@@ -11,9 +11,9 @@ public:
     void interact(Character* player);
 
 protected:
-    std::string getNameDoPlace() const override;
-    Color getColorDoHeader() const override;
-    Color getColorDaArt() const override;
+    std::string getPlaceName() const override;
+    Color getHeaderColor() const override;
+    Color getArtColor() const override;
     const std::vector<std::string>& getArtASCII() const override;
 
     void displayDialogue(Character* player) override;

@@ -22,8 +22,8 @@ void ScreenVictoryRaycaster::display(Character* currentPlayer, int quantityDeGol
     InputControl::clearBuffer();
     // Agrupar inimigos para exibicao
     std::map<std::string, int> enemiesGrouped;
-    for (const auto& ini : enemiesDefeated) {
-        enemiesGrouped[ini]++;
+    for (const auto& enemy : enemiesDefeated) {
+        enemiesGrouped[enemy]++;
     }
 
     /*

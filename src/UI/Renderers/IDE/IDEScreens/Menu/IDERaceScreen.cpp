@@ -21,7 +21,7 @@ RaceScreen::Result ScreenRaceGO::display(const std::string& namePlayer) {
     std::string reset = "\033[0m";
 
     std::vector<OptionRace> optionsGeneral;
-    for (auto t : RaceFactory::getBreedsPlayable()) {
+    for (auto t : RaceFactory::getPlayableBreeds()) {
         auto temp = RaceFactory::createRace(t);
         optionsGeneral.push_back({t, temp->getRaceName()});
     }
@@ -93,13 +93,13 @@ RaceScreen::Result ScreenRaceGO::display(const std::string& namePlayer) {
     auto raceInstance = RaceFactory::createRace(optionsGeneral[selectionCurrent].type);
     std::vector<std::string> artOriginal = raceInstance->getAppearanceRace();
     
-    Attributes atr = raceInstance->getAttributesRace();
-    if (atr.strength != 0) infoRace.push_back("Forca " + std::string(atr.strength > 0 ? "+" : "") + std::to_string(atr.strength));
-    if (atr.dexterity != 0) infoRace.push_back("Destreza " + std::string(atr.dexterity > 0 ? "+" : "") + std::to_string(atr.dexterity));
-    if (atr.constitution != 0) infoRace.push_back("Constituicao " + std::string(atr.constitution > 0 ? "+" : "") + std::to_string(atr.constitution));
-    if (atr.intelligence != 0) infoRace.push_back("Inteligencia " + std::string(atr.intelligence > 0 ? "+" : "") + std::to_string(atr.intelligence));
-    if (atr.wisdom != 0) infoRace.push_back("Sabedoria " + std::string(atr.wisdom > 0 ? "+" : "") + std::to_string(atr.wisdom));
-    if (atr.resistance != 0) infoRace.push_back("Resistencia " + std::string(atr.resistance > 0 ? "+" : "") + std::to_string(atr.resistance));
+    Attributes attributes = raceInstance->getAttributesRace();
+    if (attributes.strength != 0) infoRace.push_back("Forca " + std::string(attributes.strength > 0 ? "+" : "") + std::to_string(attributes.strength));
+    if (attributes.dexterity != 0) infoRace.push_back("Destreza " + std::string(attributes.dexterity > 0 ? "+" : "") + std::to_string(attributes.dexterity));
+    if (attributes.constitution != 0) infoRace.push_back("Constituicao " + std::string(attributes.constitution > 0 ? "+" : "") + std::to_string(attributes.constitution));
+    if (attributes.intelligence != 0) infoRace.push_back("Inteligencia " + std::string(attributes.intelligence > 0 ? "+" : "") + std::to_string(attributes.intelligence));
+    if (attributes.wisdom != 0) infoRace.push_back("Sabedoria " + std::string(attributes.wisdom > 0 ? "+" : "") + std::to_string(attributes.wisdom));
+    if (attributes.resistance != 0) infoRace.push_back("Resistencia " + std::string(attributes.resistance > 0 ? "+" : "") + std::to_string(attributes.resistance));
     
     artRace = ScreenMenuGO::compressArtASCII(artOriginal, 3, 3);
 

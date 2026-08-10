@@ -84,7 +84,7 @@ void ScreenAttributesGO::display(Character* currentPlayer) {
 
     Appearance::displayArtPanel(ArtsAttributes::soonSheet, 59, Color::MAGENTA, "", animate);
 
-    double multiplierDeAttributesCurrent = currentPlayer->getMultiplier();
+    double currentAttributeMultiplier = currentPlayer->getMultiplier();
     DebuffInfo debuff = AttributesScreen::calculateDebuff(currentPlayer);
     bool hasBuff = debuff.hasBuff;
 
@@ -110,14 +110,14 @@ void ScreenAttributesGO::display(Character* currentPlayer) {
 
     std::vector<std::string> boxGeneral = BaseScreen::createBox(infoGeneral, "", 72, Color::MAGENTA);
 
-    auto formatAtr = [hasBuff, multiplierDeAttributesCurrent](std::string nameDoAttribute, int valueBaseDoAttribute, int valueLostByDebuff, Color colorBase, int atrRace, int atrClass) -> std::string
+    auto formatAttribute = [hasBuff, currentAttributeMultiplier](std::string attributeName, int baseAttributeValue, int valueLostByDebuff, Color colorBase, int raceAttributes, int classAttributes) -> std::string
     {
-        int bonusBuff = hasBuff ? static_cast<int>(valueBaseDoAttribute * multiplierDeAttributesCurrent) - valueBaseDoAttribute : 0;
-        double pct = std::min(1.0, valueBaseDoAttribute / 50.0);
+        int bonusBuff = hasBuff ? static_cast<int>(baseAttributeValue * currentAttributeMultiplier) - baseAttributeValue : 0;
+        double pct = std::min(1.0, baseAttributeValue / 50.0);
         std::string bar = BaseScreen::generateBarGradient(pct, 10, colorBase);
 
         std::ostringstream ss;
-        ss << std::left << std::setw(13) << nameDoAttribute << ": " << std::setw(3) << valueBaseDoAttribute << " [" << bar << Appearance::color(Color::RESET) << "]";
+        ss << std::left << std::setw(13) << attributeName << ": " << std::setw(3) << baseAttributeValue << " [" << bar << Appearance::color(Color::RESET) << "]";
 
         if (hasBuff && bonusBuff > 0) {
             ss << " " << Appearance::color(Color::LIGHT_GREEN) << "(+" << bonusBuff << ")" << Appearance::color(Color::RESET);
@@ -125,23 +125,23 @@ void ScreenAttributesGO::display(Character* currentPlayer) {
             ss << " " << Appearance::color(Color::RED) << "(-" << valueLostByDebuff << ")" << Appearance::color(Color::RESET);
         }
 
-        ss << "  " << Appearance::color(Color::GRAY) << "[R: " << atrRace << " | C: " << atrClass << "]" << Appearance::color(Color::RESET);
+        ss << "  " << Appearance::color(Color::GRAY) << "[R: " << raceAttributes << " | C: " << classAttributes << "]" << Appearance::color(Color::RESET);
 
         return ss.str();
     };
 
-    Attributes atrRace = currentPlayer->getRace()->getAttributesRace();
-    Attributes atrClass = currentPlayer->getClass()->getAttributesClass();
+    Attributes raceAttributes = currentPlayer->getRace()->getAttributesRace();
+    Attributes classAttributes = currentPlayer->getClass()->getAttributesClass();
 
-    std::vector<std::string> atrLines;
-    atrLines.push_back(formatAtr("Forca", currentPlayer->getStrength(), debuff.lostStrength, Color::RED, atrRace.strength, atrClass.strength));
-    atrLines.push_back(formatAtr("Destreza", currentPlayer->getDexterity(), debuff.dexterityLost, Color::ORANGE, atrRace.dexterity, atrClass.dexterity));
-    atrLines.push_back(formatAtr("Resistencia", currentPlayer->getResistance(), debuff.resLost, Color::BLUE, atrRace.resistance, atrClass.resistance));
-    atrLines.push_back(formatAtr("Constituicao", currentPlayer->getConstitution(), debuff.constLost, Color::CYAN, atrRace.constitution, atrClass.constitution));
-    atrLines.push_back(formatAtr("Inteligencia", currentPlayer->getIntelligence(), 0, Color::PURPLE, atrRace.intelligence, atrClass.intelligence));
-    atrLines.push_back(formatAtr("Sabedoria", currentPlayer->getWisdom(), 0, Color::LILAC, atrRace.wisdom, atrClass.wisdom));
+    std::vector<std::string> attributeLines;
+    attributeLines.push_back(formatAttribute("Forca", currentPlayer->getStrength(), debuff.lostStrength, Color::RED, raceAttributes.strength, classAttributes.strength));
+    attributeLines.push_back(formatAttribute("Destreza", currentPlayer->getDexterity(), debuff.dexterityLost, Color::ORANGE, raceAttributes.dexterity, classAttributes.dexterity));
+    attributeLines.push_back(formatAttribute("Resistencia", currentPlayer->getResistance(), debuff.resLost, Color::BLUE, raceAttributes.resistance, classAttributes.resistance));
+    attributeLines.push_back(formatAttribute("Constituicao", currentPlayer->getConstitution(), debuff.constLost, Color::CYAN, raceAttributes.constitution, classAttributes.constitution));
+    attributeLines.push_back(formatAttribute("Inteligencia", currentPlayer->getIntelligence(), 0, Color::PURPLE, raceAttributes.intelligence, classAttributes.intelligence));
+    attributeLines.push_back(formatAttribute("Sabedoria", currentPlayer->getWisdom(), 0, Color::LILAC, raceAttributes.wisdom, classAttributes.wisdom));
 
-    std::vector<std::string> boxAttributes = BaseScreen::createBox(atrLines, "ATRIBUTOS", 35, Color::MAGENTA);
+    std::vector<std::string> boxAttributes = BaseScreen::createBox(attributeLines, "ATRIBUTOS", 35, Color::MAGENTA);
 
     std::vector<std::string> habLines;
     auto addDescriptionSplit = [&](const std::string& text) {
@@ -169,7 +169,7 @@ void ScreenAttributesGO::display(Character* currentPlayer) {
 
     std::vector<std::string> boxSkills = BaseScreen::createBox(habLines, "HABILIDADES & EQUIPAMENTOS", 35, Color::MAGENTA);
 
-    PowerCombat power = AttributesScreen::calculatePowerCombat(currentPlayer, multiplierDeAttributesCurrent);
+    PowerCombat power = AttributesScreen::calculatePowerCombat(currentPlayer, currentAttributeMultiplier);
 
     std::string sFis = Appearance::color(Color::RED) + std::to_string(power.damageFisIs) + Appearance::color(Color::RESET);
     std::string sMag = Appearance::color(Color::RED) + std::to_string(power.damageMagIs) + Appearance::color(Color::RESET);

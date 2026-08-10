@@ -95,40 +95,40 @@ bool ScreenRegistration::confirmExit() {
     }
 }
 
-RaceScreen::Result ScreenRegistration::screenRace(const std::string& nameCharacter) {
+RaceScreen::Result ScreenRegistration::screenRace(const std::string& characterName) {
     while (true) {
         try {
-            return PerspectiveManager::getInstance().getManagerScreens()->screenRace(nameCharacter);
+            return PerspectiveManager::getInstance().getManagerScreens()->screenRace(characterName);
         } catch (const PerspectiveChangedException&) {
             continue;
         }
     }
 }
 
-ClassScreen::Result ScreenRegistration::screenClass(const std::string& nameCharacter, const std::string& race) {
+ClassScreen::Result ScreenRegistration::screenClass(const std::string& characterName, const std::string& race) {
     while (true) {
         try {
-            return PerspectiveManager::getInstance().getManagerScreens()->screenClass(nameCharacter, race);
+            return PerspectiveManager::getInstance().getManagerScreens()->screenClass(characterName, race);
         } catch (const PerspectiveChangedException&) {
             continue;
         }
     }
 }
 
-DifficultyScreen::Result ScreenRegistration::screenDifficulty(const std::string& nameCharacter, const std::string& race, const std::string& classObj) {
+DifficultyScreen::Result ScreenRegistration::screenDifficulty(const std::string& characterName, const std::string& race, const std::string& classObj) {
     while (true) {
         try {
-            return PerspectiveManager::getInstance().getManagerScreens()->screenDifficulty(nameCharacter, race, classObj);
+            return PerspectiveManager::getInstance().getManagerScreens()->screenDifficulty(characterName, race, classObj);
         } catch (const PerspectiveChangedException&) {
             continue;
         }
     }
 }
 
-ParryScreen::Result ScreenRegistration::screenParry(const std::string& nameCharacter, const std::string& race, const std::string& classObj) {
+ParryScreen::Result ScreenRegistration::screenParry(const std::string& characterName, const std::string& race, const std::string& classObj) {
     while (true) {
         try {
-            return PerspectiveManager::getInstance().getManagerScreens()->screenParry(nameCharacter, race, classObj);
+            return PerspectiveManager::getInstance().getManagerScreens()->screenParry(characterName, race, classObj);
         } catch (const PerspectiveChangedException&) {
             continue;
         }

@@ -63,7 +63,7 @@ namespace {
               size_t post = name.find(nameBow);
               if (post != std::string::npos) name.replace(post, 23, "Arco recurvo de madeira enfeiticada");
               int newDamageMagician = weaponChosen->getMagicalDamage() + (weaponChosen->getPhysicsDamage() / 2);
-              auto newBowObj = std::make_unique<EquipmentWeapon>(name, weaponChosen->getPhysicsDamage(), newDamageMagician, weaponChosen->getReqGallows(), weaponChosen->getReqDexterity(), weaponChosen->getReqIntelligence(), weaponChosen->getReqWisdom(), 0);
+              auto newBowObj = std::make_unique<EquipmentWeapon>(name, weaponChosen->getPhysicsDamage(), newDamageMagician, weaponChosen->getReqStrength(), weaponChosen->getReqDexterity(), weaponChosen->getReqIntelligence(), weaponChosen->getReqWisdom(), 0);
               EquipmentWeapon* newBow = newBowObj.get();
               if (weaponChosen->ownsEffectBleeding()) newBow->applyEffectBleeding();
               if (weaponChosen->ownsEffectSlow()) newBow->applyEffectSlow();
@@ -120,15 +120,15 @@ namespace {
 }
 
 // --- INFORMACOES DO LUGAR ---
-std::string NPCMage::getNameDoPlace() const {
+std::string NPCMage::getPlaceName() const {
     return "CABANA DA BRUXA";
 }
 
-Color NPCMage::getColorDoHeader() const {
+Color NPCMage::getHeaderColor() const {
     return Color::MAGENTA;
 }
 
-Color NPCMage::getColorDaArt() const {
+Color NPCMage::getArtColor() const {
     return Color::MAGENTA;
 }
 
@@ -142,7 +142,7 @@ void NPCMage::interact(Character* player) {
         [this, player]() { this->displayDialogue(player); },
         [this, player]() { return this->getOptionsMenu(player, Appearance::getTerminalWidth()); },
         [this, player](const std::string& op) { this->processOption(player, op, Appearance::getTerminalWidth()); return true; },
-        getNameDoPlace(), getColorDoHeader(), getArtASCII()
+        getPlaceName(), getHeaderColor(), getArtASCII()
     );
 }
 

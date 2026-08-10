@@ -14,8 +14,8 @@ public:
     static std::unique_ptr<Item> createItem(const std::string& name);
     
     static std::vector<std::unique_ptr<Item>> createSeveralItems(ItemID id, int quantity);
-    static std::vector<std::unique_ptr<Item>> createKitPocoes(int quantity = 3);
+    static std::vector<std::unique_ptr<Item>> createPotionKit(int quantity = 3);
 
     static std::string getNameFromID(ItemID id);
-    static ItemID getIDDeName(const std::string& name);
+    static ItemID getIDFromName(const std::string& name);
 };

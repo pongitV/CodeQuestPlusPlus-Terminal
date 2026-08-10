@@ -41,20 +41,20 @@ NameScreen::Result ManagerScreensGO::screenName() {
     return ScreenNameGO::display();
 }
 
-RaceScreen::Result ManagerScreensGO::screenRace(const std::string& nameCharacter) {
-    return ScreenRaceGO::display(nameCharacter);
+RaceScreen::Result ManagerScreensGO::screenRace(const std::string& characterName) {
+    return ScreenRaceGO::display(characterName);
 }
 
-ClassScreen::Result ManagerScreensGO::screenClass(const std::string& nameCharacter, const std::string& race) {
-    return ScreenClassGO::display(nameCharacter, race);
+ClassScreen::Result ManagerScreensGO::screenClass(const std::string& characterName, const std::string& race) {
+    return ScreenClassGO::display(characterName, race);
 }
 
-DifficultyScreen::Result ManagerScreensGO::screenDifficulty(const std::string& nameCharacter, const std::string& race, const std::string& classObj) {
-    return ScreenDifficultyGO::display(nameCharacter, race, classObj);
+DifficultyScreen::Result ManagerScreensGO::screenDifficulty(const std::string& characterName, const std::string& race, const std::string& classObj) {
+    return ScreenDifficultyGO::display(characterName, race, classObj);
 }
 
-ParryScreen::Result ManagerScreensGO::screenParry(const std::string& nameCharacter, const std::string& race, const std::string& classObj) {
-    return ScreenParryGO::display(nameCharacter, race, classObj);
+ParryScreen::Result ManagerScreensGO::screenParry(const std::string& characterName, const std::string& race, const std::string& classObj) {
+    return ScreenParryGO::display(characterName, race, classObj);
 }
 
 void ManagerScreensGO::screenIntroduction() {

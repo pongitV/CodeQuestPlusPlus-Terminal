@@ -2,7 +2,7 @@
 #include "Domain/Characters/Character.h"
 #include "Core/Utils/RandomGenerator.h"
 
-Character* MechanicsEnemy::chooseTarget(const std::vector<Character*>& alliesAlive, Character* currentPlayer) {
+Character* EnemyMechanics::chooseTarget(const std::vector<Character*>& alliesAlive, Character* currentPlayer) {
     std::vector<Character*> targetsPossible;
     std::vector<Character*> minionsAlive;
     std::vector<Character*> alliesNormalAlive;

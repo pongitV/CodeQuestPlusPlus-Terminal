@@ -20,15 +20,15 @@
 class Inventory
 {
 private:
-    std::vector<std::unique_ptr<Item>> listDeItems;
+    std::vector<std::unique_ptr<Item>> itemList;
     std::unordered_map<std::string, int> countItems_;
-    int quantityDeGold;
+    int goldAmount;
 
 public:
     std::vector<Item*> getAllItems() const { 
         std::vector<Item*> itemsRaw;
-        itemsRaw.reserve(listDeItems.size());
-        std::transform(listDeItems.begin(), listDeItems.end(), std::back_inserter(itemsRaw), [](const auto& item) { return item.get(); });
+        itemsRaw.reserve(itemList.size());
+        std::transform(itemList.begin(), itemList.end(), std::back_inserter(itemsRaw), [](const auto& item) { return item.get(); });
         return itemsRaw;
     }
     
@@ -36,15 +36,15 @@ public:
     ~Inventory() = default;
 
     // Funcoes Basicas e Estado
-    bool thisEmpty() const;
+    bool isEmpty() const;
     int getGold() const;
     int countItem(const std::string& itemName) const;
 
     // Manipulacao do Inventario
-    void addGold(int quantityAdditional);
+    void addGold(int additionalGold);
     void addItem(std::unique_ptr<Item> newItem);
     void removeItem(const std::string& itemName);
-    void removeItem(Item* itemExact);
+    void removeItem(Item* exactItem);
 
     // Buscas e Interacoes
     Item* searchItemByCode(const std::string& codeTyped, Item* weaponEquipped, Item* shieldEquipped, Item* armorEquipped);

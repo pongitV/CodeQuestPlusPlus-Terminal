@@ -20,5 +20,5 @@ public:
     std::vector<std::unique_ptr<Item>> getEquipmentRace() const override;
     void performDrops(Character* enemy, Character* currentPlayer, std::vector<std::string>& obtainedItems, int& totalGold, int& totalXp) override;
 
-    void aoCauseDamage(Character* attacker, Character* target, int damageCaused) override;
+    void onCausingDamage(Character* attacker, Character* target, int damageCaused) override;
 };

@@ -14,7 +14,7 @@
 #include <unordered_map>
 
 namespace {
-    const std::pair<const char*, ItemID> mapDeNamesGlobal[] = {
+    const std::pair<const char*, ItemID> globalNameToIDMap[] = {
         {"Adaga artesanal de pedra", ItemID::DaggerStone},
         {"Arco recurvo de madeira", ItemID::BowWood},
         {"Cajado de cristal magico", ItemID::StaffCrystal},
@@ -77,7 +77,7 @@ namespace {
         std::unordered_map<ItemID, std::string> idForName;
         std::unordered_map<std::string, ItemID> nameForId;
         MapsItems() {
-            for (const auto& pair : mapDeNamesGlobal) {
+            for (const auto& pair : globalNameToIDMap) {
                 idForName[pair.second] = pair.first;
                 nameForId[pair.first] = pair.second;
             }
@@ -96,7 +96,7 @@ std::string ItemFactory::getNameFromID(ItemID id) {
     return it != map.end() ? it->second : "";
 }
 
-ItemID ItemFactory::getIDDeName(const std::string& name) {
+ItemID ItemFactory::getIDFromName(const std::string& name) {
     const auto& map = getMapsItems().nameForId;
     auto it = map.find(name);
     return it != map.end() ? it->second : ItemID::None;
@@ -111,7 +111,7 @@ std::vector<std::unique_ptr<Item>> ItemFactory::createSeveralItems(ItemID id, in
     return items;
 }
 
-std::vector<std::unique_ptr<Item>> ItemFactory::createKitPocoes(int quantity) {
+std::vector<std::unique_ptr<Item>> ItemFactory::createPotionKit(int quantity) {
     return createSeveralItems(ItemID::LittleCure30, quantity);
 }
 
@@ -125,18 +125,18 @@ std::unique_ptr<Item> ItemFactory::createItem(const std::string& name)
         return nullptr;
     }
 
-    ItemID id = getIDDeName(name);
+    ItemID id = getIDFromName(name);
     if (id != ItemID::None) return createItem(id);
 
     return nullptr;
 }
 
 std::unique_ptr<Item> ItemFactory::createItem(ItemID id) {
-    static const std::vector<std::function<std::unique_ptr<Item>(ItemID)>> chainDeManufacturers = {
+    static const std::vector<std::function<std::unique_ptr<Item>(ItemID)>> manufacturerChain = {
         manufactureEquipmentWeapon, manufactureEquipmentShield, manufactureEquipmentArmor,
         manufactureItemConsumable, manufactureItemMaterial, manufactureItemMission
     };
-    for (const auto& manufacturer : chainDeManufacturers) {
+    for (const auto& manufacturer : manufacturerChain) {
         if (auto item = manufacturer(id)) return item;
     }
     return nullptr;

@@ -1,9 +1,9 @@
 #pragma once
 #include <string>
 
-struct ResultDamage {
-    int damageEnd = 0;
+struct DamageResult {
+    int finalDamage = 0;
     int damageBlocked = 0;
-    bool shieldBroke = false;
-    std::string nameShieldBroken = "";
+    bool shieldBroken = false;
+    std::string brokenShieldName = "";
 };

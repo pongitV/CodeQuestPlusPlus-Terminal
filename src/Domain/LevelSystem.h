@@ -1,14 +1,14 @@
 #pragma once
 
-class SystemDeLevel {
+class LevelSystem {
 private:
     int level;
     int xpCurrent;
     int xpForRise;
 
 public:
-    SystemDeLevel(int levelInitial = 1, int xpInitial = 0, int xpRiseInitial = 100) 
-        : level(levelInitial), xpCurrent(xpInitial), xpForRise(xpRiseInitial) {}
+    LevelSystem(int initialLevel = 1, int initialXp = 0, int initialXpForRise = 100) 
+        : level(initialLevel), xpCurrent(initialXp), xpForRise(initialXpForRise) {}
 
     int getLevel() const { return level; }
     int getCurrentXp() const { return xpCurrent; }
@@ -19,5 +19,5 @@ public:
     void setXpForRise(int newXpForRise) { xpForRise = newXpForRise; }
 
     void gainXp(int value) { xpCurrent += value; }
-    bool canRiseDeLevel() const { return xpCurrent >= xpForRise; }
+    bool canLevelUp() const { return xpCurrent >= xpForRise; }
 };

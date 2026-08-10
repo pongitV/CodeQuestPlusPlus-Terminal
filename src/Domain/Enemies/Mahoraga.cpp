@@ -27,15 +27,15 @@ std::string Mahoraga::getNameSkillRace() const { return "A Roda da Adaptacao"; }
 std::string Mahoraga::getDescriptionSkillRace() const { return "Adapta-se ao alvo. Apos sofrer 10 parrys perfeitos, torna-se Imparavel."; }
 
 // --- MECANICA DE ADAPTACAO ---
-void Mahoraga::aoCauseDamage(Character* attacker, Character* target, int damageCaused) {
+void Mahoraga::onCausingDamage(Character* attacker, Character* target, int damageCaused) {
     // Efeito popup de texto piscante
     CombatScreen::addFixedMessage(CombatScreen::combatMargin() + "\033[5m" + Appearance::color(Color::YELLOW) + "* KLINK! *" + Appearance::color(Color::RESET) + " A Roda gira...\n");
 
     // Adaptacao de Defesa
-    int gallowsPhysics = target->getStrength() + target->getDexterity();
-    int gallowsMagic = target->getIntelligence() + target->getWisdom();
+    int strengthDexteritySum = target->getStrength() + target->getDexterity();
+    int intelligenceWisdomSum = target->getIntelligence() + target->getWisdom();
     
-    if (gallowsPhysics >= gallowsMagic) {
+    if (strengthDexteritySum >= intelligenceWisdomSum) {
         if (attacker->getResistance() < 50) {
             attacker->changeStaticAttribute(AttributeType::Strength, 5);
             attacker->changeStaticAttribute(AttributeType::Dexterity, 5);
@@ -71,7 +71,7 @@ void Mahoraga::aoCauseDamage(Character* attacker, Character* target, int damageC
     }
 }
 
-void Mahoraga::aoSufferParryPerfect() {
+void Mahoraga::onSufferPerfectParry() {
     parrysSuffered++;
     if (parrysSuffered == 10) {
         CombatScreen::addFixedMessage(CombatScreen::combatMargin() + "\033[5m" + Appearance::color(Color::YELLOW) + "* KLINK! *" + Appearance::color(Color::RESET) + " A Roda gira...\n");
@@ -79,7 +79,7 @@ void Mahoraga::aoSufferParryPerfect() {
     }
 }
 
-void Mahoraga::aoHaveAttackBlockedByShield() {
+void Mahoraga::onAttackBlockedByShield() {
     if (defensesWithShieldSuffered < 3) {
         defensesWithShieldSuffered++;
         if (defensesWithShieldSuffered == 3) {

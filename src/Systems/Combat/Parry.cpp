@@ -19,56 +19,56 @@ std::function<void()> Parry::onUpdateScreen = nullptr;
 std::string Parry::minigameMessage = "";
 std::string Parry::minigameBar = "";
 
-bool Parry::tryParry(Character* attacker, Character* defender, int damageMitigated, int& quantityDeDamageReduced) 
+bool Parry::tryParry(Character* attacker, Character* defender, int damageMitigated, int& damageReduced) 
 {
-    int dexterityDoAttacker = attacker ? std::max(1, attacker->getDexterity()) : 1;
-    int dexterityDoDefender = defender ? std::max(1, defender->getDexterity()) : 1;
+    int attackerDexterity = attacker ? std::max(1, attacker->getDexterity()) : 1;
+    int defenderDexterity = defender ? std::max(1, defender->getDexterity()) : 1;
 
-    if (dexterityDoAttacker > dexterityDoDefender * 2) 
+    if (attackerDexterity > defenderDexterity * 2) 
     {
-        std::string msgAgile = "O inimigo e agil demais para voce efetivar o parry!";
+        std::string agileMessage = "O inimigo e agil demais para voce efetivar o parry!";
         if (Parry::onUpdateScreen) {
-            Parry::minigameMessage = "\033[48;2;120;0;0m " + msgAgile + " \033[0m";
+            Parry::minigameMessage = "\033[48;2;120;0;0m " + agileMessage + " \033[0m";
             Parry::onUpdateScreen();
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             Parry::minigameMessage = "";
             Parry::onUpdateScreen();
         } else {
-            std::cout << "\n" << CombatScreen::combatMargin() << DialogueFunctions::formatCombatMsg(msgAgile, Color::BG_RED) << "\n";
+            std::cout << "\n" << CombatScreen::combatMargin() << DialogueFunctions::formatCombatMsg(agileMessage, Color::BG_RED) << "\n";
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         }
-        quantityDeDamageReduced = 0;
+        damageReduced = 0;
         return false;
     }
 
-    int difficulty = std::clamp(damageMitigated / 5 + (dexterityDoAttacker / 10), 1, 20);
+    int difficulty = std::clamp(damageMitigated / 5 + (attackerDexterity / 10), 1, 20);
 
     bool success = false;
     // Verifica se estamos na visao terminal (IDE)
     bool isTerminal = !PerspectiveManager::getInstance().is3DViewActive();
     if (isTerminal) {
         // Na visao terminal, FORCA o minigame de digitacao
-        success = executeMinigameTyping(difficulty, damageMitigated, quantityDeDamageReduced);
+        success = executeMinigameTyping(difficulty, damageMitigated, damageReduced);
     } else {
         // Fora da visao terminal, permite alternancia entre movimento e digitacao
         if (defender && defender->getParryModern()) {
-            success = executeMinigameMovement(difficulty, damageMitigated, quantityDeDamageReduced);
+            success = executeMinigameMovement(difficulty, damageMitigated, damageReduced);
         } else {
-            success = executeMinigameTyping(difficulty, damageMitigated, quantityDeDamageReduced);
+            success = executeMinigameTyping(difficulty, damageMitigated, damageReduced);
         }
     }
     return success;
 }
 
-std::string Parry::getMessageFeedback(bool parrySuccess, int damageEnd) {
+std::string Parry::getMessageFeedback(bool parrySuccess, int finalDamage) {
     if (parrySuccess) {
-        if (damageEnd <= 0) return "Parry Perfeito! Ataque anulado.";
-        else return "Parry efetivo! -" + std::to_string(damageEnd) + " HP.";
+        if (finalDamage <= 0) return "Parry Perfeito! Ataque anulado.";
+        else return "Parry efetivo! -" + std::to_string(finalDamage) + " HP.";
     }
-    return "Parry falhou! -" + std::to_string(damageEnd) + " HP.";
+    return "Parry falhou! -" + std::to_string(finalDamage) + " HP.";
 }
 
-bool Parry::executeMinigameMovement(int difficulty, int damageMitigated, int& quantityDeDamageReduced) 
+bool Parry::executeMinigameMovement(int difficulty, int damageMitigated, int& damageReduced) 
 {
     std::string instructions = "Aperte [ESPACO] no alvo!";
     Parry::minigameMessage = instructions;
@@ -141,20 +141,20 @@ bool Parry::executeMinigameMovement(int difficulty, int damageMitigated, int& qu
             int distance = std::abs(positionPressed - sweetSpotCenter);
             if (distance <= 1) {
                 // Parry Perfeito!
-                quantityDeDamageReduced = damageMitigated; 
+                damageReduced = damageMitigated; 
             } else {
                 // Parry Efetivo
-                quantityDeDamageReduced = std::max(1, damageMitigated / 2); 
+                damageReduced = std::max(1, damageMitigated / 2); 
             }
             return true;
         }
     }
     
-    quantityDeDamageReduced = 0;
+    damageReduced = 0;
     return false;
 }
 
-bool Parry::executeMinigameTyping(int difficulty, int damageMitigated, int& quantityDeDamageReduced) 
+bool Parry::executeMinigameTyping(int difficulty, int damageMitigated, int& damageReduced) 
 {
     int sizeSequence = std::clamp(4 + difficulty / 5, 4, 8);
     std::string sequence = "";
@@ -227,7 +227,7 @@ bool Parry::executeMinigameTyping(int difficulty, int damageMitigated, int& quan
             std::cout << CombatScreen::combatMargin() << "\033[1;38;2;255;50;50mTEMPO ESGOTADO!\033[0m\n";
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
         }
-        quantityDeDamageReduced = 0;
+        damageReduced = 0;
         return false;
     }
 
@@ -243,14 +243,14 @@ bool Parry::executeMinigameTyping(int difficulty, int damageMitigated, int& quan
     if (completed && answer == sequence) {
         if (timeTotal <= timeLimit * 0.5) {
             // Parry Perfeito!
-            quantityDeDamageReduced = damageMitigated;
+            damageReduced = damageMitigated;
         } else {
             // Parry Efetivo!
-            quantityDeDamageReduced = std::max(1, damageMitigated / 2);
+            damageReduced = std::max(1, damageMitigated / 2);
         }
         return true;
     }
 
-    quantityDeDamageReduced = 0;
+    damageReduced = 0;
     return false;
 }

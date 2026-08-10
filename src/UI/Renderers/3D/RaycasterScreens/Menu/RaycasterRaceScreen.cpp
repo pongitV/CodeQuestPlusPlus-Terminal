@@ -19,7 +19,7 @@ struct OptionRace { TypeRace type; std::string name; };
 
 RaceScreen::Result ScreenRaceRaycaster::display(const std::string& namePlayer) {
     std::vector<OptionRace> optionsGeneral;
-    for (auto t : RaceFactory::getBreedsPlayable()) {
+    for (auto t : RaceFactory::getPlayableBreeds()) {
         auto temp = RaceFactory::createRace(t);
         optionsGeneral.push_back({t, temp->getRaceName()});
     }
@@ -74,7 +74,7 @@ RaceScreen::Result ScreenRaceRaycaster::display(const std::string& namePlayer) {
         }
 
         if (!isReturn) {
-            Attributes atr = race->getAttributesRace();
+            Attributes attributes = race->getAttributesRace();
 
             // Center: Pixel art
             MenuRaycasterUtils::printArtPixelatedSimple(buffer, race->getAppearanceRace(), 200, 180, 220, colCenter, yBase);
@@ -86,17 +86,17 @@ RaceScreen::Result ScreenRaceRaycaster::display(const std::string& namePlayer) {
             // Right: Atributos (top), then skills
             int rightY = yBase;
             MenuRaycasterUtils::superimposeText3D(buffer, "\033[38;2;100;200;255m[ATRIBUTOS]\033[0m", rightY++, colSay, widthConsole);
-            MenuRaycasterUtils::superimposeText3D(buffer, "  \033[38;2;180;180;180mHP " + std::to_string(atr.health) + "\033[0m", rightY++, colSay, widthConsole);
+            MenuRaycasterUtils::superimposeText3D(buffer, "  \033[38;2;180;180;180mHP " + std::to_string(attributes.health) + "\033[0m", rightY++, colSay, widthConsole);
             auto lineAttribute = [&](const std::string& label, int val, const std::string& color) {
                 std::string sign = (val >= 0 ? "+" : "");
                 return "  " + color + label + " " + sign + std::to_string(val) + "\033[0m";
             };
-            MenuRaycasterUtils::superimposeText3D(buffer, lineAttribute("For", atr.strength, "\033[38;2;255;150;150m"), rightY++, colSay, widthConsole);
-            MenuRaycasterUtils::superimposeText3D(buffer, lineAttribute("Des", atr.dexterity, "\033[38;2;150;255;150m"), rightY++, colSay, widthConsole);
-            MenuRaycasterUtils::superimposeText3D(buffer, lineAttribute("Res", atr.resistance, "\033[38;2;150;150;255m"), rightY++, colSay, widthConsole);
-            MenuRaycasterUtils::superimposeText3D(buffer, lineAttribute("Con", atr.constitution, "\033[38;2;0;255;255m"), rightY++, colSay, widthConsole);
-            MenuRaycasterUtils::superimposeText3D(buffer, lineAttribute("Int", atr.intelligence, "\033[38;2;100;200;255m"), rightY++, colSay, widthConsole);
-            MenuRaycasterUtils::superimposeText3D(buffer, lineAttribute("Sab", atr.wisdom, "\033[38;2;255;215;0m"), rightY++, colSay, widthConsole);
+            MenuRaycasterUtils::superimposeText3D(buffer, lineAttribute("For", attributes.strength, "\033[38;2;255;150;150m"), rightY++, colSay, widthConsole);
+            MenuRaycasterUtils::superimposeText3D(buffer, lineAttribute("Des", attributes.dexterity, "\033[38;2;150;255;150m"), rightY++, colSay, widthConsole);
+            MenuRaycasterUtils::superimposeText3D(buffer, lineAttribute("Res", attributes.resistance, "\033[38;2;150;150;255m"), rightY++, colSay, widthConsole);
+            MenuRaycasterUtils::superimposeText3D(buffer, lineAttribute("Con", attributes.constitution, "\033[38;2;0;255;255m"), rightY++, colSay, widthConsole);
+            MenuRaycasterUtils::superimposeText3D(buffer, lineAttribute("Int", attributes.intelligence, "\033[38;2;100;200;255m"), rightY++, colSay, widthConsole);
+            MenuRaycasterUtils::superimposeText3D(buffer, lineAttribute("Sab", attributes.wisdom, "\033[38;2;255;215;0m"), rightY++, colSay, widthConsole);
 
             rightY++;
             MenuRaycasterUtils::superimposeText3D(buffer, "\033[38;2;100;200;255m[PASSIVA]\033[0m", rightY++, colSay, widthConsole);

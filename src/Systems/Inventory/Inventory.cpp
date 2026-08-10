@@ -7,11 +7,11 @@
 #include "Core/Engine/GameMenu.h"
 #include "Core/Utils/Appearance.h"
 
-Inventory::Inventory() : quantityDeGold(0) {}
+Inventory::Inventory() : goldAmount(0) {}
 
-bool Inventory::thisEmpty() const { return listDeItems.empty(); }
+bool Inventory::isEmpty() const { return itemList.empty(); }
 
-int Inventory::getGold() const { return quantityDeGold; }
+int Inventory::getGold() const { return goldAmount; }
 
 int Inventory::countItem(const std::string& itemName) const 
 {
@@ -20,47 +20,47 @@ int Inventory::countItem(const std::string& itemName) const
 }
 
 
-void Inventory::addGold(int quantityAdditional) 
+void Inventory::addGold(int additionalGold) 
 { 
-    quantityDeGold = std::max(0, quantityDeGold + quantityAdditional); 
+    goldAmount = std::max(0, goldAmount + additionalGold); 
 }
 
 void Inventory::addItem(std::unique_ptr<Item> newItem) 
 { 
     if (newItem) {
         countItems_[newItem->getItemName()]++;
-        listDeItems.push_back(std::move(newItem));
+        itemList.push_back(std::move(newItem));
     }
 }
 
 void Inventory::removeItem(const std::string& itemName) 
 {
-    auto it = std::find_if(listDeItems.begin(), listDeItems.end(), [&](const std::unique_ptr<Item>& item) 
+    auto it = std::find_if(itemList.begin(), itemList.end(), [&](const std::unique_ptr<Item>& item) 
     {
         return item->getItemName() == itemName;
     });
     
-    if (it != listDeItems.end()) 
+    if (it != itemList.end()) 
     {
         countItems_[itemName]--;
         if (countItems_[itemName] <= 0) countItems_.erase(itemName);
-        listDeItems.erase(it);
+        itemList.erase(it);
     }
 }
 
-void Inventory::removeItem(Item* itemExact) 
+void Inventory::removeItem(Item* exactItem) 
 {
-    if (!itemExact) return;
-    auto it = std::find_if(listDeItems.begin(), listDeItems.end(), [&](const std::unique_ptr<Item>& item) 
+    if (!exactItem) return;
+    auto it = std::find_if(itemList.begin(), itemList.end(), [&](const std::unique_ptr<Item>& item) 
     {
-        return item.get() == itemExact;
+        return item.get() == exactItem;
     });
     
-    if (it != listDeItems.end()) {
-        std::string name = itemExact->getItemName();
+    if (it != itemList.end()) {
+        std::string name = exactItem->getItemName();
         countItems_[name]--;
         if (countItems_[name] <= 0) countItems_.erase(name);
-        listDeItems.erase(it);
+        itemList.erase(it);
     }
 }
 
@@ -68,46 +68,46 @@ Item* Inventory::searchItemByCode(const std::string& codeTyped, Item* weaponEqui
 {
     if (codeTyped.length() < 2) return nullptr;
 
-    char lyricsDaCategory = std::toupper(codeTyped.back());
-    std::string partNumerical = codeTyped.substr(0, codeTyped.length() - 1);
+    char categoryLetter = std::toupper(codeTyped.back());
+    std::string numericalPart = codeTyped.substr(0, codeTyped.length() - 1);
     
-    if (!std::all_of(partNumerical.begin(), partNumerical.end(), ::isdigit)) return nullptr;
+    if (!std::all_of(numericalPart.begin(), numericalPart.end(), ::isdigit)) return nullptr;
     
-    int indexDoItem = std::stoi(partNumerical);
-    if (indexDoItem <= 0) return nullptr;
+    int itemIndex = std::stoi(numericalPart);
+    if (itemIndex <= 0) return nullptr;
 
-    if (lyricsDaCategory == 'E')
+    if (categoryLetter == 'E')
     {
-        if (indexDoItem == 1) return weaponEquipped;
-        if (indexDoItem == 2) return shieldEquipped;
-        if (indexDoItem == 3) return armorEquipped;
+        if (itemIndex == 1) return weaponEquipped;
+        if (itemIndex == 2) return shieldEquipped;
+        if (itemIndex == 3) return armorEquipped;
         return nullptr;
     }
 
     auto searchByTypeGrouped = [&](auto condition) -> Item* {
-        std::unordered_map<std::string, size_t> cacheDeIndex;
-        std::vector<std::string> namesOfItemsDisplayed;
+        std::unordered_map<std::string, size_t> indexCache;
+        std::vector<std::string> displayedItemNames;
 
-        for (size_t i = 0; i < listDeItems.size(); ++i) {
-            Item* itemCurrent = listDeItems[i].get();
+        for (size_t i = 0; i < itemList.size(); ++i) {
+            Item* itemCurrent = itemList[i].get();
             if (condition(itemCurrent)) {
-                if (cacheDeIndex.find(itemCurrent->getItemName()) == cacheDeIndex.end()) {
-                    cacheDeIndex[itemCurrent->getItemName()] = i;
-                    namesOfItemsDisplayed.push_back(itemCurrent->getItemName());
+                if (indexCache.find(itemCurrent->getItemName()) == indexCache.end()) {
+                    indexCache[itemCurrent->getItemName()] = i;
+                    displayedItemNames.push_back(itemCurrent->getItemName());
                 }
             }
         }
         
-        Appearance::sortAlphabetically(namesOfItemsDisplayed);
+        Appearance::sortAlphabetically(displayedItemNames);
 
-        if (indexDoItem > 0 && indexDoItem <= static_cast<int>(namesOfItemsDisplayed.size())) {
-            size_t indexOriginalNoInventory = cacheDeIndex[namesOfItemsDisplayed[indexDoItem - 1]];
-            return listDeItems[indexOriginalNoInventory].get();
+        if (itemIndex > 0 && itemIndex <= static_cast<int>(displayedItemNames.size())) {
+            size_t originalInventoryIndex = indexCache[displayedItemNames[itemIndex - 1]];
+            return itemList[originalInventoryIndex].get();
         }
         return nullptr;
     };
 
-    switch (lyricsDaCategory) {
+    switch (categoryLetter) {
         case 'A':
             return searchByTypeGrouped([&](Item* itemEvaluated) { 
                 return itemEvaluated->isEquipable() && itemEvaluated != weaponEquipped && itemEvaluated != shieldEquipped && itemEvaluated != armorEquipped; 

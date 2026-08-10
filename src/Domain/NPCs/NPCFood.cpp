@@ -9,15 +9,15 @@ void NPCFood::interact(Character* player) {
     InteractionNPC::interact(player);
 }
 
-std::string NPCFood::getNameDoPlace() const {
+std::string NPCFood::getPlaceName() const {
     return "FEIRA DO REINO";
 }
 
-Color NPCFood::getColorDoHeader() const {
+Color NPCFood::getHeaderColor() const {
     return Color::LIGHT_GREEN;
 }
 
-Color NPCFood::getColorDaArt() const {
+Color NPCFood::getArtColor() const {
     return Color::LIGHT_GREEN;
 }
 

@@ -73,7 +73,7 @@ Attributes Wizard::getAttributesClass() const
 
 std::vector<std::unique_ptr<Item>> Wizard::getEquipmentClass() const 
 {
-    auto equipment = ItemFactory::createKitPocoes();
+    auto equipment = ItemFactory::createPotionKit();
 
     equipment.push_back(ItemFactory::createItem(ItemID::StaffCrystal));
     equipment.push_back(ItemFactory::createItem(ItemID::BarrierMagic));
@@ -129,9 +129,9 @@ void Wizard::useSkillClass(Combat* /*combate*/, Character* characterUser, std::v
 }
 
 // --- PROCESSAMENTO DE DANO  ---
-int Wizard::processDamagePreAttack(Character* /*atacante*/, Character* defender, int damageBase, bool isAttackerPlayer, size_t qtyEnemies) {
+int Wizard::processDamagePreAttack(Character* /*atacante*/, Character* defender, int damageBase, bool isAttackerPlayer, size_t enemyCount) {
     if (defender == nullptr) return damageBase;
-    if (!isAttackerPlayer || qtyEnemies <= 1) {
+    if (!isAttackerPlayer || enemyCount <= 1) {
         int damageIncreased = static_cast<int>(damageBase * 1.25);
         std::string logMsg = DialogueFunctions::formatSkillMsg("Foco Arcano: Dano concentrado aumentado em 25%!", Color::MAGENTA);
         notifyMessageCombat(logMsg, logMsg);

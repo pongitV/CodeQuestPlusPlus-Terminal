@@ -244,7 +244,7 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
         }
 
         int ceiling = (int)(horizon - SCREEN_HEIGHT / perpWallDist);
-        int chao = (int)(horizon + SCREEN_HEIGHT / perpWallDist);
+        int floor = (int)(horizon + SCREEN_HEIGHT / perpWallDist);
 
         char npcFoundNaColumn = RaycasterWorld::getNPCNext(titleMap, (int)hitX, (int)hitY, &mapMatrix);
 
@@ -297,9 +297,9 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
         }
         
         int startWall = std::max(0, ceiling);
-        int endWall = std::min(chao, SCREEN_HEIGHT - 1);
+        int endWall = std::min(floor, SCREEN_HEIGHT - 1);
         for (int y = startWall; y <= endWall; y++) {
-            Pixel3D pixel = RaycasterWorld::getPixelWall(titleMap, themeForest, perpWallDist, depthMaximum, charWall, y, ceiling, chao, texXWall, timeAbsolute, isSideWall, infoLightWall, hitX, hitY, npcFoundNaColumn, (float)nx, (float)ny);
+            Pixel3D pixel = RaycasterWorld::getPixelWall(titleMap, themeForest, perpWallDist, depthMaximum, charWall, y, ceiling, floor, texXWall, timeAbsolute, isSideWall, infoLightWall, hitX, hitY, npcFoundNaColumn, (float)nx, (float)ny);
             if (pixel.isBackground) {
                 if (y <= horizon) {
                     if (themeSky == 3) {
@@ -320,15 +320,15 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
                         floorChar = mapMatrix[(int)currentY][(int)currentX];
                     }
                     if (floorChar == '~') screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getPixelWater(currentX, currentY, currentDist, depthMaximum, radiusAngle, timeAbsolute, themeSky);
-                    else screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getPixelChao(titleMap, currentX, currentY, currentDist, depthMaximum, lights, &mapMatrix, timeAbsolute);
+                    else screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getFloorPixel(titleMap, currentX, currentY, currentDist, depthMaximum, lights, &mapMatrix, timeAbsolute);
                 }
             } else {
                 screen[y * SCREEN_WIDTH + x] = pixel;
             }
         }
         
-        int startChao = std::max((int)horizon + 1, endWall + 1);
-        for (int y = startChao; y < SCREEN_HEIGHT; y++) {
+        int floorStart = std::max((int)horizon + 1, endWall + 1);
+        for (int y = floorStart; y < SCREEN_HEIGHT; y++) {
             float currentDist = factorDist / ((float)y - horizon);
             if (currentDist > 10000.0f || std::isnan(currentDist)) currentDist = 10000.0f;
             float currentX = playerX + eyeX * currentDist;
@@ -338,7 +338,7 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
                 floorChar = mapMatrix[(int)currentY][(int)currentX];
             }
             if (floorChar == '~') screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getPixelWater(currentX, currentY, currentDist, depthMaximum, radiusAngle, timeAbsolute, themeSky);
-            else screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getPixelChao(titleMap, currentX, currentY, currentDist, depthMaximum, lights, &mapMatrix, timeAbsolute);
+            else screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getFloorPixel(titleMap, currentX, currentY, currentDist, depthMaximum, lights, &mapMatrix, timeAbsolute);
         }
         } // para x
         }); // lambda
@@ -467,8 +467,8 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
         
         spriteHeight = (int)(spriteHeightBase * entityScale);
         
-        int chaoThen = (int)(horizon + spriteHeightBase); // Fixa os pes no chao
-        int ceilingThen = chaoThen - (spriteHeight * 2);
+        int floorY = (int)(horizon + spriteHeightBase); // Fixa os pes no chao
+        int ceilingThen = floorY - (spriteHeight * 2);
 
         if (sp.sprCh == '*') ceilingThen -= (int)(spriteHeight * 1.5f);
         if (sp.sprCh != '^' && sp.sprCh != 'P' && sp.sprCh != 'X' && sp.sprCh != '*') {
@@ -476,7 +476,7 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
             ceilingThen -= (int)((sinf(timeAbsolute * 3.5f + offset)) * spriteHeight * 0.05f);
         }
 
-        int altThen = chaoThen - ceilingThen;
+        int altThen = floorY - ceilingThen;
         if (altThen <= 0) continue;
 
         int spriteWidth = spriteHeight;
@@ -497,7 +497,7 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
                 if (texX >= sc.width) texX = sc.width - 1;
 
                 int startY = std::max(0, ceilingThen);
-                int endY = std::min(SCREEN_HEIGHT - 1, chaoThen);
+                int endY = std::min(SCREEN_HEIGHT - 1, floorY);
                 float stepY = (float)sc.height / (float)altThen;
                 float texY = (startY - ceilingThen) * stepY;
 

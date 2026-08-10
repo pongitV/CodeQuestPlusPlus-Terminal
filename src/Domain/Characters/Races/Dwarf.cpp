@@ -80,7 +80,7 @@ std::string Dwarf::getDescriptionSkillRace() const
 }
 
 // --- PROCESSAMENTO DE DANO  ---
-int Dwarf::processDamageDefensive(int damageEnd, Character* defender) 
+int Dwarf::processDamageDefensive(int finalDamage, Character* defender) 
 {
     if (defender->getDefending() && defender->getShield() != nullptr) 
     {
@@ -91,7 +91,7 @@ int Dwarf::processDamageDefensive(int damageEnd, Character* defender)
             CombatScreen::addFixedMessage(msg);
         }
     }
-    return damageEnd;
+    return finalDamage;
 }
 
 

@@ -11,8 +11,8 @@
 #include <unordered_map>
 #include "Domain/Items/ItemFactory.h"
 
-EquipmentWeapon::EquipmentWeapon(const std::string& name, int damagePhysical, int damageMagician, int reqGallows, int reqDexterity, int reqIntelligence, int reqWisdom, int price)
-    : Item(price), name(name), damagePhysical(damagePhysical), damageMagician(damageMagician), reqGallows(reqGallows), reqDexterity(reqDexterity), reqIntelligence(reqIntelligence), reqWisdom(reqWisdom), effectBleeding(false), effectSlow(false)
+EquipmentWeapon::EquipmentWeapon(const std::string& name, int damagePhysical, int damageMagical, int reqStrength, int reqDexterity, int reqIntelligence, int reqWisdom, int price)
+    : Item(price), name(name), damagePhysical(damagePhysical), damageMagical(damageMagical), reqStrength(reqStrength), reqDexterity(reqDexterity), reqIntelligence(reqIntelligence), reqWisdom(reqWisdom), effectBleeding(false), effectSlow(false)
 {
 }
 
@@ -21,9 +21,9 @@ void EquipmentWeapon::changeName(const std::string& n) { name = n; }
 EquipmentType EquipmentWeapon::getType() const { return EquipmentType::WEAPONS; }
 
 int EquipmentWeapon::getPhysicsDamage() const { return damagePhysical; }
-int EquipmentWeapon::getMagicalDamage() const { return damageMagician; }
+int EquipmentWeapon::getMagicalDamage() const { return damageMagical; }
 
-int EquipmentWeapon::getReqGallows() const { return reqGallows; }
+int EquipmentWeapon::getReqStrength() const { return reqStrength; }
 int EquipmentWeapon::getReqDexterity() const { return reqDexterity; }
 int EquipmentWeapon::getReqIntelligence() const { return reqIntelligence; }
 int EquipmentWeapon::getReqWisdom() const { return reqWisdom; }
@@ -33,7 +33,7 @@ bool EquipmentWeapon::ownsEffectSlow() const { return effectSlow; }
 
 bool EquipmentWeapon::canBeEquippedBy(Character* character) const {
     if (!character) return false;
-    return character->getStrength() >= reqGallows &&
+    return character->getStrength() >= reqStrength &&
            character->getDexterity() >= reqDexterity &&
            character->getIntelligence() >= reqIntelligence &&
            character->getWisdom() >= reqWisdom;
@@ -44,7 +44,7 @@ std::vector<std::string> EquipmentWeapon::getDetailsInspection(Character* charac
     lines.push_back(" > Tipo: Arma");
 
     std::string fisStr = std::to_string(damagePhysical);
-    std::string magStr = std::to_string(damageMagician);
+    std::string magStr = std::to_string(damageMagical);
 
     if (character) {
         int strength = character->getStrength();
@@ -52,11 +52,11 @@ std::vector<std::string> EquipmentWeapon::getDetailsInspection(Character* charac
         int intelli = character->getIntelligence();
         int wisdom = character->getWisdom();
         
-        if (damagePhysical == 0 && damageMagician > 0) { strength /= 10; dexterity /= 10; }
-        else if (damagePhysical > 0 && damageMagician == 0) { intelli /= 10; wisdom /= 10; }
+        if (damagePhysical == 0 && damageMagical > 0) { strength /= 10; dexterity /= 10; }
+        else if (damagePhysical > 0 && damageMagical == 0) { intelli /= 10; wisdom /= 10; }
         
         int damageFisIs = std::max(0, static_cast<int>((damagePhysical + strength) * (1.0 + (dexterity / 100.0)) * character->getMultiplier()));
-        int damageMagIs = std::max(0, static_cast<int>((damageMagician + intelli) * (1.0 + (wisdom / 100.0)) * character->getMultiplier()));
+        int damageMagIs = std::max(0, static_cast<int>((damageMagical + intelli) * (1.0 + (wisdom / 100.0)) * character->getMultiplier()));
         
         fisStr += " " + Appearance::color(Color::GRAY) + "-> " + Appearance::color(Color::WHITE) + "\033[48;2;25;25;25m" + "C/ Seus Atributos: " + Appearance::color(Color::LIGHT_RED) + std::to_string(damageFisIs) + Appearance::color(Color::WHITE) + "\033[48;2;25;25;25m";
         magStr += " " + Appearance::color(Color::GRAY) + "-> " + Appearance::color(Color::WHITE) + "\033[48;2;25;25;25m" + "C/ Seus Atributos: " + Appearance::color(Color::BLUE) + std::to_string(damageMagIs) + Appearance::color(Color::WHITE) + "\033[48;2;25;25;25m";
@@ -66,7 +66,7 @@ std::vector<std::string> EquipmentWeapon::getDetailsInspection(Character* charac
     lines.push_back(" > Dano Magico: " + magStr);
     lines.push_back(" > Requisitos:");
     bool hasReq = false;
-    if (reqGallows > 0) { lines.push_back("   - Forca: " + std::to_string(reqGallows)); hasReq = true; }
+    if (reqStrength > 0) { lines.push_back("   - Forca: " + std::to_string(reqStrength)); hasReq = true; }
     if (reqDexterity > 0) { lines.push_back("   - Destreza: " + std::to_string(reqDexterity)); hasReq = true; }
     if (reqIntelligence > 0) { lines.push_back("   - Inteligencia: " + std::to_string(reqIntelligence)); hasReq = true; }
     if (reqWisdom > 0) { lines.push_back("   - Sabedoria: " + std::to_string(reqWisdom)); hasReq = true; }
@@ -93,19 +93,19 @@ std::string EquipmentWeapon::getInfoStatus() const {
     
     std::string reqs = "";
     bool hasReq = false;
-    if (reqGallows > 0) { reqs += std::to_string(reqGallows) + " For "; hasReq = true; }
+    if (reqStrength > 0) { reqs += std::to_string(reqStrength) + " For "; hasReq = true; }
     if (reqDexterity > 0) { reqs += std::to_string(reqDexterity) + " Des "; hasReq = true; }
     if (reqIntelligence > 0) { reqs += std::to_string(reqIntelligence) + " Int "; hasReq = true; }
     if (reqWisdom > 0) { reqs += std::to_string(reqWisdom) + " Sab "; hasReq = true; }
     if (hasReq) reqs = " | Req: " + reqs;
 
-    return " (Dano: " + std::to_string(damagePhysical) + "F/" + std::to_string(damageMagician) + "M" + ef + reqs + ")";
+    return " (Dano: " + std::to_string(damagePhysical) + "F/" + std::to_string(damageMagical) + "M" + ef + reqs + ")";
 }
 
 void EquipmentWeapon::applyEffectBleeding() { effectBleeding = true; }
 void EquipmentWeapon::applyEffectSlow() { effectSlow = true; }
 
-void EquipmentWeapon::beforeDeCauseDamage(Character* attacker, Character* target) {
+void EquipmentWeapon::beforeCausingDamage(Character* attacker, Character* target) {
     if (hasProperty(Property::Penetrating) && !target->ownsEffect(EffectID::ResistanceBreak)) {
         target->addEffect(std::make_unique<ResistanceBreakEffect>());
         CombatScreen::addFixedMessage(CombatScreen::combatMargin() + Appearance::color(Color::CYAN) + ">> A arma de " + attacker->getName() + " ativou o po magico! O ataque enfraqueceu " + target->getName() + " ate o fim do combate!" + Appearance::color(Color::WHITE) + "\033[48;2;25;25;25m" + "\n");
@@ -113,7 +113,7 @@ void EquipmentWeapon::beforeDeCauseDamage(Character* attacker, Character* target
     }
 }
 
-void EquipmentWeapon::aoCauseDamage(Character* attacker, Character* target, int damageCaused) {
+void EquipmentWeapon::onCausingDamage(Character* attacker, Character* target, int damageCaused) {
     if (damageCaused <= 0) return;
 
     if (hasProperty(Property::ViolaMagician) && !target->ownsEffect(EffectID::BloodSuck)) {
@@ -139,16 +139,16 @@ void EquipmentWeapon::aoCauseDamage(Character* attacker, Character* target, int 
     }
 }
 
-int EquipmentWeapon::ensureDamageMinimum(int damageEnd) {
+int EquipmentWeapon::ensureDamageMinimum(int finalDamage) {
     int minimum = 1;
     if (hasProperty(Property::ViolaBase)) {
-        minimum = std::max(minimum, damageMagician);
+        minimum = std::max(minimum, damageMagical);
     }
-    return std::max(damageEnd, minimum);
+    return std::max(finalDamage, minimum);
 }
 
 std::unique_ptr<Item> EquipmentWeapon::generateCopyImproved() const {
-    auto newWeapon = std::make_unique<EquipmentWeapon>(name + "+", static_cast<int>(damagePhysical * 1.5), static_cast<int>(damageMagician * 1.5), reqGallows, reqDexterity, reqIntelligence, reqWisdom, priceSale * 2);
+    auto newWeapon = std::make_unique<EquipmentWeapon>(name + "+", static_cast<int>(damagePhysical * 1.5), static_cast<int>(damageMagical * 1.5), reqStrength, reqDexterity, reqIntelligence, reqWisdom, priceSale * 2);
     
     for (Property prop : properties) newWeapon->addProperty(prop);
     newWeapon->addProperty(Property::Improved);

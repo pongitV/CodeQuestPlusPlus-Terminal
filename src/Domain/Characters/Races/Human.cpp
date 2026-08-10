@@ -78,10 +78,10 @@ std::string Human::getDescriptionSkillRace() const
 }
 
 // --- PROCESSAMENTO DE DANO  ---
-int Human::processDamageDefensive(int damageEnd, Character* defender) 
+int Human::processDamageDefensive(int finalDamage, Character* defender) 
 {
     // Verifica se o golpe seria fatal
-    if ((defender->getHealth() - damageEnd) <= 0 && defender->canUseResurrection()) 
+    if ((defender->getHealth() - finalDamage) <= 0 && defender->canUseResurrection()) 
     {
         defender->consumeResurrection();
         int cureRevive = defender->getMaxHealth() / 2;
@@ -91,7 +91,7 @@ int Human::processDamageDefensive(int damageEnd, Character* defender)
         Appearance::registerBattleLog(Appearance::color(Color::MAGENTA) + "[PASSIVA]: Espirito indomavel! O humano reviveu com metade de sua vida maxima!" + Appearance::color(Color::RESET));
         return 0; // O dano atual e anulado pois a vida foi resetada
     }
-    return damageEnd;
+    return finalDamage;
 }
 
 
