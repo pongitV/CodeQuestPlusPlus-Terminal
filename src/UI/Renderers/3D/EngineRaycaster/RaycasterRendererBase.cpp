@@ -136,6 +136,19 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
 
     std::vector<float> ZBuffer(SCREEN_WIDTH, 0.0f);
 
+    long long globalMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    float globalAngleSlow = ((globalMs % 300000) / 300000.0f) * 6.2831853f;
+
+    std::vector<float> rayDirX(SCREEN_WIDTH);
+    std::vector<float> rayDirY(SCREEN_WIDTH);
+    std::vector<float> fisheyeCorrection(SCREEN_WIDTH);
+    for (int x = 0; x < SCREEN_WIDTH; x++) {
+        float radiusAngle = (angleVisa - fieldVisa / 2.0f) + ((float)x / (float)SCREEN_WIDTH) * fieldVisa;
+        rayDirX[x] = cosf(radiusAngle);
+        rayDirY[x] = sinf(radiusAngle);
+        fisheyeCorrection[x] = 1.0f / cosf(radiusAngle - angleVisa);
+    }
+
     int indexInThreads = std::thread::hardware_concurrency();
     if (indexInThreads == 0) indexInThreads = 4;
     int chunkSize = 16;
@@ -145,14 +158,16 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
     for (int i = 0; i < indexInChunks; i++) {
         int startX = i * chunkSize;
         int endX = std::min(startX + chunkSize, SCREEN_WIDTH);
-        tasks.push_back([&, startX, endX]() {
+        tasks.push_back([&, startX, endX, globalAngleSlow]() {
+            static thread_local std::vector<std::tuple<int, int, int>> wallLights;
+            
             for (int x = startX; x < endX; x++) {
         float radiusAngle = (angleVisa - fieldVisa / 2.0f) + ((float)x / (float)SCREEN_WIDTH) * fieldVisa;
         float distanceUntilWall = 0.0f;
         bool hitNaWall = false;
 
-        float eyeX = cosf(radiusAngle);
-        float eyeY = sinf(radiusAngle);
+        float eyeX = rayDirX[x];
+        float eyeY = rayDirY[x];
         
         char charWall = '#';
 
@@ -225,13 +240,12 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
          * A distancia perpendicular ate a parede eh calculada ao inves da distancia Euclidiana 
          * reta, evitando que as paredes parecam arredondadas nas bordas da tela.
          */
-        float perpWallDist = distanceUntilWall * cosf(radiusAngle - angleVisa);
+        float perpWallDist = distanceUntilWall / fisheyeCorrection[x];
         if (perpWallDist < 0.1f) perpWallDist = 0.1f;
 
         ZBuffer[x] = perpWallDist;
 
-        float invCosFisheye = 1.0f / cosf(radiusAngle - angleVisa);
-        float factorDist = (float)SCREEN_HEIGHT * invCosFisheye;
+        float factorDist = (float)SCREEN_HEIGHT * fisheyeCorrection[x];
 
         float texXWall = 0.0f;
         bool isSideWall = false;
@@ -253,7 +267,7 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
         if (charWall == '*') ceiling -= (int)(SCREEN_HEIGHT / perpWallDist * 1.5f); 
         if (isKingdom && charWall == '|') ceiling -= (int)(SCREEN_HEIGHT / perpWallDist * 3.0f); // Portao super alto
 
-        std::vector<std::tuple<int, int, int>> wallLights;
+        wallLights.clear();
         int nx = (side == 0) ? -stepX : 0;
         int ny = (side == 1) ? -stepY : 0;
         for (const auto& l : lights) {
@@ -269,18 +283,62 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
         Highlighter::InfoLight infoLightWall = Highlighter::calculateInfoLight(perpWallDist * 0.55f, depthMaximum, themeSky, wallLights, pushX, pushY, &mapMatrix, timeAbsolute);
         float angleSky = radiusAngle;
         if (themeSky == 0) { // Dynamic Outdoors
-            long long globalMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-            float angleSlow = ((globalMs % 300000) / 300000.0f) * 6.2831853f;
-            angleSky -= angleSlow;
+            angleSky -= globalAngleSlow;
         }
 
-        auto drawIndoorCeiling = [&](int screenY, float currentX, float currentY, float currentDist) {
-            (void)screenY;
-            float fractionX = currentX - std::floor(currentX);
-            float fractionY = currentY - std::floor(currentY);
-            char charCeiling = 'T';
-            Highlighter::InfoLight infoLightCeiling = Highlighter::calculateInfoLight(currentDist, depthMaximum, themeSky, lights, currentX, currentY, &mapMatrix, timeAbsolute);
-            return RaycasterWorld::getPixelWall(titleMap, themeForest, currentDist, depthMaximum, charCeiling, (int)(fractionY * 1000.0f), 0, 1000, fractionX, timeAbsolute, false, infoLightCeiling, currentX, currentY, ' ', 0.0f, 0.0f);
+        int lastCeilingY = -1;
+        Highlighter::InfoLight ceilingCurrentInfo, ceilingNextInfo;
+        int lastFloorY = -1;
+        Highlighter::InfoLight floorCurrentInfo, floorNextInfo;
+
+        auto getCeilingInfoLight = [&](int y) -> Highlighter::InfoLight {
+            if (y >= lastCeilingY + 2 || lastCeilingY == -1) {
+                lastCeilingY = y - (y % 2);
+                float dist0 = factorDist / ((float)horizon - lastCeilingY);
+                float cx0 = playerX + eyeX * dist0;
+                float cy0 = playerY + eyeY * dist0;
+                ceilingCurrentInfo = Highlighter::calculateInfoLight(dist0, depthMaximum, themeSky, lights, cx0, cy0, &mapMatrix, timeAbsolute);
+                
+                int nextY = lastCeilingY + 2;
+                float dist1 = factorDist / ((float)horizon - nextY);
+                float cx1 = playerX + eyeX * dist1;
+                float cy1 = playerY + eyeY * dist1;
+                ceilingNextInfo = Highlighter::calculateInfoLight(dist1, depthMaximum, themeSky, lights, cx1, cy1, &mapMatrix, timeAbsolute);
+            }
+            Highlighter::InfoLight interp = ceilingCurrentInfo;
+            float t = (float)(y % 2) / 2.0f;
+            interp.lightR += (ceilingNextInfo.lightR - ceilingCurrentInfo.lightR) * t;
+            interp.lightG += (ceilingNextInfo.lightG - ceilingCurrentInfo.lightG) * t;
+            interp.lightB += (ceilingNextInfo.lightB - ceilingCurrentInfo.lightB) * t;
+            interp.sunIntensity += (ceilingNextInfo.sunIntensity - ceilingCurrentInfo.sunIntensity) * t;
+            interp.fogPercentage += (ceilingNextInfo.fogPercentage - ceilingCurrentInfo.fogPercentage) * t;
+            return interp;
+        };
+
+        auto getFloorInfoLight = [&](int y) -> Highlighter::InfoLight {
+            if (y >= lastFloorY + 2 || lastFloorY == -1) {
+                lastFloorY = y - (y % 2);
+                float dist0 = factorDist / ((float)lastFloorY - horizon);
+                if (dist0 > 10000.0f || std::isnan(dist0)) dist0 = 10000.0f;
+                float cx0 = playerX + eyeX * dist0;
+                float cy0 = playerY + eyeY * dist0;
+                floorCurrentInfo = Highlighter::calculateInfoLight(dist0, depthMaximum, themeSky, lights, cx0, cy0, &mapMatrix, timeAbsolute);
+                
+                int nextY = lastFloorY + 2;
+                float dist1 = factorDist / ((float)nextY - horizon);
+                if (dist1 > 10000.0f || std::isnan(dist1)) dist1 = 10000.0f;
+                float cx1 = playerX + eyeX * dist1;
+                float cy1 = playerY + eyeY * dist1;
+                floorNextInfo = Highlighter::calculateInfoLight(dist1, depthMaximum, themeSky, lights, cx1, cy1, &mapMatrix, timeAbsolute);
+            }
+            Highlighter::InfoLight interp = floorCurrentInfo;
+            float t = (float)(y % 2) / 2.0f;
+            interp.lightR += (floorNextInfo.lightR - floorCurrentInfo.lightR) * t;
+            interp.lightG += (floorNextInfo.lightG - floorCurrentInfo.lightG) * t;
+            interp.lightB += (floorNextInfo.lightB - floorCurrentInfo.lightB) * t;
+            interp.sunIntensity += (floorNextInfo.sunIntensity - floorCurrentInfo.sunIntensity) * t;
+            interp.fogPercentage += (floorNextInfo.fogPercentage - floorCurrentInfo.fogPercentage) * t;
+            return interp;
         };
 
         int startY = 0;
@@ -290,7 +348,9 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
                 float currentDist = factorDist / ((float)horizon - y);
                 float currentX = playerX + eyeX * currentDist;
                 float currentY = playerY + eyeY * currentDist;
-                screen[y * SCREEN_WIDTH + x] = drawIndoorCeiling(y, currentX, currentY, currentDist);
+                float fractionX = currentX - std::floor(currentX);
+                float fractionY = currentY - std::floor(currentY);
+                screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getPixelWall(titleMap, themeForest, currentDist, depthMaximum, 'T', (int)(fractionY * 1000.0f), 0, 1000, fractionX, timeAbsolute, false, getCeilingInfoLight(y), currentX, currentY, ' ', 0.0f, 0.0f);
             } else {
                 screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getPixelCeiling(themeSky, radiusAngle, angleSky, y - bobbingOffset, SCREEN_HEIGHT, timeAbsolute);
             }
@@ -306,7 +366,9 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
                         float currentDist = factorDist / ((float)horizon - y);
                         float currentX = playerX + eyeX * currentDist;
                         float currentY = playerY + eyeY * currentDist;
-                        screen[y * SCREEN_WIDTH + x] = drawIndoorCeiling(y, currentX, currentY, currentDist);
+                        float fractionX = currentX - std::floor(currentX);
+                        float fractionY = currentY - std::floor(currentY);
+                        screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getPixelWall(titleMap, themeForest, currentDist, depthMaximum, 'T', (int)(fractionY * 1000.0f), 0, 1000, fractionX, timeAbsolute, false, getCeilingInfoLight(y), currentX, currentY, ' ', 0.0f, 0.0f);
                     } else {
                         screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getPixelCeiling(themeSky, radiusAngle, angleSky, y - bobbingOffset, SCREEN_HEIGHT, timeAbsolute);
                     }
@@ -320,7 +382,7 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
                         floorChar = mapMatrix[(int)currentY][(int)currentX];
                     }
                     if (floorChar == '~') screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getPixelWater(currentX, currentY, currentDist, depthMaximum, radiusAngle, timeAbsolute, themeSky);
-                    else screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getFloorPixel(titleMap, currentX, currentY, currentDist, depthMaximum, lights, &mapMatrix, timeAbsolute);
+                    else screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getFloorPixel(titleMap, currentX, currentY, currentDist, depthMaximum, getFloorInfoLight(y));
                 }
             } else {
                 screen[y * SCREEN_WIDTH + x] = pixel;
@@ -338,7 +400,7 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
                 floorChar = mapMatrix[(int)currentY][(int)currentX];
             }
             if (floorChar == '~') screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getPixelWater(currentX, currentY, currentDist, depthMaximum, radiusAngle, timeAbsolute, themeSky);
-            else screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getFloorPixel(titleMap, currentX, currentY, currentDist, depthMaximum, lights, &mapMatrix, timeAbsolute);
+            else screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getFloorPixel(titleMap, currentX, currentY, currentDist, depthMaximum, getFloorInfoLight(y));
         }
         } // para x
         }); // lambda

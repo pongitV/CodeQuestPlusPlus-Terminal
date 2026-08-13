@@ -272,7 +272,7 @@ Pixel3D RaycasterWorld::getFloorPixel(const std::string& titleMap, float current
     bool isEarth = flags.isEarth;
     bool isLabyrinth = flags.isLabyrinth;
     bool isRoomBoss = flags.isRoomBoss;
-    bool isHeart = flags.upperTitle.find("CORACAO") != std::string::npos;
+    bool isHeart = flags.isHeart;
 
     unsigned int globX = static_cast<unsigned int>(std::abs(currentX * 128.0f));
     unsigned int globY = static_cast<unsigned int>(std::abs(currentY * 128.0f));
@@ -351,7 +351,7 @@ Pixel3D RaycasterWorld::getFloorPixel(const std::string& titleMap, float current
         float noise = ManagerTextures::fastYes(cx) + ManagerTextures::fastYes(cy) + ManagerTextures::fastYes(cx2) + ManagerTextures::fastYes(cy2);
         bool isGrass = (noise > -3.0f);
         if (isGrass) {
-            if (flags.upperTitle.find("FLORESTA") != std::string::npos) { fgR = 6; fgG = 35; fgB = 6; texID = TexID::FloorGrassForest; }
+            if (flags.isForest) { fgR = 6; fgG = 35; fgB = 6; texID = TexID::FloorGrassForest; }
             else { fgR = 12; fgG = 75; fgB = 12; texID = TexID::FloorGrassVillage; }
         } else {
             fgR = 45; fgG = 25; fgB = 10; texID = TexID::FloorEarth;
@@ -387,7 +387,7 @@ Pixel3D RaycasterWorld::getFloorPixel(const std::string& titleMap, float current
     bool isEarth = flags.isEarth;
     bool isLabyrinth = flags.isLabyrinth;
     bool isRoomBoss = flags.isRoomBoss;
-    bool isHeart = flags.upperTitle.find("CORACAO") != std::string::npos;
+    bool isHeart = flags.isHeart;
 
     unsigned int globX = static_cast<unsigned int>(std::abs(currentX * 128.0f));
     unsigned int globY = static_cast<unsigned int>(std::abs(currentY * 128.0f));
@@ -484,10 +484,10 @@ Pixel3D RaycasterWorld::getFloorPixel(const std::string& titleMap, float current
         bool isGrass = (noise > -3.0f); // Mais grama do que terra
         
         if (isGrass) {
-            if (flags.upperTitle.find("FLORESTA") != std::string::npos) { fgR = 6; fgG = 35; fgB = 6; }
+            if (flags.isForest) { fgR = 6; fgG = 35; fgB = 6; }
             else { fgR = 12; fgG = 75; fgB = 12; }
             
-            if (flags.upperTitle.find("FLORESTA") != std::string::npos) {
+            if (flags.isForest) {
                 bool isPatch = ((globX / 16) + (globY / 16)) % 2 == 0;
                 if (isPatch) { r = 5; g = 28; b = 5; } else { r = 4; g = 24; b = 4; }
             } else {
@@ -558,7 +558,7 @@ Pixel3D RaycasterWorld::getPixelWater(float currentX, float currentY, float curr
         if (themeSky != 1 && themeSky != 2) baseB = std::min(255, baseB + (int)(255 * intensityReflection)); 
     }
 
-    std::vector<std::tuple<int, int, int>> noLights;
+    static const std::vector<std::tuple<int, int, int>> noLights;
     Highlighter::InfoLight info = Highlighter::calculateInfoLight(currentDist, depthMaximum, themeSky, noLights, currentX, currentY, nullptr, timeAnimation);
     
     float nightFactor = std::max(0.4f, info.sunIntensity);
