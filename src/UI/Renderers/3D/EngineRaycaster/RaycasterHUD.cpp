@@ -136,7 +136,7 @@ void RaycasterHUD::drawBarStatus(vector<string>& screen, int SCREEN_WIDTH, int S
         } else {
             screen[hudOffsetY * SCREEN_WIDTH + hudOffsetX] = pixelTop;
             for(int x = 1; x < boxWidth; ++x) {
-                if (hudOffsetX + x < SCREEN_WIDTH) screen[hudOffsetY * SCREEN_WIDTH + hudOffsetX + x] = "";
+                if (hudOffsetX + x < SCREEN_WIDTH) screen[hudOffsetY * SCREEN_WIDTH + hudOffsetX + x] = "\1";
             }
         }
     }
@@ -151,7 +151,7 @@ void RaycasterHUD::drawBarStatus(vector<string>& screen, int SCREEN_WIDTH, int S
         } else {
             screen[(hudOffsetY + boxHeight - 1) * SCREEN_WIDTH + hudOffsetX] = pixelBase;
             for(int x = 1; x < boxWidth; ++x) {
-                if (hudOffsetX + x < SCREEN_WIDTH) screen[(hudOffsetY + boxHeight - 1) * SCREEN_WIDTH + hudOffsetX + x] = "";
+                if (hudOffsetX + x < SCREEN_WIDTH) screen[(hudOffsetY + boxHeight - 1) * SCREEN_WIDTH + hudOffsetX + x] = "\1";
             }
         }
     }
@@ -181,7 +181,7 @@ void RaycasterHUD::drawBarStatus(vector<string>& screen, int SCREEN_WIDTH, int S
             } else {
                 screen[y * SCREEN_WIDTH + hudOffsetX] = line;
                 for(int x = 1; x < boxWidth; ++x) {
-                    if (hudOffsetX + x < SCREEN_WIDTH) screen[y * SCREEN_WIDTH + hudOffsetX + x] = "";
+                    if (hudOffsetX + x < SCREEN_WIDTH) screen[y * SCREEN_WIDTH + hudOffsetX + x] = "\1";
                 }
             }
         }
@@ -239,7 +239,7 @@ void RaycasterHUD::drawControls(vector<string>& screen, int SCREEN_WIDTH, int SC
     if (startCtrlX > 0) {
         screen[lineControls * SCREEN_WIDTH + startCtrlX] = displayHTML;
         for (int i = 1; i < lenVis; ++i) {
-            screen[lineControls * SCREEN_WIDTH + startCtrlX + i] = "";
+            screen[lineControls * SCREEN_WIDTH + startCtrlX + i] = "\1";
         }
     }
 }

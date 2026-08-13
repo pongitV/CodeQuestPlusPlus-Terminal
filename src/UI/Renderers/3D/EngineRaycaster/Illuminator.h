@@ -18,26 +18,38 @@ namespace Highlighter {
     };
 
     inline bool checkOcclusion(float startX, float startY, float endX, float endY, const std::vector<std::string>* mapMatrix) {
-        if (!mapMatrix) return false;
-        int x0 = (int)startX; int y0 = (int)startY;
-        int x1 = (int)endX; int y1 = (int)endY;
-        int dx_line = std::abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
-        int dy_line = -std::abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
-        int err = dx_line + dy_line, e2;
-        while (true) {
-            if (x0 == x1 && y0 == y1) break;
-            if (x0 != (int)startX || y0 != (int)startY) {
-                if (y0 >= 0 && y0 < (int)mapMatrix->size() && x0 >= 0 && x0 < (int)(*mapMatrix)[0].size()) {
-                    char c = (*mapMatrix)[y0][x0];
+        if (!mapMatrix || mapMatrix->empty()) return false;
+        
+        float dx = endX - startX;
+        float dy = endY - startY;
+        float dist = std::sqrt(dx*dx + dy*dy);
+        if (dist < 0.01f) return false;
+        
+        float stepSize = 0.2f;
+        float stepX = (dx / dist) * stepSize;
+        float stepY = (dy / dist) * stepSize;
+        int numSteps = (int)(dist / stepSize);
+        
+        float cx = startX;
+        float cy = startY;
+        int startX_int = (int)startX;
+        int startY_int = (int)startY;
+
+        for (int i = 0; i <= numSteps; i++) {
+            int cx_int = (int)cx;
+            int cy_int = (int)cy;
+            
+            if (cx_int != startX_int || cy_int != startY_int) {
+                if (cy_int >= 0 && cy_int < (int)mapMatrix->size() && cx_int >= 0 && cx_int < (int)(*mapMatrix)[0].size()) {
+                    char c = (*mapMatrix)[cy_int][cx_int];
                     if (c != '.' && c != ' ' && c != '~' && c != '^' && c != 'P' && c != 'F' && c != 'B' && c != 'A' && c != 'Q' && c != 'M' && 
                         c != 'T' && c != 'G' && c != 'O' && c != 'S' && c != 'C' && c != 'I' && c != 'Y' && c != 'Z' && c != 'V' && c != 'W' && c != 'N') {
                         return true;
                     }
                 }
             }
-            e2 = 2 * err;
-            if (e2 >= dy_line) { err += dy_line; x0 += sx; }
-            if (e2 <= dx_line) { err += dx_line; y0 += sy; }
+            cx += stepX;
+            cy += stepY;
         }
         return false;
     }
@@ -50,6 +62,10 @@ namespace Highlighter {
             (int)(a.fogR + (b.fogR - a.fogR) * t), (int)(a.fogG + (b.fogG - a.fogG) * t), (int)(a.fogB + (b.fogB - a.fogB) * t)
         };
     }
+    static thread_local int shadowFrameMap[512][512] = {0};
+    static thread_local bool shadowBoolMap[512][512] = {0};
+    static thread_local int currentShadowFrame = 1;
+    static thread_local float lastSunAngle = -1.0f;
 
     inline InfoLight calculateInfoLight(float distance, float depthMaximum, int themeSky,
                                    const std::vector<std::tuple<int, int, int>>& lights,
@@ -127,8 +143,27 @@ namespace Highlighter {
         if (mapMatrix != nullptr) {
             bool inShadow = false;
             if (themeSky != 3) {
-                // Determine sun/moon direction dynamically based on time of day
-                inShadow = checkOcclusion(hitX, hitY, hitX + sayLightX * 2.5f, hitY + sayLightY * 2.5f, mapMatrix);
+                if (sayLightX != lastSunAngle) { // Using sayLightX as a proxy for sun angle change
+                    lastSunAngle = sayLightX;
+                    currentShadowFrame++;
+                }
+                
+                int mx = (int)(hitX * 4.0f);
+                int my = (int)(hitY * 4.0f);
+                
+                if (mx >= 0 && mx < 512 && my >= 0 && my < 512) {
+                    if (shadowFrameMap[my][mx] != currentShadowFrame) {
+                        float originX = (mx + 0.5f) / 4.0f;
+                        float originY = (my + 0.5f) / 4.0f;
+                        inShadow = checkOcclusion(originX, originY, originX + sayLightX * 2.5f, originY + sayLightY * 2.5f, mapMatrix);
+                        shadowBoolMap[my][mx] = inShadow;
+                        shadowFrameMap[my][mx] = currentShadowFrame;
+                    } else {
+                        inShadow = shadowBoolMap[my][mx];
+                    }
+                } else {
+                    inShadow = checkOcclusion(hitX, hitY, hitX + sayLightX * 2.5f, hitY + sayLightY * 2.5f, mapMatrix);
+                }
             }
             if (!inShadow) {
                 info.sunR = climateDynamic.sunR;
@@ -136,7 +171,6 @@ namespace Highlighter {
                 info.sunB = climateDynamic.sunB;
                 info.sunIntensity = climateDynamic.sunIntensity;
             } else {
-                // Shadowed ambient light (scaled down)
                 info.sunR = climateDynamic.sunR * 0.5f;
                 info.sunG = climateDynamic.sunG * 0.5f;
                 info.sunB = climateDynamic.sunB * 0.5f;

@@ -153,7 +153,7 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
 
     int HEIGHT_INTERNAL = SCREEN_HEIGHT * 2;
     vector<Pixel3D> screen3D(SCREEN_WIDTH * HEIGHT_INTERNAL);
-    vector<string> screen(SCREEN_WIDTH * SCREEN_HEIGHT, " ");
+    vector<string> screen(SCREEN_WIDTH * SCREEN_HEIGHT);
 
     auto downsampleScreen = [&]() {
         downsampleScreenBuffer(screen3D, screen, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -213,7 +213,8 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
                     if (x < SCREEN_WIDTH - doorLeftOffset) {
                         bufferFrame += "\033[48;2;10;10;10m \033[0m";
                     } else {
-                        bufferFrame += screen[y * SCREEN_WIDTH + x];
+                        const string& hs = screen[y * SCREEN_WIDTH + x];
+                        bufferFrame += (hs.empty() || hs[0] == '\1') ? " " : hs;
                     }
                 }
                 if (y < SCREEN_HEIGHT - 1) bufferFrame += "\n";
@@ -279,7 +280,8 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
             for (int y = 0; y < SCREEN_HEIGHT; y++) {
                 for (int x = 0; x < SCREEN_WIDTH; x++) {
                     if (y == SCREEN_HEIGHT - 1 && x == SCREEN_WIDTH - 1) break;
-                    sceneInitial += screen[y * SCREEN_WIDTH + x];
+                    const string& hs = screen[y * SCREEN_WIDTH + x];
+                    sceneInitial += (hs.empty() || hs[0] == '\1') ? " " : hs;
                 }
                 if (y < SCREEN_HEIGHT - 1) sceneInitial += "\n";
             }
@@ -304,7 +306,8 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
                     if (bannerCol >= 0 && bannerCol < (int)bannerChars[i].size() && bannerChars[i][bannerCol] != " ") {
                         buffer << colorBanner << bannerChars[i][bannerCol] << "\033[0m";
                     } else {
-                        buffer << screen[drawY * SCREEN_WIDTH + x];
+                        const string& hs = screen[drawY * SCREEN_WIDTH + x];
+                        buffer << (hs.empty() || hs[0] == '\1' ? " " : hs);
                     }
                 }
                 buffer << "\033[K";
@@ -417,7 +420,7 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
         RaycasterRenderer::render3D(screen3D, SCREEN_WIDTH, HEIGHT_INTERNAL, playerX, playerY, angleVisa, horizonInternal, offsetGeneral, depthMaximum, timeAbsolute, mapMatrix, titleMap, themeForest, themeActive, cacheSprites);
         // --- LIMPA A TELA HUD ---
         for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++) {
-            screen[i] = " ";
+            screen[i].clear();
         }
 
         // --- RENDERIZACAO HUD E OVERLAYS (2D) ---
@@ -434,8 +437,10 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
                 if (y == SCREEN_HEIGHT - 1 && x == SCREEN_WIDTH - 1) break;
                 
                 const string& hudStr = screen[y * SCREEN_WIDTH + x];
-                if (hudStr != " ") {
-                    bufferFrame += hudStr;
+                if (!hudStr.empty()) {
+                    if (hudStr[0] != '\1') {
+                        bufferFrame += hudStr;
+                    }
                     curBgR = -1; curBgG = -1; curBgB = -1;
                     curFgR = -1; curFgG = -1; curFgB = -1;
                 } else {
