@@ -120,6 +120,12 @@ namespace MenuRaycasterUtils {
         s_warriorSteps++;
     }
 
+    inline float s_sunOverrideAngle = -100.0f;
+    inline float s_sunOverrideRatioY = -100.0f;
+    inline float s_moonOverrideAngle = -100.0f;
+    inline float s_moonOverrideRatioY = -100.0f;
+    inline int s_draggingEntity = 0; // 0=none, 1=sun, 2=moon, 3=sky
+
     inline void applyCycleDayNight(std::vector<std::string>& frame) {
         if (frame.empty()) return;
 
@@ -128,19 +134,70 @@ namespace MenuRaycasterUtils {
 
         int totalLines = (int)frame.size();
         int heightSky = totalLines;
-
         float FOV = 1.6f;
 
         static float s_timeMenuAnimation = 30.0f; // Comeca de dia
 
-        int deltaX = 0;
-        if (InputControl::readStateDragHorizontalMouse(deltaX)) {
-            if (deltaX != 0) {
-                s_timeMenuAnimation += (float)deltaX * 0.4f; 
+        int mouseX = -1, mouseY = -1;
+        bool isLeft = false, isRight = false;
+        
+        static int lastMouseX = -1;
+        static bool lastLeft = false;
+
+        InputControl::pollMouseState(mouseX, mouseY, isLeft, isRight);
+
+        if (isLeft) {
+            if (!lastLeft) {
+                float colAng = ((float)mouseX / widthScreen - 0.5f) * FOV;
+                float ratioY = (float)mouseY / heightSky;
+                
+                float t = std::fmod(s_timeMenuAnimation, 120.0f) / 120.0f;
+                float diffAngleSun = colAng - (t - 0.25f) * 3.2f;
+                float sunPhase = (t - 0.25f) * 2.0f * 3.14159f;
+                float sunElevation = std::cos(sunPhase);
+                float distYSun = ratioY - (0.5f - 0.2f * sunElevation);
+                float distSun = std::sqrt(diffAngleSun * diffAngleSun * 6.0f + distYSun * distYSun);
+
+                float diffAngleMoon = colAng - (t - 0.75f) * 3.2f;
+                float moonPhase = (t - 0.75f) * 2.0f * 3.14159f;
+                float moonElevation = std::cos(moonPhase);
+                float distYMoon = ratioY - (0.5f - 0.2f * moonElevation);
+                float distMoon = std::sqrt(diffAngleMoon * diffAngleMoon * 6.0f + distYMoon * distYMoon);
+
+                if (distSun < 0.15f) s_draggingEntity = 1;
+                else if (distMoon < 0.15f) s_draggingEntity = 2;
+                else s_draggingEntity = 3;
+                
+                lastMouseX = mouseX;
+            }
+            
+            if (s_draggingEntity == 1) {
+                s_sunOverrideAngle = ((float)mouseX / widthScreen - 0.5f) * FOV;
+                s_sunOverrideRatioY = (float)mouseY / heightSky;
+                float target_t = (s_sunOverrideAngle / 3.2f) + 0.25f;
+                s_timeMenuAnimation = target_t * 120.0f;
+            } else if (s_draggingEntity == 2) {
+                s_moonOverrideAngle = ((float)mouseX / widthScreen - 0.5f) * FOV;
+                s_moonOverrideRatioY = (float)mouseY / heightSky;
+                float target_t = (s_moonOverrideAngle / 3.2f) + 0.75f;
+                s_timeMenuAnimation = target_t * 120.0f;
+            } else if (s_draggingEntity == 3) {
+                if (lastMouseX != -1) {
+                    s_timeMenuAnimation += (mouseX - lastMouseX) * 0.4f;
+                }
+                lastMouseX = mouseX;
             }
         } else {
-            s_timeMenuAnimation += 0.05f; // Auto-passar do tempo lento
+            s_draggingEntity = 0;
+            s_sunOverrideAngle = -100.0f;
+            s_sunOverrideRatioY = -100.0f;
+            s_moonOverrideAngle = -100.0f;
+            s_moonOverrideRatioY = -100.0f;
+            lastMouseX = -1;
+            s_timeMenuAnimation += 0.05f;
         }
+        
+        lastLeft = isLeft;
 
         while (s_timeMenuAnimation < 0.0f) s_timeMenuAnimation += 120.0f;
         while (s_timeMenuAnimation > 120.0f) s_timeMenuAnimation -= 120.0f;
@@ -152,7 +209,7 @@ namespace MenuRaycasterUtils {
             for (int cellX = 0; cellX < widthScreen; ++cellX) {
                 float colAng = ((float)cellX / (float)widthScreen - 0.5f) * FOV;
                 
-                Pixel3D pxSky = RaycasterWorld::getPixelCeiling(0, colAng, colAng, y, heightSky * 2, s_timeMenuAnimation, true);
+                Pixel3D pxSky = RaycasterWorld::getPixelCeiling(0, colAng, colAng, y, heightSky * 2, s_timeMenuAnimation, true, s_sunOverrideAngle, s_sunOverrideRatioY, s_moonOverrideAngle, s_moonOverrideRatioY);
 
                 int r = pxSky.r;
                 int g = pxSky.g;

@@ -1,5 +1,5 @@
 @echo off
-cd %~dp0\..\..
+cd %~dp0\..
 set PATH=C:\msys64\ucrt64\bin;%PATH%
 echo Cleaning the build folder...
 if exist build rmdir /s /q build

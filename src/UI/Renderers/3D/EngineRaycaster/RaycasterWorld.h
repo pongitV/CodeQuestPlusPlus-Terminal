@@ -26,7 +26,7 @@ public:
     static Pixel3D getFloorPixel(const std::string& titleMap, float currentX, float currentY, float currentDist, float depthMaximum, const Highlighter::InfoLight& infoLight);
     static Pixel3D getPixelWater(float currentX, float currentY, float currentDist, float depthMaximum, float radiusAngle = 0.0f, float timeAnimation = 0.0f, int themeSky = 0);
     static int getThemeSky(const std::string& titleMap);
-    static Pixel3D getPixelCeiling(int themeSky, float radiusAngle, float angleSunMoon, int y, int heightScreen, float timeAnimation = 0.0f, bool isMenu = false);
+    static Pixel3D getPixelCeiling(int themeSky, float radiusAngle, float angleSunMoon, int y, int heightScreen, float timeAnimation = 0.0f, bool isMenu = false, float overrideSunAngle = -100.0f, float overrideSunRatioY = -100.0f, float overrideMoonAngle = -100.0f, float overrideMoonRatioY = -100.0f);
 
     static char getSpriteChar(int mapX, int mapY, char c, const std::string& titleMap);
     static std::string getColorMinimapEntity(char c, const std::string& titleMap);

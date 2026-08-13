@@ -24,6 +24,9 @@ namespace {
 }
 
 void Appearance::bootConsole() {
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(NULL);
+
 #ifdef _WIN32
     SetConsoleOutputCP(65001);
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);

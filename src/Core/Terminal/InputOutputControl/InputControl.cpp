@@ -86,60 +86,55 @@ void InputControl::enableMouseInput() {
 
 /*
  * Captura e processa eventos complexos de mouse na API do Windows (Win32 Console).
- * Intercepta MOUSE_EVENTs diretamente da stream STDIN, permitindo drag-and-drop
- * de camera no modo 3D sem interferir no buffer de teclado (_kbhit).
+ * Intercepta MOUSE_EVENTs diretamente da stream STDIN.
  */
-bool InputControl::readStateDragHorizontalMouse(int& deltaX) {
-    deltaX = 0;
+bool InputControl::pollMouseState(int& mouseX, int& mouseY, bool& isLeftPressed, bool& isRightPressed) {
 #ifdef _WIN32
     HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
     DWORD indexInEvents = 0;
     GetNumberOfConsoleInputEvents(hStdin, &indexInEvents);
-    if (indexInEvents == 0) return false;
-
-    INPUT_RECORD ir[128];
-    DWORD indexInRead;
-    /*
-     * Lemos os eventos brutos, mas precisamos devolver os KEYBOARD_EVENTs
-     * para a stream senao o _kbhit() vai parar de funcionar para movimentacao.
-     */
-    ReadConsoleInput(hStdin, ir, 128, &indexInRead);
     
-    static int lastMouseX = -1;
-    static bool isDragging = false;
+    static int lastX = -1;
+    static int lastY = -1;
+    static bool lastLeft = false;
+    static bool lastRight = false;
     bool evMouse = false;
-    
-    std::vector<INPUT_RECORD> nonMouseEvents;
 
-    for (DWORD i = 0; i < indexInRead; ++i) {
-        if (ir[i].EventType == MOUSE_EVENT) {
-            evMouse = true;
-            MOUSE_EVENT_RECORD mouseEvent = ir[i].Event.MouseEvent;
-            
-            if (mouseEvent.dwButtonState == FROM_LEFT_1ST_BUTTON_PRESSED) {
-                if (!isDragging) {
-                    isDragging = true;
-                    lastMouseX = mouseEvent.dwMousePosition.X;
-                } else {
-                    deltaX += (int)mouseEvent.dwMousePosition.X - lastMouseX;
-                    lastMouseX = mouseEvent.dwMousePosition.X;
-                }
+    if (indexInEvents > 0) {
+        INPUT_RECORD ir[128];
+        DWORD indexInRead;
+        ReadConsoleInput(hStdin, ir, 128, &indexInRead);
+        
+        std::vector<INPUT_RECORD> nonMouseEvents;
+
+        for (DWORD i = 0; i < indexInRead; ++i) {
+            if (ir[i].EventType == MOUSE_EVENT) {
+                evMouse = true;
+                MOUSE_EVENT_RECORD mouseEvent = ir[i].Event.MouseEvent;
+                
+                lastX = mouseEvent.dwMousePosition.X;
+                lastY = mouseEvent.dwMousePosition.Y;
+                lastLeft = (mouseEvent.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) != 0;
+                lastRight = (mouseEvent.dwButtonState & RIGHTMOST_BUTTON_PRESSED) != 0;
             } else {
-                isDragging = false;
-                lastMouseX = -1;
+                nonMouseEvents.push_back(ir[i]);
             }
-        } else {
-            nonMouseEvents.push_back(ir[i]);
+        }
+        
+        if (!nonMouseEvents.empty()) {
+            DWORD written = 0;
+            WriteConsoleInput(hStdin, nonMouseEvents.data(), (DWORD)nonMouseEvents.size(), &written);
         }
     }
     
-    if (!nonMouseEvents.empty()) {
-        DWORD written = 0;
-        WriteConsoleInput(hStdin, nonMouseEvents.data(), (DWORD)nonMouseEvents.size(), &written);
-    }
+    mouseX = lastX;
+    mouseY = lastY;
+    isLeftPressed = lastLeft;
+    isRightPressed = lastRight;
     
     return evMouse;
 #else
+    mouseX = -1; mouseY = -1; isLeftPressed = false; isRightPressed = false;
     return false;
 #endif
 }

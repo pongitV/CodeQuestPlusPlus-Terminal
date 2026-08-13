@@ -583,7 +583,7 @@ int RaycasterWorld::getThemeSky(const std::string& titleMap) {
     return flags.themeSky;
 }
 
-Pixel3D RaycasterWorld::getPixelCeiling(int themeSky, float radiusAngle, float angleSky, int y, int heightScreen, float timeAnimation, bool isMenu) {
+Pixel3D RaycasterWorld::getPixelCeiling(int themeSky, float radiusAngle, float angleSky, int y, int heightScreen, float timeAnimation, bool isMenu, float overrideSunAngle, float overrideSunRatioY, float overrideMoonAngle, float overrideMoonRatioY) {
     (void)angleSky; (void)timeAnimation; (void)isMenu;
     int horizon = heightScreen / 2;
     if (themeSky == 3) { 
@@ -653,34 +653,52 @@ Pixel3D RaycasterWorld::getPixelCeiling(int themeSky, float radiusAngle, float a
     float globalRotation = timeAnimation * 0.05f;
 
     float diffAngleSun;
-    if (isMenu) {
-        // No menu o Sol nasce na esquerda (colAng=-0.8) as t=0.0 e se poe na direita (colAng=+0.8) as t=0.5
-        float colAng = radiusAngle;
-        diffAngleSun = colAng - (t - 0.25f) * 3.2f;
-    } else {
-        diffAngleSun = std::fmod(radiusAngle - globalRotation, 2.0f * 3.14159f);
-        if (diffAngleSun < -3.14159f) diffAngleSun += 2.0f * 3.14159f;
-        if (diffAngleSun > 3.14159f) diffAngleSun -= 2.0f * 3.14159f;
-    }
+    float distYSun;
     
-    float sunPhase = (t - 0.25f) * 2.0f * 3.14159f;
-    float sunElevation = std::cos(sunPhase); 
-    float distYSun = isMenu ? (ratioY - (0.5f - 0.2f * sunElevation)) : (ratioY - (0.9f - 1.1f * sunElevation));
+    if (overrideSunAngle != -100.0f && overrideSunRatioY != -100.0f) {
+        diffAngleSun = radiusAngle - overrideSunAngle;
+        while (diffAngleSun < -3.14159f) diffAngleSun += 2.0f * 3.14159f;
+        while (diffAngleSun > 3.14159f) diffAngleSun -= 2.0f * 3.14159f;
+        distYSun = ratioY - overrideSunRatioY;
+    } else {
+        if (isMenu) {
+            // No menu o Sol nasce na esquerda (colAng=-0.8) as t=0.0 e se poe na direita (colAng=+0.8) as t=0.5
+            float colAng = radiusAngle;
+            diffAngleSun = colAng - (t - 0.25f) * 3.2f;
+        } else {
+            diffAngleSun = std::fmod(radiusAngle - globalRotation, 2.0f * 3.14159f);
+            if (diffAngleSun < -3.14159f) diffAngleSun += 2.0f * 3.14159f;
+            if (diffAngleSun > 3.14159f) diffAngleSun -= 2.0f * 3.14159f;
+        }
+        
+        float sunPhase = (t - 0.25f) * 2.0f * 3.14159f;
+        float sunElevation = std::cos(sunPhase); 
+        distYSun = isMenu ? (ratioY - (0.5f - 0.2f * sunElevation)) : (ratioY - (0.9f - 1.1f * sunElevation));
+    }
     float distSun = std::sqrt(diffAngleSun * diffAngleSun * 6.0f + distYSun * distYSun);
     
     float diffAngleMoon;
-    if (isMenu) {
-        float colAng = radiusAngle;
-        diffAngleMoon = colAng - (t - 0.75f) * 3.2f;
-    } else {
-        diffAngleMoon = std::fmod(radiusAngle - globalRotation + 3.14159f, 2.0f * 3.14159f);
-        if (diffAngleMoon < -3.14159f) diffAngleMoon += 2.0f * 3.14159f;
-        if (diffAngleMoon > 3.14159f) diffAngleMoon -= 2.0f * 3.14159f;
-    }
+    float distYMoon;
     
-    float moonPhase = (t - 0.75f) * 2.0f * 3.14159f;
-    float moonElevation = std::cos(moonPhase);
-    float distYMoon = isMenu ? (ratioY - (0.5f - 0.2f * moonElevation)) : (ratioY - (0.9f - 1.1f * moonElevation));
+    if (overrideMoonAngle != -100.0f && overrideMoonRatioY != -100.0f) {
+        diffAngleMoon = radiusAngle - overrideMoonAngle;
+        while (diffAngleMoon < -3.14159f) diffAngleMoon += 2.0f * 3.14159f;
+        while (diffAngleMoon > 3.14159f) diffAngleMoon -= 2.0f * 3.14159f;
+        distYMoon = ratioY - overrideMoonRatioY;
+    } else {
+        if (isMenu) {
+            float colAng = radiusAngle;
+            diffAngleMoon = colAng - (t - 0.75f) * 3.2f;
+        } else {
+            diffAngleMoon = std::fmod(radiusAngle - globalRotation + 3.14159f, 2.0f * 3.14159f);
+            if (diffAngleMoon < -3.14159f) diffAngleMoon += 2.0f * 3.14159f;
+            if (diffAngleMoon > 3.14159f) diffAngleMoon -= 2.0f * 3.14159f;
+        }
+        
+        float moonPhase = (t - 0.75f) * 2.0f * 3.14159f;
+        float moonElevation = std::cos(moonPhase);
+        distYMoon = isMenu ? (ratioY - (0.5f - 0.2f * moonElevation)) : (ratioY - (0.9f - 1.1f * moonElevation));
+    }
     float distMoon = std::sqrt(diffAngleMoon * diffAngleMoon * 6.0f + distYMoon * distYMoon);
 
     Pixel3D px;

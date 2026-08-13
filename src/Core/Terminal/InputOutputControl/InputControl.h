@@ -45,7 +45,7 @@ public:
     
     // Habilita e gerencia captura de mouse no terminal Windows
     static void enableMouseInput();
-    static bool readStateDragHorizontalMouse(int& deltaX);
+    static bool pollMouseState(int& mouseX, int& mouseY, bool& isLeftPressed, bool& isRightPressed);
     
     // Leituras estruturadas de inteiros e selecoes de menu
     static int readIntegerWithLimits(const std::string& promptMessage, int minimum, int maximum, bool centralizePrompt = false, const std::string& marginPersonalized = "");
