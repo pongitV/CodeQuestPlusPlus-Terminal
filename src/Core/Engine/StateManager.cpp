@@ -32,7 +32,7 @@ void MenuState::execute(Game& game, GameContext& ctx) {
 }
 
 void ExplorationState::onExit(Game& game, GameContext& ctx) {
-    // Desvincula e limpa a memoria do jogador para a proxima iteracao
+    // Desvincula e limpa a memoria do player para a proxima iteracao
     ctx.player.reset();
 }
 

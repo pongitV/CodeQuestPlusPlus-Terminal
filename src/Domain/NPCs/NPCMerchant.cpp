@@ -17,8 +17,8 @@
 #include "Domain/NPCs/NPCMerchantLayout.h"
 
 namespace {
-    std::map<int, ShopProduct> stockPocoes = {
-        {1, {ItemID::LittleCure30, 10, -1}}
+    std::map<int, ShopProduct> potionsStock = {
+        {1, {ItemID::HealingPotion30, 10, -1}}
     };
 
     std::map<int, ShopProduct> stockTalismans = {
@@ -33,10 +33,10 @@ namespace {
     };
 
     // --- APARENCIA E DIALOGOS ---
-    void processPurchasePocoes(Character* currentPlayer);
+    void processPotionsPurchase(Character* currentPlayer);
     void processPurchaseTalismans(Character* currentPlayer);
     void processPurchaseDelicacies(Character* currentPlayer);
-    void processSaleDeItems(Character* currentPlayer);
+    void processItemsSale(Character* currentPlayer);
 
     void dialogueFrancesco(const std::vector<std::string>& lines) {
         Appearance::displayPopup("FRANCHESCO", lines, Color::YELLOW, NPCMerchantLayouts::artMerchant);
@@ -94,7 +94,7 @@ std::vector<std::string> NPCMerchant::getOptionsMenu(Character* player, int term
 
 void NPCMerchant::processOption(Character* player, const std::string& option, int terminalWidth) {
     if (option == "COMPRAR Pocoes") {
-        processPurchasePocoes(player);
+        processPotionsPurchase(player);
     }
     else if (option == "COMPRAR Talismas") {
         processPurchaseTalismans(player);
@@ -103,7 +103,7 @@ void NPCMerchant::processOption(Character* player, const std::string& option, in
         processPurchaseDelicacies(player);
     }
     else if (option == "VENDER Itens do Inventario") {
-        processSaleDeItems(player);
+        processItemsSale(player);
     }
     else if (option == "Missoes de Franchesco") {
         InteractionNPC::processMenuMissionsEmpty(player, "MISSOES DE FRANCHESCO", Color::YELLOW, "Franchesco", "Ah, meu amigo! Nao tenho nenhum pedido especial para voce agora.");
@@ -112,8 +112,8 @@ void NPCMerchant::processOption(Character* player, const std::string& option, in
 
 namespace {
     // --- PROCESSAMENTO DE OPCOES ---
-    void processPurchasePocoes(Character* currentPlayer) {
-        Shop::processPurchase(currentPlayer, "LOJA - POCOES", Color::YELLOW, stockPocoes, 
+    void processPotionsPurchase(Character* currentPlayer) {
+        Shop::processPurchase(currentPlayer, "LOJA - POCOES", Color::YELLOW, potionsStock, 
             [](const std::string& msg) { dialogueFrancescoUnique(msg); }, InteractionNPC::getFormatterStatusItem, NPCMerchantLayouts::artMerchant);
     }
 
@@ -127,7 +127,7 @@ namespace {
             [](const std::string& msg) { dialogueFrancescoUnique(msg); }, InteractionNPC::getFormatterStatusItem, NPCMerchantLayouts::artMerchant);
     }
 
-    void processSaleDeItems(Character* currentPlayer) {
+    void processItemsSale(Character* currentPlayer) {
         do {
             std::vector<std::pair<std::string, std::vector<Item*>>> groupsItems;
             std::map<std::string, int> indexMap;

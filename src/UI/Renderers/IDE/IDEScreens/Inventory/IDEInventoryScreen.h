@@ -8,7 +8,7 @@
 
 class Item;
 
-class ScreenInventoryGO {
+class IDEInventoryScreen {
 public:
     static void displayHeaderInventory(bool animate = false);
     static void displayBoxEquipped(Character* currentPlayer);

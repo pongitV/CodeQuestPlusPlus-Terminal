@@ -40,7 +40,7 @@ void NPCAlchemist::displayDialogue(Character* player) {
     Appearance::displayPopup("QUINTUS - ALQUIMISTA REAL", lines, Color::GREEN_DARK, getArtASCII());
 }
 
-std::vector<std::string> NPCAlchemist::getOptionsMenu(Character* player, int /*larguraDoTerminal*/) {
+std::vector<std::string> NPCAlchemist::getOptionsMenu(Character* player, int /*terminalWidth*/) {
     return {
         "Pocao de Cura Grande (50%VM) [1x Maca + 1x Po magico]",
         "Pocao de Forca Alquimica [1x Pao + 1x Dente de goblin]",
@@ -50,7 +50,7 @@ std::vector<std::string> NPCAlchemist::getOptionsMenu(Character* player, int /*l
     };
 }
 
-void NPCAlchemist::processOption(Character* player, const std::string& option, int /*larguraDoTerminal*/) {
+void NPCAlchemist::processOption(Character* player, const std::string& option, int /*terminalWidth*/) {
     std::string foodReq = "";
     std::string requiredDrop = "";
     ItemID productId = ItemID::None;
@@ -58,22 +58,22 @@ void NPCAlchemist::processOption(Character* player, const std::string& option, i
     if (option.find("Cura Grande") != std::string::npos) {
         foodReq = "Maca";
         requiredDrop = "Po magico";
-        productId = ItemID::LittleCureBig;
+        productId = ItemID::GreatHealingPotion;
     }
     else if (option.find("Forca Alquimica") != std::string::npos) {
         foodReq = "Pao";
         requiredDrop = "Dente de goblin";
-        productId = ItemID::LittleGallowsAlchemy;
+        productId = ItemID::AlchemicalStrengthPotion;
     }
     else if (option.find("Veneno Alquimica") != std::string::npos) {
         foodReq = "Carne Seca";
         requiredDrop = "Gosma acida";
-        productId = ItemID::LittlePoisonAlchemy;
+        productId = ItemID::AlchemicalPoisonPotion;
     }
     else if (option.find("Lentidao Alquimica") != std::string::npos) {
         foodReq = "Queijo";
         requiredDrop = "Nucleo pegajoso";
-        productId = ItemID::LittleSlowAlchemy;
+        productId = ItemID::AlchemicalSlownessPotion;
     }
 
     if (productId != ItemID::None) {

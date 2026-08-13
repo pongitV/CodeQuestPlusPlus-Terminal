@@ -11,7 +11,7 @@
 #include "UI/Screens/WorldMap/WorldMapScreen.h"
 #include "UI/Renderers/IDE/IDETheme.h"
 
-int ScreenMapGO::display(MapLocation locationCurrent, int villageProgress, int forestProgress, int kingdomBridgeProgress, int kingdomProgress, const std::string& msgExtra) {
+int IDEMapScreen::display(MapLocation locationCurrent, int villageProgress, int forestProgress, int kingdomBridgeProgress, int kingdomProgress, const std::string& msgExtra) {
     int idCurrent = (locationCurrent == MapLocation::InitialVillage) ? 0 :
                   (locationCurrent == MapLocation::Forest) ? 1 :
                   (locationCurrent == MapLocation::KingdomBridge) ? 2 : 3;

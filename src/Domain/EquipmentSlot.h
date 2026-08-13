@@ -1,8 +1,8 @@
 #pragma once
 
 enum class SlotEquipment {
-    MAO_MAIN,
-    MAO_SECONDARY,
+    MAIN_HAND,
+    OFF_HAND,
     ARMOR,
     ACCESSORY_1,
     CONSUMABLE

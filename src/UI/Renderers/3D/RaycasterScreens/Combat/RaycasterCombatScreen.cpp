@@ -20,15 +20,15 @@ struct PlayerHUDStateRaycaster {
 static std::unordered_map<Character*, PlayerHUDStateRaycaster> hudStatesRaycaster;
 
 
-std::vector<std::string> ScreenCombatRaycaster::getLinesBarDeStatusDoPlayer(Character* currentPlayer, Color colorHighlight, int damageAnimation, int frameAnimation, bool isCure) {
+std::vector<std::string> RaycasterCombatScreen::getPlayerStatusBarLines(Character* currentPlayer, Color colorHighlight, int damageAnimation, int frameAnimation, bool isHealing) {
     if (!currentPlayer) return {};
 
     auto now = std::chrono::steady_clock::now();
     (void)now; // caso precise no futuro
 
-    std::string nameDaWeapon = (currentPlayer->getWeapons()) ? currentPlayer->getWeapons()->getItemName() + currentPlayer->getWeapons()->getInfoStatus() : "Punhos";
-    std::string nameDoShield = (currentPlayer->getShield()) ? currentPlayer->getShield()->getItemName() + currentPlayer->getShield()->getInfoStatus() : "Nenhum";
-    std::string nameDaArmor = (currentPlayer->getArmor()) ? currentPlayer->getArmor()->getItemName() + currentPlayer->getArmor()->getInfoStatus() : "Trapos";
+    std::string weaponName = (currentPlayer->getWeapons()) ? currentPlayer->getWeapons()->getItemName() + currentPlayer->getWeapons()->getInfoStatus() : "Punhos";
+    std::string shieldName = (currentPlayer->getShield()) ? currentPlayer->getShield()->getItemName() + currentPlayer->getShield()->getInfoStatus() : "Nenhum";
+    std::string armorName = (currentPlayer->getArmor()) ? currentPlayer->getArmor()->getItemName() + currentPlayer->getArmor()->getInfoStatus() : "Trapos";
     
     Item* consumable = currentPlayer->getConsumableQuickly();
     std::string nameConsumable = consumable ? consumable->getItemName() + " (" + std::to_string(currentPlayer->getInventory()->countItem(consumable->getItemName())) + "x)" : "Vazio";
@@ -53,7 +53,7 @@ std::vector<std::string> ScreenCombatRaycaster::getLinesBarDeStatusDoPlayer(Char
 
     if (damageAnimation > 0 && frameAnimation > 0) {
         if (frameAnimation % 2 == 1) {
-            colorLifeBase = isCure ? "\033[1;38;2;150;255;150m" : "\033[1;38;2;255;150;150m";
+            colorLifeBase = isHealing ? "\033[1;38;2;150;255;150m" : "\033[1;38;2;255;150;150m";
         }
     }
 
@@ -93,7 +93,7 @@ std::vector<std::string> ScreenCombatRaycaster::getLinesBarDeStatusDoPlayer(Char
     std::string prefixHP = colorLabel + " | HP: ";
     if (damageAnimation > 0 && frameAnimation > 0) {
         if (frameAnimation % 2 == 1) {
-            prefixHP = isCure ? "\033[1;38;2;150;255;150m | HP: " : "\033[1;38;2;255;150;150m | HP: ";
+            prefixHP = isHealing ? "\033[1;38;2;150;255;150m | HP: " : "\033[1;38;2;255;150;150m | HP: ";
         }
     }
 
@@ -108,10 +108,10 @@ std::vector<std::string> ScreenCombatRaycaster::getLinesBarDeStatusDoPlayer(Char
                        + colorLabel + " | " + colorGold + std::to_string(currentPlayer->getInventory()->getGold()) + "g\033[0m"
                        + colorLabel + " | Pocao: " + colorText + nameConsumable + "\033[0m";
     
-    std::string line2 = colorLabel + " Arma: " + colorText + nameDaWeapon + "\033[0m"
-                       + colorLabel + " | Escudo: " + colorText + nameDoShield + "\033[0m";
+    std::string line2 = colorLabel + " Arma: " + colorText + weaponName + "\033[0m"
+                       + colorLabel + " | Escudo: " + colorText + shieldName + "\033[0m";
 
-    std::string line3 = colorLabel + " Traje: " + colorText + nameDaArmor + "\033[0m";
+    std::string line3 = colorLabel + " Traje: " + colorText + armorName + "\033[0m";
 
     std::vector<EffectID> effects;
     currentPlayer->getIDsEffectsAssets(effects);
@@ -137,8 +137,8 @@ std::vector<std::string> ScreenCombatRaycaster::getLinesBarDeStatusDoPlayer(Char
     
     if (pctLife <= 0.30) { // Hurt mugshot
         mugshot[1] = "(x_x)";
-        if (damageAnimation > 0 && !isCure) mugshot[1] = "(>O<)"; // Tomando porrada
-    } else if (pctLife > 0.70 && damageAnimation > 0 && isCure) { // Curando e feliz
+        if (damageAnimation > 0 && !isHealing) mugshot[1] = "(>O<)"; // Tomando porrada
+    } else if (pctLife > 0.70 && damageAnimation > 0 && isHealing) { // Curando e feliz
         mugshot[1] = "(^_^)";
     }
 
@@ -183,7 +183,7 @@ static std::vector<MsgLogRaycaster> logBattle;
 
 // ---- Inicio das Funcoes Implementadas ----
 
-void ScreenCombatRaycaster::configureContext3D(bool mode3D, const std::vector<std::string>& matrix, float postX, float postY, float angle, const std::string& title) {
+void RaycasterCombatScreen::configureContext3D(bool mode3D, const std::vector<std::string>& matrix, float postX, float postY, float angle, const std::string& title) {
     s_isContext3D = mode3D;
     s_contextMap = matrix;
     s_contextPostX = postX;
@@ -192,13 +192,13 @@ void ScreenCombatRaycaster::configureContext3D(bool mode3D, const std::vector<st
     s_contextTitleMap = title;
 }
 
-void ScreenCombatRaycaster::setShiftVisible(int shift, const std::string& name) {
+void RaycasterCombatScreen::setShiftVisible(int shift, const std::string& name) {
     (void)shift;
     std::string colorShift = (name == "INIMIGOS") ? "\033[1;38;2;255;100;100m" : "\033[1;38;2;100;255;100m";
     s_titleShiftHUD = colorShift + "[ TURNO DE " + name + " ]";
 }
 
-void ScreenCombatRaycaster::addFixedMessage(const std::string& msg) {
+void RaycasterCombatScreen::addFixedMessage(const std::string& msg) {
     MsgLogRaycaster log;
     log.text = msg;
     log.timestamp = std::chrono::steady_clock::now();
@@ -208,11 +208,11 @@ void ScreenCombatRaycaster::addFixedMessage(const std::string& msg) {
     }
 }
 
-void ScreenCombatRaycaster::cleanMessagesFixed() {
+void RaycasterCombatScreen::cleanMessagesFixed() {
     logBattle.clear();
 }
 
-void ScreenCombatRaycaster::updateScreenStatic(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies, bool animateEntrance, std::function<void(std::vector<std::string>&)> callbackOverlay) {
+void RaycasterCombatScreen::updateScreenStatic(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies, bool animateEntrance, std::function<void(std::vector<std::string>&)> callbackOverlay) {
     int terminalWidth = Appearance::getTerminalWidth();
     int terminalHeight = Appearance::getTerminalHeight();
     (void)animateEntrance;
@@ -259,7 +259,7 @@ void ScreenCombatRaycaster::updateScreenStatic(const std::string& combatTitle, c
         for (int i = 0; i < boxW - 2; ++i) traces += "═";
 
         if (boxY >= 0 && boxY < (int)screen3D.size()) {
-            screen3D[boxY] = Appearance::superimposePanelNaLineAnsi(screen3D[boxY], bg + br + "╔" + traces + "╗\033[0m", boxX);
+            screen3D[boxY] = Appearance::superimposePanelOnAnsiLine(screen3D[boxY], bg + br + "╔" + traces + "╗\033[0m", boxX);
         }
 
         for (size_t i = 0; i < messagesActive.size(); ++i) {
@@ -270,13 +270,13 @@ void ScreenCombatRaycaster::updateScreenStatic(const std::string& combatTitle, c
                 int pad = maxCompVis - compText;
                 if (pad < 0) pad = 0;
                 std::string lineStr = bg + br + "║ " + bg + text + "\033[0m" + bg + std::string(pad, ' ') + br + " ║\033[0m";
-                screen3D[yCurrent] = Appearance::superimposePanelNaLineAnsi(screen3D[yCurrent], lineStr, boxX);
+                screen3D[yCurrent] = Appearance::superimposePanelOnAnsiLine(screen3D[yCurrent], lineStr, boxX);
             }
         }
 
         int yEnd = boxY + 1 + messagesActive.size();
         if (yEnd >= 0 && yEnd < (int)screen3D.size()) {
-            screen3D[yEnd] = Appearance::superimposePanelNaLineAnsi(screen3D[yEnd], bg + br + "╚" + traces + "╝\033[0m", boxX);
+            screen3D[yEnd] = Appearance::superimposePanelOnAnsiLine(screen3D[yEnd], bg + br + "╚" + traces + "╝\033[0m", boxX);
         }
     }
 
@@ -297,19 +297,19 @@ void ScreenCombatRaycaster::updateScreenStatic(const std::string& combatTitle, c
         for (int i = 0; i < boxW - 2; ++i) traces += "═";
         
         if (boxY >= 0 && boxY < (int)screen3D.size()) {
-            screen3D[boxY] = Appearance::superimposePanelNaLineAnsi(screen3D[boxY], bg + br + "╔" + traces + "╗\033[0m", boxX);
+            screen3D[boxY] = Appearance::superimposePanelOnAnsiLine(screen3D[boxY], bg + br + "╔" + traces + "╗\033[0m", boxX);
         }
         
         for (int row = 1; row < boxH - 1; ++row) {
             int ty = boxY + row;
             if (ty >= 0 && ty < (int)screen3D.size()) {
                 std::string emptyLine = std::string(boxW - 2, ' ');
-                screen3D[ty] = Appearance::superimposePanelNaLineAnsi(screen3D[ty], bg + br + "║" + bg + emptyLine + br + "║\033[0m", boxX);
+                screen3D[ty] = Appearance::superimposePanelOnAnsiLine(screen3D[ty], bg + br + "║" + bg + emptyLine + br + "║\033[0m", boxX);
             }
         }
         
         if (boxY + boxH - 1 >= 0 && boxY + boxH - 1 < (int)screen3D.size()) {
-            screen3D[boxY + boxH - 1] = Appearance::superimposePanelNaLineAnsi(screen3D[boxY + boxH - 1], bg + br + "╚" + traces + "╝\033[0m", boxX);
+            screen3D[boxY + boxH - 1] = Appearance::superimposePanelOnAnsiLine(screen3D[boxY + boxH - 1], bg + br + "╚" + traces + "╝\033[0m", boxX);
         }
         
         if (!Parry::minigameMessage.empty()) {
@@ -339,10 +339,10 @@ void ScreenCombatRaycaster::updateScreenStatic(const std::string& combatTitle, c
     std::cout << out << std::flush;
 }
 
-void ScreenCombatRaycaster::displayHordeDeEnemiesSideASide(const std::vector<Character*>& enemies, Character* targetAnimation, int frameAnimation, bool isCure, bool cheerEmergence, bool isDeath, Item* weaponAttacker, int damageAnimation, const std::vector<std::string>& dropsAnimation) {
+void RaycasterCombatScreen::displayEnemyHordeSideBySide(const std::vector<Character*>& enemies, Character* targetAnimation, int frameAnimation, bool isHealing, bool animateEmergence, bool isDeath, Item* weaponAttacker, int damageAnimation, const std::vector<std::string>& dropsAnimation) {
     int terminalWidth = Appearance::getTerminalWidth();
     int terminalHeight = Appearance::getTerminalHeight();
-    (void)cheerEmergence;
+    (void)animateEmergence;
     (void)weaponAttacker;
     
     auto now = std::chrono::steady_clock::now();
@@ -350,7 +350,7 @@ void ScreenCombatRaycaster::displayHordeDeEnemiesSideASide(const std::vector<Cha
 
     std::vector<std::string> screen3D = RaycasterRendererCombat::renderFrame(
         s_contextTitleMap, nullptr, enemies, 
-        targetAnimation, frameAnimation, 0, damageAnimation, isCure, timeMs, isDeath, dropsAnimation, 1.0f
+        targetAnimation, frameAnimation, 0, damageAnimation, isHealing, timeMs, isDeath, dropsAnimation, 1.0f
     );
 
     // Joga na tela
@@ -370,19 +370,19 @@ static void rotateLoopAnimation(int framesTotals, int intervalMs, int step, cons
     }
 }
 
-void ScreenCombatRaycaster::animateCombatIntro(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer) {
+void RaycasterCombatScreen::animateCombatIntro(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer) {
     (void)combatTitle;
     (void)enemies;
     (void)currentPlayer;
     // O usuario solicitou a remocao da animacao de introducao do combate
 }
 
-void ScreenCombatRaycaster::displaySoonForScreenDeCombat(const std::string& titleDaScreen, bool animate) {
-    (void)titleDaScreen;
+void RaycasterCombatScreen::displayLogoForCombatScreen(const std::string& screenTitle, bool animate) {
+    (void)screenTitle;
     (void)animate;
 }
 
-void ScreenCombatRaycaster::animateDamageToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* attacker, Character* currentPlayer, const std::vector<Character*>& allies, int damageAnimation) {
+void RaycasterCombatScreen::animateDamageToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* attacker, Character* currentPlayer, const std::vector<Character*>& allies, int damageAnimation) {
     (void)combatTitle;
     (void)allies;
     rotateLoopAnimation(10, 50, 1, [&](int frame) {
@@ -401,16 +401,16 @@ void ScreenCombatRaycaster::animateDamageToEnemy(const std::string& combatTitle,
     });
 }
 
-void ScreenCombatRaycaster::animateCureToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int cureAnimation) {
+void RaycasterCombatScreen::animateCureToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int healingAnimation) {
     (void)combatTitle;
     (void)allies;
-    if (targetAnimation && cureAnimation > 0) {
-        addFixedMessage(Appearance::color(Color::GREEN) + targetAnimation->getName() + " curou " + std::to_string(cureAnimation) + " HP!" + Appearance::color(Color::RESET));
+    if (targetAnimation && healingAnimation > 0) {
+        addFixedMessage(Appearance::color(Color::GREEN) + targetAnimation->getName() + " curou " + std::to_string(healingAnimation) + " HP!" + Appearance::color(Color::RESET));
     }
     rotateLoopAnimation(10, 50, 1, [&](int frame) {
         auto now = std::chrono::steady_clock::now();
         int timeMs = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count());
-        std::vector<std::string> screen = RaycasterRendererCombat::renderFrame(s_contextTitleMap, currentPlayer, enemies, targetAnimation, frame, 0, cureAnimation, true, timeMs, false, {}, 1.0f);
+        std::vector<std::string> screen = RaycasterRendererCombat::renderFrame(s_contextTitleMap, currentPlayer, enemies, targetAnimation, frame, 0, healingAnimation, true, timeMs, false, {}, 1.0f);
         if (currentPlayer) RaycasterHUD::drawBarStatus(screen, Appearance::getTerminalWidth(), Appearance::getTerminalHeight(), currentPlayer, s_contextAngle, s_titleShiftHUD);
         
         std::string out = "\033[?25l\033[H";
@@ -425,7 +425,7 @@ void ScreenCombatRaycaster::animateCureToEnemy(const std::string& combatTitle, c
 
 extern Character* g_enemyAttackerParry;
 
-void ScreenCombatRaycaster::animateDamageToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, bool isParry, int damageAnimation) {
+void RaycasterCombatScreen::animateDamageToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, bool isParry, int damageAnimation) {
     (void)combatTitle;
     (void)allies;
     if (targetAnimation && damageAnimation >= 0 && !isParry) {
@@ -451,11 +451,11 @@ void ScreenCombatRaycaster::animateDamageToPlayer(const std::string& combatTitle
     });
 }
 
-void ScreenCombatRaycaster::animateCureToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int cureAnimation) {
+void RaycasterCombatScreen::animateCureToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int healingAnimation) {
     (void)combatTitle;
     (void)allies;
-    if (targetAnimation && cureAnimation > 0) {
-        addFixedMessage(Appearance::color(Color::GREEN) + targetAnimation->getName() + " curou " + std::to_string(cureAnimation) + " HP!" + Appearance::color(Color::RESET));
+    if (targetAnimation && healingAnimation > 0) {
+        addFixedMessage(Appearance::color(Color::GREEN) + targetAnimation->getName() + " curou " + std::to_string(healingAnimation) + " HP!" + Appearance::color(Color::RESET));
     }
     rotateLoopAnimation(6, 60, 1, [&](int frame) {
         int width = Appearance::getTerminalWidth();
@@ -464,7 +464,7 @@ void ScreenCombatRaycaster::animateCureToPlayer(const std::string& combatTitle, 
         int timeMs = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count());
         std::vector<std::string> screen3D = RaycasterRendererCombat::renderFrame(s_contextTitleMap, currentPlayer, enemies, nullptr, 0, 0, 0, false, timeMs, false, {}, 1.0f);
         
-        RaycasterHUD::drawBarStatus(screen3D, width, height, currentPlayer, s_contextAngle, s_titleShiftHUD, frame, cureAnimation, true);
+        RaycasterHUD::drawBarStatus(screen3D, width, height, currentPlayer, s_contextAngle, s_titleShiftHUD, frame, healingAnimation, true);
         
         std::string out = "\033[?25l\033[H";
         for (size_t i = 0; i < screen3D.size(); ++i) {
@@ -475,7 +475,7 @@ void ScreenCombatRaycaster::animateCureToPlayer(const std::string& combatTitle, 
         std::cout << out << std::flush;
     });
 }
-void ScreenCombatRaycaster::animateEnemyDeath(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* enemyDead, Character* currentPlayer, const std::vector<Character*>& allies, const std::vector<std::string>& drops) {
+void RaycasterCombatScreen::animateEnemyDeath(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* enemyDead, Character* currentPlayer, const std::vector<Character*>& allies, const std::vector<std::string>& drops) {
     (void)combatTitle;
     (void)allies;
     rotateLoopAnimation(10, 60, 1, [&](int frame) {
@@ -498,7 +498,7 @@ void ScreenCombatRaycaster::animateEnemyDeath(const std::string& combatTitle, co
 }
 
 // Menus de Input
-int ScreenCombatRaycaster::getPlayerAction(int currentTurn, Character* characterActing, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
+int RaycasterCombatScreen::getPlayerAction(int currentTurn, Character* characterActing, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
     (void)currentTurn;
     (void)characterActing;
     InputControl::clearBuffer();
@@ -535,13 +535,13 @@ int ScreenCombatRaycaster::getPlayerAction(int currentTurn, Character* character
             for (int i = 0; i < boxW - 2; ++i) traces += "═";
             
             if (boxY >= 0 && boxY < (int)screen.size()) {
-                screen[boxY] = Appearance::superimposePanelNaLineAnsi(screen[boxY], bg + br + "╔" + traces + "╗\033[0m", boxX);
+                screen[boxY] = Appearance::superimposePanelOnAnsiLine(screen[boxY], bg + br + "╔" + traces + "╗\033[0m", boxX);
             }
             if (boxY+1 >= 0 && boxY+1 < (int)screen.size()) {
-                screen[boxY+1] = Appearance::superimposePanelNaLineAnsi(screen[boxY+1], bg + br + "║ " + lineActions + bg + br + " ║\033[0m", boxX);
+                screen[boxY+1] = Appearance::superimposePanelOnAnsiLine(screen[boxY+1], bg + br + "║ " + lineActions + bg + br + " ║\033[0m", boxX);
             }
             if (boxY+2 >= 0 && boxY+2 < (int)screen.size()) {
-                screen[boxY+2] = Appearance::superimposePanelNaLineAnsi(screen[boxY+2], bg + br + "╚" + traces + "╝\033[0m", boxX);
+                screen[boxY+2] = Appearance::superimposePanelOnAnsiLine(screen[boxY+2], bg + br + "╚" + traces + "╝\033[0m", boxX);
             }
         };
 
@@ -564,7 +564,7 @@ int ScreenCombatRaycaster::getPlayerAction(int currentTurn, Character* character
     }
 }
 
-int ScreenCombatRaycaster::getTargetAttack(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
+int RaycasterCombatScreen::getTargetAttack(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
     InputControl::clearBuffer();
     int selected = 0;
     while(true) {
@@ -590,25 +590,25 @@ int ScreenCombatRaycaster::getTargetAttack(const std::string& combatTitle, const
     }
 }
 
-int ScreenCombatRaycaster::getTargetItem(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) { return -1; }
-int ScreenCombatRaycaster::chooseShield(const std::string& characterName, const std::vector<Item*>& shields) {
+int RaycasterCombatScreen::getTargetItem(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) { return -1; }
+int RaycasterCombatScreen::chooseShield(const std::string& characterName, const std::vector<Item*>& shields) {
     if (shields.empty()) return 0;
     std::vector<std::string> names;
     for (auto* shield : shields) names.push_back(shield->getItemName());
     int selection = InputControl::readMenuSelectionInPopup("ESCOLHA DE ESCUDO", {"Qual escudo deseja equipar?"}, names, Color::YELLOW);
     return selection + 1;
 }
-void ScreenCombatRaycaster::selectHUDAlly(Character* currentPlayer, const std::vector<Character*>& allies) {}
-void ScreenCombatRaycaster::notifyEnemiesMoreAct() { addFixedMessage("Inimigos sao mais ageis e atacam primeiro!"); }
-void ScreenCombatRaycaster::notifyShiftExtra(int, int) { addFixedMessage("Velocidade superior: Turno Extra!"); }
-void ScreenCombatRaycaster::notifyUnpreventionInventory() { addFixedMessage("Sem item rapido equipado!"); }
-void ScreenCombatRaycaster::notifyWithoutShields(const std::string& name) { addFixedMessage(name + " tentou defender mas nao tem escudos!"); }
-void ScreenCombatRaycaster::notifyImbalanceDefense(const std::string& name) { addFixedMessage(name + " teve sua defesa quebrada!"); }
-void ScreenCombatRaycaster::notifyPostureDefensive(const std::string& name, const std::string& shield) { 
+void RaycasterCombatScreen::selectHUDAlly(Character* currentPlayer, const std::vector<Character*>& allies) {}
+void RaycasterCombatScreen::notifyEnemiesMoreAct() { addFixedMessage("Inimigos sao mais ageis e atacam primeiro!"); }
+void RaycasterCombatScreen::notifyShiftExtra(int, int) { addFixedMessage("Velocidade superior: Turno Extra!"); }
+void RaycasterCombatScreen::notifyUnpreventionInventory() { addFixedMessage("Sem item rapido equipado!"); }
+void RaycasterCombatScreen::notifyWithoutShields(const std::string& name) { addFixedMessage(name + " tentou defender mas nao tem escudos!"); }
+void RaycasterCombatScreen::notifyImbalanceDefense(const std::string& name) { addFixedMessage(name + " teve sua defesa quebrada!"); }
+void RaycasterCombatScreen::notifyPostureDefensive(const std::string& name, const std::string& shield) { 
     if (shield.empty()) addFixedMessage(name + " assumiu postura defensiva!");
     else addFixedMessage(name + " ergueu o " + shield + " para defender!");
 }
-void ScreenCombatRaycaster::notifyActionInvalidates() { addFixedMessage("Acao Invalida!"); }
-void ScreenCombatRaycaster::notifyCancellationItem() { addFixedMessage("Uso de item cancelado."); }
-void ScreenCombatRaycaster::notifyUnmetRequirement(const std::string& m) { addFixedMessage(m); }
+void RaycasterCombatScreen::notifyActionInvalidates() { addFixedMessage("Acao Invalida!"); }
+void RaycasterCombatScreen::notifyCancellationItem() { addFixedMessage("Uso de item cancelado."); }
+void RaycasterCombatScreen::notifyUnmetRequirement(const std::string& m) { addFixedMessage(m); }
 

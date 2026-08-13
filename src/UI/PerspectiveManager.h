@@ -39,11 +39,11 @@ public:
     static IInventoryUI& getInventoryUI();
     static IAttributesUI& getAttributesUI();
     static IBestiaryUI& getBestiaryUI();
-    static IScreenCombatUI& getScreenCombatUI();
+    static ICombatScreenUI& getScreenCombatUI();
     static IDefeatUI& getDefeatUI();
     static IVictoryUI& getVictoryUI();
     static IPauseUI& getPauseUI();
-    static IMapWorldUI& getMapWorldUI();
+    static IWorldMapUI& getMapWorldUI();
 
     static float getSensitivityMouseX();
     static float getSensitivityMouseY();
@@ -56,7 +56,7 @@ private:
     PerspectiveManager(const PerspectiveManager&) = delete;
     PerspectiveManager& operator=(const PerspectiveManager&) = delete;
 
-    bool m_visa3DActive;
+    bool m_view3DActive;
     std::unique_ptr<PerspectiveRenderer> m_renderer3D;
 
     std::unique_ptr<IManagerScreens> m_screens3D;

@@ -5,7 +5,7 @@
 
 class Character;
 
-class ScreenDiaryGO {
+class IDEDiaryScreen {
 public:
     static void display(Character* currentPlayer);
 };

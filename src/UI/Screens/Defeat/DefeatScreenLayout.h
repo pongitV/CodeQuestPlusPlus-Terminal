@@ -5,7 +5,7 @@
 
 namespace ArtsDefeat {
 
-    inline const std::vector<std::string> soonDefeat = StringConvert::convertRawStringToVector(R"(
+    inline const std::vector<std::string> defeatLogo = StringConvert::convertRawStringToVector(R"(
  ██████████   ██████████ ███████████   ███████████      ███████    ███████████   █████████  
 ░░███░░░░███ ░░███░░░░░█░░███░░░░░███ ░░███░░░░░███   ███░░░░░███ ░█░░░███░░░█  ███░░░░░███ 
  ░███   ░░███ ░███  █ ░  ░███    ░███  ░███    ░███  ███     ░░███░   ░███  ░  ░███    ░███ 

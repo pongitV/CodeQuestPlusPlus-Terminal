@@ -25,7 +25,7 @@ public:
 
     static void bootConsole();
     static std::string convertVectorForStringGross(const std::vector<std::string>& vector);
-    static std::string superimposePanelNaLineAnsi(const std::string& backgroundLine, const std::string& panelLine, int startX);
+    static std::string superimposePanelOnAnsiLine(const std::string& backgroundLine, const std::string& panelLine, int startX);
     static std::string color(Color code);
     static std::vector<std::string> convertRawStringToVector(const std::string& textGross);
     static void standardizeVectorSize(std::vector<std::string>& lines);
@@ -57,7 +57,7 @@ public:
     
     static std::string getColorRGBFade(Color themeColor, int intensity);
     static void animateFadeIn(int framesTotals, int timeByFrameMs, const std::function<void(int frame, int intensity)>& renderFrame);
-    static void displayScreenIntro(const std::vector<std::string>& artSoon, const std::vector<std::string>& textNarration, Color themeColor);
+    static void displayScreenIntro(const std::vector<std::string>& logoArt, const std::vector<std::string>& textNarration, Color themeColor);
 
     static int typingDelayMS;
     static void printBlockCentralizedTyping(const std::vector<std::string>& lines, int delayMs = typingDelayMS);
@@ -67,7 +67,7 @@ public:
     
     static void displayPanel(const std::string& title, Color colorMain = Color::WHITE, const std::vector<std::string>& artMain = {}, int artWidth = 0, const std::vector<std::string>& artSecondary = {}, Color colorSecondary = Color::RESET, bool animateFadeIn = false);
     static void displayTextPanel(const std::string& title, Color colorDoHeader = Color::WHITE, bool animateFadeIn = false);
-    static void displayArtPanel(const std::vector<std::string>& asciiArt, int widthVisual, Color colorDaArt, const std::string& titleSecondary = "", bool animateFadeIn = false);
+    static void displayArtPanel(const std::vector<std::string>& asciiArt, int widthVisual, Color artColor, const std::string& titleSecondary = "", bool animateFadeIn = false);
     static void displayTitlePattern(const std::string& title, Color themeColor = Color::WHITE);
     static void displayPrompt(const std::string& message);
     static void displayPopup(const std::string& title, const std::vector<std::string>& text, Color themeColor = Color::WHITE, const std::vector<std::string>& asciiArt = {});
@@ -102,9 +102,9 @@ public:
     static void sortAlphabetically(std::vector<std::string>& list);
 
     template <typename T, typename Extractor>
-    static void sortAlphabetically(std::vector<T>& list, Extractor extractorDeText) {
-        std::sort(list.begin(), list.end(), [&extractorDeText](const T& a, const T& b) {
-            return extractorDeText(a) < extractorDeText(b);
+    static void sortAlphabetically(std::vector<T>& list, Extractor textExtractor) {
+        std::sort(list.begin(), list.end(), [&textExtractor](const T& a, const T& b) {
+            return textExtractor(a) < textExtractor(b);
         });
     }
 };

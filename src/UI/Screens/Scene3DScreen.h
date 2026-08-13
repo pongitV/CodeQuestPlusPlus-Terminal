@@ -10,8 +10,8 @@ public:
     void execute();
 
 protected:
-    virtual std::vector<std::string> getSoon() const = 0;
-    virtual std::string getColorSoon() const = 0;
+    virtual std::vector<std::string> getLogo() const = 0;
+    virtual std::string getLogoColor() const = 0;
 
     virtual std::vector<std::string> getBackgroundInitial() const = 0;
 

@@ -2,16 +2,16 @@
 
 #include "UI/Screens/IScreenManager.h"
 
-class ManagerScreensGO : public IManagerScreens {
+class IDEScreenManager : public IManagerScreens {
 public:
     void opening() override;
-    void panelSoon(const std::string& titleDaScreen, bool animateFadeIn) override;
-    bool confirmationChoose(const std::string& typeDeChoose, const std::string& nameDaChoose,
-        const std::vector<std::string>& informationForDisplay, const std::vector<std::string>& artAsciiForDisplay) override;
+    void panelLogo(const std::string& screenTitle, bool animateFadeIn) override;
+    bool chooseConfirmation(const std::string& chooseType, const std::string& chooseName,
+        const std::vector<std::string>& informationForDisplay, const std::vector<std::string>& asciiArtForDisplay) override;
     std::vector<std::string> frameAttributes(const Attributes& stats,
-        const std::string& titleDry, const std::string& titleSkill,
-        const std::string& nameHab, const std::string& descHab,
-        const std::string& titleSkill2, const std::string& nameHab2, const std::string& descHab2) override;
+        const std::string& dryTitle, const std::string& skillTitle,
+        const std::string& skillName, const std::string& skillDesc,
+        const std::string& skillTitle2, const std::string& skillName2, const std::string& skillDesc2) override;
     int mainMenu() override;
     void tutorialParry(const std::string& infoBox) override;
     NameScreen::Result screenName() override;

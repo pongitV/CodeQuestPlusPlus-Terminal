@@ -209,7 +209,7 @@ char RaycasterControls::processInputEControls(
     }
     bobbingOffset = (int)(sinf(bobbingTeam) * bobbingAmplitude * (SCREEN_HEIGHT * 0.02f));
 
-    // Verifica se o jogador pisou em um trigger (Inimigo ou Teleporte) para acionar a transicao de mapa/combate
+    // Verifica se o player pisou em um trigger (Inimigo ou Teleporte) para acionar a transicao de mapa/combate
     int newCellX = (int)playerX;
     int newCellY = (int)playerY;
     if (newCellX != oldCellX || newCellY != oldCellY) {

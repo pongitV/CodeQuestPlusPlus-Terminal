@@ -28,13 +28,13 @@ void Appearance::printCentralizedMultiline(const std::vector<std::string>& lines
 }
 
 void Appearance::printBlockCentralized(const std::vector<std::string>& lines, const std::string& colorAnsi, int delayLineMs) {
-    int sizeDaLineMoreLong = 0;
+    int longestLineSize = 0;
     for (const std::string& line : lines) {
         size_t end = line.find_last_not_of(' ');
         std::string trimmed = (end != std::string::npos) ? line.substr(0, end + 1) : "";
-        sizeDaLineMoreLong = std::max(sizeDaLineMoreLong, getVisualLength(trimmed));
+        longestLineSize = std::max(longestLineSize, getVisualLength(trimmed));
     }
-    printCentralizedMultiline(lines, sizeDaLineMoreLong, colorAnsi, delayLineMs);
+    printCentralizedMultiline(lines, longestLineSize, colorAnsi, delayLineMs);
 }
 
 void Appearance::displayPanel(
@@ -229,6 +229,6 @@ void Appearance::displayPrompt(const std::string& message) {
     std::cout << "\n" << spacesToCenter(getVisualLength(message)) << message;
 }
 
-void Appearance::displayArtPanel(const std::vector<std::string>& asciiArt, int widthVisual, Color colorDaArt, const std::string& titleSecondary, bool animateFadeIn) {
-    displayPanel(titleSecondary, colorDaArt, asciiArt, widthVisual, {}, Color::RESET, animateFadeIn);
+void Appearance::displayArtPanel(const std::vector<std::string>& asciiArt, int widthVisual, Color artColor, const std::string& titleSecondary, bool animateFadeIn) {
+    displayPanel(titleSecondary, artColor, asciiArt, widthVisual, {}, Color::RESET, animateFadeIn);
 }

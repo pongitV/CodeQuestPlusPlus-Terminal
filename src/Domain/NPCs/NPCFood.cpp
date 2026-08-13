@@ -34,7 +34,7 @@ void NPCFood::displayDialogue(Character* player) {
     Appearance::displayPopup("VENDEDOR DE COMIDAS", lines, Color::LIGHT_GREEN, getArtASCII());
 }
 
-std::vector<std::string> NPCFood::getOptionsMenu(Character* player, int /*larguraDoTerminal*/) {
+std::vector<std::string> NPCFood::getOptionsMenu(Character* player, int /*terminalWidth*/) {
     return {
         "Maca (Cura 15 HP) - 5G",
         "Pao (Cura 25 HP) - 10G",
@@ -44,12 +44,12 @@ std::vector<std::string> NPCFood::getOptionsMenu(Character* player, int /*largur
     };
 }
 
-void NPCFood::processOption(Character* player, const std::string& option, int /*larguraDoTerminal*/) {
+void NPCFood::processOption(Character* player, const std::string& option, int /*terminalWidth*/) {
     ItemID idPurchase = ItemID::None;
     int cost = 0;
 
     if (option.find("Maca") != std::string::npos) {
-        idPurchase = ItemID::Litter;
+        idPurchase = ItemID::Apple;
         cost = 5;
     }
     else if (option.find("Pao") != std::string::npos) {
@@ -61,7 +61,7 @@ void NPCFood::processOption(Character* player, const std::string& option, int /*
         cost = 18;
     }
     else if (option.find("Carne Seca") != std::string::npos) {
-        idPurchase = ItemID::MeatDrought;
+        idPurchase = ItemID::DriedMeat;
         cost = 30;
     }
 

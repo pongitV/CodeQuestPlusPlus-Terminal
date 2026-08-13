@@ -4,11 +4,11 @@
 #include "UI/PerspectiveChangedException.h"
 
 
-bool ScreenRegistration::raycasterModeActive() {
+bool ScreenRegistry::raycasterModeActive() {
     return PerspectiveManager::getInstance().is3DViewActive();
 }
 
-void ScreenRegistration::opening() {
+void ScreenRegistry::opening() {
     while (true) {
         try {
             PerspectiveManager::getInstance().getManagerScreens()->opening();
@@ -19,10 +19,10 @@ void ScreenRegistration::opening() {
     }
 }
 
-void ScreenRegistration::panelSoon(const std::string& titleDaScreen, bool animateFadeIn) {
+void ScreenRegistry::panelLogo(const std::string& screenTitle, bool animateFadeIn) {
     while (true) {
         try {
-            PerspectiveManager::getInstance().getManagerScreens()->panelSoon(titleDaScreen, animateFadeIn);
+            PerspectiveManager::getInstance().getManagerScreens()->panelLogo(screenTitle, animateFadeIn);
             return;
         } catch (const PerspectiveChangedException&) {
             continue;
@@ -30,31 +30,31 @@ void ScreenRegistration::panelSoon(const std::string& titleDaScreen, bool animat
     }
 }
 
-bool ScreenRegistration::confirmationChoose(const std::string& typeDeChoose, const std::string& nameDaChoose,
-    const std::vector<std::string>& informationForDisplay, const std::vector<std::string>& artAsciiForDisplay) {
+bool ScreenRegistry::chooseConfirmation(const std::string& chooseType, const std::string& chooseName,
+    const std::vector<std::string>& informationForDisplay, const std::vector<std::string>& asciiArtForDisplay) {
     while (true) {
         try {
-            return PerspectiveManager::getInstance().getManagerScreens()->confirmationChoose(typeDeChoose, nameDaChoose, informationForDisplay, artAsciiForDisplay);
+            return PerspectiveManager::getInstance().getManagerScreens()->chooseConfirmation(chooseType, chooseName, informationForDisplay, asciiArtForDisplay);
         } catch (const PerspectiveChangedException&) {
             continue;
         }
     }
 }
 
-std::vector<std::string> ScreenRegistration::frameAttributes(const Attributes& stats,
-    const std::string& titleDry, const std::string& titleSkill,
-    const std::string& nameHab, const std::string& descHab,
-    const std::string& titleSkill2, const std::string& nameHab2, const std::string& descHab2) {
+std::vector<std::string> ScreenRegistry::frameAttributes(const Attributes& stats,
+    const std::string& dryTitle, const std::string& skillTitle,
+    const std::string& skillName, const std::string& skillDesc,
+    const std::string& skillTitle2, const std::string& skillName2, const std::string& skillDesc2) {
     while (true) {
         try {
-            return PerspectiveManager::getInstance().getManagerScreens()->frameAttributes(stats, titleDry, titleSkill, nameHab, descHab, titleSkill2, nameHab2, descHab2);
+            return PerspectiveManager::getInstance().getManagerScreens()->frameAttributes(stats, dryTitle, skillTitle, skillName, skillDesc, skillTitle2, skillName2, skillDesc2);
         } catch (const PerspectiveChangedException&) {
             continue;
         }
     }
 }
 
-int ScreenRegistration::mainMenu() {
+int ScreenRegistry::mainMenu() {
     while (true) {
         try {
             return PerspectiveManager::getInstance().getManagerScreens()->mainMenu();
@@ -64,7 +64,7 @@ int ScreenRegistration::mainMenu() {
     }
 }
 
-void ScreenRegistration::tutorialParry(const std::string& infoBox) {
+void ScreenRegistry::tutorialParry(const std::string& infoBox) {
     while (true) {
         try {
             PerspectiveManager::getInstance().getManagerScreens()->tutorialParry(infoBox);
@@ -75,7 +75,7 @@ void ScreenRegistration::tutorialParry(const std::string& infoBox) {
     }
 }
 
-NameScreen::Result ScreenRegistration::screenName() {
+NameScreen::Result ScreenRegistry::screenName() {
     while (true) {
         try {
             return PerspectiveManager::getInstance().getManagerScreens()->screenName();
@@ -85,7 +85,7 @@ NameScreen::Result ScreenRegistration::screenName() {
     }
 }
 
-bool ScreenRegistration::confirmExit() {
+bool ScreenRegistry::confirmExit() {
     while (true) {
         try {
             return PerspectiveManager::getInstance().getManagerScreens()->confirmExit();
@@ -95,7 +95,7 @@ bool ScreenRegistration::confirmExit() {
     }
 }
 
-RaceScreen::Result ScreenRegistration::screenRace(const std::string& characterName) {
+RaceScreen::Result ScreenRegistry::screenRace(const std::string& characterName) {
     while (true) {
         try {
             return PerspectiveManager::getInstance().getManagerScreens()->screenRace(characterName);
@@ -105,7 +105,7 @@ RaceScreen::Result ScreenRegistration::screenRace(const std::string& characterNa
     }
 }
 
-ClassScreen::Result ScreenRegistration::screenClass(const std::string& characterName, const std::string& race) {
+ClassScreen::Result ScreenRegistry::screenClass(const std::string& characterName, const std::string& race) {
     while (true) {
         try {
             return PerspectiveManager::getInstance().getManagerScreens()->screenClass(characterName, race);
@@ -115,7 +115,7 @@ ClassScreen::Result ScreenRegistration::screenClass(const std::string& character
     }
 }
 
-DifficultyScreen::Result ScreenRegistration::screenDifficulty(const std::string& characterName, const std::string& race, const std::string& classObj) {
+DifficultyScreen::Result ScreenRegistry::screenDifficulty(const std::string& characterName, const std::string& race, const std::string& classObj) {
     while (true) {
         try {
             return PerspectiveManager::getInstance().getManagerScreens()->screenDifficulty(characterName, race, classObj);
@@ -125,7 +125,7 @@ DifficultyScreen::Result ScreenRegistration::screenDifficulty(const std::string&
     }
 }
 
-ParryScreen::Result ScreenRegistration::screenParry(const std::string& characterName, const std::string& race, const std::string& classObj) {
+ParryScreen::Result ScreenRegistry::screenParry(const std::string& characterName, const std::string& race, const std::string& classObj) {
     while (true) {
         try {
             return PerspectiveManager::getInstance().getManagerScreens()->screenParry(characterName, race, classObj);
@@ -135,7 +135,7 @@ ParryScreen::Result ScreenRegistration::screenParry(const std::string& character
     }
 }
 
-void ScreenRegistration::screenIntroduction() {
+void ScreenRegistry::screenIntroduction() {
     while (true) {
         try {
             PerspectiveManager::getInstance().getManagerScreens()->screenIntroduction();

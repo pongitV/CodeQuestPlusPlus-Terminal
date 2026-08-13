@@ -14,7 +14,7 @@ class Character;
 class HackConsole {
 public:
     /*
-     * Inicia o minigame de hack. Retorna verdadeiro se o jogador obtiver sucesso.
+     * Inicia o minigame de hack. Retorna verdadeiro se o player obtiver sucesso.
      */
     static bool startHack(Character* player);
 };

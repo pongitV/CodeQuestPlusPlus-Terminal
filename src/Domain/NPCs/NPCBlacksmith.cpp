@@ -34,10 +34,10 @@ namespace {
         {4, {ItemID::CostumeNoble, 40, -1}}
     };
     
-    void processPurchaseDeEquipment(Character* currentPlayer, bool buyingWeapons);
-    void processImprovementNaAnvil(Character* currentPlayer);
+    void processEquipmentPurchase(Character* currentPlayer, bool buyingWeapons);
+    void processAnvilImprovement(Character* currentPlayer);
     void processUpgradeByMaterial(Character* currentPlayer);
-    void processRepairDeShield(Character* currentPlayer);
+    void processShieldRepair(Character* currentPlayer);
 
     // --- APARENCIA E DIALOGOS ---
     void dialogueKiss(const std::vector<std::string>& lines) {
@@ -76,14 +76,14 @@ void NPCBlacksmith::interact(Character* player) {
     );
 }
 
-void NPCBlacksmith::displayDialogue(Character* /*jogador*/) {
+void NPCBlacksmith::displayDialogue(Character* /*player*/) {
     dialogueKiss(std::vector<std::string>{
         "Bem-vindo a minha forja, salvador!",
         "O que vai ser hoje?"
     });
 }
 
-std::vector<std::string> NPCBlacksmith::getOptionsMenu(Character* /*jogador*/, int /*larguraDoTerminal*/) {
+std::vector<std::string> NPCBlacksmith::getOptionsMenu(Character* /*player*/, int /*terminalWidth*/) {
     return {
         "COMPRAR Armas das Classes",
         "COMPRAR Armaduras das Classes",
@@ -94,15 +94,15 @@ std::vector<std::string> NPCBlacksmith::getOptionsMenu(Character* /*jogador*/, i
     };
 }
 
-void NPCBlacksmith::processOption(Character* player, const std::string& option, int /*larguraDoTerminal*/) {
+void NPCBlacksmith::processOption(Character* player, const std::string& option, int /*terminalWidth*/) {
     if (option == "COMPRAR Armas das Classes" || option == "COMPRAR Armaduras das Classes") {
-        processPurchaseDeEquipment(player, option == "COMPRAR Armas das Classes");
+        processEquipmentPurchase(player, option == "COMPRAR Armas das Classes");
     } else if (option == "MELHORAR POR FUSAO") {
-        processImprovementNaAnvil(player);
+        processAnvilImprovement(player);
     } else if (option == "MELHORAR POR MATERIAL") {
         processUpgradeByMaterial(player);
     } else if (option == "CONSERTAR Escudo") {
-        processRepairDeShield(player);
+        processShieldRepair(player);
     } else if (option == "Missoes de Bjorn") {
         InteractionNPC::processMenuMissionsEmpty(player, "MISSOES DE BJORN", Color::CYAN, "Bjorn", "Nao tenho nenhum trabalho especial para voce no momento.");
     }
@@ -110,7 +110,7 @@ void NPCBlacksmith::processOption(Character* player, const std::string& option, 
 
 namespace {
     // --- PROCESSAMENTO DE OPCOES ---
-    void processPurchaseDeEquipment(Character* currentPlayer, bool buyingWeapons) {
+    void processEquipmentPurchase(Character* currentPlayer, bool buyingWeapons) {
         auto& currentStock = buyingWeapons ? stockWeapons : stockArmor;
         std::string shopTitle = buyingWeapons ? "FORJA - ARMAS" : "FORJA - ARMADURAS";
 
@@ -118,7 +118,7 @@ namespace {
             [](const std::string& msg) { dialogueKissUnique(msg); }, InteractionNPC::getFormatterStatusItem, NPCBlacksmithLayouts::artBlacksmith);
     }
 
-    void processImprovementNaAnvil(Character* currentPlayer) {
+    void processAnvilImprovement(Character* currentPlayer) {
         do {
             std::vector<Item*> itemsValid;
             std::vector<std::string> optionsItem;
@@ -216,7 +216,7 @@ namespace {
         } while (true);
     }
 
-    void processRepairDeShield(Character* currentPlayer) {
+    void processShieldRepair(Character* currentPlayer) {
         do {
             std::vector<EquipmentShield*> shieldsDamaged;
             std::vector<std::string> optionsShield;

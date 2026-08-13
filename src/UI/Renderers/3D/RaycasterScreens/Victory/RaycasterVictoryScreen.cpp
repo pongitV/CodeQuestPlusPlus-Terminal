@@ -10,8 +10,8 @@
 #include <chrono>
 #include <map>
 
-void ScreenVictoryRaycaster::display(Character* currentPlayer, int quantityDeGoldObtained, int quantityDeXpObtained,
-    int totalDeDamageCaused, int totalDeDamageReceived, int cureTotalReceived, int shiftsCombat,
+void RaycasterVictoryScreen::display(Character* currentPlayer, int obtainedGoldQuantity, int obtainedXpQuantity,
+    int totalDamageCaused, int totalDamageReceived, int totalHealingReceived, int combatTurns,
     const std::vector<std::string>& enemiesDefeated, int parriesPerfect, int biggerDamage,
     int parriesTempted, int parriesEffective, int itemsConsumed, const std::vector<std::pair<std::string, int>>& dropsUnique,
     bool canRiseLevel, const std::vector<std::string>& newDiscoveries,
@@ -70,18 +70,18 @@ void ScreenVictoryRaycaster::display(Character* currentPlayer, int quantityDeGol
     // Desenha o logo do Vitoria
     int soonY = 2;
     int compVisualSoon = 0;
-    for (const auto& line : ArtsVictory::soonVictory) {
+    for (const auto& line : ArtsVictory::victoryLogo) {
         int comp = Appearance::getVisualLength(line);
         if (comp > compVisualSoon) compVisualSoon = comp;
     }
     int soonX = ScreenBaseMenu::calculateOffsetCentral(compVisualSoon, widthConsole);
-    for (int i = 0; i < (int)ArtsVictory::soonVictory.size(); ++i) {
+    for (int i = 0; i < (int)ArtsVictory::victoryLogo.size(); ++i) {
         if (soonY + i < height3D) {
-            screenBackground[soonY + i] = Appearance::superimposeSoonAnsi(screenBackground[soonY + i], stringForCharsUtf8(ArtsVictory::soonVictory[i]), soonX, "\033[1;38;2;50;255;50m", widthConsole);
+            screenBackground[soonY + i] = Appearance::superimposeSoonAnsi(screenBackground[soonY + i], stringForCharsUtf8(ArtsVictory::victoryLogo[i]), soonX, "\033[1;38;2;50;255;50m", widthConsole);
         }
     }
 
-    int startY = soonY + (int)ArtsVictory::soonVictory.size() + 2;
+    int startY = soonY + (int)ArtsVictory::victoryLogo.size() + 2;
 
     MenuRaycasterUtils::s_background3DMenu = screenBackground;
 
@@ -123,7 +123,7 @@ void ScreenVictoryRaycaster::display(Character* currentPlayer, int quantityDeGol
         // Caixa Recompensas separada
         std::vector<std::string> boxDrops;
         boxDrops.push_back("\033[38;2;255;215;0mRecompensas:\033[0m");
-        boxDrops.push_back(" \033[38;2;255;215;0mOuro: " + std::to_string(quantityDeGoldObtained) + "\033[0m" + "  \033[38;2;0;255;255mXP: " + std::to_string(quantityDeXpObtained) + "\033[0m");
+        boxDrops.push_back(" \033[38;2;255;215;0mOuro: " + std::to_string(obtainedGoldQuantity) + "\033[0m" + "  \033[38;2;0;255;255mXP: " + std::to_string(obtainedXpQuantity) + "\033[0m");
         if (!dropsUnique.empty()) boxDrops.push_back("\033[38;2;200;200;200mItens:\033[0m");
         for (auto const& drop : dropsUnique) {
             std::string nameLower = drop.first;
@@ -139,10 +139,10 @@ void ScreenVictoryRaycaster::display(Character* currentPlayer, int quantityDeGol
         // Caixa Estatisticas
         std::vector<std::string> boxStats;
         boxStats.push_back("\033[38;2;150;150;255mEstatisticas de Combate:\033[0m");
-        boxStats.push_back(" Turnos: \033[38;2;255;255;255m" + std::to_string(shiftsCombat) + "\033[0m");
-        boxStats.push_back(" Dano Causado: \033[38;2;255;100;100m" + std::to_string(totalDeDamageCaused) + "\033[0m");
-        boxStats.push_back(" Dano Recebido: \033[38;2;255;50;50m" + std::to_string(totalDeDamageReceived) + "\033[0m");
-        boxStats.push_back(" Cura Recebida: \033[38;2;50;255;50m" + std::to_string(cureTotalReceived) + "\033[0m");
+        boxStats.push_back(" Turnos: \033[38;2;255;255;255m" + std::to_string(combatTurns) + "\033[0m");
+        boxStats.push_back(" Dano Causado: \033[38;2;255;100;100m" + std::to_string(totalDamageCaused) + "\033[0m");
+        boxStats.push_back(" Dano Recebido: \033[38;2;255;50;50m" + std::to_string(totalDamageReceived) + "\033[0m");
+        boxStats.push_back(" Cura Recebida: \033[38;2;50;255;50m" + std::to_string(totalHealingReceived) + "\033[0m");
         boxStats.push_back(" Maior Hit: \033[38;2;255;150;0m" + std::to_string(biggerDamage) + "\033[0m");
         boxStats.push_back(" Parrys Perfeitos: \033[38;2;0;255;255m" + std::to_string(parriesPerfect) + "\033[0m");
 

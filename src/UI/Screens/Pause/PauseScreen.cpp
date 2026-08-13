@@ -10,8 +10,8 @@ static int getChooseMenuPause() {
     return PerspectiveManager::getPauseUI().renderMenuPause();
 }
 
-static int getChooseConfiguracoes(Character* player) {
-    return PerspectiveManager::getPauseUI().renderMenuConfiguracoes(player);
+static int getSettingsChoice(Character* player) {
+    return PerspectiveManager::getPauseUI().renderSettingsMenu(player);
 }
 
 static int getChooseAppearance(Character* player) {
@@ -22,8 +22,8 @@ static int getChooseBackground(int colorBackgroundCurrentIndex) {
     return PerspectiveManager::getPauseUI().renderMenuBackground(colorBackgroundCurrentIndex);
 }
 
-static int getChooseSensitivity(int percX, int percY) {
-    return PerspectiveManager::getPauseUI().renderMenuSensitivity(percX, percY);
+static int getChooseSensitivity(int percentX, int percentY) {
+    return PerspectiveManager::getPauseUI().renderMenuSensitivity(percentX, percentY);
 }
 
 void PauseScreen::display(Character* player) {
@@ -38,7 +38,7 @@ void PauseScreen::display(Character* player) {
         } else if (choice == 1) {
             bool configOpen = true;
             while (configOpen) {
-                int confChoose = getChooseConfiguracoes(player);
+                int confChoose = getSettingsChoice(player);
 
                 if (confChoose == 0) {
                     int difficultyCurrent = static_cast<int>(player->getDifficulty());
@@ -56,15 +56,15 @@ void PauseScreen::display(Character* player) {
 
                         if (apChoose == 0) {
                             Color colors[] = {Color::GREEN, Color::BLUE, Color::YELLOW, Color::WHITE, Color::MAGENTA, Color::CYAN, Color::RED};
-                            int inaColors = 7;
+                            int indexInColors = 7;
                             int idxCurrent = 0;
-                            for (int i = 0; i < inaColors; ++i) {
+                            for (int i = 0; i < indexInColors; ++i) {
                                 if (Appearance::customPlayerColor == colors[i]) {
                                     idxCurrent = i;
                                     break;
                                 }
                             }
-                            idxCurrent = (idxCurrent + 1) % inaColors;
+                            idxCurrent = (idxCurrent + 1) % indexInColors;
                             Appearance::customPlayerColor = colors[idxCurrent];
                         } else if (apChoose == 1) {
                             std::cout << "\n";
@@ -99,10 +99,10 @@ void PauseScreen::display(Character* player) {
                 } else if (confChoose == 5) {
                     bool sensitivityOpen = true;
                     while (sensitivityOpen) {
-                        int percX = (int)((PerspectiveManager::getSensitivityMouseX() / 0.002f) * 100);
-                        int percY = (int)((PerspectiveManager::getSensitivityMouseY() / 0.08f) * 100);
+                        int percentX = (int)((PerspectiveManager::getSensitivityMouseX() / 0.002f) * 100);
+                        int percentY = (int)((PerspectiveManager::getSensitivityMouseY() / 0.08f) * 100);
 
-                        int sensChoose = getChooseSensitivity(percX, percY);
+                        int sensChoose = getChooseSensitivity(percentX, percentY);
 
                         if (sensChoose == 0) {
                             std::cout << "\n";
@@ -131,7 +131,7 @@ void PauseScreen::display(Character* player) {
                 }
             }
         } else if (choice == 2) {
-            if (ScreenRegistration::confirmExit()) {
+            if (ScreenRegistry::confirmExit()) {
                 std::exit(0);
             }
         }

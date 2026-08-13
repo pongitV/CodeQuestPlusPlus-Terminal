@@ -31,7 +31,7 @@ Map4Kingdom::Map4Kingdom(Character* playerCharacter) :
     currentMapTitle("REINO"),
     nextMap(NextMapTransition::None),
     playerIsInsideSubMap(false),
-    igrejaJaFoiVisitada(false)
+    churchAlreadyVisited(false)
 {
     currentMapMatrix = Map4KingdomLayouts::getKingdomLayout();
     MapLoader::standardizeMapSize(currentMapMatrix);
@@ -67,7 +67,7 @@ NextMapTransition Map4Kingdom::startExplorationLoop()
         // Garante que o titulo seja estritamente REINO para a bandeira
         if (currentMapTitle == "REINO" || currentMapTitle.find("Reino") != std::string::npos || currentMapTitle.find("REINO") != std::string::npos) {
             currentMapTitle = "REINO";
-            titleArt = Map4KingdomLayouts::getKingdomSoon();
+            titleArt = Map4KingdomLayouts::getKingdomLogo();
             artWidth = 77;
         }
         initialLineToDrawMap = MapAnimator::animateMapIntroduction(currentMapTitle, titleArt, artWidth, {}, 0, Color::PURPLE, currentMapMatrix, playerPositionX, playerPositionY, formatter, true, true, nullptr);
@@ -118,7 +118,7 @@ NextMapTransition Map4Kingdom::startExplorationLoop()
                 currentMapMatrix, savedMainMapMatrix,
                 savedPositionXBeforeEnteringSubMap, savedPositionYBeforeEnteringSubMap,
                 playerPositionX, playerPositionY, playerIsInsideSubMap,
-                currentMapTitle, savedChurchMapMatrix, igrejaJaFoiVisitada,
+                currentMapTitle, savedChurchMapMatrix, churchAlreadyVisited,
                 Map4KingdomLayouts::getChurchLayout(), 17, 3, "IGREJA DO REINO", restoreScreen
             );
         }

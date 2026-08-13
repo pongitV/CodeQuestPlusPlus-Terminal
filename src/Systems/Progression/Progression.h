@@ -26,7 +26,7 @@ public:
     void setFlag(const std::string& key, bool value);
     bool getFlag(const std::string& key) const;
 
-    // Calculos dinamicos de progresso combinando dados do jogador com as flags salvas
+    // Calculos dinamicos de progresso combinando dados do player com as flags salvas
     int getVillageProgress(Character* currentPlayer) const;
     int getForestProgress(Character* currentPlayer) const;
     int getKingdomBridgeProgress(Character* currentPlayer) const;

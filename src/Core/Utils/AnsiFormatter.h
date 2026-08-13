@@ -38,7 +38,7 @@ namespace AnsiFormatter {
         return "\033[48;2;" + std::to_string(r) + ";" + std::to_string(g) + ";" + std::to_string(b) + "m" + text + "\033[0m";
     }
 
-    inline std::vector<std::string> formatGOText(const std::vector<std::string>& text) {
+    inline std::vector<std::string> formatIDEText(const std::vector<std::string>& text) {
         std::vector<std::string> formatted;
         formatted.push_back(keyword("public:"));
         for (const auto& line : text) {
@@ -52,7 +52,7 @@ namespace AnsiFormatter {
         return formatted;
     }
 
-    inline std::vector<std::string> formatGOArt(const std::vector<std::string>& art) {
+    inline std::vector<std::string> formatIDEArt(const std::vector<std::string>& art) {
         if (art.empty()) return art;
         std::vector<std::string> formatted;
         formatted.push_back(comment("/* =================================="));
@@ -63,7 +63,7 @@ namespace AnsiFormatter {
         return formatted;
     }
 
-    inline std::string formatGOTitle(const std::string& title) {
+    inline std::string formatIDETitle(const std::string& title) {
         return keyword("class") + " " + type(title) + " {";
     }
 

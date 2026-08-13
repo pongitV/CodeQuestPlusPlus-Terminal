@@ -47,11 +47,11 @@ const std::vector<std::string>& NPCPriest::getArtASCII() const {
     return NPCPriestLayouts::artPriest;
 }
 
-void NPCPriest::displayDialogue(Character* /*jogador*/) {
+void NPCPriest::displayDialogue(Character* /*player*/) {
     // Agora chamado em interagir
 }
 
-std::vector<std::string> NPCPriest::getOptionsMenu(Character* player, int /*larguraDoTerminal*/) {
+std::vector<std::string> NPCPriest::getOptionsMenu(Character* player, int /*terminalWidth*/) {
     return {
         "Pedir Bencao (Restaurar HP)",
         "Conversar sobre o Palacio",
@@ -59,7 +59,7 @@ std::vector<std::string> NPCPriest::getOptionsMenu(Character* player, int /*larg
     };
 }
 
-void NPCPriest::processOption(Character* player, const std::string& option, int /*larguraDoTerminal*/) {
+void NPCPriest::processOption(Character* player, const std::string& option, int /*terminalWidth*/) {
     if (option == "Pedir Bencao (Restaurar HP)") {
         if (player->getHealth() >= player->getMaxHealth()) {
             Appearance::displayPopup("PADRE BENEDITO", {"Sua saúde já está plena! Guarde a bênção para quando precisar."}, Color::CYAN, getArtASCII());

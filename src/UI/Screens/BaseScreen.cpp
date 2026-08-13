@@ -112,10 +112,10 @@ std::vector<std::string> BaseScreen::createBox(const std::vector<std::string>& l
         } else {
             padBg = "\033[48;2;25;25;25m";
         }
-        std::string titleGO = title.empty() ? "Info" : title;
-        std::replace(titleGO.begin(), titleGO.end(), ' ', '_');
+        std::string titleIDE = title.empty() ? "Info" : title;
+        std::replace(titleIDE.begin(), titleIDE.end(), ' ', '_');
         
-        box.push_back(padBg + "\033[38;2;86;156;214mstruct\033[0m \033[38;2;78;201;176m" + titleGO + "\033[0m {");
+        box.push_back(padBg + "\033[38;2;86;156;214mstruct\033[0m \033[38;2;78;201;176m" + titleIDE + "\033[0m {");
         for (const auto& line : lines) {
             std::string cleanLine = line;
             if (cleanLine.find(":") != std::string::npos) {

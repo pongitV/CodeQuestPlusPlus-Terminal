@@ -27,9 +27,9 @@ struct ThreadPool {
     std::vector<std::function<void()>> tasks;
     
     ThreadPool() {
-        int inaThreads = std::thread::hardware_concurrency();
-        if (inaThreads == 0) inaThreads = 4;
-        for (int i = 0; i < inaThreads; ++i) {
+        int indexInThreads = std::thread::hardware_concurrency();
+        if (indexInThreads == 0) indexInThreads = 4;
+        for (int i = 0; i < indexInThreads; ++i) {
             threads.emplace_back([this]() {
                 while (true) {
                     std::function<void()> task;
@@ -87,7 +87,7 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
 
     /*
      * Sistema de Cache de Iluminacao:
-     * O mapa eh varrido apenas uma vez sempre que o jogador muda de sala ou layout, 
+     * O mapa eh varrido apenas uma vez sempre que o player muda de sala ou layout, 
      * armazenando a localizacao e a intensidade das fontes de luz (Fogo, NPCs, Portas).
      */
     static thread_local size_t lastMapForLightsHash = 0;
@@ -136,13 +136,13 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
 
     std::vector<float> ZBuffer(SCREEN_WIDTH, 0.0f);
 
-    int inaThreads = std::thread::hardware_concurrency();
-    if (inaThreads == 0) inaThreads = 4;
+    int indexInThreads = std::thread::hardware_concurrency();
+    if (indexInThreads == 0) indexInThreads = 4;
     int chunkSize = 16;
-    int inaChunks = (SCREEN_WIDTH + chunkSize - 1) / chunkSize;
+    int indexInChunks = (SCREEN_WIDTH + chunkSize - 1) / chunkSize;
     std::vector<std::function<void()>> tasks;
 
-    for (int i = 0; i < inaChunks; i++) {
+    for (int i = 0; i < indexInChunks; i++) {
         int startX = i * chunkSize;
         int endX = std::min(startX + chunkSize, SCREEN_WIDTH);
         tasks.push_back([&, startX, endX]() {
@@ -246,27 +246,27 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
         int ceiling = (int)(horizon - SCREEN_HEIGHT / perpWallDist);
         int floor = (int)(horizon + SCREEN_HEIGHT / perpWallDist);
 
-        char npcFoundNaColumn = RaycasterWorld::getNPCNext(titleMap, (int)hitX, (int)hitY, &mapMatrix);
+        char npcFoundInColumn = RaycasterWorld::getNPCNext(titleMap, (int)hitX, (int)hitY, &mapMatrix);
 
         if (themeForest && charWall == '#') ceiling -= (int)(SCREEN_HEIGHT / perpWallDist * 1.5f); 
-        if (themeForest && npcFoundNaColumn == 'M') ceiling -= (int)(SCREEN_HEIGHT / perpWallDist * 1.2f);
+        if (themeForest && npcFoundInColumn == 'M') ceiling -= (int)(SCREEN_HEIGHT / perpWallDist * 1.2f);
         if (charWall == '*') ceiling -= (int)(SCREEN_HEIGHT / perpWallDist * 1.5f); 
         if (isKingdom && charWall == '|') ceiling -= (int)(SCREEN_HEIGHT / perpWallDist * 3.0f); // Portao super alto
 
-        std::vector<std::tuple<int, int, int>> lightsDaWall;
+        std::vector<std::tuple<int, int, int>> wallLights;
         int nx = (side == 0) ? -stepX : 0;
         int ny = (side == 1) ? -stepY : 0;
         for (const auto& l : lights) {
             float sayLightX = std::get<0>(l) + 0.5f - hitX;
             float sayLightY = std::get<1>(l) + 0.5f - hitY;
             if (sayLightX * nx + sayLightY * ny >= -0.5f) {
-                lightsDaWall.push_back(l);
+                wallLights.push_back(l);
             }
         }
 
         float pushX = hitX + nx * 0.01f;
         float pushY = hitY + ny * 0.01f;
-        Highlighter::InfoLight infoLightWall = Highlighter::calculateInfoLight(perpWallDist * 0.55f, depthMaximum, themeSky, lightsDaWall, pushX, pushY, &mapMatrix, timeAbsolute);
+        Highlighter::InfoLight infoLightWall = Highlighter::calculateInfoLight(perpWallDist * 0.55f, depthMaximum, themeSky, wallLights, pushX, pushY, &mapMatrix, timeAbsolute);
         float angleSky = radiusAngle;
         if (themeSky == 0) { // Dynamic Outdoors
             long long globalMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -299,7 +299,7 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
         int startWall = std::max(0, ceiling);
         int endWall = std::min(floor, SCREEN_HEIGHT - 1);
         for (int y = startWall; y <= endWall; y++) {
-            Pixel3D pixel = RaycasterWorld::getPixelWall(titleMap, themeForest, perpWallDist, depthMaximum, charWall, y, ceiling, floor, texXWall, timeAbsolute, isSideWall, infoLightWall, hitX, hitY, npcFoundNaColumn, (float)nx, (float)ny);
+            Pixel3D pixel = RaycasterWorld::getPixelWall(titleMap, themeForest, perpWallDist, depthMaximum, charWall, y, ceiling, floor, texXWall, timeAbsolute, isSideWall, infoLightWall, hitX, hitY, npcFoundInColumn, (float)nx, (float)ny);
             if (pixel.isBackground) {
                 if (y <= horizon) {
                     if (themeSky == 3) {

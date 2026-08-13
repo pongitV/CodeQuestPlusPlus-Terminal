@@ -6,36 +6,36 @@
 
 ContextCombat CombatScreen::context;
 
-void CombatScreen::displaySoonForScreenDeCombat(const std::string& titleDaScreen, bool animate) {
-    PerspectiveManager::getScreenCombatUI().displaySoonForScreenDeCombat(titleDaScreen, animate);
+void CombatScreen::displayLogoForCombatScreen(const std::string& screenTitle, bool animate) {
+    PerspectiveManager::getScreenCombatUI().displayLogoForCombatScreen(screenTitle, animate);
 }
 
 void CombatScreen::animateCombatIntro(const std::string& title, const std::vector<Character*>& enemies, Character* currentPlayer) {
     PerspectiveManager::getScreenCombatUI().animateCombatIntro(title, enemies, currentPlayer);
 }
 
-std::vector<std::string> CombatScreen::getLinesBarDeStatusDoPlayer(Character* currentPlayer, Color colorHighlight, int damageAnimation, int frameAnimation, bool isCure) {
-    return PerspectiveManager::getScreenCombatUI().getLinesBarDeStatusDoPlayer(currentPlayer, colorHighlight, damageAnimation, frameAnimation, isCure);
+std::vector<std::string> CombatScreen::getPlayerStatusBarLines(Character* currentPlayer, Color colorHighlight, int damageAnimation, int frameAnimation, bool isHealing) {
+    return PerspectiveManager::getScreenCombatUI().getPlayerStatusBarLines(currentPlayer, colorHighlight, damageAnimation, frameAnimation, isHealing);
 }
 
-void CombatScreen::displayHordeDeEnemiesSideASide(const std::vector<Character*>& enemies, Character* targetAnimation, int frameAnimation, bool isCure, bool cheerEmergence, bool isDeath, Item* weaponAttacker, int damageAnimation, const std::vector<std::string>& dropsAnimation) {
-    PerspectiveManager::getScreenCombatUI().displayHordeDeEnemiesSideASide(enemies, targetAnimation, frameAnimation, isCure, cheerEmergence, isDeath, weaponAttacker, damageAnimation, dropsAnimation);
+void CombatScreen::displayEnemyHordeSideBySide(const std::vector<Character*>& enemies, Character* targetAnimation, int frameAnimation, bool isHealing, bool animateEmergence, bool isDeath, Item* weaponAttacker, int damageAnimation, const std::vector<std::string>& dropsAnimation) {
+    PerspectiveManager::getScreenCombatUI().displayEnemyHordeSideBySide(enemies, targetAnimation, frameAnimation, isHealing, animateEmergence, isDeath, weaponAttacker, damageAnimation, dropsAnimation);
 }
 
 void CombatScreen::animateDamageToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* attacker, Character* currentPlayer, const std::vector<Character*>& allies, int damageAnimation) {
     PerspectiveManager::getScreenCombatUI().animateDamageToEnemy(combatTitle, enemies, targetAnimation, attacker, currentPlayer, allies, damageAnimation);
 }
 
-void CombatScreen::animateCureToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int cureAnimation) {
-    PerspectiveManager::getScreenCombatUI().animateCureToEnemy(combatTitle, enemies, targetAnimation, currentPlayer, allies, cureAnimation);
+void CombatScreen::animateCureToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int healingAnimation) {
+    PerspectiveManager::getScreenCombatUI().animateCureToEnemy(combatTitle, enemies, targetAnimation, currentPlayer, allies, healingAnimation);
 }
 
 void CombatScreen::animateDamageToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, bool isParry, int damageAnimation) {
     PerspectiveManager::getScreenCombatUI().animateDamageToPlayer(combatTitle, enemies, targetAnimation, currentPlayer, allies, isParry, damageAnimation);
 }
 
-void CombatScreen::animateCureToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int cureAnimation) {
-    PerspectiveManager::getScreenCombatUI().animateCureToPlayer(combatTitle, enemies, targetAnimation, currentPlayer, allies, cureAnimation);
+void CombatScreen::animateCureToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int healingAnimation) {
+    PerspectiveManager::getScreenCombatUI().animateCureToPlayer(combatTitle, enemies, targetAnimation, currentPlayer, allies, healingAnimation);
 }
 
 void CombatScreen::animateEnemyDeath(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* enemyDead, Character* currentPlayer, const std::vector<Character*>& allies, const std::vector<std::string>& drops) {

@@ -4,5 +4,5 @@
 class IDefeatUI {
 public:
     virtual ~IDefeatUI() = default;
-    virtual void display(Character* currentPlayer, int quantityDeGoldObtained, int quantityDeXpObtained, int totalDeDamageCaused, int totalDeDamageReceived, int cureTotalReceived, int shiftsCombat) = 0;
+    virtual void display(Character* currentPlayer, int obtainedGoldQuantity, int obtainedXpQuantity, int totalDamageCaused, int totalDamageReceived, int totalHealingReceived, int combatTurns) = 0;
 };

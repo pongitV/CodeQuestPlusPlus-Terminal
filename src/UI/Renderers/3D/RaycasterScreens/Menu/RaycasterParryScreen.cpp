@@ -33,8 +33,8 @@ namespace {
             int boxW = maxW + 10;
             if (boxW > widthConsole - 4) boxW = widthConsole - 4;
             int boxX = ScreenBaseMenu::calculateOffsetCentral(boxW, widthConsole);
-            int inaLines = (int)lines.size() + 4;
-            ScreenBaseMenu::drawBoxBlack(buff, 2, boxX, boxW, inaLines);
+            int indexInLines = (int)lines.size() + 4;
+            ScreenBaseMenu::drawBoxBlack(buff, 2, boxX, boxW, indexInLines);
 
             MenuRaycasterUtils::superimposeTextAbsolute(buff, "\033[38;2;255;215;0m" + title + "\033[0m", 3, offsetTitle);
 

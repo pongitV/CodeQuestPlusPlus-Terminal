@@ -92,7 +92,7 @@ public:
     // Executa a inteligencia e as acoes de todos os inimigos presentes
     void executeTurnForAllEnemies();
 
-    // Verifica se todos os inimigos estao mortos ou se o jogador morreu. Retorna true se o combate deve acabar.
+    // Verifica se todos os inimigos estao mortos ou se o player morreu. Retorna true se o combate deve acabar.
     bool checkVictoryOrDefeatCondition();
 
     // Aplica o fluxo completo de dano fisico de um personagem a outro

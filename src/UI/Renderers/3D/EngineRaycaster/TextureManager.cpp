@@ -523,11 +523,11 @@ void ManagerTextures::generate(TexID id) {
                         // Raizes espirais e escuras pulsantes
                         if (spiral > 0.0f) { r = 60; g = 20; b = 20; }
                         else { r = 40; g = 15; b = 15; }
-                    } else if (id == TexID::ChaoHeartMoss || id == TexID::CeilingIndoorsHeartMoss) {
+                    } else if (id == TexID::FloorHeartMoss || id == TexID::CeilingIndoorsHeartMoss) {
                         // Musgo bio-luminescente e vivo
                         if (details > 0.3f) { r = 50; g = 180; b = 80; }
                         else { r = 30; g = 100; b = 40; }
-                    } else if (id == TexID::RoomBossWall || id == TexID::ChaoRoomBossInside || id == TexID::ChaoRoomBossOut) {
+                    } else if (id == TexID::RoomBossWall || id == TexID::FloorRoomBossInside || id == TexID::FloorRoomBossOut) {
                         // Rocha vulcanica vulcanica rasgada
                         bool crack = std::abs(fastYes(tx*0.2f + ty*0.1f + fastYes(tx*0.1f)*5.0f)) < 0.1f;
                         if (crack) { r = 250; g = 100; b = 20; } // Lava
@@ -632,11 +632,11 @@ void ManagerTextures::generate(TexID id) {
                         // Raizes espirais e escuras pulsantes
                         if (spiral > 0.0f) { r = 60; g = 20; b = 20; }
                         else { r = 40; g = 15; b = 15; }
-                    } else if (id == TexID::ChaoHeartMoss || id == TexID::CeilingIndoorsHeartMoss) {
+                    } else if (id == TexID::FloorHeartMoss || id == TexID::CeilingIndoorsHeartMoss) {
                         // Musgo bio-luminescente e vivo
                         if (details > 0.3f) { r = 50; g = 180; b = 80; }
                         else { r = 30; g = 100; b = 40; }
-                    } else if (id == TexID::RoomBossWall || id == TexID::ChaoRoomBossInside || id == TexID::ChaoRoomBossOut) {
+                    } else if (id == TexID::RoomBossWall || id == TexID::FloorRoomBossInside || id == TexID::FloorRoomBossOut) {
                         // Rocha vulcanica vulcanica rasgada
                         bool crack = std::abs(fastYes(tx*0.2f + ty*0.1f + fastYes(tx*0.1f)*5.0f)) < 0.1f;
                         if (crack) { r = 250; g = 100; b = 20; } // Lava
@@ -684,15 +684,15 @@ void ManagerTextures::generate(TexID id) {
                     b = std::clamp(base, 0, 255);
                     break;
                 }
-                case TexID::ChaoLabyrinthEdge: {
+                case TexID::FloorLabyrinthEdge: {
                     // TEMA: Borda do chao do labirinto, misturando pedra com terra umida.
 
                     // Chaos (Labirinto, Terra, Padrao)
                     float noise = fastYes(tx * 0.2f) * fastYes(ty * 0.2f);
-                    if (id == TexID::ChaoLabyrinth || id == TexID::ChaoLabyrinthEdge) {
+                    if (id == TexID::FloorLabyrinth || id == TexID::FloorLabyrinthEdge) {
                         bool tile = (tx / 64) % 2 == (ty / 64) % 2;
                         if (tile) { r = 120; g = 120; b = 125; } else { r = 100; g = 100; b = 105; }
-                    } else if (id == TexID::ChaoEarth) {
+                    } else if (id == TexID::FloorEarth) {
                         // Detalhes de terra ressecada
                         int base = 80 + (int)(noise * 20);
                         r = std::clamp(base, 0, 255);
@@ -707,15 +707,15 @@ void ManagerTextures::generate(TexID id) {
                     }
                     break;
                 }
-                case TexID::ChaoLabyrinth: {
+                case TexID::FloorLabyrinth: {
                     // TEMA: Ladrilhos de pedra quebrados do labirinto.
 
                     // Chaos (Labirinto, Terra, Padrao)
                     float noise = fastYes(tx * 0.2f) * fastYes(ty * 0.2f);
-                    if (id == TexID::ChaoLabyrinth || id == TexID::ChaoLabyrinthEdge) {
+                    if (id == TexID::FloorLabyrinth || id == TexID::FloorLabyrinthEdge) {
                         bool tile = (tx / 64) % 2 == (ty / 64) % 2;
                         if (tile) { r = 120; g = 120; b = 125; } else { r = 100; g = 100; b = 105; }
-                    } else if (id == TexID::ChaoEarth) {
+                    } else if (id == TexID::FloorEarth) {
                         // Detalhes de terra ressecada
                         int base = 80 + (int)(noise * 20);
                         r = std::clamp(base, 0, 255);
@@ -730,7 +730,7 @@ void ManagerTextures::generate(TexID id) {
                     }
                     break;
                 }
-                case TexID::ChaoRoomBossOut: {
+                case TexID::FloorRoomBossOut: {
                     // TEMA: Solo de pedra escura antes da entrada do chefe.
 
                     // Ambientes Corruptos/Vivos (Coracao, Chefe)
@@ -742,11 +742,11 @@ void ManagerTextures::generate(TexID id) {
                         // Raizes espirais e escuras pulsantes
                         if (spiral > 0.0f) { r = 60; g = 20; b = 20; }
                         else { r = 40; g = 15; b = 15; }
-                    } else if (id == TexID::ChaoHeartMoss || id == TexID::CeilingIndoorsHeartMoss) {
+                    } else if (id == TexID::FloorHeartMoss || id == TexID::CeilingIndoorsHeartMoss) {
                         // Musgo bio-luminescente e vivo
                         if (details > 0.3f) { r = 50; g = 180; b = 80; }
                         else { r = 30; g = 100; b = 40; }
-                    } else if (id == TexID::RoomBossWall || id == TexID::ChaoRoomBossInside || id == TexID::ChaoRoomBossOut) {
+                    } else if (id == TexID::RoomBossWall || id == TexID::FloorRoomBossInside || id == TexID::FloorRoomBossOut) {
                         // Rocha vulcanica vulcanica rasgada
                         bool crack = std::abs(fastYes(tx*0.2f + ty*0.1f + fastYes(tx*0.1f)*5.0f)) < 0.1f;
                         if (crack) { r = 250; g = 100; b = 20; } // Lava
@@ -763,7 +763,7 @@ void ManagerTextures::generate(TexID id) {
                     }
                     break;
                 }
-                case TexID::ChaoRoomBossInside: {
+                case TexID::FloorRoomBossInside: {
                     // TEMA: Piso vulcanico e irregular na arena do chefe.
 
                     // Ambientes Corruptos/Vivos (Coracao, Chefe)
@@ -775,11 +775,11 @@ void ManagerTextures::generate(TexID id) {
                         // Raizes espirais e escuras pulsantes
                         if (spiral > 0.0f) { r = 60; g = 20; b = 20; }
                         else { r = 40; g = 15; b = 15; }
-                    } else if (id == TexID::ChaoHeartMoss || id == TexID::CeilingIndoorsHeartMoss) {
+                    } else if (id == TexID::FloorHeartMoss || id == TexID::CeilingIndoorsHeartMoss) {
                         // Musgo bio-luminescente e vivo
                         if (details > 0.3f) { r = 50; g = 180; b = 80; }
                         else { r = 30; g = 100; b = 40; }
-                    } else if (id == TexID::RoomBossWall || id == TexID::ChaoRoomBossInside || id == TexID::ChaoRoomBossOut) {
+                    } else if (id == TexID::RoomBossWall || id == TexID::FloorRoomBossInside || id == TexID::FloorRoomBossOut) {
                         // Rocha vulcanica vulcanica rasgada
                         bool crack = std::abs(fastYes(tx*0.2f + ty*0.1f + fastYes(tx*0.1f)*5.0f)) < 0.1f;
                         if (crack) { r = 250; g = 100; b = 20; } // Lava
@@ -796,7 +796,7 @@ void ManagerTextures::generate(TexID id) {
                     }
                     break;
                 }
-                case TexID::ChaoHeartMoss: {
+                case TexID::FloorHeartMoss: {
                     // TEMA: Chao coberto de musgo espesso que pulsa vida.
 
                     // Ambientes Corruptos/Vivos (Coracao, Chefe)
@@ -808,11 +808,11 @@ void ManagerTextures::generate(TexID id) {
                         // Raizes espirais e escuras pulsantes
                         if (spiral > 0.0f) { r = 60; g = 20; b = 20; }
                         else { r = 40; g = 15; b = 15; }
-                    } else if (id == TexID::ChaoHeartMoss || id == TexID::CeilingIndoorsHeartMoss) {
+                    } else if (id == TexID::FloorHeartMoss || id == TexID::CeilingIndoorsHeartMoss) {
                         // Musgo bio-luminescente e vivo
                         if (details > 0.3f) { r = 50; g = 180; b = 80; }
                         else { r = 30; g = 100; b = 40; }
-                    } else if (id == TexID::RoomBossWall || id == TexID::ChaoRoomBossInside || id == TexID::ChaoRoomBossOut) {
+                    } else if (id == TexID::RoomBossWall || id == TexID::FloorRoomBossInside || id == TexID::FloorRoomBossOut) {
                         // Rocha vulcanica vulcanica rasgada
                         bool crack = std::abs(fastYes(tx*0.2f + ty*0.1f + fastYes(tx*0.1f)*5.0f)) < 0.1f;
                         if (crack) { r = 250; g = 100; b = 20; } // Lava
@@ -829,7 +829,7 @@ void ManagerTextures::generate(TexID id) {
                     }
                     break;
                 }
-                case TexID::ChaoHeartEarth: {
+                case TexID::FloorHeartEarth: {
                     // TEMA: Terra fertil, espiralada e macia da area do coracao.
 
                     // Ambientes Corruptos/Vivos (Coracao, Chefe)
@@ -841,11 +841,11 @@ void ManagerTextures::generate(TexID id) {
                         // Raizes espirais e escuras pulsantes
                         if (spiral > 0.0f) { r = 60; g = 20; b = 20; }
                         else { r = 40; g = 15; b = 15; }
-                    } else if (id == TexID::ChaoHeartMoss || id == TexID::CeilingIndoorsHeartMoss) {
+                    } else if (id == TexID::FloorHeartMoss || id == TexID::CeilingIndoorsHeartMoss) {
                         // Musgo bio-luminescente e vivo
                         if (details > 0.3f) { r = 50; g = 180; b = 80; }
                         else { r = 30; g = 100; b = 40; }
-                    } else if (id == TexID::RoomBossWall || id == TexID::ChaoRoomBossInside || id == TexID::ChaoRoomBossOut) {
+                    } else if (id == TexID::RoomBossWall || id == TexID::FloorRoomBossInside || id == TexID::FloorRoomBossOut) {
                         // Rocha vulcanica vulcanica rasgada
                         bool crack = std::abs(fastYes(tx*0.2f + ty*0.1f + fastYes(tx*0.1f)*5.0f)) < 0.1f;
                         if (crack) { r = 250; g = 100; b = 20; } // Lava
@@ -862,7 +862,7 @@ void ManagerTextures::generate(TexID id) {
                     }
                     break;
                 }
-                case TexID::ChaoHeartDark: {
+                case TexID::FloorHeartDark: {
                     // TEMA: Raizes mortas e terra petrificada nas sombras.
 
                     // Ambientes Corruptos/Vivos (Coracao, Chefe)
@@ -874,11 +874,11 @@ void ManagerTextures::generate(TexID id) {
                         // Raizes espirais e escuras pulsantes
                         if (spiral > 0.0f) { r = 60; g = 20; b = 20; }
                         else { r = 40; g = 15; b = 15; }
-                    } else if (id == TexID::ChaoHeartMoss || id == TexID::CeilingIndoorsHeartMoss) {
+                    } else if (id == TexID::FloorHeartMoss || id == TexID::CeilingIndoorsHeartMoss) {
                         // Musgo bio-luminescente e vivo
                         if (details > 0.3f) { r = 50; g = 180; b = 80; }
                         else { r = 30; g = 100; b = 40; }
-                    } else if (id == TexID::RoomBossWall || id == TexID::ChaoRoomBossInside || id == TexID::ChaoRoomBossOut) {
+                    } else if (id == TexID::RoomBossWall || id == TexID::FloorRoomBossInside || id == TexID::FloorRoomBossOut) {
                         // Rocha vulcanica vulcanica rasgada
                         bool crack = std::abs(fastYes(tx*0.2f + ty*0.1f + fastYes(tx*0.1f)*5.0f)) < 0.1f;
                         if (crack) { r = 250; g = 100; b = 20; } // Lava
@@ -895,7 +895,7 @@ void ManagerTextures::generate(TexID id) {
                     }
                     break;
                 }
-                case TexID::ChaoGrassForest: {
+                case TexID::FloorGrassForest: {
                     // TEMA: Grama verde e realista da floresta iluminada por raios solares.
 
                     float nx = tx * 0.15f;
@@ -919,7 +919,7 @@ void ManagerTextures::generate(TexID id) {
                     }
                     break;
                 }
-                case TexID::ChaoGrassVillage: {
+                case TexID::FloorGrassVillage: {
                     // TEMA: Grama vibrante, macia e aparada da pacifica vila.
 
                     float nx = tx * 0.15f;
@@ -943,15 +943,15 @@ void ManagerTextures::generate(TexID id) {
                     }
                     break;
                 }
-                case TexID::ChaoEarth: {
+                case TexID::FloorEarth: {
                     // TEMA: Caminho de terra seca, desgastado pela passagem de viajantes.
 
                     // Chaos (Labirinto, Terra, Padrao)
                     float noise = fastYes(tx * 0.2f) * fastYes(ty * 0.2f);
-                    if (id == TexID::ChaoLabyrinth || id == TexID::ChaoLabyrinthEdge) {
+                    if (id == TexID::FloorLabyrinth || id == TexID::FloorLabyrinthEdge) {
                         bool tile = (tx / 64) % 2 == (ty / 64) % 2;
                         if (tile) { r = 120; g = 120; b = 125; } else { r = 100; g = 100; b = 105; }
-                    } else if (id == TexID::ChaoEarth) {
+                    } else if (id == TexID::FloorEarth) {
                         // Detalhes de terra ressecada
                         int base = 80 + (int)(noise * 20);
                         r = std::clamp(base, 0, 255);
@@ -966,15 +966,15 @@ void ManagerTextures::generate(TexID id) {
                     }
                     break;
                 }
-                case TexID::ChaoPattern: {
+                case TexID::FloorPattern: {
                     // TEMA: Solo basico de poeira e pedregulhos finos.
 
                     // Chaos (Labirinto, Terra, Padrao)
                     float noise = fastYes(tx * 0.2f) * fastYes(ty * 0.2f);
-                    if (id == TexID::ChaoLabyrinth || id == TexID::ChaoLabyrinthEdge) {
+                    if (id == TexID::FloorLabyrinth || id == TexID::FloorLabyrinthEdge) {
                         bool tile = (tx / 64) % 2 == (ty / 64) % 2;
                         if (tile) { r = 120; g = 120; b = 125; } else { r = 100; g = 100; b = 105; }
-                    } else if (id == TexID::ChaoEarth) {
+                    } else if (id == TexID::FloorEarth) {
                         // Detalhes de terra ressecada
                         int base = 80 + (int)(noise * 20);
                         r = std::clamp(base, 0, 255);
@@ -1001,11 +1001,11 @@ void ManagerTextures::generate(TexID id) {
                         // Raizes espirais e escuras pulsantes
                         if (spiral > 0.0f) { r = 60; g = 20; b = 20; }
                         else { r = 40; g = 15; b = 15; }
-                    } else if (id == TexID::ChaoHeartMoss || id == TexID::CeilingIndoorsHeartMoss) {
+                    } else if (id == TexID::FloorHeartMoss || id == TexID::CeilingIndoorsHeartMoss) {
                         // Musgo bio-luminescente e vivo
                         if (details > 0.3f) { r = 50; g = 180; b = 80; }
                         else { r = 30; g = 100; b = 40; }
-                    } else if (id == TexID::RoomBossWall || id == TexID::ChaoRoomBossInside || id == TexID::ChaoRoomBossOut) {
+                    } else if (id == TexID::RoomBossWall || id == TexID::FloorRoomBossInside || id == TexID::FloorRoomBossOut) {
                         // Rocha vulcanica vulcanica rasgada
                         bool crack = std::abs(fastYes(tx*0.2f + ty*0.1f + fastYes(tx*0.1f)*5.0f)) < 0.1f;
                         if (crack) { r = 250; g = 100; b = 20; } // Lava
@@ -1034,11 +1034,11 @@ void ManagerTextures::generate(TexID id) {
                         // Raizes espirais e escuras pulsantes
                         if (spiral > 0.0f) { r = 60; g = 20; b = 20; }
                         else { r = 40; g = 15; b = 15; }
-                    } else if (id == TexID::ChaoHeartMoss || id == TexID::CeilingIndoorsHeartMoss) {
+                    } else if (id == TexID::FloorHeartMoss || id == TexID::CeilingIndoorsHeartMoss) {
                         // Musgo bio-luminescente e vivo
                         if (details > 0.3f) { r = 50; g = 180; b = 80; }
                         else { r = 30; g = 100; b = 40; }
-                    } else if (id == TexID::RoomBossWall || id == TexID::ChaoRoomBossInside || id == TexID::ChaoRoomBossOut) {
+                    } else if (id == TexID::RoomBossWall || id == TexID::FloorRoomBossInside || id == TexID::FloorRoomBossOut) {
                         // Rocha vulcanica vulcanica rasgada
                         bool crack = std::abs(fastYes(tx*0.2f + ty*0.1f + fastYes(tx*0.1f)*5.0f)) < 0.1f;
                         if (crack) { r = 250; g = 100; b = 20; } // Lava
@@ -1067,11 +1067,11 @@ void ManagerTextures::generate(TexID id) {
                         // Raizes espirais e escuras pulsantes
                         if (spiral > 0.0f) { r = 60; g = 20; b = 20; }
                         else { r = 40; g = 15; b = 15; }
-                    } else if (id == TexID::ChaoHeartMoss || id == TexID::CeilingIndoorsHeartMoss) {
+                    } else if (id == TexID::FloorHeartMoss || id == TexID::CeilingIndoorsHeartMoss) {
                         // Musgo bio-luminescente e vivo
                         if (details > 0.3f) { r = 50; g = 180; b = 80; }
                         else { r = 30; g = 100; b = 40; }
-                    } else if (id == TexID::RoomBossWall || id == TexID::ChaoRoomBossInside || id == TexID::ChaoRoomBossOut) {
+                    } else if (id == TexID::RoomBossWall || id == TexID::FloorRoomBossInside || id == TexID::FloorRoomBossOut) {
                         // Rocha vulcanica vulcanica rasgada
                         bool crack = std::abs(fastYes(tx*0.2f + ty*0.1f + fastYes(tx*0.1f)*5.0f)) < 0.1f;
                         if (crack) { r = 250; g = 100; b = 20; } // Lava

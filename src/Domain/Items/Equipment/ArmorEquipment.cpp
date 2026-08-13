@@ -89,8 +89,8 @@ std::unique_ptr<Item> manufactureEquipmentArmor(ItemID id) {
         {ItemID::ArmorRags, [createArmor]() { return createArmor(ItemID::ArmorRags, 3, 0, 0, 3); }},
         {ItemID::ArmorKnight, [createArmor]() { return createArmor(ItemID::ArmorKnight, 12, 0, 0, 0); }},
         {ItemID::ClothesRitualist, [createArmor]() { return createArmor(ItemID::ClothesRitualist, 3, 0, 0, 15); }},
-        {ItemID::ArmorBao, [createArmor]() { 
-            auto armor = createArmor(ItemID::ArmorBao, 20, 0, 0, 150); 
+        {ItemID::ArmorChest, [createArmor]() { 
+            auto armor = createArmor(ItemID::ArmorChest, 20, 0, 0, 150); 
             armor->setPenaltyDexterity(10);
             return armor; 
         }},

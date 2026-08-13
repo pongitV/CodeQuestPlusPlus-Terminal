@@ -266,7 +266,7 @@ InfoBestiary Mahoraga::getInfoBestiary() const {
         "Sala do Chefe",
         "Uma entidade lendaria de oito empunhaduras selada na escuridao. A roda sobre sua cabeca gira, adaptando-se a todos e quaisquer fenomenos.",
         "Dizem que o unico jeito de derrota-lo e com um golpe fulminante antes que a roda gire.",
-        {"Ouro Massivo", "Espada de Exterminio", "Roda da Adaptacao", ItemFactory::getNameFromID(ItemID::StoneUpgrade), ItemFactory::getNameFromID(ItemID::LittleFury), ItemFactory::getNameFromID(ItemID::ElixirArcane)},
+        {"Ouro Massivo", "Espada de Exterminio", "Roda da Adaptacao", ItemFactory::getNameFromID(ItemID::StoneUpgrade), ItemFactory::getNameFromID(ItemID::FuryPotion), ItemFactory::getNameFromID(ItemID::ElixirArcane)},
         10 // Dificuldade Maxima!
     };
 }
@@ -277,6 +277,6 @@ void Mahoraga::performDrops(Character* enemy, Character* currentPlayer, std::vec
     Drops::giveAndProcessItem(currentPlayer, ItemID::SwordExtermination, 1, obtainedItems);
     Drops::giveAndProcessItem(currentPlayer, ItemID::AdaptationWheel, 1, obtainedItems);
     Drops::giveAndProcessItem(currentPlayer, ItemID::StoneUpgrade, 3, obtainedItems);
-    Drops::giveAndProcessItem(currentPlayer, ItemID::LittleFury, 3, obtainedItems);
+    Drops::giveAndProcessItem(currentPlayer, ItemID::FuryPotion, 3, obtainedItems);
     Drops::giveAndProcessItem(currentPlayer, ItemID::ElixirArcane, 3, obtainedItems);
 }

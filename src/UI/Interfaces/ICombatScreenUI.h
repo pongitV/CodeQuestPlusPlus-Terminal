@@ -5,18 +5,18 @@
 #include "Domain/Characters/Character.h"
 #include "Domain/Items/Item.h"
 
-class IScreenCombatUI {
+class ICombatScreenUI {
 public:
-    virtual ~IScreenCombatUI() = default;
+    virtual ~ICombatScreenUI() = default;
 
-    virtual void displaySoonForScreenDeCombat(const std::string& titleDaScreen = "", bool animate = true) = 0;
+    virtual void displayLogoForCombatScreen(const std::string& screenTitle = "", bool animate = true) = 0;
     virtual void animateCombatIntro(const std::string& title, const std::vector<Character*>& enemies, Character* currentPlayer = nullptr) = 0;
-    virtual std::vector<std::string> getLinesBarDeStatusDoPlayer(Character* currentPlayer, Color colorHighlight = Color::RESET, int damageAnimation = -1, int frameAnimation = 0, bool isCure = false) = 0;
-    virtual void displayHordeDeEnemiesSideASide(const std::vector<Character*>& enemies, Character* targetAnimation = nullptr, int frameAnimation = 0, bool isCure = false, bool cheerEmergence = false, bool isDeath = false, Item* weaponAttacker = nullptr, int damageAnimation = -1, const std::vector<std::string>& dropsAnimation = {}) = 0;
+    virtual std::vector<std::string> getPlayerStatusBarLines(Character* currentPlayer, Color colorHighlight = Color::RESET, int damageAnimation = -1, int frameAnimation = 0, bool isHealing = false) = 0;
+    virtual void displayEnemyHordeSideBySide(const std::vector<Character*>& enemies, Character* targetAnimation = nullptr, int frameAnimation = 0, bool isHealing = false, bool animateEmergence = false, bool isDeath = false, Item* weaponAttacker = nullptr, int damageAnimation = -1, const std::vector<std::string>& dropsAnimation = {}) = 0;
     virtual void animateDamageToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* attacker, Character* currentPlayer, const std::vector<Character*>& allies, int damageAnimation = -1) = 0;
-    virtual void animateCureToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int cureAnimation = 0) = 0;
+    virtual void animateCureToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int healingAnimation = 0) = 0;
     virtual void animateDamageToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies = {}, bool isParry = false, int damageAnimation = -1) = 0;
-    virtual void animateCureToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies = {}, int cureAnimation = 0) = 0;
+    virtual void animateCureToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies = {}, int healingAnimation = 0) = 0;
     virtual void animateEnemyDeath(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* enemyDead, Character* currentPlayer, const std::vector<Character*>& allies, const std::vector<std::string>& drops = {}) = 0;
     virtual void updateScreenStatic(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies, bool animateEntrance = false, std::function<void(std::vector<std::string>&)> callbackOverlay = nullptr) = 0;
     virtual void addFixedMessage(const std::string& msg) = 0;

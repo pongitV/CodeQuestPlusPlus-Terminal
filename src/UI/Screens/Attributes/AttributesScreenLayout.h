@@ -5,7 +5,7 @@
 
 namespace ArtsAttributes {
 
-    inline const std::vector<std::string> soonSheet = StringConvert::convertRawStringToVector(R"(
+    inline const std::vector<std::string> sheetLogo = StringConvert::convertRawStringToVector(R"(
 ███████████  █████   █████████  █████   █████   █████████   
 ░░███░░░░░█ ░░███   ███░░░░░███░░███   ░░███   ███░░░░░███  
  ░███   █ ░  ░███  ███     ░░░  ░███    ░███  ░███    ░███  

@@ -5,7 +5,7 @@
 
 namespace ArtsBestiary {
 
-    inline const std::vector<std::string> soonBestiary = StringConvert::convertRawStringToVector(R"(
+    inline const std::vector<std::string> bestiaryLogo = StringConvert::convertRawStringToVector(R"(
  ███████████  ██████████  █████████  ███████████ █████   █████████   ███████████   █████    ███████   
 ░░███░░░░░███░░███░░░░░█ ███░░░░░███░█░░░███░░░█░░███   ███░░░░░███ ░░███░░░░░███ ░░███   ███░░░░░███ 
  ░███    ░███ ░███  █ ░ ░███    ░░░ ░   ░███  ░  ░███  ░███    ░███  ░███    ░███  ░███  ███     ░░███

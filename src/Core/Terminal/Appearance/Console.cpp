@@ -84,11 +84,11 @@ void Appearance::adjustSourceForResolution() {
 
 void Appearance::hideCursor() {
 #ifdef _WIN32
-    HANDLE manipulatorDoTerminal = GetStdHandle(STD_OUTPUT_HANDLE);
-    CONSOLE_CURSOR_INFO informationDoCursor;
-    informationDoCursor.dwSize = 100;
-    informationDoCursor.bVisible = FALSE;
-    SetConsoleCursorInfo(manipulatorDoTerminal, &informationDoCursor);
+    HANDLE terminalManipulator = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_CURSOR_INFO cursorInformation;
+    cursorInformation.dwSize = 100;
+    cursorInformation.bVisible = FALSE;
+    SetConsoleCursorInfo(terminalManipulator, &cursorInformation);
 #else
     std::cout << "\033[?25l";
 #endif
@@ -96,11 +96,11 @@ void Appearance::hideCursor() {
 
 void Appearance::concertCursor() {
 #ifdef _WIN32
-    HANDLE manipulatorDoTerminal = GetStdHandle(STD_OUTPUT_HANDLE);
-    CONSOLE_CURSOR_INFO informationDoCursor;
-    informationDoCursor.dwSize = 100;
-    informationDoCursor.bVisible = TRUE;
-    SetConsoleCursorInfo(manipulatorDoTerminal, &informationDoCursor);
+    HANDLE terminalManipulator = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_CURSOR_INFO cursorInformation;
+    cursorInformation.dwSize = 100;
+    cursorInformation.bVisible = TRUE;
+    SetConsoleCursorInfo(terminalManipulator, &cursorInformation);
 #else
     std::cout << "\033[?25h";
 #endif

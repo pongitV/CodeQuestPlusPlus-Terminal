@@ -10,8 +10,8 @@
 #include <thread>
 #include <chrono>
 
-void ScreenDefeatRaycaster::display(Character* currentPlayer, int quantityDeGoldObtained, int quantityDeXpObtained,
-    int totalDeDamageCaused, int totalDeDamageReceived, int cureTotalReceived, int shiftsCombat)
+void RaycasterDefeatScreen::display(Character* currentPlayer, int obtainedGoldQuantity, int obtainedXpQuantity,
+    int totalDamageCaused, int totalDamageReceived, int totalHealingReceived, int combatTurns)
 {
     int widthConsole = Appearance::getTerminalWidth();
     std::cout << "\033[?25l";
@@ -59,18 +59,18 @@ void ScreenDefeatRaycaster::display(Character* currentPlayer, int quantityDeGold
     // Desenha o logo do DERROTA
     int soonY = 2;
     int compVisualSoon = 0;
-    for (const auto& line : ArtsDefeat::soonDefeat) {
+    for (const auto& line : ArtsDefeat::defeatLogo) {
         int comp = Appearance::getVisualLength(line);
         if (comp > compVisualSoon) compVisualSoon = comp;
     }
     int soonX = ScreenBaseMenu::calculateOffsetCentral(compVisualSoon, widthConsole);
-    for (int i = 0; i < (int)ArtsDefeat::soonDefeat.size(); ++i) {
+    for (int i = 0; i < (int)ArtsDefeat::defeatLogo.size(); ++i) {
         if (soonY + i < height3D) {
-            screenBackground[soonY + i] = Appearance::superimposeSoonAnsi(screenBackground[soonY + i], stringForCharsUtf8(ArtsDefeat::soonDefeat[i]), soonX, "\033[1;38;2;255;50;50m", widthConsole);
+            screenBackground[soonY + i] = Appearance::superimposeSoonAnsi(screenBackground[soonY + i], stringForCharsUtf8(ArtsDefeat::defeatLogo[i]), soonX, "\033[1;38;2;255;50;50m", widthConsole);
         }
     }
 
-    int startY = soonY + (int)ArtsDefeat::soonDefeat.size() + 2;
+    int startY = soonY + (int)ArtsDefeat::defeatLogo.size() + 2;
 
     MenuRaycasterUtils::s_background3DMenu = screenBackground;
 
@@ -94,7 +94,7 @@ void ScreenDefeatRaycaster::display(Character* currentPlayer, int quantityDeGold
 
     int indexSelected = 0;
     bool popupOpen = false;
-    bool leavingDoGame = false; // flag indicadora caso o jogador escolha sair
+    bool leavingGame = false; // flag indicadora caso o player escolha sair
     
     while (true) {
         std::ostringstream buffer;
@@ -108,9 +108,9 @@ void ScreenDefeatRaycaster::display(Character* currentPlayer, int quantityDeGold
         // Caixa Estatisticas
         std::vector<std::string> boxStats;
         boxStats.push_back("\033[38;2;255;100;100mEstatisticas:\033[0m");
-        boxStats.push_back(" Turnos Sobrevividos: \033[38;2;255;255;255m" + std::to_string(shiftsCombat) + "\033[0m");
-        boxStats.push_back(" Dano Causado: \033[38;2;255;100;100m" + std::to_string(totalDeDamageCaused) + "\033[0m");
-        boxStats.push_back(" Dano Recebido: \033[38;2;255;50;50m" + std::to_string(totalDeDamageReceived) + "\033[0m");
+        boxStats.push_back(" Turnos Sobrevividos: \033[38;2;255;255;255m" + std::to_string(combatTurns) + "\033[0m");
+        boxStats.push_back(" Dano Causado: \033[38;2;255;100;100m" + std::to_string(totalDamageCaused) + "\033[0m");
+        boxStats.push_back(" Dano Recebido: \033[38;2;255;50;50m" + std::to_string(totalDamageReceived) + "\033[0m");
 
         int boxHeight = boxStats.size() + 2;
         int boxW = 40;
@@ -130,7 +130,7 @@ void ScreenDefeatRaycaster::display(Character* currentPlayer, int quantityDeGold
         if (popupOpen) {
             // Confirmacao
             drawBoxGray(buffer, boxPopupY, boxPopupX, boxPopupW, 5);
-            std::string msgConfirm = leavingDoGame ? "Tem certeza que deseja sair?" : "Voltar ao menu principal?";
+            std::string msgConfirm = leavingGame ? "Tem certeza que deseja sair?" : "Voltar ao menu principal?";
             int textX = boxPopupX + (boxPopupW - Appearance::getVisualLength(msgConfirm)) / 2;
             MenuRaycasterUtils::superimposeTextAbsolute(buffer, "\033[48;2;25;25;25m\033[38;2;255;100;100m" + msgConfirm, boxPopupY + 1, textX);
             
@@ -162,7 +162,7 @@ void ScreenDefeatRaycaster::display(Character* currentPlayer, int quantityDeGold
             unsigned char key = static_cast<unsigned char>(InputControl::readKey());
             if (popupOpen) {
                 if (key == 's' || key == 'S') {
-                    if (leavingDoGame) {
+                    if (leavingGame) {
                         exit(0);
                     } else {
                         return; 
@@ -178,7 +178,7 @@ void ScreenDefeatRaycaster::display(Character* currentPlayer, int quantityDeGold
                     indexSelected++;
                     if (indexSelected > 1) indexSelected = 0;
                 } else if (key == '\r' || key == '\n' || key == ' ') {
-                    leavingDoGame = (indexSelected == 1);
+                    leavingGame = (indexSelected == 1);
                     popupOpen = true;
                 }
             }

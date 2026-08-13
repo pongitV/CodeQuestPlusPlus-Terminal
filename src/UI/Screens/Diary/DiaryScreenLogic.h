@@ -24,7 +24,7 @@ struct ItemsCategorized {
 };
 
 struct MissionsCategorized {
-    std::vector<std::string> emTempo;
+    std::vector<std::string> inProgress;
     std::vector<std::string> ready;
     std::vector<std::string> complete;
 };

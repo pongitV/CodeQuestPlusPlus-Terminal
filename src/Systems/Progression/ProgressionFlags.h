@@ -4,7 +4,7 @@ namespace Flags {
     // Flags da Vila
     inline constexpr const char* Village_NPCs = "Vila_NPCs";
     inline constexpr const char* Village_Enemies = "Vila_Inimigos";
-    inline constexpr const char* Village_InvitationReal = "Vila_ConviteReal";
+    inline constexpr const char* Village_RoyalInvitation = "Vila_ConviteReal";
     inline constexpr const char* Village_KissRescued = "Vila_BjornResgatado";
 
     // Flags da Floresta

@@ -7,7 +7,7 @@
 
 class Character;
 
-class ScreenDiaryRaycaster : public IDiaryUI {
+class RaycasterDiaryScreen : public IDiaryUI {
 public:
     void renderBackground() override;
     void displayHeader(int startY) override;

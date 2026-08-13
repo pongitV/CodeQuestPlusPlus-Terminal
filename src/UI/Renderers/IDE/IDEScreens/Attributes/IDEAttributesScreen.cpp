@@ -22,7 +22,7 @@ struct EffectInfo {
     bool showShifts;
 };
 
-void ScreenAttributesGO::displayDetailsAttributes(Character* currentPlayer) {
+void IDEAttributesScreen::displayDetailsAttributes(Character* currentPlayer) {
     Appearance::clearScreen();
     Appearance::displayTextPanel("DETALHES DOS ATRIBUTOS", Color::MAGENTA);
 
@@ -75,14 +75,14 @@ void ScreenAttributesGO::displayDetailsAttributes(Character* currentPlayer) {
     InputControl::waitForEnter();
 }
 
-void ScreenAttributesGO::display(Character* currentPlayer) {
+void IDEAttributesScreen::display(Character* currentPlayer) {
     if (currentPlayer == nullptr) return;
     Appearance::clearScreen();
 
     static auto lastAccessSheet = std::chrono::steady_clock::now() - std::chrono::hours(1);
     bool animate = BaseScreen::mustAnimateScreenEntry(lastAccessSheet, 300);
 
-    Appearance::displayArtPanel(ArtsAttributes::soonSheet, 59, Color::MAGENTA, "", animate);
+    Appearance::displayArtPanel(ArtsAttributes::sheetLogo, 59, Color::MAGENTA, "", animate);
 
     double currentAttributeMultiplier = currentPlayer->getMultiplier();
     DebuffInfo debuff = AttributesScreen::calculateDebuff(currentPlayer);
@@ -143,36 +143,36 @@ void ScreenAttributesGO::display(Character* currentPlayer) {
 
     std::vector<std::string> boxAttributes = BaseScreen::createBox(attributeLines, "ATRIBUTOS", 35, Color::MAGENTA);
 
-    std::vector<std::string> habLines;
+    std::vector<std::string> skillLines;
     auto addDescriptionSplit = [&](const std::string& text) {
         std::istringstream stream(text);
         std::string lineDesc;
         while (std::getline(stream, lineDesc)) {
-            habLines.push_back(" - " + Appearance::color(Color::GRAY) + lineDesc + Appearance::color(Color::RESET));
+            skillLines.push_back(" - " + Appearance::color(Color::GRAY) + lineDesc + Appearance::color(Color::RESET));
         }
     };
 
-    habLines.push_back("[HAB. Passiva de Raca]  : " + currentPlayer->getRace()->getNameSkillRace());
+    skillLines.push_back("[HAB. Passiva de Raca]  : " + currentPlayer->getRace()->getNameSkillRace());
     addDescriptionSplit(currentPlayer->getRace()->getDescriptionSkillRace());
-    habLines.push_back("[HAB. Passiva de Classe]: " + currentPlayer->getClass()->getNamePassiveClass());
+    skillLines.push_back("[HAB. Passiva de Classe]: " + currentPlayer->getClass()->getNamePassiveClass());
     addDescriptionSplit(currentPlayer->getClass()->getDescriptionPassiveClass());
-    habLines.push_back("[HAB. Ativa de Classe]  : " + currentPlayer->getClass()->getNameSkillClass());
+    skillLines.push_back("[HAB. Ativa de Classe]  : " + currentPlayer->getClass()->getNameSkillClass());
     addDescriptionSplit(currentPlayer->getClass()->getDescriptionSkillClass());
-    habLines.push_back("");
-    habLines.push_back("EQUIPAMENTOS:");
+    skillLines.push_back("");
+    skillLines.push_back("EQUIPAMENTOS:");
     std::string weapon = currentPlayer->getWeapons() ? currentPlayer->getWeapons()->getItemName() + currentPlayer->getWeapons()->getInfoStatus() : "Punhos";
     std::string shield = currentPlayer->getShield() ? currentPlayer->getShield()->getItemName() + currentPlayer->getShield()->getInfoStatus() : "Nenhum";
     std::string armor = currentPlayer->getArmor() ? currentPlayer->getArmor()->getItemName() + currentPlayer->getArmor()->getInfoStatus() : "Trapos";
-    habLines.push_back(" > Arma    : " + weapon);
-    habLines.push_back(" > Escudo  : " + shield);
-    habLines.push_back(" > Armadura: " + armor);
+    skillLines.push_back(" > Arma    : " + weapon);
+    skillLines.push_back(" > Escudo  : " + shield);
+    skillLines.push_back(" > Armadura: " + armor);
 
-    std::vector<std::string> boxSkills = BaseScreen::createBox(habLines, "HABILIDADES & EQUIPAMENTOS", 35, Color::MAGENTA);
+    std::vector<std::string> boxSkills = BaseScreen::createBox(skillLines, "HABILIDADES & EQUIPAMENTOS", 35, Color::MAGENTA);
 
     PowerCombat power = AttributesScreen::calculatePowerCombat(currentPlayer, currentAttributeMultiplier);
 
-    std::string sFis = Appearance::color(Color::RED) + std::to_string(power.damageFisIs) + Appearance::color(Color::RESET);
-    std::string sMag = Appearance::color(Color::RED) + std::to_string(power.damageMagIs) + Appearance::color(Color::RESET);
+    std::string sPhys = Appearance::color(Color::RED) + std::to_string(power.damagePhysIs) + Appearance::color(Color::RESET);
+    std::string sMagic = Appearance::color(Color::RED) + std::to_string(power.damageMagicIs) + Appearance::color(Color::RESET);
     std::string sDef = Appearance::color(Color::BLUE) + std::to_string(power.defFixed) + Appearance::color(Color::RESET);
 
     std::ostringstream ssMit;
@@ -180,7 +180,7 @@ void ScreenAttributesGO::display(Character* currentPlayer) {
     std::string sMit = Appearance::color(Color::CYAN) + ssMit.str() + "%" + Appearance::color(Color::RESET);
 
     std::vector<std::string> powerLines = {
-        " Dano Fisico  : " + sFis, " Dano Magico  : " + sMag, " Defesa Fixa  : " + sDef, " Mitigacao (%): " + sMit
+        " Dano Fisico  : " + sPhys, " Dano Magico  : " + sMagic, " Defesa Fixa  : " + sDef, " Mitigacao (%): " + sMit
     };
     std::vector<std::string> boxPower = BaseScreen::createBox(powerLines, "PODER DE COMBATE", 35, Color::MAGENTA);
 

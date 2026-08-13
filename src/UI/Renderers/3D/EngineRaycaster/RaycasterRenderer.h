@@ -6,16 +6,16 @@
 
 class RaycasterRenderer : public PerspectiveRenderer {
 public:
-    void displayPopup(const std::string& title, const std::vector<std::string>& lines, Color colorHeader, const std::vector<std::string>& artSoon = {}) override {
-        Appearance::displayPopup(title, lines, colorHeader, artSoon);
+    void displayPopup(const std::string& title, const std::vector<std::string>& lines, Color colorHeader, const std::vector<std::string>& logoArt = {}) override {
+        Appearance::displayPopup(title, lines, colorHeader, logoArt);
     }
 
     void startPopupInteraction() override {
         Appearance::startPopupInteraction();
     }
 
-    int readMenuSelectionInPopup(const std::string& title, const std::vector<std::string>& descriptions, const std::vector<std::string>& options, Color colorHeader, const std::vector<std::string>& artSoon = {}, bool returnEnabled = true) override {
-        return InputControl::readMenuSelectionInPopup(title, descriptions, options, colorHeader, artSoon, returnEnabled);
+    int readMenuSelectionInPopup(const std::string& title, const std::vector<std::string>& descriptions, const std::vector<std::string>& options, Color colorHeader, const std::vector<std::string>& logoArt = {}, bool returnEnabled = true) override {
+        return InputControl::readMenuSelectionInPopup(title, descriptions, options, colorHeader, logoArt, returnEnabled);
     }
 
     void clearScreen() override { 

@@ -30,7 +30,7 @@ std::string BaseEnemyClass::getDescriptionPassiveClass() const { return "Inimigo
 std::string BaseEnemyClass::getRechargeSkillClass() const { return ""; }
 std::string BaseEnemyClass::getNameSkillClass() const { return "Nenhuma"; }
 std::string BaseEnemyClass::getDescriptionSkillClass() const { return "Inimigos basicos nao possuem habilidades ativas."; }
-void BaseEnemyClass::useSkillClass(Combat* /*combate*/, Character* /*personagemUsuario*/, std::vector<Character*>& /*listaDeInimigos*/) 
+void BaseEnemyClass::useSkillClass(Combat* /*combate*/, Character* /*userCharacter*/, std::vector<Character*>& /*enemyList*/) 
 {
 }
 

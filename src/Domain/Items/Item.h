@@ -33,14 +33,14 @@ enum class Property
     IgnoreDefense,
     ViolaBase,
     ViolaMagician,
-    CipePrison,
+    VinePrison,
     Improved,
     ImprovedMaterial,
     HealingConsumable,
     BuffConsumable,
     ConsumableDebuffSlow,
     ConsumableDebuffWeakness,
-    TalismanGallows,
+    StrengthTalisman,
     TalismanIntelligence,
     TalismanDexterity,
     TalismanWisdom,
@@ -57,16 +57,16 @@ enum class ItemID {
     ShieldMetal, BarrierMagic, CoverMagic, ArmbandsSilver,
     
     // Armaduras
-    ArmorMesh, ArmorLeather, Tunic, CostumeNoble, ArmorRags, ArmorKnight, ArmorBao, AdaptationWheel, ClothesRitualist,
+    ArmorMesh, ArmorLeather, Tunic, CostumeNoble, ArmorRags, ArmorKnight, ArmorChest, AdaptationWheel, ClothesRitualist,
     
     // Consumiveis
-    LittleCure30, LittleFury, ElixirArcane, BottleSlime, BottleWeakness, OrganRegenerator,
+    HealingPotion30, FuryPotion, ElixirArcane, BottleSlime, BottleWeakness, OrganRegenerator,
     TalismanBear, TalismanCrow, TalismanLeopard, TalismanOwl,
-    Litter, Bread, Cheese, MeatDrought,
-    LittleCureBig, LittleGallowsAlchemy, LittlePoisonAlchemy, LittleSlowAlchemy,
+    Apple, Bread, Cheese, DriedMeat,
+    GreatHealingPotion, AlchemicalStrengthPotion, AlchemicalPoisonPotion, AlchemicalSlownessPotion,
     
     // Materiais
-    SlimeAcid, ToothGoblin, NucleusSticky, PoMagician, WoodBewitched, HeartForest, StoneUpgrade, InvitationReal,
+    SlimeAcid, ToothGoblin, NucleusSticky, MagicPowder, WoodBewitched, HeartForest, StoneUpgrade, RoyalInvitation,
     
     // Missoes
     DeviceLanguage

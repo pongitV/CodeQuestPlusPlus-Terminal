@@ -7,7 +7,7 @@
 
 namespace ArtsRaycaster {
 
-    inline const std::vector<std::string> soonText =
+    inline const std::vector<std::string> textLogo =
     StringConvert::convertRawStringToVector(R"(
    █████████     ███████    ██████████   ██████████       ██████    █████  █████ ██████████  █████████  ███████████
   ███░░░░░███  ███░░░░░███ ░░███░░░░███ ░░███░░░░░█     ███░░░░███ ░░███  ░░███ ░░███░░░░░█ ███░░░░░███░█░░░███░░░█
@@ -19,7 +19,7 @@ namespace ArtsRaycaster {
   ░░░░░░░░░     ░░░░░░░    ░░░░░░░░░░   ░░░░░░░░░░       ░░░░░░ ░░   ░░░░░░░░   ░░░░░░░░░░  ░░░░░░░░░     ░░░░░
 )");
 
-    inline const std::vector<std::string> soonPlus = 
+    inline const std::vector<std::string> plusLogo = 
     StringConvert::convertRawStringToVector(R"(
                           
      ███         ███      
@@ -230,7 +230,7 @@ ___|________|_____|_|_||_|_|_____|________|___
   _&_   _&_   
 )");
 
-    inline const std::vector<std::string>& artesClasse(int index) {
+    inline const std::vector<std::string>& classArts(int index) {
         static const std::vector<std::vector<std::string>> classes = {
             archerArt, bardoArte, warriorArt, wizardArt, necromanteArte
         };

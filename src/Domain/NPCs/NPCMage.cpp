@@ -22,12 +22,12 @@
 #include "Domain/NPCs/NPCMageLayout.h"
 
 namespace {
-    std::map<int, ShopProduct> stockPocoesBuff = {
-        {1, {ItemID::LittleFury, 25, -1}},
+    std::map<int, ShopProduct> buffPotionsStock = {
+        {1, {ItemID::FuryPotion, 25, -1}},
         {2, {ItemID::ElixirArcane, 25, -1}}
     };
 
-    std::map<int, ShopProduct> stockPocoesDebuff = {
+    std::map<int, ShopProduct> debuffPotionsStock = {
         {1, {ItemID::BottleSlime, 30, -1}},
         {2, {ItemID::BottleWeakness, 30, -1}}
     };
@@ -42,7 +42,7 @@ namespace {
         std::function<std::string(Character*, EquipmentWeapon*)> apply;
     };
 
-    const std::vector<CharmOperation> operationsDeEnchantment = {
+    const std::vector<CharmOperation> enchantmentOperations = {
         { "Sangramento (40x Dente de Goblin)", ItemID::ToothGoblin, 40, ItemID::None, 
           [](EquipmentWeapon* a){ return a->ownsEffectBleeding(); }, "Esta arma ja esta encantada com Sangramento!",
           [](Character*, EquipmentWeapon* a){ a->applyEffectBleeding(); a->changeName(a->getItemName() + " (Sangrenta)"); return a->getItemName(); } },
@@ -51,7 +51,7 @@ namespace {
           [](EquipmentWeapon* a){ return a->ownsEffectSlow(); }, "Esta arma ja esta encantada com Lentidao!",
           [](Character*, EquipmentWeapon* a){ a->applyEffectSlow(); a->changeName(a->getItemName() + " (Viscosa)"); return a->getItemName(); } },
           
-        { "Quebra de Resistencia (25x Po magico)", ItemID::PoMagician, 25, ItemID::None,
+        { "Quebra de Resistencia (25x Po magico)", ItemID::MagicPowder, 25, ItemID::None,
           [](EquipmentWeapon* a){ return a->hasProperty(Property::Penetrating); }, "Esta arma ja esta encantada com Reducao de Resistencia!",
           [](Character*, EquipmentWeapon* a){ a->changeName(a->getItemName() + " (Quebra-Defesas)"); a->addProperty(Property::Penetrating); return a->getItemName(); } },
           
@@ -79,14 +79,14 @@ namespace {
           } },
           
         { "Cajado de cristal magico: Cipos (1x Coracao da floresta)", ItemID::HeartForest, 1, ItemID::StaffCrystal,
-          [](EquipmentWeapon* a){ return a->hasProperty(Property::CipePrison); }, "Esta arma ja esta encantada com Cipos!",
+          [](EquipmentWeapon* a){ return a->hasProperty(Property::VinePrison); }, "Esta arma ja esta encantada com Cipos!",
           [](Character*, EquipmentWeapon* a){
               std::string nameStaff = ItemFactory::getNameFromID(ItemID::StaffCrystal);
               std::string name = a->getItemName();
               size_t post = name.find(nameStaff);
               if (post != std::string::npos) name.replace(post, 24, "Cajado de cipos");
               a->changeName(name);
-              a->addProperty(Property::CipePrison);
+              a->addProperty(Property::VinePrison);
               return a->getItemName();
           } },
           
@@ -106,7 +106,7 @@ namespace {
 
     // --- APARENCIA E DIALOGOS ---
     void processEnchantments(Character* currentPlayer, bool isUniversal);
-    void processPocoes(Character* currentPlayer, bool isBuff);
+    void processPotions(Character* currentPlayer, bool isBuff);
     void processMissionLabyrinth(Character* currentPlayer);
     void processMenuMissions(Character* currentPlayer);
 
@@ -146,7 +146,7 @@ void NPCMage::interact(Character* player) {
     );
 }
 
-void NPCMage::displayDialogue(Character* /*jogador*/) {
+void NPCMage::displayDialogue(Character* /*player*/) {
     if (Progression::instance().getFlag(Flags::Forest_MorganaQuest)) {
         dialogueMorgana(std::vector<std::string>{
             "O Labirinto o aguarda..."
@@ -159,7 +159,7 @@ void NPCMage::displayDialogue(Character* /*jogador*/) {
     }
 }
 
-std::vector<std::string> NPCMage::getOptionsMenu(Character* /*jogador*/, int /*larguraDoTerminal*/) {
+std::vector<std::string> NPCMage::getOptionsMenu(Character* /*player*/, int /*terminalWidth*/) {
     return {
         "ENCANTAR Armas (Universais)",
         "ENCANTAR Armas (Especificas)",
@@ -170,7 +170,7 @@ std::vector<std::string> NPCMage::getOptionsMenu(Character* /*jogador*/, int /*l
     };
 }
 
-void NPCMage::processOption(Character* player, const std::string& option, int /*larguraDoTerminal*/) {
+void NPCMage::processOption(Character* player, const std::string& option, int /*terminalWidth*/) {
     if (option == "ENCANTAR Armas (Universais)") {
         processEnchantments(player, true);
     }
@@ -178,7 +178,7 @@ void NPCMage::processOption(Character* player, const std::string& option, int /*
         processEnchantments(player, false);
     }
     else if (option == "COMPRAR Pocoes de Buff" || option == "COMPRAR Frascos de Debuff") {
-        processPocoes(player, option == "COMPRAR Pocoes de Buff");
+        processPotions(player, option == "COMPRAR Pocoes de Buff");
     }
     else if (option == "Missoes de Morgana") {
         processMenuMissions(player);
@@ -192,7 +192,7 @@ namespace {
         int home = isUniversal ? 0 : 3;
         int end = isUniversal ? 3 : 6;
         for (int i = home; i < end; ++i) {
-            oopsCurrent.push_back(&operationsDeEnchantment[i]);
+            oopsCurrent.push_back(&enchantmentOperations[i]);
         }
 
         Appearance::sortAlphabetically(oopsCurrent, [](const CharmOperation* op) { return op->nameMenu; });
@@ -262,9 +262,9 @@ namespace {
         }
     }
 
-    void processPocoes(Character* currentPlayer, bool isBuff) {
+    void processPotions(Character* currentPlayer, bool isBuff) {
         std::string title = isBuff ? "CABANA - POCOES DE BUFF" : "CABANA - FRASCOS DE DEBUFF";
-        auto& currentStock = isBuff ? stockPocoesBuff : stockPocoesDebuff;
+        auto& currentStock = isBuff ? buffPotionsStock : debuffPotionsStock;
         
         Shop::processPurchase(currentPlayer, title, Color::MAGENTA, currentStock, 
             [](const std::string& msg) { dialogueMorganaUnique(msg); }, InteractionNPC::getFormatterStatusItem);

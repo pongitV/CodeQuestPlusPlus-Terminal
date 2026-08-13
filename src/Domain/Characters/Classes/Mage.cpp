@@ -108,7 +108,7 @@ std::string Wizard::getDescriptionSkillClass() const
     return "Pula seu turno para se defender e dobra o dano no proximo turno. Recarga: 3 turnos."; 
 }
 
-void Wizard::useSkillClass(Combat* /*combate*/, Character* characterUser, std::vector<Character*>& /*listaDeInimigos*/) 
+void Wizard::useSkillClass(Combat* /*combate*/, Character* characterUser, std::vector<Character*>& /*enemyList*/) 
 {
     int remainingTurns = characterUser->getCooldown(SkillID::PlumbingArcane);
     if (checkEReportRecharge(characterUser, remainingTurns, getNameSkillClass())) return;

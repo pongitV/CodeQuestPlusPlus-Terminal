@@ -135,7 +135,7 @@ InfoBestiary Fairy::getInfoBestiary() const {
         "Superficie",
         "Fadas corrompidas pela energia negra da floresta.",
         "Elas costumavam guiar viajantes, agora os perdem.",
-        {ItemFactory::getNameFromID(ItemID::PoMagician), ItemFactory::getNameFromID(ItemID::WandCorroded), "Ouro"},
+        {ItemFactory::getNameFromID(ItemID::MagicPowder), ItemFactory::getNameFromID(ItemID::WandCorroded), "Ouro"},
         3
     };
 }
@@ -144,7 +144,7 @@ void Fairy::performDrops(Character* enemy, Character* currentPlayer, std::vector
 {
     Drops::reportAndProcessXpGold(currentPlayer, 45, 20, totalGold, totalXp);
     Drops::giveAndProcessItem(currentPlayer, ItemID::WandCorroded, 1, obtainedItems, 65);
-    Drops::giveAndProcessItem(currentPlayer, ItemID::PoMagician, RandomGenerator::getInteger(1, 6), obtainedItems);
+    Drops::giveAndProcessItem(currentPlayer, ItemID::MagicPowder, RandomGenerator::getInteger(1, 6), obtainedItems);
 }
 
 

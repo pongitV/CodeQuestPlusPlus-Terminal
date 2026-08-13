@@ -15,13 +15,13 @@ public:
     virtual ~IManagerScreens() = default;
 
     virtual void opening() = 0;
-    virtual void panelSoon(const std::string& titleDaScreen, bool animateFadeIn) = 0;
-    virtual bool confirmationChoose(const std::string& typeDeChoose, const std::string& nameDaChoose,
-        const std::vector<std::string>& informationForDisplay, const std::vector<std::string>& artAsciiForDisplay) = 0;
+    virtual void panelLogo(const std::string& screenTitle, bool animateFadeIn) = 0;
+    virtual bool chooseConfirmation(const std::string& chooseType, const std::string& chooseName,
+        const std::vector<std::string>& informationForDisplay, const std::vector<std::string>& asciiArtForDisplay) = 0;
     virtual std::vector<std::string> frameAttributes(const Attributes& stats,
-        const std::string& titleDry, const std::string& titleSkill,
-        const std::string& nameHab, const std::string& descHab,
-        const std::string& titleSkill2, const std::string& nameHab2, const std::string& descHab2) = 0;
+        const std::string& dryTitle, const std::string& skillTitle,
+        const std::string& skillName, const std::string& skillDesc,
+        const std::string& skillTitle2, const std::string& skillName2, const std::string& skillDesc2) = 0;
     virtual int mainMenu() = 0;
     virtual void tutorialParry(const std::string& infoBox) = 0;
     virtual NameScreen::Result screenName() = 0;

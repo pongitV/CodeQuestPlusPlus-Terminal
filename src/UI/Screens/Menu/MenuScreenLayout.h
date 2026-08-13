@@ -7,7 +7,7 @@
 
 namespace ArtsMenu {
 
-    inline const std::vector<std::string> soonText = 
+    inline const std::vector<std::string> textLogo = 
     StringConvert::convertRawStringToVector(R"(
    █████████     ███████    ██████████   ██████████       ██████    █████  █████ ██████████  █████████  ███████████
   ███░░░░░███  ███░░░░░███ ░░███░░░░███ ░░███░░░░░█     ███░░░░███ ░░███  ░░███ ░░███░░░░░█ ███░░░░░███░█░░░███░░░█
@@ -19,7 +19,7 @@ namespace ArtsMenu {
   ░░░░░░░░░     ░░░░░░░    ░░░░░░░░░░   ░░░░░░░░░░       ░░░░░░ ░░   ░░░░░░░░   ░░░░░░░░░░  ░░░░░░░░░     ░░░░░    
 )");
 
-    inline const std::vector<std::string> soonPlus = {
+    inline const std::vector<std::string> plusLogo = {
         "                          ",
         "     ███         ███      ",
         "    ░███        ░███      ",

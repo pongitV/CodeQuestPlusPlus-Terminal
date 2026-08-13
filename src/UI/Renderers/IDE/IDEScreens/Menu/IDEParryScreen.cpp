@@ -9,7 +9,7 @@
 #include <thread>
 
 namespace {
-    void rotateTutorialMovementGO() {
+    void rotateTutorialMovementIDE() {
         struct Level { std::string name; int difficulty; };
         std::vector<Level> levels = {
             {"NIVEL 1 - Facil", 3},
@@ -27,9 +27,9 @@ namespace {
                 "",
                 "Pressione ENTER para comecar..."
             };
-            int spaces = ScreenMenuGO::calculateSpaceY(intro.size());
+            int spaces = IDEMenuScreen::calculateSpaceY(intro.size());
             for (int e = 0; e < spaces; e++) std::cout << "\n";
-            ScreenMenuGO::printBlockCentralizedGO(intro);
+            IDEMenuScreen::printCentralizedBlockIDE(intro);
             
             while(true) {
                 unsigned char key = InputControl::readKey();
@@ -61,9 +61,9 @@ namespace {
                         screen.push_back(colorResult + msgResult + "\033[0m");
                     }
 
-                    int offsetY = ScreenMenuGO::calculateSpaceY(screen.size());
+                    int offsetY = IDEMenuScreen::calculateSpaceY(screen.size());
                     for (int e = 0; e < offsetY; e++) std::cout << "\n";
-                    ScreenMenuGO::printBlockCentralizedGO(screen);
+                    IDEMenuScreen::printCentralizedBlockIDE(screen);
                 };
 
                 int dmgRed = 0;
@@ -96,7 +96,7 @@ namespace {
         }
     }
 
-    void rotateTutorialTypingGO() {
+    void rotateTutorialTypingIDE() {
         struct Level { std::string name; int digits; int timeMs; };
         std::vector<Level> levels = {
             {"NIVEL 1 - Facil", 3, 3000},
@@ -115,9 +115,9 @@ namespace {
                 "",
                 "Pressione ENTER para comecar..."
             };
-            int spaces = ScreenMenuGO::calculateSpaceY(intro.size());
+            int spaces = IDEMenuScreen::calculateSpaceY(intro.size());
             for (int e = 0; e < spaces; e++) std::cout << "\n";
-            ScreenMenuGO::printBlockCentralizedGO(intro);
+            IDEMenuScreen::printCentralizedBlockIDE(intro);
             
             while(true) {
                 unsigned char key = InputControl::readKey();
@@ -149,9 +149,9 @@ namespace {
                         screen.push_back(colorResult + msgResult + "\033[0m");
                     }
 
-                    int offsetY = ScreenMenuGO::calculateSpaceY(screen.size());
+                    int offsetY = IDEMenuScreen::calculateSpaceY(screen.size());
                     for (int e = 0; e < offsetY; e++) std::cout << "\n";
-                    ScreenMenuGO::printBlockCentralizedGO(screen);
+                    IDEMenuScreen::printCentralizedBlockIDE(screen);
                 };
 
                 int dmgRed = 0;
@@ -185,7 +185,7 @@ namespace {
     }
 }
 
-ParryScreen::Result ScreenParryGO::display(const std::string& namePlayer, const std::string& raceName, const std::string& className) {
+ParryScreen::Result IDEParryScreen::display(const std::string& namePlayer, const std::string& raceName, const std::string& className) {
     (void)namePlayer;
     (void)raceName;
     (void)className;
@@ -234,10 +234,10 @@ ParryScreen::Result ScreenParryGO::display(const std::string& namePlayer, const 
         
         blockCentral.push_back(colorPunct + "}");
 
-        int spacesY = ScreenMenuGO::calculateSpaceY(blockCentral.size());
+        int spacesY = IDEMenuScreen::calculateSpaceY(blockCentral.size());
         for (int i = 0; i < spacesY; ++i) std::cout << "\n";
         
-        ScreenMenuGO::printBlockCentralizedGO(blockCentral);
+        IDEMenuScreen::printCentralizedBlockIDE(blockCentral);
 
         unsigned char key = static_cast<unsigned char>(InputControl::readKey());
         if (key == 224 || key == 0 || key == '\033') {
@@ -265,10 +265,10 @@ ParryScreen::Result ScreenParryGO::display(const std::string& namePlayer, const 
     ParryScreen::Result r;
     if (selectionCurrent == 1) {
         r.mode = ParryScreen::Result::Mode::Movement;
-        rotateTutorialMovementGO();
+        rotateTutorialMovementIDE();
     } else if (selectionCurrent == 2) {
         r.mode = ParryScreen::Result::Mode::Typing;
-        rotateTutorialTypingGO();
+        rotateTutorialTypingIDE();
     } else {
         r.mode = ParryScreen::Result::Mode::Off;
     }

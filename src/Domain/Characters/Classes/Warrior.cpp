@@ -109,7 +109,7 @@ std::string Warrior::getDescriptionSkillClass() const
     return "Gasta seu turno para aumentar Forca e Destreza em 1.5x por 2 turnos."; 
 }
 
-void Warrior::useSkillClass(Combat* /*combate*/, Character* characterUser, std::vector<Character*>& /*listaDeInimigos*/) 
+void Warrior::useSkillClass(Combat* /*combate*/, Character* characterUser, std::vector<Character*>& /*enemyList*/) 
 {
     int remainingTurns = characterUser->getCooldown(SkillID::Determination);
     if (checkEReportRecharge(characterUser, remainingTurns, getNameSkillClass())) return;

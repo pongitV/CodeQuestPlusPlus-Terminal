@@ -13,7 +13,7 @@ namespace {
 
 struct RGB { int r, g, b; };
 
-RGB colorDoChar(char c) {
+RGB charColor(char c) {
     if (c == ' ') return {0, 0, 0};
     if (c == '_' || c == '-' || c == '|' || c == '/' || c == '\\'
         || c == '>' || c == '<' || c == '?' || c == '`' || c == '!')
@@ -25,7 +25,7 @@ RGB colorDoChar(char c) {
 
 }
 
-void ScreenMapWorldRaycaster::renderPopup(const std::vector<std::string>& art, const std::vector<std::string>& places, int selection, bool redesignComplete) {
+void RaycasterWorldMapScreen::renderPopup(const std::vector<std::string>& art, const std::vector<std::string>& places, int selection, bool redesignComplete) {
     int widthTerm = Appearance::getTerminalWidth();
     int heightTerm = Appearance::getTerminalHeight();
 
@@ -73,7 +73,7 @@ void ScreenMapWorldRaycaster::renderPopup(const std::vector<std::string>& art, c
             for (int x = 0; x < (int)art[y].length(); ++x) {
                 char c = art[y][x];
                 if (c == ' ') continue;
-                RGB color = colorDoChar(c);
+                RGB color = charColor(c);
                 std::string ansi = "\033[48;2;" + std::to_string(color.r) + ";" + std::to_string(color.g) + ";" + std::to_string(color.b) + "m";
                 Appearance::moveCursor(innerX + x, innerY + y);
                 std::cout << ansi << " " << resetBg;

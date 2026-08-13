@@ -2,7 +2,7 @@
 #include <string>
 #include <fstream>
 
-std::string Appearance::superimposePanelNaLineAnsi(const std::string& backgroundLine, const std::string& panelLine, int startX) {
+std::string Appearance::superimposePanelOnAnsiLine(const std::string& backgroundLine, const std::string& panelLine, int startX) {
     std::string result = "";
     result.reserve(backgroundLine.size() + panelLine.size() + 50);
 

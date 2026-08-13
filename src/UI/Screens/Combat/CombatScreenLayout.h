@@ -7,7 +7,7 @@
 
 class ScreenCombatLayouts {
 public:
-    static inline std::vector<std::string> getSoonCombat() {
+    static inline std::vector<std::string> getLogoCombat() {
         return StringConvert::convertRawStringToVector(R"(
    █████████     ███████    ██████   ██████ ███████████    █████████   ███████████ ██████████
   ███░░░░░███  ███░░░░░███ ░░██████ ██████ ░░███░░░░░███  ███░░░░░███ ░█░░░███░░░█░░███░░░░░█ 

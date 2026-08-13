@@ -8,10 +8,10 @@
 #include "UI/Screens/Menu/MenuScreen.h"
 #include "UI/PerspectiveManager.h"
 
-int ScreenPauseGO::renderMenuPause() {
+int IDEPauseScreen::renderMenuPause() {
     std::cout << "\033[?25l";
     Appearance::clearScreen();
-    MenuScreen::displayPanelSoonGame("JOGO EM PAUSE", false);
+    MenuScreen::displayGameLogoPanel("JOGO EM PAUSE", false);
     std::cout << "\n";
 
     std::vector<std::string> options = {
@@ -23,9 +23,9 @@ int ScreenPauseGO::renderMenuPause() {
     return InputControl::readSelectionMenuWithArrows(options, true);
 }
 
-int ScreenPauseGO::renderMenuConfiguracoes(Character* player) {
+int IDEPauseScreen::renderSettingsMenu(Character* player) {
     Appearance::clearScreen();
-    MenuScreen::displayPanelSoonGame("CONFIGURACOES", false);
+    MenuScreen::displayGameLogoPanel("CONFIGURACOES", false);
     std::cout << "\n";
 
     std::string difStr;
@@ -51,9 +51,9 @@ int ScreenPauseGO::renderMenuConfiguracoes(Character* player) {
     return InputControl::readSelectionMenuWithArrows(optionsConfig, true);
 }
 
-int ScreenPauseGO::renderMenuAppearance(Character* player) {
+int IDEPauseScreen::renderMenuAppearance(Character* player) {
     Appearance::clearScreen();
-    MenuScreen::displayPanelSoonGame("APARENCIA NO MAPA", false);
+    MenuScreen::displayGameLogoPanel("APARENCIA NO MAPA", false);
     std::cout << "\n";
 
     std::string colorCurrentStr;
@@ -77,9 +77,9 @@ int ScreenPauseGO::renderMenuAppearance(Character* player) {
     return InputControl::readSelectionMenuWithArrows(optionsAppearance, true);
 }
 
-int ScreenPauseGO::renderMenuBackground(int colorBackgroundCurrentIndex) {
+int IDEPauseScreen::renderMenuBackground(int colorBackgroundCurrentIndex) {
     Appearance::clearScreen();
-    MenuScreen::displayPanelSoonGame("COR DE FUNDO", false);
+    MenuScreen::displayGameLogoPanel("COR DE FUNDO", false);
     std::cout << "\n";
 
     std::vector<std::string> namesFunds = {
@@ -96,14 +96,14 @@ int ScreenPauseGO::renderMenuBackground(int colorBackgroundCurrentIndex) {
     return InputControl::readSelectionMenuWithArrows(optionsBackground, true);
 }
 
-int ScreenPauseGO::renderMenuSensitivity(int percX, int percY) {
+int IDEPauseScreen::renderMenuSensitivity(int percentX, int percentY) {
     Appearance::clearScreen();
-    MenuScreen::displayPanelSoonGame("SENSIBILIDADE", false);
+    MenuScreen::displayGameLogoPanel("SENSIBILIDADE", false);
     std::cout << "\n";
 
     std::vector<std::string> optionsSens = {
-        "Horizontal (X): " + std::to_string(percX) + "%  [ ENTER p/ Digitar Novo Valor ]",
-        "Vertical (Y): " + std::to_string(percY) + "%  [ ENTER p/ Digitar Novo Valor ]",
+        "Horizontal (X): " + std::to_string(percentX) + "%  [ ENTER p/ Digitar Novo Valor ]",
+        "Vertical (Y): " + std::to_string(percentY) + "%  [ ENTER p/ Digitar Novo Valor ]",
         "Voltar"
     };
 

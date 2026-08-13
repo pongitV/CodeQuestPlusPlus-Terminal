@@ -33,7 +33,7 @@ public:
     void registerDrop(const std::string& enemyName, const std::string& drop);
 
     bool thisDiscovered(const std::string& enemyName) const;
-    bool jaDefeated(const std::string& enemyName) const;
+    bool alreadyDefeated(const std::string& enemyName) const;
     int getQuantityDefeats(const std::string& enemyName) const;
     bool jaSawSkill(const std::string& enemyName, const std::string& skill) const;
     bool jaCollectedDrop(const std::string& enemyName, const std::string& drop) const;
@@ -48,7 +48,7 @@ private:
     Bestiary();
     std::map<std::string, SystemBestiaryEnemyInfo> baseEnemies;
     
-    std::set<std::string> visas;
+    std::set<std::string> seenEnemies;
     std::set<std::string> defeated;
     std::map<std::string, int> quantityDefeats;
     std::map<std::string, std::set<std::string>> skillsViews;

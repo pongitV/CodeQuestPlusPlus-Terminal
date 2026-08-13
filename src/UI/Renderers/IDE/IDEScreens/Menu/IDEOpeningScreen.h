@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class ScreenOpeningGO {
+class IDEOpeningScreen {
 public:
     static void display();
 };

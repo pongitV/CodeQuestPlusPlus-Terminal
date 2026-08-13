@@ -12,7 +12,7 @@
 
 struct OptionRace { TypeRace type; std::string name; };
 
-RaceScreen::Result ScreenRaceGO::display(const std::string& namePlayer) {
+RaceScreen::Result IDERaceScreen::display(const std::string& namePlayer) {
     std::string colorKeyword = "\033[38;2;86;156;214m"; // Blue
     std::string colorEnum = "\033[38;2;78;201;176m"; // Cyan
     std::string colorPunct = "\033[38;2;212;212;212m"; // Gray
@@ -58,10 +58,10 @@ RaceScreen::Result ScreenRaceGO::display(const std::string& namePlayer) {
         
         blockCentral.push_back(colorPunct + "};");
 
-        int spacesY = ScreenMenuGO::calculateSpaceY(blockCentral.size());
+        int spacesY = IDEMenuScreen::calculateSpaceY(blockCentral.size());
         for (int i = 0; i < spacesY; ++i) std::cout << "\n";
         
-        ScreenMenuGO::printBlockCentralizedGO(blockCentral);
+        IDEMenuScreen::printCentralizedBlockIDE(blockCentral);
 
         unsigned char key = static_cast<unsigned char>(InputControl::readKey());
         if (key == 224 || key == 0 || key == '\033') {
@@ -101,9 +101,9 @@ RaceScreen::Result ScreenRaceGO::display(const std::string& namePlayer) {
     if (attributes.wisdom != 0) infoRace.push_back("Sabedoria " + std::string(attributes.wisdom > 0 ? "+" : "") + std::to_string(attributes.wisdom));
     if (attributes.resistance != 0) infoRace.push_back("Resistencia " + std::string(attributes.resistance > 0 ? "+" : "") + std::to_string(attributes.resistance));
     
-    artRace = ScreenMenuGO::compressArtASCII(artOriginal, 3, 3);
+    artRace = IDEMenuScreen::compressArtASCII(artOriginal, 3, 3);
 
-    bool confirmed = ScreenMenuGO::displayConfirmationDeChooseWithArtSideASide("RACA", raceName, infoRace, artRace);
+    bool confirmed = IDEMenuScreen::displayChooseConfirmationWithArtSideBySide("RACA", raceName, infoRace, artRace);
     if (!confirmed) {
         return display(namePlayer); // recursion on cancel
     }

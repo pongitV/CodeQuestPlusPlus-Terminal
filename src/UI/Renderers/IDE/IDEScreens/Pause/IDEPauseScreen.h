@@ -5,11 +5,11 @@
 
 class Character;
 
-class ScreenPauseGO {
+class IDEPauseScreen {
 public:
     static int renderMenuPause();
-    static int renderMenuConfiguracoes(Character* player);
+    static int renderSettingsMenu(Character* player);
     static int renderMenuAppearance(Character* player);
     static int renderMenuBackground(int colorBackgroundCurrentIndex);
-    static int renderMenuSensitivity(int percX, int percY);
+    static int renderMenuSensitivity(int percentX, int percentY);
 };

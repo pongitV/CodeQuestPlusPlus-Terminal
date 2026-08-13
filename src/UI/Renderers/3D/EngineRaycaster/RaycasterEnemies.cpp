@@ -11,7 +11,7 @@ namespace {
     /*
     std::vector<std::string> getArte(std::vector<std::unique_ptr<Personagem>> (*func)(int)) {
         auto vec = func(1);
-        if (!vec.empty() && vec[0]) return vec[0]->obterRaca()->obterAparenciaCombate();
+        if (!vec.empty() && vec[0]) return vec[0]->getRace()->getCombatAppearance();
         return {"?"};
     }
     */

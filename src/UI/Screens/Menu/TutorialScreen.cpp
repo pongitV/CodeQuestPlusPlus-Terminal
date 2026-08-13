@@ -48,7 +48,7 @@ namespace {
         };
 
         Appearance::clearScreen();
-        MenuScreen::displayPanelSoonGame("TUTORIAL DE PARRY DIGITACAO", false);
+        MenuScreen::displayGameLogoPanel("TUTORIAL DE PARRY DIGITACAO", false);
         if (infoBox.empty()) std::cout << "\n";
         else displayInfoBox(infoBox);
 
@@ -65,7 +65,7 @@ namespace {
 
         for (size_t i = 0; i < levels.size(); ++i) {
             Appearance::clearScreen();
-            MenuScreen::displayPanelSoonGame("TUTORIAL DE PARRY DIGITACAO - " + levels[i].nameEnemy);
+            MenuScreen::displayGameLogoPanel("TUTORIAL DE PARRY DIGITACAO - " + levels[i].nameEnemy);
 
             if (infoBox.empty()) std::cout << "\n";
             else displayInfoBox(infoBox);
@@ -126,7 +126,7 @@ namespace {
         };
 
         Appearance::clearScreen();
-        MenuScreen::displayPanelSoonGame("TUTORIAL DE PARRY MOVIMENTO", false);
+        MenuScreen::displayGameLogoPanel("TUTORIAL DE PARRY MOVIMENTO", false);
         if (infoBox.empty()) std::cout << "\n";
         else displayInfoBox(infoBox);
 
@@ -144,7 +144,7 @@ namespace {
 
         for (size_t i = 0; i < levelsMove.size(); ++i) {
             Appearance::clearScreen();
-            MenuScreen::displayPanelSoonGame("TUTORIAL DE PARRY MOVIMENTO - " + levelsMove[i].nameEnemy);
+            MenuScreen::displayGameLogoPanel("TUTORIAL DE PARRY MOVIMENTO - " + levelsMove[i].nameEnemy);
 
             if (infoBox.empty()) std::cout << "\n";
             else displayInfoBox(infoBox);
@@ -183,12 +183,12 @@ namespace {
     }
 }
 
-void ScreenTutorial::displayTutorialDeParry(const std::string& infoBox) {
+void TutorialScreen::displayParryTutorial(const std::string& infoBox) {
     std::cout << "\033[?25l";
 
     while (true) {
         Appearance::clearScreen();
-        MenuScreen::displayPanelSoonGame("TUTORIAL DE PARRY", false);
+        MenuScreen::displayGameLogoPanel("TUTORIAL DE PARRY", false);
         if (infoBox.empty()) std::cout << "\n";
         else displayInfoBox(infoBox);
 
@@ -231,7 +231,7 @@ void ScreenTutorial::displayTutorialDeParry(const std::string& infoBox) {
 
     std::cout << "\033[?25l";
     Appearance::clearScreen();
-    MenuScreen::displayPanelSoonGame("TUTORIAL CONCLUIDO");
+    MenuScreen::displayGameLogoPanel("TUTORIAL CONCLUIDO");
     if (infoBox.empty()) std::cout << "\n";
     else displayInfoBox(infoBox);
 

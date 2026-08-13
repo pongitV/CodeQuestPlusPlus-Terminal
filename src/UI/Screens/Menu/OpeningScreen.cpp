@@ -2,5 +2,5 @@
 #include "UI/Screens/ScreenRegistry.h"
 
 void OpeningScreen::display() {
-    ScreenRegistration::opening();
+    ScreenRegistry::opening();
 }

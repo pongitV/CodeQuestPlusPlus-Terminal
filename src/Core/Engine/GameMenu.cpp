@@ -74,10 +74,10 @@ std::unique_ptr<Character> GameMenu::mainMenu()
             auto newPlayer = startCharacterSystemCreation();
             if (newPlayer) return newPlayer;
         } else {
-            if (ScreenRegistration::raycasterModeActive()) {
+            if (ScreenRegistry::raycasterModeActive()) {
                 return nullptr;
             } else {
-                if (ScreenRegistration::confirmExit()) {
+                if (ScreenRegistry::confirmExit()) {
                     return nullptr;
                 }
             }

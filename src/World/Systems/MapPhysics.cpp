@@ -3,7 +3,7 @@
 
 /*
  * Garante que a posicao atual (X,Y) nao extrapole as bordas matriz do mapa.
- * Previne falhas de segmentacao durante a movimentacao do jogador ou entidades.
+ * Previne falhas de segmentacao durante a movimentacao do player ou entidades.
  */
 void MapPhysics::applyMapLimits(int& positionX, int& positionY, const std::vector<std::string>& mapMatrix) {
     if (positionY < 0) positionY = 0; 

@@ -17,11 +17,11 @@
 namespace {
     void displayHeader(int width, const std::string& titleSecondary = "", bool animate = false) {
         Appearance::clearScreen();
-        Appearance::displayArtPanel(ArtsBestiary::soonBestiary, 101, Color::GREEN, titleSecondary, animate);
+        Appearance::displayArtPanel(ArtsBestiary::bestiaryLogo, 101, Color::GREEN, titleSecondary, animate);
     }
 }
 
-void ScreenBestiaryGO::displayList(Character* currentPlayer) {
+void IDEBestiaryScreen::displayList(Character* currentPlayer) {
     if (currentPlayer == nullptr) return;
 
     int width = Appearance::getTerminalWidth();
@@ -49,7 +49,7 @@ void ScreenBestiaryGO::displayList(Character* currentPlayer) {
 
     constexpr int quantityMaximumByPage = 10;
     int totalDiscovered = static_cast<int>(discovered.size());
-    int totalDePages = std::max(1, (totalDiscovered + quantityMaximumByPage - 1) / quantityMaximumByPage);
+    int totalPages = std::max(1, (totalDiscovered + quantityMaximumByPage - 1) / quantityMaximumByPage);
     int pageCurrent = 0;
 
     while (true) {
@@ -75,8 +75,8 @@ void ScreenBestiaryGO::displayList(Character* currentPlayer) {
         }
 
         std::cout << "\n";
-        if (totalDePages > 1) {
-            Appearance::printCentralized("[P] Pagina " + std::to_string(pageCurrent + 1) + "/" + std::to_string(totalDePages), Appearance::color(Color::CYAN));
+        if (totalPages > 1) {
+            Appearance::printCentralized("[P] Pagina " + std::to_string(pageCurrent + 1) + "/" + std::to_string(totalPages), Appearance::color(Color::CYAN));
             std::cout << "\n";
         }
 
@@ -84,7 +84,7 @@ void ScreenBestiaryGO::displayList(Character* currentPlayer) {
         std::string entryTypedFurPlayer = InputControl::readEntryProtected();
 
         if (entryTypedFurPlayer == "p" || entryTypedFurPlayer == "P") {
-            pageCurrent = (pageCurrent + 1) % totalDePages;
+            pageCurrent = (pageCurrent + 1) % totalPages;
             continue;
         } else if (entryTypedFurPlayer == "0") {
             return;
@@ -101,7 +101,7 @@ void ScreenBestiaryGO::displayList(Character* currentPlayer) {
     }
 }
 
-void ScreenBestiaryGO::displaySheet(Character* currentPlayer, const std::string& nameSelected, int /*indiceDescoberto*/, const std::vector<std::string>& /*descobertos*/) {
+void IDEBestiaryScreen::displaySheet(Character* currentPlayer, const std::string& nameSelected, int /*indiceDescoberto*/, const std::vector<std::string>& /*descobertos*/) {
     if (currentPlayer == nullptr) return;
 
     int width = Appearance::getTerminalWidth();
@@ -110,18 +110,18 @@ void ScreenBestiaryGO::displaySheet(Character* currentPlayer, const std::string&
     const SystemBestiaryEnemyInfo* info = bestiary.getInfo(nameSelected);
     if (!info) return;
 
-    bool visa = bestiary.thisDiscovered(nameSelected);
-    bool defeated = bestiary.jaDefeated(nameSelected);
+    bool discovered = bestiary.thisDiscovered(nameSelected);
+    bool defeated = bestiary.alreadyDefeated(nameSelected);
     int timesDefeated = bestiary.getQuantityDefeats(nameSelected);
 
-    auto printDryBase = [width](const std::string& titleDaDry, bool mustDisplayContent, const std::function<void()>& functionForDisplayContent, const std::string& textCaseHidden) {
-        Appearance::printCentralized("═══ " + titleDaDry + " ═══");
+    auto printDryBase = [width](const std::string& dryTitle, bool mustDisplayContent, const std::function<void()>& displayContentFunction, const std::string& hiddenCaseText) {
+        Appearance::printCentralized("═══ " + dryTitle + " ═══");
         std::cout << "\n";
         if (mustDisplayContent) {
-            functionForDisplayContent();
+            displayContentFunction();
         } else {
             Appearance::printCentralized("???", Appearance::color(Color::GRAY));
-            Appearance::printCentralized(textCaseHidden, Appearance::color(Color::GRAY));
+            Appearance::printCentralized(hiddenCaseText, Appearance::color(Color::GRAY));
         }
         std::cout << "\n";
         BaseScreen::printLineDivider('-');
@@ -131,7 +131,7 @@ void ScreenBestiaryGO::displaySheet(Character* currentPlayer, const std::string&
     while (true) {
         displayHeader(width, "FICHA DO INIMIGO");
 
-        printDryBase("APARENCIA", visa, [&]() {
+        printDryBase("APARENCIA", discovered, [&]() {
             Appearance::printCentralized(info->name);
             if (timesDefeated > 0) {
                 Appearance::printCentralized("Derrotado: " + std::to_string(timesDefeated) + " vezes", Appearance::color(Color::YELLOW));
@@ -161,22 +161,22 @@ void ScreenBestiaryGO::displaySheet(Character* currentPlayer, const std::string&
 
         std::vector<std::string> blockSkills;
 
-        auto processSkill = [&](const std::string& hab) {
-            std::string habClean = hab;
+        auto processSkill = [&](const std::string& skill) {
+            std::string skillClean = skill;
             size_t postPipe = 0;
-            while ((postPipe = habClean.find('|', postPipe)) != std::string::npos) {
-                habClean.replace(postPipe, 1, "║");
+            while ((postPipe = skillClean.find('|', postPipe)) != std::string::npos) {
+                skillClean.replace(postPipe, 1, "║");
                 postPipe += 3;
             }
-            blockSkills.push_back("  - " + habClean);
+            blockSkills.push_back("  - " + skillClean);
         };
 
         blockSkills.push_back("Ativas:");
         if (info->skillsActive.empty() || info->skillsActive[0].find("Nenhuma") != std::string::npos) {
             blockSkills.push_back(Appearance::color(Color::GRAY) + "  Nenhuma" + Appearance::color(Color::RESET));
         } else {
-            for (const auto& hab : info->skillsActive) {
-                processSkill(hab);
+            for (const auto& skill : info->skillsActive) {
+                processSkill(skill);
             }
         }
         blockSkills.push_back("");

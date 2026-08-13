@@ -6,10 +6,10 @@
 #include "Core/Utils/Appearance.h"
 #include "Core/Utils/InputControl.h"
 
-void ScreenDefeatGO::display(Character* currentPlayer, int, int, int totalDeDamageCaused, int, int, int shiftsCombat) {
+void IDEDefeatScreen::display(Character* currentPlayer, int, int, int totalDamageCaused, int, int, int combatTurns) {
     Appearance::clearScreen();
     
-    std::string titleStr = ThemeGO::keyword("class") + " " + ThemeGO::type("TelaDerrota") + " {";
+    std::string titleStr = IDETheme::keyword("class") + " " + IDETheme::type("DefeatScreen") + " {";
     
     // Fade in padronizado do titulo em Y=2
     {
@@ -28,13 +28,13 @@ void ScreenDefeatGO::display(Character* currentPlayer, int, int, int totalDeDama
     Appearance::printCentralized(titleStr);
     
     std::vector<std::string> code = {
-        ThemeGO::keyword("public:"),
-        "    " + ThemeGO::type("void") + " " + ThemeGO::function("exibirResultado") + "() {",
-        "        " + ThemeGO::type("bool") + " " + ThemeGO::variable("sobreviveu") + " = " + ThemeGO::keyword("false") + ";",
-        "        " + ThemeGO::type("if") + " (!sobreviveu) {",
-        "            " + ThemeGO::variable("std::cout") + " << " + ThemeGO::stringLiteral(currentPlayer->getName() + " pereceu em batalha...") + " << " + ThemeGO::variable("std::endl") + ";",
-        "            " + ThemeGO::variable("estatisticas") + "->" + ThemeGO::function("imprimir") + "(" + ThemeGO::number(std::to_string(shiftsCombat)) + ", " + ThemeGO::number(std::to_string(totalDeDamageCaused)) + ");",
-        "            " + ThemeGO::keyword("throw") + " " + ThemeGO::type("std::runtime_error") + "(" + ThemeGO::stringLiteral("GAME OVER") + ");",
+        IDETheme::keyword("public:"),
+        "    " + IDETheme::type("void") + " " + IDETheme::function("exibirResultado") + "() {",
+        "        " + IDETheme::type("bool") + " " + IDETheme::variable("sobreviveu") + " = " + IDETheme::keyword("false") + ";",
+        "        " + IDETheme::type("if") + " (!sobreviveu) {",
+        "            " + IDETheme::variable("std::cout") + " << " + IDETheme::stringLiteral(currentPlayer->getName() + " pereceu em batalha...") + " << " + IDETheme::variable("std::endl") + ";",
+        "            " + IDETheme::variable("estatisticas") + "->" + IDETheme::function("imprimir") + "(" + IDETheme::number(std::to_string(combatTurns)) + ", " + IDETheme::number(std::to_string(totalDamageCaused)) + ");",
+        "            " + IDETheme::keyword("throw") + " " + IDETheme::type("std::runtime_error") + "(" + IDETheme::stringLiteral("GAME OVER") + ");",
         "        }",
         "    }",
         "};"
@@ -48,7 +48,7 @@ void ScreenDefeatGO::display(Character* currentPlayer, int, int, int totalDeDama
     Appearance::printCentralized(errorMsg);
     
     std::cout << "\n\n";
-    Appearance::printCentralized(ThemeGO::comment("Pressione [ENTER] para reiniciar a sessao..."));
+    Appearance::printCentralized(IDETheme::comment("Pressione [ENTER] para reiniciar a sessao..."));
 
     InputControl::waitForEnter();
 }

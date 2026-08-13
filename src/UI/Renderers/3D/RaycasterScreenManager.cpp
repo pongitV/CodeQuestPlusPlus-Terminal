@@ -9,58 +9,58 @@
 #include "UI/Renderers/3D/RaycasterScreens/Menu/RaycasterIntroductionScreen.h"
 #include "UI/Screens/Menu/TutorialScreen.h"
 
-void ManagerScreensRaycaster::opening() {
+void RaycasterScreenManager::opening() {
     ScreenOpeningRaycaster::display();
 }
 
-void ManagerScreensRaycaster::panelSoon(const std::string& titleDaScreen, bool animateFadeIn) {
-    ScreenMenuRaycaster::displayPanelSoonGame(titleDaScreen, animateFadeIn);
+void RaycasterScreenManager::panelLogo(const std::string& screenTitle, bool animateFadeIn) {
+    ScreenMenuRaycaster::displayGameLogoPanel(screenTitle, animateFadeIn);
 }
 
-bool ManagerScreensRaycaster::confirmationChoose(const std::string& typeDeChoose, const std::string& nameDaChoose,
-    const std::vector<std::string>& informationForDisplay, const std::vector<std::string>& artAsciiForDisplay) {
-    return ScreenMenuRaycaster::displayConfirmationDeChooseWithArtSideASide(typeDeChoose, nameDaChoose, informationForDisplay, artAsciiForDisplay);
+bool RaycasterScreenManager::chooseConfirmation(const std::string& chooseType, const std::string& chooseName,
+    const std::vector<std::string>& informationForDisplay, const std::vector<std::string>& asciiArtForDisplay) {
+    return ScreenMenuRaycaster::displayChooseConfirmationWithArtSideBySide(chooseType, chooseName, informationForDisplay, asciiArtForDisplay);
 }
 
-std::vector<std::string> ManagerScreensRaycaster::frameAttributes(const Attributes& stats,
-    const std::string& titleDry, const std::string& titleSkill,
-    const std::string& nameHab, const std::string& descHab,
-    const std::string& titleSkill2, const std::string& nameHab2, const std::string& descHab2) {
-    return ScreenMenuRaycaster::composeFrameDeAttributes(stats, titleDry, titleSkill, nameHab, descHab, titleSkill2, nameHab2, descHab2);
+std::vector<std::string> RaycasterScreenManager::frameAttributes(const Attributes& stats,
+    const std::string& dryTitle, const std::string& skillTitle,
+    const std::string& skillName, const std::string& skillDesc,
+    const std::string& skillTitle2, const std::string& skillName2, const std::string& skillDesc2) {
+    return ScreenMenuRaycaster::composeAttributesFrame(stats, dryTitle, skillTitle, skillName, skillDesc, skillTitle2, skillName2, skillDesc2);
 }
 
-int ManagerScreensRaycaster::mainMenu() {
+int RaycasterScreenManager::mainMenu() {
     return ScreenMenuRaycaster::displayMainMenuOptions();
 }
 
-void ManagerScreensRaycaster::tutorialParry(const std::string& infoBox) {
-    ScreenTutorial::displayTutorialDeParry(infoBox); // Tutorial nao e separado ainda
+void RaycasterScreenManager::tutorialParry(const std::string& infoBox) {
+    TutorialScreen::displayParryTutorial(infoBox); // Tutorial nao e separado ainda
 }
 
-NameScreen::Result ManagerScreensRaycaster::screenName() {
+NameScreen::Result RaycasterScreenManager::screenName() {
     return ScreenNameRaycaster::display();
 }
 
-RaceScreen::Result ManagerScreensRaycaster::screenRace(const std::string& characterName) {
+RaceScreen::Result RaycasterScreenManager::screenRace(const std::string& characterName) {
     return ScreenRaceRaycaster::display(characterName);
 }
 
-ClassScreen::Result ManagerScreensRaycaster::screenClass(const std::string& characterName, const std::string& race) {
+ClassScreen::Result RaycasterScreenManager::screenClass(const std::string& characterName, const std::string& race) {
     return ScreenClassRaycaster::display(characterName, race);
 }
 
-DifficultyScreen::Result ManagerScreensRaycaster::screenDifficulty(const std::string& characterName, const std::string& race, const std::string& classObj) {
+DifficultyScreen::Result RaycasterScreenManager::screenDifficulty(const std::string& characterName, const std::string& race, const std::string& classObj) {
     return ScreenDifficultyRaycaster::display(characterName, race, classObj);
 }
 
-ParryScreen::Result ManagerScreensRaycaster::screenParry(const std::string& characterName, const std::string& race, const std::string& classObj) {
+ParryScreen::Result RaycasterScreenManager::screenParry(const std::string& characterName, const std::string& race, const std::string& classObj) {
     return ScreenParryRaycaster::display(characterName, race, classObj);
 }
 
-void ManagerScreensRaycaster::screenIntroduction() {
+void RaycasterScreenManager::screenIntroduction() {
     ScreenIntroductionRaycaster::display();
 }
 
-bool ManagerScreensRaycaster::confirmExit() {
+bool RaycasterScreenManager::confirmExit() {
     return ScreenMenuRaycaster::displayConfirmationExit();
 }

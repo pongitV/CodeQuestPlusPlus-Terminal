@@ -63,7 +63,7 @@ NextMapTransition Map3KingdomBridge::startExplorationLoop()
         int transWidth = 0;
 
         if (currentMapTitle == "PONTE DO REINO" || currentMapTitle == "CAMINHO DO Reino") {
-            titleArt = Map3KingdomBridgeLayouts::getKingdomBridgeSoon();
+            titleArt = Map3KingdomBridgeLayouts::getKingdomBridgeLogo();
             artWidth = 150; // A nova arte ASCII tem cerca de 150 caracteres de largura
             transArt = Map3KingdomBridgeLayouts::getKingdomBridgeTransitionArt();
             transWidth = 75;

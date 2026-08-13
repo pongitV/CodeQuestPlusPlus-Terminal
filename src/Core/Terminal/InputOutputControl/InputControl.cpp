@@ -93,17 +93,17 @@ bool InputControl::readStateDragHorizontalMouse(int& deltaX) {
     deltaX = 0;
 #ifdef _WIN32
     HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
-    DWORD inaEvents = 0;
-    GetNumberOfConsoleInputEvents(hStdin, &inaEvents);
-    if (inaEvents == 0) return false;
+    DWORD indexInEvents = 0;
+    GetNumberOfConsoleInputEvents(hStdin, &indexInEvents);
+    if (indexInEvents == 0) return false;
 
     INPUT_RECORD ir[128];
-    DWORD inaRead;
+    DWORD indexInRead;
     /*
      * Lemos os eventos brutos, mas precisamos devolver os KEYBOARD_EVENTs
      * para a stream senao o _kbhit() vai parar de funcionar para movimentacao.
      */
-    ReadConsoleInput(hStdin, ir, 128, &inaRead);
+    ReadConsoleInput(hStdin, ir, 128, &indexInRead);
     
     static int lastMouseX = -1;
     static bool isDragging = false;
@@ -111,7 +111,7 @@ bool InputControl::readStateDragHorizontalMouse(int& deltaX) {
     
     std::vector<INPUT_RECORD> nonMouseEvents;
 
-    for (DWORD i = 0; i < inaRead; ++i) {
+    for (DWORD i = 0; i < indexInRead; ++i) {
         if (ir[i].EventType == MOUSE_EVENT) {
             evMouse = true;
             MOUSE_EVENT_RECORD mouseEvent = ir[i].Event.MouseEvent;
@@ -193,7 +193,7 @@ int InputControl::readSelectionMenuWithArrows(const std::vector<std::string>& op
     
     int selectionCurrent = 0;
     int totalOptions = static_cast<int>(options.size());
-    int totalDir = static_cast<int>(panelRight.size());
+    int totalRight = static_cast<int>(panelRight.size());
 
     // Pula para a primeira opcao que nao seja HEADER (evita que comece focado nas bordas da caixa)
     while (selectionCurrent < totalOptions && options[selectionCurrent].find("#HEADER#") == 0) {
@@ -201,7 +201,7 @@ int InputControl::readSelectionMenuWithArrows(const std::vector<std::string>& op
     }
     if (selectionCurrent >= totalOptions) selectionCurrent = 0;
 
-    int maxLines = std::max(totalOptions, totalDir);
+    int maxLines = std::max(totalOptions, totalRight);
     std::string margin = marginPersonalized;
     
     int maxWidth = 0;
@@ -211,10 +211,10 @@ int InputControl::readSelectionMenuWithArrows(const std::vector<std::string>& op
         int comp = Appearance::getVisualLength(text);
         if (comp > maxWidth) maxWidth = comp;
     }
-    int larguraMenuEsq = maxWidth + 15;
+    int leftMenuWidth = maxWidth + 15;
     
     if (centralize) {
-        margin = Appearance::spacesToCenter(larguraMenuEsq + (totalDir > 0 ? 40 : 0));
+        margin = Appearance::spacesToCenter(leftMenuWidth + (totalRight > 0 ? 40 : 0));
     }
 
     Appearance::hideCursor();
@@ -226,7 +226,7 @@ int InputControl::readSelectionMenuWithArrows(const std::vector<std::string>& op
 
         for (int i = 0; i < maxLines; ++i) {
             std::string lineLeft = "";
-            int lenEsqReal = 0;
+            int realLeftLen = 0;
             if (i < totalOptions) {
                 std::string text = options[i];
                 bool isHeader = false;
@@ -242,17 +242,17 @@ int InputControl::readSelectionMenuWithArrows(const std::vector<std::string>& op
                 } else {
                     lineLeft = "   " + text;
                 }
-                lenEsqReal = Appearance::getVisualLength(text) + 3;
+                realLeftLen = Appearance::getVisualLength(text) + 3;
             }
             
-            std::string lineSay = (i < totalDir) ? panelRight[i] : "";
+            std::string lineSay = (i < totalRight) ? panelRight[i] : "";
             
-            int padding = larguraMenuEsq - lenEsqReal;
+            int padding = leftMenuWidth - realLeftLen;
             if (padding < 0) padding = 0;
             
             if (PerspectiveManager::getInstance().is3DViewActive()) {
-                std::string margemMove = margin.empty() ? "" : "\033[" + std::to_string(margin.length()) + "C";
-                std::cout << "\033[0m" << margemMove << lineLeft << std::string(padding, ' ') << lineSay << "\n";
+                std::string moveMargin = margin.empty() ? "" : "\033[" + std::to_string(margin.length()) + "C";
+                std::cout << "\033[0m" << moveMargin << lineLeft << std::string(padding, ' ') << lineSay << "\n";
             } else {
                 std::cout << margin << lineLeft << std::string(padding, ' ') << lineSay << "\033[K\n";
             }

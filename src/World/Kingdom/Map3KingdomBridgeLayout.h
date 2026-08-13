@@ -7,7 +7,7 @@
 
 class Map3KingdomBridgeLayouts {
 public:
-    static inline std::vector<std::string> getKingdomBridgeSoon() {
+    static inline std::vector<std::string> getKingdomBridgeLogo() {
         return StringConvert::convertRawStringToVector(R"(
    ███████████    ███████    ██████   █████ ███████████ ██████████    ██████████      ███████       ███████████   ██████████ █████ ██████   █████    ███████    
  ░░███░░░░░███  ███░░░░░███ ░░██████ ░░███ ░█░░░███░░░█░░███░░░░░█   ░░███░░░░███   ███░░░░░███    ░░███░░░░░███ ░░███░░░░░█░░███ ░░██████ ░░███   ███░░░░░███  
@@ -85,7 +85,7 @@ _---~            |     |  .   /+++++++\    . | .   |         ~---_
 
 inline void displayKingdomBridgeMapTitle(const std::string& mapTitle) {
     if (mapTitle == "PONTE DO REINO" || mapTitle == "CAMINHO DO Reino") {
-        Appearance::displayArtPanel(Map3KingdomBridgeLayouts::getKingdomBridgeSoon(), 60, Color::CYAN, "");
+        Appearance::displayArtPanel(Map3KingdomBridgeLayouts::getKingdomBridgeLogo(), 60, Color::CYAN, "");
     } else {
         Appearance::displayTextPanel(mapTitle, Color::CYAN);
     }

@@ -29,7 +29,7 @@ public:
 
 private:
     // Funcao utilitaria generica para instanciacao de lotes de inimigos com variacao aleatoria de atributos
-    template<typename RaceType, typename ClasseType>
+    template<typename RaceType, typename ClassType>
     static std::vector<std::unique_ptr<Character>> createGenericEnemies(int quantity, int maxVariation = 10);
 };
 

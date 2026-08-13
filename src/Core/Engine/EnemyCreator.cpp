@@ -21,7 +21,7 @@
 #include "Domain/Enemies/Mahoraga.h"
 #include "Core/Utils/RandomGenerator.h"
 
-template<typename RaceType, typename ClasseType>
+template<typename RaceType, typename ClassType>
 std::vector<std::unique_ptr<Character>> EnemyCreator::createGenericEnemies(int quantity, int maxVariation)
 {
     std::vector<std::unique_ptr<Character>> horde;
@@ -34,7 +34,7 @@ std::vector<std::unique_ptr<Character>> EnemyCreator::createGenericEnemies(int q
         auto enemy = std::make_unique<Character>(
             raceName,
             std::move(race),
-            std::make_unique<ClasseType>()
+            std::make_unique<ClassType>()
         );
 
         // Aplica variacao percentual aleatoria nos atributos para individualizar cada inimigo da horda

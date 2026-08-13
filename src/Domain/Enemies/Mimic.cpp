@@ -130,15 +130,15 @@ void Mimic::onCausingDamage(Character* attacker, Character* target, int damageCa
     if (goldCurrent <= 0) return; // Jogador ja esta pobre
 
     int robbery = RandomGenerator::getInteger(30, 80);
-    if (robbery > goldCurrent) robbery = goldCurrent; // Nao pode roubar mais do que o jogador tem
+    if (robbery > goldCurrent) robbery = goldCurrent; // Nao pode roubar mais do que o player tem
     
     target->getInventory()->addGold(-robbery);
     goldStolenTotal += robbery;
     
     /*
      * A mensagem na UI foi removida para priorizar o combate limpo
-     * std::string msg = TelaCombate::margemCombate() + Aparencia::cor(Cor::AMARELO) + ">> [MIMICO]: Com uma lingua grotesca, o Mimico roubou " + std::to_string(roubo) + "G do seu bolso!" + Aparencia::cor(Cor::RESET) + "\n";
-     * TelaCombate::adicionarMensagemFixa(msg);
+     * std::string msg = CombatScreen::combatMargin() + Appearance::color(Color::YELLOW) + ">> [MIMICO]: Com uma lingua grotesca, o Mimico roubou " + std::to_string(stolenGold) + "G do seu bolso!" + Appearance::color(Color::RESET) + "\n";
+     * CombatScreen::addFixedMessage(msg);
      */
     Appearance::registerBattleLog(DialogueFunctions::formatSkillMsg("Com uma lingua grotesca, o Mimico roubou " + std::to_string(robbery) + "G do seu bolso!", Color::YELLOW));
 }
@@ -150,7 +150,7 @@ InfoBestiary Mimic::getInfoBestiary() const {
         "Dentro de Baus",
         "Uma criatura magica horrenda que se disfarca de baus de tesouro para devorar aventureiros gananciosos.",
         "Mimicos digerem carne rapidamente, mas cospem os metais preciosos.",
-        {"Armadura de bau", "Ouro", "Ouro Extra (Ouro roubado retornado)", ItemFactory::getNameFromID(ItemID::LittleCure30)},
+        {"Armadura de bau", "Ouro", "Ouro Extra (Ouro roubado retornado)", ItemFactory::getNameFromID(ItemID::HealingPotion30)},
         4
     };
 }
@@ -164,6 +164,6 @@ void Mimic::performDrops(Character* enemy, Character* currentPlayer, std::vector
          Bestiary::instance().registerDrop(enemy->getName(), "Ouro Extra (Ouro roubado retornado)");
     }
 
-    Drops::giveAndProcessItem(currentPlayer, ItemID::LittleCure30, RandomGenerator::getInteger(1, 2), obtainedItems);
-    Drops::giveAndProcessItem(currentPlayer, ItemID::ArmorBao, 1, obtainedItems);
+    Drops::giveAndProcessItem(currentPlayer, ItemID::HealingPotion30, RandomGenerator::getInteger(1, 2), obtainedItems);
+    Drops::giveAndProcessItem(currentPlayer, ItemID::ArmorChest, 1, obtainedItems);
 }

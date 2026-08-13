@@ -7,10 +7,10 @@
 
 class ScreenMenuRaycaster {
 public:
-    static void displayPanelSoonGame(const std::string& titleDaScreen = "", bool animateFadeIn = false);
-    static bool displayConfirmationDeChooseWithArtSideASide(const std::string& typeDeChoose, const std::string& nameDaChoose, const std::vector<std::string>& informationForDisplay, const std::vector<std::string>& artAsciiForDisplay);
-    static std::vector<std::string> composeFrameDeAttributes(const Attributes& stats, const std::string& titleDry, const std::string& titleSkill, const std::string& nameHab, const std::string& descHab, const std::string& titleSkill2 = "", const std::string& nameHab2 = "", const std::string& descHab2 = "");
+    static void displayGameLogoPanel(const std::string& screenTitle = "", bool animateFadeIn = false);
+    static bool displayChooseConfirmationWithArtSideBySide(const std::string& chooseType, const std::string& chooseName, const std::vector<std::string>& informationForDisplay, const std::vector<std::string>& asciiArtForDisplay);
+    static std::vector<std::string> composeAttributesFrame(const Attributes& stats, const std::string& dryTitle, const std::string& skillTitle, const std::string& skillName, const std::string& skillDesc, const std::string& skillTitle2 = "", const std::string& skillName2 = "", const std::string& skillDesc2 = "");
     static int displayMainMenuOptions();
     static bool displayConfirmationExit();
-    static void displayTutorialDeParry(const std::string& infoBox = "");
+    static void displayParryTutorial(const std::string& infoBox = "");
 };

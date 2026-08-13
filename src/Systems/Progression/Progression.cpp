@@ -35,7 +35,7 @@ int Progression::getVillageProgress(Character* currentPlayer) const {
     if (!currentPlayer) return 0;
     bool villageNpcsFound = currentPlayer->getLevel() > 1 || getFlag(Flags::Village_NPCs); 
     bool villageEnemiesDefeated = currentPlayer->getCurrentXp() > 0 || currentPlayer->getLevel() > 1 || getFlag(Flags::Village_Enemies);
-    bool villageMissionCompleted = getFlag(Flags::Village_InvitationReal) || currentPlayer->getInventory()->countItem("Convite Real") > 0;
+    bool villageMissionCompleted = getFlag(Flags::Village_RoyalInvitation) || currentPlayer->getInventory()->countItem("Convite Real") > 0;
     return (villageNpcsFound ? 33 : 0) + (villageEnemiesDefeated ? 33 : 0) + (villageMissionCompleted ? 34 : 0);
 }
 

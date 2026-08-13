@@ -140,7 +140,7 @@ void AdaptationWheelEffect::adapt(Character* target, Character* enemy) {
         defenseMsg = "defesa magica";
     }
 
-    // --- 2. Adaptacao Ofensiva (Baseada na arma do jogador) ---
+    // --- 2. Adaptacao Ofensiva (Baseada na arma do player) ---
     int weaponPhysicalDamage = 1;
     int weaponMagicalDamage = 0;
     if (target->getWeapons()) {

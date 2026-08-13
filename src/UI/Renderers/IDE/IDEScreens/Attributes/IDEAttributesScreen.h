@@ -5,7 +5,7 @@
 
 #include "Domain/Characters/Character.h"
 
-class ScreenAttributesGO {
+class IDEAttributesScreen {
 public:
     static void display(Character* currentPlayer);
     static void displayDetailsAttributes(Character* currentPlayer);

@@ -12,7 +12,7 @@
 
 struct OptionClass { TypeClass type; std::string name; };
 
-ClassScreen::Result ScreenClassGO::display(const std::string& namePlayer, const std::string& raceName) {
+ClassScreen::Result IDEClassScreen::display(const std::string& namePlayer, const std::string& raceName) {
     std::string colorKeyword = "\033[38;2;86;156;214m"; // Blue
     std::string colorEnum = "\033[38;2;78;201;176m"; // Cyan
     std::string colorPunct = "\033[38;2;212;212;212m"; // Gray
@@ -58,10 +58,10 @@ ClassScreen::Result ScreenClassGO::display(const std::string& namePlayer, const 
         
         blockCentral.push_back(colorPunct + "};");
 
-        int spacesY = ScreenMenuGO::calculateSpaceY(blockCentral.size());
+        int spacesY = IDEMenuScreen::calculateSpaceY(blockCentral.size());
         for (int i = 0; i < spacesY; ++i) std::cout << "\n";
         
-        ScreenMenuGO::printBlockCentralizedGO(blockCentral);
+        IDEMenuScreen::printCentralizedBlockIDE(blockCentral);
 
         unsigned char key = static_cast<unsigned char>(InputControl::readKey());
         if (key == 224 || key == 0 || key == '\033') {
@@ -97,9 +97,9 @@ ClassScreen::Result ScreenClassGO::display(const std::string& namePlayer, const 
     std::string skillString = "Habilidade: " + classInstance->getNameSkillClass();
     infoClass.push_back(skillString);
     
-    artClass = ScreenMenuGO::compressArtASCII(artOriginal, 2, 2);
+    artClass = IDEMenuScreen::compressArtASCII(artOriginal, 2, 2);
 
-    std::vector<std::string> frameAttributes = ScreenMenuGO::composeFrameDeAttributes(
+    std::vector<std::string> frameAttributes = IDEMenuScreen::composeAttributesFrame(
         statsBase, "ATRIBUTOS BASE", "HABILIDADE UNICA", className,
         skillString);
 
@@ -107,7 +107,7 @@ ClassScreen::Result ScreenClassGO::display(const std::string& namePlayer, const 
         infoClass.push_back(line);
     }
 
-    bool confirmed = ScreenMenuGO::displayConfirmationDeChooseWithArtSideASide("CLASSE", className, infoClass, artClass);
+    bool confirmed = IDEMenuScreen::displayChooseConfirmationWithArtSideBySide("CLASSE", className, infoClass, artClass);
     if (!confirmed) {
         return display(namePlayer, raceName);
     }

@@ -176,7 +176,7 @@ void RaycasterRendererCombat::paintTextNoBuffer(std::vector<std::string>& screen
     
     std::string bg = colorBgOverride.empty() ? "\033[48;2;0;0;0m" : colorBgOverride;
     std::string panelText = bg + colorFg + text + "\033[0m";
-    screen[postY] = Appearance::superimposePanelNaLineAnsi(screen[postY], panelText, postX);
+    screen[postY] = Appearance::superimposePanelOnAnsiLine(screen[postY], panelText, postX);
 }
 
 /*
@@ -199,9 +199,9 @@ std::vector<std::string> RaycasterRendererCombat::renderFrame(
     const std::vector<Character*>& enemies,
     Character* targetAnimation,
     int frame,
-    int framesDeDamagePlayer,
+    int playerDamageFrames,
     int damageAmount,
-    bool isCure,
+    bool isHealing,
     int timeMs,
     bool isDeath,
     const std::vector<std::string>& dropsAnimation,
@@ -233,8 +233,8 @@ std::vector<std::string> RaycasterRendererCombat::renderFrame(
     std::vector<std::string> screen = s_cachedBackground;
 
     // Sobrepoe os inimigos
-    int inaEnemies = static_cast<int>(enemies.size());
-    for (int i = 0; i < inaEnemies; ++i) {
+    int indexInEnemies = static_cast<int>(enemies.size());
+    for (int i = 0; i < indexInEnemies; ++i) {
         Character* enemy = enemies[i];
         if (enemy && (enemy->getHealth() > 0 || !enemy->getDeathLively())) {
             bool isExcited = (targetAnimation != nullptr && enemy == targetAnimation);
@@ -243,18 +243,18 @@ std::vector<std::string> RaycasterRendererCombat::renderFrame(
             int frameDeathIni = isDeathIni ? frame : 0;
             bool isSel = (CombatScreen::context.selectionTargetCurrent == i);
             
-            superimposeSprite(screen, enemy, i, inaEnemies, widthScreen, height3D, framesDamage, damageAmount, isCure, timeMs, isDeathIni, frameDeathIni, dropsAnimation, isSel, spriteOpacity);
+            superimposeSprite(screen, enemy, i, indexInEnemies, widthScreen, height3D, framesDamage, damageAmount, isHealing, timeMs, isDeathIni, frameDeathIni, dropsAnimation, isSel, spriteOpacity);
         }
     }
 
     /*
-     * Retorna a tela com a altura correspondente a cena 3D (o HUD classico sera impresso abaixo por TelaCombate)
+     * Retorna a tela com a altura correspondente a cena 3D (o HUD classico sera impresso abaixo por CombatScreen)
      * PREENCHENDO ATE A ALTURA_TELA TOTAL PARA EVITAR CRASH NO HUD!
      */
     std::vector<std::string> linesRendered(terminalHeight);
     
     int cameraOffsetX = 0;
-    if (framesDeDamagePlayer > 0 && framesDeDamagePlayer % 2 == 0) {
+    if (playerDamageFrames > 0 && playerDamageFrames % 2 == 0) {
         cameraOffsetX = 4;
     }
     
@@ -292,7 +292,7 @@ void RaycasterRendererCombat::superimposeSprite(
     int heightVisible, 
     int flashDamageEnemy, 
     int damageAmount, 
-    bool isCure, 
+    bool isHealing, 
     int timeMs, 
     bool isDeath, 
     int frameDeath, 
@@ -450,7 +450,7 @@ void RaycasterRendererCombat::superimposeSprite(
         else if (c == '_' || c == '|' || c == '\\' || c == '/' || c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '<' || c == '>') { rMod = currentBaseR * 0.5; gMod = currentBaseG * 0.5; bMod = currentBaseB * 0.5; }
         
         if (flashDamageEnemy > 0 && flashDamageEnemy % 2 == 0) {
-            if (isCure) {
+            if (isHealing) {
                 rMod = 50; gMod = 255; bMod = 50;
             } else {
                 rMod = 255; gMod = 50; bMod = 50;
@@ -559,7 +559,7 @@ void RaycasterRendererCombat::superimposeSprite(
                                     int pulse = (timeMs / 3) % 255;
                                     if ((timeMs / 765) % 2 == 1) pulse = 255 - pulse;
                                     
-                                    if (isCure) {
+                                    if (isHealing) {
                                         tgtR = tgtR / 2;
                                         tgtG = (tgtG + 255) / 2 + pulse / 2;
                                         tgtB = tgtB / 2;
@@ -697,7 +697,7 @@ void RaycasterRendererCombat::superimposeSprite(
                     if (qtyReal >= charIdx + 4) {
                         paintStrLeft(drawX + i, hpY, "█", colorCurrent);
                     } else {
-                        paintStrLeft(drawX + i, hpY, "░", "\033[38;2;140;140;140m"); // Cor::CINZA e 140, 140, 140
+                        paintStrLeft(drawX + i, hpY, "░", "\033[38;2;140;140;140m"); // Color::GRAY e 140, 140, 140
                     }
                 }
                 drawX += blocks;
@@ -722,10 +722,10 @@ void RaycasterRendererCombat::superimposeSprite(
             int fctY = startY - 3;
             if (fctY < 0) fctY = 0;
             
-            std::string textFCT = isCure ? ("+" + std::to_string(damageAmount)) : ("-" + std::to_string(damageAmount));
-            std::string colorFCT = isCure ? "\033[1;38;2;50;255;50m" : "\033[1;38;2;255;50;50m";
+            std::string textFCT = isHealing ? ("+" + std::to_string(damageAmount)) : ("-" + std::to_string(damageAmount));
+            std::string colorFCT = isHealing ? "\033[1;38;2;50;255;50m" : "\033[1;38;2;255;50;50m";
             
-            int tremble = (!isCure && flashDamageEnemy % 2 == 0) ? 1 : -1;
+            int tremble = (!isHealing && flashDamageEnemy % 2 == 0) ? 1 : -1;
             
             paintStr(startX + croppedWidth/2 + tremble, fctY, textFCT, colorFCT);
         }

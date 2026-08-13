@@ -7,22 +7,22 @@
 #include "Domain/Items/Item.h"
 
 PowerCombat AttributesScreen::calculatePowerCombat(Character* currentPlayer, double multiplier) {
-    int damageFis = 1, damageMag = 0;
+    int damagePhys = 1, damageMagic = 0;
     if (currentPlayer->getWeapons()) {
-        damageFis = currentPlayer->getWeapons()->getPhysicsDamage();
-        damageMag = currentPlayer->getWeapons()->getMagicalDamage();
+        damagePhys = currentPlayer->getWeapons()->getPhysicsDamage();
+        damageMagic = currentPlayer->getWeapons()->getMagicalDamage();
     }
     int strength = currentPlayer->getStrength();
     int dexterity = currentPlayer->getDexterity();
     int intelli = currentPlayer->getIntelligence();
     int wisdom = currentPlayer->getWisdom();
 
-    if (damageFis == 0 && damageMag > 0) { strength /= 10; dexterity /= 10; }
-    else if (damageFis > 0 && damageMag == 0) { intelli /= 10; wisdom /= 10; }
+    if (damagePhys == 0 && damageMagic > 0) { strength /= 10; dexterity /= 10; }
+    else if (damagePhys > 0 && damageMagic == 0) { intelli /= 10; wisdom /= 10; }
 
     PowerCombat p;
-    p.damageFisIs = std::max(0, static_cast<int>((damageFis + strength) * (1.0 + (dexterity / 100.0)) * multiplier));
-    p.damageMagIs = std::max(0, static_cast<int>((damageMag + intelli) * (1.0 + (wisdom / 100.0)) * multiplier));
+    p.damagePhysIs = std::max(0, static_cast<int>((damagePhys + strength) * (1.0 + (dexterity / 100.0)) * multiplier));
+    p.damageMagicIs = std::max(0, static_cast<int>((damageMagic + intelli) * (1.0 + (wisdom / 100.0)) * multiplier));
     p.defFixed = currentPlayer->getResistance();
     p.mitigation = std::min(50.0, currentPlayer->getConstitution() / 2.0);
     return p;

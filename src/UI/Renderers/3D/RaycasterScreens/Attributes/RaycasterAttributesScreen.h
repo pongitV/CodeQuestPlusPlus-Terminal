@@ -4,7 +4,7 @@
 
 class Character;
 
-class ScreenAttributesRaycaster {
+class RaycasterAttributesScreen {
 public:
     static void display(Character* player);
     static void displayDetailsAttributes(Character* currentPlayer);

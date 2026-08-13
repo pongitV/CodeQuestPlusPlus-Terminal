@@ -5,7 +5,7 @@
 
 namespace ArtsInventory {
 
-    inline const std::vector<std::string> soonInventory = StringConvert::convertRawStringToVector(R"(
+    inline const std::vector<std::string> inventoryLogo = StringConvert::convertRawStringToVector(R"(
   █████ ██████   █████ █████   █████ ██████████ ██████   █████ ███████████   █████████   ███████████   █████    ███████    
  ░░███ ░░██████ ░░███ ░░███   ░░███ ░░███░░░░░█░░██████ ░░███ ░█░░░███░░░█  ███░░░░░███ ░░███░░░░░███ ░░███   ███░░░░░███  
   ░███  ░███░███ ░███  ░███    ░███  ░███  █ ░  ░███░███ ░███ ░   ░███  ░  ░███    ░███  ░███    ░███  ░███  ███     ░░███ 

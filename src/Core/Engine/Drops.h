@@ -20,7 +20,7 @@ public:
     // Formata e exibe a mensagem de recebimento de um item dropado
     static void reportItemDrop(const std::string& itemName, int quantity);
 
-    // Tenta conceder um item ao jogador com base em uma chance de drop (0-100%)
+    // Tenta conceder um item ao player com base em uma chance de drop (0-100%)
     static void giveAndProcessItem(Character* player, ItemID itemId, int quantity, std::vector<std::string>& obtainedItems, int dropChance = 100);
 };
 

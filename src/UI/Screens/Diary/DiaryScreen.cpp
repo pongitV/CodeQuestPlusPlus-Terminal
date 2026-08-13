@@ -112,7 +112,7 @@ void inspectRace(const std::string& raceName) {
 
     if (raceObj) {
         std::vector<std::string> art = raceObj->getAppearanceRace();
-        std::vector<std::string> attributes = MenuScreen::composeFrameDeAttributes(
+        std::vector<std::string> attributes = MenuScreen::composeAttributesFrame(
             raceObj->getAttributesRace(),
             "[ ATRIBUTOS BASE ]",
             "[ HABILIDADE DA RACA ]",
@@ -133,7 +133,7 @@ void inspectClass(const std::string& className) {
 
     if (classObj) {
         std::vector<std::string> art = classObj->getAppearanceClassMenu();
-        std::vector<std::string> attributes = MenuScreen::composeFrameDeAttributes(
+        std::vector<std::string> attributes = MenuScreen::composeAttributesFrame(
             classObj->getAttributesClass(),
             "[ ATRIBUTOS BONUS ]",
             "[ PASSIVA DA CLASSE ]",
@@ -151,7 +151,7 @@ void inspectBestiary(const std::string& nameEnemy) {
     const auto* info = Bestiary::instance().getInfo(nameEnemy);
     if (info) {
         std::vector<std::string> details;
-        if (Bestiary::instance().jaDefeated(nameEnemy)) {
+        if (Bestiary::instance().alreadyDefeated(nameEnemy)) {
             details.push_back(Appearance::color(Color::RED) + "Derrotas: " + std::to_string(Bestiary::instance().getQuantityDefeats(nameEnemy)) + Appearance::color(Color::RESET));
             details.push_back("");
             auto loreLines = ScreenDiaryLogic::breakText(info->lore, 50);
@@ -270,8 +270,8 @@ void displayRaycaster(Character* currentPlayer) {
             } else if (dry == MISSIONS) {
                 auto cats = ScreenDiaryLogic::categorizeMissions(currentPlayer);
                 lines.push_back(Appearance::color(Color::YELLOW) + "Em andamento" + Appearance::color(Color::RESET));
-                if (cats.emTempo.empty()) lines.push_back("  (Nenhuma)");
-                for (const auto& m : cats.emTempo) lines.push_back("  " + Appearance::color(Color::WHITE) + m + Appearance::color(Color::RESET));
+                if (cats.inProgress.empty()) lines.push_back("  (Nenhuma)");
+                for (const auto& m : cats.inProgress) lines.push_back("  " + Appearance::color(Color::WHITE) + m + Appearance::color(Color::RESET));
                 lines.push_back("");
                 lines.push_back(Appearance::color(Color::YELLOW) + "Prontas" + Appearance::color(Color::RESET));
                 if (cats.ready.empty()) lines.push_back("  (Nenhuma)");

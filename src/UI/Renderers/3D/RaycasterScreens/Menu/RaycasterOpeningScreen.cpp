@@ -22,17 +22,17 @@ void ScreenOpeningRaycaster::display() {
 
     int widthSoonMax = 0;
     int widthTotal = 0;
-    for (size_t i = 0; i < ArtsRaycaster::soonText.size(); ++i) {
-        int wSoon = Appearance::getVisualLength(ArtsRaycaster::soonText[i]);
-        int wPlus = (i < ArtsRaycaster::soonPlus.size())
-            ? Appearance::getVisualLength(ArtsRaycaster::soonPlus[i]) : 0;
+    for (size_t i = 0; i < ArtsRaycaster::textLogo.size(); ++i) {
+        int wSoon = Appearance::getVisualLength(ArtsRaycaster::textLogo[i]);
+        int wPlus = (i < ArtsRaycaster::plusLogo.size())
+            ? Appearance::getVisualLength(ArtsRaycaster::plusLogo[i]) : 0;
         widthSoonMax = std::max(widthSoonMax, wSoon);
         widthTotal    = std::max(widthTotal, wSoon + wPlus);
     }
 
     int marginSoon = ScreenBaseMenu::calculateOffsetCentral(widthTotal, widthConsole);
     int ySoon = 3;
-    int yPrompt = std::max(ySoon + (int)ArtsRaycaster::soonText.size() + 2, heightConsole - 3);
+    int yPrompt = std::max(ySoon + (int)ArtsRaycaster::textLogo.size() + 2, heightConsole - 3);
 
     std::string version = "Versao 0.1";
     int colVersion = std::max(1, widthConsole - (int)version.length() - 1);
@@ -46,12 +46,12 @@ void ScreenOpeningRaycaster::display() {
         MenuRaycasterUtils::drawCastle();
         MenuRaycasterUtils::drawSceneBattle();
 
-        for (size_t i = 1; i < ArtsRaycaster::soonText.size(); ++i) {
+        for (size_t i = 1; i < ArtsRaycaster::textLogo.size(); ++i) {
             int row = ySoon + (int)i - 1;
             int plusIdx = (int)i - 1;
-            MenuRaycasterUtils::superimposeNoFrame(row, marginSoon, ArtsRaycaster::soonText[i], 255, 255, 255);
-            if (plusIdx < (int)ArtsRaycaster::soonPlus.size()) {
-                MenuRaycasterUtils::superimposeNoFrame(row, marginSoon + widthSoonMax, ArtsRaycaster::soonPlus[plusIdx], 255, 165, 0);
+            MenuRaycasterUtils::superimposeNoFrame(row, marginSoon, ArtsRaycaster::textLogo[i], 255, 255, 255);
+            if (plusIdx < (int)ArtsRaycaster::plusLogo.size()) {
+                MenuRaycasterUtils::superimposeNoFrame(row, marginSoon + widthSoonMax, ArtsRaycaster::plusLogo[plusIdx], 255, 165, 0);
             }
         }
 

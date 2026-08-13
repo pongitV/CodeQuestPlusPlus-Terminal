@@ -23,9 +23,9 @@ namespace {
         CategoryProgress category;
     };
 
-    const std::vector<ItemProgress> itemsDeProgress = {
+    const std::vector<ItemProgress> progressItems = {
         {Flags::Village_KissRescued, "O Salvador da Forja", "Resgatou o ferreiro Bjorn encurralado por um Orc.", CategoryProgress::NPC},
-        {Flags::Village_InvitationReal, "Passe Real", "Ajudou os cavaleiros a se livrarem dos Trolls e recebeu um convite para o Reino.", CategoryProgress::NPC},
+        {Flags::Village_RoyalInvitation, "Passe Real", "Ajudou os cavaleiros a se livrarem dos Trolls e recebeu um convite para o Reino.", CategoryProgress::NPC},
         {Flags::Forest_MorganaQuest, "Pacto com a Bruxa", "Entregou os Coracoes da Floresta para Morgana e recebeu a chave para o Labirinto.", CategoryProgress::NPC},
         {Flags::Forest_MahoragaDefeated, "Ritual concluido", "Derrotou Mahoraga pela primeira vez.", CategoryProgress::MONSTER},
         {Flags::BridgeKingdom_TrollDefeated, "Pacificador do Reino", "Derrotou todos os Trolls que invadiram a entrada do Reino.", CategoryProgress::MONSTER}
@@ -37,7 +37,7 @@ namespace {
         std::function<bool(Character*)> checkRequirements;
     };
 
-    const std::vector<MissionRegistration> registrationDeMissions = {
+    const std::vector<MissionRegistration> missionRegistrations = {
         {
             "morgana_coracoes",
             "Consiga 3x Coracoes da floresta (Morgana)",
@@ -62,7 +62,7 @@ DataProgress ScreenDiaryLogic::getProgress() {
         else if (category == CategoryProgress::ITEM) target = &data.linesItem;
 
         int count = 0;
-        for (const auto& item : itemsDeProgress) {
+        for (const auto& item : progressItems) {
             if (item.category == category && Progression::instance().getFlag(item.flag)) {
                 if (target->empty()) {
                     target->push_back("  " + Appearance::color(Color::CYAN) + "\xe2\x95\x90\xe2\x95\x90\xe2\x95\x90 " + title + " \xe2\x95\x90\xe2\x95\x90\xe2\x95\x90" + Appearance::color(Color::RESET));
@@ -125,14 +125,14 @@ ItemsCategorized ScreenDiaryLogic::categorizeItems(Character* player) {
 MissionsCategorized ScreenDiaryLogic::categorizeMissions(Character* player) {
     MissionsCategorized result;
 
-    for (const auto& mission : registrationDeMissions) {
+    for (const auto& mission : missionRegistrations) {
         if (Diary::instance().missionCompleted(mission.id)) {
             result.complete.push_back("[V] " + mission.name);
         } else if (Diary::instance().missionAccept(mission.id)) {
             if (mission.checkRequirements(player)) {
                 result.ready.push_back("[X] " + mission.name);
             } else {
-                result.emTempo.push_back("[ ] " + mission.name);
+                result.inProgress.push_back("[ ] " + mission.name);
             }
         }
     }

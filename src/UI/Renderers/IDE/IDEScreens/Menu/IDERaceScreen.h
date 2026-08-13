@@ -2,7 +2,7 @@
 #include <string>
 #include "UI/Screens/Menu/RaceScreen.h"
 
-class ScreenRaceGO {
+class IDERaceScreen {
 public:
     static RaceScreen::Result display(const std::string& namePlayer);
 };

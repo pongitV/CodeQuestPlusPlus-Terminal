@@ -10,40 +10,40 @@
 #include "UI/Screens/Menu/DifficultyScreen.h"
 #include "UI/Screens/Menu/ParryScreen.h"
 
-class ScreenRegistration {
+class ScreenRegistry {
 public:
     static bool raycasterModeActive();
 
-    // --- TelaAbertura ---
+    // --- OpeningScreen ---
     static void opening();
 
-    // --- TelaMenu ---
-    static void panelSoon(const std::string& titleDaScreen = "", bool animateFadeIn = false);
-    static bool confirmationChoose(const std::string& typeDeChoose, const std::string& nameDaChoose,
-        const std::vector<std::string>& informationForDisplay, const std::vector<std::string>& artAsciiForDisplay);
+    // --- MenuScreen ---
+    static void panelLogo(const std::string& screenTitle = "", bool animateFadeIn = false);
+    static bool chooseConfirmation(const std::string& chooseType, const std::string& chooseName,
+        const std::vector<std::string>& informationForDisplay, const std::vector<std::string>& asciiArtForDisplay);
     static std::vector<std::string> frameAttributes(const Attributes& stats,
-        const std::string& titleDry, const std::string& titleSkill,
-        const std::string& nameHab, const std::string& descHab,
-        const std::string& titleSkill2, const std::string& nameHab2, const std::string& descHab2);
+        const std::string& dryTitle, const std::string& skillTitle,
+        const std::string& skillName, const std::string& skillDesc,
+        const std::string& skillTitle2, const std::string& skillName2, const std::string& skillDesc2);
     static int mainMenu();
     static void tutorialParry(const std::string& infoBox = "");
 
-    // --- TelaNome ---
+    // --- NameScreen ---
     static NameScreen::Result screenName();
 
-    // --- TelaRaca ---
+    // --- RaceScreen ---
     static RaceScreen::Result screenRace(const std::string& characterName);
 
-    // --- TelaClasse ---
+    // --- ClassScreen ---
     static ClassScreen::Result screenClass(const std::string& characterName, const std::string& race);
 
-    // --- TelaDificuldade ---
+    // --- DifficultyScreen ---
     static DifficultyScreen::Result screenDifficulty(const std::string& characterName, const std::string& race, const std::string& classObj);
 
-    // --- TelaParry ---
+    // --- ParryScreen ---
     static ParryScreen::Result screenParry(const std::string& characterName, const std::string& race, const std::string& classObj);
 
-    // --- TelaIntroducao ---
+    // --- IntroductionScreen ---
     static void screenIntroduction();
     
     // --- Sair do Jogo ---

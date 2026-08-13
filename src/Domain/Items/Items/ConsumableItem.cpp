@@ -39,7 +39,7 @@ std::vector<std::string> ConsumableItem::getDetailsInspection(Character* /*perso
 
 std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
     auto createLittleCure = []() {
-        auto healing = std::make_unique<ConsumableItem>(ItemFactory::getNameFromID(ItemID::LittleCure30), 6);
+        auto healing = std::make_unique<ConsumableItem>(ItemFactory::getNameFromID(ItemID::HealingPotion30), 6);
         healing->addProperty(Property::HealingConsumable);
         healing->setDescriptionInspection("Restaura 30% da sua Vida Maxima.");
         healing->setActionInventory([](Item* item, Character* user, bool* shiftWasConsumed) {
@@ -73,13 +73,13 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
         return healing;
     };
 
-    auto createTalisman = [](ItemID id, Property prop, AttributeType buffAtr, AttributeType debuffAtr, const std::string& desc) {
+    auto createTalisman = [](ItemID id, Property prop, AttributeType buffAttr, AttributeType debuffAttr, const std::string& desc) {
         auto t = std::make_unique<ConsumableItem>(ItemFactory::getNameFromID(id), 120);
         t->addProperty(prop);
         t->setDescriptionInspection(desc);
-        t->setActionInventory([buffAtr, debuffAtr](Item* item, Character* user, bool* shiftWasConsumed) {
-            user->changeStaticAttribute(buffAtr, 5);
-            user->changeStaticAttribute(debuffAtr, -5);
+        t->setActionInventory([buffAttr, debuffAttr](Item* item, Character* user, bool* shiftWasConsumed) {
+            user->changeStaticAttribute(buffAttr, 5);
+            user->changeStaticAttribute(debuffAttr, -5);
             showConsumableWarning(item->getItemName() + " consumido!");
             
             if (user->getConsumableQuickly() == item) {
@@ -155,7 +155,7 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
     };
 
     auto createLittleCureBig = []() {
-        auto healing = std::make_unique<ConsumableItem>(ItemFactory::getNameFromID(ItemID::LittleCureBig), 30);
+        auto healing = std::make_unique<ConsumableItem>(ItemFactory::getNameFromID(ItemID::GreatHealingPotion), 30);
         healing->addProperty(Property::HealingConsumable);
         healing->setDescriptionInspection("Restaura 50% da sua Vida Maxima.");
         healing->setActionInventory([](Item* item, Character* user, bool* shiftWasConsumed) {
@@ -180,8 +180,8 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
         return healing;
     };
 
-    auto createLittleGallowsAlchemy = []() {
-        auto buff = std::make_unique<ConsumableItem>(ItemFactory::getNameFromID(ItemID::LittleGallowsAlchemy), 40);
+    auto createAlchemicalStrengthPotion = []() {
+        auto buff = std::make_unique<ConsumableItem>(ItemFactory::getNameFromID(ItemID::AlchemicalStrengthPotion), 40);
         buff->addProperty(Property::BuffConsumable);
         buff->setDescriptionInspection("Aumenta Forca em +5 e Destreza em +3 por 3 turnos em combate.");
         buff->setActionInventory([](Item* item, Character* user, bool* shiftWasConsumed) {
@@ -199,8 +199,8 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
         return buff;
     };
 
-    auto createLittlePoisonAlchemy = []() {
-        auto debuff = std::make_unique<ConsumableItem>(ItemFactory::getNameFromID(ItemID::LittlePoisonAlchemy), 35);
+    auto createAlchemicalPoisonPotion = []() {
+        auto debuff = std::make_unique<ConsumableItem>(ItemFactory::getNameFromID(ItemID::AlchemicalPoisonPotion), 35);
         debuff->addProperty(Property::ConsumableDebuffWeakness);
         debuff->setDescriptionInspection("Aplica Necrose no alvo por 3 turnos (causa 12 de dano por turno).");
         debuff->setActionInventory([](Item* item, Character* user, bool* shiftWasConsumed) {
@@ -216,8 +216,8 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
         return debuff;
     };
 
-    auto createLittleSlowAlchemy = []() {
-        auto debuff = std::make_unique<ConsumableItem>(ItemFactory::getNameFromID(ItemID::LittleSlowAlchemy), 35);
+    auto createAlchemicalSlownessPotion = []() {
+        auto debuff = std::make_unique<ConsumableItem>(ItemFactory::getNameFromID(ItemID::AlchemicalSlownessPotion), 35);
         debuff->addProperty(Property::ConsumableDebuffSlow);
         debuff->setDescriptionInspection("Aplica Lentidao no alvo por 3 turnos (Reduz Destreza).");
         debuff->setActionInventory([](Item* item, Character* user, bool* shiftWasConsumed) {
@@ -234,16 +234,16 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
     };
 
     static const std::unordered_map<ItemID, std::function<std::unique_ptr<Item>()>> builders = {
-        {ItemID::Litter, [createFood]() { return createFood(ItemID::Litter, 15, 5, "Restaura 15 HP fixo."); }},
+        {ItemID::Apple, [createFood]() { return createFood(ItemID::Apple, 15, 5, "Restaura 15 HP fixo."); }},
         {ItemID::Bread, [createFood]() { return createFood(ItemID::Bread, 25, 10, "Restaura 25 HP fixo."); }},
         {ItemID::Cheese, [createFood]() { return createFood(ItemID::Cheese, 40, 18, "Restaura 40 HP fixo."); }},
-        {ItemID::MeatDrought, [createFood]() { return createFood(ItemID::MeatDrought, 60, 30, "Restaura 60 HP fixo."); }},
-        {ItemID::LittleCureBig, createLittleCureBig},
-        {ItemID::LittleGallowsAlchemy, createLittleGallowsAlchemy},
-        {ItemID::LittlePoisonAlchemy, createLittlePoisonAlchemy},
-        {ItemID::LittleSlowAlchemy, createLittleSlowAlchemy},
-        {ItemID::LittleCure30, createLittleCure},
-        {ItemID::LittleFury, [createBuffAttributes]() { return createBuffAttributes(ItemID::LittleFury); }},
+        {ItemID::DriedMeat, [createFood]() { return createFood(ItemID::DriedMeat, 60, 30, "Restaura 60 HP fixo."); }},
+        {ItemID::GreatHealingPotion, createLittleCureBig},
+        {ItemID::AlchemicalStrengthPotion, createAlchemicalStrengthPotion},
+        {ItemID::AlchemicalPoisonPotion, createAlchemicalPoisonPotion},
+        {ItemID::AlchemicalSlownessPotion, createAlchemicalSlownessPotion},
+        {ItemID::HealingPotion30, createLittleCure},
+        {ItemID::FuryPotion, [createBuffAttributes]() { return createBuffAttributes(ItemID::FuryPotion); }},
         {ItemID::ElixirArcane, [createBuffAttributes]() { return createBuffAttributes(ItemID::ElixirArcane); }},
         {ItemID::BottleSlime, []() {
             auto debuff = std::make_unique<ConsumableItem>(ItemFactory::getNameFromID(ItemID::BottleSlime));
@@ -298,7 +298,7 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
             });
             return buff; 
         }},
-        {ItemID::TalismanBear, [createTalisman]() { return createTalisman(ItemID::TalismanBear, Property::TalismanGallows, AttributeType::Strength, AttributeType::Intelligence, "Concede +5 Forca e -5 Inteligencia permanentemente."); }},
+        {ItemID::TalismanBear, [createTalisman]() { return createTalisman(ItemID::TalismanBear, Property::StrengthTalisman, AttributeType::Strength, AttributeType::Intelligence, "Concede +5 Forca e -5 Inteligencia permanentemente."); }},
         {ItemID::TalismanCrow, [createTalisman]() { return createTalisman(ItemID::TalismanCrow, Property::TalismanIntelligence, AttributeType::Intelligence, AttributeType::Strength, "Concede +5 Inteligencia e -5 Forca permanentemente."); }},
         {ItemID::TalismanLeopard, [createTalisman]() { return createTalisman(ItemID::TalismanLeopard, Property::TalismanDexterity, AttributeType::Dexterity, AttributeType::Wisdom, "Concede +5 Destreza e -5 Sabedoria permanentemente."); }},
         {ItemID::TalismanOwl, [createTalisman]() { return createTalisman(ItemID::TalismanOwl, Property::TalismanWisdom, AttributeType::Wisdom, AttributeType::Dexterity, "Concede +5 Sabedoria e -5 Destreza permanentemente."); }}

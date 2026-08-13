@@ -69,7 +69,7 @@ static int renderMenuSimple(const std::string& title, const std::vector<std::str
     }
 }
 
-int ScreenPauseRaycaster::renderMenuPause() {
+int RaycasterPauseScreen::renderMenuPause() {
     std::vector<std::string> options = {
         "VOLTAR AO JOGO",
         "CONFIGURACOES",
@@ -80,7 +80,7 @@ int ScreenPauseRaycaster::renderMenuPause() {
     return res;
 }
 
-int ScreenPauseRaycaster::renderMenuConfiguracoes(Character* player) {
+int RaycasterPauseScreen::renderSettingsMenu(Character* player) {
     std::string difStr;
     switch (player->getDifficulty()) {
         case GameDifficulty::Easy: difStr = "\033[38;2;100;255;100mFACIL\033[0m"; break;
@@ -112,13 +112,13 @@ int ScreenPauseRaycaster::renderMenuConfiguracoes(Character* player) {
         if (!player->getParryActivated()) {
             // DESLIGADO -> MOVIMENTO
             player->setModernParry(true);
-            return 1; // TelaPause alterna Ativado para verdadeiro
+            return 1; // PauseScreen alterna Ativado para verdadeiro
         } else if (player->getParryModern()) {
             // MOVIMENTO -> DIGITACAO
-            return 2; // TelaPause alterna Moderno para falso
+            return 2; // PauseScreen alterna Moderno para falso
         } else {
             // DIGITACAO -> DESLIGADO
-            return 1; // TelaPause alterna Ativado para falso
+            return 1; // PauseScreen alterna Ativado para falso
         }
     }
     if (res == 2) return 3;
@@ -129,12 +129,12 @@ int ScreenPauseRaycaster::renderMenuConfiguracoes(Character* player) {
     return 6;
 }
 
-int ScreenPauseRaycaster::renderMenuAppearance(Character*) { return 2; }
-int ScreenPauseRaycaster::renderMenuBackground(int) { return 6; }
-int ScreenPauseRaycaster::renderMenuSensitivity(int percX, int percY) {
+int RaycasterPauseScreen::renderMenuAppearance(Character*) { return 2; }
+int RaycasterPauseScreen::renderMenuBackground(int) { return 6; }
+int RaycasterPauseScreen::renderMenuSensitivity(int percentX, int percentY) {
     std::vector<std::string> options = {
-        "EIXO X (Yaw): " + std::to_string(percX) + "%",
-        "EIXO Y (Pitch): " + std::to_string(percY) + "%",
+        "EIXO X (Yaw): " + std::to_string(percentX) + "%",
+        "EIXO Y (Pitch): " + std::to_string(percentY) + "%",
         "VOLTAR"
     };
     int res = renderMenuSimple("[ SENSIBILIDADE ]", options);

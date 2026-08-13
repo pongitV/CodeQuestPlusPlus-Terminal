@@ -43,8 +43,8 @@ std::vector<std::string> EquipmentWeapon::getDetailsInspection(Character* charac
     std::vector<std::string> lines;
     lines.push_back(" > Tipo: Arma");
 
-    std::string fisStr = std::to_string(damagePhysical);
-    std::string magStr = std::to_string(damageMagical);
+    std::string physStr = std::to_string(damagePhysical);
+    std::string magicStr = std::to_string(damageMagical);
 
     if (character) {
         int strength = character->getStrength();
@@ -55,15 +55,15 @@ std::vector<std::string> EquipmentWeapon::getDetailsInspection(Character* charac
         if (damagePhysical == 0 && damageMagical > 0) { strength /= 10; dexterity /= 10; }
         else if (damagePhysical > 0 && damageMagical == 0) { intelli /= 10; wisdom /= 10; }
         
-        int damageFisIs = std::max(0, static_cast<int>((damagePhysical + strength) * (1.0 + (dexterity / 100.0)) * character->getMultiplier()));
-        int damageMagIs = std::max(0, static_cast<int>((damageMagical + intelli) * (1.0 + (wisdom / 100.0)) * character->getMultiplier()));
+        int damagePhysIs = std::max(0, static_cast<int>((damagePhysical + strength) * (1.0 + (dexterity / 100.0)) * character->getMultiplier()));
+        int damageMagicIs = std::max(0, static_cast<int>((damageMagical + intelli) * (1.0 + (wisdom / 100.0)) * character->getMultiplier()));
         
-        fisStr += " " + Appearance::color(Color::GRAY) + "-> " + Appearance::color(Color::WHITE) + "\033[48;2;25;25;25m" + "C/ Seus Atributos: " + Appearance::color(Color::LIGHT_RED) + std::to_string(damageFisIs) + Appearance::color(Color::WHITE) + "\033[48;2;25;25;25m";
-        magStr += " " + Appearance::color(Color::GRAY) + "-> " + Appearance::color(Color::WHITE) + "\033[48;2;25;25;25m" + "C/ Seus Atributos: " + Appearance::color(Color::BLUE) + std::to_string(damageMagIs) + Appearance::color(Color::WHITE) + "\033[48;2;25;25;25m";
+        physStr += " " + Appearance::color(Color::GRAY) + "-> " + Appearance::color(Color::WHITE) + "\033[48;2;25;25;25m" + "C/ Seus Atributos: " + Appearance::color(Color::LIGHT_RED) + std::to_string(damagePhysIs) + Appearance::color(Color::WHITE) + "\033[48;2;25;25;25m";
+        magicStr += " " + Appearance::color(Color::GRAY) + "-> " + Appearance::color(Color::WHITE) + "\033[48;2;25;25;25m" + "C/ Seus Atributos: " + Appearance::color(Color::BLUE) + std::to_string(damageMagicIs) + Appearance::color(Color::WHITE) + "\033[48;2;25;25;25m";
     }
 
-    lines.push_back(" > Dano Fisico: " + fisStr);
-    lines.push_back(" > Dano Magico: " + magStr);
+    lines.push_back(" > Dano Fisico: " + physStr);
+    lines.push_back(" > Dano Magico: " + magicStr);
     lines.push_back(" > Requisitos:");
     bool hasReq = false;
     if (reqStrength > 0) { lines.push_back("   - Forca: " + std::to_string(reqStrength)); hasReq = true; }
@@ -80,7 +80,7 @@ std::vector<std::string> EquipmentWeapon::getDetailsInspection(Character* charac
     if (hasProperty(Property::Magic)) { lines.push_back("   - Magica (Parte do dano ignora defesa)"); hasEffect = true; }
     if (hasProperty(Property::IgnoreDefense)) { lines.push_back("   - Exterminio (Ignora 100% da Resistencia e Constituicao do alvo)"); hasEffect = true; }
     if (hasProperty(Property::ViolaMagician)) { lines.push_back("   - Raizes Drenantes (Causa dano e cura o usuario)"); hasEffect = true; }
-    if (hasProperty(Property::CipePrison)) { lines.push_back("   - Prisao de Cipos (Chance de atordoar alvo)"); hasEffect = true; }
+    if (hasProperty(Property::VinePrison)) { lines.push_back("   - Prisao de Cipos (Chance de atordoar alvo)"); hasEffect = true; }
     if (!hasEffect) lines.push_back("   - Nenhuma propriedade extra.");
     return lines;
 }
@@ -120,7 +120,7 @@ void EquipmentWeapon::onCausingDamage(Character* attacker, Character* target, in
         target->addEffect(std::make_unique<BloodSuckEffect>(2, attacker));
     }
 
-    if (hasProperty(Property::CipePrison) && RandomGenerator::rollChance(30) && !target->ownsEffect(EffectID::Stun)) {
+    if (hasProperty(Property::VinePrison) && RandomGenerator::rollChance(30) && !target->ownsEffect(EffectID::Stun)) {
         target->addEffect(std::make_unique<StunEffect>(1));
     }
 
@@ -160,8 +160,8 @@ std::unique_ptr<Item> EquipmentWeapon::generateCopyImproved() const {
 }
 
 std::unique_ptr<Item> manufactureEquipmentWeapon(ItemID id) {
-    auto createWeapon = [](ItemID id, int dFis, int dMag, int rFor, int rDes, int rInt, int rSat, int price) {
-        return std::make_unique<EquipmentWeapon>(ItemFactory::getNameFromID(id), dFis, dMag, rFor, rDes, rInt, rSat, price);
+    auto createWeapon = [](ItemID id, int dPhys, int dMagic, int rFor, int rDes, int rInt, int rSat, int price) {
+        return std::make_unique<EquipmentWeapon>(ItemFactory::getNameFromID(id), dPhys, dMagic, rFor, rDes, rInt, rSat, price);
     };
 
     static const std::unordered_map<ItemID, std::function<std::unique_ptr<Item>()>> builders = {

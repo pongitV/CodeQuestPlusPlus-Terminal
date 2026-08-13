@@ -3,8 +3,8 @@
 #include "Domain/Characters/Character.h"
 
 struct PowerCombat {
-    int damageFisIs;
-    int damageMagIs;
+    int damagePhysIs;
+    int damageMagicIs;
     int defFixed;
     double mitigation;
 };

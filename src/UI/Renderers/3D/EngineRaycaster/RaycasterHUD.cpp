@@ -13,7 +13,7 @@ void RaycasterHUD::draw(vector<string>& screen, int widthScreen, int heightScree
     drawControls(screen, widthScreen, heightScreen);
 }
 
-void RaycasterHUD::drawMinimap(vector<string>& screen, int SCREEN_WIDTH, int SCREEN_HEIGHT, float playerX, float playerY, float angleVisa, const vector<string>& mapMatrix, const string& titleMap, bool /*temaFloresta*/, char iconDoPlayer, const string& colorPlayerAnsi) {
+void RaycasterHUD::drawMinimap(vector<string>& screen, int SCREEN_WIDTH, int SCREEN_HEIGHT, float playerX, float playerY, float angleVisa, const vector<string>& mapMatrix, const string& titleMap, bool /*temaFloresta*/, char playerIcon, const string& colorPlayerAnsi) {
     int widthMap = mapMatrix.empty() ? 0 : mapMatrix[0].size();
     int heightMap = mapMatrix.size();
 
@@ -64,7 +64,7 @@ void RaycasterHUD::drawMinimap(vector<string>& screen, int SCREEN_WIDTH, int SCR
                 // bool isLabel = RaycasterMundo::isMapLabel(mapX, mapY, matrizDoMapa);
                 
                 if (mx == widthMiniMap/2 && my == heightMiniMap/2) {
-                    screen[screenY * SCREEN_WIDTH + screenX] = bgMini + colorPlayerAnsi + string(1, iconDoPlayer) + "\033[0m"; // Jogador
+                    screen[screenY * SCREEN_WIDTH + screenX] = bgMini + colorPlayerAnsi + string(1, playerIcon) + "\033[0m"; // Jogador
                 } else if (mx == widthMiniMap/2 + sayX && my == heightMiniMap/2 + sayY) {
                     screen[screenY * SCREEN_WIDTH + screenX] = bgMini + "\033[1;38;2;255;255;255m" + directionArrow + "\033[0m"; // Indicador Visao Branco
                 } else {
@@ -79,11 +79,11 @@ void RaycasterHUD::drawMinimap(vector<string>& screen, int SCREEN_WIDTH, int SCR
     }
 }
 
-void RaycasterHUD::drawBarStatus(vector<string>& screen, int SCREEN_WIDTH, int SCREEN_HEIGHT, Character* player, float angleVisa, const string& titleEdge, int framesDamagePlayer, int damageAmount, bool isCure) {
+void RaycasterHUD::drawBarStatus(vector<string>& screen, int SCREEN_WIDTH, int SCREEN_HEIGHT, Character* player, float angleVisa, const string& titleEdge, int framesDamagePlayer, int damageAmount, bool isHealing) {
     if (screen.empty()) return;
     bool isModeLines = (screen.size() <= (size_t)SCREEN_HEIGHT); // If it's a small vector, it's a vector of lines (strings)
     
-    vector<string> linesHUD = CombatScreen::getLinesBarDeStatusDoPlayer(player, Color::RESET, damageAmount, framesDamagePlayer, isCure);
+    vector<string> linesHUD = CombatScreen::getPlayerStatusBarLines(player, Color::RESET, damageAmount, framesDamagePlayer, isHealing);
     int hudHeight = linesHUD.size();
     int maxHudWidth = 0;
     for (const string& line : linesHUD) {
@@ -132,7 +132,7 @@ void RaycasterHUD::drawBarStatus(vector<string>& screen, int SCREEN_WIDTH, int S
         pixelTop += "╗\033[0m";
         
         if (isModeLines) {
-            screen[hudOffsetY] = Appearance::superimposePanelNaLineAnsi(screen[hudOffsetY], pixelTop, hudOffsetX);
+            screen[hudOffsetY] = Appearance::superimposePanelOnAnsiLine(screen[hudOffsetY], pixelTop, hudOffsetX);
         } else {
             screen[hudOffsetY * SCREEN_WIDTH + hudOffsetX] = pixelTop;
             for(int x = 1; x < boxWidth; ++x) {
@@ -147,7 +147,7 @@ void RaycasterHUD::drawBarStatus(vector<string>& screen, int SCREEN_WIDTH, int S
         pixelBase += "╝\033[0m";
         
         if (isModeLines) {
-            screen[hudOffsetY + boxHeight - 1] = Appearance::superimposePanelNaLineAnsi(screen[hudOffsetY + boxHeight - 1], pixelBase, hudOffsetX);
+            screen[hudOffsetY + boxHeight - 1] = Appearance::superimposePanelOnAnsiLine(screen[hudOffsetY + boxHeight - 1], pixelBase, hudOffsetX);
         } else {
             screen[(hudOffsetY + boxHeight - 1) * SCREEN_WIDTH + hudOffsetX] = pixelBase;
             for(int x = 1; x < boxWidth; ++x) {
@@ -177,7 +177,7 @@ void RaycasterHUD::drawBarStatus(vector<string>& screen, int SCREEN_WIDTH, int S
         int y = hudOffsetY + 1 + i;
         if (y >= 0 && y < SCREEN_HEIGHT) {
             if (isModeLines) {
-                screen[y] = Appearance::superimposePanelNaLineAnsi(screen[y], line, hudOffsetX);
+                screen[y] = Appearance::superimposePanelOnAnsiLine(screen[y], line, hudOffsetX);
             } else {
                 screen[y * SCREEN_WIDTH + hudOffsetX] = line;
                 for(int x = 1; x < boxWidth; ++x) {
@@ -213,7 +213,7 @@ void RaycasterHUD::drawBarStatus(vector<string>& screen, int SCREEN_WIDTH, int S
             
             // Sobreposicao simples do dano flutuante no HUD
             if (isModeLines) {
-                screen[fctY] = Appearance::superimposePanelNaLineAnsi(screen[fctY], colorDamage + txtDamage + "\033[0m", fctX);
+                screen[fctY] = Appearance::superimposePanelOnAnsiLine(screen[fctY], colorDamage + txtDamage + "\033[0m", fctX);
             } else {
                 screen[fctY * SCREEN_WIDTH + fctX] = colorDamage + txtDamage + "\033[0m";
             }

@@ -187,21 +187,21 @@ namespace {
         std::cout << "\033[?25l\033[H" << endOutput << "\033[J\033[0m" << std::flush;
     }
 
-    void renderScenePattern(const std::string& title, const std::vector<Character*>& enemies, Character* targetAnimation, int frame, bool isCure, bool isDeath, Item* weapon, Character* currentPlayer, const std::vector<Character*>& allies, Character* targetDamagePlayer = nullptr, Color colorDamagePlayer = Color::RESET, int damageAnimation = -1, const std::vector<std::string>& dropsAnimation = {}, bool animateEntrance = false) {
-        // Detecta visao terminal/IDE e usa TelaCombateIDE diretamente
+    void renderScenePattern(const std::string& title, const std::vector<Character*>& enemies, Character* targetAnimation, int frame, bool isHealing, bool isDeath, Item* weapon, Character* currentPlayer, const std::vector<Character*>& allies, Character* targetDamagePlayer = nullptr, Color colorDamagePlayer = Color::RESET, int damageAnimation = -1, const std::vector<std::string>& dropsAnimation = {}, bool animateEntrance = false) {
+        // Detecta visao terminal/IDE e usa IDECombatScreen diretamente
         bool useTerminal = !PerspectiveManager::getInstance().is3DViewActive();
         if (useTerminal) {
             CombatScreen::context.isTerminalView = true;
             CombatScreen::context.isMode3D = false;
-            ScreenCombatGO::cleanMessagesFixed();
+            IDECombatScreen::cleanMessagesFixed();
             // Se ha drops ativos, exibe os drops em vez do combate normal
             if (!dropsAnimation.empty()) {
                 CombatScreen::context.dropsAssets = dropsAnimation;
-                ScreenCombatGO::displayDrops(dropsAnimation);
+                IDECombatScreen::displayDrops(dropsAnimation);
                 CombatScreen::context.dropsAssets.clear();
                 return;
             }
-            ScreenCombatGO::display(currentPlayer, enemies, title);
+            IDECombatScreen::display(currentPlayer, enemies, title);
             return;
         }
         
@@ -228,7 +228,7 @@ namespace {
                 }
             }
 
-            auto linesHighlight = ScreenCombatGO::getLinesBarDeStatusDoPlayer(highlight, (targetDamagePlayer == highlight) ? colorDamagePlayer : Color::RESET, (targetDamagePlayer == highlight) ? damageAnimation : -1, (targetDamagePlayer == highlight) ? frame : 0, (targetDamagePlayer == highlight) ? isCure : false);
+            auto linesHighlight = IDECombatScreen::getPlayerStatusBarLines(highlight, (targetDamagePlayer == highlight) ? colorDamagePlayer : Color::RESET, (targetDamagePlayer == highlight) ? damageAnimation : -1, (targetDamagePlayer == highlight) ? frame : 0, (targetDamagePlayer == highlight) ? isHealing : false);
             panelLeft.insert(panelLeft.end(), linesHighlight.begin(), linesHighlight.end());
 
             std::vector<std::string> panelRight;
@@ -317,7 +317,7 @@ namespace {
 
             if (CombatScreen::context.isMode3D) {
                 int framesDamageGame = 0;
-                if (targetDamagePlayer != nullptr && damageAnimation > 0 && !isCure) {
+                if (targetDamagePlayer != nullptr && damageAnimation > 0 && !isHealing) {
                     framesDamageGame = frame;
                 }
 
@@ -329,7 +329,7 @@ namespace {
                     frame,
                     framesDamageGame,
                     damageAnimation,
-                    isCure,
+                    isHealing,
                     timeMs,
                     isDeath,
                     dropsAnimation
@@ -438,8 +438,8 @@ namespace {
                     panelMessages.push_back("\033[1;33m" + feedbackTarget + "\033[0m");
                 }
 
-                std::string textDoShift = "TURNO " + std::to_string(CombatScreen::context.shiftCurrentVisible) + " │ VEZ DE " + CombatScreen::context.nameShiftVisible;
-                panelMessages.push_back(textDoShift);
+                std::string shiftText = "TURNO " + std::to_string(CombatScreen::context.shiftCurrentVisible) + " │ VEZ DE " + CombatScreen::context.nameShiftVisible;
+                panelMessages.push_back(shiftText);
 
                 if (!InputControl::enterPromptText.empty()) {
                     std::string prompt = cleanMsg(InputControl::enterPromptText);
@@ -455,7 +455,7 @@ namespace {
                     if (!msg.empty()) panelMessages.push_back(msg);
                 }
 
-                if (targetDamagePlayer != nullptr && damageAnimation > 0 && frame > 0 && !isCure) {
+                if (targetDamagePlayer != nullptr && damageAnimation > 0 && frame > 0 && !isHealing) {
                     std::string nameAttacker = "Desconhecido";
                     if (g_enemyAttackerParry != nullptr) {
                         for (size_t i = 0; i < enemies.size(); ++i) {
@@ -533,10 +533,10 @@ namespace {
                     int y = startHUDY + row;
                     if (y >= 0 && y < height3D) {
                         if (row < panelLeft.size()) {
-                            frame3D[y] = Appearance::superimposePanelNaLineAnsi(frame3D[y], panelLeft[row], startLeftX);
+                            frame3D[y] = Appearance::superimposePanelOnAnsiLine(frame3D[y], panelLeft[row], startLeftX);
                         }
                         if (row < panelRight.size()) {
-                            frame3D[y] = Appearance::superimposePanelNaLineAnsi(frame3D[y], panelRight[row], startSayX);
+                            frame3D[y] = Appearance::superimposePanelOnAnsiLine(frame3D[y], panelRight[row], startSayX);
                         }
                     }
                 }
@@ -548,7 +548,7 @@ namespace {
                     for (size_t row = 0; row < panelMessagesEmbroidery.size(); ++row) {
                         int y = startMsgY + row;
                         if (y >= 0 && y < height3D) {
-                            frame3D[y] = Appearance::superimposePanelNaLineAnsi(frame3D[y], panelMessagesEmbroidery[row], startMsgX);
+                            frame3D[y] = Appearance::superimposePanelOnAnsiLine(frame3D[y], panelMessagesEmbroidery[row], startMsgX);
                         }
                     }
                 }
@@ -626,8 +626,8 @@ namespace {
 
                     int startDropsX = (terminalWidth - boxW) / 2; // center screen fallback
                     if (deadIdx != -1 && !enemies.empty()) {
-                        int inaEnemies = static_cast<int>(enemies.size());
-                        int widthColumn = terminalWidth / inaEnemies;
+                        int indexInEnemies = static_cast<int>(enemies.size());
+                        int widthColumn = terminalWidth / indexInEnemies;
                         int centerX = deadIdx * widthColumn + widthColumn / 2;
                         startDropsX = centerX - boxW / 2;
                     }
@@ -641,7 +641,7 @@ namespace {
                     for (size_t row = 0; row < panelDrops.size(); ++row) {
                         int y = startDropsY + row;
                         if (y >= 0 && y < height3D) {
-                            frame3D[y] = Appearance::superimposePanelNaLineAnsi(frame3D[y], panelDrops[row], startDropsX);
+                            frame3D[y] = Appearance::superimposePanelOnAnsiLine(frame3D[y], panelDrops[row], startDropsX);
                         }
                     }
                 }
@@ -651,15 +651,15 @@ namespace {
                 }
             } else {
                 // Desenha a horda classicamente (que imprime no std::cout e sera interceptada pelo buffer)
-                ScreenCombatGO::displayHordeDeEnemiesSideASide(enemies, targetAnimation, frame, isCure, animateEntrance, isDeath, weapon, damageAnimation, dropsAnimation);
+                IDECombatScreen::displayEnemyHordeSideBySide(enemies, targetAnimation, frame, isHealing, animateEntrance, isDeath, weapon, damageAnimation, dropsAnimation);
 
                 BaseScreen::printLineDivider('=');
                 std::cout << Appearance::color(Color::RESET);
 
                 Appearance::printSideASide(panelLeft, panelRight, 0, 5, Color::RESET, Color::RESET, 0);
 
-                std::string textDoShift = " TURNO " + std::to_string(CombatScreen::context.shiftCurrentVisible) + " | VEZ DE " + CombatScreen::context.nameShiftVisible + " ";
-                int lengthVisual = Appearance::getVisualLength(textDoShift);
+                std::string shiftText = " TURNO " + std::to_string(CombatScreen::context.shiftCurrentVisible) + " | VEZ DE " + CombatScreen::context.nameShiftVisible + " ";
+                int lengthVisual = Appearance::getVisualLength(shiftText);
                 int tracesLeft = (terminalWidth - lengthVisual - 6) / 2;
                 int tracesSay = terminalWidth - tracesLeft - lengthVisual - 6;
                 if (tracesLeft < 0) tracesLeft = 0;
@@ -671,12 +671,12 @@ namespace {
                 for (int i = 0; i < tracesSay; ++i) lineSay += "-";
                 lineSay += " */";
                 
-                Color colorDoShift = (CombatScreen::context.nameShiftVisible == "INIMIGOS") ? Color::RED : Color::GREEN;
-                std::string colorEdgeLeftSay = "\033[38;2;96;139;78m"; // Cor de comentario verde do VSCode
+                Color shiftColor = (CombatScreen::context.nameShiftVisible == "INIMIGOS") ? Color::RED : Color::GREEN;
+                std::string colorEdgeLeftComment = "\033[38;2;96;139;78m"; // Cor de comentario verde do VSCode
                 
-                std::cout << "\n" << colorEdgeLeftSay << lineLeft << Appearance::color(colorDoShift) << textDoShift << colorEdgeLeftSay << lineSay << Appearance::color(Color::RESET) << "\n";
+                std::cout << "\n" << colorEdgeLeftComment << lineLeft << Appearance::color(shiftColor) << shiftText << colorEdgeLeftComment << lineSay << Appearance::color(Color::RESET) << "\n";
 
-                if (targetDamagePlayer != nullptr && damageAnimation > 0 && frame > 0 && !isCure) {
+                if (targetDamagePlayer != nullptr && damageAnimation > 0 && frame > 0 && !isHealing) {
                     int shakeX = (frame % 2 == 0) ? 4 : -4;
                     std::string padLeft = (shakeX > 0) ? std::string(shakeX, ' ') : "";
                     std::string padSay = (shakeX < 0) ? std::string(-shakeX, ' ') : "";
@@ -720,19 +720,19 @@ namespace {
     }
 }
 
-void ScreenCombatGO::setShiftVisible(int shift, const std::string& name) {
+void IDECombatScreen::setShiftVisible(int shift, const std::string& name) {
     CombatScreen::context.shiftCurrentVisible = shift;
     CombatScreen::context.nameShiftVisible = name;
 }
 
-void ScreenCombatGO::addFixedMessage(const std::string& msg) {
+void IDECombatScreen::addFixedMessage(const std::string& msg) {
     messagesFixedCombat.push_back(msg);
     if (messagesFixedCombat.size() > 6) { // Limita o numero de logs para nao empurrar o HUD para baixo demais
         messagesFixedCombat.erase(messagesFixedCombat.begin());
     }
 }
 
-void ScreenCombatGO::configureContext3D(bool mode3D, const std::vector<std::string>& matrix, float postX, float postY, float angle, const std::string& title) {
+void IDECombatScreen::configureContext3D(bool mode3D, const std::vector<std::string>& matrix, float postX, float postY, float angle, const std::string& title) {
     CombatScreen::context.isMode3D = mode3D;
     CombatScreen::context.currentMapMatrix = matrix;
     CombatScreen::context.playerPostX = postX;
@@ -741,18 +741,18 @@ void ScreenCombatGO::configureContext3D(bool mode3D, const std::vector<std::stri
     CombatScreen::context.titleMapCurrent = title;
 }
 
-void ScreenCombatGO::cleanMessagesFixed() {
+void IDECombatScreen::cleanMessagesFixed() {
     messagesFixedCombat.clear();
 }
 
-void ScreenCombatGO::displaySoonForScreenDeCombat(const std::string& titleDaScreen, bool animate) 
+void IDECombatScreen::displayLogoForCombatScreen(const std::string& screenTitle, bool animate) 
 {
     std::cout << "\033[?25l"; // Esconde o cursor
     
-    Appearance::displayArtPanel(ScreenCombatLayouts::getSoonCombat(), 95, Color::RED, titleDaScreen, animate);
+    Appearance::displayArtPanel(ScreenCombatLayouts::getLogoCombat(), 95, Color::RED, screenTitle, animate);
 }
 
-void ScreenCombatGO::animateCombatIntro(const std::string& title, const std::vector<Character*>& enemies, Character* currentPlayer) {
+void IDECombatScreen::animateCombatIntro(const std::string& title, const std::vector<Character*>& enemies, Character* currentPlayer) {
     // Terminal/IDE view: intro sera exibida por renderizarCenaPadrao
     if (!PerspectiveManager::getInstance().is3DViewActive()) {
         return;
@@ -811,11 +811,11 @@ void ScreenCombatGO::animateCombatIntro(const std::string& title, const std::vec
                 : currentPlayer(player), enemies(enemies), frameBackground(backgroundFree) {}
                 
         protected:
-            std::vector<std::string> getSoon() const override {
-                return ScreenCombatLayouts::getSoonCombat();
+            std::vector<std::string> getLogo() const override {
+                return ScreenCombatLayouts::getLogoCombat();
             }
 
-            std::string getColorSoon() const override {
+            std::string getLogoColor() const override {
                 return "\033[1;31m";
             }
 
@@ -840,12 +840,12 @@ void ScreenCombatGO::animateCombatIntro(const std::string& title, const std::vec
 
     } else {
         // 2D: Titulo com fade padronizado (suave, Y=2)
-        displaySoonForScreenDeCombat(title, true);
+        displayLogoForCombatScreen(title, true);
 
         // Captura o estado final dos inimigos (2D)
         std::ostringstream bufferEnemies;
         std::streambuf* oldCout = std::cout.rdbuf(bufferEnemies.rdbuf());
-        displayHordeDeEnemiesSideASide(enemies, nullptr, 0, false, false);
+        displayEnemyHordeSideBySide(enemies, nullptr, 0, false, false);
         std::cout.rdbuf(oldCout);
         std::string enemiesEndWithColors = bufferEnemies.str();
         std::string enemiesEndWithoutColors = Appearance::removeANSIColors(enemiesEndWithColors);
@@ -858,7 +858,7 @@ void ScreenCombatGO::animateCombatIntro(const std::string& title, const std::vec
             buffer << "\033[H";
             {
                 std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
-                displaySoonForScreenDeCombat(title, false);
+                displayLogoForCombatScreen(title, false);
                 std::cout << contentFrame;
                 std::cout.rdbuf(oldCout);
             }
@@ -871,12 +871,12 @@ void ScreenCombatGO::animateCombatIntro(const std::string& title, const std::vec
     InputControl::waitForEnter();
 }
 
-std::vector<std::string> ScreenCombatGO::getLinesBarDeStatusDoPlayer(Character* currentPlayer, Color colorHighlight, int damageAnimation, int frameAnimation, bool isCure) 
+std::vector<std::string> IDECombatScreen::getPlayerStatusBarLines(Character* currentPlayer, Color colorHighlight, int damageAnimation, int frameAnimation, bool isHealing) 
 {
     if (currentPlayer == nullptr) return {};
-    std::string nameDaWeapon = (currentPlayer->getWeapons()) ? currentPlayer->getWeapons()->getItemName() + currentPlayer->getWeapons()->getInfoStatus() : "Punhos";
-    std::string nameDoShield = (currentPlayer->getShield()) ? currentPlayer->getShield()->getItemName() + currentPlayer->getShield()->getInfoStatus() : "Nenhum";
-    std::string nameDaArmor = (currentPlayer->getArmor()) ? currentPlayer->getArmor()->getItemName() + currentPlayer->getArmor()->getInfoStatus() : "Trapos";
+    std::string weaponName = (currentPlayer->getWeapons()) ? currentPlayer->getWeapons()->getItemName() + currentPlayer->getWeapons()->getInfoStatus() : "Punhos";
+    std::string shieldName = (currentPlayer->getShield()) ? currentPlayer->getShield()->getItemName() + currentPlayer->getShield()->getInfoStatus() : "Nenhum";
+    std::string armorName = (currentPlayer->getArmor()) ? currentPlayer->getArmor()->getItemName() + currentPlayer->getArmor()->getInfoStatus() : "Trapos";
     
     Item* consumableQuickly = currentPlayer->getConsumableQuickly();
     std::string nameCureQuickly = "Vazio";
@@ -887,50 +887,50 @@ std::vector<std::string> ScreenCombatGO::getLinesBarDeStatusDoPlayer(Character* 
     auto now = std::chrono::steady_clock::now();
     int timeMs = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count());
 
-    double percentageDeLife = static_cast<double>(currentPlayer->getHealth()) / currentPlayer->getMaxHealth();
+    double lifePercentage = static_cast<double>(currentPlayer->getHealth()) / currentPlayer->getMaxHealth();
     std::string colorOrange = Appearance::color(Color::YELLOW);
     std::string colorCyan = Appearance::color(Color::CYAN);
     std::string colorReset = Appearance::color(Color::RESET);
     
-    std::string colorLife = (percentageDeLife > 0.70) ? Appearance::color(Color::GREEN) : (percentageDeLife > 0.30) ? colorOrange : Appearance::color(Color::RED);
+    std::string colorLife = (lifePercentage > 0.70) ? Appearance::color(Color::GREEN) : (lifePercentage > 0.30) ? colorOrange : Appearance::color(Color::RED);
 
-    int speedBeat = (percentageDeLife <= 0.30) ? 300 : 1000;
+    int speedBeat = (lifePercentage <= 0.30) ? 300 : 1000;
     int modBeat = timeMs % speedBeat;
     if (modBeat < 0) modBeat += speedBeat;
     int frameBeat = modBeat < 150 ? 1 : 0;
 
     std::string colorHeart = colorLife;
     if (frameBeat == 1) {
-        if (percentageDeLife > 0.70) colorHeart = "\033[38;2;150;255;150m"; // Verde mais claro
-        else if (percentageDeLife > 0.30) colorHeart = "\033[38;2;255;255;150m"; // Amarelo mais claro
+        if (lifePercentage > 0.70) colorHeart = "\033[38;2;150;255;150m"; // Verde mais claro
+        else if (lifePercentage > 0.30) colorHeart = "\033[38;2;255;255;150m"; // Amarelo mais claro
         else colorHeart = "\033[38;2;255;100;100m"; // Vermelho mais claro
     }
 
-    std::vector<std::string> artDoHeart;
+    std::vector<std::string> heartArt;
     if (CombatScreen::context.isMode3D) {
-        if (percentageDeLife > 0.70) {
-            if (frameBeat == 0) artDoHeart = { " ▄██▄ ▄██▄ ", "███████████", " ▀███████▀ ", "   ▀███▀   " };
-            else                  artDoHeart = { "           ", "  ▄█████▄  ", "  ▀█████▀  ", "    ▀█▀    " };
-        } else if (percentageDeLife > 0.30) {
-            if (frameBeat == 0) artDoHeart = { " ▄██▄ ▄▄   ", "██████████ ", " ▀██████▀  ", "   ▀███▀   " };
-            else                  artDoHeart = { "           ", "  ▄████▄   ", "  ▀████▀   ", "    ▀█▀    " };
+        if (lifePercentage > 0.70) {
+            if (frameBeat == 0) heartArt = { " ▄██▄ ▄██▄ ", "███████████", " ▀███████▀ ", "   ▀███▀   " };
+            else                  heartArt = { "           ", "  ▄█████▄  ", "  ▀█████▀  ", "    ▀█▀    " };
+        } else if (lifePercentage > 0.30) {
+            if (frameBeat == 0) heartArt = { " ▄██▄ ▄▄   ", "██████████ ", " ▀██████▀  ", "   ▀███▀   " };
+            else                  heartArt = { "           ", "  ▄████▄   ", "  ▀████▀   ", "    ▀█▀    " };
         } else {
-            if (frameBeat == 0) artDoHeart = { " ▄█▄   ▄█▄ ", "████   ████", " ▀███████▀ ", "   ▀███▀   " };
-            else                  artDoHeart = { "           ", "  ▄█▄ ▄█▄  ", "  ▀█████▀  ", "    ▀█▀    " };
+            if (frameBeat == 0) heartArt = { " ▄█▄   ▄█▄ ", "████   ████", " ▀███████▀ ", "   ▀███▀   " };
+            else                  heartArt = { "           ", "  ▄█▄ ▄█▄  ", "  ▀█████▀  ", "    ▀█▀    " };
         }
     } else {
-        if (percentageDeLife > 0.70) {
-            if (frameBeat == 0) artDoHeart = { "   _   _   ", "  / \\_/ \\  ", "  \\     /  ", "   \\___/   " };
-            else                  artDoHeart = { "   _   _   ", "  / \\_/ \\  ", "  \\ \\_/ /  ", "   \\___/   " };
-        } else if (percentageDeLife > 0.30) {
-            if (frameBeat == 0) artDoHeart = { "   _   _   ", "  / \\// \\  ", "  \\  \\ /   ", "   \\___/   " };
-            else                  artDoHeart = { "   _   _   ", "  / \\// \\  ", "  \\ \\/ /   ", "   \\___/   " };
+        if (lifePercentage > 0.70) {
+            if (frameBeat == 0) heartArt = { "   _   _   ", "  / \\_/ \\  ", "  \\     /  ", "   \\___/   " };
+            else                  heartArt = { "   _   _   ", "  / \\_/ \\  ", "  \\ \\_/ /  ", "   \\___/   " };
+        } else if (lifePercentage > 0.30) {
+            if (frameBeat == 0) heartArt = { "   _   _   ", "  / \\// \\  ", "  \\  \\ /   ", "   \\___/   " };
+            else                  heartArt = { "   _   _   ", "  / \\// \\  ", "  \\ \\/ /   ", "   \\___/   " };
         } else {
-            if (frameBeat == 0) artDoHeart = { "  _     _  ", " / \\   / \\ ", " \\     \\_/ ", "  \\___/    " };
-            else                  artDoHeart = { "  _     _  ", " / \\   / \\ ", " \\ \\_  \\_/ ", "  \\___/    " };
+            if (frameBeat == 0) heartArt = { "  _     _  ", " / \\   / \\ ", " \\     \\_/ ", "  \\___/    " };
+            else                  heartArt = { "  _     _  ", " / \\   / \\ ", " \\ \\_  \\_/ ", "  \\___/    " };
         }
     }
-    for (auto& line : artDoHeart) line = colorHeart + line + colorReset;
+    for (auto& line : heartArt) line = colorHeart + line + colorReset;
 
     PlayerHUDVisualState& stateHUD = hudStates[currentPlayer];
     double lifeCurrent = currentPlayer->getHealth();
@@ -945,12 +945,12 @@ std::vector<std::string> ScreenCombatGO::getLinesBarDeStatusDoPlayer(Character* 
 
     double percentageGhost = stateHUD.hpGhost / currentPlayer->getMaxHealth();
     int sizeBar = 8;
-    int qtyReal = static_cast<int>(percentageDeLife * sizeBar * 8);
+    int qtyReal = static_cast<int>(lifePercentage * sizeBar * 8);
     int qtyGhost = static_cast<int>(percentageGhost * sizeBar * 8);
     std::string barHP = "";
     std::string colorGhost = "\033[38;2;255;100;100m";
     std::string colorBackgroundHP = Appearance::color(Color::GRAY);
-    Color baseColorLife = (percentageDeLife > 0.70) ? Color::GREEN : (percentageDeLife > 0.30) ? Color::YELLOW : Color::RED;
+    Color baseColorLife = (lifePercentage > 0.70) ? Color::GREEN : (lifePercentage > 0.30) ? Color::YELLOW : Color::RED;
     for (int i = 0; i < sizeBar; ++i) {
         int intensity = 130 + (125 * i) / std::max(1, sizeBar - 1);
         std::string colorCurrent = Appearance::getColorRGBFade(baseColorLife, intensity);
@@ -977,11 +977,11 @@ std::vector<std::string> ScreenCombatGO::getLinesBarDeStatusDoPlayer(Character* 
     std::string colorGold = blinkGold ? "\033[38;2;255;255;100m" : colorOrange;
     std::string colorXpStr = blinkXp ? "\033[38;2;150;255;255m" : colorCyan;
 
-    std::string artDeBarDeXp = generateBarDeXp(currentPlayer, colorXpStr, colorReset);
+    std::string xpBarArt = generateBarDeXp(currentPlayer, colorXpStr, colorReset);
     std::string statusStr = generateStringDeStatus(currentPlayer, timeMs);
 
     std::string fctPrint = "";
-    if (damageAnimation > 0 && frameAnimation > 0 && isCure) {
+    if (damageAnimation > 0 && frameAnimation > 0 && isHealing) {
         std::string colorFCT;
         std::string textFloating = "+" + std::to_string(damageAnimation) + "!";
         if (frameAnimation <= 3) colorFCT = "\033[1;38;2;150;255;150m";
@@ -990,7 +990,7 @@ std::vector<std::string> ScreenCombatGO::getLinesBarDeStatusDoPlayer(Character* 
         else colorFCT = "\033[1;38;2;0;150;0m";
         fctPrint = "  " + colorFCT + textFloating + "\033[0m";
     }
-    std::string emptyPad(10, ' ');
+    std::string emptyPadding(10, ' ');
 
     std::string parryPrint = "";
     if (g_parryStatus > 0 && frameAnimation > 0 && frameAnimation <= 12) {
@@ -1008,35 +1008,35 @@ std::vector<std::string> ScreenCombatGO::getLinesBarDeStatusDoPlayer(Character* 
     std::string playerTag = (colorHighlight != Color::RESET) ? Appearance::color(colorHighlight) + currentPlayer->getName() + Appearance::color(Color::RESET) : currentPlayer->getName();
 
     std::vector<std::string> linesForPrint = {
-        "║ " + artDoHeart[0] + " ║ " + playerTag + " (" + currentPlayer->getRace()->getRaceName() + "/" + currentPlayer->getClassName() + ") ║ HP: [" + barHP + colorReset + "] " + colorLife + std::to_string(currentPlayer->getHealth()) + colorReset + "/" + std::to_string(currentPlayer->getMaxHealth()) + parryPrint + fctPrint + emptyPad,
-        "║ " + artDoHeart[1] + " ║ NIVEL: " + std::to_string(currentPlayer->getLevel()) + " ║ XP: " + artDeBarDeXp + " ║ OURO: " + colorGold + std::to_string(currentPlayer->getInventory()->getGold()) + "G" + colorReset + emptyPad,
-        "║ " + artDoHeart[2] + " ║ ARMA: " + nameDaWeapon + " ║ CURA RAP.: " + nameCureQuickly + emptyPad,
-        "║ " + artDoHeart[3] + " ║ ESC: " + nameDoShield + " ║ ARM: " + nameDaArmor + emptyPad,
-        "║ " + std::string(11, ' ') + " ║ STATUS: " + statusStr + emptyPad
+        "║ " + heartArt[0] + " ║ " + playerTag + " (" + currentPlayer->getRace()->getRaceName() + "/" + currentPlayer->getClassName() + ") ║ HP: [" + barHP + colorReset + "] " + colorLife + std::to_string(currentPlayer->getHealth()) + colorReset + "/" + std::to_string(currentPlayer->getMaxHealth()) + parryPrint + fctPrint + emptyPadding,
+        "║ " + heartArt[1] + " ║ NIVEL: " + std::to_string(currentPlayer->getLevel()) + " ║ XP: " + xpBarArt + " ║ OURO: " + colorGold + std::to_string(currentPlayer->getInventory()->getGold()) + "G" + colorReset + emptyPadding,
+        "║ " + heartArt[2] + " ║ ARMA: " + weaponName + " ║ CURA RAP.: " + nameCureQuickly + emptyPadding,
+        "║ " + heartArt[3] + " ║ ESC: " + shieldName + " ║ ARM: " + armorName + emptyPadding,
+        "║ " + std::string(11, ' ') + " ║ STATUS: " + statusStr + emptyPadding
     };
 
     return linesForPrint;
 }
 
-void ScreenCombatGO::displayHordeDeEnemiesSideASide(const std::vector<Character*>& enemies, Character* targetAnimation, int frameAnimation, bool isCure, bool cheerEmergence, bool isDeath, Item* /*armaAtacante*/, int damageAnimation, const std::vector<std::string>& dropsAnimation) 
+void IDECombatScreen::displayEnemyHordeSideBySide(const std::vector<Character*>& enemies, Character* targetAnimation, int frameAnimation, bool isHealing, bool animateEmergence, bool isDeath, Item* /*armaAtacante*/, int damageAnimation, const std::vector<std::string>& dropsAnimation) 
 {
     if (enemies.empty()) return;
     int terminalWidth = Appearance::getTerminalWidth();
     int terminalHeight = Appearance::getTerminalHeight();
-    const std::vector<std::string>& artOriginalDoEnemy = enemies[0]->getRace()->getAppearanceRace();
+    const std::vector<std::string>& originalEnemyArt = enemies[0]->getRace()->getAppearanceRace();
     
     std::vector<std::string> artReducedLocation;
-    const std::vector<std::string>* artDoEnemyPtr = &artOriginalDoEnemy;
+    const std::vector<std::string>* enemyArtPtr = &originalEnemyArt;
     
     // Aplica o padrao global de compressao para inimigos (se a arte for maior que algumas linhas minimas)
-    if (static_cast<int>(artOriginalDoEnemy.size()) > 10) {
-        artReducedLocation = Appearance::reduceScaleAscii(artOriginalDoEnemy, Appearance::FACTOR_COMPRESSION_GLOBAL, Appearance::FACTOR_COMPRESSION_GLOBAL);
-        artDoEnemyPtr = &artReducedLocation;
+    if (static_cast<int>(originalEnemyArt.size()) > 10) {
+        artReducedLocation = Appearance::reduceScaleAscii(originalEnemyArt, Appearance::FACTOR_COMPRESSION_GLOBAL, Appearance::FACTOR_COMPRESSION_GLOBAL);
+        enemyArtPtr = &artReducedLocation;
     }
-    const std::vector<std::string>& artDoEnemy = *artDoEnemyPtr;
+    const std::vector<std::string>& enemyArt = *enemyArtPtr;
     
-    int quantityTotalDeEnemiesNaHorde = static_cast<int>(enemies.size());
-    int widthSeparateForEachColumn = terminalWidth / quantityTotalDeEnemiesNaHorde; 
+    int totalEnemiesQuantityInHorde = static_cast<int>(enemies.size());
+    int widthSeparateForEachColumn = terminalWidth / totalEnemiesQuantityInHorde; 
 
     auto splitUTF8 = [](const std::string& s) {
         std::vector<std::string> chars;
@@ -1059,7 +1059,7 @@ void ScreenCombatGO::displayHordeDeEnemiesSideASide(const std::vector<Character*
     std::vector<int> offsetsIdle;
     for (size_t idx = 0; idx < enemies.size(); ++idx) {
         Character* enemy = enemies[idx];
-        if (enemy->getHealth() <= 0 || enemy->getDeathLively() || (enemy == targetAnimation && frameAnimation > 0 && !isDeath && !isCure)) {
+        if (enemy->getHealth() <= 0 || enemy->getDeathLively() || (enemy == targetAnimation && frameAnimation > 0 && !isDeath && !isHealing)) {
             offsetsIdle.push_back(0); // Mantem estatico durante animacoes de dano ou morte
         } else {
             // Ciclo de balanco: Move horizontalmente de forma suave (esquerda e direita)
@@ -1121,7 +1121,7 @@ void ScreenCombatGO::displayHordeDeEnemiesSideASide(const std::vector<Character*
                 if (fctLine == targetLine) {
                     std::string colorFCT;
                     std::string textFloating;
-                    if (isCure) {
+                    if (isHealing) {
                         textFloating = "+" + std::to_string(damageAnimation) + "!";
                         if (frameAnimation <= 2) colorFCT = "\033[1;38;2;150;255;150m";
                         else if (frameAnimation <= 4) colorFCT = "\033[1;38;2;50;255;50m";
@@ -1203,25 +1203,25 @@ void ScreenCombatGO::displayHordeDeEnemiesSideASide(const std::vector<Character*
     
     std::cout << "\n";
         
-    std::vector<std::string> linesDaArt;
-    for (size_t indexDaLineDaArt = 0; indexDaLineDaArt < artDoEnemy.size(); indexDaLineDaArt++) 
+    std::vector<std::string> artLines;
+    for (size_t artLineIndex = 0; artLineIndex < enemyArt.size(); artLineIndex++) 
     {
         std::string lineCurrent = "";
-        for (size_t indexDoEnemyForDraw = 0; indexDoEnemyForDraw < enemies.size(); indexDoEnemyForDraw++) 
+        for (size_t enemyDrawIndex = 0; enemyDrawIndex < enemies.size(); enemyDrawIndex++) 
         {
-            Character* enemyCurrent = enemies[indexDoEnemyForDraw];
+            Character* enemyCurrent = enemies[enemyDrawIndex];
             
-            int offset = offsetsIdle[indexDoEnemyForDraw];
-            int lineReal = static_cast<int>(indexDaLineDaArt);
+            int offset = offsetsIdle[enemyDrawIndex];
+            int lineReal = static_cast<int>(artLineIndex);
             std::string lineArt;
             int visibleLen;
             
-            if (lineReal >= 0 && lineReal < static_cast<int>(artDoEnemy.size())) {
-                lineArt = artDoEnemy[lineReal];
+            if (lineReal >= 0 && lineReal < static_cast<int>(enemyArt.size())) {
+                lineArt = enemyArt[lineReal];
                 auto characters = splitUTF8(lineArt);
                 visibleLen = static_cast<int>(characters.size());
             } else {
-                visibleLen = static_cast<int>(splitUTF8(artDoEnemy[0]).size()); // Margem de seguranca de tamanho
+                visibleLen = static_cast<int>(splitUTF8(enemyArt[0]).size()); // Margem de seguranca de tamanho
                 lineArt = std::string(visibleLen, ' ');
             }
             
@@ -1233,7 +1233,7 @@ void ScreenCombatGO::displayHordeDeEnemiesSideASide(const std::vector<Character*
             if (enemyCurrent->getDeathLively()) {
                 lineArt = std::string(visibleLen, ' ');
             } else if (isDeath && enemyCurrent == targetAnimation) {
-                int totalLinesArt = static_cast<int>(artDoEnemy.size());
+                int totalLinesArt = static_cast<int>(enemyArt.size());
                 if (totalLinesArt <= 0) totalLinesArt = 1;
                 
                 if (frameAnimation >= totalLinesArt) {
@@ -1250,7 +1250,7 @@ void ScreenCombatGO::displayHordeDeEnemiesSideASide(const std::vector<Character*
                     int startDropLine = (totalLinesArt - totalBoxLines) / 2;
                     if (startDropLine < 0) startDropLine = 0;
                     
-                    int currentLineIndex = static_cast<int>(indexDaLineDaArt) - startDropLine;
+                    int currentLineIndex = static_cast<int>(artLineIndex) - startDropLine;
                     if (currentLineIndex >= 0 && currentLineIndex < totalBoxLines) {
                         std::string colorEdge = Appearance::color(Color::GRAY);
                         std::string colorReset = Appearance::color(Color::RESET);
@@ -1324,7 +1324,7 @@ void ScreenCombatGO::displayHordeDeEnemiesSideASide(const std::vector<Character*
             
             if (enemyCurrent == targetAnimation && frameAnimation > 0 && !isDeath) {
                 std::string baseLine;
-                std::string colorHighlight = isCure ? Appearance::color(Color::GREEN) : Appearance::color(Color::RED);
+                std::string colorHighlight = isHealing ? Appearance::color(Color::GREEN) : Appearance::color(Color::RED);
                 
                 bool isBlinkColorful = (frameAnimation <= 4 && frameAnimation % 2 == 1);
                 bool isInvisible = (frameAnimation <= 4 && frameAnimation % 2 == 0);
@@ -1339,7 +1339,7 @@ void ScreenCombatGO::displayHordeDeEnemiesSideASide(const std::vector<Character*
                     lineCurrent += lineArt; // Adiciona espacos vazios
                 } else if (isBlinkColorful) {
                     lineCurrent += colorHighlight + baseLine + Appearance::color(Color::RESET);
-                } else if (CombatScreen::context.selectionTargetCurrent == static_cast<int>(indexDoEnemyForDraw)) {
+                } else if (CombatScreen::context.selectionTargetCurrent == static_cast<int>(enemyDrawIndex)) {
                     lineCurrent += (CombatScreen::context.blinkSelection ? Appearance::color(Color::YELLOW) : Appearance::color(Color::GRAY)) + baseLine + Appearance::color(Color::RESET);
                 } else if (enemyCurrent == g_enemyAttackerParry) {
                     lineCurrent += "\033[38;2;255;140;0m" + baseLine + Appearance::color(Color::RESET);
@@ -1349,7 +1349,7 @@ void ScreenCombatGO::displayHordeDeEnemiesSideASide(const std::vector<Character*
             } else {
                 if (enemyCurrent->getDeathLively()) {
                     lineCurrent += lineArt; // Adiciona espacos vazios
-                } else if (CombatScreen::context.selectionTargetCurrent == static_cast<int>(indexDoEnemyForDraw)) {
+                } else if (CombatScreen::context.selectionTargetCurrent == static_cast<int>(enemyDrawIndex)) {
                     lineCurrent += (CombatScreen::context.blinkSelection ? Appearance::color(Color::YELLOW) : Appearance::color(Color::GRAY)) + lineArt + Appearance::color(Color::RESET);
                 } else if (enemyCurrent == g_enemyAttackerParry) {
                     lineCurrent += "\033[38;2;255;140;0m" + lineArt + Appearance::color(Color::RESET);
@@ -1359,33 +1359,33 @@ void ScreenCombatGO::displayHordeDeEnemiesSideASide(const std::vector<Character*
             }
             
             int spacesRight = widthSeparateForEachColumn - spacesForCentralizeAArt - visibleLen;
-            if (indexDoEnemyForDraw < enemies.size() - 1) {
+            if (enemyDrawIndex < enemies.size() - 1) {
                 lineCurrent += std::string(spacesRight > 0 ? spacesRight : 0, ' ');
             }
         }
-        linesDaArt.push_back(lineCurrent);
+        artLines.push_back(lineCurrent);
     }
     
-    if (cheerEmergence) {
-        Appearance::printVectorExcited(linesDaArt, 12);
+    if (animateEmergence) {
+        Appearance::printVectorExcited(artLines, 12);
     } else {
-        for (const auto& line : linesDaArt) std::cout << line << "\n";
+        for (const auto& line : artLines) std::cout << line << "\n";
     }
 
     std::cout << "\n";
 }
 
-void ScreenCombatGO::animateDamageToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* attacker, Character* currentPlayer, const std::vector<Character*>& allies, int damageAnimation)
+void IDECombatScreen::animateDamageToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* attacker, Character* currentPlayer, const std::vector<Character*>& allies, int damageAnimation)
 {
     if (CombatScreen::context.isTerminalView) {
         std::string nameTarget = targetAnimation ? targetAnimation->getName() : "desconhecido";
         std::string nameAttacker = attacker ? attacker->getName() : "desconhecido";
         std::vector<std::string> logMsg = {
-            ThemeGO::comment("// " + nameAttacker + " ataca " + nameTarget),
-            ThemeGO::type("int") + " " + ThemeGO::variable("dano") + " = " + ThemeGO::number(std::to_string(damageAnimation)) + ";",
-            ThemeGO::comment("// " + nameTarget + " recebe " + std::to_string(damageAnimation) + " de dano")
+            IDETheme::comment("// " + nameAttacker + " ataca " + nameTarget),
+            IDETheme::type("int") + " " + IDETheme::variable("dano") + " = " + IDETheme::number(std::to_string(damageAnimation)) + ";",
+            IDETheme::comment("// " + nameTarget + " recebe " + std::to_string(damageAnimation) + " de dano")
         };
-        ScreenCombatGO::displayLogCombatTurnal(logMsg);
+        IDECombatScreen::displayLogCombatTurnal(logMsg);
         return;
     }
 
@@ -1398,33 +1398,33 @@ void ScreenCombatGO::animateDamageToEnemy(const std::string& combatTitle, const 
     });
 }
 
-void ScreenCombatGO::animateCureToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int cureAnimation)
+void IDECombatScreen::animateCureToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int healingAnimation)
 {
     if (CombatScreen::context.isTerminalView) {
         std::string nameTarget = targetAnimation ? targetAnimation->getName() : "desconhecido";
         std::vector<std::string> logMsg = {
-            ThemeGO::type("int") + " " + ThemeGO::variable("curaRecebida") + " = " + ThemeGO::number(std::to_string(cureAnimation)) + ";",
-            ThemeGO::comment("// " + nameTarget + " recupera " + std::to_string(cureAnimation) + " de vida")
+            IDETheme::type("int") + " " + IDETheme::variable("curaRecebida") + " = " + IDETheme::number(std::to_string(healingAnimation)) + ";",
+            IDETheme::comment("// " + nameTarget + " recupera " + std::to_string(healingAnimation) + " de vida")
         };
-        ScreenCombatGO::displayLogCombatTurnal(logMsg);
+        IDECombatScreen::displayLogCombatTurnal(logMsg);
         return;
     }
 
     executeAnimation(12, 100, 1, [&](int frame) {
         Color colorApplied = (frame % 2 == 1 && frame <= 6) ? Color::GREEN : Color::RESET;
-        renderScenePattern(combatTitle, enemies, nullptr, frame, true, false, nullptr, currentPlayer, allies, targetAnimation, colorApplied, cureAnimation);
+        renderScenePattern(combatTitle, enemies, nullptr, frame, true, false, nullptr, currentPlayer, allies, targetAnimation, colorApplied, healingAnimation);
     }, [&]() {
         renderScenePattern(combatTitle, enemies, nullptr, 0, false, false, nullptr, currentPlayer, allies);
     });
 }
 
-int ScreenCombatGO::getPlayerAction(int currentTurn, Character* characterActing, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
+int IDECombatScreen::getPlayerAction(int currentTurn, Character* characterActing, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
     setShiftVisible(currentTurn, characterActing->getName());
     CombatScreen::context.characterHUD = characterActing;
     CombatScreen::context.selectionActionCurrent = 0;
     
     if (CombatScreen::context.isTerminalView) {
-        int action = ScreenCombatGO::displayMenuActions(characterActing, enemies);
+        int action = IDECombatScreen::displayMenuActions(characterActing, enemies);
         if (action < 0) return -1;
         
         /*
@@ -1449,13 +1449,13 @@ int ScreenCombatGO::getPlayerAction(int currentTurn, Character* characterActing,
             CombatScreen::context.optionsMenuCurrent.push_back("Atacar");
             CombatScreen::context.optionsMenuCurrent.push_back("Defender");
             
-            std::string habOption = "Habilidade";
+            std::string skillOption = "Habilidade";
             if (characterActing->getTypeClass() == TypeClass::NECROMANCER) {
                 size_t souls = characterActing->getSoulCount();
-                if (souls == 0) habOption += Appearance::color(Color::RED) + " (0 Almas)" + Appearance::color(Color::RESET);
-                else habOption += " (" + std::to_string(souls) + " Alma" + (souls > 1 ? "s" : "") + ")";
+                if (souls == 0) skillOption += Appearance::color(Color::RED) + " (0 Almas)" + Appearance::color(Color::RESET);
+                else skillOption += " (" + std::to_string(souls) + " Alma" + (souls > 1 ? "s" : "") + ")";
             }
-            CombatScreen::context.optionsMenuCurrent.push_back(habOption);
+            CombatScreen::context.optionsMenuCurrent.push_back(skillOption);
             
             bool hasInventory = (characterActing->getInventory() != nullptr && characterActing->getInventory()->getAllItems().size() > 0);
             if (hasInventory || characterActing == currentPlayer) {
@@ -1547,9 +1547,9 @@ int ScreenCombatGO::getPlayerAction(int currentTurn, Character* characterActing,
     }
 }
 
-int ScreenCombatGO::getTargetAttack(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
+int IDECombatScreen::getTargetAttack(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
     if (CombatScreen::context.isTerminalView) {
-        int target = ScreenCombatGO::displaySelectionTarget(enemies);
+        int target = IDECombatScreen::displaySelectionTarget(enemies);
         return target;
     }
     
@@ -1628,7 +1628,7 @@ int ScreenCombatGO::getTargetAttack(const std::string& combatTitle, const std::v
     }
 }
 
-void ScreenCombatGO::selectHUDAlly(Character* currentPlayer, const std::vector<Character*>& allies) {
+void IDECombatScreen::selectHUDAlly(Character* currentPlayer, const std::vector<Character*>& allies) {
     std::vector<std::string> optionsHUD;
     optionsHUD.push_back(currentPlayer->getName());
     for (auto* ally : allies) {
@@ -1645,13 +1645,13 @@ void ScreenCombatGO::selectHUDAlly(Character* currentPlayer, const std::vector<C
     }
 }
 
-int ScreenCombatGO::getTargetItem(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
+int IDECombatScreen::getTargetItem(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
     return getTargetAttack(combatTitle, enemies, currentPlayer, allies);
 }
 
-int ScreenCombatGO::chooseShield(const std::string& characterName, const std::vector<Item*>& shields) {
+int IDECombatScreen::chooseShield(const std::string& characterName, const std::vector<Item*>& shields) {
     if (CombatScreen::context.isTerminalView) {
-        int choice = ScreenCombatGO::displaySelectionShield(CombatScreen::context.characterHUD, shields);
+        int choice = IDECombatScreen::displaySelectionShield(CombatScreen::context.characterHUD, shields);
         if (choice < 0) return 0;
         return choice + 1;
     }
@@ -1667,9 +1667,9 @@ int ScreenCombatGO::chooseShield(const std::string& characterName, const std::ve
     return choice + 1;
 }
 
-void ScreenCombatGO::notifyEnemiesMoreAct() {
+void IDECombatScreen::notifyEnemiesMoreAct() {
     if (CombatScreen::context.isTerminalView) {
-        ScreenCombatGO::displayMessageCombat("Inimigos sao mais ageis e atacam primeiro!", 0);
+        IDECombatScreen::displayMessageCombat("Inimigos sao mais ageis e atacam primeiro!", 0);
         return;
     }
     std::string msg = DialogueFunctions::formatSystemMsg("Os inimigos sao mais ageis e atacam primeiro!", Color::RED);
@@ -1678,9 +1678,9 @@ void ScreenCombatGO::notifyEnemiesMoreAct() {
     InputControl::waitForEnter();
 }
 
-void ScreenCombatGO::notifyShiftExtra(int dexterityPlayer, int maxEnemyDexterity) {
+void IDECombatScreen::notifyShiftExtra(int dexterityPlayer, int maxEnemyDexterity) {
     if (CombatScreen::context.isTerminalView) {
-        ScreenCombatGO::displayMessageCombat("Turno extra! Agilidade (" + std::to_string(dexterityPlayer) + " VS " + std::to_string(maxEnemyDexterity) + ")", 0);
+        IDECombatScreen::displayMessageCombat("Turno extra! Agilidade (" + std::to_string(dexterityPlayer) + " VS " + std::to_string(maxEnemyDexterity) + ")", 0);
         return;
     }
     std::string msg = DialogueFunctions::formatSystemMsg("Sua agilidade extrema (" + std::to_string(dexterityPlayer) + " VS " + std::to_string(maxEnemyDexterity) + ") permite que voce aja novamente!", Color::CYAN);
@@ -1689,9 +1689,9 @@ void ScreenCombatGO::notifyShiftExtra(int dexterityPlayer, int maxEnemyDexterity
     InputControl::waitForEnter();
 }
 
-void ScreenCombatGO::notifyUnpreventionInventory() {
+void IDECombatScreen::notifyUnpreventionInventory() {
     if (CombatScreen::context.isTerminalView) {
-        ScreenCombatGO::displayMessageCombat("Inimigo te pegou desprevenido enquanto usava o inventario!", 0);
+        IDECombatScreen::displayMessageCombat("Inimigo te pegou desprevenido enquanto usava o inventario!", 0);
         return;
     }
     std::string msg = DialogueFunctions::formatSystemMsg("O inimigo te pegou desprevinido enquanto voce usava o inventario!");
@@ -1699,17 +1699,17 @@ void ScreenCombatGO::notifyUnpreventionInventory() {
     Appearance::registerBattleLog(msg);
 }
 
-void ScreenCombatGO::notifyWithoutShields(const std::string& characterName) {
+void IDECombatScreen::notifyWithoutShields(const std::string& characterName) {
     if (CombatScreen::context.isTerminalView) {
-        ScreenCombatGO::displayMessageCombat(characterName + " nao possui escudos no inventario!", 0);
+        IDECombatScreen::displayMessageCombat(characterName + " nao possui escudos no inventario!", 0);
         return;
     }
     std::cout << "\n" << CombatScreen::combatMargin() << DialogueFunctions::formatSystemMsg(characterName + " nao possui escudos no inventario para usar!", Color::RED) << "\n";
 }
 
-void ScreenCombatGO::notifyImbalanceDefense(const std::string& characterName) {
+void IDECombatScreen::notifyImbalanceDefense(const std::string& characterName) {
     if (CombatScreen::context.isTerminalView) {
-        ScreenCombatGO::displayImbalanceDefense(nullptr);
+        IDECombatScreen::displayImbalanceDefense(nullptr);
         return;
     }
     std::string msg = DialogueFunctions::formatSystemMsg(characterName + " se desequilibrou e precisa de 1 turno para poder defender novamente!", Color::RED);
@@ -1718,9 +1718,9 @@ void ScreenCombatGO::notifyImbalanceDefense(const std::string& characterName) {
     InputControl::waitForEnter();
 }
 
-void ScreenCombatGO::notifyPostureDefensive(const std::string& characterName, const std::string& nameShield) {
+void IDECombatScreen::notifyPostureDefensive(const std::string& characterName, const std::string& nameShield) {
     if (CombatScreen::context.isTerminalView) {
-        ScreenCombatGO::displayPostureDefensive(nullptr, nameShield);
+        IDECombatScreen::displayPostureDefensive(nullptr, nameShield);
         return;
     }
     std::string msg = DialogueFunctions::formatSystemMsg(characterName + " assumiu uma postura defensiva com " + nameShield + "!", Color::WHITE);
@@ -1729,28 +1729,28 @@ void ScreenCombatGO::notifyPostureDefensive(const std::string& characterName, co
     InputControl::waitForEnter();
 }
 
-void ScreenCombatGO::notifyActionInvalidates() {
+void IDECombatScreen::notifyActionInvalidates() {
     if (CombatScreen::context.isTerminalView) {
-        ScreenCombatGO::displayMessageCombat("Acao invalida!", 0);
+        IDECombatScreen::displayMessageCombat("Acao invalida!", 0);
         return;
     }
     std::cout << "\n" << CombatScreen::combatMargin() << DialogueFunctions::formatSystemMsg("Acao invalida!", Color::RED) << "\n";
     InputControl::waitForEnter();
 }
 
-void ScreenCombatGO::notifyCancellationItem() {
+void IDECombatScreen::notifyCancellationItem() {
     if (CombatScreen::context.isTerminalView) {
-        ScreenCombatGO::displayMessageCombat("Uso do item cancelado.", 0);
+        IDECombatScreen::displayMessageCombat("Uso do item cancelado.", 0);
         return;
     }
     std::cout << "\n" << CombatScreen::combatMargin() << DialogueFunctions::formatSystemMsg("Uso do item cancelado. Ele retornou para a mochila.") << "\n";
 }
 
-void ScreenCombatGO::notifyUnmetRequirement(const std::string& requirementMessage) {
+void IDECombatScreen::notifyUnmetRequirement(const std::string& requirementMessage) {
     if (CombatScreen::context.isTerminalView) {
         std::string msg = requirementMessage;
         if (msg.substr(0, 1) == "\n") msg = msg.substr(1);
-        ScreenCombatGO::displayMessageCombat(msg, 0);
+        IDECombatScreen::displayMessageCombat(msg, 0);
         return;
     }
     if (requirementMessage.substr(0, 1) == "\n") {
@@ -1761,19 +1761,19 @@ void ScreenCombatGO::notifyUnmetRequirement(const std::string& requirementMessag
     InputControl::waitForEnter();
 }
 
-void ScreenCombatGO::updateScreenStatic(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies, bool animateEntrance)
+void IDECombatScreen::updateScreenStatic(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies, bool animateEntrance)
 {
     renderScenePattern(combatTitle, enemies, nullptr, 0, false, false, nullptr, currentPlayer, allies, nullptr, Color::RESET, -1, {}, animateEntrance);
 }
 
-void ScreenCombatGO::animateEnemyDeath(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* enemyDead, Character* currentPlayer, const std::vector<Character*>& allies, const std::vector<std::string>& drops)
+void IDECombatScreen::animateEnemyDeath(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* enemyDead, Character* currentPlayer, const std::vector<Character*>& allies, const std::vector<std::string>& drops)
 {
     if (enemies.empty()) return;
 
     if (CombatScreen::context.isTerminalView) {
         CombatScreen::context.enemyDeadWithDrops = enemyDead;
         CombatScreen::context.dropsAssets = drops;
-        ScreenCombatGO::displayDeathEnemy(enemyDead->getName(), 0, drops);
+        IDECombatScreen::displayDeathEnemy(enemyDead->getName(), 0, drops);
         CombatScreen::context.enemyDeadWithDrops = nullptr;
         CombatScreen::context.dropsAssets.clear();
         return;
@@ -1803,35 +1803,35 @@ void ScreenCombatGO::animateEnemyDeath(const std::string& combatTitle, const std
     });
 }
 
-void ScreenCombatGO::animateCureToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int cureAnimation)
+void IDECombatScreen::animateCureToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int healingAnimation)
 {
     if (CombatScreen::context.isTerminalView) {
         std::string nameTarget = targetAnimation ? targetAnimation->getName() : "desconhecido";
         std::vector<std::string> logMsg = {
-            ThemeGO::type("int") + " " + ThemeGO::variable("cura") + " = " + ThemeGO::number(std::to_string(cureAnimation)) + ";",
-            ThemeGO::comment("// " + nameTarget + " recupera " + std::to_string(cureAnimation) + " de vida")
+            IDETheme::type("int") + " " + IDETheme::variable("cura") + " = " + IDETheme::number(std::to_string(healingAnimation)) + ";",
+            IDETheme::comment("// " + nameTarget + " recupera " + std::to_string(healingAnimation) + " de vida")
         };
-        ScreenCombatGO::displayLogCombatTurnal(logMsg);
+        IDECombatScreen::displayLogCombatTurnal(logMsg);
         return;
     }
 
     executeAnimation(4, 100, 1, [&](int frame) {
-        renderScenePattern(combatTitle, enemies, targetAnimation, frame, true, false, nullptr, currentPlayer, allies, nullptr, Color::RESET, cureAnimation);
+        renderScenePattern(combatTitle, enemies, targetAnimation, frame, true, false, nullptr, currentPlayer, allies, nullptr, Color::RESET, healingAnimation);
     }, [&]() {
         renderScenePattern(combatTitle, enemies, targetAnimation, 0, true, false, nullptr, currentPlayer, allies);
     });
 }
 
-void ScreenCombatGO::animateDamageToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, bool isParry, int damageAnimation)
+void IDECombatScreen::animateDamageToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, bool isParry, int damageAnimation)
 {
     if (CombatScreen::context.isTerminalView) {
         std::string nameTarget = targetAnimation ? targetAnimation->getName() : currentPlayer ? currentPlayer->getName() : "desconhecido";
         std::vector<std::string> logMsg = {
-            ThemeGO::comment("// " + nameTarget + " sofre dano"),
-            ThemeGO::type("int") + " " + ThemeGO::variable("danoRecebido") + " = " + ThemeGO::number(std::to_string(damageAnimation)) + ";",
-            ThemeGO::comment("// " + nameTarget + " recebe " + std::to_string(damageAnimation) + " de dano")
+            IDETheme::comment("// " + nameTarget + " sofre dano"),
+            IDETheme::type("int") + " " + IDETheme::variable("danoRecebido") + " = " + IDETheme::number(std::to_string(damageAnimation)) + ";",
+            IDETheme::comment("// " + nameTarget + " recebe " + std::to_string(damageAnimation) + " de dano")
         };
-        ScreenCombatGO::displayLogCombatTurnal(logMsg);
+        IDECombatScreen::displayLogCombatTurnal(logMsg);
         return;
     }
 
@@ -1845,12 +1845,12 @@ void ScreenCombatGO::animateDamageToPlayer(const std::string& combatTitle, const
     });
 }
 
-// === Old TelaCombateIDE methods ===
+// === Old IDECombatScreen methods ===
 
-void ScreenCombatGO::display(Character* currentPlayer, const std::vector<Character*>& enemies, const std::string& combatTitle) {
+void IDECombatScreen::display(Character* currentPlayer, const std::vector<Character*>& enemies, const std::string& combatTitle) {
     Appearance::clearScreen();
-    std::string titleGO = "\033[38;2;86;156;214mclass\033[0m \033[38;2;78;201;176mCombate" + std::to_string(enemies.size()) + "\033[0m {";
-    Appearance::printCentralized(titleGO);
+    std::string titleIDE = "\033[38;2;86;156;214mclass\033[0m \033[38;2;78;201;176mCombate" + std::to_string(enemies.size()) + "\033[0m {";
+    Appearance::printCentralized(titleIDE);
     double pctLife = static_cast<double>(currentPlayer->getHealth()) / currentPlayer->getMaxHealth();
     std::string barLife = AppearanceTerminal::generateBarLifeASCII(pctLife, 12);
     std::string lineLife = std::string("    ") + "\033[38;2;156;220;254mint\033[0m " + std::string("\033[38;2;156;220;254mvidaAtual\033[0m = ") + barLife + std::string(";");
@@ -1872,7 +1872,7 @@ void ScreenCombatGO::display(Character* currentPlayer, const std::vector<Charact
         "    \033[38;2;78;201;176mbool\033[0m \033[38;2;156;220;254mataqueRealizado\033[0m = \033[38;2;86;156;214mfalse\033[0m;",
         "",
         "    \033[38;2;220;220;170mvoid\033[0m \033[38;2;220;220;170executar\033[0m() {",
-        "        " + ThemeGO::variable(currentPlayer->getName()) + "->" + ThemeGO::function("atacar") + "(inimigo);",
+        "        " + IDETheme::variable(currentPlayer->getName()) + "->" + IDETheme::function("atacar") + "(inimigo);",
         "    }"
     };
     Appearance::printBlockCentralizedTyping(code, 15);
@@ -1882,11 +1882,11 @@ void ScreenCombatGO::display(Character* currentPlayer, const std::vector<Charact
     }
     std::cout << "\n";
     Appearance::printBlockCentralized(logEnemies);
-    Appearance::printCentralized(ThemeGO::comment("Pressione [ENTER] para iniciar o combate..."));
+    Appearance::printCentralized(IDETheme::comment("Pressione [ENTER] para iniciar o combate..."));
     InputControl::waitForEnter();
 }
 
-void ScreenCombatGO::displayLogCombat(const std::vector<std::string>& messages) {
+void IDECombatScreen::displayLogCombat(const std::vector<std::string>& messages) {
     Appearance::clearScreen();
     std::vector<std::string> log;
     log.push_back("\033[38;2;86;156;214mnamespace\033[0m \033[38;2;78;201;176mCombateLog\033[0m {");
@@ -1897,10 +1897,10 @@ void ScreenCombatGO::displayLogCombat(const std::vector<std::string>& messages) 
     }
     log.push_back("}");
     Appearance::printBlockCentralized(log);
-    Appearance::printCentralized(ThemeGO::comment("Combate encerrado."));
+    Appearance::printCentralized(IDETheme::comment("Combate encerrado."));
 }
 
-void ScreenCombatGO::displayStatsCombat(int shifts, int damageCaused, int damageReceived, int healing) {
+void IDECombatScreen::displayStatsCombat(int shifts, int damageCaused, int damageReceived, int healing) {
     Appearance::clearScreen();
     std::vector<std::string> stats = {
         "\033[38;2;86;156;214mstruct\033[0m \033[38;2;78;201;176mStatsCombate\033[0m {",
@@ -1916,11 +1916,11 @@ void ScreenCombatGO::displayStatsCombat(int shifts, int damageCaused, int damage
         "// Cura total: " + std::to_string(healing)
     };
     Appearance::printBlockCentralized(stats);
-    Appearance::printCentralized(ThemeGO::comment("Pressione [ENTER] para continuar..."));
+    Appearance::printCentralized(IDETheme::comment("Pressione [ENTER] para continuar..."));
     InputControl::waitForEnter();
 }
 
-void ScreenCombatGO::displayDrops(const std::vector<std::string>& drops) {
+void IDECombatScreen::displayDrops(const std::vector<std::string>& drops) {
     Appearance::clearScreen();
     std::vector<std::string> boxDrops;
     boxDrops.push_back("\033[38;2;86;156;214mclass\033[0m \033[38;2;78;201;176mDropReward\033[0m {");
@@ -1931,11 +1931,11 @@ void ScreenCombatGO::displayDrops(const std::vector<std::string>& drops) {
     }
     boxDrops.push_back("};");
     Appearance::printBlockCentralized(boxDrops);
-    Appearance::printCentralized(ThemeGO::comment("Pressione [ENTER] para continuar..."));
+    Appearance::printCentralized(IDETheme::comment("Pressione [ENTER] para continuar..."));
     InputControl::waitForEnter();
 }
 
-int ScreenCombatGO::displayMenuActions(Character* player, const std::vector<Character*>& enemies) {
+int IDECombatScreen::displayMenuActions(Character* player, const std::vector<Character*>& enemies) {
     Appearance::clearScreen();
     std::string title = "\033[38;2;86;156;214mvoid\033[0m \033[38;2;220;220;170mEscolhaAcao\033[0m() {";
     Appearance::printCentralized(title);
@@ -1950,7 +1950,7 @@ int ScreenCombatGO::displayMenuActions(Character* player, const std::vector<Char
     Appearance::printBlockCentralized(options);
     std::string prompt = "\033[38;2;96;139;78m// Selecione uma opcao (0-" + std::to_string(options.size()-1) + ")\033[0m";
     Appearance::printCentralized(prompt);
-    Appearance::printCentralized(ThemeGO::comment("Pressione [ENTER] para confirmar..."));
+    Appearance::printCentralized(IDETheme::comment("Pressione [ENTER] para confirmar..."));
     int selected = 0;
     int maxOptions = static_cast<int>(options.size());
     while (true) {
@@ -1988,7 +1988,7 @@ int ScreenCombatGO::displayMenuActions(Character* player, const std::vector<Char
     }
 }
 
-int ScreenCombatGO::displaySelectionTarget(const std::vector<Character*>& enemies) {
+int IDECombatScreen::displaySelectionTarget(const std::vector<Character*>& enemies) {
     Appearance::clearScreen();
     std::string title = "\033[38;2;86;156;214mvoid\033[0m \033[38;2;220;220;170mEscolhaUmAlvo\033[0m() {";
     Appearance::printCentralized(title);
@@ -2000,7 +2000,7 @@ int ScreenCombatGO::displaySelectionTarget(const std::vector<Character*>& enemie
         listEnemies.push_back(line);
     }
     Appearance::printBlockCentralized(listEnemies);
-    Appearance::printCentralized(ThemeGO::comment("Selecione o alvo com < / > e confirme com ENTER..."));
+    Appearance::printCentralized(IDETheme::comment("Selecione o alvo com < / > e confirme com ENTER..."));
     int selected = 0;
     int maxEnemies = static_cast<int>(enemies.size());
     while (true) {
@@ -2043,7 +2043,7 @@ int ScreenCombatGO::displaySelectionTarget(const std::vector<Character*>& enemie
     }
 }
 
-void ScreenCombatGO::displayShift(Character* character, const std::vector<Character*>& enemies, int shift) {
+void IDECombatScreen::displayShift(Character* character, const std::vector<Character*>& enemies, int shift) {
     Appearance::clearScreen();
     std::string title = "\033[38;2;86;156;214mvoid\033[0m \033[38;2;220;220;170mexecutar\033[0m() {";
     Appearance::printCentralized(title);
@@ -2056,11 +2056,11 @@ void ScreenCombatGO::displayShift(Character* character, const std::vector<Charac
         logEnemies.push_back(std::string("\033[38;2;96;139;78m// Inimigo: ") + std::string("\033[38;2;156;220;254m") + enemy->getName() + std::string("\033[0m"));
     }
     Appearance::printBlockCentralized(logEnemies);
-    Appearance::printCentralized(ThemeGO::comment("Pressione [ENTER] para continuar..."));
+    Appearance::printCentralized(IDETheme::comment("Pressione [ENTER] para continuar..."));
     InputControl::waitForEnter();
 }
 
-void ScreenCombatGO::displayLogCombatTurnal(const std::vector<std::string>& messages) {
+void IDECombatScreen::displayLogCombatTurnal(const std::vector<std::string>& messages) {
     Appearance::clearScreen();
     std::string title = "\033[38;2;86;156;214mnamespace\033[0m \033[38;2;78;201;176mLogCombate\033[0m {";
     Appearance::printCentralized(title);
@@ -2070,10 +2070,10 @@ void ScreenCombatGO::displayLogCombatTurnal(const std::vector<std::string>& mess
     }
     Appearance::printBlockCentralized(log);
     Appearance::printCentralized("}");
-    Appearance::printCentralized(ThemeGO::comment("Combate em andamento..."));
+    Appearance::printCentralized(IDETheme::comment("Combate em andamento..."));
 }
 
-void ScreenCombatGO::displayDeathEnemy(const std::string& nameEnemy, int xpGain, const std::vector<std::string>& drops) {
+void IDECombatScreen::displayDeathEnemy(const std::string& nameEnemy, int xpGain, const std::vector<std::string>& drops) {
     Appearance::clearScreen();
     std::string title = "\033[38;2;86;156;214mvoid\033[0m \033[38;2;220;220;170mInimigoDerrotado\033[0m() {";
     Appearance::printCentralized(title);
@@ -2087,11 +2087,11 @@ void ScreenCombatGO::displayDeathEnemy(const std::string& nameEnemy, int xpGain,
         dropsList.push_back("    \033[38;2;86;156;214mauto\033[0m \033[38;2;156;220;254mitem\033[0m = \033[38;2;214;157;133m\"" + cleanDrop + "\"\033[0m;");
     }
     Appearance::printBlockCentralized(dropsList);
-    Appearance::printCentralized(ThemeGO::comment("Pressione [ENTER] para continuar..."));
+    Appearance::printCentralized(IDETheme::comment("Pressione [ENTER] para continuar..."));
     InputControl::waitForEnter();
 }
 
-void ScreenCombatGO::displayEffectsAssets(Character* character) {
+void IDECombatScreen::displayEffectsAssets(Character* character) {
     Appearance::clearScreen();
     std::string title = "\033[38;2;86;156;214mstruct\033[0m \033[38;2;78;201;176mEfeitosAtivos\033[0m {";
     Appearance::printCentralized(title);
@@ -2108,11 +2108,11 @@ void ScreenCombatGO::displayEffectsAssets(Character* character) {
     }
     Appearance::printBlockCentralized(effects);
     Appearance::printCentralized("}");
-    Appearance::printCentralized(ThemeGO::comment("Pressione [ENTER] para continuar..."));
+    Appearance::printCentralized(IDETheme::comment("Pressione [ENTER] para continuar..."));
     InputControl::waitForEnter();
 }
 
-int ScreenCombatGO::displaySelectionItem(Character* player, int category) {
+int IDECombatScreen::displaySelectionItem(Character* player, int category) {
     Appearance::clearScreen();
     std::string title = "\033[38;2;86;156;214mvoid\033[0m \033[38;2;220;220;170mSelecionarItem\033[0m() {";
     Appearance::printCentralized(title);
@@ -2128,7 +2128,7 @@ int ScreenCombatGO::displaySelectionItem(Character* player, int category) {
             "    // Adicione itens ao inventario e tente novamente"
         };
         Appearance::printBlockCentralized(msg);
-        Appearance::printCentralized(ThemeGO::comment("Pressione [ENTER] para voltar..."));
+        Appearance::printCentralized(IDETheme::comment("Pressione [ENTER] para voltar..."));
         InputControl::waitForEnter();
         return -1;
     }
@@ -2138,7 +2138,7 @@ int ScreenCombatGO::displaySelectionItem(Character* player, int category) {
         items.push_back("\033[38;2;156;220;254mint\033[0m \033[38;2;156;220;254mit" + std::to_string(i) + "\033[0m = \033[38;2;181;206;168m" + std::to_string(i) + "\033[0m; // " + name);
     }
     Appearance::printBlockCentralized(items);
-    Appearance::printCentralized(ThemeGO::comment("Selecione o item com < / > e confirme com ENTER..."));
+    Appearance::printCentralized(IDETheme::comment("Selecione o item com < / > e confirme com ENTER..."));
     int selected = 0;
     int maxItems = static_cast<int>(listItems.size());
     while (true) {
@@ -2187,7 +2187,7 @@ int ScreenCombatGO::displaySelectionItem(Character* player, int category) {
     }
 }
 
-int ScreenCombatGO::displaySelectionShield(Character* player, const std::vector<Item*>& shields) {
+int IDECombatScreen::displaySelectionShield(Character* player, const std::vector<Item*>& shields) {
     Appearance::clearScreen();
     std::string title = "\033[38;2;86;156;214mvoid\033[0m \033[38;2;220;220;170mSelecionarEscudo\033[0m() {";
     Appearance::printCentralized(title);
@@ -2197,7 +2197,7 @@ int ScreenCombatGO::displaySelectionShield(Character* player, const std::vector<
             "    // Este personagem nao possui escudos em seu inventario"
         };
         Appearance::printBlockCentralized(msg);
-        Appearance::printCentralized(ThemeGO::comment("Pressione [ENTER] para cancelar..."));
+        Appearance::printCentralized(IDETheme::comment("Pressione [ENTER] para cancelar..."));
         InputControl::waitForEnter();
         return 0;
     }
@@ -2207,7 +2207,7 @@ int ScreenCombatGO::displaySelectionShield(Character* player, const std::vector<
         shieldsList.push_back("\033[38;2;156;220;254mint\033[0m \033[38;2;156;220;254mescudo\033[0m = \033[38;2;181;206;168m" + std::to_string(i) + "\033[0m; // " + nameShield);
     }
     Appearance::printBlockCentralized(shieldsList);
-    Appearance::printCentralized(ThemeGO::comment("Selecione o escudo com < / > e confirme com ENTER..."));
+    Appearance::printCentralized(IDETheme::comment("Selecione o escudo com < / > e confirme com ENTER..."));
     int selected = 0;
     int maxShields = static_cast<int>(shields.size());
     while (true) {
@@ -2249,31 +2249,31 @@ int ScreenCombatGO::displaySelectionShield(Character* player, const std::vector<
     }
 }
 
-void ScreenCombatGO::displayPostureDefensive(Character* player, const std::string& nameShield) {
+void IDECombatScreen::displayPostureDefensive(Character* player, const std::string& nameShield) {
     Appearance::clearScreen();
     std::string title = "\033[38;2;86;156;214mvoid\033[0m \033[38;2;220;220;170mPosturaDefensiva\033[0m() {";
     Appearance::printCentralized(title);
     std::string lineShield = "    \033[38;2;156;220;254mstring\033[0m \033[38;2;156;220;254mescudoEquipado\033[0m = \033[38;2;214;157;133m\"" + nameShield + "\"\033[0m;";
     Appearance::printCentralized(lineShield);
-    Appearance::printCentralized(ThemeGO::comment("Postura defensiva ativada! Pressione [ENTER] para continuar..."));
+    Appearance::printCentralized(IDETheme::comment("Postura defensiva ativada! Pressione [ENTER] para continuar..."));
     InputControl::waitForEnter();
 }
 
-void ScreenCombatGO::displayImbalanceDefense(Character* player) {
+void IDECombatScreen::displayImbalanceDefense(Character* player) {
     Appearance::clearScreen();
     std::string title = "\033[38;2;86;156;214mvoid\033[0m \033[38;2;220;220;170mDesequilibrioDefesa\033[0m() {";
     Appearance::printCentralized(title);
-    Appearance::printCentralized(ThemeGO::comment("Defesa desequilibrada! Pressione [ENTER] para continuar..."));
+    Appearance::printCentralized(IDETheme::comment("Defesa desequilibrada! Pressione [ENTER] para continuar..."));
     InputControl::waitForEnter();
 }
 
-void ScreenCombatGO::displayMessageCombat(const std::string& message, int color) {
+void IDECombatScreen::displayMessageCombat(const std::string& message, int color) {
     Appearance::clearScreen();
     std::string title = "\033[38;2;86;156;214mnamespace\033[0m \033[38;2;78;201;176mMensagemCombate\033[0m {";
     Appearance::printCentralized(title);
     std::string lineMessage = "    \033[38;2;86;156;214mauto\033[0m \033[38;2;156;220;254mstring\033[0m \033[38;2;156;220;254mmsg\033[0m = \033[38;2;214;157;133m\"" + message + "\"\033[0m;";
     Appearance::printCentralized(lineMessage);
     Appearance::printCentralized("}");
-    Appearance::printCentralized(ThemeGO::comment("Pressione [ENTER] para continuar..."));
+    Appearance::printCentralized(IDETheme::comment("Pressione [ENTER] para continuar..."));
     InputControl::waitForEnter();
 }

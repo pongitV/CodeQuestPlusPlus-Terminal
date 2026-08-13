@@ -4,7 +4,7 @@
 #include "Core/Utils/Appearance.h"
 
 namespace ArtsDiary {
-    const std::vector<std::string> soonDiary = StringConvert::convertRawStringToVector(R"(
+    const std::vector<std::string> diaryLogo = StringConvert::convertRawStringToVector(R"(
 ██████████   █████   █████████   ███████████   █████    ███████   
 ░░███░░░░███ ░░███   ███░░░░░███ ░░███░░░░░███ ░░███   ███░░░░░███ 
  ░███   ░░███ ░███  ░███    ░███  ░███    ░███  ░███  ███     ░░███

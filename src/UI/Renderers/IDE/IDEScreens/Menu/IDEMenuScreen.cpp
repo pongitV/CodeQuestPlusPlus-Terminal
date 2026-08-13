@@ -6,7 +6,7 @@
 #include <thread>
 #include <chrono>
 
-void ScreenMenuGO::displayPanelSoonGame(const std::string& titleDaScreen, bool /*animarFadeIn*/) {
+void IDEMenuScreen::displayGameLogoPanel(const std::string& screenTitle, bool /*animarFadeIn*/) {
     // Na IDE, nao usamos animacao de fadeIn, printamos como codigo estatico
     Appearance::clearScreen();
     
@@ -19,10 +19,10 @@ void ScreenMenuGO::displayPanelSoonGame(const std::string& titleDaScreen, bool /
     std::cout << "\n\n  " << colorType << "GameEngine" << colorPunct << "::" 
               << colorType << "Display" << colorPunct << "::" 
               << colorKeyword << "renderTitle" << colorPunct << "("
-              << colorString << "\"" << titleDaScreen << "\"" << colorPunct << ");\n\n" << reset;
+              << colorString << "\"" << screenTitle << "\"" << colorPunct << ");\n\n" << reset;
 }
 
-int ScreenMenuGO::displayMainMenuOptions() {
+int IDEMenuScreen::displayMainMenuOptions() {
     std::string colorKeyword = "\033[38;2;86;156;214m"; // Blue
     std::string colorType = "\033[38;2;78;201;176m"; // Cyan
     std::string colorPunct = "\033[38;2;212;212;212m"; // Gray
@@ -74,7 +74,7 @@ int ScreenMenuGO::displayMainMenuOptions() {
         int spacesY = calculateSpaceY(blockCentral.size());
         for (int i = 0; i < spacesY; ++i) std::cout << "\n";
 
-        printBlockCentralizedGO(blockCentral);
+        printCentralizedBlockIDE(blockCentral);
 
         unsigned char key = static_cast<unsigned char>(InputControl::readKey());
         if (key == 224 || key == 0 || key == '\033') {
@@ -100,7 +100,7 @@ int ScreenMenuGO::displayMainMenuOptions() {
     }
 }
 
-bool ScreenMenuGO::displayConfirmationExit() {
+bool IDEMenuScreen::displayConfirmationExit() {
     std::string colorKeyword = "\033[38;2;86;156;214m"; // Blue
     std::string colorFunc = "\033[38;2;220;220;170m"; // Yellow
     std::string colorPunct = "\033[38;2;212;212;212m"; // Gray
@@ -126,7 +126,7 @@ bool ScreenMenuGO::displayConfirmationExit() {
         int spacesY = calculateSpaceY(blockCentral.size());
         for (int i = 0; i < spacesY; ++i) std::cout << "\n";
 
-        printBlockCentralizedGO(blockCentral);
+        printCentralizedBlockIDE(blockCentral);
 
         unsigned char key = static_cast<unsigned char>(InputControl::readKey());
         if (key == 224 || key == 0 || key == '\033') {
@@ -146,7 +146,7 @@ bool ScreenMenuGO::displayConfirmationExit() {
     }
 }
 
-bool ScreenMenuGO::displayConfirmationDeChooseWithArtSideASide(const std::string& typeDeChoose, const std::string& nameDaChoose, const std::vector<std::string>& informationForDisplay, const std::vector<std::string>& artAsciiForDisplay) {
+bool IDEMenuScreen::displayChooseConfirmationWithArtSideBySide(const std::string& chooseType, const std::string& chooseName, const std::vector<std::string>& informationForDisplay, const std::vector<std::string>& asciiArtForDisplay) {
     std::string colorKeyword = "\033[38;2;86;156;214m"; // Blue
     std::string colorFunc = "\033[38;2;220;220;170m"; // Yellow
     std::string colorType = "\033[38;2;78;201;176m"; // Cyan
@@ -163,7 +163,7 @@ bool ScreenMenuGO::displayConfirmationDeChooseWithArtSideASide(const std::string
         Appearance::clearScreen();
         
         std::vector<std::string> blockCentral;
-        blockCentral.push_back(colorComment + "// Previa da " + typeDeChoose + ": " + nameDaChoose + reset);
+        blockCentral.push_back(colorComment + "// Previa da " + chooseType + ": " + chooseName + reset);
         blockCentral.push_back(colorType + "PreviewData " + colorPunct + "data = {");
         
         for (const auto& info : informationForDisplay) {
@@ -171,7 +171,7 @@ bool ScreenMenuGO::displayConfirmationDeChooseWithArtSideASide(const std::string
         }
         
         blockCentral.push_back("    " + colorKeyword + "struct " + colorPunct + "{");
-        for (const auto& art : artAsciiForDisplay) {
+        for (const auto& art : asciiArtForDisplay) {
             blockCentral.push_back("        " + colorComment + "// " + art + reset);
         }
         blockCentral.push_back("    " + colorPunct + "} art");
@@ -186,7 +186,7 @@ bool ScreenMenuGO::displayConfirmationDeChooseWithArtSideASide(const std::string
         int spacesY = calculateSpaceY(blockCentral.size());
         for (int i = 0; i < spacesY; ++i) std::cout << "\n";
         
-        printBlockCentralizedGO(blockCentral);
+        printCentralizedBlockIDE(blockCentral);
 
         unsigned char key = static_cast<unsigned char>(InputControl::readKey());
         if (key == 224 || key == 0 || key == '\033') {
@@ -206,43 +206,43 @@ bool ScreenMenuGO::displayConfirmationDeChooseWithArtSideASide(const std::string
     }
 }
 
-std::vector<std::string> ScreenMenuGO::composeFrameDeAttributes(const Attributes& stats, const std::string& titleDry, const std::string& titleSkill, const std::string& nameHab, const std::string& descHab, const std::string& titleSkill2, const std::string& nameHab2, const std::string& descHab2) {
+std::vector<std::string> IDEMenuScreen::composeAttributesFrame(const Attributes& stats, const std::string& dryTitle, const std::string& skillTitle, const std::string& skillName, const std::string& skillDesc, const std::string& skillTitle2, const std::string& skillName2, const std::string& skillDesc2) {
     std::string colorKeyword = "\033[38;2;86;156;214m"; // Blue
     std::string colorType = "\033[38;2;78;201;176m"; // Cyan
     std::string colorPunct = "\033[38;2;212;212;212m"; // Gray
     std::string colorString = "\033[38;2;214;157;133m"; // Orange/Greenish
-    std::string colorIna = "\033[38;2;181;206;168m"; // Light Green (numbers)
+    std::string colorNumber = "\033[38;2;181;206;168m"; // Light Green (numbers)
     std::string colorComment = "\033[38;2;87;166;74m"; // Green
     std::string reset = "\033[0m";
 
     std::vector<std::string> res;
-    res.push_back(colorComment + "// " + titleDry + reset);
+    res.push_back(colorComment + "// " + dryTitle + reset);
     res.push_back(colorKeyword + "struct " + colorType + "Stats " + colorPunct + "{");
-    res.push_back("    " + colorType + "int " + colorPunct + "Vida = " + colorIna + std::to_string(stats.health) + colorPunct + ";");
-    res.push_back("    " + colorType + "int " + colorPunct + "Forca = " + colorIna + std::to_string(stats.strength) + colorPunct + ";");
-    res.push_back("    " + colorType + "int " + colorPunct + "Destreza = " + colorIna + std::to_string(stats.dexterity) + colorPunct + ";");
-    res.push_back("    " + colorType + "int " + colorPunct + "Resistencia = " + colorIna + std::to_string(stats.resistance) + colorPunct + ";");
-    res.push_back("    " + colorType + "int " + colorPunct + "Constituicao = " + colorIna + std::to_string(stats.constitution) + colorPunct + ";");
-    res.push_back("    " + colorType + "int " + colorPunct + "Inteligencia = " + colorIna + std::to_string(stats.intelligence) + colorPunct + ";");
-    res.push_back("    " + colorType + "int " + colorPunct + "Sabedoria = " + colorIna + std::to_string(stats.wisdom) + colorPunct + ";");
+    res.push_back("    " + colorType + "int " + colorPunct + "Vida = " + colorNumber + std::to_string(stats.health) + colorPunct + ";");
+    res.push_back("    " + colorType + "int " + colorPunct + "Forca = " + colorNumber + std::to_string(stats.strength) + colorPunct + ";");
+    res.push_back("    " + colorType + "int " + colorPunct + "Destreza = " + colorNumber + std::to_string(stats.dexterity) + colorPunct + ";");
+    res.push_back("    " + colorType + "int " + colorPunct + "Resistencia = " + colorNumber + std::to_string(stats.resistance) + colorPunct + ";");
+    res.push_back("    " + colorType + "int " + colorPunct + "Constituicao = " + colorNumber + std::to_string(stats.constitution) + colorPunct + ";");
+    res.push_back("    " + colorType + "int " + colorPunct + "Inteligencia = " + colorNumber + std::to_string(stats.intelligence) + colorPunct + ";");
+    res.push_back("    " + colorType + "int " + colorPunct + "Sabedoria = " + colorNumber + std::to_string(stats.wisdom) + colorPunct + ";");
     res.push_back(colorPunct + "};" + reset);
     res.push_back("");
     
-    res.push_back(colorComment + "// " + titleSkill + reset);
-    res.push_back(colorType + "Ability " + colorPunct + "skill1 = " + colorString + "\"" + nameHab + "\"" + colorPunct + ";");
-    res.push_back(colorComment + "/* " + descHab + " */" + reset);
+    res.push_back(colorComment + "// " + skillTitle + reset);
+    res.push_back(colorType + "Ability " + colorPunct + "skill1 = " + colorString + "\"" + skillName + "\"" + colorPunct + ";");
+    res.push_back(colorComment + "/* " + skillDesc + " */" + reset);
     
-    if (!titleSkill2.empty()) {
+    if (!skillTitle2.empty()) {
         res.push_back("");
-        res.push_back(colorComment + "// " + titleSkill2 + reset);
-        res.push_back(colorType + "Ability " + colorPunct + "skill2 = " + colorString + "\"" + nameHab2 + "\"" + colorPunct + ";");
-        res.push_back(colorComment + "/* " + descHab2 + " */" + reset);
+        res.push_back(colorComment + "// " + skillTitle2 + reset);
+        res.push_back(colorType + "Ability " + colorPunct + "skill2 = " + colorString + "\"" + skillName2 + "\"" + colorPunct + ";");
+        res.push_back(colorComment + "/* " + skillDesc2 + " */" + reset);
     }
     
     return res;
 }
 
-std::vector<std::string> ScreenMenuGO::compressArtASCII(const std::vector<std::string>& artOriginal, int factorY, int factorX) {
+std::vector<std::string> IDEMenuScreen::compressArtASCII(const std::vector<std::string>& artOriginal, int factorY, int factorX) {
     std::vector<std::string> compressed;
     if (artOriginal.empty() || factorY <= 0 || factorX <= 0) return compressed;
 
@@ -275,12 +275,12 @@ std::vector<std::string> ScreenMenuGO::compressArtASCII(const std::vector<std::s
     return compressed;
 }
 
-int ScreenMenuGO::calculateSpaceY(int linesDoContent) {
+int IDEMenuScreen::calculateSpaceY(int contentLines) {
     int height = Appearance::getTerminalHeight();
-    return std::max(0, (height - linesDoContent) / 2);
+    return std::max(0, (height - contentLines) / 2);
 }
 
-void ScreenMenuGO::printBlockCentralizedGO(const std::vector<std::string>& block, int recoilAdditionalX) {
+void IDEMenuScreen::printCentralizedBlockIDE(const std::vector<std::string>& block, int recoilAdditionalX) {
     int width = Appearance::getTerminalWidth();
     int maxLen = 0;
     for (const auto& line : block) {

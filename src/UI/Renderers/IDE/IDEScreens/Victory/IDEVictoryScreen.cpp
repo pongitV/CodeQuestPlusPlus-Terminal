@@ -18,11 +18,11 @@
 class SceneVictoryIntro3D : public ScreenScene3D {
 private:
     Character* currentPlayer;
-    int quantityDeGoldObtained;
-    int totalDeDamageCaused;
-    int totalDeDamageReceived;
-    int cureTotalReceived;
-    int shiftsCombat;
+    int obtainedGoldQuantity;
+    int totalDamageCaused;
+    int totalDamageReceived;
+    int totalHealingReceived;
+    int combatTurns;
     int biggerDamage;
     int itemsConsumed;
     int parriesTempted;
@@ -32,18 +32,18 @@ private:
 
 public:
     SceneVictoryIntro3D(Character* player, int gold, int damageCaused, int damageReceived, int healing, int shifts, int mDamage, int items, int pTry, int pEf, const std::string& map)
-        : currentPlayer(player), quantityDeGoldObtained(gold), totalDeDamageCaused(damageCaused),
-          totalDeDamageReceived(damageReceived), cureTotalReceived(healing), shiftsCombat(shifts), biggerDamage(mDamage), itemsConsumed(items), parriesTempted(pTry), parriesEffective(pEf), titleMap(map) {
+        : currentPlayer(player), obtainedGoldQuantity(gold), totalDamageCaused(damageCaused),
+          totalDamageReceived(damageReceived), totalHealingReceived(healing), combatTurns(shifts), biggerDamage(mDamage), itemsConsumed(items), parriesTempted(pTry), parriesEffective(pEf), titleMap(map) {
         std::vector<Character*> empty;
         screen3D = RaycasterRendererCombat::renderFrame(titleMap, currentPlayer, empty);
     }
 
 protected:
-    std::vector<std::string> getSoon() const override {
-        return ArtsVictory::soonVictory;
+    std::vector<std::string> getLogo() const override {
+        return ArtsVictory::victoryLogo;
     }
 
-    std::string getColorSoon() const override {
+    std::string getLogoColor() const override {
         return "\033[1;32m";
     }
 
@@ -57,11 +57,11 @@ protected:
 
         std::vector<std::string> isLines;
         isLines.push_back("");
-        isLines.push_back(" Turnos         : " + std::to_string(shiftsCombat));
-        isLines.push_back(" Dano Causado   : " + std::to_string(totalDeDamageCaused));
+        isLines.push_back(" Turnos         : " + std::to_string(combatTurns));
+        isLines.push_back(" Dano Causado   : " + std::to_string(totalDamageCaused));
         isLines.push_back(" Maior Hit Dano : " + Appearance::color(Color::RED) + std::to_string(biggerDamage) + Appearance::color(Color::RESET));
-        isLines.push_back(" Dano Recebido  : " + std::to_string(totalDeDamageReceived));
-        isLines.push_back(" Cura Realizada : " + std::to_string(cureTotalReceived));
+        isLines.push_back(" Dano Recebido  : " + std::to_string(totalDamageReceived));
+        isLines.push_back(" Cura Realizada : " + std::to_string(totalHealingReceived));
         isLines.push_back(" Itens Gastos   : " + std::to_string(itemsConsumed));
 
         std::string strParry = std::to_string(parriesEffective) + "/" + std::to_string(parriesTempted);
@@ -80,7 +80,7 @@ protected:
         std::string barXp = BaseScreen::generateBarGradient(xpPct, 12, Color::CYAN);
         progressLines.push_back(" XP: [" + barXp + Appearance::color(Color::RESET) + "] " + Appearance::color(Color::CYAN) + "+0" + Appearance::color(Color::RESET));
 
-        int totalExcitedGold = currentPlayer->getInventory()->getGold() - quantityDeGoldObtained;
+        int totalExcitedGold = currentPlayer->getInventory()->getGold() - obtainedGoldQuantity;
         progressLines.push_back(" Ouro Total: " + Appearance::color(Color::YELLOW) + std::to_string(totalExcitedGold) + "G " + Appearance::color(Color::RESET) + "(+0)");
         progressLines.push_back("");
 
@@ -116,8 +116,8 @@ protected:
     }
 };
 
-void ScreenVictoryGO::display(Character* currentPlayer, int quantityDeGoldObtained, int quantityDeXpObtained,
-    int totalDeDamageCaused, int totalDeDamageReceived, int cureTotalReceived, int shiftsCombat,
+void IDEVictoryScreen::display(Character* currentPlayer, int obtainedGoldQuantity, int obtainedXpQuantity,
+    int totalDamageCaused, int totalDamageReceived, int totalHealingReceived, int combatTurns,
     const std::vector<std::string>& enemiesDefeated, int parriesPerfect, int biggerDamage,
     int parriesTempted, int parriesEffective, int itemsConsumed, const std::vector<std::pair<std::string, int>>& dropsUnique,
     bool canRiseLevel, const std::vector<std::string>& newDiscoveries,
@@ -133,13 +133,13 @@ void ScreenVictoryGO::display(Character* currentPlayer, int quantityDeGoldObtain
     int framesTotal = framesXP + (dropsUnique.empty() ? 0 : static_cast<int>(dropsUnique.size())) + 1;
 
     if (isMode3D) {
-        SceneVictoryIntro3D intro(currentPlayer, quantityDeGoldObtained, totalDeDamageCaused, totalDeDamageReceived, cureTotalReceived, shiftsCombat, biggerDamage, itemsConsumed, parriesTempted, parriesEffective, titleMap);
+        SceneVictoryIntro3D intro(currentPlayer, obtainedGoldQuantity, totalDamageCaused, totalDamageReceived, totalHealingReceived, combatTurns, biggerDamage, itemsConsumed, parriesTempted, parriesEffective, titleMap);
         intro.execute();
     }
 
     for (int frame = 0; frame <= framesTotal; ++frame) {
-        int curGold = (quantityDeGoldObtained * std::min(frame, framesXP)) / framesXP;
-        int curXp = (quantityDeXpObtained * std::min(frame, framesXP)) / framesXP;
+        int curGold = (obtainedGoldQuantity * std::min(frame, framesXP)) / framesXP;
+        int curXp = (obtainedXpQuantity * std::min(frame, framesXP)) / framesXP;
 
         std::ostringstream buffer;
         std::streambuf* oldCout = std::cout.rdbuf(buffer.rdbuf());
@@ -150,16 +150,16 @@ void ScreenVictoryGO::display(Character* currentPlayer, int quantityDeGoldObtain
         if (isMode3D) {
             screen3D = RaycasterRendererCombat::renderFrame(titleMap, currentPlayer, empty);
         } else {
-            Appearance::displayArtPanel(ArtsVictory::soonVictory, 85, Color::GREEN, "", frame == 0);
+            Appearance::displayArtPanel(ArtsVictory::victoryLogo, 85, Color::GREEN, "", frame == 0);
         }
 
         std::vector<std::string> isLines;
         isLines.push_back("");
-        isLines.push_back(" Turnos         : " + std::to_string(shiftsCombat));
-        isLines.push_back(" Dano Causado   : " + std::to_string(totalDeDamageCaused));
+        isLines.push_back(" Turnos         : " + std::to_string(combatTurns));
+        isLines.push_back(" Dano Causado   : " + std::to_string(totalDamageCaused));
         isLines.push_back(" Maior Hit Dano : " + Appearance::color(Color::RED) + std::to_string(biggerDamage) + Appearance::color(Color::RESET));
-        isLines.push_back(" Dano Recebido  : " + std::to_string(totalDeDamageReceived));
-        isLines.push_back(" Cura Realizada : " + std::to_string(cureTotalReceived));
+        isLines.push_back(" Dano Recebido  : " + std::to_string(totalDamageReceived));
+        isLines.push_back(" Cura Realizada : " + std::to_string(totalHealingReceived));
         isLines.push_back(" Itens Gastos   : " + std::to_string(itemsConsumed));
 
         std::string strParry = std::to_string(parriesEffective) + "/" + std::to_string(parriesTempted);
@@ -178,7 +178,7 @@ void ScreenVictoryGO::display(Character* currentPlayer, int quantityDeGoldObtain
         std::string barXp = BaseScreen::generateBarGradient(xpPct, 12, Color::CYAN);
         progressLines.push_back(" XP: [" + barXp + Appearance::color(Color::RESET) + "] " + Appearance::color(Color::CYAN) + "+" + std::to_string(curXp) + Appearance::color(Color::RESET));
 
-        int totalExcitedGold = currentPlayer->getInventory()->getGold() - quantityDeGoldObtained + curGold;
+        int totalExcitedGold = currentPlayer->getInventory()->getGold() - obtainedGoldQuantity + curGold;
         progressLines.push_back(" Ouro Total: " + Appearance::color(Color::YELLOW) + std::to_string(totalExcitedGold) + "G " + Appearance::color(Color::RESET) + "(+" + std::to_string(curGold) + ")");
         progressLines.push_back("");
 
@@ -228,18 +228,18 @@ void ScreenVictoryGO::display(Character* currentPlayer, int quantityDeGoldObtain
                 for (size_t i = 0; i < art.size(); ++i) {
                     int y = startY + i;
                     if (y >= 0 && y < static_cast<int>(background.size())) {
-                        background[y] = Appearance::superimposePanelNaLineAnsi(background[y], art[i], startX);
+                        background[y] = Appearance::superimposePanelOnAnsiLine(background[y], art[i], startX);
                     }
                 }
             };
 
-            std::vector<std::string> soonColorful = ArtsVictory::soonVictory;
-            for (auto& l : soonColorful) l = Appearance::color(Color::GREEN) + l + Appearance::color(Color::RESET);
+            std::vector<std::string> colorfulLogo = ArtsVictory::victoryLogo;
+            for (auto& l : colorfulLogo) l = Appearance::color(Color::GREEN) + l + Appearance::color(Color::RESET);
 
             int terminalWidth = Appearance::getTerminalWidth();
 
             int soonWidth = 0;
-            for(const auto& l : soonColorful) {
+            for(const auto& l : colorfulLogo) {
                 soonWidth = std::max(soonWidth, Appearance::getVisualLength(l));
             }
             int soonX = (terminalWidth - soonWidth) / 2;
@@ -257,7 +257,7 @@ void ScreenVictoryGO::display(Character* currentPlayer, int quantityDeGoldObtain
             int startDropsX = (terminalWidth - 84) / 2;
             if (startDropsX < 0) startDropsX = 0;
 
-            overlayPanel(screen3D, soonColorful, 2, soonX);
+            overlayPanel(screen3D, colorfulLogo, 2, soonX);
             overlayPanel(screen3D, boxIs, 16, startIsX);
             overlayPanel(screen3D, boxProgress, 16, startProgramX);
 

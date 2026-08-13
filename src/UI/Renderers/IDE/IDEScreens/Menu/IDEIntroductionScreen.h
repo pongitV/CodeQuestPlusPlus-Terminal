@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class ScreenIntroductionGO {
+class IDEIntroductionScreen {
 public:
     static void display();
 };

@@ -4,7 +4,7 @@
 #include "Core/Utils/Appearance.h"
 #include "Core/Utils/InputControl.h"
 
-NameScreen::Result ScreenNameGO::display() {
+NameScreen::Result IDENameScreen::display() {
     std::string colorKeyword = "\033[38;2;86;156;214m"; // Blue
     std::string colorType = "\033[38;2;78;201;176m"; // Cyan
     std::string colorPunct = "\033[38;2;212;212;212m"; // Gray
@@ -29,10 +29,10 @@ NameScreen::Result ScreenNameGO::display() {
         
         blockCentral.push_back(colorType + "std" + colorPunct + "::" + colorKeyword + "cin " + colorPunct + ">> playerName; " + colorComment + "// (Digite o nome ou '0' para voltar)" + reset);
         
-        int spacesY = ScreenMenuGO::calculateSpaceY(blockCentral.size() + 1); // +1 pro input
+        int spacesY = IDEMenuScreen::calculateSpaceY(blockCentral.size() + 1); // +1 pro input
         for (int i = 0; i < spacesY; ++i) std::cout << "\n";
         
-        ScreenMenuGO::printBlockCentralizedGO(blockCentral);
+        IDEMenuScreen::printCentralizedBlockIDE(blockCentral);
         
         std::string promptStr = colorPunct + "> " + reset;
         int spacesX = std::max(0, (Appearance::getTerminalWidth() - Appearance::getVisualLength(promptStr)) / 2);
@@ -56,7 +56,7 @@ NameScreen::Result ScreenNameGO::display() {
     std::cout << "\033[?25l"; // Esconde cursor
     
     std::vector<std::string> info = { "O nome " + name + " sera registrado." };
-    bool confirmed = ScreenMenuGO::displayConfirmationDeChooseWithArtSideASide("NOME", name, info, {});
+    bool confirmed = IDEMenuScreen::displayChooseConfirmationWithArtSideBySide("NOME", name, info, {});
     
     if (!confirmed) {
         return display(); // Chama recursivo se voltar

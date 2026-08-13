@@ -3,7 +3,7 @@
 #include <string>
 #include "Domain/Characters/Character.h"
 
-class ScreenDefeatRaycaster {
+class RaycasterDefeatScreen {
 public:
-    static void display(Character* currentPlayer, int quantityDeGoldObtained, int quantityDeXpObtained, int totalDeDamageCaused, int totalDeDamageReceived, int cureTotalReceived, int shiftsCombat);
+    static void display(Character* currentPlayer, int obtainedGoldQuantity, int obtainedXpQuantity, int totalDamageCaused, int totalDamageReceived, int totalHealingReceived, int combatTurns);
 };

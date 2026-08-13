@@ -40,7 +40,7 @@ namespace {
 
     void inspectItem(Character* currentPlayer, const std::string& itemName) {
         Appearance::clearScreen();
-        Appearance::displayArtPanel(ArtsDiary::soonDiary, 75, Color::YELLOW, "INSPECAO DE ITEM", false);
+        Appearance::displayArtPanel(ArtsDiary::diaryLogo, 75, Color::YELLOW, "INSPECAO DE ITEM", false);
         std::cout << "\n";
         auto item = ItemFactory::createItem(itemName);
         if (item) {
@@ -53,7 +53,7 @@ namespace {
 
     void inspectNPC(const std::string& nameNPC) {
         Appearance::clearScreen();
-        Appearance::displayArtPanel(ArtsDiary::soonDiary, 75, Color::YELLOW, "INSPECAO DE NPC", false);
+        Appearance::displayArtPanel(ArtsDiary::diaryLogo, 75, Color::YELLOW, "INSPECAO DE NPC", false);
         std::cout << "\n";
 
         std::vector<std::string> art;
@@ -99,7 +99,7 @@ namespace {
 
     void inspectRacePlayable(const std::string& raceName) {
         Appearance::clearScreen();
-        Appearance::displayArtPanel(ArtsDiary::soonDiary, 75, Color::YELLOW, "INSPECAO DE RACA", false);
+        Appearance::displayArtPanel(ArtsDiary::diaryLogo, 75, Color::YELLOW, "INSPECAO DE RACA", false);
         std::cout << "\n";
 
         std::unique_ptr<BaseRace> raceObj;
@@ -110,7 +110,7 @@ namespace {
 
         if (raceObj) {
             std::vector<std::string> art = raceObj->getAppearanceRace();
-            std::vector<std::string> attributes = MenuScreen::composeFrameDeAttributes(
+            std::vector<std::string> attributes = MenuScreen::composeAttributesFrame(
                 raceObj->getAttributesRace(),
                 "[ ATRIBUTOS BASE ]",
                 "[ HABILIDADE DA RACA ]",
@@ -126,7 +126,7 @@ namespace {
 
     void inspectClass(const std::string& className) {
         Appearance::clearScreen();
-        Appearance::displayArtPanel(ArtsDiary::soonDiary, 75, Color::YELLOW, "INSPECAO DE CLASSE", false);
+        Appearance::displayArtPanel(ArtsDiary::diaryLogo, 75, Color::YELLOW, "INSPECAO DE CLASSE", false);
         std::cout << "\n";
 
         std::unique_ptr<BaseClass> classObj;
@@ -139,7 +139,7 @@ namespace {
         if (classObj) {
             std::vector<std::string> art = classObj->getAppearanceClassMenu();
 
-            std::vector<std::string> attributes = MenuScreen::composeFrameDeAttributes(
+            std::vector<std::string> attributes = MenuScreen::composeAttributesFrame(
                 classObj->getAttributesClass(),
                 "[ ATRIBUTOS BONUS ]",
                 "[ PASSIVA DA CLASSE ]",
@@ -157,7 +157,7 @@ namespace {
     }
 }
 
-static void displayProgress(Character* /*jogador*/) {
+static void displayProgress(Character* /*player*/) {
     BaseScreen::executeDefaultLoop(
         "DIARIO - PROGRESSO",
         Color::YELLOW,
@@ -191,7 +191,7 @@ static void displayMenuItems(Character* currentPlayer) {
     bool keepRunning = true;
     while (keepRunning) {
         Appearance::clearScreen();
-        Appearance::displayArtPanel(ArtsDiary::soonDiary, 75, Color::YELLOW, "ITENS DESCOBERTOS", false);
+        Appearance::displayArtPanel(ArtsDiary::diaryLogo, 75, Color::YELLOW, "ITENS DESCOBERTOS", false);
         std::cout << "\n";
         std::vector<std::string> items = Diary::instance().getItemsDiscovered();
         if (items.empty()) {
@@ -236,7 +236,7 @@ static void displayMenuItems(Character* currentPlayer) {
             bool readingItems = true;
             while (readingItems) {
                 Appearance::clearScreen();
-                Appearance::displayArtPanel(ArtsDiary::soonDiary, 75, Color::YELLOW, categories[catChoice], false);
+                Appearance::displayArtPanel(ArtsDiary::diaryLogo, 75, Color::YELLOW, categories[catChoice], false);
                 std::cout << "\n";
 
                 std::vector<std::string> menuItems = *listSelected;
@@ -261,7 +261,7 @@ static void displayMenuNPCs(Character* /*jogadorAtual*/) {
     bool keepRunning = true;
     while (keepRunning) {
         Appearance::clearScreen();
-        Appearance::displayArtPanel(ArtsDiary::soonDiary, 75, Color::YELLOW, "NPCs CONHECIDOS", false);
+        Appearance::displayArtPanel(ArtsDiary::diaryLogo, 75, Color::YELLOW, "NPCs CONHECIDOS", false);
         std::cout << "\n";
         std::vector<std::string> npcs = Diary::instance().getNPCsDiscovered();
         if (npcs.empty()) {
@@ -288,7 +288,7 @@ static void displayMenuBreeds(Character* currentPlayer) {
     bool keepRunning = true;
     while (keepRunning) {
         Appearance::clearScreen();
-        Appearance::displayArtPanel(ArtsDiary::soonDiary, 75, Color::YELLOW, "RACAS DESCOBERTAS", false);
+        Appearance::displayArtPanel(ArtsDiary::diaryLogo, 75, Color::YELLOW, "RACAS DESCOBERTAS", false);
         std::cout << "\n";
         std::vector<std::string> breeds = Diary::instance().getBreedsDiscoveries();
         if (breeds.empty()) {
@@ -324,7 +324,7 @@ static void displayMenuBreeds(Character* currentPlayer) {
             bool readingBreeds = true;
             while (readingBreeds) {
                 Appearance::clearScreen();
-                Appearance::displayArtPanel(ArtsDiary::soonDiary, 75, Color::YELLOW, (catChoice == 0 ? "RACAS JOGAVEIS" : "MONSTROS E INIMIGOS"), false);
+                Appearance::displayArtPanel(ArtsDiary::diaryLogo, 75, Color::YELLOW, (catChoice == 0 ? "RACAS JOGAVEIS" : "MONSTROS E INIMIGOS"), false);
                 std::cout << "\n";
 
                 std::vector<std::string> menuBreeds = *listSelected;
@@ -352,7 +352,7 @@ static void displayMenuMissions(Character* currentPlayer) {
     bool keepRunning = true;
     while (keepRunning) {
         Appearance::clearScreen();
-        Appearance::displayArtPanel(ArtsDiary::soonDiary, 75, Color::YELLOW, "DIARIO DE MISSOES", false);
+        Appearance::displayArtPanel(ArtsDiary::diaryLogo, 75, Color::YELLOW, "DIARIO DE MISSOES", false);
         std::cout << "\n";
 
         auto cats = ScreenDiaryLogic::categorizeMissions(currentPlayer);
@@ -360,8 +360,8 @@ static void displayMenuMissions(Character* currentPlayer) {
         std::vector<std::string> lines;
 
         lines.push_back(Appearance::color(Color::YELLOW) + "Em andamento" + Appearance::color(Color::RESET));
-        if (cats.emTempo.empty()) lines.push_back("  (Nenhuma)");
-        for (const auto& m : cats.emTempo) lines.push_back("  " + Appearance::color(Color::WHITE) + m + Appearance::color(Color::RESET));
+        if (cats.inProgress.empty()) lines.push_back("  (Nenhuma)");
+        for (const auto& m : cats.inProgress) lines.push_back("  " + Appearance::color(Color::WHITE) + m + Appearance::color(Color::RESET));
         lines.push_back("");
 
         lines.push_back(Appearance::color(Color::YELLOW) + "Prontas" + Appearance::color(Color::RESET));
@@ -386,7 +386,7 @@ static void displayMenuClasses(Character* /*jogadorAtual*/) {
     bool keepRunning = true;
     while (keepRunning) {
         Appearance::clearScreen();
-        Appearance::displayArtPanel(ArtsDiary::soonDiary, 75, Color::YELLOW, "CLASSES DESCOBERTAS", false);
+        Appearance::displayArtPanel(ArtsDiary::diaryLogo, 75, Color::YELLOW, "CLASSES DESCOBERTAS", false);
         std::cout << "\n";
         std::vector<std::string> classes = Diary::instance().getClassesDiscoveries();
         if (classes.empty()) {
@@ -409,7 +409,7 @@ static void displayMenuClasses(Character* /*jogadorAtual*/) {
     }
 }
 
-void ScreenDiaryGO::display(Character* currentPlayer) {
+void IDEDiaryScreen::display(Character* currentPlayer) {
     if (currentPlayer == nullptr) return;
 
     static auto lastAccess = std::chrono::steady_clock::now() - std::chrono::hours(1);
@@ -418,7 +418,7 @@ void ScreenDiaryGO::display(Character* currentPlayer) {
     bool keepRunning = true;
     while (keepRunning) {
         Appearance::clearScreen();
-        Appearance::displayArtPanel(ArtsDiary::soonDiary, 75, Color::YELLOW, "DIARIO DE JORNADA", animateEntrance);
+        Appearance::displayArtPanel(ArtsDiary::diaryLogo, 75, Color::YELLOW, "DIARIO DE JORNADA", animateEntrance);
         animateEntrance = false;
 
         std::vector<std::string> options = {

@@ -7,7 +7,7 @@
 
 class Map1VillageLayouts {
 public:
-    static inline std::vector<std::string> getVillageSoon() {
+    static inline std::vector<std::string> getVillageLogo() {
         return StringConvert::convertRawStringToVector(R"(
  █████   █████ █████ █████         █████████      █████ ██████   █████ █████   █████████  █████   █████████   █████      
 ░░███   ░░███ ░░███ ░░███         ███░░░░░███    ░░███ ░░██████ ░░███ ░░███   ███░░░░░███░░███   ███░░░░░███ ░░███       
@@ -20,7 +20,7 @@ public:
 )");
     }
 
-    static inline std::vector<std::string> getSpawnSoon() {
+    static inline std::vector<std::string> getSpawnLogo() {
         return StringConvert::convertRawStringToVector(R"(
  █████ ██████   █████ █████   █████████  █████    ███████   
 ░░███ ░░██████ ░░███ ░░███   ███░░░░░███░░███   ███░░░░░███ 

@@ -97,7 +97,7 @@ std::unique_ptr<Character> NPCGenericKnight::createKnight(const std::string& nam
 }
 
 // --- INTERACAO ---
-void NPCGenericKnight::interact(Character* currentPlayer, bool& trollDefeated, bool& invitationReceived, int /*larguraDoTerminal*/, std::vector<std::string>& currentMapMatrix, bool isExplorationActive, const std::function<void()>& restoreScreen, char destinationCell, int nextPositionX, int nextPositionY) {
+void NPCGenericKnight::interact(Character* currentPlayer, bool& trollDefeated, bool& invitationReceived, int /*terminalWidth*/, std::vector<std::string>& currentMapMatrix, bool isExplorationActive, const std::function<void()>& restoreScreen, char destinationCell, int nextPositionX, int nextPositionY) {
     Diary::instance().registerNPC("Cavaleiro Real");
     if (!trollDefeated && (destinationCell == 'T' || destinationCell == 'C')) {
         int positionTrollX = -1, positionTrollY = -1;
@@ -218,10 +218,10 @@ void NPCGenericKnight::interact(Character* currentPlayer, bool& trollDefeated, b
                                 "Voce recebeu o [Convite Real]!"
                             };
                             Appearance::displayPopup("RECOMPENSA", rewardYouspeak, Color::YELLOW, NPCKnightGenericLayouts::artKnight);
-                            currentPlayer->getInventory()->addItem(ItemFactory::createItem(ItemID::InvitationReal));
+                            currentPlayer->getInventory()->addItem(ItemFactory::createItem(ItemID::RoyalInvitation));
                             Diary::instance().registerItem("Convite Real");
                             Diary::instance().registerMissionCompleted("cavaleiro_trolls");
-                            Progression::instance().setFlag(Flags::Village_InvitationReal, true);
+                            Progression::instance().setFlag(Flags::Village_RoyalInvitation, true);
                             invitationReceived = true;
                         }
                     } else {

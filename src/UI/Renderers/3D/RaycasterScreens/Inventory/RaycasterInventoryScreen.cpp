@@ -10,16 +10,16 @@
 #include "UI/Renderers/3D/EngineRaycaster/Raycaster.h"
 #include "UI/Renderers/3D/RaycasterScreens/Utils/MenuRaycasterUtils.h"
 
-void ScreenInventoryRaycaster::displayHeader(bool, int startY) {
+void RaycasterInventoryScreen::displayHeader(bool, int startY) {
     int widthConsole = Appearance::getTerminalWidth();
     
     // Desenha o logo do INVENTARIO
-    int soonHeight = ArtsInventory::soonInventory.size();
+    int soonHeight = ArtsInventory::inventoryLogo.size();
     int soonY = startY > 0 ? (startY - 1 - soonHeight) : 2;
     if (soonY < 0) soonY = 0;
     
     int compVisualSoon = 0;
-    for (const auto& line : ArtsInventory::soonInventory) {
+    for (const auto& line : ArtsInventory::inventoryLogo) {
         int comp = Appearance::getVisualLength(line);
         if (comp > compVisualSoon) compVisualSoon = comp;
     }
@@ -28,9 +28,9 @@ void ScreenInventoryRaycaster::displayHeader(bool, int startY) {
     
     // Apenas desenha o logo sobre a tela atual, pulando espacos para nao pintar fundo preto
     std::string colorTitle = Appearance::color(Color::YELLOW);
-    for (int i = 0; i < (int)ArtsInventory::soonInventory.size(); ++i) {
+    for (int i = 0; i < (int)ArtsInventory::inventoryLogo.size(); ++i) {
         Appearance::moveCursor(soonX, soonY + i);
-        const std::string& line = ArtsInventory::soonInventory[i];
+        const std::string& line = ArtsInventory::inventoryLogo[i];
         
         std::string buffer = colorTitle;
         int spaceCount = 0;
@@ -62,10 +62,10 @@ void ScreenInventoryRaycaster::displayHeader(bool, int startY) {
     std::cout << std::flush;
 }
 
-void ScreenInventoryRaycaster::displayBoxEquipped(Character*) {}
-void ScreenInventoryRaycaster::displayDetailItem(Item*) {}
+void RaycasterInventoryScreen::displayBoxEquipped(Character*) {}
+void RaycasterInventoryScreen::displayDetailItem(Item*) {}
 
-void ScreenInventoryRaycaster::renderMenu(const std::vector<std::string>& lines, const std::string& title, int selectionCurrent, int& outW, int& outH) {
+void RaycasterInventoryScreen::renderMenu(const std::vector<std::string>& lines, const std::string& title, int selectionCurrent, int& outW, int& outH) {
     std::vector<std::string> linesBase = lines;
     int interactiveIdx = 0;
     

@@ -491,7 +491,7 @@ void Combat::executeTurnForAllEnemies()
         for (size_t i = 0; i < enemies.size(); ++i) 
         {
             auto& enemyCurrentPtr = enemies[i];
-            if (currentPlayer->getHealth() <= 0) break; // Interrompe se o jogador morrer
+            if (currentPlayer->getHealth() <= 0) break; // Interrompe se o player morrer
             
             Character* enemyCurrent = enemyCurrentPtr.get();
             enemyCurrent->processEffectsHomeShift();
@@ -788,7 +788,7 @@ void Combat::processEnemyDeath(Character* enemy)
     enemiesDefeated.push_back(enemy->getName());
 
     std::string raceName = enemy->getRace()->getRaceName();
-    if (!Bestiary::instance().jaDefeated(raceName)) {
+    if (!Bestiary::instance().alreadyDefeated(raceName)) {
         newDiscoveries.push_back("Novo monstro catalogado: " + raceName);
     }
 

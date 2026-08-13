@@ -298,7 +298,7 @@ void Map2Forest::initializeInteractions() {
 
 NextMapTransition Map2Forest::startExplorationLoop()
 {
-    // Resgata o jogador se ele usou Viagem Rapida enquanto estava dentro de um submapa
+    // Resgata o player se ele usou Viagem Rapida enquanto estava dentro de um submapa
     if (playerIsInsideSubMap) {
         currentMapMatrix = savedMainMapMatrix;
         playerPositionX = savedPositionXBeforeEnteringSubMap;
@@ -337,7 +337,7 @@ NextMapTransition Map2Forest::startExplorationLoop()
         int transWidth = 0;
 
         if (currentMapTitle == "FLORESTA") {
-            titleArt = Map2ForestLayouts::getForestSoon();
+            titleArt = Map2ForestLayouts::getForestLogo();
             artWidth = 100;
             transArt = Map2ForestLayouts::getForestTransitionArt();
             transWidth = 87;

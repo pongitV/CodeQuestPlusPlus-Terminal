@@ -64,17 +64,17 @@ namespace Highlighter {
         } else {
             // Dynamic Time of Day (120 seconds cycle)
             float t = std::fmod(timeAnimation, 120.0f) / 120.0f;
-            StateClimate bebornDoSun = { 255.0f, 180.0f, 100.0f, 0.8f, 200, 120, 80 };
+            StateClimate sunBirth = { 255.0f, 180.0f, 100.0f, 0.8f, 200, 120, 80 };
             StateClimate day         = { 255.0f, 255.0f, 240.0f, 1.0f, 120, 180, 255 };
-            StateClimate byDoSun    = { 255.0f, 140.0f, 80.0f,  0.8f, 200, 100, 50 };
+            StateClimate sunSet    = { 255.0f, 140.0f, 80.0f,  0.8f, 200, 100, 50 };
             StateClimate night       = { 80.0f,  100.0f, 255.0f, 0.4f, 10,  10,  30 };
             
-            if (t < 0.1f)      climateDynamic = mixClimate(bebornDoSun, day, t / 0.1f);
+            if (t < 0.1f)      climateDynamic = mixClimate(sunBirth, day, t / 0.1f);
             else if (t < 0.4f) climateDynamic = day;
-            else if (t < 0.5f) climateDynamic = mixClimate(day, byDoSun, (t - 0.4f) / 0.1f);
-            else if (t < 0.6f) climateDynamic = mixClimate(byDoSun, night, (t - 0.5f) / 0.1f);
+            else if (t < 0.5f) climateDynamic = mixClimate(day, sunSet, (t - 0.4f) / 0.1f);
+            else if (t < 0.6f) climateDynamic = mixClimate(sunSet, night, (t - 0.5f) / 0.1f);
             else if (t < 0.9f) climateDynamic = night;
-            else               climateDynamic = mixClimate(night, bebornDoSun, (t - 0.9f) / 0.1f);
+            else               climateDynamic = mixClimate(night, sunBirth, (t - 0.9f) / 0.1f);
         }
 
         info.fogR = climateDynamic.fogR;

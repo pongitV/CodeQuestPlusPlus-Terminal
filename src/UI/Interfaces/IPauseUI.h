@@ -5,8 +5,8 @@ class IPauseUI {
 public:
     virtual ~IPauseUI() = default;
     virtual int renderMenuPause() = 0;
-    virtual int renderMenuConfiguracoes(Character* player) = 0;
+    virtual int renderSettingsMenu(Character* player) = 0;
     virtual int renderMenuAppearance(Character* player) = 0;
     virtual int renderMenuBackground(int colorBackgroundCurrentIndex) = 0;
-    virtual int renderMenuSensitivity(int percX, int percY) = 0;
+    virtual int renderMenuSensitivity(int percentX, int percentY) = 0;
 };

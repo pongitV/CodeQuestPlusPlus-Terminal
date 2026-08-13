@@ -7,7 +7,7 @@
 
 class Map4KingdomLayouts {
 public:
-    static inline std::vector<std::string> getKingdomSoon() {
+    static inline std::vector<std::string> getKingdomLogo() {
         return StringConvert::convertRawStringToVector(R"(
  ███████████   ██████████ █████ ██████   █████    ███████   
 ░░███░░░░░███ ░░███░░░░░█░░███ ░░██████ ░░███   ███░░░░░███ 

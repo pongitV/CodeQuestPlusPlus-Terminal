@@ -36,3 +36,7 @@ build/
 *.log
 .system_generated/
 Systems-Traduzido(EN).md
+
+# Ignored folders
+docs/
+scripts/

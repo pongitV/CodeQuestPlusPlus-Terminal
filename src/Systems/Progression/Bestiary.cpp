@@ -65,13 +65,13 @@ void Bestiary::bootEnemies() {
 
 void Bestiary::registerFirstView(const std::string& enemyName) {
     std::lock_guard<std::mutex> lock(mtx);
-    if (baseEnemies.count(enemyName)) visas.insert(enemyName);
+    if (baseEnemies.count(enemyName)) seenEnemies.insert(enemyName);
 }
 
 void Bestiary::registerDefeat(const std::string& enemyName) {
     std::lock_guard<std::mutex> lock(mtx);
     if (baseEnemies.count(enemyName)) {
-        visas.insert(enemyName);
+        seenEnemies.insert(enemyName);
         defeated.insert(enemyName);
         quantityDefeats[enemyName]++;
     }
@@ -89,10 +89,10 @@ void Bestiary::registerDrop(const std::string& enemyName, const std::string& dro
 
 bool Bestiary::thisDiscovered(const std::string& enemyName) const {
     std::lock_guard<std::mutex> lock(mtx);
-    return visas.count(enemyName) > 0;
+    return seenEnemies.count(enemyName) > 0;
 }
 
-bool Bestiary::jaDefeated(const std::string& enemyName) const {
+bool Bestiary::alreadyDefeated(const std::string& enemyName) const {
     std::lock_guard<std::mutex> lock(mtx);
     return defeated.count(enemyName) > 0;
 }
@@ -148,7 +148,7 @@ void Bestiary::save(std::ofstream& out) const {
         for (const auto& item : set) out << item << "\n";
     };
 
-    writeSet(visas);
+    writeSet(seenEnemies);
     writeSet(defeated);
 
     out << quantityDefeats.size() << "\n";
@@ -168,7 +168,7 @@ void Bestiary::save(std::ofstream& out) const {
 
 void Bestiary::load(std::ifstream& in) {
     std::lock_guard<std::mutex> lock(mtx);
-    visas.clear();
+    seenEnemies.clear();
     defeated.clear();
     quantityDefeats.clear();
     skillsViews.clear();
@@ -185,7 +185,7 @@ void Bestiary::load(std::ifstream& in) {
         return true;
     };
     
-    if (!readSet(visas)) return; // Failsafe para saves antigos
+    if (!readSet(seenEnemies)) return; // Failsafe para saves antigos
     readSet(defeated);
     
     size_t qtyDefeatsSize;

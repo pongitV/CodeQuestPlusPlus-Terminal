@@ -124,7 +124,7 @@ std::string Bard::getDescriptionSkillClass() const
     return "Possui 3 habilidades: Flashing lights, On sight e Through the wire."; 
 }
 
-void Bard::useSkillClass(Combat* /*combate*/, Character* characterUser, std::vector<Character*>& /*listaDeInimigos*/)
+void Bard::useSkillClass(Combat* /*combate*/, Character* characterUser, std::vector<Character*>& /*enemyList*/)
 {
     struct SubSkill {
         SkillID id;
@@ -171,9 +171,9 @@ void Bard::useSkillClass(Combat* /*combate*/, Character* characterUser, std::vec
         return;
     }
     
-    const auto& hab = skills[choice];
-    int cd = characterUser->getCooldown(hab.id);
-    if (checkEReportRecharge(characterUser, cd, hab.name)) return;
+    const auto& skill = skills[choice];
+    int cd = characterUser->getCooldown(skill.id);
+    if (checkEReportRecharge(characterUser, cd, skill.name)) return;
 
-    hab.action(characterUser);
+    skill.action(characterUser);
 }

@@ -228,11 +228,11 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
         string upper = title;
         for(char& c : upper) c = toupper((unsigned char)c);
         
-        if (upper.find("VILA") != string::npos) banner = Map1VillageLayouts::getVillageSoon();
-        else if (upper.find("INICIO") != string::npos) banner = Map1VillageLayouts::getSpawnSoon();
-        else if (upper.find("FLORESTA") != string::npos) banner = Map2ForestLayouts::getForestSoon();
-        else if (upper.find("PONTE DO REINO") != string::npos || upper.find("PONTE") != string::npos) banner = Map3KingdomBridgeLayouts::getKingdomBridgeSoon();
-        else if (upper.find("REINO") != string::npos) banner = Map4KingdomLayouts::getKingdomSoon();
+        if (upper.find("VILA") != string::npos) banner = Map1VillageLayouts::getVillageLogo();
+        else if (upper.find("INICIO") != string::npos) banner = Map1VillageLayouts::getSpawnLogo();
+        else if (upper.find("FLORESTA") != string::npos) banner = Map2ForestLayouts::getForestLogo();
+        else if (upper.find("PONTE DO REINO") != string::npos || upper.find("PONTE") != string::npos) banner = Map3KingdomBridgeLayouts::getKingdomBridgeLogo();
+        else if (upper.find("REINO") != string::npos) banner = Map4KingdomLayouts::getKingdomLogo();
         else {
             banner = {
                 "==================================",

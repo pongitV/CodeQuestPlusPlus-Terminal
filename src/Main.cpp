@@ -29,17 +29,17 @@
 #include "UI/PerspectiveManager.h"
 
 // Funcao para garantir que o jogo rode como Administrador
-bool garantirAdmin() noexcept 
+bool ensureAdmin() noexcept 
 {
 #ifdef _WIN32
     if (!IsUserAnAdmin()) 
     {
-        std::array<char, MAX_PATH> caminho{};
-        if (GetModuleFileNameA(nullptr, caminho.data(), MAX_PATH) != 0) 
+        std::array<char, MAX_PATH> pathBuffer{};
+        if (GetModuleFileNameA(nullptr, pathBuffer.data(), MAX_PATH) != 0) 
         {
             SHELLEXECUTEINFOA sei = { sizeof(sei) };
             sei.lpVerb = "runas"; // Comando para elevar privilegios
-            sei.lpFile = caminho.data();
+            sei.lpFile = pathBuffer.data();
             sei.hwnd = nullptr;
             sei.nShow = SW_NORMAL;
 
@@ -58,7 +58,7 @@ bool garantirAdmin() noexcept
 int main() 
 {
     // 1. Tenta elevar para Administrador antes de tudo
-    if (garantirAdmin()) return 0;
+    if (ensureAdmin()) return 0;
 
     // 2. Configura a tela (agora com permissao total)
     Appearance::bootConsole();

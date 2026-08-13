@@ -25,7 +25,7 @@ public:
 
     // --- FUNCOES DE BARRA DE VIDA COM CARACTERES ASCII ---
     static std::string generateBarLifeASCII(double pct, int size);
-    static std::string generateBarLifeGO(double pct, int size);
+    static std::string generateHealthBarIDE(double pct, int size);
 
     // --- ESTILIZACAO DE TEXTO EM ESTILO CODIGO ---
     static std::string styleHowCode(const std::string& text, const std::string& type = "string");

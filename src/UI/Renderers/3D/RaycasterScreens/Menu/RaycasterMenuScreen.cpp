@@ -49,8 +49,8 @@ int ScreenMenuRaycaster::displayMainMenuOptions() {
                 maxArtW = std::max(maxArtW, Appearance::getVisualLength(l));
             }
         }
-        int inaOptions = (int)options.size();
-        int boxH = std::max(maxArtH, inaOptions) + 2;
+        int indexInOptions = (int)options.size();
+        int boxH = std::max(maxArtH, indexInOptions) + 2;
         if (confirmingExit) {
             boxH += 3; 
         }
@@ -68,7 +68,7 @@ int ScreenMenuRaycaster::displayMainMenuOptions() {
 
         if (confirmingExit) {
             std::string msgConf = "Confirmar saida? [S]im / [N]ao";
-            MenuRaycasterUtils::superimposeTextAbsolute(buffer, "\033[38;2;255;100;100m" + msgConf + "\033[0m", lineHome + inaOptions + 1, offsetOptions);
+            MenuRaycasterUtils::superimposeTextAbsolute(buffer, "\033[38;2;255;100;100m" + msgConf + "\033[0m", lineHome + indexInOptions + 1, offsetOptions);
         }
 
         if (selectionCurrent >= 0 && selectionCurrent < (int)arts.size()) {
@@ -151,7 +151,7 @@ int ScreenMenuRaycaster::displayMainMenuOptions() {
 
 
 
-void ScreenMenuRaycaster::displayPanelSoonGame(const std::string& titleDaScreen, bool animateFadeIn) {
+void ScreenMenuRaycaster::displayGameLogoPanel(const std::string& screenTitle, bool animateFadeIn) {
     int widthConsole = Appearance::getTerminalWidth();
     MenuRaycasterUtils::curlBackground3D("Vila", nullptr);
 
@@ -165,24 +165,24 @@ void ScreenMenuRaycaster::displayPanelSoonGame(const std::string& titleDaScreen,
             if (shine > 255) shine = 255;
             std::string color = "\033[38;2;" + std::to_string(shine) + ";" +
                               std::to_string(shine) + ";" + std::to_string(shine) + "m";
-            int offset = ScreenBaseMenu::calculateOffsetCentral(titleDaScreen, widthConsole);
-            MenuRaycasterUtils::superimposeText3D(buffer, color + titleDaScreen + "\033[0m", 3, offset, widthConsole);
+            int offset = ScreenBaseMenu::calculateOffsetCentral(screenTitle, widthConsole);
+            MenuRaycasterUtils::superimposeText3D(buffer, color + screenTitle + "\033[0m", 3, offset, widthConsole);
             MenuRaycasterUtils::flushFrameForConsole(buffer.str());
             std::this_thread::sleep_for(std::chrono::milliseconds(30));
         }
     } else {
         std::ostringstream buffer;
         MenuRaycasterUtils::displayBackground3D(buffer);
-        int offset = ScreenBaseMenu::calculateOffsetCentral(titleDaScreen, widthConsole);
-        MenuRaycasterUtils::superimposeText3D(buffer, "\033[38;2;255;215;0m" + titleDaScreen + "\033[0m", 3, offset, widthConsole);
+        int offset = ScreenBaseMenu::calculateOffsetCentral(screenTitle, widthConsole);
+        MenuRaycasterUtils::superimposeText3D(buffer, "\033[38;2;255;215;0m" + screenTitle + "\033[0m", 3, offset, widthConsole);
         MenuRaycasterUtils::flushFrameForConsole(buffer.str());
     }
 }
 
-bool ScreenMenuRaycaster::displayConfirmationDeChooseWithArtSideASide(
-    const std::string& typeDeChoose, const std::string& nameDaChoose,
+bool ScreenMenuRaycaster::displayChooseConfirmationWithArtSideBySide(
+    const std::string& chooseType, const std::string& chooseName,
     const std::vector<std::string>& informationForDisplay,
-    const std::vector<std::string>& artAsciiForDisplay)
+    const std::vector<std::string>& asciiArtForDisplay)
 {
     int widthConsole = Appearance::getTerminalWidth();
     std::cout << "\033[?25l";
@@ -194,7 +194,7 @@ bool ScreenMenuRaycaster::displayConfirmationDeChooseWithArtSideASide(
     std::ostringstream buffer;
     MenuRaycasterUtils::displayBackground3D(buffer);
 
-    std::string title = "PREVIA DA " + typeDeChoose + ": " + nameDaChoose;
+    std::string title = "PREVIA DA " + chooseType + ": " + chooseName;
     int offset = ScreenBaseMenu::calculateOffsetCentral(title, widthConsole);
     MenuRaycasterUtils::superimposeText3D(buffer, "\033[38;2;255;215;0m" + title + "\033[0m", 3, offset, widthConsole);
 
@@ -206,41 +206,41 @@ bool ScreenMenuRaycaster::displayConfirmationDeChooseWithArtSideASide(
     for (size_t i = 0; i < informationForDisplay.size(); ++i) {
         MenuRaycasterUtils::superimposeText3D(buffer, informationForDisplay[i], infoY + (int)i, infoX, widthConsole);
     }
-    MenuRaycasterUtils::printArtPixelatedSimple(buffer, artAsciiForDisplay, 200, 180, 255, artX, artY);
+    MenuRaycasterUtils::printArtPixelatedSimple(buffer, asciiArtForDisplay, 200, 180, 255, artX, artY);
 
     MenuRaycasterUtils::flushFrameForConsole(buffer.str());
     std::vector<std::string> options = {"VOLTAR", "CONFIRMAR"};
     std::string margin = std::to_string(ScreenBaseMenu::calculateOffsetCentral(20, widthConsole));
-    int optionDeConfirmation = InputControl::readSelectionMenuWithArrows(options, false, margin);
-    return optionDeConfirmation == 1;
+    int confirmationOption = InputControl::readSelectionMenuWithArrows(options, false, margin);
+    return confirmationOption == 1;
 }
 
-std::vector<std::string> ScreenMenuRaycaster::composeFrameDeAttributes(
-    const Attributes& stats, const std::string& titleDry,
-    const std::string& titleSkill, const std::string& nameHab,
-    const std::string& descHab,
-    const std::string& titleSkill2, const std::string& nameHab2,
-    const std::string& descHab2)
+std::vector<std::string> ScreenMenuRaycaster::composeAttributesFrame(
+    const Attributes& stats, const std::string& dryTitle,
+    const std::string& skillTitle, const std::string& skillName,
+    const std::string& skillDesc,
+    const std::string& skillTitle2, const std::string& skillName2,
+    const std::string& skillDesc2)
 {
-    auto formatAttribute = [](const std::string& attrName, int valueAtr) {
+    auto formatAttribute = [](const std::string& attrName, int valueAttr) {
         std::string colorVal;
         if (attrName == "Resistencia") colorVal = "\033[38;2;100;100;255m";
         else if (attrName == "Constituicao") colorVal = "\033[38;2;0;255;255m";
         else if (attrName == "Vida") {
-            if (valueAtr > 100) colorVal = "\033[38;2;100;255;100m";
-            else if (valueAtr < 100) colorVal = "\033[38;2;255;80;80m";
+            if (valueAttr > 100) colorVal = "\033[38;2;100;255;100m";
+            else if (valueAttr < 100) colorVal = "\033[38;2;255;80;80m";
             else colorVal = "\033[38;2;255;255;255m";
         } else {
-            if (valueAtr > 10) colorVal = "\033[38;2;100;255;100m";
-            else if (valueAtr < 10) colorVal = "\033[38;2;255;80;80m";
+            if (valueAttr > 10) colorVal = "\033[38;2;100;255;100m";
+            else if (valueAttr < 10) colorVal = "\033[38;2;255;80;80m";
             else colorVal = "\033[38;2;255;255;255m";
         }
-        std::string sign = (valueAtr >= 0 ? "+" : "");
-        return " - " + attrName + ": " + colorVal + sign + std::to_string(valueAtr) + "\033[0m";
+        std::string sign = (valueAttr >= 0 ? "+" : "");
+        return " - " + attrName + ": " + colorVal + sign + std::to_string(valueAttr) + "\033[0m";
     };
 
     std::vector<std::string> result;
-    result.push_back("\033[38;2;255;255;255m" + titleDry + "\033[0m");
+    result.push_back("\033[38;2;255;255;255m" + dryTitle + "\033[0m");
     result.push_back(formatAttribute("Vida", stats.health));
     result.push_back(formatAttribute("Forca", stats.strength));
     result.push_back(formatAttribute("Destreza", stats.dexterity));
@@ -249,21 +249,21 @@ std::vector<std::string> ScreenMenuRaycaster::composeFrameDeAttributes(
     result.push_back(formatAttribute("Inteligencia", stats.intelligence));
     result.push_back(formatAttribute("Sabedoria", stats.wisdom));
     result.push_back("");
-    result.push_back("\033[38;2;255;255;255m" + titleSkill + "\033[0m");
-    result.push_back(" \033[38;2;0;200;255m" + nameHab + "\033[0m");
+    result.push_back("\033[38;2;255;255;255m" + skillTitle + "\033[0m");
+    result.push_back(" \033[38;2;0;200;255m" + skillName + "\033[0m");
 
-    std::istringstream stream(descHab);
+    std::istringstream stream(skillDesc);
     std::string line;
     while (std::getline(stream, line)) {
         if (!line.empty())
             result.push_back(" - \033[38;2;180;180;180m" + line + "\033[0m");
     }
 
-    if (!titleSkill2.empty()) {
+    if (!skillTitle2.empty()) {
         result.push_back("");
-        result.push_back("\033[38;2;255;255;255m" + titleSkill2 + "\033[0m");
-        result.push_back(" \033[38;2;0;200;255m" + nameHab2 + "\033[0m");
-        std::istringstream stream2(descHab2);
+        result.push_back("\033[38;2;255;255;255m" + skillTitle2 + "\033[0m");
+        result.push_back(" \033[38;2;0;200;255m" + skillName2 + "\033[0m");
+        std::istringstream stream2(skillDesc2);
         while (std::getline(stream2, line)) {
             if (!line.empty())
                 result.push_back(" - \033[38;2;180;180;180m" + line + "\033[0m");

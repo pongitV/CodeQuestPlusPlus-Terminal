@@ -9,18 +9,18 @@
 #include "UI/Screens/Diary/DiaryScreenLayout.h"
 #include "UI/Renderers/3D/EngineRaycaster/Raycaster.h"
 
-void ScreenDiaryRaycaster::renderBackground() {
+void RaycasterDiaryScreen::renderBackground() {
     Raycaster::restoreLastFrame();
 }
 
-void ScreenDiaryRaycaster::displayHeader(int startY) {
+void RaycasterDiaryScreen::displayHeader(int startY) {
     int widthConsole = Appearance::getTerminalWidth();
-    int soonHeight = ArtsDiary::soonDiary.size();
+    int soonHeight = ArtsDiary::diaryLogo.size();
     int soonY = startY > 0 ? (startY - 1 - soonHeight) : 2;
     if (soonY < 0) soonY = 0;
 
     int compVisualSoon = 0;
-    for (const auto& line : ArtsDiary::soonDiary) {
+    for (const auto& line : ArtsDiary::diaryLogo) {
         int comp = Appearance::getVisualLength(line);
         if (comp > compVisualSoon) compVisualSoon = comp;
     }
@@ -28,9 +28,9 @@ void ScreenDiaryRaycaster::displayHeader(int startY) {
     if (soonX < 0) soonX = 0;
 
     std::string colorTitle = Appearance::color(Color::YELLOW);
-    for (int i = 0; i < (int)ArtsDiary::soonDiary.size(); ++i) {
+    for (int i = 0; i < (int)ArtsDiary::diaryLogo.size(); ++i) {
         Appearance::moveCursor(soonX, soonY + i);
-        const std::string& line = ArtsDiary::soonDiary[i];
+        const std::string& line = ArtsDiary::diaryLogo[i];
 
         std::string buffer = colorTitle;
         int spaceCount = 0;
@@ -60,7 +60,7 @@ void ScreenDiaryRaycaster::displayHeader(int startY) {
     std::cout << std::flush;
 }
 
-void ScreenDiaryRaycaster::renderBox(const std::vector<std::string>& lines, const std::string& title, Color colorBox, int minY, int startYOverride) {
+void RaycasterDiaryScreen::renderBox(const std::vector<std::string>& lines, const std::string& title, Color colorBox, int minY, int startYOverride) {
     std::vector<std::string> boxEnd = BaseScreen::createBox(lines, title, 0, colorBox, "\033[48;2;25;25;25m");
     int outW = Appearance::getVisualLength(boxEnd[0]);
     int outH = boxEnd.size();
@@ -79,7 +79,7 @@ void ScreenDiaryRaycaster::renderBox(const std::vector<std::string>& lines, cons
     std::cout << std::flush;
 }
 
-void ScreenDiaryRaycaster::renderPopupMessage(const std::string& title, const std::vector<std::string>& text) {
+void RaycasterDiaryScreen::renderPopupMessage(const std::string& title, const std::vector<std::string>& text) {
     std::vector<std::string> lines;
     for (const auto& t : text) {
         lines.push_back(" " + t + " ");
@@ -105,7 +105,7 @@ void ScreenDiaryRaycaster::renderPopupMessage(const std::string& title, const st
     std::cout << std::flush;
 }
 
-void ScreenDiaryRaycaster::renderPopupInspectionWithArt(const std::string& title, const std::vector<std::string>& art, const std::vector<std::string>& info, const std::string& subtitle) {
+void RaycasterDiaryScreen::renderPopupInspectionWithArt(const std::string& title, const std::vector<std::string>& art, const std::vector<std::string>& info, const std::string& subtitle) {
     std::vector<std::string> textPopup;
 
     if (!subtitle.empty()) {

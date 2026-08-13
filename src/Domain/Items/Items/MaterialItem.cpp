@@ -35,11 +35,11 @@ std::unique_ptr<Item> manufactureItemMaterial(ItemID id) {
         {ItemID::SlimeAcid, [createMaterial]() { return createMaterial(ItemID::SlimeAcid, 5); }},
         {ItemID::ToothGoblin, [createMaterial]() { return createMaterial(ItemID::ToothGoblin, 1, "Pode ser usado na Cabana da Bruxa para encantar armas com Sangramento (Requer 40x)."); }},
         {ItemID::NucleusSticky, [createMaterial]() { return createMaterial(ItemID::NucleusSticky, 30, "Pode ser usado na Cabana da Bruxa para encantar armas com Lentidao (Requer 5x)."); }},
-        {ItemID::PoMagician, [createMaterial]() { return createMaterial(ItemID::PoMagician, 15, "Pode ser usado na Cabana da Bruxa para encantar armas com Quebra de Resistencia Permanente (Requer 25x)."); }},
+        {ItemID::MagicPowder, [createMaterial]() { return createMaterial(ItemID::MagicPowder, 15, "Pode ser usado na Cabana da Bruxa para encantar armas com Quebra de Resistencia Permanente (Requer 25x)."); }},
         {ItemID::WoodBewitched, [createMaterial]() { return createMaterial(ItemID::WoodBewitched, 3, "Pode ser usada na Cabana da Bruxa para encantar o Arco ou o Violao (Requer 1x)."); }},
         {ItemID::HeartForest, [createMaterial]() { return createMaterial(ItemID::HeartForest, 3, "Usado na Cabana da Bruxa para encantar o Cajado ou para desbloquear a passagem do labirinto (Requer 3x)."); }},
         {ItemID::StoneUpgrade, [createMaterial]() { return createMaterial(ItemID::StoneUpgrade, 3, "Uma pedra extremamente rara. Pode ser usada na Forja de Bjorn para conceder +3 de Defesa (Resistencia) a uma armadura."); }},
-        {ItemID::InvitationReal, [createMaterial]() { return createMaterial(ItemID::InvitationReal, 1, "Permite o acesso livre aos portoes do Reino Real."); }}
+        {ItemID::RoyalInvitation, [createMaterial]() { return createMaterial(ItemID::RoyalInvitation, 1, "Permite o acesso livre aos portoes do Reino Real."); }}
     };
     auto it = builders.find(id);
     if (it != builders.end()) return it->second();

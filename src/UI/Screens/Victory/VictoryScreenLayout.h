@@ -5,7 +5,7 @@
 
 namespace ArtsVictory {
 
-    inline const std::vector<std::string> soonVictory = StringConvert::convertRawStringToVector(R"(
+    inline const std::vector<std::string> victoryLogo = StringConvert::convertRawStringToVector(R"(
  █████   █████ █████ ███████████    ███████    ███████████   █████   █████████   ███ 
 ░░███   ░░███ ░░███ ░█░░░███░░░█  ███░░░░░███ ░░███░░░░░███ ░░███   ███░░░░░███ ░███ 
  ░███    ░███  ░███ ░   ░███  ░  ███     ░░███ ░███    ░███  ░███  ░███    ░███ ░███ 

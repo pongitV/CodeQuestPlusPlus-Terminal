@@ -7,8 +7,8 @@ void ScreenScene3D::execute() {
     };
 
     Appearance::cheerTransitionScene3D(
-        getSoon(),
-        getColorSoon(),
+        getLogo(),
+        getLogoColor(),
         getBackgroundInitial(),
         getBackgroundOpacity,
         getTargetY()
@@ -19,7 +19,7 @@ void ScreenScene3D::superimposePanel(std::vector<std::string>& background, const
     for (size_t i = 0; i < art.size(); ++i) {
         int y = startY + i;
         if (y >= 0 && y < static_cast<int>(background.size())) {
-            background[y] = Appearance::superimposePanelNaLineAnsi(background[y], art[i], startX);
+            background[y] = Appearance::superimposePanelOnAnsiLine(background[y], art[i], startX);
         }
     }
 }

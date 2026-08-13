@@ -9,58 +9,58 @@
 #include "UI/Renderers/IDE/IDEScreens/Menu/IDEIntroductionScreen.h"
 #include "UI/Screens/Menu/TutorialScreen.h"
 
-void ManagerScreensGO::opening() {
-    ScreenOpeningGO::display();
+void IDEScreenManager::opening() {
+    IDEOpeningScreen::display();
 }
 
-void ManagerScreensGO::panelSoon(const std::string& titleDaScreen, bool animateFadeIn) {
-    ScreenMenuGO::displayPanelSoonGame(titleDaScreen, animateFadeIn);
+void IDEScreenManager::panelLogo(const std::string& screenTitle, bool animateFadeIn) {
+    IDEMenuScreen::displayGameLogoPanel(screenTitle, animateFadeIn);
 }
 
-bool ManagerScreensGO::confirmationChoose(const std::string& typeDeChoose, const std::string& nameDaChoose,
-    const std::vector<std::string>& informationForDisplay, const std::vector<std::string>& artAsciiForDisplay) {
-    return ScreenMenuGO::displayConfirmationDeChooseWithArtSideASide(typeDeChoose, nameDaChoose, informationForDisplay, artAsciiForDisplay);
+bool IDEScreenManager::chooseConfirmation(const std::string& chooseType, const std::string& chooseName,
+    const std::vector<std::string>& informationForDisplay, const std::vector<std::string>& asciiArtForDisplay) {
+    return IDEMenuScreen::displayChooseConfirmationWithArtSideBySide(chooseType, chooseName, informationForDisplay, asciiArtForDisplay);
 }
 
-std::vector<std::string> ManagerScreensGO::frameAttributes(const Attributes& stats,
-    const std::string& titleDry, const std::string& titleSkill,
-    const std::string& nameHab, const std::string& descHab,
-    const std::string& titleSkill2, const std::string& nameHab2, const std::string& descHab2) {
-    return ScreenMenuGO::composeFrameDeAttributes(stats, titleDry, titleSkill, nameHab, descHab, titleSkill2, nameHab2, descHab2);
+std::vector<std::string> IDEScreenManager::frameAttributes(const Attributes& stats,
+    const std::string& dryTitle, const std::string& skillTitle,
+    const std::string& skillName, const std::string& skillDesc,
+    const std::string& skillTitle2, const std::string& skillName2, const std::string& skillDesc2) {
+    return IDEMenuScreen::composeAttributesFrame(stats, dryTitle, skillTitle, skillName, skillDesc, skillTitle2, skillName2, skillDesc2);
 }
 
-int ManagerScreensGO::mainMenu() {
-    return ScreenMenuGO::displayMainMenuOptions();
+int IDEScreenManager::mainMenu() {
+    return IDEMenuScreen::displayMainMenuOptions();
 }
 
-void ManagerScreensGO::tutorialParry(const std::string& infoBox) {
-    ScreenTutorial::displayTutorialDeParry(infoBox);
+void IDEScreenManager::tutorialParry(const std::string& infoBox) {
+    TutorialScreen::displayParryTutorial(infoBox);
 }
 
-NameScreen::Result ManagerScreensGO::screenName() {
-    return ScreenNameGO::display();
+NameScreen::Result IDEScreenManager::screenName() {
+    return IDENameScreen::display();
 }
 
-RaceScreen::Result ManagerScreensGO::screenRace(const std::string& characterName) {
-    return ScreenRaceGO::display(characterName);
+RaceScreen::Result IDEScreenManager::screenRace(const std::string& characterName) {
+    return IDERaceScreen::display(characterName);
 }
 
-ClassScreen::Result ManagerScreensGO::screenClass(const std::string& characterName, const std::string& race) {
-    return ScreenClassGO::display(characterName, race);
+ClassScreen::Result IDEScreenManager::screenClass(const std::string& characterName, const std::string& race) {
+    return IDEClassScreen::display(characterName, race);
 }
 
-DifficultyScreen::Result ManagerScreensGO::screenDifficulty(const std::string& characterName, const std::string& race, const std::string& classObj) {
-    return ScreenDifficultyGO::display(characterName, race, classObj);
+DifficultyScreen::Result IDEScreenManager::screenDifficulty(const std::string& characterName, const std::string& race, const std::string& classObj) {
+    return IDEDifficultyScreen::display(characterName, race, classObj);
 }
 
-ParryScreen::Result ManagerScreensGO::screenParry(const std::string& characterName, const std::string& race, const std::string& classObj) {
-    return ScreenParryGO::display(characterName, race, classObj);
+ParryScreen::Result IDEScreenManager::screenParry(const std::string& characterName, const std::string& race, const std::string& classObj) {
+    return IDEParryScreen::display(characterName, race, classObj);
 }
 
-void ManagerScreensGO::screenIntroduction() {
-    ScreenIntroductionGO::display();
+void IDEScreenManager::screenIntroduction() {
+    IDEIntroductionScreen::display();
 }
 
-bool ManagerScreensGO::confirmExit() {
-    return ScreenMenuGO::displayConfirmationExit();
+bool IDEScreenManager::confirmExit() {
+    return IDEMenuScreen::displayConfirmationExit();
 }

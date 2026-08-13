@@ -6,7 +6,7 @@
 #include "Core/Utils/InputControl.h"
 #include "UI/Renderers/IDE/IDEScreens/Menu/IDEMenuScreen.h"
 
-void ScreenIntroductionGO::display() {
+void IDEIntroductionScreen::display() {
     std::cout << "\033[?25l";
     Appearance::clearScreen();
 
@@ -48,10 +48,10 @@ void ScreenIntroductionGO::display() {
     blockCentral.push_back("");
     blockCentral.push_back(colorKeyword + "system" + colorPunct + "(\"pause\");");
 
-    int spacesY = ScreenMenuGO::calculateSpaceY(blockCentral.size());
+    int spacesY = IDEMenuScreen::calculateSpaceY(blockCentral.size());
     for (int i = 0; i < spacesY; ++i) std::cout << "\n";
     
-    ScreenMenuGO::printBlockCentralizedGO(blockCentral);
+    IDEMenuScreen::printCentralizedBlockIDE(blockCentral);
 
     InputControl::clearBuffer();
     InputControl::readKey(); // Sincrono

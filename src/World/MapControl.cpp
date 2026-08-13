@@ -57,12 +57,12 @@ std::vector<std::string> MapControl::getCurrentMapMatrix() { return s_currentMap
 
 // processarInputEComandos movido para ControladorInputMapa.cpp
 
-// aplicarLimitesDeMapa foi movido para FisicaMapa
+// applyMapLimits foi movido para FisicaMapa
 void MapControl::processCombat(
     Character* currentPlayer, std::vector<std::string>& currentMapMatrix, 
     int& playerPositionX, int& playerPositionY, bool& isExplorationActive,
     const std::string& combatTitle, const std::string& warningMessage, std::vector<std::unique_ptr<Character>> enemiesForBattle, 
-    int positionXAfterCombat, int positionYAfterCombat, int initialEnemyPositionX, int occupiedCellsQuantity, int /*larguraDoTerminal*/, const std::function<void()>& restoreScreen)
+    int positionXAfterCombat, int positionYAfterCombat, int initialEnemyPositionX, int occupiedCellsQuantity, int /*terminalWidth*/, const std::function<void()>& restoreScreen)
 {
     Appearance::startPopupInteraction();
     std::vector<std::string> text = { 
@@ -403,7 +403,7 @@ NextMapTransition MapControl::executeExplorationLoop(
                     MapPhysics::applyMapLimits(hitX, hitY, currentMapMatrix);
                     
                     char cell = currentMapMatrix[hitY][hitX];
-                    // Verifica se o jogador parou em um trigger (Inimigos ou Teleportes ou Terminal)
+                    // Verifica se o player parou em um trigger (Inimigos ou Teleportes ou Terminal)
                     std::string triggers = "^GOBFSAMTHRPCIQ@";
                     if (triggers.find(cell) != std::string::npos) {
                         isTrigger = true;
@@ -427,13 +427,13 @@ NextMapTransition MapControl::executeExplorationLoop(
                             RaycasterWorld::updateMapHash(currentMapMatrix);
                         }
                     } else {
-                        processInteraction(hitX, hitY, terminalWidth); // Aciona o combate/NPC caso o jogador tenha parado em cima de um
+                        processInteraction(hitX, hitY, terminalWidth); // Aciona o combate/NPC caso o player tenha parado em cima de um
                     }
                     
-                    // So empurra o jogador para tras se a posicao nao mudou (evita sobrescrever teleportes)
+                    // So empurra o player para tras se a posicao nao mudou (evita sobrescrever teleportes)
                     if (isTrigger && PerspectiveManager::getInstance().is3DViewActive() && playerPositionX == posXBefore && playerPositionY == posYBefore) {
                         /*
-                         * Empurra o jogador para tras em 1 casa para evitar que ele fique preso no NPC
+                         * Empurra o player para tras em 1 casa para evitar que ele fique preso no NPC
                          * E previne loops onde ele volta pro jogo ja interagindo
                          */
                         s_cameraPosX3D = static_cast<float>(hitX) + 0.5f - cos(s_cameraAngle3D) * 1.5f;

@@ -28,18 +28,18 @@ void Appearance::animateFadeIn(int framesTotals, int timeByFrameMs, const std::f
     }
 }
 
-void Appearance::displayScreenIntro(const std::vector<std::string>& artSoon, const std::vector<std::string>& textNarration, Color themeColor) {
+void Appearance::displayScreenIntro(const std::vector<std::string>& logoArt, const std::vector<std::string>& textNarration, Color themeColor) {
     int widthConsole = getTerminalWidth();
 
     int artWidth = 0;
-    for (const auto& line : artSoon) {
+    for (const auto& line : logoArt) {
         int comp = getVisualLength(line);
         if (comp > artWidth) artWidth = comp;
     }
     int spacesArt = std::max(0, (widthConsole - artWidth) / 2);
     std::string marginArt(spacesArt, ' ');
 
-    int linesEmWhiteBeforeDoText = 3;
+    int blankLinesBeforeText = 3;
 
     hideCursor();
     clearScreen();
@@ -51,7 +51,7 @@ void Appearance::displayScreenIntro(const std::vector<std::string>& artSoon, con
         std::string colorRGB = getColorRGBFade(themeColor, intensity);
         
         buffer << "\n\n";
-        for (const auto& line : artSoon) {
+        for (const auto& line : logoArt) {
             buffer << marginArt << colorRGB << line << "\033[0m\n";
         }
         
@@ -61,7 +61,7 @@ void Appearance::displayScreenIntro(const std::vector<std::string>& artSoon, con
         std::cout << "\033[H" << buffer.str() << std::flush;
     });
 
-    for(int i = 0; i < linesEmWhiteBeforeDoText; ++i) std::cout << "\n";
+    for(int i = 0; i < blankLinesBeforeText; ++i) std::cout << "\n";
 
     printBlockCentralizedTyping(textNarration);
     
@@ -75,13 +75,13 @@ void Appearance::displayScreenIntro(const std::vector<std::string>& artSoon, con
 }
 
 void Appearance::printBlockCentralizedTyping(const std::vector<std::string>& lines, int delayMs) {
-    int sizeDaLineMoreLong = 0;
+    int longestLineSize = 0;
     for (const std::string& line : lines) {
         size_t end = line.find_last_not_of(' ');
         std::string trimmed = (end != std::string::npos) ? line.substr(0, end + 1) : "";
-        sizeDaLineMoreLong = std::max(sizeDaLineMoreLong, getVisualLength(trimmed));
+        longestLineSize = std::max(longestLineSize, getVisualLength(trimmed));
     }
-    std::string margin = spacesToCenter(sizeDaLineMoreLong);
+    std::string margin = spacesToCenter(longestLineSize);
     for (const std::string& line : lines) {
         printTyping(margin + line, delayMs, true);
     }

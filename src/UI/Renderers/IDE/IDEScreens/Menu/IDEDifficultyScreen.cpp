@@ -5,7 +5,7 @@
 #include "Core/Utils/Appearance.h"
 #include "Core/Utils/InputControl.h"
 
-DifficultyScreen::Result ScreenDifficultyGO::display(const std::string& namePlayer, const std::string& raceName, const std::string& className) {
+DifficultyScreen::Result IDEDifficultyScreen::display(const std::string& namePlayer, const std::string& raceName, const std::string& className) {
     std::string colorKeyword = "\033[38;2;86;156;214m"; // Blue
     std::string colorEnum = "\033[38;2;78;201;176m"; // Cyan
     std::string colorPunct = "\033[38;2;212;212;212m"; // Gray
@@ -54,10 +54,10 @@ DifficultyScreen::Result ScreenDifficultyGO::display(const std::string& namePlay
             blockCentral.push_back(colorComment + "// DIFICIL: Inimigos com 2x Atributos, com habilidades de raca e classe" + reset);
         }
 
-        int spacesY = ScreenMenuGO::calculateSpaceY(blockCentral.size());
+        int spacesY = IDEMenuScreen::calculateSpaceY(blockCentral.size());
         for (int i = 0; i < spacesY; ++i) std::cout << "\n";
         
-        ScreenMenuGO::printBlockCentralizedGO(blockCentral);
+        IDEMenuScreen::printCentralizedBlockIDE(blockCentral);
 
         unsigned char key = static_cast<unsigned char>(InputControl::readKey());
         if (key == 224 || key == 0 || key == '\033') {

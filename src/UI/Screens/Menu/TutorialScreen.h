@@ -2,7 +2,7 @@
 
 #include <string>
 
-class ScreenTutorial {
+class TutorialScreen {
 public:
-    static void displayTutorialDeParry(const std::string& infoBox = "");
+    static void displayParryTutorial(const std::string& infoBox = "");
 };

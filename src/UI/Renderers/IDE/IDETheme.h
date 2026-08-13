@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-namespace ThemeGO {
+namespace IDETheme {
 
     // Paleta de cores C++ para o Terminal
     const std::string COLOR_WORD_KEY = "\033[38;2;86;156;214m"; // Azul

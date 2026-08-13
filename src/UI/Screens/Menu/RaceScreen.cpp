@@ -2,5 +2,5 @@
 #include "UI/Screens/ScreenRegistry.h"
 
 RaceScreen::Result RaceScreen::display(const std::string& namePlayer) {
-    return ScreenRegistration::screenRace(namePlayer);
+    return ScreenRegistry::screenRace(namePlayer);
 }

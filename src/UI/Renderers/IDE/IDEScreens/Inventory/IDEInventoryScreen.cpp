@@ -9,11 +9,11 @@
 #include "UI/Screens/Inventory/InventoryScreenLayout.h"
 #include "Domain/Items/Item.h"
 
-void ScreenInventoryGO::displayHeaderInventory(bool animate) {
-    Appearance::displayArtPanel(ArtsInventory::soonInventory, 121, Color::YELLOW, "", animate);
+void IDEInventoryScreen::displayHeaderInventory(bool animate) {
+    Appearance::displayArtPanel(ArtsInventory::inventoryLogo, 121, Color::YELLOW, "", animate);
 }
 
-void ScreenInventoryGO::displayBoxEquipped(Character* currentPlayer) {
+void IDEInventoryScreen::displayBoxEquipped(Character* currentPlayer) {
     Item* weaponEquipped = currentPlayer->getWeapons();
     Item* shieldEquipped = currentPlayer->getShield();
     Item* armorEquipped = currentPlayer->getArmor();
@@ -28,7 +28,7 @@ void ScreenInventoryGO::displayBoxEquipped(Character* currentPlayer) {
     Appearance::printBlockCentralized(BaseScreen::createBox(lines, "EQUIPAMENTOS ATUAIS", 40, Color::YELLOW));
 }
 
-void ScreenInventoryGO::displayInspectionItem(Item* item, Character* currentPlayer) {
+void IDEInventoryScreen::displayInspectionItem(Item* item, Character* currentPlayer) {
     if (!item) return;
 
     std::vector<std::string> lines;

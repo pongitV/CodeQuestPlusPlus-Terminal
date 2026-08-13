@@ -235,8 +235,8 @@ public:
     TypeRace getTypeRace() const;
     bool isBoss() const;
     
-    Item* getWeapons() const { auto it = equipment.find(SlotEquipment::MAO_MAIN); return it != equipment.end() ? it->second : nullptr; }
-    Item* getShield() const { auto it = equipment.find(SlotEquipment::MAO_SECONDARY); return it != equipment.end() ? it->second : nullptr; }
+    Item* getWeapons() const { auto it = equipment.find(SlotEquipment::MAIN_HAND); return it != equipment.end() ? it->second : nullptr; }
+    Item* getShield() const { auto it = equipment.find(SlotEquipment::OFF_HAND); return it != equipment.end() ? it->second : nullptr; }
     Item* getArmor() const { auto it = equipment.find(SlotEquipment::ARMOR); return it != equipment.end() ? it->second : nullptr; }
     Item* getConsumableQuickly() const { auto it = equipment.find(SlotEquipment::CONSUMABLE); return it != equipment.end() ? it->second : nullptr; }
     void unequipConsumable() { equipment.erase(SlotEquipment::CONSUMABLE); cache_.dirty = true; }
@@ -318,8 +318,8 @@ public:
     bool getDefending() const { return combat.isDefending; }
     void setRechargeDefense(bool r) { combat.defenseRecharge = r; }
     bool getRechargeDefense() const { return combat.defenseRecharge; }
-    void unequipShield() { equipment.erase(SlotEquipment::MAO_SECONDARY); cache_.dirty = true; }
-    void unequipWeapon() { equipment.erase(SlotEquipment::MAO_MAIN); cache_.dirty = true; }
+    void unequipShield() { equipment.erase(SlotEquipment::OFF_HAND); cache_.dirty = true; }
+    void unequipWeapon() { equipment.erase(SlotEquipment::MAIN_HAND); cache_.dirty = true; }
     void unequipArmor() { equipment.erase(SlotEquipment::ARMOR); cache_.dirty = true; }
 
     void setDeathLively(bool m) { combat.deathLively = m; }

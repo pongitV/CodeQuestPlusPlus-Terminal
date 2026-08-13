@@ -24,7 +24,7 @@ public:
     int savedPositionXBeforeEnteringSubMap;
     int savedPositionYBeforeEnteringSubMap;
     std::vector<std::string> savedChurchMapMatrix;
-    bool igrejaJaFoiVisitada;
+    bool churchAlreadyVisited;
 
 public:
     explicit Map4Kingdom(Character* playerCharacter);

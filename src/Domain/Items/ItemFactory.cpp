@@ -39,11 +39,11 @@ namespace {
         {"Armadura de trapos e sucata", ItemID::ArmorRags},
         {"Armadura de Cavaleiro", ItemID::ArmorKnight},
         {"Roupas de Ritualista", ItemID::ClothesRitualist},
-        {"Armadura de bau", ItemID::ArmorBao},
+        {"Armadura de bau", ItemID::ArmorChest},
         {"Roda da Adaptacao", ItemID::AdaptationWheel},
         
-        {"Pocao de Cura (30%VM)", ItemID::LittleCure30},
-        {"Pocao de Furia (Buff)", ItemID::LittleFury},
+        {"Pocao de Cura (30%VM)", ItemID::HealingPotion30},
+        {"Pocao de Furia (Buff)", ItemID::FuryPotion},
         {"Elixir Arcano (Buff)", ItemID::ElixirArcane},
         {"Frasco de Gosma (Debuff)", ItemID::BottleSlime},
         {"Frasco de Fraqueza (Debuff)", ItemID::BottleWeakness},
@@ -52,23 +52,23 @@ namespace {
         {"Talisma do Corvo", ItemID::TalismanCrow},
         {"Talisma do Leopardo", ItemID::TalismanLeopard},
         {"Talisma da Coruja", ItemID::TalismanOwl},
-        {"Maca", ItemID::Litter},
+        {"Maca", ItemID::Apple},
         {"Pao", ItemID::Bread},
         {"Queijo", ItemID::Cheese},
-        {"Carne Seca", ItemID::MeatDrought},
-        {"Pocao de Cura Grande (50%VM)", ItemID::LittleCureBig},
-        {"Pocao de Forca Alquimica", ItemID::LittleGallowsAlchemy},
-        {"Pocao de Veneno Alquimica (Debuff)", ItemID::LittlePoisonAlchemy},
-        {"Pocao de Lentidao Alquimica (Debuff)", ItemID::LittleSlowAlchemy},
+        {"Carne Seca", ItemID::DriedMeat},
+        {"Pocao de Cura Grande (50%VM)", ItemID::GreatHealingPotion},
+        {"Pocao de Forca Alquimica", ItemID::AlchemicalStrengthPotion},
+        {"Pocao de Veneno Alquimica (Debuff)", ItemID::AlchemicalPoisonPotion},
+        {"Pocao de Lentidao Alquimica (Debuff)", ItemID::AlchemicalSlownessPotion},
         
         {"Gosma acida", ItemID::SlimeAcid},
         {"Dente de goblin", ItemID::ToothGoblin},
         {"Nucleo pegajoso", ItemID::NucleusSticky},
-        {"Po magico", ItemID::PoMagician},
+        {"Po magico", ItemID::MagicPowder},
         {"Madeira enfeiticada", ItemID::WoodBewitched},
         {"Coracao da floresta", ItemID::HeartForest},
         {"Pedra magica de upgrade", ItemID::StoneUpgrade},
-        {"Convite Real", ItemID::InvitationReal},
+        {"Convite Real", ItemID::RoyalInvitation},
         
         {"Dispositivo de teclas de linguagem desconhecida", ItemID::DeviceLanguage}
     };
@@ -112,7 +112,7 @@ std::vector<std::unique_ptr<Item>> ItemFactory::createSeveralItems(ItemID id, in
 }
 
 std::vector<std::unique_ptr<Item>> ItemFactory::createPotionKit(int quantity) {
-    return createSeveralItems(ItemID::LittleCure30, quantity);
+    return createSeveralItems(ItemID::HealingPotion30, quantity);
 }
 
 

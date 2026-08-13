@@ -2,8 +2,8 @@
 #include <string>
 #include <vector>
 
-class IMapWorldUI {
+class IWorldMapUI {
 public:
-    virtual ~IMapWorldUI() = default;
+    virtual ~IWorldMapUI() = default;
     virtual void renderPopup(const std::vector<std::string>& art, const std::vector<std::string>& places, int selection, bool redesignComplete = true) = 0;
 };

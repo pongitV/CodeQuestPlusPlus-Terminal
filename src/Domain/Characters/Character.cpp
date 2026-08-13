@@ -292,8 +292,8 @@ TypeRace Character::getTypeRace() const
 void Character::equipItem(Item* item)
 {
     if (item == nullptr) return;
-    if (item->getType() == EquipmentType::WEAPONS) this->equipment[SlotEquipment::MAO_MAIN] = item;
-    else if (item->getType() == EquipmentType::SHIELD) this->equipment[SlotEquipment::MAO_SECONDARY] = item;
+    if (item->getType() == EquipmentType::WEAPONS) this->equipment[SlotEquipment::MAIN_HAND] = item;
+    else if (item->getType() == EquipmentType::SHIELD) this->equipment[SlotEquipment::OFF_HAND] = item;
     else if (item->getType() == EquipmentType::ARMOR)
     {
         this->equipment[SlotEquipment::ARMOR] = item;

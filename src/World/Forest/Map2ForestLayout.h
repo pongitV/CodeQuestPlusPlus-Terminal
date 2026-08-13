@@ -7,7 +7,7 @@
 
 class Map2ForestLayouts {
 public:
-    static inline std::vector<std::string> getForestSoon() {
+    static inline std::vector<std::string> getForestLogo() {
         return StringConvert::convertRawStringToVector(R"(
  ███████████ █████          ███████    ███████████   ██████████  █████████  ███████████   █████████  
 ░░███░░░░░░█░░███         ███░░░░░███ ░░███░░░░░███ ░░███░░░░░█ ███░░░░░███░█░░░███░░░█  ███░░░░░███ 

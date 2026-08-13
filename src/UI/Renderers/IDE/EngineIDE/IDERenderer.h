@@ -7,29 +7,29 @@
 
 class GORenderer : public PerspectiveRenderer {
 public:
-    std::vector<std::string> formatGOText(const std::vector<std::string>& text) {
-        return AnsiFormatter::formatGOText(text);
+    std::vector<std::string> formatIDEText(const std::vector<std::string>& text) {
+        return AnsiFormatter::formatIDEText(text);
     }
 
-    std::vector<std::string> formatGOArt(const std::vector<std::string>& art) {
-        return AnsiFormatter::formatGOArt(art);
+    std::vector<std::string> formatIDEArt(const std::vector<std::string>& art) {
+        return AnsiFormatter::formatIDEArt(art);
     }
 
-    std::string formatGOTitle(const std::string& title) {
-        return AnsiFormatter::formatGOTitle(title);
+    std::string formatIDETitle(const std::string& title) {
+        return AnsiFormatter::formatIDETitle(title);
     }
 
-    void displayPopup(const std::string& title, const std::vector<std::string>& lines, Color colorHeader, const std::vector<std::string>& artSoon = {}) override {
-        Appearance::displayPopup(formatGOTitle(title), formatGOText(lines), colorHeader, formatGOArt(artSoon));
+    void displayPopup(const std::string& title, const std::vector<std::string>& lines, Color colorHeader, const std::vector<std::string>& logoArt = {}) override {
+        Appearance::displayPopup(formatIDETitle(title), formatIDEText(lines), colorHeader, formatIDEArt(logoArt));
     }
 
     void startPopupInteraction() override {}
 
-    int readMenuSelectionInPopup(const std::string& title, const std::vector<std::string>& descriptions, const std::vector<std::string>& options, Color colorHeader, const std::vector<std::string>& artSoon = {}, bool returnEnabled = true) override {
+    int readMenuSelectionInPopup(const std::string& title, const std::vector<std::string>& descriptions, const std::vector<std::string>& options, Color colorHeader, const std::vector<std::string>& logoArt = {}, bool returnEnabled = true) override {
         return InputControl::readMenuSelectionInPopup(
-            formatGOTitle(title), formatGOText(descriptions),
+            formatIDETitle(title), formatIDEText(descriptions),
             AnsiFormatter::formatGOOptions(options),
-            colorHeader, formatGOArt(artSoon), returnEnabled);
+            colorHeader, formatIDEArt(logoArt), returnEnabled);
     }
 
     void clearScreen() override { Appearance::clearScreen(); }

@@ -13,8 +13,8 @@ file(GLOB_RECURSE IDE_SOURCES "${CMAKE_SOURCE_DIR}/src/UI/Renderers/IDE/*.cpp")
 list(REMOVE_ITEM SOURCES ${IDE_SOURCES})
 
 # Adiciona o arquivo de recursos do icone se ele existir (para Windows)
-if(WIN32 AND EXISTS "${CMAKE_SOURCE_DIR}/assets/icone.rc")
-    list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/assets/icone.rc")
+if(WIN32 AND EXISTS "${CMAKE_SOURCE_DIR}/assets/icon.rc")
+    list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/assets/icon.rc")
 endif()
 
 # Adiciona o PNG para visibilidade na IDE

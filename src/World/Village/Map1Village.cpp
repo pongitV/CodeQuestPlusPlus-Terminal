@@ -269,12 +269,12 @@ NextMapTransition Map1Village::startExplorationLoop()
         bool useBannerAnimation = true;
 
         if (currentMapTitle == "VILA INICIAL") {
-            titleArt = Map1VillageLayouts::getVillageSoon();
+            titleArt = Map1VillageLayouts::getVillageLogo();
             artWidth = 125;
             transArt = Map1VillageLayouts::getVillageTransitionArt();
             transWidth = 75;
         } else if (currentMapTitle == "CAMINHO DO INICIO") {
-            titleArt = Map1VillageLayouts::getSpawnSoon();
+            titleArt = Map1VillageLayouts::getSpawnLogo();
             artWidth = 105;
             if (savedSpawnMapMatrix.empty()) {
                 useBannerAnimation = false;

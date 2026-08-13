@@ -42,7 +42,7 @@ std::string AppearanceTerminal::generateBarLifeASCII(double pct, int size) {
     return bar;
 }
 
-std::string AppearanceTerminal::generateBarLifeGO(double pct, int size) {
+std::string AppearanceTerminal::generateHealthBarIDE(double pct, int size) {
     if (pct < 0.0) pct = 0.0;
     if (pct > 1.0) pct = 1.0;
     
@@ -162,10 +162,10 @@ std::vector<std::string> AppearanceTerminal::createBoxDrop(const std::vector<std
 
 // --- IMPRESSOES ESPECIFICAS DO TERMINAL ---
 void AppearanceTerminal::printTitleHowCode(const std::string& title) {
-    std::string titleGO = title;
-    std::replace(titleGO.begin(), titleGO.end(), ' ', '_');
+    std::string titleIDE = title;
+    std::replace(titleIDE.begin(), titleIDE.end(), ' ', '_');
     
-    std::string line = colorWordKey() + "class " + colorType() + titleGO + " {";
+    std::string line = colorWordKey() + "class " + colorType() + titleIDE + " {";
     Appearance::printCentralized(line);
 }
 

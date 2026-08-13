@@ -279,7 +279,7 @@ Pixel3D RaycasterWorld::getFloorPixel(const std::string& titleMap, float current
     int tx = globX & 127;
     int ty = globY & 127;
 
-    TexID texID = TexID::ChaoPattern;
+    TexID texID = TexID::FloorPattern;
     char c = ' ';
     uint8_t fgR = 0, fgG = 0, fgB = 0;
     uint8_t bgR = 0, bgG = 0, bgB = 0;
@@ -289,8 +289,8 @@ Pixel3D RaycasterWorld::getFloorPixel(const std::string& titleMap, float current
         fgR = 150; fgG = 130; fgB = 90;
         bool edgeX = ((globX & 127) < 2) || ((globX & 127) > 125);
         bool edgeY = ((globY & 31) < 2) || ((globY & 31) > 29);
-        if (edgeX || edgeY) texID = TexID::ChaoLabyrinthEdge;
-        else texID = TexID::ChaoLabyrinth;
+        if (edgeX || edgeY) texID = TexID::FloorLabyrinthEdge;
+        else texID = TexID::FloorLabyrinth;
     } else if (isRoomBoss) {
         float cx = (globX & 127) - 64.0f;
         float cy = (globY & 127) - 64.0f;
@@ -301,8 +301,8 @@ Pixel3D RaycasterWorld::getFloorPixel(const std::string& titleMap, float current
         if (spiral > 0.3f) c = '@';
         else if (spiral > 0.0f) c = '%';
         else if (spiral > -0.3f) c = '.';
-        if (spiral > 0.0f) texID = TexID::ChaoRoomBossInside;
-        else texID = TexID::ChaoRoomBossOut;
+        if (spiral > 0.0f) texID = TexID::FloorRoomBossInside;
+        else texID = TexID::FloorRoomBossOut;
     } else if (isHeart) {
         float cx = (globX & 255) - 128.0f;
         float cy = (globY & 255) - 128.0f;
@@ -310,9 +310,9 @@ Pixel3D RaycasterWorld::getFloorPixel(const std::string& titleMap, float current
         float angle = std::atan2(cy, cx);
         float spiral = ManagerTextures::fastYes(dist * 0.2f + angle * 4.0f + globX * 0.1f);
         bool hasMoss = ((globX * 17 + globY * 13) % 100) < 40 || (spiral > 0.5f);
-        if (hasMoss) { texID = TexID::ChaoHeartMoss; fgR = 30; fgG = 80; fgB = 20; }
-        else if (spiral > 0.0f) { texID = TexID::ChaoHeartEarth; fgR = 50; fgG = 30; fgB = 15; }
-        else { texID = TexID::ChaoHeartDark; fgR = 25; fgG = 15; fgB = 10; }
+        if (hasMoss) { texID = TexID::FloorHeartMoss; fgR = 30; fgG = 80; fgB = 20; }
+        else if (spiral > 0.0f) { texID = TexID::FloorHeartEarth; fgR = 50; fgG = 30; fgB = 15; }
+        else { texID = TexID::FloorHeartDark; fgR = 25; fgG = 15; fgB = 10; }
     } else if (flags.isKingdom || flags.isBridge) {
         float cx = globX * 0.15f;
         float cy = globY * 0.15f;
@@ -351,13 +351,13 @@ Pixel3D RaycasterWorld::getFloorPixel(const std::string& titleMap, float current
         float noise = ManagerTextures::fastYes(cx) + ManagerTextures::fastYes(cy) + ManagerTextures::fastYes(cx2) + ManagerTextures::fastYes(cy2);
         bool isGrass = (noise > -3.0f);
         if (isGrass) {
-            if (flags.upperTitle.find("FLORESTA") != std::string::npos) { fgR = 6; fgG = 35; fgB = 6; texID = TexID::ChaoGrassForest; }
-            else { fgR = 12; fgG = 75; fgB = 12; texID = TexID::ChaoGrassVillage; }
+            if (flags.upperTitle.find("FLORESTA") != std::string::npos) { fgR = 6; fgG = 35; fgB = 6; texID = TexID::FloorGrassForest; }
+            else { fgR = 12; fgG = 75; fgB = 12; texID = TexID::FloorGrassVillage; }
         } else {
-            fgR = 45; fgG = 25; fgB = 10; texID = TexID::ChaoEarth;
+            fgR = 45; fgG = 25; fgB = 10; texID = TexID::FloorEarth;
         }
     } else {
-        fgR = 60; fgG = 60; fgB = 60; texID = TexID::ChaoPattern;
+        fgR = 60; fgG = 60; fgB = 60; texID = TexID::FloorPattern;
         if (((globX * 17 + globY * 23) & 63) < 4) c = '.';
         else if (((globX * globX + globY * 13) & 63) < 3) c = '-';
         else if (((globX * 3 + globY * 7) & 31) < 2) c = '`';

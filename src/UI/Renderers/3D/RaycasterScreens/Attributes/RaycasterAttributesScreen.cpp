@@ -24,12 +24,12 @@ struct EffectInfo {
 
 static void displayTitleFloating(int startY) {
     int widthConsole = Appearance::getTerminalWidth();
-    int soonHeight = ArtsAttributes::soonSheet.size();
+    int soonHeight = ArtsAttributes::sheetLogo.size();
     int soonY = startY - 1 - soonHeight;
     if (soonY < 0) soonY = 0;
     
     int compVisualSoon = 0;
-    for (const auto& line : ArtsAttributes::soonSheet) {
+    for (const auto& line : ArtsAttributes::sheetLogo) {
         int comp = Appearance::getVisualLength(line);
         if (comp > compVisualSoon) compVisualSoon = comp;
     }
@@ -39,7 +39,7 @@ static void displayTitleFloating(int startY) {
     std::string colorTitle = Appearance::color(Color::MAGENTA);
     for (int i = 0; i < soonHeight; ++i) {
         Appearance::moveCursor(soonX, soonY + i);
-        const std::string& line = ArtsAttributes::soonSheet[i];
+        const std::string& line = ArtsAttributes::sheetLogo[i];
         
         std::string buffer = colorTitle;
         int spaceCount = 0;
@@ -67,11 +67,11 @@ static void displayTitleFloating(int startY) {
     }
 }
 
-void ScreenAttributesRaycaster::display(Character* currentPlayer) {}
+void RaycasterAttributesScreen::display(Character* currentPlayer) {}
 
 enum StateAttributes { MAIN, SKILLS, DETAILS, RISE_LEVEL, ERROR_LEVEL };
 
-void ScreenAttributesRaycaster::managePlayerCharacterSheet(Character* currentPlayer) {
+void RaycasterAttributesScreen::managePlayerCharacterSheet(Character* currentPlayer) {
     if (!currentPlayer) return;
     
     int selectionCurrent = 0;
@@ -161,13 +161,13 @@ void ScreenAttributesRaycaster::managePlayerCharacterSheet(Character* currentPla
         linesMain.push_back("");
 
         PowerCombat power = AttributesScreen::calculatePowerCombat(currentPlayer, currentAttributeMultiplier);
-        std::string sFis = Appearance::color(Color::RED) + std::to_string(power.damageFisIs) + Appearance::color(Color::RESET);
-        std::string sMag = Appearance::color(Color::RED) + std::to_string(power.damageMagIs) + Appearance::color(Color::RESET);
+        std::string sPhys = Appearance::color(Color::RED) + std::to_string(power.damagePhysIs) + Appearance::color(Color::RESET);
+        std::string sMagic = Appearance::color(Color::RED) + std::to_string(power.damageMagicIs) + Appearance::color(Color::RESET);
         std::string sDef = Appearance::color(Color::BLUE) + std::to_string(power.defFixed) + Appearance::color(Color::RESET);
         std::ostringstream ssMit; ssMit << std::fixed << std::setprecision(1) << power.mitigation;
         std::string sMit = Appearance::color(Color::CYAN) + ssMit.str() + "%" + Appearance::color(Color::RESET);
         
-        linesMain.push_back("PODER DE COMBATE: Dano Fisico: " + sFis + " | Dano Magico: " + sMag + " | Defesa Fixa: " + sDef + " | Mitigacao: " + sMit);
+        linesMain.push_back("PODER DE COMBATE: Dano Fisico: " + sPhys + " | Dano Magico: " + sMagic + " | Defesa Fixa: " + sDef + " | Mitigacao: " + sMit);
         linesMain.push_back("");
         
         for (int i = 0; i < (int)options.size(); ++i) {
@@ -252,8 +252,8 @@ void ScreenAttributesRaycaster::managePlayerCharacterSheet(Character* currentPla
         linesDetails.push_back(Appearance::color(Color::WHITE) + " [ Voltar ]" + Appearance::color(Color::RESET));
 
         // --- 4. PREPARAR SUBIR NIVEL ---
-        std::vector<std::string> namesAtr = {"Vida", "Forca", "Destreza", "Resistencia", "Constituicao", "Inteligencia", "Sabedoria"};
-        std::vector<std::string> optionsAtr;
+        std::vector<std::string> namesAttr = {"Vida", "Forca", "Destreza", "Resistencia", "Constituicao", "Inteligencia", "Sabedoria"};
+        std::vector<std::string> optionsAttr;
         for (int i = 1; i <= 7; ++i) {
             auto clonePreview = currentPlayer->clone();
             clonePreview->levelUp(static_cast<AttributeType>(i));
@@ -269,16 +269,16 @@ void ScreenAttributesRaycaster::managePlayerCharacterSheet(Character* currentPla
                 case 7: valCurrent = currentPlayer->getWisdom(); valNew = clonePreview->getWisdom(); break;
             }
             int gain = valNew - valCurrent;
-            optionsAtr.push_back(namesAtr[i - 1] + " " + Appearance::color(Color::GRAY) + "(" + std::to_string(valCurrent) + " -> " + std::to_string(valNew) + " [" + Appearance::color(Color::GREEN) + "+" + std::to_string(gain) + Appearance::color(Color::GRAY) + "])" + Appearance::color(Color::RESET));
+            optionsAttr.push_back(namesAttr[i - 1] + " " + Appearance::color(Color::GRAY) + "(" + std::to_string(valCurrent) + " -> " + std::to_string(valNew) + " [" + Appearance::color(Color::GREEN) + "+" + std::to_string(gain) + Appearance::color(Color::GRAY) + "])" + Appearance::color(Color::RESET));
         }
-        optionsAtr.push_back("Cancelar");
+        optionsAttr.push_back("Cancelar");
 
         linesRiseLevel.push_back("Escolha o atributo para melhorar:");
         linesRiseLevel.push_back("");
-        for (int i = 0; i < (int)optionsAtr.size(); ++i) {
+        for (int i = 0; i < (int)optionsAttr.size(); ++i) {
             std::string cursor = (i == selectionRise && state == RISE_LEVEL) ? (Appearance::color(Color::GREEN) + " > ") : "   ";
             std::string colorOption = (i == selectionRise && state == RISE_LEVEL) ? Appearance::color(Color::GREEN) : Appearance::color(Color::WHITE);
-            linesRiseLevel.push_back(cursor + colorOption + optionsAtr[i] + Appearance::color(Color::RESET));
+            linesRiseLevel.push_back(cursor + colorOption + optionsAttr[i] + Appearance::color(Color::RESET));
         }
 
         // --- 5. PREPARAR ERRO NIVEL ---
@@ -371,4 +371,4 @@ void ScreenAttributesRaycaster::managePlayerCharacterSheet(Character* currentPla
     }
 }
 
-void ScreenAttributesRaycaster::displayDetailsAttributes(Character*) {}
+void RaycasterAttributesScreen::displayDetailsAttributes(Character*) {}

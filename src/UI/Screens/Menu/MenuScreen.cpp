@@ -2,22 +2,22 @@
 #include "UI/Screens/Menu/TutorialScreen.h"
 #include "UI/Screens/ScreenRegistry.h"
 
-void MenuScreen::displayPanelSoonGame(const std::string& titleDaScreen, bool animateFadeIn) {
-    ScreenRegistration::panelSoon(titleDaScreen, animateFadeIn);
+void MenuScreen::displayGameLogoPanel(const std::string& screenTitle, bool animateFadeIn) {
+    ScreenRegistry::panelLogo(screenTitle, animateFadeIn);
 }
 
-bool MenuScreen::displayConfirmationDeChooseWithArtSideASide(const std::string& typeDeChoose, const std::string& nameDaChoose, const std::vector<std::string>& informationForDisplay, const std::vector<std::string>& artAsciiForDisplay) {
-    return ScreenRegistration::confirmationChoose(typeDeChoose, nameDaChoose, informationForDisplay, artAsciiForDisplay);
+bool MenuScreen::displayChooseConfirmationWithArtSideBySide(const std::string& chooseType, const std::string& chooseName, const std::vector<std::string>& informationForDisplay, const std::vector<std::string>& asciiArtForDisplay) {
+    return ScreenRegistry::chooseConfirmation(chooseType, chooseName, informationForDisplay, asciiArtForDisplay);
 }
 
-std::vector<std::string> MenuScreen::composeFrameDeAttributes(const Attributes& stats, const std::string& titleDry, const std::string& titleSkill, const std::string& nameHab, const std::string& descHab, const std::string& titleSkill2, const std::string& nameHab2, const std::string& descHab2) {
-    return ScreenRegistration::frameAttributes(stats, titleDry, titleSkill, nameHab, descHab, titleSkill2, nameHab2, descHab2);
+std::vector<std::string> MenuScreen::composeAttributesFrame(const Attributes& stats, const std::string& dryTitle, const std::string& skillTitle, const std::string& skillName, const std::string& skillDesc, const std::string& skillTitle2, const std::string& skillName2, const std::string& skillDesc2) {
+    return ScreenRegistry::frameAttributes(stats, dryTitle, skillTitle, skillName, skillDesc, skillTitle2, skillName2, skillDesc2);
 }
 
 int MenuScreen::displayMainMenuOptions() {
-    return ScreenRegistration::mainMenu();
+    return ScreenRegistry::mainMenu();
 }
 
-void MenuScreen::displayTutorialDeParry(const std::string& infoBox) {
-    ScreenTutorial::displayTutorialDeParry(infoBox);
+void MenuScreen::displayParryTutorial(const std::string& infoBox) {
+    TutorialScreen::displayParryTutorial(infoBox);
 }
