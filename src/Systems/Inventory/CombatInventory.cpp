@@ -44,17 +44,21 @@ static int readSelectionPopupInventory(const std::string& title, const std::vect
 
         std::vector<std::string> boxEnd = BaseScreen::createBox(lines, title, 0, Color::YELLOW, is3D ? "\033[48;2;25;25;25m" : "");
         int outW = Appearance::getVisualLength(boxEnd[0]);
-        int outH = boxEnd.size();
-        int startX = (Appearance::getTerminalWidth() - outW) / 2;
-        int startY = (Appearance::getTerminalHeight() - outH) / 2;
+        int outH = (int)boxEnd.size();
+        int termW = Appearance::getTerminalWidth();
+        int termH = Appearance::getTerminalHeight();
+        int startX = std::max(0, (termW - outW) / 2);
+        int startY = std::max(0, (termH - outH) / 2);
         
-        if (startX < 0) startX = 0;
-        if (is3D && startY < 8) startY = 8;
+        if (startY + outH > termH) startY = std::max(0, termH - outH);
+        if (startX + outW > termW) startX = std::max(0, termW - outW);
         
         std::cout << "\033[?25l";
         for (size_t i = 0; i < boxEnd.size(); ++i) {
-            Appearance::moveCursor(startX, startY + i);
-            std::cout << boxEnd[i];
+            if (startY + (int)i < termH) {
+                Appearance::moveCursor(startX, startY + i);
+                std::cout << boxEnd[i];
+            }
         }
         std::cout << std::flush;
 
@@ -124,17 +128,21 @@ static int readWholePopupInventory(const std::string& title, const std::string& 
 
         std::vector<std::string> boxEnd = BaseScreen::createBox(lines, title, 0, Color::YELLOW, is3D ? "\033[48;2;25;25;25m" : "");
         int outW = Appearance::getVisualLength(boxEnd[0]);
-        int outH = boxEnd.size();
-        int startX = (Appearance::getTerminalWidth() - outW) / 2;
-        int startY = (Appearance::getTerminalHeight() - outH) / 2;
+        int outH = (int)boxEnd.size();
+        int termW = Appearance::getTerminalWidth();
+        int termH = Appearance::getTerminalHeight();
+        int startX = std::max(0, (termW - outW) / 2);
+        int startY = std::max(0, (termH - outH) / 2);
         
-        if (startX < 0) startX = 0;
-        if (is3D && startY < 8) startY = 8;
+        if (startY + outH > termH) startY = std::max(0, termH - outH);
+        if (startX + outW > termW) startX = std::max(0, termW - outW);
         
         std::cout << "\033[?25l";
         for (size_t i = 0; i < boxEnd.size(); ++i) {
-            Appearance::moveCursor(startX, startY + i);
-            std::cout << boxEnd[i];
+            if (startY + (int)i < termH) {
+                Appearance::moveCursor(startX, startY + i);
+                std::cout << boxEnd[i];
+            }
         }
         std::cout << std::flush;
 
@@ -337,16 +345,29 @@ void CombatInventory::manageInventory(Character* currentPlayer, bool* shiftWasCo
         
         if (is3D) {
             if (redesignCompleteInv) RaycasterFrame::restoreLastFrame();
-            int startX = (Appearance::getTerminalWidth() - outW) / 2;
-            int startY = (Appearance::getTerminalHeight() - outH) / 2;
-            if (startX < 0) startX = 0;
-            if (startY < 8) startY = 8;
+            int termW = Appearance::getTerminalWidth();
+            int termH = Appearance::getTerminalHeight();
+            
+            int soonHeight = 8; // Altura aproximada do logo do inventario
+            int totalH = outH + soonHeight + 1;
+            int startY = 0;
+            if (termH > totalH) {
+                startY = (termH - totalH) / 2 + soonHeight + 1;
+            } else {
+                startY = std::max(0, (termH - outH) / 2);
+            }
+            if (startY + outH > termH) startY = std::max(0, termH - outH);
+            
+            int startX = std::max(0, (termW - outW) / 2);
+            if (startX + outW > termW) startX = std::max(0, termW - outW);
             
             PerspectiveManager::getInventoryUI().displayHeader(false, startY);
             
             for (size_t i = 0; i < boxEnd.size(); ++i) {
-                Appearance::moveCursor(startX, startY + i);
-                std::cout << boxEnd[i];
+                if (startY + (int)i < termH) {
+                    Appearance::moveCursor(startX, startY + i);
+                    std::cout << boxEnd[i];
+                }
             }
         } else {
             Appearance::clearScreen();

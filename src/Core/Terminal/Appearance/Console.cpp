@@ -141,12 +141,7 @@ int Appearance::getTerminalHeight() {
 }
 
 void Appearance::moveCursor(int x, int y) {
-#ifdef _WIN32
-    COORD coordinate = { static_cast<SHORT>(x), static_cast<SHORT>(y) };
-    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coordinate);
-#else
     std::cout << "\033[" << (y + 1) << ";" << (x + 1) << "H";
-#endif
 }
 
 int Appearance::getCursorPostY() {

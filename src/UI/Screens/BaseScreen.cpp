@@ -93,6 +93,25 @@ void BaseScreen::executeDefaultLoop(
     );
 }
 
+static std::string replaceAllResetsWithBg(const std::string& input, const std::string& bgAnsi) {
+    if (bgAnsi.empty()) return input;
+    std::string result = "";
+    result.reserve(input.size() * 2);
+    for (size_t i = 0; i < input.size(); ) {
+        if (input[i] == '\033' && i + 3 < input.size() && input[i+1] == '[' && input[i+2] == '0' && input[i+3] == 'm') {
+            result += "\033[0m" + bgAnsi;
+            i += 4;
+        } else if (input[i] == '\033' && i + 2 < input.size() && input[i+1] == '[' && input[i+2] == 'm') {
+            result += "\033[0m" + bgAnsi;
+            i += 3;
+        } else {
+            result += input[i];
+            i++;
+        }
+    }
+    return result;
+}
+
 std::vector<std::string> BaseScreen::createBox(const std::vector<std::string>& lines, const std::string& title, int widthMinimal, Color colorBox, const std::string& bgAnsi) {
     int maxWidth = widthMinimal;
     for (const auto& line : lines) {
@@ -106,12 +125,7 @@ std::vector<std::string> BaseScreen::createBox(const std::vector<std::string>& l
 
     bool isEngineIDE = !PerspectiveManager::getInstance().is3DViewActive();
     if (isEngineIDE) {
-        std::string padBg = "";
-        if (!bgAnsi.empty()) {
-            padBg = bgAnsi;
-        } else {
-            padBg = "\033[48;2;25;25;25m";
-        }
+        std::string padBg = bgAnsi.empty() ? "\033[48;2;25;25;25m" : bgAnsi;
         std::string titleIDE = title.empty() ? "Info" : title;
         std::replace(titleIDE.begin(), titleIDE.end(), ' ', '_');
         
@@ -126,53 +140,23 @@ std::vector<std::string> BaseScreen::createBox(const std::vector<std::string>& l
                 std::string keyVar = Appearance::removeANSIColors(key);
                 keyVar.erase(std::remove(keyVar.begin(), keyVar.end(), ' '), keyVar.end());
                 
-                cleanLine = padBg + "    \033[38;2;86;156;214mauto\033[0m " + keyVar + " = " + value + ";";
+                cleanLine = "    \033[38;2;86;156;214mauto\033[0m " + keyVar + " = " + value + ";";
             } else {
-                cleanLine = padBg + "    " + line + ";";
+                cleanLine = "    " + line + ";";
             }
-            
             int comp = Appearance::getVisualLength(cleanLine);
             int padding = maxWidth - comp;
-            if (padding > 0) cleanLine += std::string(padding, ' ');
-            
-            box.push_back(cleanLine);
+            std::string processedLine = replaceAllResetsWithBg(cleanLine, padBg);
+            box.push_back(padBg + processedLine + padBg + std::string(padding > 0 ? padding : 0, ' ') + "\033[0m");
         }
-        box.push_back(padBg + "};");
-
-        for (auto& c : box) {
-            c += "\033[0m";
-            std::string toReplace = "\033[0m";
-            std::string replaceWith = "\033[0m" + padBg;
-            size_t post = c.find(toReplace);
-            while (post != std::string::npos) {
-                size_t nextPost = c.find(toReplace, post + toReplace.length());
-                if (nextPost != std::string::npos) {
-                    c.replace(post, toReplace.length(), replaceWith);
-                    post = c.find(toReplace, post + replaceWith.length());
-                } else {
-                    post = std::string::npos;
-                }
-            }
-        }
-
+        box.push_back(padBg + "};\033[0m");
         return box;
     }
 
-    std::string padBg = "";
-    if (!bgAnsi.empty()) {
-        padBg = bgAnsi;
-    } else {
-        padBg = "\033[48;2;0;0;0m";
-    }
+    std::string padBg = bgAnsi.empty() ? "\033[48;2;25;25;25m" : bgAnsi;
 
     std::string top = "╔";
     int titleLen = Appearance::getVisualLength(title);
-    
-    // Em modo 3D (raycaster), nao colocamos o texto na borda, pois um titulo em ASCII flutua acima!
-    if (!isEngineIDE) {
-        titleLen = 0;
-    }
-    
     if (titleLen > 0) {
         top += "══ " + title + " ";
         int remaining = maxWidth + 2 - (titleLen + 4);
@@ -186,12 +170,13 @@ std::vector<std::string> BaseScreen::createBox(const std::vector<std::string>& l
         }
     }
     top += "╗";
-    box.push_back(padBg + colorStr + top + resetStr);
+    box.push_back(padBg + colorStr + top + "\033[0m");
 
     for (const auto& line : lines) {
         int comp = Appearance::getVisualLength(line);
         int padding = maxWidth - comp;
-        box.push_back(padBg + colorStr + "║ " + resetStr + padBg + line + padBg + std::string(padding > 0 ? padding : 0, ' ') + colorStr + padBg + " ║" + resetStr);
+        std::string processedLine = replaceAllResetsWithBg(line, padBg);
+        box.push_back(padBg + colorStr + "║ " + padBg + processedLine + padBg + std::string(padding > 0 ? padding : 0, ' ') + colorStr + padBg + " ║\033[0m");
     }
 
     std::string bottom = "╚";
@@ -199,24 +184,7 @@ std::vector<std::string> BaseScreen::createBox(const std::vector<std::string>& l
         bottom += "═";
     }
     bottom += "╝";
-    box.push_back(padBg + colorStr + bottom + resetStr);
-
-    if (!isEngineIDE) {
-        for (auto& c : box) {
-            std::string toReplace = "\033[0m";
-            std::string replaceWith = "\033[0m" + padBg;
-            size_t post = c.find(toReplace);
-            while (post != std::string::npos) {
-                size_t nextPost = c.find(toReplace, post + toReplace.length());
-                if (nextPost != std::string::npos) {
-                    c.replace(post, toReplace.length(), replaceWith);
-                    post = c.find(toReplace, post + replaceWith.length());
-                } else {
-                    post = std::string::npos;
-                }
-            }
-        }
-    }
+    box.push_back(padBg + colorStr + bottom + "\033[0m");
 
     return box;
 }
@@ -244,8 +212,7 @@ std::vector<std::string> BaseScreen::createBoxWithArt(const std::vector<std::str
 
     std::vector<std::string> box;
     std::string colorStr = Appearance::color(colorBox);
-    std::string resetStr = Appearance::color(Color::RESET);
-    std::string padBg = bgAnsi.empty() ? "" : bgAnsi;
+    std::string padBg = bgAnsi.empty() ? "\033[48;2;25;25;25m" : bgAnsi;
 
     std::string top = padBg + colorStr + "╔";
     int titleLen = Appearance::getVisualLength(title);
@@ -257,7 +224,7 @@ std::vector<std::string> BaseScreen::createBoxWithArt(const std::vector<std::str
     } else {
         for (int i = 0; i < totalWidth + 2; ++i) top += "═";
     }
-    top += "╗" + resetStr;
+    top += "╗\033[0m";
     box.push_back(top);
 
     for (int i = 0; i < boxHeight; ++i) {
@@ -269,36 +236,22 @@ std::vector<std::string> BaseScreen::createBoxWithArt(const std::vector<std::str
         int compText = Appearance::getVisualLength(lineText);
         int padText = widthText - compText;
 
+        std::string procArt = replaceAllResetsWithBg(lineArt, padBg);
+        std::string procText = replaceAllResetsWithBg(lineText, padBg);
+
         std::string row;
         if (hasArt) {
-            row = padBg + colorStr + "║ " + resetStr + padBg + lineArt + std::string(padArt > 0 ? padArt : 0, ' ') + colorStr + padBg + " ║ " + resetStr + padBg + lineText + std::string(padText > 0 ? padText : 0, ' ') + colorStr + padBg + " ║" + resetStr;
+            row = padBg + colorStr + "║ " + padBg + procArt + padBg + std::string(padArt > 0 ? padArt : 0, ' ') + colorStr + padBg + " ║ " + padBg + procText + padBg + std::string(padText > 0 ? padText : 0, ' ') + colorStr + padBg + " ║\033[0m";
         } else {
-            row = padBg + colorStr + "║ " + resetStr + padBg + lineText + std::string(padText > 0 ? padText : 0, ' ') + colorStr + padBg + " ║" + resetStr;
+            row = padBg + colorStr + "║ " + padBg + procText + padBg + std::string(padText > 0 ? padText : 0, ' ') + colorStr + padBg + " ║\033[0m";
         }
         box.push_back(row);
     }
 
     std::string bottom = padBg + colorStr + "╚";
     for (int i = 0; i < totalWidth + 2; ++i) bottom += "═";
-    bottom += "╝" + resetStr;
+    bottom += "╝\033[0m";
     box.push_back(bottom);
-
-    if (!bgAnsi.empty()) {
-        for (auto& c : box) {
-            std::string toReplace = "\033[0m";
-            std::string replaceWith = "\033[0m" + bgAnsi;
-            size_t post = c.find(toReplace);
-            while (post != std::string::npos) {
-                size_t nextPost = c.find(toReplace, post + toReplace.length());
-                if (nextPost != std::string::npos) {
-                    c.replace(post, toReplace.length(), replaceWith);
-                    post = c.find(toReplace, post + replaceWith.length());
-                } else {
-                    post = std::string::npos;
-                }
-            }
-        }
-    }
 
     return box;
 }

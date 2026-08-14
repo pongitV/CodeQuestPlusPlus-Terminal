@@ -2,6 +2,7 @@
 #include "UI/Renderers/3D/RaycasterScreens/Utils/MenuRaycasterLayout.h"
 #include "UI/Renderers/3D/RaycasterScreens/Utils/MenuRaycasterUtils.h"
 #include "UI/Screens/Menu/BaseMenuScreen.h"
+#include "UI/Renderers/3D/EngineRaycaster/RaycasterFrame.h"
 #include "Core/Utils/Appearance.h"
 #include "Core/Utils/InputControl.h"
 #include "Domain/Characters/Character.h"
@@ -14,55 +15,66 @@
 
 static int renderMenuSimple(const std::string& title, const std::vector<std::string>& options) {
     int widthConsole = Appearance::getTerminalWidth();
+    int heightConsole = Appearance::getTerminalHeight();
     int selectionCurrent = 0;
     InputControl::clearBuffer();
     
+    bool needRedraw = true;
     while (true) {
-        MenuRaycasterUtils::increaseCycleDay();
-        std::ostringstream buffer;
-        MenuRaycasterUtils::displayBackground3D(buffer);
+        if (needRedraw) {
+            std::ostringstream buffer;
+            if (!RaycasterFrame::s_lastFrameRendered.empty()) {
+                RaycasterFrame::restoreLastFrame();
+            } else {
+                MenuRaycasterUtils::displayBackground3D(buffer);
+            }
 
-        int offsetTitle = ScreenBaseMenu::calculateOffsetCentral(title, widthConsole);
-        
-        int boxW = Appearance::getVisualLength(title) + 10;
-        for (const auto& op : options) {
-            boxW = std::max(boxW, Appearance::getVisualLength(op) + 10);
-        }
-        if (boxW > widthConsole - 4) boxW = widthConsole - 4;
-        
-        int boxX = ScreenBaseMenu::calculateOffsetCentral(boxW, widthConsole);
-        int yBase = 8;
-        
-        ScreenBaseMenu::drawBoxBlack(buffer, yBase - 2, boxX, boxW, (int)options.size() + 4);
-        MenuRaycasterUtils::superimposeTextAbsolute(buffer, "\033[38;2;255;215;0m" + title + "\033[0m", yBase - 1, offsetTitle);
+            int offsetTitle = ScreenBaseMenu::calculateOffsetCentral(title, widthConsole);
+            
+            int boxW = Appearance::getVisualLength(title) + 10;
+            for (const auto& op : options) {
+                boxW = std::max(boxW, Appearance::getVisualLength(op) + 10);
+            }
+            if (boxW > widthConsole - 4) boxW = widthConsole - 4;
+            
+            int boxX = ScreenBaseMenu::calculateOffsetCentral(boxW, widthConsole);
+            int totalBoxHeight = (int)options.size() + 4;
+            int yBase = std::max(2, (heightConsole - totalBoxHeight) / 2 + 1);
+            if (yBase + (int)options.size() + 2 > heightConsole) yBase = std::max(2, heightConsole - (int)options.size() - 3);
+            
+            ScreenBaseMenu::drawBoxBlack(buffer, yBase - 2, boxX, boxW, totalBoxHeight);
+            MenuRaycasterUtils::superimposeTextAbsolute(buffer, "\033[38;2;255;215;0m" + title + "\033[0m", yBase - 1, offsetTitle);
 
-        for (int i = 0; i < (int)options.size(); ++i) {
-            std::string icon = (i == selectionCurrent) ? "> " : "  ";
-            std::string color = (i == selectionCurrent) ? "\033[38;2;0;255;0m" : "\033[38;2;120;120;120m";
-            int offsetOption = ScreenBaseMenu::calculateOffsetCentral(options[i] + "  ", widthConsole);
-            MenuRaycasterUtils::superimposeTextAbsolute(buffer, color + icon + options[i] + "\033[0m", yBase + 1 + i, offsetOption - 2);
-        }
+            for (int i = 0; i < (int)options.size(); ++i) {
+                std::string icon = (i == selectionCurrent) ? "> " : "  ";
+                std::string color = (i == selectionCurrent) ? "\033[38;2;0;255;0m" : "\033[38;2;120;120;120m";
+                int offsetOption = ScreenBaseMenu::calculateOffsetCentral(options[i] + "  ", widthConsole);
+                MenuRaycasterUtils::superimposeTextAbsolute(buffer, color + icon + options[i] + "\033[0m", yBase + 1 + i, offsetOption - 2);
+            }
 
-        MenuRaycasterUtils::flushFrameForConsole(buffer.str());
-
-        if (!InputControl::pressedKey()) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(30));
-            continue;
+            std::cout << buffer.str() << std::flush;
+            needRedraw = false;
         }
 
         unsigned char key = static_cast<unsigned char>(InputControl::readKey());
         if (key == 224 || key == 0 || key == '\033') {
-            unsigned char nextKey = static_cast<unsigned char>(InputControl::readKey());
-            if (nextKey == '[') nextKey = static_cast<unsigned char>(InputControl::readKey());
-            if (nextKey == 72 || nextKey == 'A') key = 'w';
-            else if (nextKey == 80 || nextKey == 'B') key = 's';
-            else if (nextKey == 27) return -1;
+            if (InputControl::pressedKey()) {
+                unsigned char nextKey = static_cast<unsigned char>(InputControl::readKey());
+                if (nextKey == '[') nextKey = static_cast<unsigned char>(InputControl::readKey());
+                if (nextKey == 72 || nextKey == 'A') key = 'w';
+                else if (nextKey == 80 || nextKey == 'B') key = 's';
+                else if (nextKey == 27) return -1;
+            } else if (key == '\033') {
+                return -1;
+            }
         }
 
         if (key == 'w' || key == 'W') {
             selectionCurrent = (selectionCurrent - 1 + (int)options.size()) % (int)options.size();
+            needRedraw = true;
         } else if (key == 's' || key == 'S') {
             selectionCurrent = (selectionCurrent + 1) % (int)options.size();
+            needRedraw = true;
         } else if (key == '\r' || key == '\n') {
             return selectionCurrent;
         }

@@ -38,23 +38,23 @@ void RaycasterWorldMapScreen::renderPopup(const std::vector<std::string>& art, c
 
     int listH = 1 + (int)places.size();
     int listX = artW + 4;
-    int contW = listX + 24;
+    int maxListTextW = 24;
+    int contW = listX + maxListTextW;
     int contH = std::max(artH, listH) + 2;
 
     std::string bgDark = "\033[48;2;25;25;25m";
     std::string resetBg = "\033[0m";
 
     std::vector<std::string> content(contH, std::string(contW, ' '));
-    auto box = BaseScreen::createBox(content, " MAPA MUNDI ", 0, Color::CYAN, bgDark);
+    auto box = BaseScreen::createBox(content, " MAPA MUNDI - VIAGEM RAPIDA ", 0, Color::CYAN, bgDark);
 
     int outW = Appearance::getVisualLength(box[0]);
     int outH = (int)box.size();
 
-    int startX = (widthTerm - outW) / 2;
-    int startY = (heightTerm - outH) / 2;
-    if (startX < 0) startX = 0;
-    if (startY < 8) startY = 8;
+    int startX = std::max(0, (widthTerm - outW) / 2);
+    int startY = std::max(0, (heightTerm - outH) / 2);
     if (startY + outH > heightTerm) startY = std::max(0, heightTerm - outH);
+    if (startX + outW > widthTerm) startX = std::max(0, widthTerm - outW);
 
     std::cout << "\033[?25l";
 
@@ -62,22 +62,31 @@ void RaycasterWorldMapScreen::renderPopup(const std::vector<std::string>& art, c
         Raycaster::restoreLastFrame();
 
         for (int i = 0; i < outH; ++i) {
-            Appearance::moveCursor(startX, startY + i);
-            std::cout << box[i];
+            if (startY + i < heightTerm) {
+                Appearance::moveCursor(startX, startY + i);
+                std::cout << box[i];
+            }
         }
 
         int innerX = startX + 2;
         int innerY = startY + 2;
 
         for (int y = 0; y < artH; ++y) {
+            if (innerY + y >= heightTerm) continue;
+            Appearance::moveCursor(innerX, innerY + y);
+            std::string lineBuffer = "";
             for (int x = 0; x < (int)art[y].length(); ++x) {
+                if (innerX + x >= widthTerm) break;
                 char c = art[y][x];
-                if (c == ' ') continue;
-                RGB color = charColor(c);
-                std::string ansi = "\033[48;2;" + std::to_string(color.r) + ";" + std::to_string(color.g) + ";" + std::to_string(color.b) + "m";
-                Appearance::moveCursor(innerX + x, innerY + y);
-                std::cout << ansi << " " << resetBg;
+                if (c == ' ') {
+                    lineBuffer += bgDark + " ";
+                } else {
+                    RGB color = charColor(c);
+                    lineBuffer += "\033[48;2;" + std::to_string(color.r) + ";" + std::to_string(color.g) + ";" + std::to_string(color.b) + "m ";
+                }
             }
+            lineBuffer += resetBg;
+            std::cout << lineBuffer;
         }
     }
 
@@ -87,11 +96,17 @@ void RaycasterWorldMapScreen::renderPopup(const std::vector<std::string>& art, c
     int listOy = innerY;
 
     auto writeOption = [&](int idx, const std::string& text) {
+        if (listOy + idx >= heightTerm) return;
         Appearance::moveCursor(listOx, listOy + idx);
-        if (idx == selection)
-            std::cout << bgDark << Appearance::color(Color::GREEN) << " > " << Appearance::color(Color::WHITE) << text << resetBg;
-        else
-            std::cout << bgDark << "   " << text << resetBg;
+        std::string fullText;
+        if (idx == selection) {
+            fullText = Appearance::color(Color::GREEN) + " > " + Appearance::color(Color::WHITE) + text;
+        } else {
+            fullText = "   " + text;
+        }
+        int curW = Appearance::getVisualLength(fullText);
+        int pad = maxListTextW - curW;
+        std::cout << bgDark << fullText << bgDark << std::string(pad > 0 ? pad : 0, ' ') << resetBg;
     };
 
     writeOption(0, "[ VOLTAR ]");

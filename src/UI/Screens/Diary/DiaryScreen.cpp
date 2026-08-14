@@ -1,4 +1,4 @@
-﻿#include "UI/Screens/Diary/DiaryScreen.h"
+#include "UI/Screens/Diary/DiaryScreen.h"
 #include "UI/Screens/Diary/DiaryScreenLayout.h"
 #include "UI/Screens/Diary/DiaryScreenLogic.h"
 
@@ -313,12 +313,21 @@ void displayRaycaster(Character* currentPlayer) {
         }
 
         std::vector<std::string> boxPreview = BaseScreen::createBox(lines, titleBox, 0, Color::YELLOW, "\033[48;2;25;25;25m");
-        int startYBox = (Appearance::getTerminalHeight() - (int)boxPreview.size()) / 2;
-        if (startYBox < MIN_Y) startYBox = MIN_Y;
-        if (startYBox < 8) startYBox = 8;
+        int termH = Appearance::getTerminalHeight();
+        int outH = (int)boxPreview.size();
+        
+        int soonHeight = 8; // Altura aproximada do logo do diario
+        int totalH = outH + soonHeight + 1;
+        int startYBox = 0;
+        if (termH > totalH) {
+            startYBox = (termH - totalH) / 2 + soonHeight + 1;
+        } else {
+            startYBox = std::max(0, (termH - outH) / 2);
+        }
+        if (startYBox + outH > termH) startYBox = std::max(0, termH - outH);
 
         PerspectiveManager::getDiaryUI().displayHeader(startYBox);
-        PerspectiveManager::getDiaryUI().renderBox(lines, titleBox, Color::YELLOW, MIN_Y, startYBox);
+        PerspectiveManager::getDiaryUI().renderBox(lines, titleBox, Color::YELLOW, 0, startYBox);
 
         redesignComplete = false;
         char key = InputControl::readKey();

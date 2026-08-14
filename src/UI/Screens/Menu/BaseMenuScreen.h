@@ -29,8 +29,18 @@ public:
         return calculateOffsetCentral(Appearance::getVisualLength(text), widthConsole);
     }
 
-    // Desenha uma caixa preta com bordas brancas usando posicionamento ANSI
+    // Desenha uma caixa preta com bordas brancas usando posicionamento ANSI com clamp seguro
     static void drawBoxBlack(std::ostream& out, int y, int x, int width, int height) {
+        int termW = Appearance::getTerminalWidth();
+        int termH = Appearance::getTerminalHeight();
+        
+        if (x < 0) x = 0;
+        if (y < 0) y = 0;
+        if (x >= termW || y >= termH) return;
+        if (x + width > termW) width = termW - x;
+        if (y + height > termH) height = termH - y;
+        if (width < 3 || height < 3) return;
+
         std::string colorEdge = "\033[38;2;255;255;255m"; // Branco
         std::string colorBackground = "\033[48;2;0;0;0m"; // Preto
         std::string reset = "\033[0m";

@@ -15,35 +15,30 @@ void RaycasterDiaryScreen::renderBackground() {
 
 void RaycasterDiaryScreen::displayHeader(int startY) {
     int widthConsole = Appearance::getTerminalWidth();
-    int soonHeight = ArtsDiary::diaryLogo.size();
-    int soonY = startY > 0 ? (startY - 1 - soonHeight) : 2;
-    if (soonY < 0) soonY = 0;
+    int soonHeight = (int)ArtsDiary::diaryLogo.size();
 
     int compVisualSoon = 0;
     for (const auto& line : ArtsDiary::diaryLogo) {
         int comp = Appearance::getVisualLength(line);
         if (comp > compVisualSoon) compVisualSoon = comp;
     }
+
+    int soonY = startY > 0 ? (startY - 1 - soonHeight) : 1;
+    if (soonY < 0) soonY = 0;
     int soonX = (widthConsole - compVisualSoon) / 2;
     if (soonX < 0) soonX = 0;
 
-    std::string colorTitle = Appearance::color(Color::YELLOW);
-    for (int i = 0; i < (int)ArtsDiary::diaryLogo.size(); ++i) {
-        Appearance::moveCursor(soonX, soonY + i);
-        const std::string& line = ArtsDiary::diaryLogo[i];
+    if (widthConsole >= compVisualSoon && (startY >= soonHeight + 1 || soonY == 0)) {
+        std::string bgDark = "\033[48;2;20;20;20m";
+        std::string colorTitle = Appearance::color(Color::YELLOW);
+        std::string reset = "\033[0m";
+        
+        for (int i = 0; i < soonHeight; ++i) {
+            Appearance::moveCursor(soonX, soonY + i);
+            const std::string& line = ArtsDiary::diaryLogo[i];
 
-        std::string buffer = colorTitle;
-        int spaceCount = 0;
-
-        for (size_t j = 0; j < line.length(); ) {
-            if (line[j] == ' ') {
-                spaceCount++;
-                j++;
-            } else {
-                if (spaceCount > 0) {
-                    buffer += "\033[" + std::to_string(spaceCount) + "C";
-                    spaceCount = 0;
-                }
+            std::string buffer = bgDark + colorTitle;
+            for (size_t j = 0; j < line.length(); ) {
                 unsigned char uc = line[j];
                 int charLen = 1;
                 if ((uc & 0x80) == 0) charLen = 1;
@@ -53,28 +48,39 @@ void RaycasterDiaryScreen::displayHeader(int startY) {
                 buffer += line.substr(j, charLen);
                 j += charLen;
             }
+            buffer += reset;
+            std::cout << buffer;
         }
-        buffer += "\033[0m";
-        std::cout << buffer;
+        std::cout << std::flush;
+    } else if (startY >= 2) {
+        std::string titleCompact = "[ === DIARIO DE AVENTURA === ]";
+        int compCompact = Appearance::getVisualLength(titleCompact);
+        int cx = std::max(0, (widthConsole - compCompact) / 2);
+        int cy = std::max(0, startY - 1);
+        Appearance::moveCursor(cx, cy);
+        std::cout << Appearance::color(Color::YELLOW) << "\033[48;2;25;25;25m" << titleCompact << "\033[0m" << std::flush;
     }
-    std::cout << std::flush;
 }
 
 void RaycasterDiaryScreen::renderBox(const std::vector<std::string>& lines, const std::string& title, Color colorBox, int minY, int startYOverride) {
     std::vector<std::string> boxEnd = BaseScreen::createBox(lines, title, 0, colorBox, "\033[48;2;25;25;25m");
     int outW = Appearance::getVisualLength(boxEnd[0]);
-    int outH = boxEnd.size();
+    int outH = (int)boxEnd.size();
 
-    int startX = (Appearance::getTerminalWidth() - outW) / 2;
-    int startY = startYOverride >= 0 ? startYOverride : (Appearance::getTerminalHeight() - outH) / 2;
-    if (startX < 0) startX = 0;
+    int termW = Appearance::getTerminalWidth();
+    int termH = Appearance::getTerminalHeight();
+    int startX = std::max(0, (termW - outW) / 2);
+    int startY = startYOverride >= 0 ? startYOverride : std::max(0, (termH - outH) / 2);
     if (startY < minY) startY = minY;
-    if (startY < 8) startY = 8;
+    if (startY + outH > termH) startY = std::max(0, termH - outH);
+    if (startX + outW > termW) startX = std::max(0, termW - outW);
 
     std::cout << "\033[?25l";
     for (size_t i = 0; i < boxEnd.size(); ++i) {
-        Appearance::moveCursor(startX, startY + i);
-        std::cout << boxEnd[i];
+        if (startY + (int)i < termH) {
+            Appearance::moveCursor(startX, startY + i);
+            std::cout << boxEnd[i];
+        }
     }
     std::cout << std::flush;
 }
@@ -89,18 +95,20 @@ void RaycasterDiaryScreen::renderPopupMessage(const std::string& title, const st
 
     std::vector<std::string> boxEnd = BaseScreen::createBox(lines, title, 0, Color::YELLOW, "\033[48;2;25;25;25m");
     int outW = Appearance::getVisualLength(boxEnd[0]);
-    int outH = boxEnd.size();
+    int outH = (int)boxEnd.size();
 
-    int startX = (Appearance::getTerminalWidth() - outW) / 2;
+    int termW = Appearance::getTerminalWidth();
     int heightTerm = Appearance::getTerminalHeight();
-    int startY = (heightTerm - outH) / 2;
-    if (startX < 0) startX = 0;
-    if (startY < 8) startY = 8;
+    int startX = std::max(0, (termW - outW) / 2);
+    int startY = std::max(0, (heightTerm - outH) / 2);
     if (startY + outH > heightTerm) startY = std::max(0, heightTerm - outH);
+    if (startX + outW > termW) startX = std::max(0, termW - outW);
 
     for (size_t i = 0; i < boxEnd.size(); ++i) {
-        Appearance::moveCursor(startX, startY + i);
-        std::cout << boxEnd[i];
+        if (startY + (int)i < heightTerm) {
+            Appearance::moveCursor(startX, startY + i);
+            std::cout << boxEnd[i];
+        }
     }
     std::cout << std::flush;
 }
@@ -136,18 +144,20 @@ void RaycasterDiaryScreen::renderPopupInspectionWithArt(const std::string& title
 
     std::vector<std::string> boxEnd = BaseScreen::createBox(linesEnd, title, 0, Color::YELLOW, "\033[48;2;25;25;25m");
     int outW = Appearance::getVisualLength(boxEnd[0]);
-    int outH = boxEnd.size();
+    int outH = (int)boxEnd.size();
 
-    int startX = (Appearance::getTerminalWidth() - outW) / 2;
+    int termW = Appearance::getTerminalWidth();
     int heightTerm = Appearance::getTerminalHeight();
-    int startY = (heightTerm - outH) / 2;
-    if (startX < 0) startX = 0;
-    if (startY < 8) startY = 8;
+    int startX = std::max(0, (termW - outW) / 2);
+    int startY = std::max(0, (heightTerm - outH) / 2);
     if (startY + outH > heightTerm) startY = std::max(0, heightTerm - outH);
+    if (startX + outW > termW) startX = std::max(0, termW - outW);
 
     for (size_t i = 0; i < boxEnd.size(); ++i) {
-        Appearance::moveCursor(startX, startY + i);
-        std::cout << boxEnd[i];
+        if (startY + (int)i < heightTerm) {
+            Appearance::moveCursor(startX, startY + i);
+            std::cout << boxEnd[i];
+        }
     }
     std::cout << std::flush;
 }

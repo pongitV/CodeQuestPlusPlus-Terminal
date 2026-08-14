@@ -12,39 +12,31 @@
 
 void RaycasterInventoryScreen::displayHeader(bool, int startY) {
     int widthConsole = Appearance::getTerminalWidth();
-    
-    // Desenha o logo do INVENTARIO
-    int soonHeight = ArtsInventory::inventoryLogo.size();
-    int soonY = startY > 0 ? (startY - 1 - soonHeight) : 2;
-    if (soonY < 0) soonY = 0;
+    int soonHeight = (int)ArtsInventory::inventoryLogo.size();
     
     int compVisualSoon = 0;
     for (const auto& line : ArtsInventory::inventoryLogo) {
         int comp = Appearance::getVisualLength(line);
         if (comp > compVisualSoon) compVisualSoon = comp;
     }
+    
+    int soonY = startY > 0 ? (startY - 1 - soonHeight) : 1;
+    if (soonY < 0) soonY = 0;
     int soonX = (widthConsole - compVisualSoon) / 2;
     if (soonX < 0) soonX = 0;
     
-    // Apenas desenha o logo sobre a tela atual, pulando espacos para nao pintar fundo preto
-    std::string colorTitle = Appearance::color(Color::YELLOW);
-    for (int i = 0; i < (int)ArtsInventory::inventoryLogo.size(); ++i) {
-        Appearance::moveCursor(soonX, soonY + i);
-        const std::string& line = ArtsInventory::inventoryLogo[i];
+    // Se a tela tem largura suficiente para o logo ASCII
+    if (widthConsole >= compVisualSoon && (startY >= soonHeight + 1 || soonY == 0)) {
+        std::string bgDark = "\033[48;2;20;20;20m";
+        std::string colorTitle = Appearance::color(Color::YELLOW);
+        std::string reset = "\033[0m";
         
-        std::string buffer = colorTitle;
-        int spaceCount = 0;
-        
-        for (size_t j = 0; j < line.length(); ) {
-            if (line[j] == ' ') {
-                spaceCount++;
-                j++;
-            } else {
-                if (spaceCount > 0) {
-                    buffer += "\033[" + std::to_string(spaceCount) + "C";
-                    spaceCount = 0;
-                }
-                
+        for (int i = 0; i < soonHeight; ++i) {
+            Appearance::moveCursor(soonX, soonY + i);
+            const std::string& line = ArtsInventory::inventoryLogo[i];
+            
+            std::string buffer = bgDark + colorTitle;
+            for (size_t j = 0; j < line.length(); ) {
                 unsigned char uc = line[j];
                 int charLen = 1;
                 if ((uc & 0x80) == 0) charLen = 1;
@@ -55,11 +47,19 @@ void RaycasterInventoryScreen::displayHeader(bool, int startY) {
                 buffer += line.substr(j, charLen);
                 j += charLen;
             }
+            buffer += reset;
+            std::cout << buffer;
         }
-        buffer += "\033[0m";
-        std::cout << buffer;
+        std::cout << std::flush;
+    } else if (startY >= 2) {
+        // Fallback elegante para telas com poucas colunas
+        std::string titleCompact = "[ === INVENTARIO === ]";
+        int compCompact = Appearance::getVisualLength(titleCompact);
+        int cx = std::max(0, (widthConsole - compCompact) / 2);
+        int cy = std::max(0, startY - 1);
+        Appearance::moveCursor(cx, cy);
+        std::cout << Appearance::color(Color::YELLOW) << "\033[48;2;25;25;25m" << titleCompact << "\033[0m" << std::flush;
     }
-    std::cout << std::flush;
 }
 
 void RaycasterInventoryScreen::displayBoxEquipped(Character*) {}
@@ -84,10 +84,6 @@ void RaycasterInventoryScreen::renderMenu(const std::vector<std::string>& lines,
         }
     }
     
-    /*
-     * Adicionar linhas vazias extras se necessario para manter o tamanho da caixa consistente?
-     * E melhor se o InventarioCombate passar as linhas exatas.
-     */
     std::vector<std::string> boxEnd = BaseScreen::createBox(linesBase, title, 0, Color::YELLOW, "\033[48;2;25;25;25m");
     
     if (outH > 0 && outW > 0) {
@@ -95,20 +91,22 @@ void RaycasterInventoryScreen::renderMenu(const std::vector<std::string>& lines,
     }
     
     outW = Appearance::getVisualLength(boxEnd[0]);
-    outH = boxEnd.size();
+    outH = (int)boxEnd.size();
     
     int terminalWidth = Appearance::getTerminalWidth();
     int terminalHeight = Appearance::getTerminalHeight();
-    int startX = (terminalWidth - outW) / 2;
-    int startY = (terminalHeight - outH) / 2;
+    int startX = std::max(0, (terminalWidth - outW) / 2);
+    int startY = std::max(0, (terminalHeight - outH) / 2);
     
-    if (startX < 0) startX = 0;
-    if (startY < 8) startY = 8;
+    if (startY + outH > terminalHeight) startY = std::max(0, terminalHeight - outH);
+    if (startX + outW > terminalWidth) startX = std::max(0, terminalWidth - outW);
     
     std::cout << "\033[?25l";
     for (size_t i = 0; i < boxEnd.size(); ++i) {
-        Appearance::moveCursor(startX, startY + i);
-        std::cout << boxEnd[i];
+        if (startY + (int)i < terminalHeight) {
+            Appearance::moveCursor(startX, startY + i);
+            std::cout << boxEnd[i];
+        }
     }
     std::cout << std::flush;
 }

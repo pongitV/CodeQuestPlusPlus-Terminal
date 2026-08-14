@@ -24,34 +24,30 @@ struct EffectInfo {
 
 static void displayTitleFloating(int startY) {
     int widthConsole = Appearance::getTerminalWidth();
-    int soonHeight = ArtsAttributes::sheetLogo.size();
-    int soonY = startY - 1 - soonHeight;
-    if (soonY < 0) soonY = 0;
+    int soonHeight = (int)ArtsAttributes::sheetLogo.size();
     
     int compVisualSoon = 0;
     for (const auto& line : ArtsAttributes::sheetLogo) {
         int comp = Appearance::getVisualLength(line);
         if (comp > compVisualSoon) compVisualSoon = comp;
     }
+    
+    int soonY = startY > 0 ? (startY - 1 - soonHeight) : 1;
+    if (soonY < 0) soonY = 0;
     int soonX = (widthConsole - compVisualSoon) / 2;
     if (soonX < 0) soonX = 0;
     
-    std::string colorTitle = Appearance::color(Color::MAGENTA);
-    for (int i = 0; i < soonHeight; ++i) {
-        Appearance::moveCursor(soonX, soonY + i);
-        const std::string& line = ArtsAttributes::sheetLogo[i];
+    if (widthConsole >= compVisualSoon && (startY >= soonHeight + 1 || soonY == 0)) {
+        std::string bgDark = "\033[48;2;20;20;20m";
+        std::string colorTitle = Appearance::color(Color::MAGENTA);
+        std::string reset = "\033[0m";
         
-        std::string buffer = colorTitle;
-        int spaceCount = 0;
-        for (size_t j = 0; j < line.length(); ) {
-            if (line[j] == ' ') {
-                spaceCount++;
-                j++;
-            } else {
-                if (spaceCount > 0) {
-                    buffer += "\033[" + std::to_string(spaceCount) + "C";
-                    spaceCount = 0;
-                }
+        for (int i = 0; i < soonHeight; ++i) {
+            Appearance::moveCursor(soonX, soonY + i);
+            const std::string& line = ArtsAttributes::sheetLogo[i];
+            
+            std::string buffer = bgDark + colorTitle;
+            for (size_t j = 0; j < line.length(); ) {
                 unsigned char uc = line[j];
                 int charLen = 1;
                 if ((uc & 0x80) == 0) charLen = 1;
@@ -61,9 +57,17 @@ static void displayTitleFloating(int startY) {
                 buffer += line.substr(j, charLen);
                 j += charLen;
             }
+            buffer += reset;
+            std::cout << buffer;
         }
-        buffer += "\033[0m";
-        std::cout << buffer;
+        std::cout << std::flush;
+    } else if (startY >= 2) {
+        std::string titleCompact = "[ === FICHA DO PERSONAGEM === ]";
+        int compCompact = Appearance::getVisualLength(titleCompact);
+        int cx = std::max(0, (widthConsole - compCompact) / 2);
+        int cy = std::max(0, startY - 1);
+        Appearance::moveCursor(cx, cy);
+        std::cout << Appearance::color(Color::MAGENTA) << "\033[48;2;25;25;25m" << titleCompact << "\033[0m" << std::flush;
     }
 }
 
@@ -299,18 +303,29 @@ void RaycasterAttributesScreen::managePlayerCharacterSheet(Character* currentPla
         else if (state == RISE_LEVEL) { linesTarget = &linesRiseLevel; titleBox = "Subir de Nivel"; }
         else if (state == ERROR_LEVEL) { linesTarget = &linesErrorLevel; titleBox = "Aviso"; }
 
-        int boxW = 80;
+        int termH = Appearance::getTerminalHeight();
+        int boxW = std::min(80, widthConsole - 4);
         for (const auto& l : *linesTarget) {
             int len = Appearance::getVisualLength(l);
-            if (len > boxW) boxW = len;
+            if (len > boxW) boxW = std::min(len, widthConsole - 4);
         }
 
         std::vector<std::string> boxEnd = BaseScreen::createBox(*linesTarget, titleBox, boxW, Color::MAGENTA, "\033[48;2;25;25;25m");
         
-        int startY = (Appearance::getTerminalHeight() - boxEnd.size()) / 2;
-        if (startY < 0) startY = 0;
+        int outW = Appearance::getVisualLength(boxEnd[0]);
+        int outH = (int)boxEnd.size();
+        int startX = std::max(0, (widthConsole - outW) / 2);
         
-        int startX = (widthConsole - Appearance::getVisualLength(boxEnd[0])) / 2;
+        int soonHeight = (int)ArtsAttributes::sheetLogo.size();
+        int totalH = outH + soonHeight + 1;
+        int startY = 0;
+        if (termH > totalH) {
+            startY = (termH - totalH) / 2 + soonHeight + 1;
+        } else {
+            startY = std::max(0, (termH - outH) / 2);
+        }
+        if (startY + outH > termH) startY = std::max(0, termH - outH);
+        if (startX + outW > widthConsole) startX = std::max(0, widthConsole - outW);
 
         // Limpa o fantasma da caixa anterior desenhando o fundo 3D salvo novamente
         if (lastH > 0 && lastW > 0) {
@@ -319,14 +334,16 @@ void RaycasterAttributesScreen::managePlayerCharacterSheet(Character* currentPla
         
         lastStartX = startX;
         lastStartY = startY;
-        lastW = Appearance::getVisualLength(boxEnd[0]);
-        lastH = boxEnd.size();
+        lastW = outW;
+        lastH = outH;
 
         displayTitleFloating(startY);
         
         for (size_t i = 0; i < boxEnd.size(); ++i) {
-            Appearance::moveCursor(startX, startY + i);
-            std::cout << boxEnd[i];
+            if (startY + (int)i < termH) {
+                Appearance::moveCursor(startX, startY + i);
+                std::cout << boxEnd[i];
+            }
         }
         std::cout << std::flush;
         

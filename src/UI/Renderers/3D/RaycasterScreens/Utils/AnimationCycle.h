@@ -127,12 +127,15 @@ namespace MenuRaycasterUtils {
     inline int s_draggingEntity = 0; // 0=none, 1=sun, 2=moon, 3=sky
 
     inline void applyCycleDayNight(std::vector<std::string>& frame) {
-        if (frame.empty()) return;
-
         int widthScreen = Appearance::getTerminalWidth();
+        int totalLines = Appearance::getTerminalHeight();
         if (widthScreen <= 0) widthScreen = 120;
+        if (totalLines <= 0) totalLines = 30;
 
-        int totalLines = (int)frame.size();
+        if ((int)frame.size() != totalLines) {
+            frame.resize(totalLines);
+        }
+
         int heightSky = totalLines;
         float FOV = 1.6f;
 
