@@ -2,6 +2,8 @@
 
 Um RPG de terminal implementado em C++ com duas perspectivas: um renderer estilo raycaster para gameplay e um "Modo IDE" que apresenta, em tempo de execução, como partes do código estão funcionando. O projeto é um exercício de aprendizado em C++ sem dependências externas.
 
+Language / Idioma: [English](README_EN.md) | [Português](README.md)
+
 Arquivo principal: [src/Main.cpp](src/Main.cpp)
 
 Executável pré-compilado: [bin/CodeQuestPlusPlus-Terminal.exe](bin/CodeQuestPlusPlus-Terminal.exe)
@@ -12,7 +14,7 @@ Executável pré-compilado: [bin/CodeQuestPlusPlus-Terminal.exe](bin/CodeQuestPl
 
 - CMake 3.10+
 - Toolchain C++ (MSVC, MinGW ou equivalente)
-- Windows 10/11 (o projeto usa APIs Win32 em `src/Principal.cpp`)
+- Windows 10/11 (o projeto usa APIs Win32 em `src/Main.cpp`)
 
 ### Compilar rapidamente
 
@@ -34,7 +36,7 @@ cmake -S . -B build
 cmake --build build
 ```
 
-*(Alternativamente, utilize os scripts em `scripts/build/compilar_inicio.bat` para build limpo e `compilar_mudancas.bat` para build incremental no Windows).*
+*(Alternativamente, utilize os scripts em `scripts/compilar_inicio.bat` ou `scripts/compile_start.bat` para build limpo e `scripts/compilar_mudancas.bat` ou `scripts/compile_changes.bat` para build incremental no Windows).*
 
 ### Observação sobre toolchains
 
@@ -47,17 +49,17 @@ Para executar o binário disponível em `bin/`:
 PowerShell / Windows Terminal:
 
 ```powershell
-\bin\CodeQuestPlusPlus-Terminal.exe
+.\bin\CodeQuestPlusPlus-Terminal.exe
 ```
 
 cmd.exe (garantir UTF-8):
 
 ```bat
 chcp 65001
-\bin\CodeQuestPlusPlus-Terminal.exe
+bin\CodeQuestPlusPlus-Terminal.exe
 ```
 
-O jogo pode solicitar elevação de privilégios (UAC). A chamada `garantirAdmin()` em [src/Main.cpp](src/Main.cpp) tenta iniciar uma instância elevada e encerrar a instância atual.
+O jogo pode solicitar elevação de privilégios (UAC). A chamada `ensureAdmin()` em [src/Main.cpp](src/Main.cpp) tenta iniciar uma instância elevada e encerrar a instância atual.
 
 ## Estrutura do projeto
 
@@ -66,21 +68,24 @@ CodeQuestPlusPlus-Terminal/
 ├── CMakeLists.txt
 ├── CMakePresets.json
 ├── README.md
+├── README_EN.md
 ├── scripts/
-│   ├── build/      # Scripts de compilação (.bat)
-│   └── tools/      # Scripts utilitários (Python)
+│   ├── compilar_inicio.bat   # Build limpo (PT)
+│   ├── compilar_mudancas.bat # Build incremental (PT)
+│   ├── compile_start.bat     # Clean build (EN)
+│   └── compile_changes.bat   # Incremental build (EN)
 ├── src/
 │   ├── Main.cpp
-│   ├── Core/       # Motor, Terminal e Utilitários
-│   ├── Domain/     # Entidades, Itens, Classes e Raças
-│   ├── Systems/    # Sistemas (Combate, Inventário, Progressão)
+│   ├── Core/       # Motor, Terminal e Utilitarios
+│   ├── Domain/     # Entidades, Itens, Classes e Racas
+│   ├── Systems/    # Sistemas (Combate, Inventario, Progressao)
 │   ├── UI/         # Interfaces e Renderizadores (2D/3D Raycaster)
-│   └── World/      # Mapas e Transições de Cenário
-├── docs/           # Documentação
-├── tests/          # Testes (futuro)
+│   └── World/      # Mapas e Transicoes de Cenario
+├── docs/           # Documentacao e Relatorios
 └── bin/
 	└── CodeQuestPlusPlus-Terminal.exe
 ```
+
 ### View Raycaster
 - Combate 3D
 - Atributos

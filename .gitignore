@@ -1,3 +1,9 @@
+# Pastas de build
+build/
+build*/
+bin/*.exe
+.cache/
+
 # CMake
 CMakeCache.txt
 CMakeFiles/
@@ -7,10 +13,6 @@ cmake_install.cmake
 install_manifest.txt
 compile_commands.json
 *.dir/
-
-# Pastas de build
-build/
-.cache/
 
 # IDEs e Editores
 .vscode/
@@ -32,11 +34,7 @@ build/
 *.out
 *.app
 
-# Logs e arquivos temporários
+# Logs e temporários
 *.log
 .system_generated/
-Systems-Traduzido(EN).md
 
-# Ignored folders
-docs/
-scripts/
