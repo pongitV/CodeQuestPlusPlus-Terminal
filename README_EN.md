@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/CodeQuestPlusPlusIcon.png" alt="CodeQuest++ Terminal Banner" width="100%" />
+  <img src="assets/icon.png" alt="CodeQuest++ Terminal Logo" width="128" height="128" style="border-radius: 24px;" />
 </p>
 
 <p align="center">
@@ -79,7 +79,7 @@ The codebase enforces strict separation of concerns into modular layers:
 CodeQuestPlusPlus-Terminal/
 ├── CMakeLists.txt              # Root CMake configuration
 ├── assets/                     # Visual assets and resource metadata
-│   ├── CodeQuestPlusPlusIcon.png # High-res Pixel Art banner and logo
+│   ├── icon.png                # High-resolution application icon (PNG)
 │   ├── icon.ico                # Multi-resolution application icon
 │   └── icon.rc                 # Win32 resource definition script
 ├── bin/                        # Output folder for compiled binaries

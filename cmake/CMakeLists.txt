@@ -18,8 +18,8 @@ if(WIN32 AND EXISTS "${CMAKE_SOURCE_DIR}/assets/icon.rc")
 endif()
 
 # Adiciona o PNG para visibilidade na IDE
-if(EXISTS "${CMAKE_SOURCE_DIR}/assets/CodeQuestPlusPlusIcon.png")
-    list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/assets/CodeQuestPlusPlusIcon.png")
+if(EXISTS "${CMAKE_SOURCE_DIR}/assets/icon.png")
+    list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/assets/icon.png")
 endif()
 
 # Cria o executável

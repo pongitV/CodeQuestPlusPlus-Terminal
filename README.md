@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/CodeQuestPlusPlusIcon.png" alt="CodeQuest++ Terminal Banner" width="100%" />
+  <img src="assets/icon.png" alt="CodeQuest++ Terminal Logo" width="128" height="128" style="border-radius: 24px;" />
 </p>
 
 <p align="center">
@@ -79,7 +79,7 @@ O projeto adota separação estrita de responsabilidades em camadas desacopladas
 CodeQuestPlusPlus-Terminal/
 ├── CMakeLists.txt              # Configuração raiz do CMake
 ├── assets/                     # Recursos visuais e metadados
-│   ├── CodeQuestPlusPlusIcon.png # Banner e logo oficial em Pixel Art
+│   ├── icon.png                # Ícone do aplicativo em alta resolução (PNG)
 │   ├── icon.ico                # Ícone do aplicativo em múltiplas resoluções
 │   └── icon.rc                 # Script de recursos Win32
 ├── bin/                        # Diretório de saída dos binários compilados
