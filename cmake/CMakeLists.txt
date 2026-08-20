@@ -26,8 +26,11 @@ endif()
 add_executable(CodeQuestPlusPlus-Terminal ${SOURCES})
 set_target_properties(CodeQuestPlusPlus-Terminal PROPERTIES OUTPUT_NAME "CodeQuestPlusPlus-Terminal")
 
-# Adiciona a pasta 'src' como diretório de inclusão
-target_include_directories(CodeQuestPlusPlus-Terminal PRIVATE "${CMAKE_SOURCE_DIR}/src")
+# Adiciona as pastas 'src' e 'assets' como diretorios de inclusao
+target_include_directories(CodeQuestPlusPlus-Terminal PRIVATE "${CMAKE_SOURCE_DIR}/src" "${CMAKE_SOURCE_DIR}/assets")
+if(WIN32 AND EXISTS "${CMAKE_SOURCE_DIR}/assets/icon.rc")
+    set_source_files_properties("${CMAKE_SOURCE_DIR}/assets/icon.rc" PROPERTIES COMPILE_FLAGS "-I \"${CMAKE_SOURCE_DIR}/assets\"")
+endif()
 
 # Flags recomendadas (iguais às do Makefile antigo)
 target_compile_options(CodeQuestPlusPlus-Terminal PRIVATE -Wall -Wextra -O2)
