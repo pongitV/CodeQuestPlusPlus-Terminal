@@ -1,4 +1,5 @@
 #include "Core/Terminal/Appearance/Appearance.h"
+#include "Core/Terminal/Appearance/StringConverter.h"
 #include "UI/PerspectiveManager.h"
 #include <iostream>
 #include <fstream>
@@ -6,6 +7,10 @@
 #include <cctype>
 #include <thread>
 #include <chrono>
+
+std::vector<std::string> Appearance::splitUtf8(std::string_view text) {
+    return StringConvert::splitUtf8(text);
+}
 
 void Appearance::printCentralized(const std::string& text, const std::string& colorAnsi) {
     size_t end = text.find_last_not_of(' ');

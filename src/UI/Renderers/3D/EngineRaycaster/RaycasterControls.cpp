@@ -213,14 +213,16 @@ char RaycasterControls::processInputEControls(
     int newCellX = (int)playerX;
     int newCellY = (int)playerY;
     if (newCellX != oldCellX || newCellY != oldCellY) {
-        char cell = mapMatrix[newCellY][newCellX];
-        bool isLabel = RaycasterWorld::isMapLabel(newCellX, newCellY, mapMatrix);
-        if (RaycasterWorld::isTeleport(cell) || (!isLabel && RaycasterWorld::isEntity(cell))) {
-            outHitX = newCellX;
-            outHitY = newCellY;
-            playerX = oldPlayerX; // Retorna para a exata posicao anterior flutuante
-            playerY = oldPlayerY;
-            running = false; // Sai do loop 3D e devolve o controle pro mapa top-down processar o evento!
+        if (newCellY >= 0 && newCellY < heightMap && newCellX >= 0 && newCellX < widthMap) {
+            char cell = mapMatrix[newCellY][newCellX];
+            bool isLabel = RaycasterWorld::isMapLabel(newCellX, newCellY, mapMatrix);
+            if (RaycasterWorld::isTeleport(cell) || (!isLabel && RaycasterWorld::isEntity(cell))) {
+                outHitX = newCellX;
+                outHitY = newCellY;
+                playerX = oldPlayerX; // Retorna para a exata posicao anterior flutuante
+                playerY = oldPlayerY;
+                running = false; // Sai do loop 3D e devolve o controle pro mapa top-down processar o evento!
+            }
         }
     }
 #else

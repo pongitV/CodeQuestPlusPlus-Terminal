@@ -33,11 +33,11 @@ namespace ArtsRaycaster {
 
     inline const std::vector<std::string> castleMenu = 
     StringConvert::convertRawStringToVector(R"(
-        A                             A        
-       /\                            /\       
-      /##\             A            /##\      
-     /####\           /\           /####\     
-     |####|          /##\          |####|     
+        A                             A
+       /\                            /\
+      /##\             A            /##\
+     /####\           /\           /####\
+     |####|          /##\          |####|
     _|_--_|_        /####\        _|_--_|_    
    |########|       |####|       |########|   
    |##_##_##|      _|_--_|_      |##_##_##|   
@@ -160,39 +160,39 @@ ___|________|_____|_|_||_|_|_____|________|___
 
     inline const std::vector<std::string> bardoArte = 
     StringConvert::convertRawStringToVector(R"(
-   O ♫  
-  /|\_  
-  / \  
+   O ♫
+  /|\_
+  / \
   ♪    ♫
 )");
 
     inline const std::vector<std::string> warriorArt = 
     StringConvert::convertRawStringToVector(R"(
     _#_      /
-   /#|#\    / 
-  / ### \  /  
- |  ###  |/   
-   ## ##      
-   ## ##      
-  _#_ _#_     
+   /#|#\    /
+  / ### \  /
+ |  ###  |/
+   ## ##
+   ## ##
+  _#_ _#_
 )");
 
     inline const std::vector<std::string> warriorAttackArt = 
     StringConvert::convertRawStringToVector(R"(
-    _#_       
-   /#|#\      
-  / ### \==>  
- |  ###  |    
-   ## ##      
-   ## ##      
-  _#_ _#_     
+    _#_
+   /#|#\
+  / ### \==>
+ |  ###  |
+   ## ##
+   ## ##
+  _#_ _#_
 )");
 
     inline const std::vector<std::string> wizardArt = 
     StringConvert::convertRawStringToVector(R"(
      O   *** 
    /&&&\ *|* 
-  / &&& \ |  
+   / &&& \ |  
  |  &&&  ||  
    %%%%%  |  
    %%%%%  |  
@@ -201,10 +201,10 @@ ___|________|_____|_|_||_|_|_____|________|___
 
     inline const std::vector<std::string> necromanteArte = 
     StringConvert::convertRawStringToVector(R"(
-   O +  
-  /|\+  
-   / \  
-  (x)   
+   O +
+  /|\+
+   / \
+  (x)
 )");
 
     inline const std::vector<std::string> goblinArt = 

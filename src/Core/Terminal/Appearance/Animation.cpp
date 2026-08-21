@@ -166,17 +166,7 @@ void Appearance::cheerTransitionScene3D(
 
     std::vector<std::vector<std::string>> decomposedSoon(soonHeight);
     for (int i = 0; i < soonHeight; i++) {
-        const std::string& soonRow = soonBase[i];
-        for (size_t j = 0; j < soonRow.length(); ) {
-            int len = 1;
-            unsigned char c = soonRow[j];
-            if ((c & 0x80) == 0) len = 1;
-            else if ((c & 0xE0) == 0xC0) len = 2;
-            else if ((c & 0xF0) == 0xE0) len = 3;
-            else if ((c & 0xF8) == 0xF0) len = 4;
-            decomposedSoon[i].push_back(soonRow.substr(j, len));
-            j += len;
-        }
+        decomposedSoon[i] = Appearance::splitUtf8(soonBase[i]);
     }
 
     std::vector<std::string> sceneBase = getBackgroundEnd(1.0f);

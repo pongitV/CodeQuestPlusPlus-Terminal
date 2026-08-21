@@ -27,6 +27,7 @@ public:
     static std::string superimposePanelOnAnsiLine(const std::string& backgroundLine, const std::string& panelLine, int startX);
     static std::string color(Color code);
     static std::vector<std::string> convertRawStringToVector(const std::string& textGross);
+    static std::vector<std::string> splitUtf8(std::string_view text);
     static void standardizeVectorSize(std::vector<std::string>& lines);
     static std::vector<std::string> loadArt(const std::string& pathFile);
     static std::string color(Color style, Color code);

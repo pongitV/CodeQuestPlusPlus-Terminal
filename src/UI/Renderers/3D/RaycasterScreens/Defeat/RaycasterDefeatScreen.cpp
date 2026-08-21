@@ -13,6 +13,8 @@
 void RaycasterDefeatScreen::display(Character* currentPlayer, int obtainedGoldQuantity, int obtainedXpQuantity,
     int totalDamageCaused, int totalDamageReceived, int totalHealingReceived, int combatTurns)
 {
+    (void)obtainedGoldQuantity;
+    (void)obtainedXpQuantity;
     int widthConsole = Appearance::getTerminalWidth();
     std::cout << "\033[?25l";
     InputControl::clearBuffer();
@@ -41,22 +43,6 @@ void RaycasterDefeatScreen::display(Character* currentPlayer, int obtainedGoldQu
         screenBackground[y] = line;
     }
 
-    auto stringForCharsUtf8 = [](const std::string& str) {
-        std::vector<std::string> chars;
-        size_t i = 0;
-        while (i < str.length()) {
-            int charLen = 1;
-            unsigned char c = static_cast<unsigned char>(str[i]);
-            if ((c & 0x80) == 0) charLen = 1;
-            else if ((c & 0xE0) == 0xC0) charLen = 2;
-            else if ((c & 0xF0) == 0xE0) charLen = 3;
-            else if ((c & 0xF8) == 0xF0) charLen = 4;
-            chars.push_back(str.substr(i, charLen));
-            i += charLen;
-        }
-        return chars;
-    };
-
     // [PT-BR] Renderiza o logo de DERROTA
     // [EN-US] Renders DEFEAT logo
     int soonY = 2;
@@ -68,7 +54,7 @@ void RaycasterDefeatScreen::display(Character* currentPlayer, int obtainedGoldQu
     int soonX = ScreenBaseMenu::calculateOffsetCentral(compVisualSoon, widthConsole);
     for (int i = 0; i < (int)ArtsDefeat::defeatLogo.size(); ++i) {
         if (soonY + i < height3D) {
-            screenBackground[soonY + i] = Appearance::superimposeSoonAnsi(screenBackground[soonY + i], stringForCharsUtf8(ArtsDefeat::defeatLogo[i]), soonX, "\033[1;38;2;255;50;50m", widthConsole);
+            screenBackground[soonY + i] = Appearance::superimposeSoonAnsi(screenBackground[soonY + i], Appearance::splitUtf8(ArtsDefeat::defeatLogo[i]), soonX, "\033[1;38;2;255;50;50m", widthConsole);
         }
     }
 
@@ -117,6 +103,7 @@ void RaycasterDefeatScreen::display(Character* currentPlayer, int obtainedGoldQu
         boxStats.push_back(" Turnos Sobrevividos: \033[38;2;255;255;255m" + std::to_string(combatTurns) + "\033[0m");
         boxStats.push_back(" Dano Causado: \033[38;2;255;100;100m" + std::to_string(totalDamageCaused) + "\033[0m");
         boxStats.push_back(" Dano Recebido: \033[38;2;255;50;50m" + std::to_string(totalDamageReceived) + "\033[0m");
+        boxStats.push_back(" Cura Recebida: \033[38;2;100;255;100m" + std::to_string(totalHealingReceived) + "\033[0m");
 
         int boxHeight = boxStats.size() + 2;
         int boxW = 40;

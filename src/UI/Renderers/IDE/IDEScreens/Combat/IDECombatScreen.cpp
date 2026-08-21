@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <vector>
 #include <string>
 #include <iomanip>
@@ -1037,21 +1037,6 @@ void IDECombatScreen::displayEnemyHordeSideBySide(const std::vector<Character*>&
     
     int totalEnemiesQuantityInHorde = static_cast<int>(enemies.size());
     int widthSeparateForEachColumn = terminalWidth / totalEnemiesQuantityInHorde; 
-
-    auto splitUTF8 = [](const std::string& s) {
-        std::vector<std::string> chars;
-        for (size_t i = 0; i < s.length(); ) {
-            int len = 1;
-            unsigned char c = static_cast<unsigned char>(s[i]);
-            if ((c & 0x80) == 0) len = 1;
-            else if ((c & 0xE0) == 0xC0) len = 2;
-            else if ((c & 0xF0) == 0xE0) len = 3;
-            else if ((c & 0xF8) == 0xF0) len = 4;
-            chars.push_back(s.substr(i, len));
-            i += len;
-        }
-        return chars;
-    };
 
     auto now = std::chrono::steady_clock::now();
     int timeMs = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count());

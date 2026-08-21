@@ -1,6 +1,8 @@
 #include "World/Systems/MapLoader.h"
 #include "UI/PerspectiveManager.h"
 #include "Core/Utils/Appearance.h"
+#include "World/MapControl.h"
+#include "UI/Renderers/3D/EngineRaycaster/RaycasterWorld.h"
 
 void MapLoader::enterSubMap(
     std::vector<std::string>& currentMapMatrix, std::vector<std::string>& savedMainMapMatrix,
@@ -21,6 +23,8 @@ void MapLoader::enterSubMap(
     playerPositionY = initialPositionYInSubMap;
     playerIsInsideSubMap = true;
     currentMapTitle = subMapTitle;
+    MapControl::signal3DMapChange();
+    RaycasterWorld::updateMapHash(currentMapMatrix);
     if (!PerspectiveManager::getInstance().is3DViewActive()) restoreScreen();
 }
 

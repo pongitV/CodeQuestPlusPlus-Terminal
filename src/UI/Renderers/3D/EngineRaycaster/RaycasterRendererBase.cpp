@@ -15,16 +15,17 @@ using namespace std;
 /*
  * Estrutura de ThreadPool otimizada para o motor de Raycasting.
  * Utiliza o maximo de nucleos disponiveis (hardware_concurrency) para processar 
- * o laco principal de colunas da tela em paralelo, garantindo 60 FPS.
+ * o laco principal de colunas da tela em paralelo com sincronizacao nativa (sem busy-spin), garantindo 60 FPS.
  */
 struct ThreadPool {
     std::vector<std::thread> threads;
     std::atomic<bool> stop{false};
-    std::atomic<int> activeTasks{0};
     
     std::mutex mtx;
-    std::condition_variable cv;
+    std::condition_variable cvTask;
+    std::condition_variable cvDone;
     std::vector<std::function<void()>> tasks;
+    int remainingTasks{0};
     
     ThreadPool() {
         int indexInThreads = std::thread::hardware_concurrency();
@@ -35,13 +36,19 @@ struct ThreadPool {
                     std::function<void()> task;
                     {
                         std::unique_lock<std::mutex> lock(mtx);
-                        cv.wait(lock, [this]() { return stop || !tasks.empty(); });
+                        cvTask.wait(lock, [this]() { return stop || !tasks.empty(); });
                         if (stop && tasks.empty()) return;
                         task = std::move(tasks.back());
                         tasks.pop_back();
                     }
                     task();
-                    activeTasks--;
+                    {
+                        std::lock_guard<std::mutex> lock(mtx);
+                        remainingTasks--;
+                        if (remainingTasks == 0) {
+                            cvDone.notify_all();
+                        }
+                    }
                 }
             });
         }
@@ -49,19 +56,23 @@ struct ThreadPool {
     
     ~ThreadPool() {
         stop = true;
-        cv.notify_all();
-        for (auto& t : threads) t.join();
+        cvTask.notify_all();
+        for (auto& t : threads) {
+            if (t.joinable()) t.join();
+        }
     }
     
-    void execute(std::vector<std::function<void()>> newTasks) {
+    void execute(std::vector<std::function<void()>>& newTasks) {
+        if (newTasks.empty()) return;
         {
             std::lock_guard<std::mutex> lock(mtx);
             tasks = std::move(newTasks);
-            activeTasks = tasks.size();
+            remainingTasks = static_cast<int>(tasks.size());
         }
-        cv.notify_all();
-        while (activeTasks > 0) {
-            std::this_thread::yield();
+        cvTask.notify_all();
+        {
+            std::unique_lock<std::mutex> lock(mtx);
+            cvDone.wait(lock, [this]() { return remainingTasks == 0; });
         }
     }
 };
@@ -118,30 +129,45 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
         }
     }
 
-    std::vector<std::tuple<int, int, int>> lightsVisible;
+    static thread_local std::vector<std::tuple<int, int, int>> s_lightsVisible;
+    s_lightsVisible.clear();
     float maxDistLight = depthMaximum + 8.0f;
     float maxDistLightSq = maxDistLight * maxDistLight;
     for (const auto& l : cachedLights) {
         float dx = std::get<0>(l) - playerX;
         float dy = std::get<1>(l) - playerY;
         if (dx * dx + dy * dy <= maxDistLightSq) {
-            lightsVisible.push_back(l);
+            s_lightsVisible.push_back(l);
         }
     }
-    const auto& lights = lightsVisible;
+    const auto& lights = s_lightsVisible;
 
     std::string upperTitle = titleMap;
     for (char& ch : upperTitle) ch = std::toupper(static_cast<unsigned char>(ch));
     bool isKingdom = (upperTitle.find("PATIO DO REINO") != std::string::npos || upperTitle.find("REINO") != std::string::npos);
 
-    std::vector<float> ZBuffer(SCREEN_WIDTH, 0.0f);
+    static thread_local std::vector<float> s_zBuffer;
+    static thread_local std::vector<float> s_rayDirX;
+    static thread_local std::vector<float> s_rayDirY;
+    static thread_local std::vector<float> s_fisheyeCorrection;
+    static thread_local std::vector<std::function<void()>> s_tasks;
+
+    if (static_cast<int>(s_zBuffer.size()) != SCREEN_WIDTH) {
+        s_zBuffer.assign(SCREEN_WIDTH, 0.0f);
+        s_rayDirX.resize(SCREEN_WIDTH);
+        s_rayDirY.resize(SCREEN_WIDTH);
+        s_fisheyeCorrection.resize(SCREEN_WIDTH);
+    } else {
+        std::fill(s_zBuffer.begin(), s_zBuffer.end(), 0.0f);
+    }
+    auto& ZBuffer = s_zBuffer;
+    auto& rayDirX = s_rayDirX;
+    auto& rayDirY = s_rayDirY;
+    auto& fisheyeCorrection = s_fisheyeCorrection;
 
     long long globalMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     float globalAngleSlow = ((globalMs % 300000) / 300000.0f) * 6.2831853f;
 
-    std::vector<float> rayDirX(SCREEN_WIDTH);
-    std::vector<float> rayDirY(SCREEN_WIDTH);
-    std::vector<float> fisheyeCorrection(SCREEN_WIDTH);
     for (int x = 0; x < SCREEN_WIDTH; x++) {
         float radiusAngle = (angleVisa - fieldVisa / 2.0f) + ((float)x / (float)SCREEN_WIDTH) * fieldVisa;
         rayDirX[x] = cosf(radiusAngle);
@@ -153,12 +179,16 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
     if (indexInThreads == 0) indexInThreads = 4;
     int chunkSize = 16;
     int indexInChunks = (SCREEN_WIDTH + chunkSize - 1) / chunkSize;
-    std::vector<std::function<void()>> tasks;
+    
+    s_tasks.clear();
+    if (s_tasks.capacity() < static_cast<size_t>(indexInChunks)) {
+        s_tasks.reserve(indexInChunks);
+    }
 
     for (int i = 0; i < indexInChunks; i++) {
         int startX = i * chunkSize;
         int endX = std::min(startX + chunkSize, SCREEN_WIDTH);
-        tasks.push_back([&, startX, endX, globalAngleSlow]() {
+        s_tasks.push_back([&, startX, endX, globalAngleSlow]() {
             static thread_local std::vector<std::tuple<int, int, int>> wallLights;
             
             for (int x = startX; x < endX; x++) {
@@ -406,7 +436,7 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
         }); // lambda
     } // para i (tarefas)
     
-    getThreadPool().execute(tasks);
+    getThreadPool().execute(s_tasks);
 
     /*
      * Renderizacao de Sprites (Billboarding):
@@ -415,7 +445,10 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
      * plano da camera, aplicando escalonamentos baseados no tipo do inimigo e distancia.
      */
     struct SpriteProject { float x, y, dist; char c, sprCh; };
-    std::vector<SpriteProject> spritesGlobal;
+    static thread_local std::vector<SpriteProject> s_spritesGlobal;
+    s_spritesGlobal.clear();
+    auto& spritesGlobal = s_spritesGlobal;
+
     for (int y = 0; y < heightMap; y++) {
         for (int x = 0; x < widthMap; x++) {
             char c = mapMatrix[y][x];

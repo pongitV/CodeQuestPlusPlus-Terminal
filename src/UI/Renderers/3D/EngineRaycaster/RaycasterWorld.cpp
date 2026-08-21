@@ -90,27 +90,26 @@ size_t RaycasterWorld::getMapHash() {
 }
 
 bool RaycasterWorld::isMapLabel(int mapX, int mapY, const std::vector<std::string>& mapMatrix) {
-    static thread_local size_t lastMapHash = 0;
-    static thread_local std::vector<std::vector<char>> cachedLabels;
-
     int height = mapMatrix.size();
     if (height == 0) return false;
     int width = mapMatrix[0].size();
     if (mapY < 0 || mapY >= height || mapX < 0 || mapX >= width) return false;
 
-    size_t hash = g_currentMapHash;
-    if (hash == 0) {
-        for (const auto& r : mapMatrix) {
-            hash ^= std::hash<std::string_view>{}(r) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-        }
-    }
+    static thread_local size_t lastMapHash = 0;
+    static thread_local std::vector<std::vector<char>> cachedLabels;
 
-    if (hash != lastMapHash) {
+    size_t hash = g_currentMapHash.load();
+    if (hash == 0 || hash != lastMapHash || (int)cachedLabels.size() != height || (height > 0 && (int)cachedLabels[0].size() != width)) {
+        if (hash == 0) {
+            for (const auto& r : mapMatrix) {
+                hash ^= std::hash<std::string_view>{}(r) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+            }
+        }
         lastMapHash = hash;
         cachedLabels.assign(height, std::vector<char>(width, 2));
     }
 
-    if (cachedLabels[mapY][mapX] != 2) {
+    if (mapY < (int)cachedLabels.size() && mapX < (int)cachedLabels[mapY].size() && cachedLabels[mapY][mapX] != 2) {
         return cachedLabels[mapY][mapX] == 1;
     }
 
@@ -160,7 +159,10 @@ bool RaycasterWorld::isMapLabel(int mapX, int mapY, const std::vector<std::strin
             }
         }
     }
-    cachedLabels[mapY][mapX] = result ? 1 : 0;
+
+    if (mapY < (int)cachedLabels.size() && mapX < (int)cachedLabels[mapY].size()) {
+        cachedLabels[mapY][mapX] = result ? 1 : 0;
+    }
     return result;
 }
 

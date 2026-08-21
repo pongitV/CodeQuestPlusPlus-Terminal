@@ -185,7 +185,12 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
                     if (std::abs(y - centerY) > heightAtX) {
                         bufferFrame += "\033[40m \033[0m";
                     } else {
-                        bufferFrame += frameBase[y * SCREEN_WIDTH + x];
+                        const string& hs = frameBase[y * SCREEN_WIDTH + x];
+                        if (hs.empty()) {
+                            bufferFrame += " ";
+                        } else if (hs[0] != '\1') {
+                            bufferFrame += hs;
+                        }
                     }
                 }
                 if (y < SCREEN_HEIGHT - 1) bufferFrame += "\n";
@@ -195,8 +200,6 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
         }
     };
 
-    
-    
     auto cheerDoorOpening = [&]() {
         int maxSteps = 11;
         for (int step = 0; step <= maxSteps; step++) {
@@ -214,7 +217,11 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
                         bufferFrame += "\033[48;2;10;10;10m \033[0m";
                     } else {
                         const string& hs = screen[y * SCREEN_WIDTH + x];
-                        bufferFrame += (hs.empty() || hs[0] == '\1') ? " " : hs;
+                        if (hs.empty()) {
+                            bufferFrame += " ";
+                        } else if (hs[0] != '\1') {
+                            bufferFrame += hs;
+                        }
                     }
                 }
                 if (y < SCREEN_HEIGHT - 1) bufferFrame += "\n";
@@ -260,16 +267,7 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
         // Decompoe cada linha do banner em caracteres visuais individuais
         vector<vector<string>> bannerChars(banner.size());
         for (size_t i = 0; i < banner.size(); i++) {
-            for (size_t j = 0; j < banner[i].length(); ) {
-                unsigned char chr = banner[i][j];
-                int len = 1;
-                if ((chr & 0x80) == 0) len = 1;
-                else if ((chr & 0xE0) == 0xC0) len = 2;
-                else if ((chr & 0xF0) == 0xE0) len = 3;
-                else if ((chr & 0xF8) == 0xF0) len = 4;
-                bannerChars[i].push_back(banner[i].substr(j, len));
-                j += len;
-            }
+            bannerChars[i] = Appearance::splitUtf8(banner[i]);
         }
         
         // Renderiza a cena base uma unica vez (sem banner)
@@ -281,7 +279,11 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
                 for (int x = 0; x < SCREEN_WIDTH; x++) {
                     if (y == SCREEN_HEIGHT - 1 && x == SCREEN_WIDTH - 1) break;
                     const string& hs = screen[y * SCREEN_WIDTH + x];
-                    sceneInitial += (hs.empty() || hs[0] == '\1') ? " " : hs;
+                    if (hs.empty()) {
+                        sceneInitial += " ";
+                    } else if (hs[0] != '\1') {
+                        sceneInitial += hs;
+                    }
                 }
                 if (y < SCREEN_HEIGHT - 1) sceneInitial += "\n";
             }
@@ -307,7 +309,11 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
                         buffer << colorBanner << bannerChars[i][bannerCol] << "\033[0m";
                     } else {
                         const string& hs = screen[drawY * SCREEN_WIDTH + x];
-                        buffer << (hs.empty() || hs[0] == '\1' ? " " : hs);
+                        if (hs.empty()) {
+                            buffer << " ";
+                        } else if (hs[0] != '\1') {
+                            buffer << hs;
+                        }
                     }
                 }
                 buffer << "\033[K";
@@ -336,12 +342,15 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
 
     RaycasterRenderer::render3D(screen3D, SCREEN_WIDTH, HEIGHT_INTERNAL, playerX, playerY, angleVisa, (HEIGHT_INTERNAL / 2.0f), 0, depthMaximum, timeAbsoluteInitial, mapMatrix, titleMap, themeForest, themeActiveInitial, cacheSprites);
     downsampleScreen();
-    RaycasterHUD::draw(screen, SCREEN_WIDTH, SCREEN_HEIGHT, playerX, playerY, angleVisa, mapMatrix, titleMap, themeForest, player);
     if (typeAnimationEntry == 1) {
         cheerEye(true, screen);
+        RaycasterHUD::draw(screen, SCREEN_WIDTH, SCREEN_HEIGHT, playerX, playerY, angleVisa, mapMatrix, titleMap, themeForest, player);
     } else if (typeAnimationEntry == 2) {
         cheerDoorOpening();
+        RaycasterHUD::draw(screen, SCREEN_WIDTH, SCREEN_HEIGHT, playerX, playerY, angleVisa, mapMatrix, titleMap, themeForest, player);
         cheerBanner3D(titleMap);
+    } else {
+        RaycasterHUD::draw(screen, SCREEN_WIDTH, SCREEN_HEIGHT, playerX, playerY, angleVisa, mapMatrix, titleMap, themeForest, player);
     }
 
 #ifdef _WIN32

@@ -30,6 +30,7 @@
 #include "Systems/Progression/ProgressionFlags.h"
 #include "Systems/Progression/Diary.h"
 #include "World/Village/Map1VillageLayout.h"
+#include "UI/Renderers/3D/EngineRaycaster/RaycasterWorld.h"
 
 Map1Village::Map1Village(Character* playerCharacter) :
     playerPositionX(4), 
@@ -156,11 +157,15 @@ namespace {
             // [EN-US] Transition 1: Enter Beginning Path from Initial Village
             if (px >= 17 && px <= 19 && py <= 6 && !ctx.self->playerIsInsideSubMap) {
                 MapLoader::enterSubMap(ctx.self->currentMapMatrix, ctx.self->savedMainMapMatrix, ctx.self->savedPositionXBeforeEnteringSubMap, ctx.self->savedPositionYBeforeEnteringSubMap, ctx.self->playerPositionX, ctx.self->playerPositionY, ctx.self->playerIsInsideSubMap, ctx.self->currentMapTitle, ctx.self->savedSpawnMapMatrix, ctx.self->spawnAlreadyVisited, Map1VillageLayouts::getSpawnLayout(), 53, 7, "CAMINHO DO INICIO", ctx.animateScreen);
+                MapControl::signal3DMapChange();
+                RaycasterWorld::updateMapHash(ctx.self->currentMapMatrix);
             }
             // [PT-BR] Transicao 2: Entrar na Caverna a partir da Vila
             // [EN-US] Transition 2: Enter Cave from Village
             else if (px > 50 && py < 30 && !ctx.self->playerIsInsideSubMap) {
                 MapLoader::enterSubMap(ctx.self->currentMapMatrix, ctx.self->savedMainMapMatrix, ctx.self->savedPositionXBeforeEnteringSubMap, ctx.self->savedPositionYBeforeEnteringSubMap, ctx.self->playerPositionX, ctx.self->playerPositionY, ctx.self->playerIsInsideSubMap, ctx.self->currentMapTitle, ctx.self->savedCaveMapMatrix, ctx.self->caveAlreadyVisited, Map1VillageLayouts::getBasementLayout(ctx.self->bjornRescued), 14, 3, "CAVERNA DO ORK", ctx.animateScreen);
+                MapControl::signal3DMapChange();
+                RaycasterWorld::updateMapHash(ctx.self->currentMapMatrix);
             }
             // [PT-BR] Transicao 3: Retornar dos Interiores/Caverna para a Vila
             // [EN-US] Transition 3: Return from Interiors/Cave to Village
@@ -175,6 +180,8 @@ namespace {
                 ctx.self->playerPositionY = ctx.self->savedPositionYBeforeEnteringSubMap;
                 ctx.self->playerIsInsideSubMap = false;
                 ctx.self->currentMapTitle = "VILA INICIAL";
+                MapControl::signal3DMapChange();
+                RaycasterWorld::updateMapHash(ctx.self->currentMapMatrix);
                 if (!MapControl::is3DExplorationActive()) ctx.restoreScreen();
             }
             // [PT-BR] Transicao 4: Voltar para a Vila Inicial a partir do Caminho do Inicio
@@ -188,6 +195,8 @@ namespace {
                 ctx.self->playerIsInsideSubMap = false;
                 ctx.self->currentMapTitle = "VILA INICIAL";
                 ctx.self->spawnAlreadyVisited = true;
+                MapControl::signal3DMapChange();
+                RaycasterWorld::updateMapHash(ctx.self->currentMapMatrix);
                 if (!MapControl::is3DExplorationActive()) ctx.animateScreen();
             }
             // [PT-BR] Transicao 5: Ir para a Floresta a partir da Vila
