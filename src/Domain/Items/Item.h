@@ -1,7 +1,7 @@
-/*
- * Arquivo: Item.h
- * Proposito: Classe base abstrata para representacao de itens (Equipamentos, Consumiveis, Materiais e Missoes).
- */
+// [PT-BR] Arquivo: Item.h
+// [PT-BR] Proposito: Classe base abstrata para representacao de itens (Equipamentos, Consumiveis, Materiais e Missoes).
+// [EN-US] File: Item.h
+// [EN-US] Purpose: Abstract base class representing items (Equipment, Consumables, Materials, and Quests).
 
 #pragma once
 
@@ -13,7 +13,8 @@
 #include <algorithm>
 #include "Core/Utils/Appearance.h"
 
-// Tipos de equipamentos e itens no jogo
+// [PT-BR] Tipos de equipamentos e categorias de itens no jogo
+// [EN-US] Equipment types and item categories in the game
 enum class EquipmentType 
 {
     NONE,     
@@ -50,25 +51,31 @@ enum class Property
 
 enum class ItemID {
     None = 0,
-    // Armas
+    // [PT-BR] Armas
+    // [EN-US] Weapons
     DaggerStone, BowWood, StaffCrystal, WandCorroded, ViolaEnchanted, SwordIron, AxWar, SlimeAcidWeapon, TrunkRumpled, SwordKnight, SwordExtermination, StaffBone,
     
-    // Escudos
+    // [PT-BR] Escudos
+    // [EN-US] Shields
     ShieldMetal, BarrierMagic, CoverMagic, ArmbandsSilver,
     
-    // Armaduras
+    // [PT-BR] Armaduras
+    // [EN-US] Armors
     ArmorMesh, ArmorLeather, Tunic, CostumeNoble, ArmorRags, ArmorKnight, ArmorChest, AdaptationWheel, ClothesRitualist,
     
-    // Consumiveis
+    // [PT-BR] Consumiveis
+    // [EN-US] Consumables
     HealingPotion30, FuryPotion, ElixirArcane, BottleSlime, BottleWeakness, OrganRegenerator,
     TalismanBear, TalismanCrow, TalismanLeopard, TalismanOwl,
     Apple, Bread, Cheese, DriedMeat,
     GreatHealingPotion, AlchemicalStrengthPotion, AlchemicalPoisonPotion, AlchemicalSlownessPotion,
     
-    // Materiais
+    // [PT-BR] Materiais
+    // [EN-US] Materials
     SlimeAcid, ToothGoblin, NucleusSticky, MagicPowder, WoodBewitched, HeartForest, StoneUpgrade, RoyalInvitation,
     
-    // Missoes
+    // [PT-BR] Missoes
+    // [EN-US] Quests
     DeviceLanguage
 };
 
@@ -122,7 +129,9 @@ public:
     virtual int ensureDamageMinimum(int finalDamage) { return std::max(finalDamage, 1); }
 
     virtual int getPriceSale() const { return priceSale; }
-    virtual std::string getInfoStatus() const { return ""; } // Vazio por padrao para itens sem status extra
+    // [PT-BR] Retorna status adicional formatado do item (vazio por padrao)
+    // [EN-US] Returns formatted additional status of the item (empty by default)
+    virtual std::string getInfoStatus() const { return ""; }
     
     virtual void use(Character* user, Character* target) {
         if (user == nullptr || target == nullptr) return;

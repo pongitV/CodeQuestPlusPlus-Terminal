@@ -43,7 +43,8 @@ class BaseClass
 public:
     virtual ~BaseClass() = default;
 
-    // INFORMACOES DA CLASSE
+    // [PT-BR] --- INFORMACOES DA CLASSE ---
+    // [EN-US] --- CLASS INFORMATION ---
     virtual std::string getClassName() const = 0;
     virtual TypeClass getTypeClass() const = 0;
     virtual const std::vector<std::string>& getAppearanceClassMenu() const = 0;
@@ -54,7 +55,8 @@ public:
     virtual std::string getDescriptionPassiveClass() const = 0;
     virtual std::string getRechargeSkillClass() const = 0;
 
-    // HABILIDADE DA CLASSE
+    // [PT-BR] --- HABILIDADE DA CLASSE ---
+    // [EN-US] --- CLASS SKILL ---
     virtual std::string getNameSkillClass() const = 0;
     virtual std::string getDescriptionSkillClass() const = 0;
     virtual void useSkillClass(Combat* combat, Character* characterUser, std::vector<Character*>& enemies) = 0;
@@ -78,14 +80,16 @@ protected:
     }
 
 public:
-    // PASSIVAS DE CLASSE
+    // [PT-BR] --- PASSIVAS DE CLASSE ---
+    // [EN-US] --- CLASS PASSIVES ---
     virtual int processCurePassiveBard(int cureBase) const { return cureBase; }
     virtual double processMultiplierBuffPassiveBard(double multBase) const { return multBase; }
     virtual int processPenaltyArmorPassiveArcher(int penaltyBase) const { return penaltyBase; }
     virtual int applyArcherPassiveSlownessPenalty(int dexterityCurrent) const { return dexterityCurrent / 2; }
     virtual int revertArcherPassiveSlownessPenalty(int dexterityCurrent) const { return dexterityCurrent * 2; }
 
-    // PROCESSAMENTO DE DANO
+    // [PT-BR] --- PROCESSAMENTO DE DANO ---
+    // [EN-US] --- DAMAGE PROCESSING ---
     virtual void executeAttackWithClassPassive(Character* attacker, Character* defender, int damageBase, int damagePiercing, std::vector<std::unique_ptr<Character>>& enemies, const std::function<void(Character*, Character*, int, int)>& applyDamage, bool isAttackerPlayer) {
 
         damageBase = processDamagePreAttack(attacker, defender, damageBase, isAttackerPlayer, enemies.size());

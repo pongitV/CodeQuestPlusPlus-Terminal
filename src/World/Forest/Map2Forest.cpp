@@ -157,21 +157,25 @@ namespace {
             int py = ctx.nextPositionY;
             std::string title = ctx.self->currentMapTitle;
             
-            // 2. Voltar para a Vila a partir da Floresta
+            // [PT-BR] Transicao: Voltar para a Vila a partir da Floresta
+            // [EN-US] Transition: Return to Village from Forest
             if (px < 40 && py < 20 && !ctx.self->playerIsInsideSubMap) {
                 ctx.self->isExplorationActive = false;
                 ctx.self->nextMap = NextMapTransition::Village;
             }
-            // 3. Entrar no Coracao da Arvore a partir da Floresta
+            // [PT-BR] Transicao: Entrar no Coracao da Arvore a partir da Floresta
+            // [EN-US] Transition: Enter Tree Heart from Forest
             else if (px > 80 && py > 20 && !ctx.self->playerIsInsideSubMap) {
                 MapLoader::enterSubMap(ctx.self->currentMapMatrix, ctx.self->savedMainMapMatrix, ctx.self->savedPositionXBeforeEnteringSubMap, ctx.self->savedPositionYBeforeEnteringSubMap, ctx.self->playerPositionX, ctx.self->playerPositionY, ctx.self->playerIsInsideSubMap, ctx.self->currentMapTitle, ctx.self->savedTreeHeartMapMatrix, ctx.self->heartOfTreeAlreadyVisited, Map2ForestLayouts::getTreeHeartLayout(), 10, 3, "CORACAO DA ARVORE", ctx.restoreScreen);
             }
-            // 4. Ir para o Reino a partir da Floresta
+            // [PT-BR] Transicao: Ir para a Ponte do Reino a partir da Floresta
+            // [EN-US] Transition: Go to Kingdom Bridge from Forest
             else if (px < 40 && py > 20 && !ctx.self->playerIsInsideSubMap) {
                 ctx.self->isExplorationActive = false;
-                ctx.self->nextMap = NextMapTransition::Kingdom;
+                ctx.self->nextMap = NextMapTransition::KingdomBridge;
             }
-            // 5. Entrar no Labirinto a partir da Floresta
+            // [PT-BR] Transicao: Entrar no Labirinto a partir da Floresta
+            // [EN-US] Transition: Enter Maze from Forest
             else if (px > 100 && py < 20 && title == "FLORESTA") {
                 if (!ctx.self->currentPlayer->getUnlockedMaze()) {
                     Appearance::startPopupInteraction();
@@ -188,7 +192,8 @@ namespace {
 
                 MapLoader::enterSubMap(ctx.self->currentMapMatrix, ctx.self->savedMainMapMatrix, ctx.self->savedPositionXBeforeEnteringSubMap, ctx.self->savedPositionYBeforeEnteringSubMap, ctx.self->playerPositionX, ctx.self->playerPositionY, ctx.self->playerIsInsideSubMap, ctx.self->currentMapTitle, ctx.self->savedMazeMapMatrix, ctx.self->mazeAlreadyVisited, Map2ForestLayouts::getMazeLayout(), 4, 11, "LABIRINTO SUBTERRANEO", ctx.restoreScreen);
             }
-            // 6. Sair de Submapas
+            // [PT-BR] Transicao: Sair de Submapas de volta para a Floresta
+            // [EN-US] Transition: Exit Submaps back to Forest
             else if ((title == "CORACAO DA ARVORE") ||
                      ((px == 1 || px == 2) && py == 11 && title == "LABIRINTO SUBTERRANEO") ||
                      (title == "SALA DO CHEFE")) {
@@ -217,7 +222,8 @@ namespace {
                 }
                 if (!MapControl::is3DExplorationActive()) if (!MapControl::is3DExplorationActive()) ctx.restoreScreen();
             }
-            // 7. Fim do Labirinto (Escadaria para Boss)
+            // [PT-BR] Transicao: Fim do Labirinto (Sala do Chefe Mahoraga)
+            // [EN-US] Transition: End of Maze (Mahoraga Boss Room)
             else if ((px == 77 || px == 78) && py == 11 && title == "LABIRINTO SUBTERRANEO") {
                 Appearance::startPopupInteraction();
                 std::vector<std::string> mazeMsg = {
@@ -298,7 +304,8 @@ void Map2Forest::initializeInteractions() {
 
 NextMapTransition Map2Forest::startExplorationLoop()
 {
-    // Resgata o player se ele usou Viagem Rapida enquanto estava dentro de um submapa
+    // [PT-BR] Resgata a posicao do jogador caso tenha usado Viagem Rapida de dentro de um submapa
+    // [EN-US] Rescues player position if Fast Travel was used while inside a submap
     if (playerIsInsideSubMap) {
         currentMapMatrix = savedMainMapMatrix;
         playerPositionX = savedPositionXBeforeEnteringSubMap;

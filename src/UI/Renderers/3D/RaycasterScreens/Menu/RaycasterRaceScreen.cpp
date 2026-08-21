@@ -51,7 +51,8 @@ RaceScreen::Result ScreenRaceRaycaster::display(const std::string& namePlayer) {
 
         int yBase = 7;
 
-        // Calcula dimensoes da arte para posicionamento
+        // [PT-BR] Calcula dimensoes da arte ASCII para posicionamento
+    // [EN-US] Computes ASCII art dimensions for positioning
         int artWidth = 0;
         int colCenter = (widthConsole - 50) / 2;
         if (!isReturn) {
@@ -62,7 +63,8 @@ RaceScreen::Result ScreenRaceRaycaster::display(const std::string& namePlayer) {
         int colList = colCenter - 14;
         if (colList < 2) colList = 2;
 
-        // Left: list of options
+        // [PT-BR] Esquerda: lista de opcoes
+    // [EN-US] Left: options list
         int totalOptions = (int)optionsGeneral.size() + 1;
         for (int i = 0; i < totalOptions; ++i) {
             std::string nameOption = (i == (int)optionsGeneral.size()) ? "VOLTAR" : optionsGeneral[i].name;
@@ -76,14 +78,16 @@ RaceScreen::Result ScreenRaceRaycaster::display(const std::string& namePlayer) {
         if (!isReturn) {
             Attributes attributes = race->getAttributesRace();
 
-            // Center: Pixel art
+            // [PT-BR] Centro: arte ASCII da raca
+    // [EN-US] Center: race ASCII art
             MenuRaycasterUtils::printArtPixelatedSimple(buffer, race->getAppearanceRace(), 200, 180, 220, colCenter, yBase);
 
             // Direita: logo apos a arte
             int colSay = colCenter + artWidth + 3;
             if (colSay > widthConsole - 20) colSay = widthConsole - 20;
 
-            // Right: Atributos (top), then skills
+            // [PT-BR] Direita: Atributos e habilidades da raca
+    // [EN-US] Right: Race attributes and skills
             int rightY = yBase;
             MenuRaycasterUtils::superimposeText3D(buffer, "\033[38;2;100;200;255m[ATRIBUTOS]\033[0m", rightY++, colSay, widthConsole);
             MenuRaycasterUtils::superimposeText3D(buffer, "  \033[38;2;180;180;180mHP " + std::to_string(attributes.health) + "\033[0m", rightY++, colSay, widthConsole);

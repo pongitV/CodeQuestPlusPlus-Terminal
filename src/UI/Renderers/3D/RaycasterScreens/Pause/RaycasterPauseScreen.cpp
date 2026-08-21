@@ -122,14 +122,17 @@ int RaycasterPauseScreen::renderSettingsMenu(Character* player) {
     if (res == 0) return 0;
     if (res == 1) {
         if (!player->getParryActivated()) {
-            // DESLIGADO -> MOVIMENTO
+            // [PT-BR] Alternancia: DESLIGADO -> MOVIMENTO
+    // [EN-US] Switch: OFF -> MOVEMENT
             player->setModernParry(true);
             return 1; // PauseScreen alterna Ativado para verdadeiro
         } else if (player->getParryModern()) {
-            // MOVIMENTO -> DIGITACAO
+            // [PT-BR] Alternancia: MOVIMENTO -> DIGITACAO
+    // [EN-US] Switch: MOVEMENT -> TYPING
             return 2; // PauseScreen alterna Moderno para falso
         } else {
-            // DIGITACAO -> DESLIGADO
+            // [PT-BR] Alternancia: DIGITACAO -> DESLIGADO
+    // [EN-US] Switch: TYPING -> OFF
             return 1; // PauseScreen alterna Ativado para falso
         }
     }

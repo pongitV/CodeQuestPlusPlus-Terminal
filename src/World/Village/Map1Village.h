@@ -1,7 +1,7 @@
-/*
- * Arquivo: Map1Village.h
- * Proposito: Definicao do mapa inicial (Vila Inicial / Vila 1) e suas sub-areas.
- */
+// [PT-BR] Arquivo: Map1Village.h
+// [PT-BR] Proposito: Definicao do mapa inicial (Vila Inicial / Vila 1) e suas sub-areas.
+// [EN-US] File: Map1Village.h
+// [EN-US] Purpose: Definition of the starting map (Initial Village / Village 1) and its sub-areas.
 
 #pragma once
 
@@ -14,9 +14,8 @@
 #include "Domain/Characters/Character.h"
 #include "World/InteractionMap.h"
 
-/*
- * Implementacao do primeiro mapa jogavel (Vila).
- */
+// [PT-BR] Implementacao do primeiro mapa jogavel (Vila).
+// [EN-US] Implementation of the first playable map (Village).
 class Map1Village final : public IMap 
 {
 public:
@@ -38,7 +37,8 @@ public:
     std::vector<std::string> savedSpawnMapMatrix;
     std::vector<std::string> villageBaseMap;
 
-    // State moved from loop function
+    // [PT-BR] Estado persistido do mapa durante exploracao
+    // [EN-US] Persistent map state during exploration
     bool bjornRescued;
     bool caveAlreadyVisited;
     bool spawnAlreadyVisited;

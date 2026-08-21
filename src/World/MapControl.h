@@ -1,7 +1,7 @@
-/*
- * Arquivo: MapControl.h
- * Proposito: Fachada central de controle de mapas (coordenacao de movimentacao, gatilhos de combate e camera 3D).
- */
+// [PT-BR] Arquivo: MapControl.h
+// [PT-BR] Proposito: Fachada central de controle de mapas (coordenacao de movimentacao, gatilhos de combate e camera 3D).
+// [EN-US] File: MapControl.h
+// [EN-US] Purpose: Central map control facade (movement coordination, combat triggers, and 3D camera).
 
 #pragma once
 
@@ -13,9 +13,8 @@
 #include "Core/Utils/Appearance.h"
 #include "World/InteractionMap.h"
 
-/*
- * Fachada para delegacao dos sistemas de animacao, colisao e renderizacao de mapa.
- */
+// [PT-BR] Fachada para delegacao dos sistemas de animacao, colisao e renderizacao de mapa.
+// [EN-US] Facade for delegating map animation, collision, and rendering systems.
 class MapControl 
 {
 public:

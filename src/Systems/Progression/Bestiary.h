@@ -18,7 +18,9 @@ struct SystemBestiaryEnemyInfo {
     std::vector<std::string> skillsActive;
     std::string skillPassive;
     std::vector<std::string> drops;
-    int difficulty; // Dificuldade base para ordenar no menu
+    // [PT-BR] Dificuldade base para ordenacao no menu
+    // [EN-US] Base difficulty for menu ordering
+    int difficulty;
 };
 
 class Bestiary {

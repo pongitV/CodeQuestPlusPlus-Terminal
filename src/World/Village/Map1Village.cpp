@@ -98,7 +98,8 @@ namespace {
 
                 ctx.self->currentMapMatrix[ctx.nextPositionY][ctx.nextPositionX] = '.';
                 
-                // Atualiza os mapas salvos para que a Placa volte a ser o Bjorn na Vila
+                // [PT-BR] Atualiza mapas salvos para restaurar Bjorn apos o resgate
+                // [EN-US] Updates saved maps to restore Bjorn after rescue
                 for (auto& line : ctx.self->savedMainMapMatrix) {
                     std::replace(line.begin(), line.end(), 'P', 'B');
                 }
@@ -151,15 +152,18 @@ namespace {
             int px = ctx.nextPositionX;
             int py = ctx.nextPositionY;
             
-            // 1. Entrar no Caminho do Inicio (Spawn) a partir da Vila Inicial (X=18, Y=5 ou Y=4)
+            // [PT-BR] Transicao 1: Entrar no Caminho do Inicio a partir da Vila Inicial
+            // [EN-US] Transition 1: Enter Beginning Path from Initial Village
             if (px >= 17 && px <= 19 && py <= 6 && !ctx.self->playerIsInsideSubMap) {
                 MapLoader::enterSubMap(ctx.self->currentMapMatrix, ctx.self->savedMainMapMatrix, ctx.self->savedPositionXBeforeEnteringSubMap, ctx.self->savedPositionYBeforeEnteringSubMap, ctx.self->playerPositionX, ctx.self->playerPositionY, ctx.self->playerIsInsideSubMap, ctx.self->currentMapTitle, ctx.self->savedSpawnMapMatrix, ctx.self->spawnAlreadyVisited, Map1VillageLayouts::getSpawnLayout(), 53, 7, "CAMINHO DO INICIO", ctx.animateScreen);
             }
-            // 2. Entrar na Caverna a partir da Vila (Caverna fica a leste)
+            // [PT-BR] Transicao 2: Entrar na Caverna a partir da Vila
+            // [EN-US] Transition 2: Enter Cave from Village
             else if (px > 50 && py < 30 && !ctx.self->playerIsInsideSubMap) {
                 MapLoader::enterSubMap(ctx.self->currentMapMatrix, ctx.self->savedMainMapMatrix, ctx.self->savedPositionXBeforeEnteringSubMap, ctx.self->savedPositionYBeforeEnteringSubMap, ctx.self->playerPositionX, ctx.self->playerPositionY, ctx.self->playerIsInsideSubMap, ctx.self->currentMapTitle, ctx.self->savedCaveMapMatrix, ctx.self->caveAlreadyVisited, Map1VillageLayouts::getBasementLayout(ctx.self->bjornRescued), 14, 3, "CAVERNA DO ORK", ctx.animateScreen);
             }
-            // 3. Retornar dos Interiores/Caverna de volta para a Vila Inicial
+            // [PT-BR] Transicao 3: Retornar dos Interiores/Caverna para a Vila
+            // [EN-US] Transition 3: Return from Interiors/Cave to Village
             else if (nextCell == 'S' && ctx.self->playerIsInsideSubMap) {
                 if (ctx.self->currentMapTitle == "CAVERNA DO ORK") {
                     ctx.self->caveAlreadyVisited = false;
@@ -173,7 +177,8 @@ namespace {
                 ctx.self->currentMapTitle = "VILA INICIAL";
                 if (!MapControl::is3DExplorationActive()) ctx.restoreScreen();
             }
-            // 3. Voltar para a Vila Inicial a partir do Caminho do Inicio (X=54, Y=7 ou Y=6)
+            // [PT-BR] Transicao 4: Voltar para a Vila Inicial a partir do Caminho do Inicio
+            // [EN-US] Transition 4: Return to Initial Village from Beginning Path
             else if (px == 54 && (py == 7 || py == 6) && ctx.self->currentMapTitle == "CAMINHO DO INICIO") {
                 ctx.self->savedSpawnMapMatrix = ctx.self->currentMapMatrix;
                 ctx.self->currentMapMatrix = ctx.self->savedMainMapMatrix;
@@ -184,7 +189,8 @@ namespace {
                 ctx.self->currentMapTitle = "VILA INICIAL";
                 if (!MapControl::is3DExplorationActive()) ctx.animateScreen();
             }
-            // 5. Ir para a Floresta a partir da Vila
+            // [PT-BR] Transicao 5: Ir para a Floresta a partir da Vila
+            // [EN-US] Transition 5: Go to Forest from Village
             else if (py >= 30 && !ctx.self->playerIsInsideSubMap) {
                 if (!Progression::instance().getFlag(Flags::Village_KissRescued)) {
                     Appearance::startPopupInteraction();
@@ -285,7 +291,8 @@ NextMapTransition Map1Village::startExplorationLoop()
         needsRender = false;
     };
 
-    // Substitui o Bjorn por uma placa se ele ainda nao foi resgatado (Antes de animar a tela)
+    // [PT-BR] Substitui Bjorn por placa se ainda nao resgatado
+    // [EN-US] Replaces Bjorn with signpost if not yet rescued
     if (currentMapTitle == "VILA INICIAL" && !bjornRescued) {
         for (auto& line : currentMapMatrix) {
             std::replace(line.begin(), line.end(), 'B', 'P');

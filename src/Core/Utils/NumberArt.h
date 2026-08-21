@@ -4,7 +4,8 @@
 
 namespace NumberArts {
     const std::vector<std::vector<std::string>> digits = {
-        // 0
+        // [PT-BR] Digito 0
+        // [EN-US] Digit 0
         {
             "  ___  ",
             " / _ \\ ",
@@ -12,7 +13,8 @@ namespace NumberArts {
             "| |_| |",
             " \\___/ "
         },
-        // 1
+        // [PT-BR] Digito 1
+        // [EN-US] Digit 1
         {
             " _   ",
             "/ |  ",
@@ -20,7 +22,8 @@ namespace NumberArts {
             "| |  ",
             "|_|  "
         },
-        // 2
+        // [PT-BR] Digito 2
+        // [EN-US] Digit 2
         {
             " ____  ",
             "|___ \\ ",
@@ -28,7 +31,8 @@ namespace NumberArts {
             " / __/ ",
             "|_____|"
         },
-        // 3
+        // [PT-BR] Digito 3
+        // [EN-US] Digit 3
         {
             " _____ ",
             "|___ / ",
@@ -36,7 +40,8 @@ namespace NumberArts {
             " ___) |",
             "|____/ "
         },
-        // 4
+        // [PT-BR] Digito 4
+        // [EN-US] Digit 4
         {
             " _  _   ",
             "| || |  ",
@@ -44,7 +49,8 @@ namespace NumberArts {
             "|__   _|",
             "   |_|  "
         },
-        // 5
+        // [PT-BR] Digito 5
+        // [EN-US] Digit 5
         {
             " ____  ",
             "| ___| ",
@@ -52,7 +58,8 @@ namespace NumberArts {
             " ___) |",
             "|____/ "
         },
-        // 6
+        // [PT-BR] Digito 6
+        // [EN-US] Digit 6
         {
             "  __   ",
             " / /_  ",
@@ -60,7 +67,8 @@ namespace NumberArts {
             "| (_) |",
             " \\___/ "
         },
-        // 7
+        // [PT-BR] Digito 7
+        // [EN-US] Digit 7
         {
             " _____ ",
             "|___  |",
@@ -68,7 +76,8 @@ namespace NumberArts {
             "  / /  ",
             " /_/   "
         },
-        // 8
+        // [PT-BR] Digito 8
+        // [EN-US] Digit 8
         {
             "  ___  ",
             " ( _ ) ",
@@ -76,7 +85,8 @@ namespace NumberArts {
             "| (_) |",
             " \\___/ "
         },
-        // 9
+        // [PT-BR] Digito 9
+        // [EN-US] Digit 9
         {
             "  ___  ",
             " / _ \\ ",

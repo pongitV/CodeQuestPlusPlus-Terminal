@@ -8,7 +8,8 @@
 #include "Core/Utils/Appearance.h"
 #include "Core/Utils/DialogFunctions.h"
 
-// --- INFORMACOES DA CLASSE ---
+// [PT-BR] --- INFORMACOES DA CLASSE ---
+// [EN-US] --- CLASS INFORMATION ---
 std::string Archer::getClassName() const 
 {
      return "Arqueiro"; 
@@ -80,7 +81,8 @@ std::vector<std::unique_ptr<Item>> Archer::getEquipmentClass() const
     return equipment;
 }
 
-// --- PASSIVA DA CLASSE ---
+// [PT-BR] --- PASSIVA DA CLASSE ---
+// [EN-US] --- CLASS PASSIVE ---
 std::string Archer::getNamePassiveClass() const 
 { 
     return "Passos leves"; 
@@ -106,7 +108,8 @@ int Archer::revertArcherPassiveSlownessPenalty(int dexterityCurrent) const
     return (dexterityCurrent * 4) / 3;
 }
 
-// --- HABILIDADE DA CLASSE ---
+// [PT-BR] --- HABILIDADE DA CLASSE ---
+// [EN-US] --- CLASS SKILL ---
 std::string Archer::getRechargeSkillClass() const 
 { 
     return "Recarga: 1 turno."; 

@@ -1,7 +1,7 @@
-/*
- * Arquivo: InputControl.h
- * Proposito: Controle de entrada do usuario pelo terminal (teclado, mouse e captura de caracteres).
- */
+// [PT-BR] Arquivo: InputControl.h
+// [PT-BR] Proposito: Controle de entrada do usuario pelo terminal (teclado, mouse e captura de caracteres).
+// [EN-US] File: InputControl.h
+// [EN-US] Purpose: User input control via terminal (keyboard, mouse, and character capturing).
 
 #pragma once
 
@@ -10,7 +10,8 @@
 #include "Core/Terminal/Appearance/Appearance.h"
 #include <functional>
 
-// Comandos de navegacao mapeados a partir de teclas
+// [PT-BR] Comandos de navegacao mapeados a partir de teclas
+// [EN-US] Navigation commands mapped from keys
 enum class MapCommand {
     Up,
     Down,
@@ -22,32 +23,38 @@ enum class MapCommand {
     None
 };
 
-/*
- * Abstrai a captura e o processamento de entradas de teclado e mouse.
- */
+// [PT-BR] Abstrai a captura e o processamento de entradas de teclado e mouse.
+// [EN-US] Abstracts keyboard and mouse input capturing and processing.
 class InputControl 
 {
 public:
-    // Verifica se alguma tecla foi pressionada
+    // [PT-BR] Verifica se alguma tecla foi pressionada (non-blocking)
+    // [EN-US] Checks if any key was pressed (non-blocking)
     static bool pressedKey();
 
-    // Le um caractere do teclado sem necessidade de pressionar Enter
+    // [PT-BR] Le um caractere do teclado sem necessidade de pressionar Enter
+    // [EN-US] Reads a character from the keyboard without requiring Enter
     static char readKey();
 
-    // Converte a tecla pressionada no comando correspondente
+    // [PT-BR] Converte a tecla pressionada no comando correspondente
+    // [EN-US] Translates pressed key into the corresponding command
     static MapCommand translateKeyToCommand(char key);
 
-    // Limpa o buffer de entrada do terminal
+    // [PT-BR] Limpa o buffer de entrada do terminal
+    // [EN-US] Clears terminal input buffer
     static void clearBuffer();
 
-    // Le uma string digitada pelo usuario protegendo contra entradas invalidas
+    // [PT-BR] Le uma string digitada pelo usuario protegendo contra entradas invalidas
+    // [EN-US] Reads a user-input string protected against invalid entries
     static std::string readEntryProtected(const std::string& promptMessage = "");
     
-    // Habilita e gerencia captura de mouse no terminal Windows
+    // [PT-BR] Habilita e gerencia captura de mouse no terminal Windows
+    // [EN-US] Enables and manages mouse capture in Windows terminal
     static void enableMouseInput();
     static bool pollMouseState(int& mouseX, int& mouseY, bool& isLeftPressed, bool& isRightPressed);
     
-    // Leituras estruturadas de inteiros e selecoes de menu
+    // [PT-BR] Leituras estruturadas de inteiros e selecoes de menu
+    // [EN-US] Structured integer readings and menu selection prompts
     static int readIntegerWithLimits(const std::string& promptMessage, int minimum, int maximum, bool centralizePrompt = false, const std::string& marginPersonalized = "");
     static int readSelectionMenuWithArrows(const std::vector<std::string>& options, bool centralize = true, const std::string& marginPersonalized = "", const std::vector<std::string>& panelRight = {});
     static int readMenuSelectionInPopup(const std::string& title, const std::vector<std::string>& text, const std::vector<std::string>& options, Color themeColor = Color::WHITE, const std::vector<std::string>& asciiArt = {}, bool animateEntrance = true);
@@ -64,4 +71,3 @@ public:
     static std::function<void()> onWaitEnterUpdate;
     static std::string enterPromptText;
 };
-

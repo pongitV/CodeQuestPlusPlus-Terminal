@@ -71,26 +71,31 @@ namespace Highlighter {
                                    const std::vector<std::tuple<int, int, int>>& lights,
                                    float hitX, float hitY, const std::vector<std::string>* mapMatrix = nullptr, float timeAnimation = 0.0f) {
         InfoLight info;
-        info.fogPercentage = std::min(1.0f, (distance / (depthMaximum * 0.8f)) *
-                                             (distance / (depthMaximum * 0.8f)));
+        const float invMaxDepth = 1.0f / (depthMaximum * 0.8f);
+        const float normDist = distance * invMaxDepth;
+        info.fogPercentage = std::min(1.0f, normDist * normDist);
 
         StateClimate climateDynamic = {0,0,0,0, 0,0,0};
-        if (themeSky == 3) { // Static Indoors
-            climateDynamic = { 80.0f, 80.0f, 95.0f, 0.4f, 5, 5, 10 }; // Dim, constant ambient light
+        float t = 0.0f;
+        if (themeSky == 3) {
+            // [PT-BR] Ambiente interno estatico: iluminacao constante e suave
+            // [EN-US] Static indoor environment: constant, dim ambient light
+            climateDynamic = { 80.0f, 80.0f, 95.0f, 0.4f, 5, 5, 10 };
         } else {
-            // Dynamic Time of Day (120 seconds cycle)
-            float t = std::fmod(timeAnimation, 120.0f) / 120.0f;
+            // [PT-BR] Ciclo dinamico de horario do dia (120 segundos)
+            // [EN-US] Dynamic time of day cycle (120 seconds)
+            t = std::fmod(timeAnimation, 120.0f) * (1.0f / 120.0f);
             StateClimate sunBirth = { 255.0f, 180.0f, 100.0f, 0.8f, 200, 120, 80 };
-            StateClimate day         = { 255.0f, 255.0f, 240.0f, 1.0f, 120, 180, 255 };
-            StateClimate sunSet    = { 255.0f, 140.0f, 80.0f,  0.8f, 200, 100, 50 };
-            StateClimate night       = { 80.0f,  100.0f, 255.0f, 0.4f, 10,  10,  30 };
+            StateClimate day      = { 255.0f, 255.0f, 240.0f, 1.0f, 120, 180, 255 };
+            StateClimate sunSet   = { 255.0f, 140.0f, 80.0f,  0.8f, 200, 100, 50 };
+            StateClimate night    = { 80.0f,  100.0f, 255.0f, 0.4f, 10,  10,  30 };
             
-            if (t < 0.1f)      climateDynamic = mixClimate(sunBirth, day, t / 0.1f);
+            if (t < 0.1f)      climateDynamic = mixClimate(sunBirth, day, t * 10.0f);
             else if (t < 0.4f) climateDynamic = day;
-            else if (t < 0.5f) climateDynamic = mixClimate(day, sunSet, (t - 0.4f) / 0.1f);
-            else if (t < 0.6f) climateDynamic = mixClimate(sunSet, night, (t - 0.5f) / 0.1f);
+            else if (t < 0.5f) climateDynamic = mixClimate(day, sunSet, (t - 0.4f) * 10.0f);
+            else if (t < 0.6f) climateDynamic = mixClimate(sunSet, night, (t - 0.5f) * 10.0f);
             else if (t < 0.9f) climateDynamic = night;
-            else               climateDynamic = mixClimate(night, sunBirth, (t - 0.9f) / 0.1f);
+            else               climateDynamic = mixClimate(night, sunBirth, (t - 0.9f) * 10.0f);
         }
 
         info.fogR = climateDynamic.fogR;
@@ -100,11 +105,14 @@ namespace Highlighter {
         float globalRotation = timeAnimation * 0.05f;
         float sayLightX = 0.0f, sayLightY = 0.0f;
         if (themeSky != 3) {
-            float t = std::fmod(timeAnimation, 120.0f) / 120.0f;
-            if (t > 0.55f && t < 0.95f) { // Noite (Moon domina)
+            if (t > 0.55f && t < 0.95f) {
+                // [PT-BR] Noite: a lua domina a direcao da luz
+                // [EN-US] Night: moon dominates light direction
                 sayLightX = -std::cos(globalRotation);
                 sayLightY = -std::sin(globalRotation);
-            } else { // Dia (Sun domina)
+            } else {
+                // [PT-BR] Dia: o sol domina a direcao da luz
+                // [EN-US] Day: sun dominates light direction
                 sayLightX = std::cos(globalRotation);
                 sayLightY = std::sin(globalRotation);
             }
@@ -130,20 +138,21 @@ namespace Highlighter {
                     if (intensity > 0) {
                         intensity = std::max(0.0f, intensity);
                         intensity *= intensity;
-                        if (type == 0) { info.lightR += 220 * intensity; info.lightG += 120 * intensity; info.lightB += 30 * intensity; } // Orange Fire
-                        else if (type == 1) { info.lightR += 220 * intensity; info.lightG += 220 * intensity; info.lightB += 255 * intensity; } // Magical White Portal
-                        else if (type == 2) { info.lightR += 160 * intensity; info.lightG += 40 * intensity; info.lightB += 40 * intensity; } // Soft Red Enemy
-                        else if (type == 3) { info.lightR += 150 * intensity; info.lightG += 130 * intensity; info.lightB += 60 * intensity; } // Soft Yellow NPC
+                        if (type == 0) { info.lightR += 220 * intensity; info.lightG += 120 * intensity; info.lightB += 30 * intensity; }
+                        else if (type == 1) { info.lightR += 220 * intensity; info.lightG += 220 * intensity; info.lightB += 255 * intensity; }
+                        else if (type == 2) { info.lightR += 160 * intensity; info.lightG += 40 * intensity; info.lightB += 40 * intensity; }
+                        else if (type == 3) { info.lightR += 150 * intensity; info.lightG += 130 * intensity; info.lightB += 60 * intensity; }
                     }
                 }
             }
         }
         
-        // Direcional Light (Sun/Moon)
+        // [PT-BR] Calculo de luz direcional e sombras do sol/lua
+        // [EN-US] Directional light and shadow calculation for sun/moon
         if (mapMatrix != nullptr) {
             bool inShadow = false;
             if (themeSky != 3) {
-                if (sayLightX != lastSunAngle) { // Using sayLightX as a proxy for sun angle change
+                if (sayLightX != lastSunAngle) {
                     lastSunAngle = sayLightX;
                     currentShadowFrame++;
                 }
@@ -191,7 +200,8 @@ namespace Highlighter {
         float lG = info.lightG;
         float lB = info.lightB;
         
-        // Direcional Sun Light Mix
+        // [PT-BR] Mistura de luz solar direcional
+        // [EN-US] Directional sunlight blend
         float sunFactor = info.sunIntensity;
         if (isWall && info.sunIntensity > 0) {
             float NdotL = 1.0f;
@@ -200,17 +210,15 @@ namespace Highlighter {
             } else {
                 NdotL = std::max(0.0f, nx);
             }
-            sunFactor *= (0.2f + 0.8f * NdotL); // Ambient 20%, Directional 80%
+            sunFactor *= (0.2f + 0.8f * NdotL);
         }
         
         float baseSunR = r * (info.sunR / 255.0f) * sunFactor;
         float baseSunG = g * (info.sunG / 255.0f) * sunFactor;
         float baseSunB = b * (info.sunB / 255.0f) * sunFactor;
 
-        /*
-         * Point lights: Emissive (pure light) + Reflected (based on texture)
-         * Escalonado para baixo para prevenir sobre-exposicao severa ou clipping que causava manchas brancas achatadas
-         */
+        // [PT-BR] Luzes pontuais: componente emissiva e refletida
+        // [EN-US] Point lights: emissive and reflected components
         float emissiveR = lR * 0.25f;
         float emissiveG = lG * 0.25f;
         float emissiveB = lB * 0.25f;
@@ -223,7 +231,8 @@ namespace Highlighter {
         float endG = baseSunG + emissiveG + reflectedG;
         float endB = baseSunB + emissiveB + reflectedB;
 
-        // Limite minimo de luz ambiente para nao ficar no breu absoluto
+        // [PT-BR] Limite minimo de luz ambiente para evitar escuridao total
+        // [EN-US] Minimum ambient light threshold to prevent total darkness
         endR = std::max(endR, r * 0.12f);
         endG = std::max(endG, g * 0.12f);
         endB = std::max(endB, b * 0.12f);

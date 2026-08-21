@@ -48,7 +48,8 @@ const std::vector<std::string>& NPCPriest::getArtASCII() const {
 }
 
 void NPCPriest::displayDialogue(Character* /*player*/) {
-    // Agora chamado em interagir
+    // [PT-BR] Chamado durante a rotina interagir
+    // [EN-US] Invoked during interact routine
 }
 
 std::vector<std::string> NPCPriest::getOptionsMenu(Character* player, int /*terminalWidth*/) {

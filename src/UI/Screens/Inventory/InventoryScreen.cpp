@@ -59,7 +59,7 @@ std::vector<std::pair<std::string, Item*>> ScreenInventory::getListCategory(Char
     return list;
 }
 
-void ScreenInventory::displayInspectionItem(Item* item, Character* currentPlayer)
+void ScreenInventory::displayInspectionItem(Item* item, [[maybe_unused]] Character* currentPlayer)
 {
     PerspectiveManager::getInventoryUI().displayDetailItem(item);
 }

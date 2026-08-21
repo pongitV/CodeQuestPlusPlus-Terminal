@@ -26,13 +26,15 @@ public:
     void setFlag(const std::string& key, bool value);
     bool getFlag(const std::string& key) const;
 
-    // Calculos dinamicos de progresso combinando dados do player com as flags salvas
+    // [PT-BR] Calculos dinamicos de progresso combinando dados do jogador com as flags salvas
+    // [EN-US] Dynamic progress calculations combining player stats with saved flags
     int getVillageProgress(Character* currentPlayer) const;
     int getForestProgress(Character* currentPlayer) const;
     int getKingdomBridgeProgress(Character* currentPlayer) const;
     int getKingdomProgress(Character* currentPlayer) const;
 
-    // Funcoes para ligar ao sistema de salvamento
+    // [PT-BR] Funcoes de integracao com o sistema de salvamento
+    // [EN-US] Integration functions with save system
     void save(std::ofstream& out) const;
     void load(std::ifstream& in);
 };

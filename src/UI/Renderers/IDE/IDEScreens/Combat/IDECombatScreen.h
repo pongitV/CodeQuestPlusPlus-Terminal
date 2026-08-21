@@ -30,7 +30,8 @@ public:
     static void setShiftVisible(int shift, const std::string& name);
     static void selectHUDAlly(Character* currentPlayer, const std::vector<Character*>& allies);
 
-    // Menus e interacoes de texto do combate
+    // [PT-BR] Menus e interacoes de texto do combate
+    // [EN-US] Combat menus and text interactions
     static int getPlayerAction(int currentTurn, Character* characterActing, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies);
     static int getTargetAttack(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies);
     static int getTargetItem(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies);
@@ -45,7 +46,8 @@ public:
     static void notifyCancellationItem();
     static void notifyUnmetRequirement(const std::string& requirementMessage);
 
-    // Old IDECombatScreen methods (internal helpers called from implementation)
+    // [PT-BR] Metodos auxiliares internos de renderizacao de combate IDE
+    // [EN-US] Internal helper methods for IDE combat rendering
     static void display(Character* currentPlayer, const std::vector<Character*>& enemies, const std::string& combatTitle = "Combate");
     static void displayLogCombat(const std::vector<std::string>& messages);
     static void displayStatsCombat(int shifts, int damageCaused, int damageReceived, int healing);

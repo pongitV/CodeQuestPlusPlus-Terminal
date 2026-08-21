@@ -14,10 +14,12 @@ class ScreenRegistry {
 public:
     static bool raycasterModeActive();
 
-    // --- OpeningScreen ---
+    // [PT-BR] --- Tela de Abertura ---
+    // [EN-US] --- Opening Screen ---
     static void opening();
 
-    // --- MenuScreen ---
+    // [PT-BR] --- Tela de Menu e Selecoes ---
+    // [EN-US] --- Menu and Selection Screens ---
     static void panelLogo(const std::string& screenTitle = "", bool animateFadeIn = false);
     static bool chooseConfirmation(const std::string& chooseType, const std::string& chooseName,
         const std::vector<std::string>& informationForDisplay, const std::vector<std::string>& asciiArtForDisplay);
@@ -28,24 +30,31 @@ public:
     static int mainMenu();
     static void tutorialParry(const std::string& infoBox = "");
 
-    // --- NameScreen ---
+    // [PT-BR] --- Tela de Nome ---
+    // [EN-US] --- Name Screen ---
     static NameScreen::Result screenName();
 
-    // --- RaceScreen ---
+    // [PT-BR] --- Tela de Raca ---
+    // [EN-US] --- Race Screen ---
     static RaceScreen::Result screenRace(const std::string& characterName);
 
-    // --- ClassScreen ---
+    // [PT-BR] --- Tela de Classe ---
+    // [EN-US] --- Class Screen ---
     static ClassScreen::Result screenClass(const std::string& characterName, const std::string& race);
 
-    // --- DifficultyScreen ---
+    // [PT-BR] --- Tela de Dificuldade ---
+    // [EN-US] --- Difficulty Screen ---
     static DifficultyScreen::Result screenDifficulty(const std::string& characterName, const std::string& race, const std::string& classObj);
 
-    // --- ParryScreen ---
+    // [PT-BR] --- Tela de Parry ---
+    // [EN-US] --- Parry Screen ---
     static ParryScreen::Result screenParry(const std::string& characterName, const std::string& race, const std::string& classObj);
 
-    // --- IntroductionScreen ---
+    // [PT-BR] --- Tela de Introducao ---
+    // [EN-US] --- Introduction Screen ---
     static void screenIntroduction();
     
-    // --- Sair do Jogo ---
+    // [PT-BR] --- Sair do Jogo ---
+    // [EN-US] --- Exit Game ---
     static bool confirmExit();
 };

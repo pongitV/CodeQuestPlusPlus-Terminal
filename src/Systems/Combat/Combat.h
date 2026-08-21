@@ -1,45 +1,45 @@
-/*
- * Arquivo: Combat.h
- * Proposito: Gerenciamento do fluxo de combate por turnos, acoes dos personagens, calculo de recompensas e estatisticas.
- */
+// [PT-BR] Arquivo: Combat.h
+// [PT-BR] Proposito: Gerenciamento do fluxo de combate por turnos, acoes dos personagens, calculo de recompensas e estatisticas.
+// [EN-US] File: Combat.h
+// [EN-US] Purpose: Management of turn-based combat flow, character actions, reward calculation, and statistics.
 
 #pragma once
 
-#include <memory>
-#include <string>
-#include <utility>
 #include <vector>
+#include <string>
 #include <memory>
+#include <algorithm>
 
-#include "Systems/Combat/ICombatUI.h"
 #include "Domain/Characters/Character.h"
+#include "Systems/Combat/ICombatUI.h"
 
-/*
- * Gerenciador da sessao ativa de combate por turnos.
- */
+// [PT-BR] Gerenciador da sessao ativa de combate por turnos.
+// [EN-US] Manager for the active turn-based combat session.
 class Combat 
 {
 public:
-    enum class ActionCombat 
-    { 
-        Attack = 1, 
-        Defend = 2, 
-        Skill = 3, 
-        Inventory = 4, 
-        Player = 5, 
-        Bestiary = 6 
+    struct PostCombatContext3D {
+        bool enabled = false;
+        std::vector<std::string> mapMatrix;
+        float playerX = 0.0f;
+        float playerY = 0.0f;
+        float playerAngle = 0.0f;
+        std::string placeTitle = "";
     };
 
 private:
-    // Referencias aos participantes do combate ativo
+    // [PT-BR] Referencias aos participantes do combate ativo
+    // [EN-US] References to active combat participants
     Character* currentPlayer;
     std::vector<std::unique_ptr<Character>> enemies;
     std::vector<std::unique_ptr<Character>> allies;
 
-    // Interface visual de combate (Injecao de Dependencia)
+    // [PT-BR] Interface visual de combate (Injecao de Dependencia)
+    // [EN-US] Combat visual interface (Dependency Injection)
     std::unique_ptr<ICombatUI> ui;
 
-    // Estatisticas gerais e controle da sessao de combate
+    // [PT-BR] Estatisticas gerais e controle da sessao de combate
+    // [EN-US] General statistics and combat session control
     int goldObtained;
     int xpObtained;
     int totalDamageCaused;
@@ -48,7 +48,8 @@ private:
     std::vector<std::string> obtainedItems;
     std::vector<std::string> enemiesDefeated;
 
-    // Estatisticas Avancadas da Sessao
+    // [PT-BR] Estatisticas Avancadas da Sessao
+    // [EN-US] Advanced Session Statistics
     int parriesAttempted;
     int effectiveParries;
     int perfectParries;
@@ -86,19 +87,25 @@ public:
     bool executePlayerOrAllyTurn(Character* character, bool& firstRendering, bool processEffectsHome = true);
     void addAllyInCombat(std::unique_ptr<Character> ally);
     void addAllies(std::vector<std::unique_ptr<Character>> allies);
-    // Inicia o laco principal de combate
+    
+    // [PT-BR] Inicia o laco principal de combate
+    // [EN-US] Starts main combat loop
     void startCombat();
 
-    // Executa a inteligencia e as acoes de todos os inimigos presentes
+    // [PT-BR] Executa a inteligencia e as acoes de todos os inimigos presentes
+    // [EN-US] Executes AI and actions of all present enemies
     void executeTurnForAllEnemies();
 
-    // Verifica se todos os inimigos estao mortos ou se o player morreu. Retorna true se o combate deve acabar.
+    // [PT-BR] Verifica condicao de vitoria ou derrota no combate
+    // [EN-US] Checks victory or defeat condition in combat
     bool checkVictoryOrDefeatCondition();
 
-    // Aplica o fluxo completo de dano fisico de um personagem a outro
+    // [PT-BR] Aplica o fluxo completo de ataque fisico de um personagem a outro
+    // [EN-US] Applies full physical attack flow from one character to another
     void performPhysicalAttack(Character* attackingCharacter, Character* defenderCharacter, int currentCombatTurn);
 
-    // Getters para Estatisticas Avancadas
+    // [PT-BR] Getters para Estatisticas Avancadas
+    // [EN-US] Getters for Advanced Statistics
     int getParriesAttempted() const { return parriesAttempted; }
     int getEffectiveParries() const { return effectiveParries; }
     int getHighestDamageCaused() const { return highestDamageCaused; }

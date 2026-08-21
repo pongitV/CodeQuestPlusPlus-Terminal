@@ -32,7 +32,8 @@ namespace {
         {1, {ItemID::DeviceLanguage, 1000, 1}}
     };
 
-    // --- APARENCIA E DIALOGOS ---
+    // [PT-BR] --- APARENCIA E DIALOGOS ---
+    // [EN-US] --- APPEARANCE AND DIALOGUES ---
     void processPotionsPurchase(Character* currentPlayer);
     void processPurchaseTalismans(Character* currentPlayer);
     void processPurchaseDelicacies(Character* currentPlayer);
@@ -47,7 +48,8 @@ namespace {
     }
 }
 
-// --- INFORMACOES DO LUGAR ---
+// [PT-BR] --- INFORMACOES DO LUGAR ---
+// [EN-US] --- LOCATION INFORMATION ---
 std::string NPCMerchant::getPlaceName() const {
     return "MERCADOR AMBULANTE";
 }
@@ -64,7 +66,8 @@ const std::vector<std::string>& NPCMerchant::getArtASCII() const {
     return NPCMerchantLayouts::artMerchant;
 }
 
-// --- INTERACAO E MENU ---
+// [PT-BR] --- INTERACAO E MENU ---
+// [EN-US] --- INTERACTION AND MENU ---
 void NPCMerchant::interact(Character* player) {
     InputControl::executeLoopMenuPopup(
         [this, player]() { this->displayDialogue(player); },
@@ -111,7 +114,8 @@ void NPCMerchant::processOption(Character* player, const std::string& option, in
 }
 
 namespace {
-    // --- PROCESSAMENTO DE OPCOES ---
+    // [PT-BR] --- PROCESSAMENTO DE OPCOES ---
+    // [EN-US] --- OPTION PROCESSING ---
     void processPotionsPurchase(Character* currentPlayer) {
         Shop::processPurchase(currentPlayer, "LOJA - POCOES", Color::YELLOW, potionsStock, 
             [](const std::string& msg) { dialogueFrancescoUnique(msg); }, InteractionNPC::getFormatterStatusItem, NPCMerchantLayouts::artMerchant);
@@ -206,7 +210,9 @@ namespace {
                     std::string qtyMsg = "Quantidade (1 a " + std::to_string(itemsChosen.size()) + ", 0 cancelar): ";
                     qtyForSell = Appearance::readIntegerInFloatingPopup(qtyMsg, 0, itemsChosen.size(), Color::YELLOW);
                 } else {
-                    continue; // Cancelar
+                    // [PT-BR] Cancelar transacao
+                    // [EN-US] Cancel transaction
+                    continue;
                 }
             }
             

@@ -1,7 +1,7 @@
-/*
- * Arquivo: StateManager.cpp
- * Proposito: Implementacao das transicoes de estados e loop principal de exploracao.
- */
+// [PT-BR] Arquivo: StateManager.cpp
+// [PT-BR] Proposito: Implementacao das transicoes de estados e loop principal de exploracao.
+// [EN-US] File: StateManager.cpp
+// [EN-US] Purpose: Implementation of state transitions and main exploration loop.
 
 #include "Core/Engine/StateManager.h"
 #include "Domain/Characters/Classes/Archer.h"
@@ -31,8 +31,9 @@ void MenuState::execute(Game& game, GameContext& ctx) {
     game.changeState(std::make_unique<ExplorationState>());
 }
 
-void ExplorationState::onExit(Game& game, GameContext& ctx) {
-    // Desvincula e limpa a memoria do player para a proxima iteracao
+void ExplorationState::onExit([[maybe_unused]] Game& game, GameContext& ctx) {
+    // [PT-BR] Desvincula e limpa a memoria do player para a proxima iteracao
+    // [EN-US] Unbinds and clears player memory for the next iteration
     ctx.player.reset();
 }
 
@@ -74,11 +75,9 @@ void ExplorationState::execute(Game& game, GameContext& ctx) {
             kingdomMap->isExplorationActive = true;
             if (!Progression::instance().getFlag(Flags::Visited_Kingdom)) Progression::instance().setFlag(Flags::Visited_Kingdom, true);
         }
-        else { // Inclui NextMapTransition::None
-            /*
-             * Se nenhuma transicao foi solicitada, encerra o loop de exploracao por precaucao
-             * e forca o retorno seguro ao menu principal.
-             */
+        else {
+            // [PT-BR] Se nenhuma transicao foi solicitada (None), encerra o loop de exploracao por precaucao e forca o retorno ao menu principal.
+            // [EN-US] If no transition was requested (None), terminates exploration loop as a precaution and forces return to main menu.
             player->setReturnToMenu(true);
             break;
         }

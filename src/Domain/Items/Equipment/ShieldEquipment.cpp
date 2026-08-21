@@ -26,7 +26,9 @@ int EquipmentShield::getReqSecondary() const { return reqSecondary; }
 AttributeType EquipmentShield::getTypeSecondary() const { return typeSecondary; }
 
 void EquipmentShield::reduceDurability(int qty) { 
-    if (durability <= 0) return; // Ja estava quebrado
+    // [PT-BR] Retorna caso o escudo ja esteja completamente quebrado
+    // [EN-US] Returns if shield was already completely broken
+    if (durability <= 0) return;
     
     durability -= qty; 
     if (durability <= 0) {

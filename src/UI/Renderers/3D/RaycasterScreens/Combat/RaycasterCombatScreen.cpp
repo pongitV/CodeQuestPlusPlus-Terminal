@@ -12,6 +12,7 @@
 #include <iomanip>
 #include <cmath>
 #include <unordered_map>
+#include <format>
 
 struct PlayerHUDStateRaycaster {
     double hpGhost = -1.0;
@@ -74,9 +75,12 @@ std::vector<std::string> RaycasterCombatScreen::getPlayerStatusBarLines(Characte
     std::string colorHighlightGeneral = "\033[1;38;2;255;255;255m";
     std::string colorLabel = "\033[38;2;150;150;150m";
 
-    // Formatacao da XP
+    // [PT-BR] Formatacao da barra de XP
+    // [EN-US] XP bar formatting
     int xpCurrent = currentPlayer->getCurrentXp();
-    int xpBasePrevious = 0; // Aproximacao simples, o ideal seria ter xpBaseDoNivel
+    // [PT-BR] Nivel base de XP anterior
+    // [EN-US] Previous level base XP
+    int xpBasePrevious = 0;
     int deltaTotalXP = currentPlayer->getXpForRise() - xpBasePrevious;
     double pctXp = static_cast<double>(xpCurrent - xpBasePrevious) / std::max(1, deltaTotalXP);
     if (pctXp > 1.0) pctXp = 1.0;
@@ -101,17 +105,20 @@ std::vector<std::string> RaycasterCombatScreen::getPlayerStatusBarLines(Characte
     std::string infoRace = currentPlayer->getRace() ? currentPlayer->getRace()->getRaceName() : "Desconhecido";
     std::string infoClass = currentPlayer->getClassName();
 
-    std::string line1 = colorHighlightGeneral + " " + currentPlayer->getName() + " (Nv " + std::to_string(currentPlayer->getLevel()) + ") - " 
-                       + infoRace + " " + infoClass + "\033[0m"
-                       + prefixHP + barHP
-                       + colorLabel + " | XP: " + barXP
-                       + colorLabel + " | " + colorGold + std::to_string(currentPlayer->getInventory()->getGold()) + "g\033[0m"
-                       + colorLabel + " | Pocao: " + colorText + nameConsumable + "\033[0m";
-    
-    std::string line2 = colorLabel + " Arma: " + colorText + weaponName + "\033[0m"
-                       + colorLabel + " | Escudo: " + colorText + shieldName + "\033[0m";
+    std::string line1 = std::format("{} {} (Nv {}) - {} {}[0m{}{}{} | XP: {}{} | {}{}g[0m{} | Pocao: {}{}[0m",
+                        colorHighlightGeneral, currentPlayer->getName(), currentPlayer->getLevel(),
+                        infoRace, infoClass,
+                        prefixHP, barHP,
+                        colorLabel, barXP,
+                        colorLabel, colorGold, currentPlayer->getInventory()->getGold(),
+                        colorLabel, colorText, nameConsumable);
 
-    std::string line3 = colorLabel + " Traje: " + colorText + armorName + "\033[0m";
+    std::string line2 = std::format("{} Arma: {}{}[0m{} | Escudo: {}{}[0m",
+                        colorLabel, colorText, weaponName,
+                        colorLabel, colorText, shieldName);
+
+    std::string line3 = std::format("{} Traje: {}{}[0m",
+                        colorLabel, colorText, armorName);
 
     std::vector<EffectID> effects;
     currentPlayer->getIDsEffectsAssets(effects);
@@ -126,8 +133,11 @@ std::vector<std::string> RaycasterCombatScreen::getPlayerStatusBarLines(Characte
         line3 += colorLabel + " | Status: " + strStatusHUD;
     }
 
-    // Retrato / Mugshot
-    std::vector<std::string> mugshot = { " /_\\ ", "(o_o)", " \\_/ " }; // Base humana
+    // [PT-BR] Retrato / Mugshot do jogador no HUD
+    // [EN-US] Player portrait / mugshot in HUD
+    // [PT-BR] Mugshot padrao (base humana)
+    // [EN-US] Default mugshot (human base)
+    std::vector<std::string> mugshot = { " /_\\ ", "(o_o)", " \\_/ " };
     if (currentPlayer->getRace()) {
         TypeRace t = currentPlayer->getRace()->getTypeRace();
         if (t == TypeRace::Elf) mugshot = { " /\\/\\ ", "(o_o)", " \\__/ " };
@@ -135,15 +145,21 @@ std::vector<std::string> RaycasterCombatScreen::getPlayerStatusBarLines(Characte
         else if (t == TypeRace::Dwarf) mugshot = { " _██_ ", "(o_o)", " {##} " };
     }
     
-    if (pctLife <= 0.30) { // Hurt mugshot
+    // [PT-BR] Mugshot ferido (vida <= 30%)
+    // [EN-US] Hurt mugshot (health <= 30%)
+    if (pctLife <= 0.30) {
         mugshot[1] = "(x_x)";
-        if (damageAnimation > 0 && !isHealing) mugshot[1] = "(>O<)"; // Tomando porrada
-    } else if (pctLife > 0.70 && damageAnimation > 0 && isHealing) { // Curando e feliz
+        // [PT-BR] Animacao de reacao a dano sofrido
+        // [EN-US] Reaction animation to incoming damage
+        if (damageAnimation > 0 && !isHealing) mugshot[1] = "(>O<)";
+    } else if (pctLife > 0.70 && damageAnimation > 0 && isHealing) {
+        // [PT-BR] Animacao de reacao de cura e satisfacao
+        // [EN-US] Reaction animation for healing and satisfaction
         mugshot[1] = "(^_^)";
     }
 
     std::string colorMugshot = "\033[38;2;255;220;180m";
-    if (pctLife <= 0.30) colorMugshot = "\033[38;2;255;100;100m"; // Sangrando
+    if (pctLife <= 0.30) colorMugshot = "\033[38;2;255;100;100m";
 
     line1 = colorMugshot + mugshot[0] + "\033[0m|" + line1;
     line2 = colorMugshot + mugshot[1] + "\033[0m|" + line2;
@@ -166,14 +182,18 @@ std::vector<std::string> RaycasterCombatScreen::getPlayerStatusBarLines(Characte
 #include <thread>
 #include <iostream>
 
-// Estado Estatico do Contexto
-static bool s_isContext3D = false;
-static std::vector<std::string> s_contextMap;
-static float s_contextPostX = 0.0f;
-static float s_contextPostY = 0.0f;
-static float s_contextAngle = 0.0f;
-static std::string s_contextTitleMap = "";
-static std::string s_titleShiftHUD = "";
+// [PT-BR] Estado encapsulado do contexto de combate 3D
+// [EN-US] Encapsulated state of 3D combat context
+struct Combat3DContext {
+    bool is3D = false;
+    std::vector<std::string> mapMatrix;
+    float postX = 0.0f;
+    float postY = 0.0f;
+    float angle = 0.0f;
+    std::string titleMap = "";
+    std::string titleShiftHUD = "";
+};
+static Combat3DContext s_combatContext;
 
 struct MsgLogRaycaster {
     std::string text;
@@ -181,21 +201,22 @@ struct MsgLogRaycaster {
 };
 static std::vector<MsgLogRaycaster> logBattle;
 
-// ---- Inicio das Funcoes Implementadas ----
+// [PT-BR] Inicio da implementacao das rotinas de combate
+// [EN-US] Beginning of combat routine implementation
 
 void RaycasterCombatScreen::configureContext3D(bool mode3D, const std::vector<std::string>& matrix, float postX, float postY, float angle, const std::string& title) {
-    s_isContext3D = mode3D;
-    s_contextMap = matrix;
-    s_contextPostX = postX;
-    s_contextPostY = postY;
-    s_contextAngle = angle;
-    s_contextTitleMap = title;
+    s_combatContext.is3D = mode3D;
+    s_combatContext.mapMatrix = matrix;
+    s_combatContext.postX = postX;
+    s_combatContext.postY = postY;
+    s_combatContext.angle = angle;
+    s_combatContext.titleMap = title;
 }
 
 void RaycasterCombatScreen::setShiftVisible(int shift, const std::string& name) {
     (void)shift;
     std::string colorShift = (name == "INIMIGOS") ? "\033[1;38;2;255;100;100m" : "\033[1;38;2;100;255;100m";
-    s_titleShiftHUD = colorShift + "[ TURNO DE " + name + " ]";
+    s_combatContext.titleShiftHUD = colorShift + "[ TURNO DE " + name + " ]";
 }
 
 void RaycasterCombatScreen::addFixedMessage(const std::string& msg) {
@@ -223,11 +244,12 @@ void RaycasterCombatScreen::updateScreenStatic(const std::string& combatTitle, c
     int timeMs = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count());
 
     std::vector<std::string> screen3D = RaycasterRendererCombat::renderFrame(
-        s_contextTitleMap, currentPlayer, enemies, 
+        s_combatContext.titleMap, currentPlayer, enemies, 
         nullptr, 0, 0, 0, false, timeMs, false, {}, 1.0f
     );
     
-    // Desenho dos logs de batalha
+    // [PT-BR] Renderizacao dos registros e mensagens de batalha
+    // [EN-US] Rendering battle logs and messages
     std::vector<MsgLogRaycaster> messagesActive;
     for (auto it = logBattle.begin(); it != logBattle.end(); ) {
         int elapsedMs = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(now - it->timestamp).count());
@@ -280,7 +302,8 @@ void RaycasterCombatScreen::updateScreenStatic(const std::string& combatTitle, c
         }
     }
 
-    // Minigame de Parry Popup Overwrite
+    // [PT-BR] Sobreposicao do popup do minigame de Parry
+    // [EN-US] Parry minigame popup overlay
     if (!Parry::minigameBar.empty() || !Parry::minigameMessage.empty()) {
         int compBar = Appearance::getVisualLength(Parry::minigameBar);
         int compMsg = Appearance::getVisualLength(Parry::minigameMessage);
@@ -322,7 +345,7 @@ void RaycasterCombatScreen::updateScreenStatic(const std::string& combatTitle, c
 
     // Desenha o HUD
     if (currentPlayer) {
-        RaycasterHUD::drawBarStatus(screen3D, terminalWidth, terminalHeight, currentPlayer, s_contextAngle, s_titleShiftHUD);
+        RaycasterHUD::drawBarStatus(screen3D, terminalWidth, terminalHeight, currentPlayer, s_combatContext.angle, s_combatContext.titleShiftHUD);
     }
 
     if (callbackOverlay) {
@@ -349,7 +372,7 @@ void RaycasterCombatScreen::displayEnemyHordeSideBySide(const std::vector<Charac
     int timeMs = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count());
 
     std::vector<std::string> screen3D = RaycasterRendererCombat::renderFrame(
-        s_contextTitleMap, nullptr, enemies, 
+        s_combatContext.titleMap, nullptr, enemies, 
         targetAnimation, frameAnimation, 0, damageAnimation, isHealing, timeMs, isDeath, dropsAnimation, 1.0f
     );
 
@@ -388,8 +411,8 @@ void RaycasterCombatScreen::animateDamageToEnemy(const std::string& combatTitle,
     rotateLoopAnimation(10, 50, 1, [&](int frame) {
         auto now = std::chrono::steady_clock::now();
         int timeMs = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count());
-        std::vector<std::string> screen = RaycasterRendererCombat::renderFrame(s_contextTitleMap, currentPlayer, enemies, targetAnimation, frame, 0, damageAnimation, false, timeMs, false, {}, 1.0f);
-        if (currentPlayer) RaycasterHUD::drawBarStatus(screen, Appearance::getTerminalWidth(), Appearance::getTerminalHeight(), currentPlayer, s_contextAngle, s_titleShiftHUD);
+        std::vector<std::string> screen = RaycasterRendererCombat::renderFrame(s_combatContext.titleMap, currentPlayer, enemies, targetAnimation, frame, 0, damageAnimation, false, timeMs, false, {}, 1.0f);
+        if (currentPlayer) RaycasterHUD::drawBarStatus(screen, Appearance::getTerminalWidth(), Appearance::getTerminalHeight(), currentPlayer, s_combatContext.angle, s_combatContext.titleShiftHUD);
         
         std::string out = "\033[?25l\033[H";
         for (size_t i = 0; i < screen.size(); ++i) {
@@ -410,8 +433,8 @@ void RaycasterCombatScreen::animateCureToEnemy(const std::string& combatTitle, c
     rotateLoopAnimation(10, 50, 1, [&](int frame) {
         auto now = std::chrono::steady_clock::now();
         int timeMs = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count());
-        std::vector<std::string> screen = RaycasterRendererCombat::renderFrame(s_contextTitleMap, currentPlayer, enemies, targetAnimation, frame, 0, healingAnimation, true, timeMs, false, {}, 1.0f);
-        if (currentPlayer) RaycasterHUD::drawBarStatus(screen, Appearance::getTerminalWidth(), Appearance::getTerminalHeight(), currentPlayer, s_contextAngle, s_titleShiftHUD);
+        std::vector<std::string> screen = RaycasterRendererCombat::renderFrame(s_combatContext.titleMap, currentPlayer, enemies, targetAnimation, frame, 0, healingAnimation, true, timeMs, false, {}, 1.0f);
+        if (currentPlayer) RaycasterHUD::drawBarStatus(screen, Appearance::getTerminalWidth(), Appearance::getTerminalHeight(), currentPlayer, s_combatContext.angle, s_combatContext.titleShiftHUD);
         
         std::string out = "\033[?25l\033[H";
         for (size_t i = 0; i < screen.size(); ++i) {
@@ -437,9 +460,9 @@ void RaycasterCombatScreen::animateDamageToPlayer(const std::string& combatTitle
         int height = Appearance::getTerminalHeight();
         auto now = std::chrono::steady_clock::now();
         int timeMs = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count());
-        std::vector<std::string> screen3D = RaycasterRendererCombat::renderFrame(s_contextTitleMap, currentPlayer, enemies, nullptr, 0, frame, 0, false, timeMs, false, {}, 1.0f);
+        std::vector<std::string> screen3D = RaycasterRendererCombat::renderFrame(s_combatContext.titleMap, currentPlayer, enemies, nullptr, 0, frame, 0, false, timeMs, false, {}, 1.0f);
         
-        RaycasterHUD::drawBarStatus(screen3D, width, height, currentPlayer, s_contextAngle, s_titleShiftHUD, frame, damageAnimation);
+        RaycasterHUD::drawBarStatus(screen3D, width, height, currentPlayer, s_combatContext.angle, s_combatContext.titleShiftHUD, frame, damageAnimation);
         
         std::string out = "\033[?25l\033[H";
         for (size_t i = 0; i < screen3D.size(); ++i) {
@@ -462,9 +485,9 @@ void RaycasterCombatScreen::animateCureToPlayer(const std::string& combatTitle, 
         int height = Appearance::getTerminalHeight();
         auto now = std::chrono::steady_clock::now();
         int timeMs = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count());
-        std::vector<std::string> screen3D = RaycasterRendererCombat::renderFrame(s_contextTitleMap, currentPlayer, enemies, nullptr, 0, 0, 0, false, timeMs, false, {}, 1.0f);
+        std::vector<std::string> screen3D = RaycasterRendererCombat::renderFrame(s_combatContext.titleMap, currentPlayer, enemies, nullptr, 0, 0, 0, false, timeMs, false, {}, 1.0f);
         
-        RaycasterHUD::drawBarStatus(screen3D, width, height, currentPlayer, s_contextAngle, s_titleShiftHUD, frame, healingAnimation, true);
+        RaycasterHUD::drawBarStatus(screen3D, width, height, currentPlayer, s_combatContext.angle, s_combatContext.titleShiftHUD, frame, healingAnimation, true);
         
         std::string out = "\033[?25l\033[H";
         for (size_t i = 0; i < screen3D.size(); ++i) {
@@ -483,8 +506,8 @@ void RaycasterCombatScreen::animateEnemyDeath(const std::string& combatTitle, co
         int height = Appearance::getTerminalHeight();
         auto now = std::chrono::steady_clock::now();
         int timeMs = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count());
-        std::vector<std::string> screen3D = RaycasterRendererCombat::renderFrame(s_contextTitleMap, currentPlayer, enemies, enemyDead, frame, 0, 0, false, timeMs, true, drops, 1.0f);
-        RaycasterHUD::drawBarStatus(screen3D, width, height, currentPlayer, s_contextAngle, s_titleShiftHUD);
+        std::vector<std::string> screen3D = RaycasterRendererCombat::renderFrame(s_combatContext.titleMap, currentPlayer, enemies, enemyDead, frame, 0, 0, false, timeMs, true, drops, 1.0f);
+        RaycasterHUD::drawBarStatus(screen3D, width, height, currentPlayer, s_combatContext.angle, s_combatContext.titleShiftHUD);
         std::string out = "\033[?25l\033[H";
         for (size_t i = 0; i < screen3D.size(); ++i) {
             out += screen3D[i];
@@ -497,12 +520,15 @@ void RaycasterCombatScreen::animateEnemyDeath(const std::string& combatTitle, co
     // Drops removidos daqui conforme solicitado; eles ja aparecem no log.
 }
 
-// Menus de Input
+// [PT-BR] Menus de selecao de acao do jogador
+// [EN-US] Player action selection menus
 int RaycasterCombatScreen::getPlayerAction(int currentTurn, Character* characterActing, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) {
     (void)currentTurn;
     (void)characterActing;
     InputControl::clearBuffer();
-    CombatScreen::context.selectionTargetCurrent = -1; // Garante que nenhum alvo esta selecionado ao escolher acao
+    // [PT-BR] Garante que nenhum alvo esta selecionado ao abrir selecao de acoes
+    // [EN-US] Ensures no target is selected when opening action selection
+    CombatScreen::context.selectionTargetCurrent = -1;
     std::vector<std::string> actions = {"Atacar", "Habilidade", "Defender", "Itens", "Diario"};
     int selected = 0;
     while(true) {
@@ -555,11 +581,21 @@ int RaycasterCombatScreen::getPlayerAction(int currentTurn, Character* character
         if(c == 'a' || c == 'A' || c == 75) selected = (selected - 1 + actions.size()) % actions.size();
         if(c == 'd' || c == 'D' || c == 77) selected = (selected + 1) % actions.size();
         if(c == '\r' || c == '\n') {
-            if (selected == 0) return 1; // Atacar
-            if (selected == 1) return 3; // Habilidade
-            if (selected == 2) return 2; // Defender
-            if (selected == 3) return 4; // Inventario
-            if (selected == 4) return 6; // Diario
+            // [PT-BR] Selecionado: Atacar
+        // [EN-US] Selected: Attack
+        if (selected == 0) return 1;
+            // [PT-BR] Selecionado: Habilidade
+        // [EN-US] Selected: Skill
+        if (selected == 1) return 3;
+            // [PT-BR] Selecionado: Defender
+        // [EN-US] Selected: Defend
+        if (selected == 2) return 2;
+            // [PT-BR] Selecionado: Inventario
+        // [EN-US] Selected: Inventory
+        if (selected == 3) return 4;
+            // [PT-BR] Selecionado: Diario
+        // [EN-US] Selected: Diary
+        if (selected == 4) return 6;
         }
     }
 }

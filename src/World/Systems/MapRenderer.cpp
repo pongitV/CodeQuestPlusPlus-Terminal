@@ -25,7 +25,9 @@ void MapRenderer::calculateCameraVertical(int terminalHeight, int initialLine, i
 }
 
 void MapRenderer::calculateCameraHorizontal(int terminalWidth, int playerPositionX, int mapWidth, int& startX, int& endX) {
-    int maxVisibleColumns = std::max(10, terminalWidth); // Usa a largura total do terminal
+    // [PT-BR] Utiliza a largura total disponivel no terminal
+    // [EN-US] Uses full available terminal width
+    int maxVisibleColumns = std::max(10, terminalWidth);
     calculateCameraAxis(maxVisibleColumns, playerPositionX, mapWidth, startX, endX);
 }
 

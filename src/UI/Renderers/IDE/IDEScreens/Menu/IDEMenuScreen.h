@@ -13,7 +13,8 @@ public:
     static int displayMainMenuOptions();
     static bool displayConfirmationExit();
     
-    // Novas funcoes de utilidade
+    // [PT-BR] Funcoes utilitarias de layout e calculo de espacamento
+    // [EN-US] Layout utility functions and spacing calculations
     static std::vector<std::string> compressArtASCII(const std::vector<std::string>& artOriginal, int factorY, int factorX);
     static void printCentralizedBlockIDE(const std::vector<std::string>& block, int recoilAdditionalX = 0);
     static int calculateSpaceY(int contentLines);

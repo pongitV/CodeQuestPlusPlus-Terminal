@@ -6,7 +6,8 @@
 #include "Core/Utils/DialogFunctions.h"
 #include "UI/Screens/BaseScreen.h"
 
-// --- INTERACAO PRINCIPAL ---
+// [PT-BR] --- INTERACAO PRINCIPAL ---
+// [EN-US] --- MAIN INTERACTION ---
 void InteractionNPC::interact(Character* currentPlayer) {
     std::string option;
     

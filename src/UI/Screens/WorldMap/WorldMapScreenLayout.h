@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include "Systems/Progression/ProgressionFlags.h"
 
 namespace ArtsMapWorld {
 
@@ -37,10 +38,10 @@ struct LocationInfo {
 
 inline std::vector<LocationInfo> getLocations() {
     return {
-        {nullptr, "Village Inicial"},
-        {"Visited_Forest", "Forest Sombria"},
-        {"Visited_KingdomBridge", "Ponte do Kingdom"},
-        {"Visited_Kingdom", "Kingdom Distante"},
+        {nullptr, "Vila Inicial"},
+        {Flags::Visited_Forest, "Floresta Sombria"},
+        {Flags::Visited_KingdomBridge, "Ponte do Reino"},
+        {Flags::Visited_Kingdom, "Reino Distante"},
     };
 }
 

@@ -5,18 +5,45 @@
 #include <iomanip>
 #include <algorithm>
 
-// --- CORES DA PALETA C++ ---
-std::string AppearanceTerminal::colorWordKey() { return "\033[38;2;86;156;214m"; } // Azul (palavra chave)
-std::string AppearanceTerminal::colorType() { return "\033[38;2;78;201;176m"; }          // Turquesa (tipo)
-std::string AppearanceTerminal::colorString() { return "\033[38;2;214;157;133m"; }        // Laranja (string)
-std::string AppearanceTerminal::colorNumber() { return "\033[38;2;181;206;168m"; }        // Verde claro (numero)
-std::string AppearanceTerminal::colorComment() { return "\033[38;2;96;139;78m"; }       // Verde escuro (comentario)
-std::string AppearanceTerminal::colorFunction() { return "\033[38;2;220;220;170m"; }         // Amarelo claro (funcao)
-std::string AppearanceTerminal::colorVariable() { return "\033[38;2;156;220;254m"; }       // Azul claro (variavel)
-std::string AppearanceTerminal::colorOperator() { return "\033[38;2;180;180;180m"; }       // Cinza (operador)
+// [PT-BR] --- CORES DA PALETA C++ ---
+// [EN-US] --- C++ PALETTE COLORS ---
+
+// [PT-BR] Azul (palavra chave)
+// [EN-US] Blue (keyword)
+std::string AppearanceTerminal::colorWordKey() { return "\033[38;2;86;156;214m"; }
+
+// [PT-BR] Turquesa (tipo)
+// [EN-US] Teal (type)
+std::string AppearanceTerminal::colorType() { return "\033[38;2;78;201;176m"; }
+
+// [PT-BR] Laranja (string)
+// [EN-US] Orange (string)
+std::string AppearanceTerminal::colorString() { return "\033[38;2;214;157;133m"; }
+
+// [PT-BR] Verde claro (numero)
+// [EN-US] Light green (number)
+std::string AppearanceTerminal::colorNumber() { return "\033[38;2;181;206;168m"; }
+
+// [PT-BR] Verde escuro (comentario)
+// [EN-US] Dark green (comment)
+std::string AppearanceTerminal::colorComment() { return "\033[38;2;96;139;78m"; }
+
+// [PT-BR] Amarelo claro (funcao)
+// [EN-US] Light yellow (function)
+std::string AppearanceTerminal::colorFunction() { return "\033[38;2;220;220;170m"; }
+
+// [PT-BR] Azul claro (variavel)
+// [EN-US] Light blue (variable)
+std::string AppearanceTerminal::colorVariable() { return "\033[38;2;156;220;254m"; }
+
+// [PT-BR] Cinza (operador)
+// [EN-US] Gray (operator)
+std::string AppearanceTerminal::colorOperator() { return "\033[38;2;180;180;180m"; }
+
 std::string AppearanceTerminal::colorReset() { return "\033[0m"; }
 
-// --- FUNCOES DE BARRA DE VIDA COM CARACTERES ASCII ---
+// [PT-BR] --- FUNCOES DE BARRA DE VIDA COM CARACTERES ASCII ---
+// [EN-US] --- HEALTH BAR FUNCTIONS WITH ASCII CHARACTERS ---
 std::string AppearanceTerminal::generateBarLifeASCII(double pct, int size) {
     if (pct < 0.0) pct = 0.0;
     if (pct > 1.0) pct = 1.0;
@@ -66,7 +93,8 @@ std::string AppearanceTerminal::generateHealthBarIDE(double pct, int size) {
     return bar;
 }
 
-// --- ESTILIZACAO DE TEXTO EM ESTILO CODIGO ---
+// [PT-BR] --- ESTILIZACAO DE TEXTO EM ESTILO CODIGO ---
+// [EN-US] --- CODE-STYLE TEXT STYLING ---
 std::string AppearanceTerminal::styleHowCode(const std::string& text, const std::string& type) {
     if (type == "string") {
         return colorComment() + "// " + colorString() + "\"" + text + "\"" + colorReset();
@@ -95,7 +123,8 @@ std::string AppearanceTerminal::styleHowNumber(const std::string& text) {
     return colorComment() + "int " + colorNumber() + text + colorReset();
 }
 
-// --- CONSTRUCAO DE CAIXAS EM ESTILO CODIGO ---
+// [PT-BR] --- CONSTRUCAO DE CAIXAS EM ESTILO CODIGO ---
+// [EN-US] --- CODE-STYLE BOX CONSTRUCTION ---
 std::vector<std::string> AppearanceTerminal::createBoxCode(const std::vector<std::string>& content, const std::string& title) {
     std::vector<std::string> box;
     
@@ -105,7 +134,8 @@ std::vector<std::string> AppearanceTerminal::createBoxCode(const std::vector<std
     box.push_back(colorWordKey() + "struct " + colorType() + titleClean + " {");
     
     for (const auto& line : content) {
-        // Tenta detectar se eh uma linha chave:valor
+        // [PT-BR] Tenta detectar se e uma linha chave:valor
+        // [EN-US] Attempts to detect if it is a key:value line
         size_t post = line.find(":");
         if (post != std::string::npos) {
             std::string key = line.substr(0, post);
@@ -114,7 +144,8 @@ std::vector<std::string> AppearanceTerminal::createBoxCode(const std::vector<std
             
             std::string lineFormatted = "    " + colorWordKey() + "auto " + colorVariable() + key + colorReset() + " = " + colorNumber() + value + colorReset() + ";";
             
-            // Adiciona padding para alinhar
+            // [PT-BR] Adiciona preenchimento para alinhar os campos
+            // [EN-US] Adds padding to align fields
             int maxComp = 0;
             for (const auto& l : content) {
                 size_t p = l.find(":");
@@ -148,7 +179,8 @@ std::vector<std::string> AppearanceTerminal::createBoxDrop(const std::vector<std
     
     for (const auto& drop : drops) {
         std::string cleanDrop = drop;
-        // Limpa cores ANSI
+        // [PT-BR] Remove codigos de escape ANSI
+        // [EN-US] Strips ANSI escape codes
         cleanDrop = Appearance::removeANSIColors(cleanDrop);
         
         std::string line = "    " + colorWordKey() + "auto " + colorVariable() + "drop = " + colorString() + "\"" + cleanDrop + "\"" + colorReset() + ";";
@@ -160,7 +192,8 @@ std::vector<std::string> AppearanceTerminal::createBoxDrop(const std::vector<std
     return box;
 }
 
-// --- IMPRESSOES ESPECIFICAS DO TERMINAL ---
+// [PT-BR] --- IMPRESSOES ESPECIFICAS DO TERMINAL ---
+// [EN-US] --- TERMINAL-SPECIFIC PRINTING ---
 void AppearanceTerminal::printTitleHowCode(const std::string& title) {
     std::string titleIDE = title;
     std::replace(titleIDE.begin(), titleIDE.end(), ' ', '_');
@@ -204,7 +237,8 @@ void AppearanceTerminal::printBoxDrops(const std::vector<std::string>& drops) {
     Appearance::printBlockCentralized(box);
 }
 
-// --- UTILIDADES DE FORMATAO ---
+// [PT-BR] --- UTILIDADES DE FORMATACAO ---
+// [EN-US] --- FORMATTING UTILITIES ---
 std::string AppearanceTerminal::formatVarName(const std::string& name) {
     return colorVariable() + name + colorReset();
 }

@@ -104,7 +104,8 @@ namespace {
           } }
     };
 
-    // --- APARENCIA E DIALOGOS ---
+    // [PT-BR] --- APARENCIA E DIALOGOS ---
+    // [EN-US] --- APPEARANCE AND DIALOGUES ---
     void processEnchantments(Character* currentPlayer, bool isUniversal);
     void processPotions(Character* currentPlayer, bool isBuff);
     void processMissionLabyrinth(Character* currentPlayer);
@@ -119,7 +120,8 @@ namespace {
     }
 }
 
-// --- INFORMACOES DO LUGAR ---
+// [PT-BR] --- INFORMACOES DO LUGAR ---
+// [EN-US] --- LOCATION INFORMATION ---
 std::string NPCMage::getPlaceName() const {
     return "CABANA DA BRUXA";
 }
@@ -136,7 +138,8 @@ const std::vector<std::string>& NPCMage::getArtASCII() const {
     return NPCMageLayouts::artMage;
 }
 
-// --- INTERACAO E MENU ---
+// [PT-BR] --- INTERACAO E MENU ---
+// [EN-US] --- INTERACTION AND MENU ---
 void NPCMage::interact(Character* player) {
     InputControl::executeLoopMenuPopup(
         [this, player]() { this->displayDialogue(player); },
@@ -186,7 +189,8 @@ void NPCMage::processOption(Character* player, const std::string& option, int /*
 }
 
 namespace {
-    // --- PROCESSAMENTO DE OPCOES ---
+    // [PT-BR] --- PROCESSAMENTO DE OPCOES ---
+    // [EN-US] --- OPTION PROCESSING ---
     void processEnchantments(Character* currentPlayer, bool isUniversal) {
         std::vector<const CharmOperation*> oopsCurrent;
         int home = isUniversal ? 0 : 3;

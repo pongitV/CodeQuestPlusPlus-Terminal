@@ -1,7 +1,7 @@
-/*
- * Arquivo: NPCInteraction.h
- * Proposito: Interface abstrata para interacoes de menu e dialogos com NPCs (Ferreiro, Alquimista, Mercador).
- */
+// [PT-BR] Arquivo: NPCInteraction.h
+// [PT-BR] Proposito: Interface abstrata para interacoes de menu e dialogos com NPCs (Ferreiro, Alquimista, Mercador).
+// [EN-US] File: NPCInteraction.h
+// [EN-US] Purpose: Abstract interface for menu interactions and dialogues with NPCs (Blacksmith, Alchemist, Merchant).
 
 #pragma once
 
@@ -12,9 +12,8 @@
 
 class Character;
 
-/*
- * Interface de contrato para comportamentos de dialogo e transacoes com NPCs.
- */
+// [PT-BR] Interface de contrato para comportamentos de dialogo e transacoes com NPCs.
+// [EN-US] Contract interface for dialogue behaviors and transactions with NPCs.
 class InteractionNPC {
 public:
     virtual ~InteractionNPC() = default;

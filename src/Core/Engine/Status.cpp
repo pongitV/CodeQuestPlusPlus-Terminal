@@ -1,7 +1,7 @@
-/*
- * Arquivo: Status.cpp
- * Proposito: Implementacao das logicas de aplicacao e remocao de efeitos de status nos personagens.
- */
+// [PT-BR] Arquivo: Status.cpp
+// [PT-BR] Proposito: Implementacao das logicas de aplicacao e remocao de efeitos de status nos personagens.
+// [EN-US] File: Status.cpp
+// [EN-US] Purpose: Implementation of application and removal logic for status effects on characters.
 
 #include "Core/Engine/Status.h"
 
@@ -123,7 +123,8 @@ void AdaptationWheelEffect::onExitMap(Character* target) {
 void AdaptationWheelEffect::adapt(Character* target, Character* enemy) {
     if (!enemy) return;
     
-    // --- 1. Adaptacao Defensiva (Baseada no inimigo) ---
+    // [PT-BR] 1. Adaptacao Defensiva (Baseada no inimigo)
+    // [EN-US] 1. Defensive Adaptation (Based on enemy damage profile)
     int enemyPhysicalStrength = enemy->getStrength() + enemy->getDexterity();
     int enemyMagicalStrength = enemy->getIntelligence() + enemy->getWisdom();
     
@@ -140,7 +141,8 @@ void AdaptationWheelEffect::adapt(Character* target, Character* enemy) {
         defenseMsg = "defesa magica";
     }
 
-    // --- 2. Adaptacao Ofensiva (Baseada na arma do player) ---
+    // [PT-BR] 2. Adaptacao Ofensiva (Baseada na arma do jogador)
+    // [EN-US] 2. Offensive Adaptation (Based on player weapon profile)
     int weaponPhysicalDamage = 1;
     int weaponMagicalDamage = 0;
     if (target->getWeapons()) {
@@ -160,7 +162,8 @@ void AdaptationWheelEffect::adapt(Character* target, Character* enemy) {
         bStrength += 2; bDexterity += 2;
         attackMsg = "poder fisico";
     } else {
-        // Armas hibridas (ex: Espada de Exterminio)
+        // [PT-BR] Armas hibridas (ex: Espada de Exterminio)
+        // [EN-US] Hybrid weapons (e.g., Extermination Sword)
         target->changeStaticAttribute(AttributeType::Strength, 2); 
         target->changeStaticAttribute(AttributeType::Dexterity, 2);
         target->changeStaticAttribute(AttributeType::Intelligence, 2);

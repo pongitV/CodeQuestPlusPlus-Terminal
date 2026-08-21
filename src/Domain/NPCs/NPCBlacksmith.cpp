@@ -19,7 +19,8 @@
 #include "Domain/NPCs/NPCBlacksmithLayout.h"
 
 namespace {
-    // --- DADOS DO ESTOQUE ---
+    // [PT-BR] --- DADOS DO ESTOQUE ---
+    // [EN-US] --- STOCK DATA ---
     std::map<int, ShopProduct> stockWeapons = {
         {1, {ItemID::SwordIron, 40, -1}},
         {2, {ItemID::BowWood, 40, -1}},
@@ -39,7 +40,8 @@ namespace {
     void processUpgradeByMaterial(Character* currentPlayer);
     void processShieldRepair(Character* currentPlayer);
 
-    // --- APARENCIA E DIALOGOS ---
+    // [PT-BR] --- APARENCIA E DIALOGOS ---
+    // [EN-US] --- APPEARANCE AND DIALOGUES ---
     void dialogueKiss(const std::vector<std::string>& lines) {
         Appearance::displayPopup("BJORN", lines, Color::CYAN, NPCBlacksmithLayouts::artBlacksmith);
     }
@@ -49,7 +51,8 @@ namespace {
     }
 }
 
-// --- INFORMACOES DO LUGAR ---
+// [PT-BR] --- INFORMACOES DO LUGAR ---
+// [EN-US] --- LOCATION INFORMATION ---
 std::string NPCBlacksmith::getPlaceName() const {
     return "FORJA DO BJORN";
 }
@@ -66,7 +69,8 @@ const std::vector<std::string>& NPCBlacksmith::getArtASCII() const {
     return NPCBlacksmithLayouts::artBlacksmith;
 }
 
-// --- INTERACAO E MENU ---
+// [PT-BR] --- INTERACAO E MENU ---
+// [EN-US] --- INTERACTION AND MENU ---
 void NPCBlacksmith::interact(Character* player) {
     InputControl::executeLoopMenuPopup(
         [this, player]() { this->displayDialogue(player); },
@@ -109,7 +113,8 @@ void NPCBlacksmith::processOption(Character* player, const std::string& option, 
 }
 
 namespace {
-    // --- PROCESSAMENTO DE OPCOES ---
+    // [PT-BR] --- PROCESSAMENTO DE OPCOES ---
+    // [EN-US] --- OPTION PROCESSING ---
     void processEquipmentPurchase(Character* currentPlayer, bool buyingWeapons) {
         auto& currentStock = buyingWeapons ? stockWeapons : stockArmor;
         std::string shopTitle = buyingWeapons ? "FORJA - ARMAS" : "FORJA - ARMADURAS";
@@ -244,7 +249,9 @@ namespace {
             if (!InteractionNPC::checkItemNoEquipped(currentPlayer, shieldForFix, "Bjorn", Color::CYAN, "Voce precisa DESEQUIPAR o escudo antes de conserta-lo!")) continue;
 
             int durabilityLost = shieldForFix->getDurabilityMaximum() - shieldForFix->getDurabilityCurrentShield();
-            int costRepair = durabilityLost * 5; // Exemplo: 5 de ouro por ponto de durabilidade perdida
+            // [PT-BR] Custo de reparo: 5 de ouro por ponto de durabilidade perdida
+            // [EN-US] Repair cost: 5 gold per lost durability point
+            int costRepair = durabilityLost * 5;
 
             if (currentPlayer->getInventory()->getGold() >= costRepair) {
                 currentPlayer->getInventory()->addGold(-costRepair);

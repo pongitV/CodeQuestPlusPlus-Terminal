@@ -33,7 +33,8 @@
 
 namespace {
     std::string extractBaseColorFromRaycaster(char cell, const std::string& mapTitle, bool isForest) {
-        // Sampleia a textura no "meio" do bloco (tx=33, ty=33) para evitar as linhas escuras de rejunte/sombra
+        // [PT-BR] Sampleia a textura no meio do bloco (tx=33, ty=33) para evitar linhas escuras de rejunte
+// [EN-US] Samples texture in the middle of block (tx=33, ty=33) to avoid dark grout/shadow lines
         std::vector<std::tuple<int, int, int>> emptyLights;
         Pixel3D px = RaycasterWorld::getInternalWallPixel(mapTitle, isForest, 0.0f, 10.0f, cell, 33, 0, 64, 33.0f/64.0f, 0.0f, emptyLights, 0.0f, 0.0f);
         return "\033[38;2;" + std::to_string(px.r) + ";" + std::to_string(px.g) + ";" + std::to_string(px.b) + "m";
@@ -55,9 +56,11 @@ float MapControl::getCameraAngle3D() { return s_cameraAngle3D; }
 std::string MapControl::getCurrentMapTitle() { return s_currentMapTitle; }
 std::vector<std::string> MapControl::getCurrentMapMatrix() { return s_currentMapMatrix; }
 
-// processarInputEComandos movido para ControladorInputMapa.cpp
+// [PT-BR] Processamento de input e comandos delegado ao modulo correspondente
+// [EN-US] Input and command processing delegated to corresponding module
 
-// applyMapLimits foi movido para FisicaMapa
+// [PT-BR] Aplicacao de limites de mapa delegada para FisicaMapa
+// [EN-US] Application of map boundaries delegated to MapPhysics
 void MapControl::processCombat(
     Character* currentPlayer, std::vector<std::string>& currentMapMatrix, 
     int& playerPositionX, int& playerPositionY, bool& isExplorationActive,
@@ -99,12 +102,15 @@ void MapControl::processCombat(
     if (isExplorationActive && !PerspectiveManager::getInstance().is3DViewActive()) restoreScreen();
 }
 
-// animarIntroducaoMapa movido para AnimadorMapa.cpp}
+// [PT-BR] Animacao de introducao do mapa delegada para AnimadorMapa
+// [EN-US] Map introduction animation delegated to MapAnimator}
 
 
-// animarFlashbang movido para AnimadorMapa.cpp
+// [PT-BR] Efeito visual de flashbang delegado para AnimadorMapa
+// [EN-US] Flashbang visual effect delegated to MapAnimator
 
-// Funcoes da camera e renderizacao abstraidas para RenderizadorMapa.cpp
+// [PT-BR] Funcoes de camera e renderizacao 3D abstraidas para RenderizadorMapa
+// [EN-US] 3D camera and rendering functions abstracted to MapRenderer
 
 std::string MapControl::formatCell(char cell, int x, int y, const std::string& mapTitle, const std::vector<std::string>& mapMatrix, bool isMinimap) {
     thread_local std::string lastTitle = "";
@@ -123,7 +129,8 @@ std::string MapControl::formatCell(char cell, int x, int y, const std::string& m
         isSpawn = (upperTitle.find("INICIO") != std::string::npos);
     }
     
-    // --- ESTETICA ENGINE IDE (VISAO TERMINAL) ---
+    // [PT-BR] --- ESTETICA ENGINE IDE (VISAO TERMINAL) ---
+// [EN-US] --- IDE ENGINE AESTHETICS (TERMINAL VIEW) ---
     bool isEngineIDE = !isMinimap && !PerspectiveManager::getInstance().is3DViewActive();
     if (isEngineIDE) {
         std::string npcs = "GOBFPMSTRCH";
@@ -137,7 +144,8 @@ std::string MapControl::formatCell(char cell, int x, int y, const std::string& m
             int idx = (x * 7 + y * 13) % (sizeof(syntaxChars) - 1);
             char ideChar = syntaxChars[idx];
             
-            // Syntax Colors (VSCode Dark+ Theme)
+            // [PT-BR] Paleta de cores de sintaxe (Tema Dark+)
+// [EN-US] Syntax Colors (VSCode Dark+ Theme)
             const char* colors[] = {
                 "\033[38;2;86;156;214m",   // Blue
                 "\033[38;2;197;134;192m",  // Purple
@@ -167,7 +175,8 @@ std::string MapControl::formatCell(char cell, int x, int y, const std::string& m
     // Agua
     if (cell == '~') return Appearance::colorRGB(50, 150, 255) + "≈" + Appearance::color(Color::RESET);
     
-    // Arvores
+    // [PT-BR] Arvores e Vegetacao
+    // [EN-US] Trees and Vegetation
     if (cell == '*') {
         bool isTrunk = false;
         if (y > 0 && mapMatrix[y-1][x] == '*') {
@@ -180,12 +189,14 @@ std::string MapControl::formatCell(char cell, int x, int y, const std::string& m
         return Appearance::color(Color::GREEN) + "▲" + Appearance::color(Color::RESET);
     }
     
-    // Verifica se e uma letra de placa de chao (Label) ANTES de checar as entidades
+    // [PT-BR] Verifica caracteres de rotulo de mapa antes de processar entidades
+    // [EN-US] Checks map label characters before processing entities
     if (RaycasterWorld::isMapLabel(x, y, mapMatrix)) {
         return Appearance::color(Color::GRAY) + std::string(1, cell) + Appearance::color(Color::RESET);
     }
     
-    // Entidades
+    // [PT-BR] Renderizacao de Entidades no mapa
+    // [EN-US] Entity Rendering on map
     if (isVillage || isSpawn) {
         if (cell == 'G' || cell == 'O') return Appearance::color(Color::BOLD, Color::RED) + std::string(1, cell) + Appearance::color(Color::RESET); // Inimigos Vermelhos
         if (cell == 'B') return Appearance::color(Color::BOLD, Color::CYAN) + "B" + Appearance::color(Color::RESET); // Bjorn Ciano
@@ -206,7 +217,8 @@ std::string MapControl::formatCell(char cell, int x, int y, const std::string& m
         return Appearance::color(Color::BOLD, Color::WHITE) + std::string(1, cell) + Appearance::color(Color::RESET);
     }
     
-    // Casas e Estruturas
+    // [PT-BR] Casas e Estruturas no mapa
+    // [EN-US] Houses and Structures on map
     if (!isInterior && !isKingdom) {
         std::string structureColor = extractBaseColorFromRaycaster('|', upperTitle, isForest);
         
@@ -222,7 +234,8 @@ std::string MapControl::formatCell(char cell, int x, int y, const std::string& m
         }
     }
     
-    // Reino
+    // [PT-BR] Elementos do Reino
+    // [EN-US] Kingdom Elements
     if (isKingdom) {
         if (cell == '|') return Appearance::color(Color::WOOD) + "█" + Appearance::color(Color::RESET); // Portao de madeira
         std::string structures = "_[]{}/\\<>;=-+#";
@@ -232,7 +245,8 @@ std::string MapControl::formatCell(char cell, int x, int y, const std::string& m
         }
     }
     
-    // Labirinto
+    // [PT-BR] Elementos do Labirinto
+    // [EN-US] Maze Elements
     if (isInterior) {
         if (upperTitle.find("LABIRINTO") != std::string::npos) {
             std::string mazeColor = extractBaseColorFromRaycaster('|', upperTitle, isForest);
@@ -294,7 +308,8 @@ std::string MapControl::formatCell(char cell, int x, int y, const std::string& m
         }
     }
     
-    // Chao / Labels
+    // [PT-BR] Renderizacao do chao e rotulos
+    // [EN-US] Ground and label rendering
     if (cell == '.' && (!isInterior || upperTitle.find("CHEFE") != std::string::npos || upperTitle.find("CORACAO") != std::string::npos)) {
         if (isMinimap) return "\033[38;2;50;50;50m.\033[0m";
         return "\033[38;2;40;40;40m·\033[0m";
@@ -307,7 +322,8 @@ std::string MapControl::formatCell(char cell, int x, int y, const std::string& m
     return std::string(1, cell);
 }
 
-// renderizarMapa abstraido para RenderizadorMapa.cpp
+// [PT-BR] Rotina renderizarMapa delegada para RenderizadorMapa
+// [EN-US] renderMap routine delegated to MapRenderer
 
 NextMapTransition MapControl::executeExplorationLoop(
     Character* currentPlayer,
@@ -403,7 +419,8 @@ NextMapTransition MapControl::executeExplorationLoop(
                     MapPhysics::applyMapLimits(hitX, hitY, currentMapMatrix);
                     
                     char cell = currentMapMatrix[hitY][hitX];
-                    // Verifica se o player parou em um trigger (Inimigos ou Teleportes ou Terminal)
+                    // [PT-BR] Verifica se o jogador parou sobre um gatilho (inimigos, teleporte ou terminal)
+                    // [EN-US] Checks if player landed on a trigger (enemies, teleport, or terminal)
                     std::string triggers = "^GOBFSAMTHRPCIQ@";
                     if (triggers.find(cell) != std::string::npos) {
                         isTrigger = true;
@@ -414,7 +431,9 @@ NextMapTransition MapControl::executeExplorationLoop(
                     
                     if (cell == '@') {
                         if (HackConsole::startHack(currentPlayer)) {
-                            currentMapMatrix[hitY][hitX] = '.'; // Remove o terminal apos hackeado
+                            // [PT-BR] Remove o terminal do mapa apos hackeado com sucesso
+                            // [EN-US] Removes terminal from map after successful hack
+                            currentMapMatrix[hitY][hitX] = '.';
                             for(int dy = -5; dy <= 5; dy++) {
                                 for(int dx = -5; dx <= 5; dx++) {
                                     if(hitY+dy >= 0 && hitY+dy < static_cast<int>(currentMapMatrix.size()) && hitX+dx >= 0 && hitX+dx < static_cast<int>(currentMapMatrix[0].size())) {
@@ -427,15 +446,14 @@ NextMapTransition MapControl::executeExplorationLoop(
                             RaycasterWorld::updateMapHash(currentMapMatrix);
                         }
                     } else {
-                        processInteraction(hitX, hitY, terminalWidth); // Aciona o combate/NPC caso o player tenha parado em cima de um
+                        // [PT-BR] Processa interacao ou combate caso o jogador tenha colidido com entidade
+                        // [EN-US] Processes interaction or combat if player collided with entity
+                        processInteraction(hitX, hitY, terminalWidth);
                     }
                     
-                    // So empurra o player para tras se a posicao nao mudou (evita sobrescrever teleportes)
+                    // [PT-BR] Empurra o jogador para tras para evitar ficar preso na celula da entidade
+                    // [EN-US] Pushes player back to prevent getting stuck on entity cell
                     if (isTrigger && PerspectiveManager::getInstance().is3DViewActive() && playerPositionX == posXBefore && playerPositionY == posYBefore) {
-                        /*
-                         * Empurra o player para tras em 1 casa para evitar que ele fique preso no NPC
-                         * E previne loops onde ele volta pro jogo ja interagindo
-                         */
                         s_cameraPosX3D = static_cast<float>(hitX) + 0.5f - cos(s_cameraAngle3D) * 1.5f;
                         s_cameraPosY3D = static_cast<float>(hitY) + 0.5f - sin(s_cameraAngle3D) * 1.5f;
                         playerPositionX = static_cast<int>(s_cameraPosX3D);
@@ -486,10 +504,13 @@ NextMapTransition MapControl::executeExplorationLoop(
 
                 if (destination != NextMapTransition::None) {
                     fastTravelDestination = destination;
-                    isExplorationActive = false; // Sinaliza para sair do loop e processar a viagem
+                    // [PT-BR] Sinaliza encerramento da exploracao para processar a viagem
+                    // [EN-US] Signals exploration exit to process fast travel
+                    isExplorationActive = false;
                     break;
                 }
-                // Se nenhum destino foi escolhido, apenas restaura a tela e continua a exploracao.
+                // [PT-BR] Se nenhum destino foi selecionado, restaura a tela e prossegue exploracao
+                // [EN-US] If no destination was selected, restores screen and continues exploration
                 if (!PerspectiveManager::getInstance().is3DViewActive()) {
                     restoreScreen();
                     needsRender = true;

@@ -13,7 +13,8 @@
 #include "Core/Utils/InputControl.h"
 #include "UI/Screens/Combat/CombatScreen.h"
 
-// --- INFORMACOES DA CLASSE ---
+// [PT-BR] --- INFORMACOES DA CLASSE ---
+// [EN-US] --- CLASS INFORMATION ---
 std::string Bard::getClassName() const 
 {
      return "Bardo"; 
@@ -86,7 +87,8 @@ std::vector<std::unique_ptr<Item>> Bard::getEquipmentClass() const
     return equipment;
 }
 
-// --- PASSIVA DA CLASSE ---
+// [PT-BR] --- PASSIVA DA CLASSE ---
+// [EN-US] --- CLASS PASSIVE ---
 std::string Bard::getNamePassiveClass() const 
 { 
     return "Touch the sky"; 
@@ -108,7 +110,8 @@ double Bard::processMultiplierBuffPassiveBard(double multBase) const
     return multBase;
 }
 
-// --- HABILIDADE DA CLASSE ---
+// [PT-BR] --- HABILIDADE DA CLASSE ---
+// [EN-US] --- CLASS SKILL ---
 std::string Bard::getRechargeSkillClass() const 
 { 
     return "Recarga: 3 turnos (Individuais)."; 

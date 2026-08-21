@@ -1,10 +1,8 @@
 #include "World/Systems/MapPhysics.h"
 #include <algorithm>
 
-/*
- * Garante que a posicao atual (X,Y) nao extrapole as bordas matriz do mapa.
- * Previne falhas de segmentacao durante a movimentacao do player ou entidades.
- */
+// [PT-BR] Garante que a posicao atual (X,Y) nao extrapole as bordas da matriz do mapa.
+// [EN-US] Ensures current position (X,Y) does not exceed map matrix boundaries.
 void MapPhysics::applyMapLimits(int& positionX, int& positionY, const std::vector<std::string>& mapMatrix) {
     if (positionY < 0) positionY = 0; 
     else if (positionY >= static_cast<int>(mapMatrix.size())) positionY = static_cast<int>(mapMatrix.size()) - 1;
@@ -19,10 +17,8 @@ void MapPhysics::applyMapLimits(int& positionX, int& positionY, const std::vecto
 #include "Core/Utils/RandomGenerator.h"
 #include <cmath>
 
-/*
- * Movimentacao Autonoma de Inimigos (Roaming):
- * Varre a matriz atras de entidades definidas em 'enemySymbols' e aplica logica de patrulha.
- */
+// [PT-BR] Movimentacao autonoma de inimigos (roaming/patrulha na matriz do mapa).
+// [EN-US] Autonomous enemy movement (roaming/patrolling on map matrix).
 void MapPhysics::moveEnemiesRandomly(std::vector<std::string>& currentMapMatrix, const std::vector<std::string>& originalMatrix, const std::string& enemySymbols, int playerX, int playerY) {
     if (enemySymbols.empty()) return;
 
@@ -32,7 +28,8 @@ void MapPhysics::moveEnemiesRandomly(std::vector<std::string>& currentMapMatrix,
     for (int y = 0; y < static_cast<int>(currentMapMatrix.size()); ++y) {
         for (int x = 0; x < static_cast<int>(currentMapMatrix[y].size()); ++x) {
             if (enemySymbols.find(currentMapMatrix[y][x]) != std::string::npos) {
-                // Ignora caracteres que fazem parte de um rotulo de mapa/teleporte (ex: ^S, ^Vila)
+                // [PT-BR] Ignora caracteres pertencentes a rotulos de teleporte (ex: ^S, ^Vila)
+                // [EN-US] Ignores characters that are part of teleport labels (e.g., ^S, ^Vila)
                 if (x > 0 && currentMapMatrix[y][x-1] == '^') continue;
 
                 currentEnemies.push_back({x, y, currentMapMatrix[y][x]});
@@ -44,11 +41,8 @@ void MapPhysics::moveEnemiesRandomly(std::vector<std::string>& currentMapMatrix,
         if (currentMapMatrix[enemy.y][enemy.x] != enemy.c) continue; 
         
         int originX = -1, originY = -1;
-        /*
-         * Mapeamento de Ponto de Origem:
-         * Inimigos so podem patrulhar proximos de sua area original de "spawn".
-         * Aqui comparamos com a matriz original do mapa para encontrar o centro do perimetro.
-         */
+        // [PT-BR] Inimigos patrulham ao redor da sua posicao original de spawn
+        // [EN-US] Enemies patrol around their original spawn location
         for (int dy = -1; dy <= 1; ++dy) {
             for (int dx = -1; dx <= 1; ++dx) {
                 int oy = enemy.y + dy;
@@ -72,10 +66,12 @@ void MapPhysics::moveEnemiesRandomly(std::vector<std::string>& currentMapMatrix,
                 int ty = originY + dy;
                 int tx = originX + dx;
                 
-                // Valida se a futura celula eh andavel ('.') e se o espaco esta livre
+                // [PT-BR] Valida se a celula de destino eh andavel ('.') e esta livre
+                // [EN-US] Validates if destination cell is walkable ('.') and unoccupied
                 if (ty >= 0 && ty < static_cast<int>(currentMapMatrix.size()) && tx >= 0 && tx < static_cast<int>(currentMapMatrix[ty].size())) {
                     if (currentMapMatrix[ty][tx] == '.' && (tx != playerX || ty != playerY)) {
-                        // Limita o movimento a celulas diretamente adjacentes a posicao atual
+                        // [PT-BR] Limita movimento a celulas adjacentes
+                        // [EN-US] Restricts movement to adjacent cells
                         if (std::abs(tx - enemy.x) <= 1 && std::abs(ty - enemy.y) <= 1) {
                             possibleMoves.push_back({tx, ty});
                         }
@@ -84,7 +80,9 @@ void MapPhysics::moveEnemiesRandomly(std::vector<std::string>& currentMapMatrix,
             }
         }
 
-        possibleMoves.push_back({enemy.x, enemy.y}); // Opcao de permanecer parado
+        // [PT-BR] Opcao de permanecer parado
+        // [EN-US] Option to remain stationary
+        possibleMoves.push_back({enemy.x, enemy.y});
 
         int choice = RandomGenerator::getInteger(0, static_cast<int>(possibleMoves.size()) - 1);
         int nx = possibleMoves[choice].first;

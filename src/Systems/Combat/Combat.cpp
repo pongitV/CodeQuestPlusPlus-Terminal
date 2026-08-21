@@ -1,7 +1,7 @@
-/*
- * Arquivo: Combat.cpp
- * Proposito: Implementacao do loop de combate, gerenciamento de turnos e integracao com a UI.
- */
+// [PT-BR] Arquivo: Combat.cpp
+// [PT-BR] Proposito: Implementacao do loop de combate, gerenciamento de turnos e integracao com a UI.
+// [EN-US] File: Combat.cpp
+// [EN-US] Purpose: Implementation of combat loop, turn management, and UI integration.
 
 #include "Systems/Combat/Combat.h"
 #include "Systems/Combat/CombatUIImpl.h"
@@ -166,7 +166,8 @@ bool Combat::executePlayerOrAllyTurn(Character* character, bool& firstRendering,
                 }
             }
         }
-        // Remove definitivamente da memoria os aliados que morreram pelo dreno
+        // [PT-BR] Remove definitivamente da memoria os aliados que morreram pelo dreno
+        // [EN-US] Permanently removes allies from memory if killed by drain effect
         if (cleanedAlly) {
             std::erase_if(allies, [](const auto& a) { return a->getHealth() <= 0; });
         }
@@ -221,7 +222,9 @@ void Combat::startCombat()
     }
     
     bool shiftExtraFirstTurn = ShiftManager::playerHasExtraTurnAtStart(currentPlayer, maxEnemyDexterity);
-    bool firstRendering = false; // Modificado, pois ja animamos na intro
+    // [PT-BR] Primeira renderizacao ja executada na animacao de introducao
+    // [EN-US] First rendering already executed in introduction animation
+    bool firstRendering = false;
     
     if (ShiftManager::enemiesActFirst(currentPlayer, maxEnemyDexterity)) {
         displayCombatScreen(firstRendering);
@@ -240,7 +243,9 @@ void Combat::startCombat()
             cleanEnemiesDead();
             if (checkVictoryOrDefeatCondition()) return;
             
-            currentTurnCount++; // Jogador comeca no Turno 2
+            // [PT-BR] Incrementa contador de turnos (jogador comeca no Turno 2)
+            // [EN-US] Increments turn counter (player starts on Turn 2)
+            currentTurnCount++;
         } else {
             ui->notifyEnemiesMoreAct();
             executeTurnForAllEnemies();
@@ -250,7 +255,8 @@ void Combat::startCombat()
     }
 
     while (currentPlayer->getHealth() > 0 && !enemies.empty()) {
-        // Turno do Jogador
+        // [PT-BR] --- TURNO DO JOGADOR ---
+        // [EN-US] --- PLAYER TURN ---
         if (currentPlayer->getHealth() > 0) {
             if (executePlayerOrAllyTurn(currentPlayer, firstRendering)) return;
 
@@ -261,7 +267,8 @@ void Combat::startCombat()
             }
         }
         
-        // Turnos dos Aliados
+        // [PT-BR] --- TURNOS DOS ALIADOS ---
+        // [EN-US] --- ALLIES TURNS ---
         for (size_t i = 0; i < allies.size(); ++i) {
             Character* ally = allies[i].get();
             if (ally->getHealth() <= 0 || enemies.empty()) continue;
@@ -282,7 +289,9 @@ void Combat::processPlayerActionMenu(Character* characterActing, bool& shiftWasC
 {
     int actionChosen = ui->getPlayerAction(currentTurnCount, characterActing, getEnemiesRaw(), currentPlayer, getAlliesAliveRaw());
     
-    ui->cleanContextCharacterHUD(); // Forca reset visual ao retornar para evitar bugs de persistencia de interface
+    // [PT-BR] Forca reset visual ao retornar para evitar bugs de persistencia de interface
+    // [EN-US] Forces visual reset upon return to avoid UI persistence glitches
+    ui->cleanContextCharacterHUD();
 
     switch (actionChosen) 
     {
@@ -351,7 +360,9 @@ void Combat::processActionDefend(Character* characterActing, bool& shiftWasConsu
             std::string msg = DialogueFunctions::formatSystemMsg("O escudo [" + chosenShield->getItemName() + "] esta quebrado e nao pode ser usado!", Color::RED);
             std::cout << "\n" << ui->combatMargin() << msg << "\n";
             InputControl::waitForEnter();
-            return; // Nao consome o turno
+            // [PT-BR] Nao consome o turno da entidade
+            // [EN-US] Does not consume entity turn
+            return;
         }
 
         if (!chosenShield->canBeEquippedBy(characterActing)) {
@@ -487,11 +498,15 @@ void Combat::executeTurnForAllEnemies()
         registerLog("");
         registerLog(textShiftEnemies);
             ui->setShiftVisible(currentTurnCount, "INIMIGOS");
-            displayCombatScreen(false); // Forca o HUD a atualizar o nome do Turno para os inimigos antes do ataque iniciar
+            // [PT-BR] Atualiza HUD para exibir nome do inimigo atual antes do ataque iniciar
+            // [EN-US] Updates HUD to show active enemy name before attack begins
+            displayCombatScreen(false);
         for (size_t i = 0; i < enemies.size(); ++i) 
         {
             auto& enemyCurrentPtr = enemies[i];
-            if (currentPlayer->getHealth() <= 0) break; // Interrompe se o player morrer
+            // [PT-BR] Interrompe a sequencia de ataques se o jogador morrer
+            // [EN-US] Stops attack sequence if player dies
+            if (currentPlayer->getHealth() <= 0) break;
             
             Character* enemyCurrent = enemyCurrentPtr.get();
             enemyCurrent->processEffectsHomeShift();
@@ -503,7 +518,8 @@ void Combat::executeTurnForAllEnemies()
             {
                 acted = true;
 
-                // Logica de escolha de alvo do inimigo
+                // [PT-BR] Logica de selecao de alvo pelo inimigo
+                // [EN-US] Enemy target selection logic
                 Character* target = EnemyMechanics::chooseTarget(getAlliesAliveRaw(), currentPlayer);
 
                 bool shiftConsumedBySkill = enemyCurrent->getRace()->tryUseSkillActive(enemyCurrent, target, static_cast<int>(currentPlayer->getDifficulty()));
@@ -579,7 +595,8 @@ void Combat::processPostDamage(Character* attacker, Character* target, int final
 
     if (finalDamage > 0) 
     {
-        // ANIMACAO DO DANO NO INIMIGO (Piscar Vermelho + Flicker)
+        // [PT-BR] Animacao visual de dano no inimigo (flicker em vermelho)
+        // [EN-US] Enemy damage visual animation (red flicker effect)
         if (!isPlayerOrAlly(target)) {
             ui->animateDamageToEnemy(getCombatTitle(), getEnemiesRaw(), target, attacker, currentPlayer, alliesAlive, finalDamage);
         }
@@ -587,7 +604,8 @@ void Combat::processPostDamage(Character* attacker, Character* target, int final
             ui->animateDamageToPlayer(getCombatTitle(), getEnemiesRaw(), target, currentPlayer, alliesAlive, false, finalDamage);
         }
 
-        // Aplicacao dos efeitos no acerto
+        // [PT-BR] Aplicacao de efeitos de status ao acertar o ataque
+        // [EN-US] Application of status effects on successful hit
         int lifeAttackerBefore = attacker->getHealth();
         
         if (attacker->getWeapons()) {
@@ -595,7 +613,8 @@ void Combat::processPostDamage(Character* attacker, Character* target, int final
         }
         attacker->getRace()->onCausingDamage(attacker, target, finalDamage);
         
-        // Verifica se o atacante se curou (Ex: Passiva da Abominacao)
+        // [PT-BR] Verifica se o atacante recebeu cura (ex: passiva vampirica)
+        // [EN-US] Checks if attacker received healing (e.g., vampiric passive)
         if (attacker->getHealth() > lifeAttackerBefore) {
             if (!isPlayerOrAlly(attacker)) {
                 ui->animateCureToEnemy(getCombatTitle(), getEnemiesRaw(), attacker, currentPlayer, alliesAlive, attacker->getHealth() - lifeAttackerBefore);
@@ -636,7 +655,8 @@ void Combat::applyDamageToTarget(Character* attackingCharacter, Character* targe
         return;
     }
 
-    // Logica da Quebra de Resistencia (Po Magico)
+    // [PT-BR] Logica da Quebra de Resistencia (Po Magico)
+    // [EN-US] Resistance Break logic (Magic Powder)
     if (attackingCharacter->getWeapons()) attackingCharacter->getWeapons()->beforeCausingDamage(attackingCharacter, targetCharacter);
 
     int damageBaseMitigated = DamageCalculator::calculateMitigationDefensive(targetCharacter, grossDamage, damagePiercing);
@@ -646,7 +666,8 @@ void Combat::applyDamageToTarget(Character* attackingCharacter, Character* targe
     
     bool attackUnstoppable = attackingCharacter && attackingCharacter->getRace()->ignoreParry();
 
-    // Logica do Parry
+    // [PT-BR] Logica de execucao de aparo (Parry)
+    // [EN-US] Parry execution logic
     if (targetCharacter->getParryActivated() && !targetCharacter->getDefending()) 
     {
         if (attackUnstoppable) {
@@ -665,23 +686,30 @@ void Combat::applyDamageToTarget(Character* attackingCharacter, Character* targe
 
     DamageResult res = targetCharacter->receiveDamage(grossDamage, damagePiercing, parryReducedDamage, attackingCharacter, applyPassive);
 
-    // Logica de adaptacao do Mahoraga ao ter seu ataque bloqueado por escudo
+    // [PT-BR] Logica de adaptacao do Mahoraga ao ter seu ataque bloqueado por escudo
+    // [EN-US] Mahoraga adaptation logic when its attack is blocked by a shield
     if (res.damageBlocked > 0 && attackingCharacter->getTypeRace() == TypeRace::Mahoraga) {
-        // Precisamos de um cast para chamar o metodo especifico da raca Mahoraga
+        // [PT-BR] Cast dinamico para acessar metodo especifico da raca Mahoraga
+        // [EN-US] Dynamic cast to access specific method of Mahoraga race
         auto* mahoraga = dynamic_cast<Mahoraga*>(attackingCharacter->getRace());
         if (mahoraga) {
             mahoraga->onAttackBlockedByShield();
         }
     }
 
-    // Burlar o limite de "minimo de 1 de dano" do sistema base caso o Parry absorva todo o impacto
+    // [PT-BR] Trata limite de dano minimo caso o Parry perfeito absorva 100% do dano
+    // [EN-US] Handles minimum damage floor when perfect Parry absorbs 100% of damage
     if (triedParry && parryWasWellSuccessful && parryReducedDamage >= damageBaseMitigated) 
     {
         if (targetCharacter == currentPlayer) perfectParries++;
         if (res.finalDamage > 0) 
         {
-            targetCharacter->modifyHealth(res.finalDamage); // Restaura o HP retirado pela trava de minimo de dano
-            res.finalDamage = 0; // Anula o dano para ativar a Reflexao de Parry Perfeito
+            // [PT-BR] Restaura o HP retirado pela trava de dano minimo
+            // [EN-US] Restores HP deducted by minimum damage floor
+            targetCharacter->modifyHealth(res.finalDamage);
+            // [PT-BR] Anula o dano para ativar a Reflexao de Parry Perfeito
+            // [EN-US] Nullifies damage to trigger Perfect Parry reflection
+            res.finalDamage = 0;
         }
     }
 
@@ -767,8 +795,12 @@ bool Combat::checkVictoryOrDefeatCondition()
 
     if (isVictory || isDefeat) 
     { 
-        currentPlayer->cleanEffects(); // Remove buffs e debuffs ao final da batalha
-        InputControl::onWaitEnterUpdate = nullptr; // Impede que o aguardarEnter da tela de vitoria/derrota redesenhe o combate
+        // [PT-BR] Remove buffs e debuffs temporarios ao final da batalha
+        // [EN-US] Clears temporary buffs and debuffs at the end of battle
+        currentPlayer->cleanEffects();
+        // [PT-BR] Desativa callback para evitar que aguardarEnter redesenhe a tela anterior
+        // [EN-US] Clears callback to prevent waitForEnter from redrawing previous screen
+        InputControl::onWaitEnterUpdate = nullptr;
         if (isVictory) {
             ui->displayVictoryScreen(currentPlayer, goldObtained, xpObtained, totalDamageCaused, 
                                 totalDamageReceived, currentPlayer->getTotalCureReceived(), currentTurnCount, 
@@ -798,7 +830,8 @@ void Combat::processEnemyDeath(Character* enemy)
         Progression::instance().setFlag(Flags::Forest_MahoragaDefeated, true);
     }
 
-    // Passiva do Necromante: Coletar alma
+    // [PT-BR] Passiva do Necromante: Coleta de alma do inimigo derrotado
+    // [EN-US] Necromancer Passive: Soul harvest from defeated enemy
     if (currentPlayer->getTypeClass() == TypeClass::NECROMANCER) {
         currentPlayer->addSoul(enemy->clone());
         std::string msg = DialogueFunctions::formatSkillMsg("Voce coletou a alma de " + enemy->getName() + "!", Color::MAGENTA);

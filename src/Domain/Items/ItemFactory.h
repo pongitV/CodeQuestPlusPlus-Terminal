@@ -7,10 +7,12 @@
 class ItemFactory {
 public:
 
-    // Cria um item de forma type-safe baseada num Enum.
+    // [PT-BR] Cria um item de forma type-safe baseada num Enum ItemID
+    // [EN-US] Creates an item in a type-safe manner based on ItemID Enum
     static std::unique_ptr<Item> createItem(ItemID id);
 
-    // Mantido para retrocompatibilidade com sistema de Saves e Encantamentos (+).
+    // [PT-BR] Mantido para retrocompatibilidade com sistema de Saves e Encantamentos (+)
+    // [EN-US] Maintained for backward compatibility with Save and Enchantment systems (+)
     static std::unique_ptr<Item> createItem(const std::string& name);
     
     static std::vector<std::unique_ptr<Item>> createSeveralItems(ItemID id, int quantity);

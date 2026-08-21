@@ -80,7 +80,9 @@ void Progression::load(std::ifstream& in) {
     flags.clear();
     size_t size;
     if (in >> size) {
-        std::string garbage; std::getline(in, garbage); // Consome a quebra de linha inicial
+        // [PT-BR] Consome a quebra de linha inicial do stream
+    // [EN-US] Consumes the initial newline from stream
+    std::string garbage; std::getline(in, garbage);
         for (size_t i = 0; i < size; ++i) { std::string key; std::getline(in, key); int value; in >> value; std::getline(in, garbage); flags[key] = (value == 1); }
     }
 

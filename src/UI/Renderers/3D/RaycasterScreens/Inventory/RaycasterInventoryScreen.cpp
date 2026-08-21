@@ -25,7 +25,8 @@ void RaycasterInventoryScreen::displayHeader(bool, int startY) {
     int soonX = (widthConsole - compVisualSoon) / 2;
     if (soonX < 0) soonX = 0;
     
-    // Se a tela tem largura suficiente para o logo ASCII
+    // [PT-BR] Se a tela possui largura suficiente para o logo ASCII completo
+    // [EN-US] If screen has sufficient width for full ASCII logo
     if (widthConsole >= compVisualSoon && (startY >= soonHeight + 1 || soonY == 0)) {
         std::string bgDark = "\033[48;2;20;20;20m";
         std::string colorTitle = Appearance::color(Color::YELLOW);
@@ -52,7 +53,8 @@ void RaycasterInventoryScreen::displayHeader(bool, int startY) {
         }
         std::cout << std::flush;
     } else if (startY >= 2) {
-        // Fallback elegante para telas com poucas colunas
+        // [PT-BR] Fallback simplificado para terminais compactos
+    // [EN-US] Simplified fallback for compact terminals
         std::string titleCompact = "[ === INVENTARIO === ]";
         int compCompact = Appearance::getVisualLength(titleCompact);
         int cx = std::max(0, (widthConsole - compCompact) / 2);

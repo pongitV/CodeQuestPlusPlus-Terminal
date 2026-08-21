@@ -1,7 +1,7 @@
-/*
- * Arquivo: ICombatUI.h
- * Proposito: Interface abstrata para renderizacao da interface visual de combate (Console 2D e Raycaster 3D).
- */
+// [PT-BR] Arquivo: ICombatUI.h
+// [PT-BR] Proposito: Interface abstrata para renderizacao da interface visual de combate (Console 2D e Raycaster 3D).
+// [EN-US] File: ICombatUI.h
+// [EN-US] Purpose: Abstract interface for rendering combat UI (2D Console and 3D Raycaster).
 
 #pragma once
 
@@ -12,9 +12,8 @@
 class Character;
 class Item;
 
-/*
- * Interface de exibicao e controle visual de combate.
- */
+// [PT-BR] Interface de exibicao e controle visual de combate.
+// [EN-US] Interface for combat visual display and control.
 class ICombatUI {
 public:
     virtual ~ICombatUI() = default;

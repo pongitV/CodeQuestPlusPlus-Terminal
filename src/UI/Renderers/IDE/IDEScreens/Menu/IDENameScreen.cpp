@@ -29,7 +29,9 @@ NameScreen::Result IDENameScreen::display() {
         
         blockCentral.push_back(colorType + "std" + colorPunct + "::" + colorKeyword + "cin " + colorPunct + ">> playerName; " + colorComment + "// (Digite o nome ou '0' para voltar)" + reset);
         
-        int spacesY = IDEMenuScreen::calculateSpaceY(blockCentral.size() + 1); // +1 pro input
+        // [PT-BR] Calcula espacamento vertical incluindo a linha de entrada
+        // [EN-US] Calculates vertical spacing including the input line
+        int spacesY = IDEMenuScreen::calculateSpaceY(blockCentral.size() + 1);
         for (int i = 0; i < spacesY; ++i) std::cout << "\n";
         
         IDEMenuScreen::printCentralizedBlockIDE(blockCentral);
@@ -39,7 +41,9 @@ NameScreen::Result IDENameScreen::display() {
         std::string pad(spacesX, ' ');
         std::cout << pad << promptStr;
         
-        std::cout << "\033[?25h"; // Mostra cursor
+        // [PT-BR] Mostra o cursor do terminal
+        // [EN-US] Shows terminal cursor
+        std::cout << "\033[?25h";
         name = InputControl::readEntryProtected();
         
         if (name == "0") {
@@ -53,13 +57,17 @@ NameScreen::Result IDENameScreen::display() {
         }
     }
 
-    std::cout << "\033[?25l"; // Esconde cursor
+    // [PT-BR] Esconde o cursor do terminal
+    // [EN-US] Hides terminal cursor
+    std::cout << "\033[?25l";
     
     std::vector<std::string> info = { "O nome " + name + " sera registrado." };
     bool confirmed = IDEMenuScreen::displayChooseConfirmationWithArtSideBySide("NOME", name, info, {});
     
     if (!confirmed) {
-        return display(); // Chama recursivo se voltar
+        // [PT-BR] Retorno recursivo para a tela de nome em caso de cancelamento
+        // [EN-US] Recursive return to name screen upon cancellation
+        return display();
     }
 
     NameScreen::Result r;

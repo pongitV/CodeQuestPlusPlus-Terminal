@@ -1,7 +1,7 @@
-/*
- * Arquivo: PerspectiveManager.h
- * Proposito: Singleton gerenciador de alternancia de perspectiva (Modo IDE/Console 2D vs Raycaster 3D).
- */
+// [PT-BR] Arquivo: PerspectiveManager.h
+// [PT-BR] Proposito: Singleton gerenciador de alternancia de perspectiva (Modo IDE/Console 2D vs Raycaster 3D).
+// [EN-US] File: PerspectiveManager.h
+// [EN-US] Purpose: Perspective switching singleton manager (2D IDE/Console Mode vs 3D Raycaster).
 
 #pragma once
 
@@ -18,9 +18,8 @@
 #include "UI/Interfaces/IWorldMapUI.h"
 #include <memory>
 
-/*
- * Gerenciador central de perspectiva visual e fabricas de interfaces.
- */
+// [PT-BR] Gerenciador central de perspectiva visual e fabricas de interfaces.
+// [EN-US] Central manager for visual perspective and interface factories.
 class PerspectiveManager {
 public:
     static PerspectiveManager& getInstance() {

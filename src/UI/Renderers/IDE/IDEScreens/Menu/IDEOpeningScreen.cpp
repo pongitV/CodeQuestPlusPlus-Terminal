@@ -35,6 +35,8 @@ void IDEOpeningScreen::display() {
     std::cout << std::flush;
 
     InputControl::clearBuffer();
-    InputControl::readKey(); // Sincrono e imediato
+    // [PT-BR] Leitura sincrona da tecla para continuar
+    // [EN-US] Synchronous key read to continue
+    InputControl::readKey();
     InputControl::clearBuffer();
 }

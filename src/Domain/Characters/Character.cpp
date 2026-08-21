@@ -12,6 +12,7 @@
 #include "Core/Utils/Constants.h"
 #include "UI/Screens/Combat/CombatScreen.h"
 #include "Core/Utils/Appearance.h"
+#include "Core/Engine/Debug.h"
 
 std::unordered_set<Character*> Character::charactersAssets;
 
@@ -32,7 +33,8 @@ Character::Character(const Character& others)
     system = others.system;
     
     combat.isDefending = others.combat.isDefending;
-    // almasColetadas nao sao copiadas
+    // [PT-BR] Almas coletadas nao sao duplicadas na copia
+    // [EN-US] Collected souls are not duplicated during copy
     combat.defenseRecharge = others.combat.defenseRecharge;
     combat.rechargeSkill = others.combat.rechargeSkill;
     combat.jumpShiftEnemy = others.combat.jumpShiftEnemy;
@@ -46,7 +48,8 @@ Character::Character(const Character& others)
     cache_ = others.cache_;
     charactersAssets.insert(this);
 
-    // Copia dos Itens (Conforme regra: "mas possui os mesmos items")
+    // [PT-BR] Copia dos Itens (mantem o inventario duplicando as instancias)
+    // [EN-US] Copies Items (maintains inventory by cloning instances)
     for (const auto& pair : others.equipment) {
         if (pair.second) {
             auto copyItem = ItemFactory::createItem(Appearance::removeANSIColors(pair.second->getItemName()));
@@ -344,6 +347,11 @@ int Character::calculateDefenseBase(int damageGross, int damagePiercing) {
 DamageResult Character::receiveDamage(int damageGross, int damagePiercing, int damageReducedParry, IAttacker* attacker, bool applyPassive) {
     DamageResult result;
 
+    if (Debug::isGodModeActive && getTypeClass() != TypeClass::None) {
+        result.finalDamage = 0;
+        return result;
+    }
+
     int finalDamage = calculateDefenseBase(damageGross, damagePiercing);
 
     for (auto& effect : effectsAssets) {
@@ -420,7 +428,9 @@ void Character::processEffectsHomeShift() {
 
 void Character::cleanEffects() {
     for (auto& ef : effectsAssets) {
-        ef->onExitMap(this); // Garante que os atributos (como Forca e Destreza) sejam restaurados
+        // [PT-BR] Garante que os atributos modificados (ex: Forca e Destreza) sejam restaurados ao remover o efeito
+        // [EN-US] Ensures modified attributes (e.g., Strength and Dexterity) are restored upon effect removal
+        ef->onExitMap(this);
     }
     effectsAssets.clear();
     effectsQueueAddition.clear();
@@ -477,6 +487,10 @@ int Character::ensureDamageMinimum(int damageCurrent) {
 }
 
 std::pair<int, int> Character::calculateDamageOffensiveBase() {
+    if (Debug::isGodModeActive && getTypeClass() != TypeClass::None) {
+        return { 999999, 999999 };
+    }
+
     double attributeMultiplier = getMultiplier();
 
     int weaponPhysicalDamage = 1;

@@ -63,13 +63,16 @@ public:
     virtual bool ignoreShield() const { return false; }
 
     virtual void performDrops(Character* /*inimigo*/, Character* /*jogadorAtual*/, std::vector<std::string>& /*itensObtidos*/, int& /*ouroTotal*/, int& /*xpTotal*/) {
-        // Implementacao padrao vazia (sem drops)
+        // [PT-BR] Implementacao padrao sem recompensas de drop
+        // [EN-US] Default implementation without drop rewards
     }
 
     virtual void onCausingDamage(Character* /*atacante*/, Character* /*alvo*/, int /*danoCausado*/) {}
 
     virtual bool tryUseSkillActive(Character* /*esteInimigo*/, Character* /*alvo*/, int /*dificuldade*/) {
-        return false; // Por padrao, inimigos nao possuem habilidades ativas que consomem o turno
+        // [PT-BR] Por padrao, inimigos nao possuem habilidades ativas que consomem o turno
+        // [EN-US] By default, enemies do not have active skills that consume their turn
+        return false;
     }
 
 private:

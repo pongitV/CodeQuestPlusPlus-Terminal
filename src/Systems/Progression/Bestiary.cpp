@@ -185,7 +185,9 @@ void Bestiary::load(std::ifstream& in) {
         return true;
     };
     
-    if (!readSet(seenEnemies)) return; // Failsafe para saves antigos
+    // [PT-BR] Failsafe para compatibilidade com arquivos de save antigos
+    // [EN-US] Failsafe for compatibility with legacy save files
+    if (!readSet(seenEnemies)) return;
     readSet(defeated);
     
     size_t qtyDefeatsSize;

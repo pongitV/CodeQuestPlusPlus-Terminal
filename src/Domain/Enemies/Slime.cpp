@@ -9,7 +9,8 @@
 #include "UI/Screens/Combat/CombatScreen.h"
 #include "Core/Utils/DialogFunctions.h"
 
-// --- INFORMACOES DA RACA ---
+// [PT-BR] --- INFORMACOES DA RACA ---
+// [EN-US] --- RACE INFORMATION ---
 std::string Slime::getRaceName() const 
 { 
     return "Slime"; 
@@ -27,11 +28,13 @@ std::vector<std::unique_ptr<Item>> Slime::getEquipmentRace() const
     return equipment;
 }
 
-// --- HABILIDADE DA RACA ---
+// [PT-BR] --- HABILIDADE DA RACA ---
+// [EN-US] --- RACE SKILL ---
 std::string Slime::getNameSkillRace() const { return "Toque Gosmento"; }
 std::string Slime::getDescriptionSkillRace() const { return "Ataques tem 20% de chance de causar Lentidao"; }
 
-// --- APARENCIA ---
+// [PT-BR] --- APARENCIA ---
+// [EN-US] --- APPEARANCE ---
 const std::vector<std::string>& Slime::getAppearanceRace() const
 {
     static const std::vector<std::string> appearance =
@@ -110,7 +113,8 @@ const std::vector<std::string>& Slime::getAppearanceRace() const
 
 
 
-// --- BESTIARIO E DROPS ---
+// [PT-BR] --- BESTIARIO E DROPS ---
+// [EN-US] --- BESTIARY AND DROPS ---
 InfoBestiary Slime::getInfoBestiary() const {
     return {
         "Floresta", 
@@ -130,7 +134,8 @@ void Slime::performDrops(Character* enemy, Character* currentPlayer, std::vector
     Drops::giveAndProcessItem(currentPlayer, ItemID::NucleusSticky, 1, obtainedItems, 30);
 }
 
-// --- PROCESSAMENTO DE DANO  ---
+// [PT-BR] --- PROCESSAMENTO DE DANO ---
+// [EN-US] --- DAMAGE PROCESSING ---
 void Slime::onCausingDamage(Character* attacker, Character* target, int damageCaused) {
     if (RandomGenerator::rollChance(15)) {
         if (!target->ownsEffect(EffectID::Slowness)) {

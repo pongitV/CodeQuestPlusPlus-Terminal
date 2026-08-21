@@ -12,24 +12,20 @@
  */
 class ScreenBaseMenu {
 public:
-    /*
-     * Retorna o offset X para centralizar horizontalmente um bloco de
-     * 'comprimentoTexto' caracteres dentro de um terminal de 'larguraConsole' colunas.
-     * Nunca retorna valor negativo.
-     */
+    // [PT-BR] Retorna o offset X para centralizar horizontalmente um bloco de texto dentro do terminal
+    // [EN-US] Returns X offset to horizontally center a text block inside terminal
     static int calculateOffsetCentral(int textLength, int widthConsole) {
         return std::max(0, (widthConsole - textLength) / 2);
     }
 
-    /*
-     * Sobrecarga conveniente: aceita a string diretamente e automaticamente
-     * ignora codigos de cor ANSI no calculo da largura visual.
-     */
+    // [PT-BR] Sobrecarga: aceita string diretamente e ignora codigos de cor ANSI no calculo
+    // [EN-US] Overload: accepts string directly and ignores ANSI color codes in calculation
     static int calculateOffsetCentral(const std::string& text, int widthConsole) {
         return calculateOffsetCentral(Appearance::getVisualLength(text), widthConsole);
     }
 
-    // Desenha uma caixa preta com bordas brancas usando posicionamento ANSI com clamp seguro
+    // [PT-BR] Desenha uma caixa preta com bordas brancas usando posicionamento ANSI com limites seguros
+    // [EN-US] Draws a black box with white borders using ANSI positioning with safe clamps
     static void drawBoxBlack(std::ostream& out, int y, int x, int width, int height) {
         int termW = Appearance::getTerminalWidth();
         int termH = Appearance::getTerminalHeight();
@@ -56,16 +52,19 @@ public:
         std::string middle = "";
         for (int i = 0; i < width - 2; ++i) middle += " ";
 
-        // Topo
+        // [PT-BR] Topo da caixa
+        // [EN-US] Top of box
         out << "\033[" << (y + 1) << ";" << (x + 1) << "H" << colorEdge << colorBackground << edgeTop << reset;
-        // Linhas intermediarias
+        // [PT-BR] Linhas intermediarias
+        // [EN-US] Middle lines
         for (int i = 1; i < height - 1; ++i) {
             out << "\033[" << (y + i + 1) << ";" << (x + 1) << "H" 
                 << colorEdge << colorBackground << "\u2502" 
                 << middle 
                 << "\u2502" << reset;
         }
-        // Base
+        // [PT-BR] Base da caixa
+        // [EN-US] Bottom of box
         out << "\033[" << (y + height) << ";" << (x + 1) << "H" << colorEdge << colorBackground << edgeBot << reset;
     }
 };

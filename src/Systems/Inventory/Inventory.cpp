@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <ranges>
 #include <unordered_map>
 
 #include "Systems/Inventory/Inventory.h"
@@ -35,9 +36,8 @@ void Inventory::addItem(std::unique_ptr<Item> newItem)
 
 void Inventory::removeItem(const std::string& itemName) 
 {
-    auto it = std::find_if(itemList.begin(), itemList.end(), [&](const std::unique_ptr<Item>& item) 
-    {
-        return item->getItemName() == itemName;
+    auto it = std::ranges::find_if(itemList, [&](const auto& item) {
+        return item && item->getItemName() == itemName;
     });
     
     if (it != itemList.end()) 
@@ -51,8 +51,7 @@ void Inventory::removeItem(const std::string& itemName)
 void Inventory::removeItem(Item* exactItem) 
 {
     if (!exactItem) return;
-    auto it = std::find_if(itemList.begin(), itemList.end(), [&](const std::unique_ptr<Item>& item) 
-    {
+    auto it = std::ranges::find_if(itemList, [&](const auto& item) {
         return item.get() == exactItem;
     });
     
@@ -71,7 +70,7 @@ Item* Inventory::searchItemByCode(const std::string& codeTyped, Item* weaponEqui
     char categoryLetter = std::toupper(codeTyped.back());
     std::string numericalPart = codeTyped.substr(0, codeTyped.length() - 1);
     
-    if (!std::all_of(numericalPart.begin(), numericalPart.end(), ::isdigit)) return nullptr;
+    if (!std::ranges::all_of(numericalPart, ::isdigit)) return nullptr;
     
     int itemIndex = std::stoi(numericalPart);
     if (itemIndex <= 0) return nullptr;

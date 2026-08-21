@@ -1,7 +1,7 @@
-/*
- * Arquivo: InputControl.cpp
- * Proposito: Implementacao das rotinas de baixo nivel e menus interativos de entrada.
- */
+// [PT-BR] Arquivo: InputControl.cpp
+// [PT-BR] Proposito: Implementacao das rotinas de baixo nivel e menus interativos de entrada.
+// [EN-US] File: InputControl.cpp
+// [EN-US] Purpose: Implementation of low-level routines and interactive input menus.
 
 #include "Core/Terminal/InputOutputControl/InputControl.h"
 #include <iostream>
@@ -25,17 +25,18 @@
 std::function<void()> InputControl::onWaitEnterUpdate = nullptr;
 std::string InputControl::enterPromptText = "";
 
-/*
- * Verifica se ha alguma tecla aguardando no buffer de entrada (Non-blocking).
- * Utilizado primariamente pelo motor 3D e loops assincronos para evitar 
- * que a thread de renderizacao trave esperando input.
- */
+// [PT-BR] Verifica se ha alguma tecla aguardando no buffer de entrada (Non-blocking).
+// [PT-BR] Utilizado primariamente pelo motor 3D e loops assincronos para evitar que a thread de renderizacao trave esperando input.
+// [EN-US] Checks if there is any key waiting in the input buffer (Non-blocking).
+// [EN-US] Used primarily by the 3D engine and asynchronous loops to prevent render thread from blocking on input.
 bool InputControl::pressedKey() 
 {
 #ifdef _WIN32
     return _kbhit() != 0;
 #else
-    return false; // Ambiente POSIX requer implementacao detalhada non-blocking
+    // [PT-BR] Ambiente POSIX requer implementacao detalhada non-blocking
+    // [EN-US] POSIX environment requires detailed non-blocking implementation
+    return false;
 #endif
 }
 
@@ -84,10 +85,10 @@ void InputControl::enableMouseInput() {
 #endif
 }
 
-/*
- * Captura e processa eventos complexos de mouse na API do Windows (Win32 Console).
- * Intercepta MOUSE_EVENTs diretamente da stream STDIN.
- */
+// [PT-BR] Captura e processa eventos complexos de mouse na API do Windows (Win32 Console).
+// [PT-BR] Intercepta MOUSE_EVENTs diretamente da stream STDIN.
+// [EN-US] Captures and processes complex mouse events in the Windows API (Win32 Console).
+// [EN-US] Intercepts MOUSE_EVENT records directly from STDIN stream.
 bool InputControl::pollMouseState(int& mouseX, int& mouseY, bool& isLeftPressed, bool& isRightPressed) {
 #ifdef _WIN32
     HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
@@ -173,16 +174,17 @@ int InputControl::readIntegerWithLimits(const std::string& promptMessage, int mi
             value = std::stoi(entry);
             if (value >= minimum && value <= maximum) break;
         } catch (...) {}
-        std::cout << "\033[u\033[J"; // Apenas limpa a entrada invalida
+        // [PT-BR] Limpa a entrada invalida na tela
+        // [EN-US] Clears the invalid input on screen
+        std::cout << "\033[u\033[J";
     }
     return value;
 }
 
-/*
- * Renderiza e controla um menu iterativo direto no console (ANSI).
- * Utiliza escape sequences para pular linhas (ex: \033[NA) e atualizar os icones 
- * sem que o terminal 'pisque' inteiramente (Zero-Flicker approach).
- */
+// [PT-BR] Renderiza e controla um menu iterativo direto no console (ANSI).
+// [PT-BR] Utiliza escape sequences para pular linhas (ex: \033[NA) e atualizar os icones sem que o terminal pisque inteiramente (Zero-Flicker approach).
+// [EN-US] Renders and controls an interactive menu directly in console (ANSI).
+// [EN-US] Uses escape sequences to jump lines (e.g., \033[NA) and update icons without causing full-terminal flicker (Zero-Flicker approach).
 int InputControl::readSelectionMenuWithArrows(const std::vector<std::string>& options, bool centralize, const std::string& marginPersonalized, const std::vector<std::string>& panelRight) {
     if (options.empty()) return -1;
     
@@ -190,7 +192,8 @@ int InputControl::readSelectionMenuWithArrows(const std::vector<std::string>& op
     int totalOptions = static_cast<int>(options.size());
     int totalRight = static_cast<int>(panelRight.size());
 
-    // Pula para a primeira opcao que nao seja HEADER (evita que comece focado nas bordas da caixa)
+    // [PT-BR] Pula para a primeira opcao que nao seja HEADER (evita focar nas bordas)
+    // [EN-US] Skips to the first non-HEADER option (avoids focusing on border headers)
     while (selectionCurrent < totalOptions && options[selectionCurrent].find("#HEADER#") == 0) {
         selectionCurrent++;
     }
@@ -213,6 +216,14 @@ int InputControl::readSelectionMenuWithArrows(const std::vector<std::string>& op
     }
 
     Appearance::hideCursor();
+
+#ifdef _WIN32
+    int startLineY = -1;
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi)) {
+        startLineY = csbi.dwCursorPosition.Y;
+    }
+#endif
 
     while (true) {
         auto now = std::chrono::steady_clock::now();
@@ -254,6 +265,29 @@ int InputControl::readSelectionMenuWithArrows(const std::vector<std::string>& op
         }
 
         std::cout << std::flush; 
+
+#ifdef _WIN32
+        int mouseX = -1, mouseY = -1;
+        bool isLeftPressed = false, isRightPressed = false;
+        if (pollMouseState(mouseX, mouseY, isLeftPressed, isRightPressed)) {
+            if (startLineY != -1 && mouseY >= startLineY && mouseY < startLineY + totalOptions) {
+                int hovered = mouseY - startLineY;
+                if (hovered >= 0 && hovered < totalOptions && options[hovered].find("#HEADER#") != 0) {
+                    selectionCurrent = hovered;
+                    if (isLeftPressed) {
+                        while (true) {
+                            int mx, my; bool l, r;
+                            pollMouseState(mx, my, l, r);
+                            if (!l) break;
+                            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                        }
+                        Appearance::concertCursor();
+                        return selectionCurrent;
+                    }
+                }
+            }
+        }
+#endif
 
         if (pressedKey()) {
             unsigned char key = static_cast<unsigned char>(readKey());
@@ -343,18 +377,45 @@ int InputControl::readMenuSelectionInPopup(const std::string& title, const std::
 
         Appearance::setLastPopup(startX, startY, endBoxWidth, endBoxHeight, bgPopup);
         
-        char key = readKey();
-        if (key == 224 || key == 0 || key == '\033') {
-            char nextKey = readKey();
-            if (nextKey == '[') nextKey = readKey();
-            if (nextKey == 72 || nextKey == 'A') key = 'w';
-            else if (nextKey == 80 || nextKey == 'B') key = 's';
+#ifdef _WIN32
+        int mouseX = -1, mouseY = -1;
+        bool isLeft = false, isRight = false;
+        if (pollMouseState(mouseX, mouseY, isLeft, isRight)) {
+            int optionsStartY = startY + static_cast<int>(text.size()) + 2;
+            if (mouseY >= optionsStartY && mouseY < optionsStartY + totalOptions) {
+                int hovered = mouseY - optionsStartY;
+                if (hovered >= 0 && hovered < totalOptions) {
+                    selectionCurrent = hovered;
+                    if (isLeft) {
+                        while (true) {
+                            int mx, my; bool l, r;
+                            pollMouseState(mx, my, l, r);
+                            if (!l) break;
+                            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                        }
+                        return selectionCurrent;
+                    }
+                }
+            }
         }
+#endif
 
-        if (key == 'w' || key == 'W') { selectionCurrent--; if (selectionCurrent < 0) selectionCurrent = totalOptions - 1; }
-        else if (key == 's' || key == 'S') { selectionCurrent++; if (selectionCurrent >= totalOptions) selectionCurrent = 0; }
-        else if (key == '\r' || key == '\n') { 
-            return selectionCurrent;
+        if (pressedKey()) {
+            unsigned char key = static_cast<unsigned char>(readKey());
+            if (key == 224 || key == 0 || key == 27) {
+                unsigned char nextKey = static_cast<unsigned char>(readKey());
+                if (nextKey == '[') nextKey = static_cast<unsigned char>(readKey());
+                if (nextKey == 72 || nextKey == 'A') key = 'w';
+                else if (nextKey == 80 || nextKey == 'B') key = 's';
+            }
+
+            if (key == 'w' || key == 'W') { selectionCurrent--; if (selectionCurrent < 0) selectionCurrent = totalOptions - 1; }
+            else if (key == 's' || key == 'S') { selectionCurrent++; if (selectionCurrent >= totalOptions) selectionCurrent = 0; }
+            else if (key == '\r' || key == '\n') { 
+                return selectionCurrent;
+            }
+        } else {
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
         }
     }
 }
@@ -387,9 +448,22 @@ void InputControl::waitForEnter(const std::string& message) {
         InputControl::clearBuffer();
         while (true) {
             InputControl::onWaitEnterUpdate();
+#ifdef _WIN32
+            int mx = -1, my = -1;
+            bool isLeft = false, isRight = false;
+            if (pollMouseState(mx, my, isLeft, isRight) && isLeft) {
+                while (true) {
+                    int x, y; bool l, r;
+                    pollMouseState(x, y, l, r);
+                    if (!l) break;
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                }
+                break;
+            }
+#endif
             if (InputControl::pressedKey()) {
                 char c = InputControl::readKey();
-                if (c == '\r' || c == '\n') break;
+                if (c == '\r' || c == '\n' || c == ' ' || c == 27) break;
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(33));
         }
@@ -401,8 +475,24 @@ void InputControl::waitForEnter(const std::string& message) {
         }
         InputControl::clearBuffer();
         while (true) {
-            char c = InputControl::readKey();
-            if (c == '\r' || c == '\n') break;
+#ifdef _WIN32
+            int mx = -1, my = -1;
+            bool isLeft = false, isRight = false;
+            if (pollMouseState(mx, my, isLeft, isRight) && isLeft) {
+                while (true) {
+                    int x, y; bool l, r;
+                    pollMouseState(x, y, l, r);
+                    if (!l) break;
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                }
+                break;
+            }
+#endif
+            if (InputControl::pressedKey()) {
+                char c = InputControl::readKey();
+                if (c == '\r' || c == '\n' || c == ' ' || c == 27) break;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(33));
         }
     }
 }

@@ -53,8 +53,10 @@ void NPCAppearance::processOption(Character* player, const std::string& option, 
     auto& progress = Progression::instance();
 
     if (option == "Comprar Icones") {
+        // [PT-BR] Lista de icones disponiveis para compra
+        // [EN-US] List of icons available for purchase
         std::vector<std::pair<std::string, std::pair<char, int>>> iconsStore = {
-            {"Coracao (â™¥)", {'H', 100}}, // Usando caractere comum H ou simbolo se o terminal suportar. Para seguranca de UTF-8, usamos caracteres visiveis elegantes
+            {"Coracao (H)", {'H', 100}},
             {"Estrela (*)", {'S', 150}},
             {"Espadas (X)", {'X', 200}},
             {"Coroa (K)", {'K', 400}},
@@ -153,13 +155,14 @@ void NPCAppearance::processOption(Character* player, const std::string& option, 
         );
 
         if (subChoose == 0) {
-            // Icone
+            // [PT-BR] --- SELECAO DE ICONE ---
+            // [EN-US] --- ICON SELECTION ---
             std::vector<std::pair<std::string, char>> iconsAvailable = {
                 {"Icone Padrao (@)", '@'}
             };
 
             std::vector<std::pair<std::string, char>> iconsStore = {
-                {"Coracao (â™¥)", 'H'},
+                {"Coracao (H)", 'H'},
                 {"Estrela (*)", 'S'},
                 {"Espadas (X)", 'X'},
                 {"Coroa (K)", 'K'},
@@ -192,7 +195,8 @@ void NPCAppearance::processOption(Character* player, const std::string& option, 
             }
         }
         else if (subChoose == 1) {
-            // Cor de Fundo
+            // [PT-BR] --- SELECAO DE COR DE FUNDO ---
+            // [EN-US] --- BACKGROUND COLOR SELECTION ---
             std::vector<std::pair<std::string, Color>> colorsAvailable = {
                 {"Fundo Padrao (Preto)", Color::RESET}
             };
@@ -227,10 +231,11 @@ void NPCAppearance::processOption(Character* player, const std::string& option, 
 
             if (choice >= 0 && choice < (int)colorsAvailable.size()) {
                 Appearance::colorBackgroundActive = colorsAvailable[choice].second;
-                Appearance::clearScreen(); // Limpa e redesenha a tela inteira para aplicar a cor de fundo
+                // [PT-BR] Limpa e redesenha a tela inteira para aplicar a cor de fundo
+                // [EN-US] Clears and redraws entire screen to apply background color
+                Appearance::clearScreen();
                 Appearance::displayPopup("COR ALTERADA", {"Cor de fundo alterada com sucesso!"}, Color::BROWN_OFCOURSE, getArtASCII());
             }
         }
     }
 }
-

@@ -1,8 +1,8 @@
-/*
- * Utilidades multiplataforma para terminal
- */
+// [PT-BR] Utilidades multiplataforma para terminal
+// [EN-US] Cross-platform terminal utilities
 #pragma once
 #include <string>
+#include <string_view>
 #include <vector>
 #include <iostream>
 #include <algorithm>
@@ -17,7 +17,8 @@
 #include <unistd.h>
 #endif
 
-// Funcoes de baixo nivel para terminal
+// [PT-BR] Funcoes de baixo nivel para controle e formatacao do terminal
+// [EN-US] Low-level functions for terminal control and formatting
 namespace TerminalUtils {
     inline void clearScreen() {
 #ifdef _WIN32
@@ -80,20 +81,24 @@ namespace TerminalUtils {
         return 0;
     }
 
-    inline std::string removeANSIColors(const std::string& text) {
+    // [PT-BR] Remove sequencias de escape ANSI de uma string_view
+    // [EN-US] Strips ANSI escape sequences from a string_view
+    inline std::string removeANSIColors(std::string_view text) {
         std::string result;
         result.reserve(text.size());
         for (size_t i = 0; i < text.size(); ++i) {
             if (text[i] == '\033' && i + 1 < text.size() && text[i + 1] == '[') {
                 size_t end = text.find('m', i + 2);
-                if (end != std::string::npos) { i = end; continue; }
+                if (end != std::string_view::npos) { i = end; continue; }
             }
             result += text[i];
         }
         return result;
     }
 
-    inline int getVisualLength(const std::string& text) {
+    // [PT-BR] Calcula o comprimento visual real considerando caracteres multibyte UTF-8 e ignorando ANSI
+    // [EN-US] Calculates actual visual length considering UTF-8 multibyte characters and ignoring ANSI
+    inline int getVisualLength(std::string_view text) {
         std::string noAnsi = removeANSIColors(text);
         int comp = 0;
         for (size_t i = 0; i < noAnsi.size();) {
@@ -113,7 +118,7 @@ namespace TerminalUtils {
         return std::string(spaces, ' ');
     }
 
-    inline std::string centerText(const std::string& text) {
-        return spacesToCenter(getVisualLength(text)) + text;
+    inline std::string centerText(std::string_view text) {
+        return spacesToCenter(getVisualLength(text)) + std::string(text);
     }
 }

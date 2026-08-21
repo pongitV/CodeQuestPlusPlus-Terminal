@@ -25,11 +25,14 @@ public:
         return false;
     }
 
-    // Verifica todas as teclas registradas; executa a primeira correspondencia encontrada
+    // [PT-BR] Verifica todas as teclas registradas; executa a primeira correspondencia encontrada
+    // [EN-US] Checks all registered keys; executes the first match found
     using ActionWithReturn = std::function<char()>;
     struct PollEntry {
         int key;
-        ActionWithReturn action; // retorna '\\0' para continuar, qualquer outro valor para retornar
+        // [PT-BR] Retorna '\0' para continuar, qualquer outro valor para retornar
+        // [EN-US] Returns '\0' to continue, any other value to return
+        ActionWithReturn action;
     };
 
     void registerPoll(int key, ActionWithReturn action) {

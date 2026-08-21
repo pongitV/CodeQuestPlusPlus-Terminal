@@ -50,7 +50,9 @@ void CombatRaycasterUIImpl::cleanContextEnemyDeathAndDrops() {
 }
 
 std::string CombatRaycasterUIImpl::combatMargin() {
-    return ""; // RaycasterCombatScreen usualmente utiliza sua propria formatacao ou margem vazia para mensagens fixas em 3D
+    // [PT-BR] RaycasterCombatScreen utiliza formatacao propria em 3D
+    // [EN-US] RaycasterCombatScreen uses its own 3D formatting
+    return "";
 }
 
 void CombatRaycasterUIImpl::addFixedMessage(const std::string& msg) {

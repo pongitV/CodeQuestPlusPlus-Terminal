@@ -6,7 +6,8 @@
 #include "Core/Utils/Appearance.h"
 #include "UI/Screens/Combat/CombatScreen.h"
 
-// --- INFORMACOES DA RACA ---
+// [PT-BR] --- INFORMACOES DA RACA ---
+// [EN-US] --- RACE INFORMATION ---
 std::string Elf::getRaceName() const 
 {
     return "Elfo";
@@ -17,7 +18,8 @@ Attributes Elf::getAttributesRace() const
     return { 90, 5, 15, 0, 10, 15, 5 };
 }
 
-// --- APARENCIA ---
+// [PT-BR] --- APARENCIA ---
+// [EN-US] --- APPEARANCE ---
 const std::vector<std::string>& Elf::getAppearanceRace() const 
 {
     static const std::vector<std::string> appearance = 
@@ -67,7 +69,8 @@ const std::vector<std::string>& Elf::getAppearanceRace() const
     return appearance;
 }
 
-// --- HABILIDADE DA RACA ---
+// [PT-BR] --- HABILIDADE DA RACA ---
+// [EN-US] --- RACE SKILL ---
 std::string Elf::getNameSkillRace() const 
 { 
     return "Agil e preciso"; 
@@ -78,7 +81,8 @@ std::string Elf::getDescriptionSkillRace() const
     return "Possui 33% chance de causar 1.5x de dano em cada ataque"; 
 }
 
-// --- PROCESSAMENTO DE DANO  ---
+// [PT-BR] --- PROCESSAMENTO DE DANO ---
+// [EN-US] --- DAMAGE PROCESSING ---
 int Elf::processDamageOffensive(int damageBase, Character* attacker) 
 {
     if (RandomGenerator::rollChance(33)) 

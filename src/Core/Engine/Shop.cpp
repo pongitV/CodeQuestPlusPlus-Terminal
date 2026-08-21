@@ -1,7 +1,7 @@
-/*
- * Arquivo: Shop.cpp
- * Proposito: Implementacao das transacoes e telas de loja com NPCs.
- */
+// [PT-BR] Arquivo: Shop.cpp
+// [PT-BR] Proposito: Implementacao das transacoes e telas de loja com NPCs.
+// [EN-US] File: Shop.cpp
+// [EN-US] Purpose: Implementation of transactions and shop screens with NPCs.
 
 #include "Core/Engine/Shop.h"
 #include <iostream>
@@ -29,7 +29,9 @@ void Shop::processPurchase(Character* currentPlayer, const std::string& shopTitl
     });
 
     Appearance::startPopupInteraction();
-    Appearance::updateMinPopupSize(100, 24); // Padroniza o tamanho da tela de Loja
+    // [PT-BR] Padroniza o tamanho da tela de Loja
+    // [EN-US] Standardizes the Shop screen popup size
+    Appearance::updateMinPopupSize(100, 24);
 
     bool animateEntrance = true;
     while (true) {
@@ -87,7 +89,9 @@ void Shop::processPurchase(Character* currentPlayer, const std::string& shopTitl
                         qtyOptions, 
                         shopColor,
                         asciiArt,
-                        false // Nunca animar submenus da loja
+                        // [PT-BR] Nunca animar submenus da loja para navegacao fluida
+                        // [EN-US] Never animate shop submenus for smoother navigation
+                        false
                     );
                     
                     if (qtyChoice == 0) {
@@ -98,7 +102,9 @@ void Shop::processPurchase(Character* currentPlayer, const std::string& shopTitl
                         std::string qtyMsg = "Quantidade (1 a " + std::to_string(maxPossible) + ", 0 cancelar): ";
                         qtyToBuy = Appearance::readIntegerInFloatingPopup(qtyMsg, 0, maxPossible, shopColor);
                     } else {
-                        qtyToBuy = 0; // Cancelar
+                        // [PT-BR] Cancelar selecao
+                        // [EN-US] Cancel selection
+                        qtyToBuy = 0;
                     }
                 }
 

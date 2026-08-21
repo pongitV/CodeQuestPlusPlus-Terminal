@@ -105,7 +105,9 @@ RaceScreen::Result IDERaceScreen::display(const std::string& namePlayer) {
 
     bool confirmed = IDEMenuScreen::displayChooseConfirmationWithArtSideBySide("RACA", raceName, infoRace, artRace);
     if (!confirmed) {
-        return display(namePlayer); // recursion on cancel
+        // [PT-BR] Retorno recursivo ao cancelar
+        // [EN-US] Recursive return upon cancellation
+        return display(namePlayer);
     }
 
     RaceScreen::Result r;

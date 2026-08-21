@@ -5,15 +5,16 @@
 
 namespace IDETheme {
 
-    // Paleta de cores C++ para o Terminal
-    const std::string COLOR_WORD_KEY = "\033[38;2;86;156;214m"; // Azul
-    const std::string COLOR_TYPE = "\033[38;2;78;201;176m";          // Azul/Verde (Turquesa)
-    const std::string COLOR_STRING = "\033[38;2;214;157;133m";        // Laranja/Verde
-    const std::string COLOR_NUMBER = "\033[38;2;181;206;168m";        // Verde claro
-    const std::string COLOR_COMMENT = "\033[38;2;96;139;78m";      // Verde escuro
-    const std::string COLOR_FUNCTION = "\033[38;2;220;220;170m";        // Amarelo claro
-    const std::string COLOR_VARIABLE = "\033[38;2;156;220;254m";      // Azul claro
-    const std::string COLOR_OPERATOR = "\033[38;2;180;180;180m";      // Cinza
+    // [PT-BR] Paleta de cores estilo IDE C++ para o Terminal
+    // [EN-US] C++ IDE style color palette for Terminal
+    const std::string COLOR_WORD_KEY = "\033[38;2;86;156;214m";
+    const std::string COLOR_TYPE = "\033[38;2;78;201;176m";
+    const std::string COLOR_STRING = "\033[38;2;214;157;133m";
+    const std::string COLOR_NUMBER = "\033[38;2;181;206;168m";
+    const std::string COLOR_COMMENT = "\033[38;2;96;139;78m";
+    const std::string COLOR_FUNCTION = "\033[38;2;220;220;170m";
+    const std::string COLOR_VARIABLE = "\033[38;2;156;220;254m";
+    const std::string COLOR_OPERATOR = "\033[38;2;180;180;180m";
     const std::string COLOR_RESET = "\033[0m";
 
     inline std::string keyword(const std::string& text) {

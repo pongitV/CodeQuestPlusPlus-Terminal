@@ -1,7 +1,7 @@
-/*
- * Arquivo: Appearance.h
- * Proposito: Utilitarios de estetica do terminal (formatadores ANSI, movimentacao de cursor e suporte a cores).
- */
+// [PT-BR] Arquivo: Appearance.h
+// [PT-BR] Proposito: Utilitarios de estetica do terminal (formatadores ANSI, movimentacao de cursor e suporte a cores).
+// [EN-US] File: Appearance.h
+// [EN-US] Purpose: Terminal aesthetics utilities (ANSI formatters, cursor movement, and color support).
 
 #pragma once
 
@@ -14,9 +14,8 @@
 #include <functional>
 #include <algorithm>
 
-/*
- * Fornece utilitarios de formacao, cores e posicionamento para o console/terminal.
- */
+// [PT-BR] Fornece utilitarios de formatacao, cores e posicionamento para o console/terminal.
+// [EN-US] Provides formatting, coloring, and positioning utilities for console/terminal.
 class Appearance {
 public:
     static Color colorBackgroundActive;

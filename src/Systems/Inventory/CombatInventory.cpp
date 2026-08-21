@@ -94,13 +94,17 @@ static void displayResultItem(const UseItemInfo& info, Item* item, bool* shiftWa
             break;
         case ResultItem::Unequipped:
             displayMessagePopupInventory("SISTEMA", {info.itemName + " desequipado(a)!"});
-            if (shiftWasConsumed) *shiftWasConsumed = true;
-            displayMessagePopupInventory("SISTEMA", {"Turno gasto alterando um equipamento..."});
+            if (shiftWasConsumed) {
+                *shiftWasConsumed = true;
+                displayMessagePopupInventory("SISTEMA", {"Turno gasto alterando um equipamento..."});
+            }
             break;
         case ResultItem::Equipped:
             displayMessagePopupInventory("SISTEMA", {info.itemName + " equipado(a)!"});
-            if (shiftWasConsumed) *shiftWasConsumed = true;
-            displayMessagePopupInventory("SISTEMA", {"Turno gasto alterando um equipamento..."});
+            if (shiftWasConsumed) {
+                *shiftWasConsumed = true;
+                displayMessagePopupInventory("SISTEMA", {"Turno gasto alterando um equipamento..."});
+            }
             break;
         case ResultItem::Used_Shift:
             if (shiftWasConsumed) *shiftWasConsumed = true;
@@ -264,14 +268,16 @@ void CombatInventory::manageInventory(Character* currentPlayer, bool* shiftWasCo
                 lines.push_back("");
             };
 
-            // Equipados (non-interactive)
+            // [PT-BR] Equipados (nao interativos)
+            // [EN-US] Equipped items (non-interactive)
             lines.push_back(" " + colorDiv + "--- Equipados ---" + colorReset);
             bool hasEq = false;
             auto addEq = [&](const std::string& label, Item* item) {
                 if (!item) return;
                 hasEq = true;
                 std::string name = item->getItemName();
-                // adiciona tambem aos interativos para que possa ser selecionado
+                // [PT-BR] Adiciona aos interativos para permitir selecao
+                // [EN-US] Adds to interactives to enable selection
                 int idx = (int)interactive.size();
                 interactive.push_back("(E) " + name);
                 indicesReal.push_back((int)itemIndexMap.size());
@@ -348,7 +354,9 @@ void CombatInventory::manageInventory(Character* currentPlayer, bool* shiftWasCo
             int termW = Appearance::getTerminalWidth();
             int termH = Appearance::getTerminalHeight();
             
-            int soonHeight = 8; // Altura aproximada do logo do inventario
+            // [PT-BR] Altura aproximada do cabecalho do inventario
+            // [EN-US] Approximate height of inventory header
+            int soonHeight = 8;
             int totalH = outH + soonHeight + 1;
             int startY = 0;
             if (termH > totalH) {
@@ -398,24 +406,43 @@ void CombatInventory::manageInventory(Character* currentPlayer, bool* shiftWasCo
                     if (escLogic == 7 + offset) {
                         running = false;
                     } else if (offset == 1 && escLogic == 0) {
-                        // Consumivel rapido
+                        // [PT-BR] --- CONSUMIVEL RAPIDO ---
+                        // [EN-US] --- QUICK CONSUMABLE ---
                         Item* quickly = currentPlayer->getConsumableQuickly();
                         std::string quickItemName = quickly->getItemName();
                         int countBefore = currentPlayer->getInventory()->countItem(quickItemName);
                         if (countBefore > 0) {
-                            bool turnAlreadyUsed = shiftWasConsumed && *shiftWasConsumed;
-                            UseItemInfo info = ControlInventory::useOrEquip(currentPlayer, quickly, turnAlreadyUsed);
-                            if (shiftWasConsumed && info.consumedTurn) *shiftWasConsumed = true;
-                            if (currentPlayer->getItemSelectedForUse() != nullptr) {
-                                running = false;
-                            }
-                            if (currentPlayer->getInventory()->countItem(quickItemName) == 0) {
+                            int quickChoice = readSelectionPopupInventory(
+                                "ACESSO RAPIDO",
+                                {"Item em Acesso Rapido:", Appearance::color(Color::YELLOW) + ">> " + quickItemName + " (" + std::to_string(countBefore) + "x) <<" + Appearance::color(Color::RESET)},
+                                {"Usar 1 unidade", "Desequipar do Acesso Rapido", "Inspecionar", "[ VOLTAR ]"}
+                            );
+
+                            if (quickChoice == 0) {
+                                bool turnAlreadyUsed = shiftWasConsumed && *shiftWasConsumed;
+                                UseItemInfo info = ControlInventory::useOrEquip(currentPlayer, quickly, turnAlreadyUsed);
+                                if (shiftWasConsumed && info.consumedTurn) *shiftWasConsumed = true;
+                                if (currentPlayer->getItemSelectedForUse() != nullptr) {
+                                    running = false;
+                                }
+                                if (currentPlayer->getInventory()->countItem(quickItemName) == 0) {
+                                    currentPlayer->unequipConsumable();
+                                }
+                                if (shiftWasConsumed && *shiftWasConsumed) running = false;
+                            } else if (quickChoice == 1) {
                                 currentPlayer->unequipConsumable();
+                                displayMessagePopupInventory("SISTEMA", {quickItemName + " desequipado(a) do Acesso Rapido!"});
+                            } else if (quickChoice == 2) {
+                                std::vector<std::string> details = quickly->getDetailsInspection(currentPlayer);
+                                std::vector<std::string> inspectionLines;
+                                inspectionLines.push_back(Appearance::color(Color::YELLOW) + " >> " + quickItemName + " <<" + Appearance::color(Color::RESET));
+                                inspectionLines.push_back("");
+                                inspectionLines.insert(inspectionLines.end(), details.begin(), details.end());
+                                displayMessagePopupInventory("INSPECAO DE ITEM", inspectionLines);
                             }
                         } else {
                             currentPlayer->unequipConsumable();
                         }
-                        if (shiftWasConsumed && *shiftWasConsumed) running = false;
                         
                         if (is3D) RaycasterFrame::restoreLastFrame();
                     } else {
@@ -435,25 +462,61 @@ void CombatInventory::manageInventory(Character* currentPlayer, bool* shiftWasCo
                     } else {
                         Item* foundItem = itemIndexMap[idx];
                         bool isEquipable = foundItem->isEquipable();
+                        bool isConsumable = (foundItem->getType() == EquipmentType::CONSUMABLE);
                         
                         bool submenuOpen = true;
                         while(submenuOpen) {
+                            bool isQuickEquipped = (currentPlayer->getConsumableQuickly() && 
+                                                   currentPlayer->getConsumableQuickly()->getItemName() == foundItem->getItemName());
+                            
+                            std::vector<std::string> optionsMenu;
+                            if (isConsumable) {
+                                optionsMenu = {
+                                    "Usar",
+                                    isQuickEquipped ? "Desequipar do Acesso Rapido" : "Equipar no Acesso Rapido",
+                                    "Inspecionar",
+                                    "[ VOLTAR ]"
+                                };
+                            } else {
+                                optionsMenu = {"Usar / Equipar", "Inspecionar", "[ VOLTAR ]"};
+                            }
+
                             int subOption = readSelectionPopupInventory(
                                 "OPCOES DE ITEM", 
                                 {"O que deseja fazer com:", Appearance::color(Color::YELLOW) + ">> " + foundItem->getItemName() + " <<" + Appearance::color(Color::RESET)}, 
-                                {"Usar / Equipar", "Inspecionar", "[ VOLTAR ]"}
+                                optionsMenu
                             );
                             
-                            if (subOption == 2) { // VOLTAR
-                                submenuOpen = false;
-                                if (is3D) RaycasterFrame::restoreLastFrame();
-                                break;
-                            } else if (subOption == 0) { // Usar / Equipar
-                                bool turnAlreadyUsed = shiftWasConsumed && *shiftWasConsumed;
-                                if (isEquipable) {
-                                    UseItemInfo info = ControlInventory::useOrEquip(currentPlayer, foundItem, turnAlreadyUsed);
-                                    displayResultItem(info, foundItem, shiftWasConsumed);
-                                } else {
+                            if (isConsumable) {
+                                if (subOption == 3) {
+                                    submenuOpen = false;
+                                    if (is3D) RaycasterFrame::restoreLastFrame();
+                                    break;
+                                } else if (subOption == 1) {
+                                    // [PT-BR] Equipar ou Desequipar Acesso Rapido
+                                    // [EN-US] Equip or Unequip Quick Access
+                                    if (isQuickEquipped) {
+                                        currentPlayer->unequipConsumable();
+                                        displayMessagePopupInventory("SISTEMA", {foundItem->getItemName() + " desequipado(a) do Acesso Rapido!"});
+                                    } else {
+                                        currentPlayer->equipItem(foundItem);
+                                        displayMessagePopupInventory("SISTEMA", {foundItem->getItemName() + " equipado(a) no Acesso Rapido!"});
+                                    }
+                                    submenuOpen = false;
+                                    if (is3D) RaycasterFrame::restoreLastFrame();
+                                } else if (subOption == 2) {
+                                    // [PT-BR] Inspecionar
+                                    // [EN-US] Inspect
+                                    std::vector<std::string> details = foundItem->getDetailsInspection(currentPlayer);
+                                    std::vector<std::string> inspectionLines;
+                                    inspectionLines.push_back(Appearance::color(Color::YELLOW) + " >> " + foundItem->getItemName() + " <<" + Appearance::color(Color::RESET));
+                                    inspectionLines.push_back("");
+                                    inspectionLines.insert(inspectionLines.end(), details.begin(), details.end());
+                                    displayMessagePopupInventory("INSPECAO DE ITEM", inspectionLines);
+                                    if (is3D) RaycasterFrame::restoreLastFrame();
+                                } else if (subOption == 0) {
+                                    // [PT-BR] Usar consumivel
+                                    // [EN-US] Use consumable
                                     int qtyAvailable = currentPlayer->getInventory()->countItem(foundItem->getItemName());
                                     int quantityForUse = 1;
                                     
@@ -487,7 +550,7 @@ void CombatInventory::manageInventory(Character* currentPlayer, bool* shiftWasCo
                                     bool consumedSomeTurn = false;
                                     
                                     for (int i = 0; i < quantityForUse; ++i) {
-                                        turnAlreadyUsed = shiftWasConsumed && *shiftWasConsumed;
+                                        bool turnAlreadyUsed = shiftWasConsumed && *shiftWasConsumed;
                                         UseItemInfo info = ControlInventory::useOrEquip(currentPlayer, foundItem, turnAlreadyUsed);
                                         if (info.consumedTurn) consumedSomeTurn = true;
                                         
@@ -499,7 +562,7 @@ void CombatInventory::manageInventory(Character* currentPlayer, bool* shiftWasCo
                                         }
                                         
                                         int countAfter = currentPlayer->getInventory()->countItem(itemName);
-                                        if (countAfter == countBefore && !isEquipable) {
+                                        if (countAfter == countBefore) {
                                             break;
                                         }
                                     }
@@ -511,18 +574,31 @@ void CombatInventory::manageInventory(Character* currentPlayer, bool* shiftWasCo
                                     if (shiftWasConsumed && consumedSomeTurn) {
                                         *shiftWasConsumed = true;
                                     }
+                                    submenuOpen = false; 
+                                    if (is3D) RaycasterFrame::restoreLastFrame();
                                 }
-                                submenuOpen = false; 
-                                if (is3D) RaycasterFrame::restoreLastFrame();
-                            } else if (subOption == 1) { // Inspecionar
-                                std::vector<std::string> details = foundItem->getDetailsInspection(currentPlayer);
-                                std::vector<std::string> inspectionLines;
-                                inspectionLines.push_back(Appearance::color(Color::YELLOW) + " >> " + foundItem->getItemName() + " <<" + Appearance::color(Color::RESET));
-                                inspectionLines.push_back("");
-                                inspectionLines.insert(inspectionLines.end(), details.begin(), details.end());
-                                
-                                displayMessagePopupInventory("INSPECAO DE ITEM", inspectionLines);
-                                if (is3D) RaycasterFrame::restoreLastFrame();
+                            } else {
+                                // [PT-BR] Equipavel / Material / Missao
+                                // [EN-US] Equipable / Material / Mission
+                                if (subOption == 2) {
+                                    submenuOpen = false;
+                                    if (is3D) RaycasterFrame::restoreLastFrame();
+                                    break;
+                                } else if (subOption == 0) {
+                                    bool turnAlreadyUsed = shiftWasConsumed && *shiftWasConsumed;
+                                    UseItemInfo info = ControlInventory::useOrEquip(currentPlayer, foundItem, turnAlreadyUsed);
+                                    displayResultItem(info, foundItem, shiftWasConsumed);
+                                    submenuOpen = false;
+                                    if (is3D) RaycasterFrame::restoreLastFrame();
+                                } else if (subOption == 1) {
+                                    std::vector<std::string> details = foundItem->getDetailsInspection(currentPlayer);
+                                    std::vector<std::string> inspectionLines;
+                                    inspectionLines.push_back(Appearance::color(Color::YELLOW) + " >> " + foundItem->getItemName() + " <<" + Appearance::color(Color::RESET));
+                                    inspectionLines.push_back("");
+                                    inspectionLines.insert(inspectionLines.end(), details.begin(), details.end());
+                                    displayMessagePopupInventory("INSPECAO DE ITEM", inspectionLines);
+                                    if (is3D) RaycasterFrame::restoreLastFrame();
+                                }
                             }
                         }
                         

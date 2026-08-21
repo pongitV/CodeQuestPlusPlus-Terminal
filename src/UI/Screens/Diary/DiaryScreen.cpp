@@ -316,7 +316,9 @@ void displayRaycaster(Character* currentPlayer) {
         int termH = Appearance::getTerminalHeight();
         int outH = (int)boxPreview.size();
         
-        int soonHeight = 8; // Altura aproximada do logo do diario
+        // [PT-BR] Altura aproximada do cabecalho do diario
+        // [EN-US] Approximate height of diary header
+        int soonHeight = 8;
         int totalH = outH + soonHeight + 1;
         int startYBox = 0;
         if (termH > totalH) {

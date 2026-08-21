@@ -8,20 +8,23 @@ class Combat;
 class Bard : public BaseClass
 {
 public:
-    // INFORMACOES DA CLASSE
+    // [PT-BR] --- INFORMACOES DA CLASSE ---
+    // [EN-US] --- CLASS INFORMATION ---
     std::string getClassName() const override; 
     TypeClass getTypeClass() const override { return TypeClass::Bard; } 
     const std::vector<std::string>& getAppearanceClassMenu() const override;
     Attributes getAttributesClass() const override;
     std::vector<std::unique_ptr<Item>> getEquipmentClass() const override;
 
-    // PASSIVA DA CLASSE
+    // [PT-BR] --- PASSIVA DA CLASSE ---
+    // [EN-US] --- CLASS PASSIVE ---
     std::string getNamePassiveClass() const override;
     std::string getDescriptionPassiveClass() const override;
     int processCurePassiveBard(int cureBase) const override;
     double processMultiplierBuffPassiveBard(double multBase) const override;
 
-    // HABILIDADE DA CLASSE
+    // [PT-BR] --- HABILIDADE DA CLASSE ---
+    // [EN-US] --- CLASS SKILL ---
     std::string getRechargeSkillClass() const override;
     std::string getNameSkillClass() const override;
     std::string getDescriptionSkillClass() const override;

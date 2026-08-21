@@ -1,7 +1,7 @@
-/*
- * Arquivo: EnemyCreator.cpp
- * Proposito: Implementacao da fabrica de instanciacao de inimigos com variacao de atributos.
- */
+// [PT-BR] Arquivo: EnemyCreator.cpp
+// [PT-BR] Proposito: Implementacao da fabrica de instanciacao de inimigos com variacao de atributos.
+// [EN-US] File: EnemyCreator.cpp
+// [EN-US] Purpose: Implementation of enemy instantiation factory with attribute variations.
 
 #include "Core/Engine/EnemyCreator.h"
 #include <type_traits>
@@ -37,10 +37,13 @@ std::vector<std::unique_ptr<Character>> EnemyCreator::createGenericEnemies(int q
             std::make_unique<ClassType>()
         );
 
-        // Aplica variacao percentual aleatoria nos atributos para individualizar cada inimigo da horda
+        // [PT-BR] Aplica variacao percentual aleatoria nos atributos para individualizar cada inimigo da horda
+        // [EN-US] Applies random percentage variation to attributes to individualize each horde enemy
         int healthVariation = RandomGenerator::getInteger(-maxVariation, maxVariation);
         enemy->getFinalAttributes().health += (enemy->getFinalAttributes().health * healthVariation) / 100;
-        enemy->setHealth(enemy->getFinalAttributes().health); // Sincroniza os pontos de vida atuais com a nova vida maxima
+        // [PT-BR] Sincroniza os pontos de vida atuais com a nova vida maxima
+        // [EN-US] Synchronizes current health points with the new maximum health
+        enemy->setHealth(enemy->getFinalAttributes().health);
         
         int strengthVariation = RandomGenerator::getInteger(-maxVariation, maxVariation);
         enemy->getFinalAttributes().strength += (enemy->getFinalAttributes().strength * strengthVariation) / 100;

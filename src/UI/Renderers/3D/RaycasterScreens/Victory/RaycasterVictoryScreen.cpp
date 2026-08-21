@@ -13,14 +13,15 @@
 void RaycasterVictoryScreen::display(Character* currentPlayer, int obtainedGoldQuantity, int obtainedXpQuantity,
     int totalDamageCaused, int totalDamageReceived, int totalHealingReceived, int combatTurns,
     const std::vector<std::string>& enemiesDefeated, int parriesPerfect, int biggerDamage,
-    int parriesTempted, int parriesEffective, int itemsConsumed, const std::vector<std::pair<std::string, int>>& dropsUnique,
-    bool canRiseLevel, const std::vector<std::string>& newDiscoveries,
+    [[maybe_unused]] int parriesTempted, [[maybe_unused]] int parriesEffective, [[maybe_unused]] int itemsConsumed, const std::vector<std::pair<std::string, int>>& dropsUnique,
+    [[maybe_unused]] bool canRiseLevel, [[maybe_unused]] const std::vector<std::string>& newDiscoveries,
     const std::string& titleMap)
 {
     int widthConsole = Appearance::getTerminalWidth();
     std::cout << "\033[?25l";
     InputControl::clearBuffer();
-    // Agrupar inimigos para exibicao
+    // [PT-BR] Agrupa inimigos derrotados para exibicao consolidada
+    // [EN-US] Groups defeated enemies for consolidated display
     std::map<std::string, int> enemiesGrouped;
     for (const auto& enemy : enemiesDefeated) {
         enemiesGrouped[enemy]++;
@@ -67,7 +68,8 @@ void RaycasterVictoryScreen::display(Character* currentPlayer, int obtainedGoldQ
         return chars;
     };
 
-    // Desenha o logo do Vitoria
+    // [PT-BR] Renderiza o logo de VITORIA
+    // [EN-US] Renders VICTORY logo
     int soonY = 2;
     int compVisualSoon = 0;
     for (const auto& line : ArtsVictory::victoryLogo) {
@@ -112,7 +114,8 @@ void RaycasterVictoryScreen::display(Character* currentPlayer, int obtainedGoldQ
             if (y < MenuRaycasterUtils::s_background3DMenu.size() - 1) buffer << "\n";
         }
 
-        // Caixa Inimigos
+        // [PT-BR] Caixa de inimigos derrotados
+    // [EN-US] Defeated enemies box
         std::vector<std::string> boxEnemies;
         boxEnemies.push_back("\033[38;2;200;200;200mInimigos Derrotados:\033[0m");
         if (enemiesGrouped.empty()) boxEnemies.push_back(" \033[38;2;100;100;100mNenhum\033[0m");
@@ -120,7 +123,8 @@ void RaycasterVictoryScreen::display(Character* currentPlayer, int obtainedGoldQ
             boxEnemies.push_back(" \033[38;2;255;100;100m" + std::to_string(qty) + "x " + name + "\033[0m");
         }
 
-        // Caixa Recompensas separada
+        // [PT-BR] Caixa de recompensas e drops obtidos
+    // [EN-US] Rewards and obtained drops box
         std::vector<std::string> boxDrops;
         boxDrops.push_back("\033[38;2;255;215;0mRecompensas:\033[0m");
         boxDrops.push_back(" \033[38;2;255;215;0mOuro: " + std::to_string(obtainedGoldQuantity) + "\033[0m" + "  \033[38;2;0;255;255mXP: " + std::to_string(obtainedXpQuantity) + "\033[0m");
@@ -136,7 +140,8 @@ void RaycasterVictoryScreen::display(Character* currentPlayer, int obtainedGoldQ
             boxDrops.push_back(" " + colorRarity + std::to_string(drop.second) + "x " + drop.first + "\033[0m");
         }
 
-        // Caixa Estatisticas
+        // [PT-BR] Caixa de estatisticas da batalha
+    // [EN-US] Battle statistics box
         std::vector<std::string> boxStats;
         boxStats.push_back("\033[38;2;150;150;255mEstatisticas de Combate:\033[0m");
         boxStats.push_back(" Turnos: \033[38;2;255;255;255m" + std::to_string(combatTurns) + "\033[0m");

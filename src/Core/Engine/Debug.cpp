@@ -1,7 +1,7 @@
-/*
- * Arquivo: Debug.cpp
- * Proposito: Implementacao do menu de depuracao e trapacas do jogo.
- */
+// [PT-BR] Arquivo: Debug.cpp
+// [PT-BR] Proposito: Implementacao do menu de depuracao e trapacas do jogo.
+// [EN-US] File: Debug.cpp
+// [EN-US] Purpose: Implementation of the in-game debug and cheat menu.
 
 #include "Core/Engine/Debug.h"
 
@@ -31,6 +31,7 @@ bool Debug::isNoclipActive = false;
 
 namespace {
     void activateGodMode(Character* player) {
+        Debug::isGodModeActive = true;
         player->getFinalAttributes().health += 999999;
         player->getFinalAttributes().strength += 99999;
         player->getFinalAttributes().dexterity += 99999;
@@ -42,7 +43,7 @@ namespace {
         player->setHealth(player->getMaxHealth());
         
         std::cout << "\n";
-        Appearance::printCentralized(DialogueFunctions::formatSystemMsg("God Mode ativado! Voce agora e um deus intocavel.", Color::YELLOW));
+        Appearance::printCentralized(DialogueFunctions::formatSystemMsg("God Mode ATIVADO! Voce agora e invulneravel e causa dano maximo.", Color::GREEN));
         std::cout << "\n";
         InputControl::waitForEnter();
     }
@@ -88,7 +89,8 @@ namespace {
     std::map<std::string, std::vector<ItemID>> getAllCategorizedItems() {
         std::map<std::string, std::vector<ItemID>> categories;
         
-        // Realiza varredura de IDs de itens cadastrados no sistema
+        // [PT-BR] Realiza varredura de IDs de itens cadastrados no sistema
+        // [EN-US] Scans item IDs registered in the system
         for (int i = 1; i <= 200; ++i) {
             ItemID id = static_cast<ItemID>(i);
             std::string name = ItemFactory::getNameFromID(id);
@@ -100,7 +102,8 @@ namespace {
                     else if (type == EquipmentType::ARMOR) categories["Armaduras"].push_back(id);
                     else if (type == EquipmentType::SHIELD) categories["Escudos"].push_back(id);
                     else {
-                        // Classifica itens de utilidade por nome ou tipo base
+                        // [PT-BR] Classifica itens de utilidade por nome ou tipo base
+                        // [EN-US] Classifies utility items by name or base type
                         if (name.find("Talisma") != std::string::npos || name == "Convite" || name == "Dispositivo") {
                             categories["Missoes"].push_back(id);
                         } else if (name.find("Pocao") != std::string::npos || name.find("Frasco") != std::string::npos || name.find("Elixir") != std::string::npos || name.find("Regenerador") != std::string::npos) {
@@ -297,7 +300,7 @@ void Debug::displayDebugMenu(Character* player) {
         nullptr,
         [player]() {
             return std::vector<std::string>{
-                "God Mode (Max Atributos - Instakill/Imortal)",
+                std::string("God Mode (Imortalidade / Dano Maximo): ") + (Debug::isGodModeActive ? Appearance::color(Color::GREEN) + "LIGADO" + Appearance::color(Color::RESET) : Appearance::color(Color::RED) + "DESLIGADO" + Appearance::color(Color::RESET)),
                 "Definir Atributos",
                 "Obter Qualquer Item",
                 "Definir Ouro e XP",
@@ -310,7 +313,15 @@ void Debug::displayDebugMenu(Character* player) {
         [player](int debugChoice) {
             switch (debugChoice) {
                 case 0:
-                    activateGodMode(player);
+                    Debug::isGodModeActive = !Debug::isGodModeActive;
+                    if (Debug::isGodModeActive) {
+                        activateGodMode(player);
+                    } else {
+                        std::cout << "\n";
+                        Appearance::printCentralized(DialogueFunctions::formatSystemMsg("God Mode DESATIVADO.", Color::RED));
+                        std::cout << "\n";
+                        InputControl::waitForEnter();
+                    }
                     break;
                 case 1:
                     defineAttributesMenu(player);

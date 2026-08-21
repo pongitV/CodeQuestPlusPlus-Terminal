@@ -11,7 +11,8 @@ void IDEDefeatScreen::display(Character* currentPlayer, int, int, int totalDamag
     
     std::string titleStr = IDETheme::keyword("class") + " " + IDETheme::type("DefeatScreen") + " {";
     
-    // Fade in padronizado do titulo em Y=2
+    // [PT-BR] Animacao de fade-in do titulo
+    // [EN-US] Title fade-in animation
     {
         int targetY = 2;
         std::string lineTitle = Appearance::spacesToCenter(Appearance::getVisualLength(titleStr)) + titleStr;

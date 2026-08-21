@@ -150,11 +150,8 @@ protected:
     std::map<SlotEquipment, Item*> equipment;
     Item* itemSelectedForUse;
 
-    /*
-     * Cache de getters calculados
-     * ATENCAO: Esta estrutura usando 'mutable' nao e thread-safe.
-     * Caso o jogo passe a utilizar multi-threading (ex: IA rodando em background), e necessario proteger com std::mutex ou std::atomic.
-     */
+    // [PT-BR] Cache de atributos calculados. Utiliza mutex para sincronizacao em ambientes concorrentes.
+    // [EN-US] Cache for calculated attributes. Uses mutex for thread-safe synchronization in concurrent environments.
     struct CacheAttributes {
         int lifeMaximum = 0;
         int strength = 0;
@@ -167,7 +164,9 @@ protected:
         bool dirty = true;
     };
     mutable CacheAttributes cache_;
-    mutable std::mutex mutexCache_; // Protege o acesso ao cache em ambientes multithread
+    // [PT-BR] Protege o acesso ao cache em ambientes multithread
+    // [EN-US] Protects cache access in multithreaded environments
+    mutable std::mutex mutexCache_;
     void updateCacheIfNecessary() const;
     
     
@@ -191,7 +190,8 @@ public:
     void changeName(const std::string& newName) { characterName = newName; }
     void equipItem(Item* item);
 
-    // Getters e Setters em camelCase
+    // [PT-BR] Getters e Setters de atributos e informacoes do personagem
+    // [EN-US] Getters and Setters for character attributes and information
     std::string getName() const { return characterName; }
     int getHealth() const { return lifeCurrent; }
     int getMaxHealth() const {
@@ -245,21 +245,25 @@ public:
     bool isItemEquipped(Item* item) const { 
         if (!item) return false;
         for (const auto& pair : equipment) {
-            if (pair.second == item) return true;
+            if (pair.second == item || (pair.second && pair.first == SlotEquipment::CONSUMABLE && pair.second->getItemName() == item->getItemName())) return true;
         }
         return false;
     }
 
-    // Verifica se a entidade esta ativamente no loop de combate
+    // [PT-BR] Verifica se a entidade esta ativamente no loop de combate
+    // [EN-US] Checks if the entity is currently inside the combat loop
     bool isInCombat() const;
 
-    // Define o estado da entidade para combate
+    // [PT-BR] Define o estado da entidade para combate
+    // [EN-US] Sets entity state to in-combat
     void enterCombat();
 
-    // Limpa o estado de combate da entidade (CDs, flags)
+    // [PT-BR] Limpa o estado de combate da entidade (cooldowns, flags temporarias)
+    // [EN-US] Clears combat state for the entity (cooldowns, temporary flags)
     void leaveCombat();
 
-    // Inicializa a entidade antes da luta
+    // [PT-BR] Inicializa e prepara a entidade antes do combate
+    // [EN-US] Initializes and prepares entity before battle
     void prepareForCombat();
 
     void setItemSelectedForUse(Item* item) { itemSelectedForUse = item; }
@@ -353,7 +357,8 @@ public:
     void processEffectsHomeShift();
     bool canAct(std::string& reasonDisability) const;
 
-    // Preenche o vetor com os IDs de todos os efeitos ativos (evita alocacoes indesejadas)
+    // [PT-BR] Preenche o vetor com os IDs de todos os efeitos ativos (evita alocacoes de memoria indesejadas)
+    // [EN-US] Fills vector with IDs of all active status effects (avoids unwanted heap allocations)
     void getIDsEffectsAssets(std::vector<EffectID>& outIDs) const;
     void cleanEffects();
     void removeEffect(EffectID id);

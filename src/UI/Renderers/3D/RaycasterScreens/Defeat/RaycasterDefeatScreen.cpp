@@ -17,7 +17,8 @@ void RaycasterDefeatScreen::display(Character* currentPlayer, int obtainedGoldQu
     std::cout << "\033[?25l";
     InputControl::clearBuffer();
 
-    // Usa o mesmo fundo gerado e cacheado durante a batalha
+    // [PT-BR] Reutiliza o fundo 3D gerado e cacheado durante a batalha
+    // [EN-US] Reuses 3D background generated and cached during battle
     std::vector<std::string> flatScreen = RaycasterRendererCombat::getLastBackgroundRendered();
     int height3D = std::max(10, Appearance::getTerminalHeight());
     
@@ -56,7 +57,8 @@ void RaycasterDefeatScreen::display(Character* currentPlayer, int obtainedGoldQu
         return chars;
     };
 
-    // Desenha o logo do DERROTA
+    // [PT-BR] Renderiza o logo de DERROTA
+    // [EN-US] Renders DEFEAT logo
     int soonY = 2;
     int compVisualSoon = 0;
     for (const auto& line : ArtsDefeat::defeatLogo) {
@@ -74,7 +76,8 @@ void RaycasterDefeatScreen::display(Character* currentPlayer, int obtainedGoldQu
 
     MenuRaycasterUtils::s_background3DMenu = screenBackground;
 
-    // Funcao auxiliar para desenhar uma caixa cinza
+    // [PT-BR] Funcao auxiliar para desenhar caixa de interface
+    // [EN-US] Helper function to draw UI box
     auto drawBoxGray = [&](std::ostringstream& buff, int y, int x, int width, int height) {
         std::string bg = "\033[48;2;25;25;25m"; 
         std::string colorEdge = "\033[38;2;255;255;255m"; 
@@ -94,7 +97,9 @@ void RaycasterDefeatScreen::display(Character* currentPlayer, int obtainedGoldQu
 
     int indexSelected = 0;
     bool popupOpen = false;
-    bool leavingGame = false; // flag indicadora caso o player escolha sair
+    // [PT-BR] Flag indicando se o jogador optou por sair do jogo
+    // [EN-US] Flag indicating if player chose to exit game
+    bool leavingGame = false;
     
     while (true) {
         std::ostringstream buffer;
@@ -105,7 +110,8 @@ void RaycasterDefeatScreen::display(Character* currentPlayer, int obtainedGoldQu
             if (y < MenuRaycasterUtils::s_background3DMenu.size() - 1) buffer << "\n";
         }
 
-        // Caixa Estatisticas
+        // [PT-BR] Caixa de estatisticas da batalha
+    // [EN-US] Battle statistics box
         std::vector<std::string> boxStats;
         boxStats.push_back("\033[38;2;255;100;100mEstatisticas:\033[0m");
         boxStats.push_back(" Turnos Sobrevividos: \033[38;2;255;255;255m" + std::to_string(combatTurns) + "\033[0m");
@@ -122,7 +128,8 @@ void RaycasterDefeatScreen::display(Character* currentPlayer, int obtainedGoldQu
             MenuRaycasterUtils::superimposeTextAbsolute(buffer, "\033[48;2;25;25;25m" + boxStats[i], startY + 1 + i, boxX + 2);
         }
 
-        // Popup Interativo
+        // [PT-BR] Popup interativo de selecao
+    // [EN-US] Interactive selection popup
         int boxPopupW = 50;
         int boxPopupX = ScreenBaseMenu::calculateOffsetCentral(boxPopupW, widthConsole);
         int boxPopupY = startY + boxHeight + 2;

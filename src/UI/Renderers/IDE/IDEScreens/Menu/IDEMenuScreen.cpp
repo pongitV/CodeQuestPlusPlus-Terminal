@@ -7,7 +7,8 @@
 #include <chrono>
 
 void IDEMenuScreen::displayGameLogoPanel(const std::string& screenTitle, bool /*animarFadeIn*/) {
-    // Na IDE, nao usamos animacao de fadeIn, printamos como codigo estatico
+    // [PT-BR] Na visao IDE nao utilizamos animacao de fadeIn; renderizamos como codigo estatico
+    // [EN-US] In IDE view we do not use fadeIn animation; rendered as static code
     Appearance::clearScreen();
     
     std::string colorType = "\033[38;2;78;201;176m"; // Cyan
@@ -250,7 +251,8 @@ std::vector<std::string> IDEMenuScreen::compressArtASCII(const std::vector<std::
         std::string newLine = "";
         for (size_t x = 0; x < artOriginal[y].length(); x += factorX) {
             char c = ' ';
-            // Tenta pegar o caractere mais denso no bloco (fatorY x fatorX)
+            // [PT-BR] Amostra o caractere mais denso no bloco de escala (fatorY x fatorX)
+    // [EN-US] Samples the densest character within scaling block (factorY x factorX)
             for (size_t dy = 0; dy < (size_t)factorY && y + dy < artOriginal.size(); dy++) {
                 for (size_t dx = 0; dx < (size_t)factorX && x + dx < artOriginal[y + dy].length(); dx++) {
                     char cur = artOriginal[y + dy][x + dx];
@@ -263,7 +265,8 @@ std::vector<std::string> IDEMenuScreen::compressArtASCII(const std::vector<std::
             }
             newLine += c;
         }
-        // Remove os espacos a direita para manter limpo
+        // [PT-BR] Remove espacos em branco a direita para otimizacao visual
+    // [EN-US] Trims trailing whitespace on the right for visual cleanliness
         size_t end = newLine.find_last_not_of(" ");
         if (end != std::string::npos) {
             newLine = newLine.substr(0, end + 1);

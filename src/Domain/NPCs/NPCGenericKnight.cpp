@@ -21,7 +21,8 @@
 #include "Domain/NPCs/NPCGenericKnightLayout.h"
 
 namespace {
-    // --- CLASSES E FUNCOES AUXILIARES ---
+    // [PT-BR] --- CLASSES E FUNCOES AUXILIARES ---
+    // [EN-US] --- HELPER CLASSES AND FUNCTIONS ---
     Item* searchByName(Inventory* inv, const std::string& name) {
         for (auto* item : inv->getAllItems()) {
             if (item->getItemName() == name) return item;
@@ -53,11 +54,9 @@ namespace {
         }
     };
 
-    /*
-     * Comentario adicionado para forcar a recompilacao e resolver erros de linkagem do Guerreiro
-     * --- APARENCIA E DIALOGOS ---
-     */
-    void dialogueKnight(const std::vector<std::string>& lines) {
+    // [PT-BR] Funcao auxiliar de dialogo com o Cavaleiro Real
+    // [EN-US] Helper dialogue function with Royal Knight
+    [[maybe_unused]] void dialogueKnight(const std::vector<std::string>& lines) {
         DialogueFunctions::printDialogueNPC("Cavaleiro Real", Color::GRAY, lines);
     }
 
@@ -83,7 +82,8 @@ namespace {
     }
 }
 
-// --- CRIACAO DO NPC ---
+// [PT-BR] --- CRIACAO DO NPC ---
+// [EN-US] --- NPC CREATION ---
 std::unique_ptr<Character> NPCGenericKnight::createKnight(const std::string& name) {
     auto knight = std::make_unique<Character>(name, std::make_unique<RaceKnight>(), std::make_unique<ClassKnight>());
     std::string nameArmor = ItemFactory::getNameFromID(ItemID::ArmorKnight);
@@ -96,7 +96,8 @@ std::unique_ptr<Character> NPCGenericKnight::createKnight(const std::string& nam
     return knight;
 }
 
-// --- INTERACAO ---
+// [PT-BR] --- INTERACAO ---
+// [EN-US] --- INTERACTION ---
 void NPCGenericKnight::interact(Character* currentPlayer, bool& trollDefeated, bool& invitationReceived, int /*terminalWidth*/, std::vector<std::string>& currentMapMatrix, bool isExplorationActive, const std::function<void()>& restoreScreen, char destinationCell, int nextPositionX, int nextPositionY) {
     Diary::instance().registerNPC("Cavaleiro Real");
     if (!trollDefeated && (destinationCell == 'T' || destinationCell == 'C')) {

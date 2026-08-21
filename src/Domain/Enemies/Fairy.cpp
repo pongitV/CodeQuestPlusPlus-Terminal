@@ -7,7 +7,8 @@
 #include "Core/Engine/Drops.h"
 #include <memory>
 
-// --- INFORMACOES DA RACA ---
+// [PT-BR] --- INFORMACOES DA RACA ---
+// [EN-US] --- RACE INFORMATION ---
 std::string Fairy::getRaceName() const 
 { 
     return "Fada"; 
@@ -25,11 +26,13 @@ std::vector<std::unique_ptr<Item>> Fairy::getEquipmentRace() const
     return equipment;
 }
 
-// --- HABILIDADE DA RACA ---
+// [PT-BR] --- HABILIDADE DA RACA ---
+// [EN-US] --- RACE SKILL ---
 std::string Fairy::getNameSkillRace() const { return "Nenhuma"; }
 std::string Fairy::getDescriptionSkillRace() const { return "Monstros nao possuem passivas"; }
 
-// --- APARENCIA ---
+// [PT-BR] --- APARENCIA ---
+// [EN-US] --- APPEARANCE ---
 const std::vector<std::string>& Fairy::getAppearanceRace() const
 {
     static const std::vector<std::string> appearance =
@@ -128,7 +131,8 @@ const std::vector<std::string>& Fairy::getAppearanceRace() const
 }
 
 
-// --- BESTIARIO E DROPS ---
+// [PT-BR] --- BESTIARIO E DROPS ---
+// [EN-US] --- BESTIARY AND DROPS ---
 InfoBestiary Fairy::getInfoBestiary() const {
     return {
         "Floresta", 
