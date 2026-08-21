@@ -18,7 +18,7 @@
 
 <p align="center">
   <strong>Idiomas / Languages:</strong><br>
-  <a href="README.md"><strong>Português</strong></a> &nbsp;|&nbsp; <a href="README_EN.md"><strong>English (Current)</strong></a>
+  <a href="README.md"><strong>Português</strong></a> &nbsp;|&nbsp; <a href="README_EN.md"><strong>English</strong></a>
 </p>
 
 ---
