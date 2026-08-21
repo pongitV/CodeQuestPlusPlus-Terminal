@@ -89,11 +89,23 @@ NextMapTransition WorldMapScreen::display(Character* currentPlayer, MapLocation 
 
         if (InputControl::pressedKey()) {
             unsigned char key = static_cast<unsigned char>(InputControl::readKey());
-            if (key == 224 || key == 0 || key == 27) {
+            if (key == 27) {
+                if (!InputControl::pressedKey()) {
+                    return NextMapTransition::None;
+                }
                 unsigned char nextKey = static_cast<unsigned char>(InputControl::readKey());
                 if (nextKey == '[') nextKey = static_cast<unsigned char>(InputControl::readKey());
                 if (nextKey == 72 || nextKey == 'A') key = 'w';
                 else if (nextKey == 80 || nextKey == 'B') key = 's';
+                else return NextMapTransition::None;
+            } else if (key == 224 || key == 0) {
+                unsigned char nextKey = static_cast<unsigned char>(InputControl::readKey());
+                if (nextKey == 72) key = 'w';
+                else if (nextKey == 80) key = 's';
+            }
+
+            if (key == 'q' || key == 'Q' || key == 'm' || key == 'M' || key == 'c' || key == 'C') {
+                return NextMapTransition::None;
             }
 
             if (key == 'w' || key == 'W') {
@@ -102,7 +114,7 @@ NextMapTransition WorldMapScreen::display(Character* currentPlayer, MapLocation 
             } else if (key == 's' || key == 'S') {
                 selection++;
                 if (selection >= totalOptions) selection = 0;
-            } else if (key == '\n' || key == '\r') {
+            } else if (key == '\n' || key == '\r' || key == ' ') {
                 if (selection == 0) {
                     return NextMapTransition::None;
                 } else {

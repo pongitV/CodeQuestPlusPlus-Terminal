@@ -265,7 +265,7 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
         if (themeForest && charWall == '#') ceiling -= (int)(SCREEN_HEIGHT / perpWallDist * 1.5f); 
         if (themeForest && npcFoundInColumn == 'M') ceiling -= (int)(SCREEN_HEIGHT / perpWallDist * 1.2f);
         if (charWall == '*') ceiling -= (int)(SCREEN_HEIGHT / perpWallDist * 1.5f); 
-        if (isKingdom && charWall == '|') ceiling -= (int)(SCREEN_HEIGHT / perpWallDist * 3.0f); // Portao super alto
+        if (isKingdom && charWall == '|' && npcFoundInColumn == ' ') ceiling -= (int)(SCREEN_HEIGHT / perpWallDist * 1.5f); // Portao alto do castelo
 
         wallLights.clear();
         int nx = (side == 0) ? -stepX : 0;

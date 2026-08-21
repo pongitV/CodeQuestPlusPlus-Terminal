@@ -489,9 +489,9 @@ NextMapTransition MapControl::executeExplorationLoop(
                     upperTitle.find("CHEFE") != std::string::npos ||
                     upperTitle.find("ARVORE") != std::string::npos) {
                     loc = MapLocation::Forest;
-                } else if (upperTitle.find("Reino") != std::string::npos) {
-                    loc = MapLocation::Kingdom;
-                } else if (upperTitle.find("REINO") != std::string::npos) {
+                } else if (upperTitle.find("PONTE") != std::string::npos) {
+                    loc = MapLocation::KingdomBridge;
+                } else if (upperTitle.find("REINO") != std::string::npos || upperTitle.find("IGREJA") != std::string::npos) {
                     loc = MapLocation::Kingdom;
                 }
                 

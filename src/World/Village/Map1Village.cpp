@@ -42,7 +42,7 @@ Map1Village::Map1Village(Character* playerCharacter) :
     playerIsInsideSubMap(true),
     bjornRescued(Progression::instance().getFlag(Flags::Village_KissRescued)), 
     caveAlreadyVisited(false),
-    spawnAlreadyVisited(true),
+    spawnAlreadyVisited(false),
     nextMap(NextMapTransition::None),
     cameFromForest(false)
 {
@@ -179,7 +179,7 @@ namespace {
             }
             // [PT-BR] Transicao 4: Voltar para a Vila Inicial a partir do Caminho do Inicio
             // [EN-US] Transition 4: Return to Initial Village from Beginning Path
-            else if (px == 54 && (py == 7 || py == 6) && ctx.self->currentMapTitle == "CAMINHO DO INICIO") {
+            else if ((px == 54 || px == 53) && (py == 7 || py == 6) && ctx.self->currentMapTitle == "CAMINHO DO INICIO") {
                 ctx.self->savedSpawnMapMatrix = ctx.self->currentMapMatrix;
                 ctx.self->currentMapMatrix = ctx.self->savedMainMapMatrix;
                 MapLoader::standardizeMapSize(ctx.self->currentMapMatrix);
@@ -187,6 +187,7 @@ namespace {
                 ctx.self->playerPositionY = 5;
                 ctx.self->playerIsInsideSubMap = false;
                 ctx.self->currentMapTitle = "VILA INICIAL";
+                ctx.self->spawnAlreadyVisited = true;
                 if (!MapControl::is3DExplorationActive()) ctx.animateScreen();
             }
             // [PT-BR] Transicao 5: Ir para a Floresta a partir da Vila
@@ -239,10 +240,16 @@ NextMapTransition Map1Village::startExplorationLoop()
 {
     initializeInteractions();
 
-    if (cameFromForest) {
+    if (cameFromForest || (spawnAlreadyVisited && (playerIsInsideSubMap || currentMapTitle != "VILA INICIAL"))) {
         currentMapMatrix = villageBaseMap;
         caveAlreadyVisited = false;
         cameFromForest = false;
+        playerIsInsideSubMap = false;
+        currentMapTitle = "VILA INICIAL";
+        if (playerPositionY < 6 || playerPositionY > 28 || playerPositionX < 15 || playerPositionX > 60) {
+            playerPositionX = 25;
+            playerPositionY = 15;
+        }
     }
 
     MapLoader::standardizeMapSize(currentMapMatrix);

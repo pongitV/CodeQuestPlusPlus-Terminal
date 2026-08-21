@@ -45,6 +45,16 @@ Map4Kingdom::~Map4Kingdom() = default;
 
 NextMapTransition Map4Kingdom::startExplorationLoop()
 {
+    // [PT-BR] Resgata a posicao do jogador caso tenha usado Viagem Rapida de dentro de um submapa
+    // [EN-US] Rescues player position if Fast Travel was used while inside a submap
+    if (playerIsInsideSubMap) {
+        currentMapMatrix = savedMainMapMatrix;
+        playerPositionX = (savedPositionXBeforeEnteringSubMap > 0) ? (savedPositionXBeforeEnteringSubMap + 1) : 33;
+        playerPositionY = (savedPositionYBeforeEnteringSubMap > 0) ? savedPositionYBeforeEnteringSubMap : 60;
+        playerIsInsideSubMap = false;
+        currentMapTitle = "REINO";
+    }
+
     MapLoader::standardizeMapSize(currentMapMatrix);
     Appearance::hideCursor();
 
@@ -91,8 +101,8 @@ NextMapTransition Map4Kingdom::startExplorationLoop()
             // [EN-US] Transition: Exiting Church back to Kingdom courtyard
             if (px == 18 && py == 3) {
                 currentMapMatrix = savedMainMapMatrix;
-                playerPositionX = savedPositionXBeforeEnteringSubMap;
-                playerPositionY = savedPositionYBeforeEnteringSubMap;
+                playerPositionX = savedPositionXBeforeEnteringSubMap + 1; // Coluna 33 (avenida aberta fora da porta)
+                playerPositionY = savedPositionYBeforeEnteringSubMap;     // Linha 60
                 playerIsInsideSubMap = false;
                 currentMapTitle = "REINO";
                 restoreScreen();

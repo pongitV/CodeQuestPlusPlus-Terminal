@@ -35,6 +35,7 @@ char RaycasterWorld::getNPCNext(const std::string& titleMap, int mapX, int mapY,
         else if (upper.find("VILA") != std::string::npos) layout = Map1VillageLayouts::getInitialVillageLayout();
         else if (upper.find("FLORESTA") != std::string::npos) layout = Map2ForestLayouts::getForestLayout();
         else if (upper.find("CAVERNA") != std::string::npos) layout = Map1VillageLayouts::getBasementLayout(false);
+        else if (upper.find("INICIO") != std::string::npos) layout = Map1VillageLayouts::getSpawnLayout();
         else layout.clear();
     }
 
@@ -193,9 +194,11 @@ Pixel3D RaycasterWorld::getInternalWallPixel(const std::string& titleMap, bool t
     } else if (isKingdom && (isStructure || charWall == '#' || charWall == '+')) {
         if (charWall == '+') {
             if (flags.isChurch) texID = TexID::ChurchWallAltar;
+            else if (flags.isBridge) texID = TexID::BridgeStone;
+            else texID = TexID::KingdomStone;
         } else if (charWall == '|') {
             if (flags.isChurch) texID = TexID::ChurchStainedglass;
-            else if (flags.isBridge) texID = TexID::BridgeWood;
+            else if (flags.isBridge) texID = TexID::BridgeStone;
             else {
                 if (npcFound == 'Q') texID = TexID::Alchemist;
                 else if (npcFound == 'I' || npcFound == 'P') texID = TexID::EntryChurch;
@@ -203,20 +206,16 @@ Pixel3D RaycasterWorld::getInternalWallPixel(const std::string& titleMap, bool t
                 else if (npcFound == 'F') texID = TexID::Francesco;
                 else if (npcFound == 'B') texID = TexID::Kiss;
                 else if (npcFound == 'C') texID = TexID::Knight;
-                else texID = TexID::KingdomWood;
+                else texID = TexID::KingdomStone;
             }
         } else {
             if (flags.isChurch) {
                 if (hitX < 10.0f) texID = TexID::ChurchAltar;
                 else texID = TexID::ChurchWall;
+            } else if (flags.isBridge) {
+                texID = TexID::BridgeStone;
             } else {
-                bool isBattlementGap = (ty < 12 && (tx % 32) >= 16);
-                if (isBattlementGap) {
-                    Pixel3D px;
-                    px.isBackground = true;
-                    return px;
-                }
-                texID = TexID::PatioWall;
+                texID = TexID::KingdomStone;
             }
         }
     } else if (isStructure) {
@@ -227,9 +226,13 @@ Pixel3D RaycasterWorld::getInternalWallPixel(const std::string& titleMap, bool t
         else texID = TexID::TreeForest;
     } else if (charWall == '#') {
         if (flags.isForest) texID = TexID::TreeForest;
+        else if (flags.isBridge) texID = TexID::BridgeStone;
+        else if (isKingdom) texID = TexID::KingdomStone;
         else texID = TexID::StoneVillage;
     } else if (charWall == 'T') {
         if (flags.isChurch) texID = TexID::ChurchCeiling;
+        else if (flags.isBridge) texID = TexID::BridgeStone;
+        else if (isKingdom) texID = TexID::KingdomStone;
         else texID = TexID::PatternStructure; // Fallback padrao para T
     } else if (!isKingdom) {
         if (flags.isSpawn) texID = TexID::StoneSpawn;
@@ -242,7 +245,9 @@ Pixel3D RaycasterWorld::getInternalWallPixel(const std::string& titleMap, bool t
             else texID = TexID::StoneVillage;
         }
     } else {
-        if (flags.isForest) texID = TexID::TreeForest;
+        if (flags.isBridge) texID = TexID::BridgeStone;
+        else if (isKingdom) texID = TexID::KingdomStone;
+        else if (flags.isForest) texID = TexID::TreeForest;
         else texID = TexID::StoneVillage;
     }
 

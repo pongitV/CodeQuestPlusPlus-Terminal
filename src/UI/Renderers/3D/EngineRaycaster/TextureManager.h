@@ -35,6 +35,8 @@ enum class TexID {
     RoomBossWall,
     CaveHeartWall,
     DarkBricks,
+    KingdomStone,
+    BridgeStone,
     WallInvalidates,
     
     // Chaos e Tetos
