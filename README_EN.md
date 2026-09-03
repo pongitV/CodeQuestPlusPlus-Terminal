@@ -53,6 +53,9 @@ The project was conceived as an in-depth computer science and software architect
 ## Key Features
 
 - **3D Raycaster Console Engine**: Real-time projection and rasterization of walls, doors, and distance-based lighting calculated on CPU and translated directly to ANSI/Win32 character buffers.
+- **Instant Dual Perspective (3D Raycaster ⇄ IDE Mode)**:
+  - Runtime dynamic switching at any moment by pressing <kbd>V</kbd>.
+  - Seamless transition between first-person pseudo-3D exploration and a live C++23 source code view featuring real-time memory inspection and TrueColor syntax highlighting.
 - **Turn-Based Tactical Combat**:
   - Dynamic **Parry** mechanism with reactive timing.
   - Class-exclusive active skills, elemental spells, and combat consumables.
@@ -109,8 +112,10 @@ CodeQuestPlusPlus-Terminal/
     │   ├── Minigames/          # Console hacking terminal minigame
     │   └── Progression/        # Bestiary, diary, quest progression flags
     ├── UI/                     # Presentation and interface layer
-    │   ├── PerspectiveManager  # Active perspective controller
-    │   ├── Renderers/          # Graphical renderers (3D Raycaster Engine)
+    │   ├── PerspectiveManager  # Active perspective controller singleton (3D ⇄ IDE)
+    │   ├── Renderers/          # Graphical rendering engines
+    │   │   ├── 3D/             # Pseudo-3D Raycaster engine and controls
+    │   │   └── IDE/            # Live code engine, themes, and memory inspector
     │   └── Screens/            # UI screens (Menu, Inventory, Diary, etc.)
     └── World/                  # Map grids, scenario physics, transitions
 ```
@@ -146,6 +151,7 @@ CodeQuestPlusPlus-Terminal/
 | <kbd>I</kbd> | Open Inventory | General |
 | <kbd>C</kbd> | View Character Sheet & Attributes | General |
 | <kbd>B</kbd> | Open Bestiary & Quest Diary | General |
+| <kbd>V</kbd> | Toggle Perspective (3D Raycaster ⇄ IDE Mode) | Exploration & Combat |
 | <kbd>ESC</kbd> | Pause Menu | General |
 | <kbd>Left Mouse Click</kbd> | Select Menu Options | Interactive Screens / Menus |
 | <kbd>`</kbd> / <kbd>\</kbd> / <kbd>=</kbd> | Developer Debug Menu | Debug / Development |
@@ -207,11 +213,16 @@ bin\CodeQuestPlusPlus-Terminal.exe
 
 ## Rendering Perspectives
 
-1. **3D Raycaster View (Active & Fully Playable)**:
-   - First-person 3D view for world exploration and combat.
-   - Column-based raycasting algorithm calculating Euclidean wall distance, shadow attenuation, and character-shaded walls.
-2. **Terminal IDE View (Experimental / Suspended)**:
-   - Educational concept designed to display runtime execution flow and syntax-highlighted code structures while playing.
+The game engine supports **two fully playable and interchangeable perspectives at any moment via the <kbd>V</kbd> key**:
+
+1. **3D Raycaster View (First-Person)**:
+   - Three-dimensional environment projection and first-person turn-based combat.
+   - Column-based raycasting algorithm calculating Euclidean distance, dynamic shading, interactive doors, and TrueColor ANSI character-shaded walls.
+2. **Terminal IDE View (Living C++ Source Code)**:
+   - The entire game experience is visualized as compilable, real-time running C++23 code.
+   - **2D Exploration**: Split-screen with editor tabs (`[ Map.cpp ] [ PlayerState.hpp ]`), tactical 2D map rendered with C++ syntax symbols on the left, and live memory Inspector on the right watching `Hero` instance state and world entities (`Domain::NPCs`, `Domain::Monsters`, `Domain::Objects`).
+   - **Interactive Combat**: Enemies instantiated as C++ classes with nested `Vitals` and `Stats` structs, real-time damage/cure deltas, turn actions dispatched via `Hero::dispatchTurnAction`, polymorphic damage calls (`onHit`), active parrying (`executeParry`), and garbage collection with virtual destructors (`delete &enemy`).
+   - **Standardized Screens & Menus**: Character sheet with 4 tabs (class declaration, skills, mathematical mitigation formulas, and 64-bit memory layout map with `vptr`), inventory modeled as heap buffer (`std::vector<std::unique_ptr<Item>>`) with hardware equipment pointers, bestiary with monster header includes, diary as runtime log streams, and pause menu as debugger breakpoints.
 
 ---
 
@@ -220,8 +231,9 @@ bin\CodeQuestPlusPlus-Terminal.exe
 Developing this project provided valuable insight into high-performance software design under extreme terminal constraints:
 
 1. **Terminal Bottlenecks**: Windows console does not offer GPU acceleration. Every 3D frame is software-rendered on the CPU, demanding memory optimizations, string buffer pooling, and minimal console draw calls to eliminate screen tearing.
-2. **Modern C++ Architecture**: Application of the *State Pattern* allowed robust transitions across exploration, menus, and turn-based combat without leaking state or crashing the console buffer.
-3. **Foundation for Next-Gen Version**: Architectural patterns developed here serve as the baseline architecture for future migration into dedicated hardware graphic frameworks (Direct2D/Vulkan).
+2. **Modern C++ Architecture**: Application of the *State*, *Factory*, and *Dependency Injection* patterns allowed robust transitions across exploration, menus, and turn-based combat without leaking state or crashing the console buffer.
+3. **Decoupled Presentation Architecture (Model-View)**: The engine allows two diametrically opposed visual presentations — a first-person pseudo-3D Raycaster projection and an educational live C++ source code IDE view — to seamlessly share the same synchronous, atomic game state, toggled at any moment via `PerspectiveManager`.
+4. **Foundation for Next-Gen Version**: Architectural patterns developed here serve as the baseline architecture for future migration into dedicated hardware graphic frameworks (Direct2D/Vulkan).
 
 ---
 

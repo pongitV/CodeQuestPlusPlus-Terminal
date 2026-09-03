@@ -1,12 +1,17 @@
-﻿#pragma once
+#pragma once
 
-#include <string>
-#include <vector>
+#include "UI/Interfaces/IBestiaryUI.h"
 
-class Character;
-
-class IDEBestiaryScreen {
+class IDEBestiaryScreen : public IBestiaryUI {
 public:
-    static void displayList(Character* currentPlayer);
-    static void displaySheet(Character* currentPlayer, const std::string& nameEnemy, int indexDiscovered, const std::vector<std::string>& discovered);
+    IDEBestiaryScreen() = default;
+    ~IDEBestiaryScreen() override = default;
+
+    void display(const std::vector<Character*>& enemies) override;
+    void displayDetail(Character* enemy) override;
+
+    static IDEBestiaryScreen& instance() {
+        static IDEBestiaryScreen s_instance;
+        return s_instance;
+    }
 };

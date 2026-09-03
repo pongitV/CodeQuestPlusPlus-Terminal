@@ -1,111 +1,107 @@
 #include "UI/Renderers/IDE/IDEScreens/Pause/IDEPauseScreen.h"
-#include <iostream>
-#include <string>
 #include "UI/Renderers/IDE/IDETheme.h"
 #include "Core/Utils/Appearance.h"
 #include "Core/Utils/InputControl.h"
-#include "Domain/Characters/Character.h"
-#include "UI/Screens/Menu/MenuScreen.h"
-#include "UI/PerspectiveManager.h"
+#include <iostream>
+#include <vector>
+
+namespace {
+    int renderMenuIDE(const std::string& title, const std::vector<std::string>& options) {
+        int selected = 0;
+        int maxOp = static_cast<int>(options.size());
+        InputControl::clearBuffer();
+
+        while (true) {
+            Appearance::clearScreen();
+            int width = Appearance::getTerminalWidth();
+            int height = Appearance::getTerminalHeight();
+
+            std::vector<std::string> lines;
+            lines.push_back(IDETheme::comment("// Breakpoint disparado: " + title));
+            lines.push_back(IDETheme::comment("// Execução do process suspensa na thread. Selecione uma directive:"));
+            lines.push_back("");
+            lines.push_back(IDETheme::keyword("enum class ") + IDETheme::type("DebugDirective") + IDETheme::punctuation(" : uint8_t {"));
+
+            for (int i = 0; i < maxOp; ++i) {
+                std::string line = "    " + options[i] + ",";
+                if (i == selected) {
+                    lines.push_back(std::string(IDETheme::COLOR_ACTIVE_TAB) + "  > " + line + " <" + std::string(IDETheme::COLOR_RESET));
+                } else {
+                    lines.push_back("    " + IDETheme::punctuation(line));
+                }
+            }
+            lines.push_back(IDETheme::punctuation("};"));
+
+            std::vector<std::string> tabs = {
+                "Debugger.cpp",
+                "ProcessThread.sys"
+            };
+            auto editorView = IDETheme::renderEditorView(tabs, 0, "// src/Core/Debugger.cpp > void Debugger::onBreakpoint()", lines, width, height, "[W/S] Selecionar | [ENTER] Executar Diretiva | [ESC] Retomar");
+
+            for (const auto& l : editorView) std::cout << l << "\n";
+            std::cout << "\033[J" << std::flush;
+
+            char key = InputControl::readKey();
+            if (key == 'w' || key == 'W' || key == 72) {
+                selected = (selected - 1 + maxOp) % maxOp;
+            } else if (key == 's' || key == 'S' || key == 80) {
+                selected = (selected + 1) % maxOp;
+            } else if (key == '\r' || key == '\n') {
+                return selected;
+            } else if (key == 27) {
+                return 0; // Retomar
+            }
+        }
+    }
+}
 
 int IDEPauseScreen::renderMenuPause() {
-    std::cout << "\033[?25l";
-    Appearance::clearScreen();
-    MenuScreen::displayGameLogoPanel("JOGO EM PAUSE", false);
-    std::cout << "\n";
-
     std::vector<std::string> options = {
-        "Voltar ao jogo",
-        "Configuracoes",
-        "Sair do jogo"
+        "RESUME_GAME_THREAD",
+        "OPEN_SETTINGS_CONFIG",
+        "RETURN_TO_MAIN_MENU",
+        "TERMINATE_PROCESS"
     };
-
-    return InputControl::readSelectionMenuWithArrows(options, true);
+    return renderMenuIDE("PauseInterrupt", options);
 }
 
-int IDEPauseScreen::renderSettingsMenu(Character* player) {
-    Appearance::clearScreen();
-    MenuScreen::displayGameLogoPanel("CONFIGURACOES", false);
-    std::cout << "\n";
-
-    std::string difStr;
-    switch (player->getDifficulty()) {
-        case GameDifficulty::Easy: difStr = Appearance::color(Color::GREEN) + "Facil" + Appearance::color(Color::RESET); break;
-        case GameDifficulty::Normal: difStr = Appearance::color(Color::YELLOW) + "Normal" + Appearance::color(Color::RESET); break;
-        case GameDifficulty::Difficult: difStr = Appearance::color(Color::RED) + "Dificil" + Appearance::color(Color::RESET); break;
-    }
-
-    std::string statusParry = player->getParryActivated() ? Appearance::color(Color::GREEN) + "LIGADO" + Appearance::color(Color::RESET) : Appearance::color(Color::RED) + "DESLIGADO" + Appearance::color(Color::RESET);
-    std::string typeParryStr = player->getParryModern() ? Appearance::color(Color::CYAN) + "Movimento (Moderno)" + Appearance::color(Color::RESET) : Appearance::color(Color::RED) + "Digitacao (Antigo)" + Appearance::color(Color::RESET);
-
-    std::vector<std::string> optionsConfig = {
-        "Dificuldade do Mundo: " + difStr,
-        "Sistema de PARRY: " + statusParry,
-        "Metodo do PARRY: " + typeParryStr,
-        "Aparencia do Jogador no Mapa",
-        "Cor de Fundo do Terminal",
-        "Sensibilidade do Mouse",
-        "Voltar"
+int IDEPauseScreen::renderSettingsMenu(Character* /*player*/) {
+    std::vector<std::string> options = {
+        "APPEARANCE_AND_THEME",
+        "MOUSE_AND_SENSITIVITY",
+        "RESTORE_DEFAULTS",
+        "RETURN_TO_PAUSE_MENU"
     };
-
-    return InputControl::readSelectionMenuWithArrows(optionsConfig, true);
+    return renderMenuIDE("SettingsConfig", options);
 }
 
-int IDEPauseScreen::renderMenuAppearance(Character* player) {
-    Appearance::clearScreen();
-    MenuScreen::displayGameLogoPanel("APARENCIA NO MAPA", false);
-    std::cout << "\n";
-
-    std::string colorCurrentStr;
-    switch (Appearance::customPlayerColor) {
-        case Color::GREEN: colorCurrentStr = Appearance::color(Color::GREEN) + "Verde" + Appearance::color(Color::RESET); break;
-        case Color::BLUE: colorCurrentStr = Appearance::color(Color::BLUE) + "Azul" + Appearance::color(Color::RESET); break;
-        case Color::YELLOW: colorCurrentStr = Appearance::color(Color::YELLOW) + "Amarelo" + Appearance::color(Color::RESET); break;
-        case Color::WHITE: colorCurrentStr = Appearance::color(Color::WHITE) + "Branco" + Appearance::color(Color::RESET); break;
-        case Color::MAGENTA: colorCurrentStr = Appearance::color(Color::MAGENTA) + "Magenta" + Appearance::color(Color::RESET); break;
-        case Color::CYAN: colorCurrentStr = Appearance::color(Color::CYAN) + "Ciano" + Appearance::color(Color::RESET); break;
-        case Color::RED: colorCurrentStr = Appearance::color(Color::RED) + "Vermelho" + Appearance::color(Color::RESET); break;
-        default: colorCurrentStr = Appearance::color(Color::WHITE) + "Padrao" + Appearance::color(Color::RESET); break;
-    }
-
-    std::vector<std::string> optionsAppearance = {
-        "Cor do Jogador: " + colorCurrentStr,
-        "Icone do Jogador: " + Appearance::color(Appearance::customPlayerColor) + std::string(1, Appearance::customPlayerIcon) + Appearance::color(Color::RESET),
-        "Voltar"
+int IDEPauseScreen::renderMenuAppearance(Character* /*player*/) {
+    std::vector<std::string> options = {
+        "TOGGLE_IDE_PERSPECTIVE",
+        "BACKGROUND_COLOR_PALETTE",
+        "RETURN_TO_SETTINGS"
     };
-
-    return InputControl::readSelectionMenuWithArrows(optionsAppearance, true);
+    return renderMenuIDE("AppearanceSubsystem", options);
 }
 
-int IDEPauseScreen::renderMenuBackground(int colorBackgroundCurrentIndex) {
-    Appearance::clearScreen();
-    MenuScreen::displayGameLogoPanel("COR DE FUNDO", false);
-    std::cout << "\n";
-
-    std::vector<std::string> namesFunds = {
-        "Preto (Padrao)", "Cinza Escuro", "Azul Escuro",
-        "Vermelho Escuro", "Verde Escuro", "Roxo Escuro"
+int IDEPauseScreen::renderMenuBackground(int /*colorBackgroundCurrentIndex*/) {
+    std::vector<std::string> options = {
+        "THEME_DEFAULT_DARK",
+        "THEME_MONOKAI",
+        "THEME_SOLARIZED",
+        "THEME_TERMINAL_BLACK",
+        "RETURN_PREVIOUS"
     };
-    std::vector<std::string> optionsBackground;
-    for (int i = 0; i < 6; ++i) {
-        if (i == colorBackgroundCurrentIndex) optionsBackground.push_back(namesFunds[i] + Appearance::color(Color::GREEN) + " [ATIVO]" + Appearance::color(Color::RESET));
-        else optionsBackground.push_back(namesFunds[i]);
-    }
-    optionsBackground.push_back("Voltar");
-
-    return InputControl::readSelectionMenuWithArrows(optionsBackground, true);
+    return renderMenuIDE("BackgroundPalette", options);
 }
 
-int IDEPauseScreen::renderMenuSensitivity(int percentX, int percentY) {
-    Appearance::clearScreen();
-    MenuScreen::displayGameLogoPanel("SENSIBILIDADE", false);
-    std::cout << "\n";
-
-    std::vector<std::string> optionsSens = {
-        "Horizontal (X): " + std::to_string(percentX) + "%  [ ENTER p/ Digitar Novo Valor ]",
-        "Vertical (Y): " + std::to_string(percentY) + "%  [ ENTER p/ Digitar Novo Valor ]",
-        "Voltar"
+int IDEPauseScreen::renderMenuSensitivity(int /*percentX*/, int /*percentY*/) {
+    std::vector<std::string> options = {
+        "INCREMENT_SENSITIVITY_X",
+        "DECREMENT_SENSITIVITY_X",
+        "INCREMENT_SENSITIVITY_Y",
+        "DECREMENT_SENSITIVITY_Y",
+        "CONFIRM_AND_RETURN"
     };
-
-    return InputControl::readSelectionMenuWithArrows(optionsSens, true);
+    return renderMenuIDE("InputSensitivity", options);
 }

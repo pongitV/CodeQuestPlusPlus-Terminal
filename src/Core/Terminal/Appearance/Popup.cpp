@@ -1,6 +1,7 @@
 #include "Core/Terminal/Appearance/Appearance.h"
 #include "Core/Utils/InputControl.h"
 #include "UI/Screens/BaseScreen.h"
+#include "UI/PerspectiveManager.h"
 #include <iostream>
 #include <algorithm>
 #include <fstream>
@@ -12,7 +13,7 @@ namespace {
     int lastPopupY = -1;
     int lastPopupW = -1;
     int lastPopupH = -1;
-    std::string lastPopupBg = "\033[48;2;25;25;25m";
+    std::string lastPopupBg = "";
 }
 
 void Appearance::startPopupInteraction() {
@@ -51,7 +52,8 @@ void Appearance::displayPopup(const std::string& title, const std::vector<std::s
 
     std::vector<std::string> linesText = text;
 
-    std::string bgPopup = "\033[48;2;25;25;25m";
+    bool is3D = PerspectiveManager::getInstance().is3DViewActive();
+    std::string bgPopup = is3D ? "\033[48;2;25;25;25m" : "";
     std::vector<std::string> box = BaseScreen::createBoxWithArt(art, linesText, title, 0, themeColor, bgPopup);
 
     int endBoxW = getVisualLength(box[0]);
@@ -98,7 +100,8 @@ int Appearance::readIntegerInFloatingPopup(const std::string& message, int limit
     
     std::string colorBox = color(themeColor);
     std::string reset = color(Color::RESET);
-    std::string bg = "\033[48;2;15;15;15m";
+    bool is3D = PerspectiveManager::getInstance().is3DViewActive();
+    std::string bg = is3D ? "\033[48;2;15;15;15m" : "";
 
     moveCursor(startX, startY - 1);
     std::string top = "╔"; for(int i = 0; i < boxW - 2; ++i) top += "═"; top += "╗";

@@ -1,12 +1,16 @@
-﻿#pragma once
+#pragma once
 
-#include <string>
+#include "UI/Interfaces/IWorldMapUI.h"
 
-enum class MapLocation;
-
-class IDEMapScreen {
+class IDEMapScreen : public IWorldMapUI {
 public:
-    // [PT-BR] Renderiza o mapa e retorna o indice selecionado (0-3) ou -1 para cancelar
-// [EN-US] Renders the map and returns selected index (0-3) or -1 to cancel
-    static int display(MapLocation locationCurrent, int villageProgress, int forestProgress, int kingdomBridgeProgress, int kingdomProgress, const std::string& msgExtra = "");
+    IDEMapScreen() = default;
+    ~IDEMapScreen() override = default;
+
+    void renderPopup(const std::vector<std::string>& art, const std::vector<std::string>& places, int selection, bool redesignComplete = true) override;
+
+    static IDEMapScreen& instance() {
+        static IDEMapScreen s_instance;
+        return s_instance;
+    }
 };

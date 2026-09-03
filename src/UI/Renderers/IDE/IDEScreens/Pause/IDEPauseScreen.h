@@ -1,15 +1,20 @@
 #pragma once
 
-#include <string>
-#include <vector>
+#include "UI/Interfaces/IPauseUI.h"
 
-class Character;
-
-class IDEPauseScreen {
+class IDEPauseScreen : public IPauseUI {
 public:
-    static int renderMenuPause();
-    static int renderSettingsMenu(Character* player);
-    static int renderMenuAppearance(Character* player);
-    static int renderMenuBackground(int colorBackgroundCurrentIndex);
-    static int renderMenuSensitivity(int percentX, int percentY);
+    IDEPauseScreen() = default;
+    ~IDEPauseScreen() override = default;
+
+    int renderMenuPause() override;
+    int renderSettingsMenu(Character* player) override;
+    int renderMenuAppearance(Character* player) override;
+    int renderMenuBackground(int colorBackgroundCurrentIndex) override;
+    int renderMenuSensitivity(int percentX, int percentY) override;
+
+    static IDEPauseScreen& instance() {
+        static IDEPauseScreen s_instance;
+        return s_instance;
+    }
 };

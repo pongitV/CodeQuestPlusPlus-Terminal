@@ -53,6 +53,9 @@ O projeto nasceu como um estudo prático e aprofundado de programação orientad
 ## Recursos Principais
 
 - **Motor de Renderização Raycaster 3D**: Projeção e rasterização de paredes, portas e iluminação com atenuação de distância diretamente convertida em caracteres e cores ANSI/Win32.
+- **Perspectiva Dupla Instantânea (Raycaster 3D ⇄ Modo IDE)**:
+  - Alternância dinâmica em tempo de execução a qualquer momento pressionando <kbd>V</kbd>.
+  - Transição fluida entre visão pseudo-3D em primeira pessoa e uma perspectiva de código-fonte C++23 vivo com inspetor de memória e sintaxe TrueColor.
 - **Sistema de Combate em Turnos**:
   - Mecânica dinâmica de aparo (*Parry*) com timing reativo.
   - Habilidades de classe exclusivas, magias elementais e consumíveis táticos.
@@ -109,8 +112,10 @@ CodeQuestPlusPlus-Terminal/
     │   ├── Minigames/          # Minigame de terminal (Console Hacking)
     │   └── Progression/        # Bestiário, Diário e controle de flags de missão
     ├── UI/                     # Camada de apresentação e interface
-    │   ├── PerspectiveManager  # Gerenciador de perspectivas ativas
-    │   ├── Renderers/          # Renderizadores gráficos (Engine 3D Raycaster)
+    │   ├── PerspectiveManager  # Orquestrador singleton de perspectivas (3D ⇄ IDE)
+    │   ├── Renderers/          # Motores gráficos e de apresentação
+    │   │   ├── 3D/             # Engine Raycaster pseudo-tridimensional e controles
+    │   │   └── IDE/            # Motor de código vivo, temas e inspetor de memória
     │   └── Screens/            # Telas de UI (Menu, Inventário, Diário, etc.)
     └── World/                  # Mapas, cenários, física e transições
 ```
@@ -146,6 +151,7 @@ CodeQuestPlusPlus-Terminal/
 | <kbd>I</kbd> | Abrir Inventário de Itens | Geral |
 | <kbd>C</kbd> | Ficha de Atributos do Personagem | Geral |
 | <kbd>B</kbd> | Abrir Bestiário e Diário de Missões | Geral |
+| <kbd>V</kbd> | Alternar Perspectiva (Raycaster 3D ⇄ Modo IDE) | Exploração & Combate |
 | <kbd>ESC</kbd> | Menu de Pausa | Geral |
 | <kbd>Clique Esquerdo</kbd> | Selecionar Opções em Menus | Telas interativas / Menus |
 | <kbd>`</kbd> / <kbd>\</kbd> / <kbd>=</kbd> | Menu de Debug (Desenvolvimento) | Modo Desenvolvedor |
@@ -207,11 +213,16 @@ bin\CodeQuestPlusPlus-Terminal.exe
 
 ## Perspectivas de Visualização
 
-1. **Visão Raycaster 3D (Ativa e Funcional)**:
+O motor do jogo suporta **duas perspectivas completas e intercambiáveis a qualquer momento com a tecla <kbd>V</kbd>**:
+
+1. **Visão Raycaster 3D (Primeira Pessoa)**:
    - Projeção tridimensional dos cenários e combate em primeira pessoa.
-   - Renderização baseada em colunas com cálculo de distância euclidiana, iluminação e paredes texturizadas por caracteres.
-2. **Visão Terminal IDE (Experimental / Suspensa)**:
-   - Proposta didática para exibir o fluxo de execução do código-fonte em tempo real com coloração de sintaxe durante o gameplay.
+   - Renderização baseada em colunas com cálculo de distância euclidiana, iluminação dinâmica, portas interativas e paredes texturizadas por caracteres ANSI TrueColor.
+2. **Visão Terminal IDE (Código-Fonte C++ Vivo)**:
+   - Toda a experiência do jogo é visualizada como código-fonte C++23 compilável em tempo real.
+   - **Exploração 2D**: Split-screen com abas de editor (`[ Map.cpp ] [ PlayerState.hpp ]`), mapa tático à esquerda em caracteres sintáticos C++ e Inspector de memória em tempo real à direita inspecionando a instância `Hero` e as entidades do mundo (`Domain::NPCs`, `Domain::Monsters`, `Domain::Objects`).
+   - **Combate Interativo**: Inimigos declarados como classes C++ com structs `Vitals` e `Stats`, deltas atômicos de HP piscando em tempo real, menus despachados como métodos de classe (`Hero::dispatchTurnAction`), chamadas polimórficas de dano (`onHit`), aparo (`executeParry`) e coleta de lixo com destrutores virtuais (`delete &enemy`).
+   - **Telas e Menus Padronizados**: Ficha de atributos com 4 abas (declaração de classe, habilidades, fórmulas matemáticas de mitigação e mapa de layout de memória de 64 bits com `vptr`), inventário estruturado como heap buffer (`std::vector<std::unique_ptr<Item>>`) e slots de ponteiros de hardware, bestiário com headers de monstros, diário como logs de runtime e pause como breakpoint de debugger.
 
 ---
 
@@ -220,8 +231,9 @@ bin\CodeQuestPlusPlus-Terminal.exe
 O desenvolvimento deste projeto foi um exercício rigoroso de engenharia de software e limites de hardware no ambiente de console:
 
 1. **Restrições de Console**: O terminal do Windows não possui aceleração por GPU. Cada frame 3D é gerado por força bruta na CPU, exigindo otimizações agressivas de buffer de strings e chamadas de console para mitigar oscilações (*screen tearing*).
-2. **Design Patterns em C++ Moderno**: Adoção do padrão *State* para orquestrar transições entre menus, exploração em tempo real e combate sem vazamento de estado.
-3. **Evolução da Arquitetura**: As lições de arquitetura obtidas nesta versão serviram como fundação para a futura transição da engine para uma API gráfica de hardware (Direct2D/Vulkan).
+2. **Design Patterns em C++ Moderno**: Adoção dos padrões *State*, *Factory* e *Dependency Injection* para orquestrar transições entre menus, exploração em tempo real e combate sem vazamento de estado.
+3. **Arquitetura de Apresentação Desacoplada (Model-View)**: O motor permite que dois sistemas visuais diametralmente opostos — uma projeção pseudo-3D Raycaster e uma IDE didática de código C++ vivo — compartilhem o mesmo estado de jogo de forma síncrona e atômica, alternáveis a qualquer instante via `PerspectiveManager`.
+4. **Evolução da Arquitetura**: As lições de arquitetura obtidas nesta versão serviram como fundação para a futura transição da engine para uma API gráfica de hardware (Direct2D/Vulkan).
 
 ---
 

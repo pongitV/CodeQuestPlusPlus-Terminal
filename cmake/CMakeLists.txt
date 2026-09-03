@@ -9,11 +9,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
-# [PT-BR] Encontra todos os arquivos .cpp dentro da pasta 'src' (excluindo PerspectivaIDE)
-# [EN-US] Finds all .cpp source files within the 'src' directory (excluding PerspectivaIDE)
+# [PT-BR] Encontra todos os arquivos .cpp dentro da pasta 'src' (incluindo PerspectivaIDE)
+# [EN-US] Finds all .cpp source files within the 'src' directory (including PerspectivaIDE)
 file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
-file(GLOB_RECURSE IDE_SOURCES "${CMAKE_SOURCE_DIR}/src/UI/Renderers/IDE/*.cpp")
-list(REMOVE_ITEM SOURCES ${IDE_SOURCES})
+
 
 # [PT-BR] Adiciona o arquivo de recursos de ícone se existir (específico para Windows)
 # [EN-US] Adds the icon resource file if it exists (Windows specific)

@@ -1,5 +1,6 @@
 #include "UI/Renderers/IDE/IDEScreens/Menu/IDEDifficultyScreen.h"
 #include "UI/Renderers/IDE/IDEScreens/Menu/IDEMenuScreen.h"
+#include "UI/Renderers/IDE/IDETheme.h"
 #include <iostream>
 #include <vector>
 #include "Core/Utils/Appearance.h"
@@ -10,7 +11,7 @@ DifficultyScreen::Result IDEDifficultyScreen::display(const std::string& namePla
     std::string colorEnum = "\033[38;2;78;201;176m"; // Cyan
     std::string colorPunct = "\033[38;2;212;212;212m"; // Gray
     std::string colorComment = "\033[38;2;87;166;74m"; // Green
-    std::string colorHighlight = "\033[48;2;38;79;120m\033[38;2;255;255;255m"; // Azul escuro bg
+    std::string colorHighlight = "\033[1;38;2;78;201;176m"; // Ciano brilhante bold, sem fundo
     std::string reset = "\033[0m";
 
     std::vector<std::string> options = {"FACIL", "NORMAL", "DIFICIL", "Voltar (Classe)"};
@@ -54,10 +55,17 @@ DifficultyScreen::Result IDEDifficultyScreen::display(const std::string& namePla
             blockCentral.push_back(colorComment + "// DIFICIL: Inimigos com 2x Atributos, com habilidades de raca e classe" + reset);
         }
 
-        int spacesY = IDEMenuScreen::calculateSpaceY(blockCentral.size());
-        for (int i = 0; i < spacesY; ++i) std::cout << "\n";
-        
-        IDEMenuScreen::printCentralizedBlockIDE(blockCentral);
+        std::vector<std::string> tabs = {
+            "DifficultyConfig.sys",
+            "GameTuning.hpp"
+        };
+        int width = Appearance::getTerminalWidth();
+        int height = Appearance::getTerminalHeight();
+        auto editorView = IDETheme::renderEditorView(tabs, 0, "// config/DifficultyConfig.sys > enum class DifficultyLevel", blockCentral, width, height, "[W/S] Selecionar Dificuldade | [ENTER] Confirmar");
+
+        Appearance::clearScreen();
+        for (const auto& l : editorView) std::cout << l << "\n";
+        std::cout << "\033[J" << std::flush;
 
         unsigned char key = static_cast<unsigned char>(InputControl::readKey());
         if (key == 224 || key == 0 || key == '\033') {

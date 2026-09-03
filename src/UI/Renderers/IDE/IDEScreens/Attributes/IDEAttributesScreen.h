@@ -1,12 +1,18 @@
-﻿#pragma once
+#pragma once
 
-#include <string>
-#include <vector>
+#include "UI/Interfaces/IAttributesUI.h"
 
-#include "Domain/Characters/Character.h"
-
-class IDEAttributesScreen {
+class IDEAttributesScreen : public IAttributesUI {
 public:
-    static void display(Character* currentPlayer);
-    static void displayDetailsAttributes(Character* currentPlayer);
+    IDEAttributesScreen() = default;
+    ~IDEAttributesScreen() override = default;
+
+    void display(Character* player) override;
+    void displayDetailsAttributes(Character* currentPlayer) override;
+    void managePlayerCharacterSheet(Character* currentPlayer) override;
+
+    static IDEAttributesScreen& instance() {
+        static IDEAttributesScreen s_instance;
+        return s_instance;
+    }
 };

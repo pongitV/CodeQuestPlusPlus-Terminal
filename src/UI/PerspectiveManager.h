@@ -57,6 +57,8 @@ private:
 
     bool m_view3DActive;
     std::unique_ptr<PerspectiveRenderer> m_renderer3D;
-
     std::unique_ptr<IManagerScreens> m_screens3D;
+
+    std::unique_ptr<PerspectiveRenderer> m_rendererIDE;
+    std::unique_ptr<IManagerScreens> m_screensIDE;
 };

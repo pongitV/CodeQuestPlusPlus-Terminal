@@ -16,5 +16,9 @@ Este documento lista os bugs conhecidos e funcionalidades incompletas presentes 
 
 ## Perspectiva IDE
 
-- **Status**: Suspensa e incompleta.
-- **Metodologia**: A Perspectiva IDE deve representar o código fonte do jogo em ação durante o gameplay. Seu objetivo é exibir a estrutura de classes, variáveis em tempo real e o fluxo de execução das lógicas de forma didática, simulando como uma IDE exibe o estado de um programa rodando em tempo real no console, tudo formatado com coloração de sintaxe e rastreamento de instâncias e métodos.
+- **Status**: Concluída e Operacional.
+- **Metodologia**: A Perspectiva IDE representa o código fonte do jogo em ação durante todo o gameplay. Ao pressionar a tecla `V`, o jogo transiciona de forma fluida e persistente para o modo código C++ vivo:
+  - **Exploração 2D (Opção A)**: Tela dividida em abas de editor (`[ Map.cpp ] [ PlayerState.hpp ]`), com o grid 2D à esquerda e o inspetor de objetos em tempo real à direita inspecionando a struct `Hero` e a classe do inimigo/entidade mais próxima com cálculo vetorial de distância e atributos em código.
+  - **Combate C++ Vivo**: Inimigos modelados lado a lado como instâncias de classes (`class <Nome> : public Monster`), atributos piscando em tempo real com animações de dano/cura, menus expressos como invocações de método (`hero->attack(&target);`) e chamadas de gerenciamento de memória (`delete &enemy;`).
+  - **Telas e Menus Temáticos**: Inventário como buffer de memória (`std::vector<std::unique_ptr<Item>>`), ficha de personagem como struct com offsets de memória, bestiário como catálogo de headers C++, diário como trace logs de execução, menu de pause como sistema de breakpoints e vitória/derrota com exit code 0 e stack traces de exceções.
+  - **Alternância Universal ('V')**: A tecla `V` alterna a perspectiva de forma transparente tanto na exploração quanto nos turnos de combate, mantendo o estado de forma persistente.

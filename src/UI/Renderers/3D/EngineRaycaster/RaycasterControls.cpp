@@ -8,6 +8,7 @@
 #include "Core/Engine/Debug.h"
 #include "UI/Renderers/3D/EngineRaycaster/RaycasterWorld.h"
 #include "UI/Renderers/3D/EngineRaycaster/RaycasterFrame.h"
+#include "UI/PerspectiveManager.h"
 #include <cmath>
 #include <thread>
 
@@ -90,20 +91,11 @@ char RaycasterControls::processInputEControls(
     }
 
     if (GetAsyncKeyState('V') & 0x8000) {
+        while (GetAsyncKeyState('V') & 0x8000) std::this_thread::sleep_for(std::chrono::milliseconds(15));
         mouseHider.concert();
         InputControl::clearBuffer();
-        Appearance::displayPopup(
-            "PERSPECTIVA IDE",
-            {"A perspectiva IDE esta em construcao!",
-             "",
-             "Em breve voce podera explorar o jogo",
-             "no estilo de um terminal de programacao.",
-             "Por enquanto, apenas a visao 3D esta disponivel."},
-            Color::YELLOW
-        );
-        RaycasterFrame::restoreLastFrame();
-        firstIterationMouse = true;
-        while (GetAsyncKeyState('V') & 0x8000) std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        PerspectiveManager::getInstance().toggleView();
+        return 'V';
     }
 
     struct PopupEntry {

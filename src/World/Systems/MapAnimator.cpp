@@ -3,6 +3,7 @@
 #include "Core/Utils/InputControl.h"
 #include "World/Systems/MapRenderer.h"
 #include "World/MapControl.h"
+#include "UI/PerspectiveManager.h"
 #include "UI/Renderers/3D/EngineRaycaster/RaycasterWorld.h"
 #include <iostream>
 #include <thread>
@@ -27,6 +28,12 @@ int MapAnimator::animateMapIntroduction(
     if (MapControl::is3DExplorationActive()) {
         RaycasterWorld::updateMapHash(mapMatrix);
         return 0; 
+    }
+
+    if (!PerspectiveManager::getInstance().is3DViewActive()) {
+        RaycasterWorld::updateMapHash(mapMatrix);
+        Appearance::clearScreen();
+        return 0;
     }
 
     RaycasterWorld::updateMapHash(mapMatrix);

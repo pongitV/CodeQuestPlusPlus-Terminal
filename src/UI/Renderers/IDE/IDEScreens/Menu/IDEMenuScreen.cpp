@@ -2,6 +2,7 @@
 #include "Core/Utils/InputControl.h"
 #include "Core/Utils/Appearance.h"
 #include "UI/Screens/Menu/BaseMenuScreen.h"
+#include "UI/Renderers/IDE/IDETheme.h"
 #include <iostream>
 #include <thread>
 #include <chrono>
@@ -29,7 +30,7 @@ int IDEMenuScreen::displayMainMenuOptions() {
     std::string colorPunct = "\033[38;2;212;212;212m"; // Gray
     std::string colorString = "\033[38;2;214;157;133m"; // Orange
     std::string colorComment = "\033[38;2;87;166;74m"; // Green
-    std::string colorHighlight = "\033[48;2;38;79;120m\033[38;2;255;255;255m"; // Azul escuro bg
+    std::string colorHighlight = "\033[1;38;2;78;201;176m"; // Ciano brilhante bold, sem fundo
     std::string reset = "\033[0m";
 
     std::vector<std::string> options = {"Novo Jogo", "Sair do Jogo"};
@@ -72,10 +73,18 @@ int IDEMenuScreen::displayMainMenuOptions() {
         blockCentral.push_back("");
         blockCentral.push_back(colorKeyword + "return " + colorPunct + "await_selection();");
 
-        int spacesY = calculateSpaceY(blockCentral.size());
-        for (int i = 0; i < spacesY; ++i) std::cout << "\n";
+        std::vector<std::string> tabs = {
+            "MainMenu.cpp",
+            "GameEngine.hpp",
+            "Configuration.sys"
+        };
+        int width = Appearance::getTerminalWidth();
+        int height = Appearance::getTerminalHeight();
+        auto editorView = IDETheme::renderEditorView(tabs, 0, "// src/UI/Menu/MainMenu.cpp > main()", blockCentral, width, height, "[W/S] Selecionar | [ENTER] Executar");
 
-        printCentralizedBlockIDE(blockCentral);
+        Appearance::clearScreen();
+        for (const auto& l : editorView) std::cout << l << "\n";
+        std::cout << "\033[J" << std::flush;
 
         unsigned char key = static_cast<unsigned char>(InputControl::readKey());
         if (key == 224 || key == 0 || key == '\033') {
@@ -106,7 +115,7 @@ bool IDEMenuScreen::displayConfirmationExit() {
     std::string colorFunc = "\033[38;2;220;220;170m"; // Yellow
     std::string colorPunct = "\033[38;2;212;212;212m"; // Gray
     std::string colorString = "\033[38;2;214;157;133m"; // Orange/Greenish
-    std::string colorHighlight = "\033[48;2;38;79;120m\033[38;2;255;255;255m"; // Azul escuro bg
+    std::string colorHighlight = "\033[1;38;2;78;201;176m"; // Ciano brilhante bold, sem fundo
     std::string reset = "\033[0m";
 
     int selectionCurrent = 1;
@@ -124,10 +133,17 @@ bool IDEMenuScreen::displayConfirmationExit() {
         blockCentral.push_back("    " + colorKeyword + "return " + colorPunct + (selectionCurrent == 0 ? opNo : opYes) + colorPunct + "; // [0] false (NAO), [1] true (SIM)");
         blockCentral.push_back(colorPunct + "}");
 
-        int spacesY = calculateSpaceY(blockCentral.size());
-        for (int i = 0; i < spacesY; ++i) std::cout << "\n";
+        std::vector<std::string> tabs = {
+            "ExitProcess.sys",
+            "MainMenu.cpp"
+        };
+        int width = Appearance::getTerminalWidth();
+        int height = Appearance::getTerminalHeight();
+        auto editorView = IDETheme::renderEditorView(tabs, 0, "// sys/proc/ExitProcess.sys > confirmExit()", blockCentral, width, height, "[A/D ou W/S] Selecionar | [ENTER] Confirmar");
 
-        printCentralizedBlockIDE(blockCentral);
+        Appearance::clearScreen();
+        for (const auto& l : editorView) std::cout << l << "\n";
+        std::cout << "\033[J" << std::flush;
 
         unsigned char key = static_cast<unsigned char>(InputControl::readKey());
         if (key == 224 || key == 0 || key == '\033') {
@@ -154,7 +170,7 @@ bool IDEMenuScreen::displayChooseConfirmationWithArtSideBySide(const std::string
     std::string colorPunct = "\033[38;2;212;212;212m"; // Gray
     std::string colorString = "\033[38;2;214;157;133m"; // Orange/Greenish
     std::string colorComment = "\033[38;2;87;166;74m"; // Green
-    std::string colorHighlight = "\033[48;2;38;79;120m\033[38;2;255;255;255m"; // Azul escuro bg
+    std::string colorHighlight = "\033[1;38;2;78;201;176m"; // Ciano brilhante bold, sem fundo
     std::string reset = "\033[0m";
 
     int selectionCurrent = 1;
@@ -183,11 +199,18 @@ bool IDEMenuScreen::displayChooseConfirmationWithArtSideBySide(const std::string
         std::string opConfirm = (selectionCurrent == 1) ? (colorHighlight + "true" + reset) : (colorKeyword + "true" + reset);
         
         blockCentral.push_back(colorKeyword + "return " + colorFunc + "confirm" + colorPunct + "(" + (selectionCurrent == 0 ? opReturn : opConfirm) + colorPunct + ");");
-        
-        int spacesY = calculateSpaceY(blockCentral.size());
-        for (int i = 0; i < spacesY; ++i) std::cout << "\n";
-        
-        printCentralizedBlockIDE(blockCentral);
+
+        std::vector<std::string> tabs = {
+            chooseType + "Preview.hpp",
+            "CharacterBuilder.cpp"
+        };
+        int width = Appearance::getTerminalWidth();
+        int height = Appearance::getTerminalHeight();
+        auto editorView = IDETheme::renderEditorView(tabs, 0, "// src/Domain/Characters/" + chooseType + "Preview.hpp", blockCentral, width, height, "[A/D ou W/S] Selecionar | [ENTER] Confirmar");
+
+        Appearance::clearScreen();
+        for (const auto& l : editorView) std::cout << l << "\n";
+        std::cout << "\033[J" << std::flush;
 
         unsigned char key = static_cast<unsigned char>(InputControl::readKey());
         if (key == 224 || key == 0 || key == '\033') {

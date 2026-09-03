@@ -334,7 +334,8 @@ int InputControl::readMenuSelectionInPopup(const std::string& title, const std::
 
     int selectionCurrent = 0;
     int totalOptions = static_cast<int>(options.size());
-    std::string bgPopup = "\033[48;2;25;25;25m";
+    bool is3D = PerspectiveManager::getInstance().is3DViewActive();
+    std::string bgPopup = is3D ? "\033[48;2;25;25;25m" : "";
     std::cout << "\033[?25l";
     
     InputControl::clearBuffer();

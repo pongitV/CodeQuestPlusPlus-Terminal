@@ -1,5 +1,6 @@
 #include "UI/Renderers/IDE/IDEScreens/Menu/IDEParryScreen.h"
 #include "UI/Renderers/IDE/IDEScreens/Menu/IDEMenuScreen.h"
+#include "UI/Renderers/IDE/IDETheme.h"
 #include <iostream>
 #include <vector>
 #include "Core/Utils/Appearance.h"
@@ -194,7 +195,7 @@ ParryScreen::Result IDEParryScreen::display(const std::string& namePlayer, const
     std::string colorType = "\033[38;2;78;201;176m"; // Cyan
     std::string colorPunct = "\033[38;2;212;212;212m"; // Gray
     std::string colorComment = "\033[38;2;87;166;74m"; // Green
-    std::string colorHighlight = "\033[48;2;38;79;120m\033[38;2;255;255;255m"; // Azul escuro bg
+    std::string colorHighlight = "\033[1;38;2;78;201;176m"; // Ciano brilhante bold, sem fundo
     std::string reset = "\033[0m";
 
     std::vector<std::string> options = {
@@ -212,9 +213,9 @@ ParryScreen::Result IDEParryScreen::display(const std::string& namePlayer, const
         Appearance::clearScreen();
         
         std::vector<std::string> blockCentral;
-        blockCentral.push_back(colorComment + "// SISTEMA DE COMBATE" + reset);
-        blockCentral.push_back(colorComment + "// O sistema de defesas depende do Parry, que eh um minigame de reacao." + reset);
-        blockCentral.push_back(colorComment + "// Escolha o modo de Parry" + reset);
+        blockCentral.push_back(colorComment + "// Sistema de combat e defesas ativas" + reset);
+        blockCentral.push_back(colorComment + "// O subsistema de mitigation depende do parry (minigame de reação)." + reset);
+        blockCentral.push_back(colorComment + "// Selecione o modo de parry:" + reset);
         blockCentral.push_back("");
         
         blockCentral.push_back(colorType + "void " + colorKeyword + "configurarParry" + colorPunct + "() {");
@@ -234,10 +235,17 @@ ParryScreen::Result IDEParryScreen::display(const std::string& namePlayer, const
         
         blockCentral.push_back(colorPunct + "}");
 
-        int spacesY = IDEMenuScreen::calculateSpaceY(blockCentral.size());
-        for (int i = 0; i < spacesY; ++i) std::cout << "\n";
-        
-        IDEMenuScreen::printCentralizedBlockIDE(blockCentral);
+        std::vector<std::string> tabs = {
+            "ParryMechanics.hpp",
+            "CombatDefense.sys"
+        };
+        int width = Appearance::getTerminalWidth();
+        int height = Appearance::getTerminalHeight();
+        auto editorView = IDETheme::renderEditorView(tabs, 0, "// src/Systems/Combat/ParryMechanics.hpp > void configureParry()", blockCentral, width, height, "[W/S] Selecionar Modo | [ENTER] Confirmar");
+
+        Appearance::clearScreen();
+        for (const auto& l : editorView) std::cout << l << "\n";
+        std::cout << "\033[J" << std::flush;
 
         unsigned char key = static_cast<unsigned char>(InputControl::readKey());
         if (key == 224 || key == 0 || key == '\033') {

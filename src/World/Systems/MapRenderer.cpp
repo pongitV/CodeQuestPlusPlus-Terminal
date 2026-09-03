@@ -1,9 +1,12 @@
 #include "World/Systems/MapRenderer.h"
 #include "Core/Utils/Appearance.h"
+#include "UI/PerspectiveManager.h"
+#include "UI/Renderers/IDE/IDEScreens/Exploration/IDEMapExplorationRenderer.h"
 #include <iostream>
 #include <algorithm>
 
 namespace {
+
     void calculateCameraAxis(int maxVisible, int playerPosition, int mapSize, int& start, int& end) {
         start = 0;
         end = mapSize;
@@ -36,7 +39,12 @@ std::string MapRenderer::calculateCenteredMargin(int terminalWidth, int textWidt
     return std::string(spaces > 0 ? spaces : 0, ' ');
 }
 
-void MapRenderer::renderMap(const std::vector<std::string>& mapMatrix, int playerPositionX, int playerPositionY, int terminalWidth, int terminalHeight, int initialLine, const std::function<std::string(char, int, int)>& cellFormatter) {
+void MapRenderer::renderMap(const std::vector<std::string>& mapMatrix, int playerPositionX, int playerPositionY, int terminalWidth, int terminalHeight, int initialLine, const std::function<std::string(char, int, int)>& cellFormatter, Character* currentPlayer, const std::string& mapTitle) {
+    if (!PerspectiveManager::getInstance().is3DViewActive()) {
+        IDEMapExplorationRenderer::render(mapMatrix, playerPositionX, playerPositionY, terminalWidth, terminalHeight, initialLine, cellFormatter, currentPlayer, mapTitle);
+        return;
+    }
+
     int startX, endX;
     calculateCameraHorizontal(terminalWidth, playerPositionX, mapMatrix.empty() ? 0 : static_cast<int>(mapMatrix[0].length()), startX, endX);
 

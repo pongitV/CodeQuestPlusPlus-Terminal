@@ -143,7 +143,7 @@ NextMapTransition MapControl::executeExplorationLoop(
         if (needsRender && !PerspectiveManager::getInstance().is3DViewActive()) {
             int terminalHeight = Appearance::getTerminalHeight();
 
-            MapRenderer::renderMap(currentMapMatrix, playerPositionX, playerPositionY, terminalWidth, terminalHeight, initialLineToDrawMap, formatter);
+            MapRenderer::renderMap(currentMapMatrix, playerPositionX, playerPositionY, terminalWidth, terminalHeight, initialLineToDrawMap, formatter, currentPlayer, currentMapTitle);
 
             needsRender = false;
         }
@@ -156,11 +156,22 @@ NextMapTransition MapControl::executeExplorationLoop(
             processInput = true;
         }
 
-        if (PerspectiveManager::getInstance().is3DViewActive() || (processInput && (keyPressedByPlayer == 'v' || keyPressedByPlayer == 'V'))) {
+        bool toggleTo3DRequested = (processInput && (keyPressedByPlayer == 'v' || keyPressedByPlayer == 'V'));
+        if (toggleTo3DRequested) {
+            while (GetAsyncKeyState('V') & 0x8000) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(15));
+            }
+            InputControl::clearBuffer();
+            Appearance::clearScreen();
+            PerspectiveManager::getInstance().toggleView();
+            processInput = false;
+        }
+
+        if (PerspectiveManager::getInstance().is3DViewActive()) {
             static std::string previousTitle = "";
             int animationType = 0;
             
-            bool changingPerspective = !PerspectiveManager::getInstance().is3DViewActive();
+            bool changingPerspective = toggleTo3DRequested;
             if (changingPerspective) {
                 animationType = 1;
             }
@@ -176,9 +187,6 @@ NextMapTransition MapControl::executeExplorationLoop(
             }
 
             MapCameraController::resetMapChangeFlag();
-            if (!PerspectiveManager::getInstance().is3DViewActive()) {
-                PerspectiveManager::getInstance().toggleView();
-            }
 
             if (cameraPosX3D == -1.0f || static_cast<int>(cameraPosX3D) != playerPositionX || static_cast<int>(cameraPosY3D) != playerPositionY) {
                 cameraPosX3D = static_cast<float>(playerPositionX) + 0.5f;
@@ -248,6 +256,12 @@ NextMapTransition MapControl::executeExplorationLoop(
                 if (pendingAction == 'M') {
                     keyPressedByPlayer = 'M';
                     processInput = true;
+                } else if (pendingAction == 'V') {
+                    Appearance::clearScreen();
+                    initialLineToDrawMap = 0;
+                    InputControl::clearBuffer();
+                    needsRender = true;
+                    continue;
                 } else if (!isTrigger) {
                     restoreScreen();
                     needsRender = true;

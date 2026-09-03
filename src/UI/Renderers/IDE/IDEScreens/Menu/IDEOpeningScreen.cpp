@@ -2,41 +2,37 @@
 #include <iostream>
 #include "Core/Utils/Appearance.h"
 #include "Core/Utils/InputControl.h"
-#include "UI/Renderers/IDE/IDEScreens/Menu/IDEMenuScreen.h"
+#include "UI/Renderers/IDE/IDETheme.h"
 
 void IDEOpeningScreen::display() {
     std::cout << "\033[?25l";
     Appearance::clearScreen();
-    
-    std::string colorKeyword = "\033[38;2;86;156;214m"; // Blue
-    std::string colorType = "\033[38;2;78;201;176m"; // Cyan
-    std::string colorPunct = "\033[38;2;212;212;212m"; // Gray
-    std::string colorString = "\033[38;2;214;157;133m"; // Orange/Greenish
-    std::string colorNumber = "\033[38;2;181;206;168m"; // Light Green
-    std::string colorComment = "\033[38;2;87;166;74m"; // Green
-    std::string reset = "\033[0m";
 
-    std::vector<std::string> blockCentral;
-    blockCentral.push_back(colorComment + "// Iniciando boot da Engine..." + reset);
-    blockCentral.push_back(colorType + "System" + colorPunct + "::" + colorKeyword + "out" + colorPunct + "." + colorKeyword + "println" + colorPunct + "(" + colorString + "\"Carregando modulos principais...\"" + colorPunct + ");");
-    blockCentral.push_back(colorType + "System" + colorPunct + "::" + colorKeyword + "out" + colorPunct + "." + colorKeyword + "println" + colorPunct + "(" + colorString + "\"[OK] Modulo Grafico Inicializado\"" + colorPunct + ");");
-    blockCentral.push_back(colorType + "System" + colorPunct + "::" + colorKeyword + "out" + colorPunct + "." + colorKeyword + "println" + colorPunct + "(" + colorString + "\"[OK] Sistema de Input Pronto\"" + colorPunct + ");");
-    blockCentral.push_back(colorType + "System" + colorPunct + "::" + colorKeyword + "out" + colorPunct + "." + colorKeyword + "println" + colorPunct + "(" + colorString + "\"[OK] Motor de Perspectiva (IDE) Ativo\"" + colorPunct + ");");
-    blockCentral.push_back("");
-    blockCentral.push_back(colorType + "GameEngine" + colorPunct + "::" + colorKeyword + "run" + colorPunct + "();");
-    blockCentral.push_back("");
-    blockCentral.push_back(colorComment + "// -> PRESSIONE QUALQUER TECLA PARA INICIAR <-" + reset);
+    int width = Appearance::getTerminalWidth();
+    int height = Appearance::getTerminalHeight();
 
-    int spacesY = IDEMenuScreen::calculateSpaceY(blockCentral.size());
-    for (int i = 0; i < spacesY; ++i) std::cout << "\n";
-    
-    IDEMenuScreen::printCentralizedBlockIDE(blockCentral);
+    std::vector<std::string> lines;
+    lines.push_back(IDETheme::preprocessor("#pragma once"));
+    lines.push_back(IDETheme::comment("// [BOOT] Inicializacao do Runtime C++23 da Engine..."));
+    lines.push_back("");
+    lines.push_back(IDETheme::type("std") + IDETheme::punctuation("::") + IDETheme::function("println") + IDETheme::punctuation("(") + IDETheme::stringLiteral("Carregando modulos principais...") + IDETheme::punctuation(");"));
+    lines.push_back(IDETheme::type("std") + IDETheme::punctuation("::") + IDETheme::function("println") + IDETheme::punctuation("(") + IDETheme::stringLiteral("[OK] Modulo Grafico Inicializado") + IDETheme::punctuation(");"));
+    lines.push_back(IDETheme::type("std") + IDETheme::punctuation("::") + IDETheme::function("println") + IDETheme::punctuation("(") + IDETheme::stringLiteral("[OK] Sistema de Input Pronto") + IDETheme::punctuation(");"));
+    lines.push_back(IDETheme::type("std") + IDETheme::punctuation("::") + IDETheme::function("println") + IDETheme::punctuation("(") + IDETheme::stringLiteral("[OK] Motor de Perspectiva (IDE) Ativo") + IDETheme::punctuation(");"));
+    lines.push_back("");
+    lines.push_back(IDETheme::type("Engine::Core") + IDETheme::punctuation("::") + IDETheme::function("initialize") + IDETheme::punctuation("();"));
+    lines.push_back(IDETheme::type("Engine::Core") + IDETheme::punctuation("::") + IDETheme::function("runMainLoop") + IDETheme::punctuation("();"));
 
-    std::cout << std::flush;
+    std::vector<std::string> tabs = {
+        "BootLoader.sys",
+        "KernelInit.cpp"
+    };
+    auto editorView = IDETheme::renderEditorView(tabs, 0, "// sys/boot/BootLoader.sys > void startRuntime()", lines, width, height, "[PRESSIONE QUALQUER TECLA PARA INICIAR]");
+
+    for (const auto& l : editorView) std::cout << l << "\n";
+    std::cout << "\033[J" << std::flush;
 
     InputControl::clearBuffer();
-    // [PT-BR] Leitura sincrona da tecla para continuar
-    // [EN-US] Synchronous key read to continue
     InputControl::readKey();
     InputControl::clearBuffer();
 }

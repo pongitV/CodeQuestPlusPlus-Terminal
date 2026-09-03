@@ -1,8 +1,6 @@
 #include "UI/PerspectiveManager.h"
 #include "UI/Renderers/3D/EngineRaycaster/Raycaster.h"
 #include "UI/Renderers/3D/EngineRaycaster/RaycasterRenderer.h"
-#include "Core/Utils/RendererProvider.h"
-#include "Core/Utils/Appearance.h"
 #include "UI/Renderers/3D/RaycasterScreenManager.h"
 #include "UI/Renderers/3D/RaycasterScreens/Diary/RaycasterDiaryScreen.h"
 #include "UI/Renderers/3D/RaycasterScreens/Inventory/RaycasterInventoryScreen.h"
@@ -14,21 +12,34 @@
 #include "UI/Renderers/3D/RaycasterScreens/Pause/RaycasterPauseScreen.h"
 #include "UI/Renderers/3D/RaycasterScreens/Map/RaycasterWorldMapScreen.h"
 
-// [PT-BR] Adaptadores de UI que implementam as interfaces abstratas por delegacao para os renderizadores concretos.
-// [EN-US] UI Adapters implementing abstract interfaces by delegating to concrete renderers.
+#include "UI/Renderers/IDE/EngineIDE/IDERenderer.h"
+#include "UI/Renderers/IDE/IDEScreenManager.h"
+#include "UI/Renderers/IDE/IDEScreens/Diary/IDEDiaryScreen.h"
+#include "UI/Renderers/IDE/IDEScreens/Inventory/IDEInventoryScreen.h"
+#include "UI/Renderers/IDE/IDEScreens/Attributes/IDEAttributesScreen.h"
+#include "UI/Renderers/IDE/IDEScreens/Bestiary/IDEBestiaryScreen.h"
+#include "UI/Renderers/IDE/IDEScreens/Combat/IDECombatScreen.h"
+#include "UI/Renderers/IDE/IDEScreens/Defeat/IDEDefeatScreen.h"
+#include "UI/Renderers/IDE/IDEScreens/Victory/IDEVictoryScreen.h"
+#include "UI/Renderers/IDE/IDEScreens/Pause/IDEPauseScreen.h"
+#include "UI/Renderers/IDE/IDEScreens/Map/IDEMapScreen.h"
 
-class AttributesUIAdapter : public IAttributesUI {
+#include "Core/Utils/RendererProvider.h"
+#include "Core/Utils/Appearance.h"
+
+// [PT-BR] Adaptadores de UI concretos do Raycaster 3D
+class Attributes3DAdapter : public IAttributesUI {
     void display(Character* player) override { RaycasterAttributesScreen::display(player); }
     void displayDetailsAttributes(Character* currentPlayer) override { RaycasterAttributesScreen::displayDetailsAttributes(currentPlayer); }
     void managePlayerCharacterSheet(Character* currentPlayer) override { RaycasterAttributesScreen::managePlayerCharacterSheet(currentPlayer); }
 };
 
-class BestiaryUIAdapter : public IBestiaryUI {
+class Bestiary3DAdapter : public IBestiaryUI {
     void display(const std::vector<Character*>& enemies) override { RaycasterBestiaryScreen::display(enemies); }
     void displayDetail(Character* enemy) override { RaycasterBestiaryScreen::displayDetail(enemy); }
 };
 
-class ScreenCombatUIAdapter : public ICombatScreenUI {
+class ScreenCombat3DAdapter : public ICombatScreenUI {
     void displayLogoForCombatScreen(const std::string& screenTitle, bool animate) override { RaycasterCombatScreen::displayLogoForCombatScreen(screenTitle, animate); }
     void animateCombatIntro(const std::string& title, const std::vector<Character*>& enemies, Character* currentPlayer) override { RaycasterCombatScreen::animateCombatIntro(title, enemies, currentPlayer); }
     std::vector<std::string> getPlayerStatusBarLines(Character* currentPlayer, Color colorHighlight, int damageAnimation, int frameAnimation, bool isHealing) override { return RaycasterCombatScreen::getPlayerStatusBarLines(currentPlayer, colorHighlight, damageAnimation, frameAnimation, isHealing); }
@@ -59,15 +70,15 @@ class ScreenCombatUIAdapter : public ICombatScreenUI {
     void notifyUnmetRequirement(const std::string& requirementMessage) override { RaycasterCombatScreen::notifyUnmetRequirement(requirementMessage); }
 };
 
-class DefeatUIAdapter : public IDefeatUI {
+class Defeat3DAdapter : public IDefeatUI {
     void display(Character* currentPlayer, int obtainedGoldQuantity, int obtainedXpQuantity, int totalDamageCaused, int totalDamageReceived, int totalHealingReceived, int combatTurns) override { RaycasterDefeatScreen::display(currentPlayer, obtainedGoldQuantity, obtainedXpQuantity, totalDamageCaused, totalDamageReceived, totalHealingReceived, combatTurns); }
 };
 
-class VictoryUIAdapter : public IVictoryUI {
+class Victory3DAdapter : public IVictoryUI {
     void display(Character* currentPlayer, int obtainedGoldQuantity, int obtainedXpQuantity, int totalDamageCaused, int totalDamageReceived, int totalHealingReceived, int combatTurns, const std::vector<std::string>& enemiesDefeated, int parriesPerfect, int biggerDamage, int parriesTempted, int parriesEffective, int itemsConsumed, const std::vector<std::pair<std::string, int>>& dropsUnique, bool canRiseLevel, const std::vector<std::string>& newDiscoveries, const std::string& titleMap) override { RaycasterVictoryScreen::display(currentPlayer, obtainedGoldQuantity, obtainedXpQuantity, totalDamageCaused, totalDamageReceived, totalHealingReceived, combatTurns, enemiesDefeated, parriesPerfect, biggerDamage, parriesTempted, parriesEffective, itemsConsumed, dropsUnique, canRiseLevel, newDiscoveries, titleMap); }
 };
 
-class PauseUIAdapter : public IPauseUI {
+class Pause3DAdapter : public IPauseUI {
     int renderMenuPause() override { return RaycasterPauseScreen::renderMenuPause(); }
     int renderSettingsMenu(Character* player) override { return RaycasterPauseScreen::renderSettingsMenu(player); }
     int renderMenuAppearance(Character* player) override { return RaycasterPauseScreen::renderMenuAppearance(player); }
@@ -75,42 +86,38 @@ class PauseUIAdapter : public IPauseUI {
     int renderMenuSensitivity(int percentX, int percentY) override { return RaycasterPauseScreen::renderMenuSensitivity(percentX, percentY); }
 };
 
-class MapWorldUIAdapter : public IWorldMapUI {
+class MapWorld3DAdapter : public IWorldMapUI {
     void renderPopup(const std::vector<std::string>& art, const std::vector<std::string>& places, int selection, bool redesignComplete) override { RaycasterWorldMapScreen::renderPopup(art, places, selection, redesignComplete); }
 };
 
-PerspectiveManager::PerspectiveManager() : m_view3DActive(true) {
-}
+PerspectiveManager::PerspectiveManager() : m_view3DActive(true) {}
 
 void PerspectiveManager::boot() {
     m_renderer3D = std::make_unique<RaycasterRenderer>();
     m_screens3D = std::make_unique<RaycasterScreenManager>();
+
+    m_rendererIDE = std::make_unique<IDERenderer>();
+    m_screensIDE = std::make_unique<IDEScreenManager>();
+
     m_view3DActive = true;
     RendererProvider::set(m_renderer3D.get());
 }
 
 void PerspectiveManager::toggleView() {
-    Appearance::displayPopup(
-        "PERSPECTIVA IDE",
-        {"A perspective IDE esta em construcao!",
-         "",
-         "Em breve voce podera explorar o jogo",
-         "no estilo de um terminal de programacao.",
-         "Por enquanto, apenas a visao 3D esta disponivel."},
-        Color::YELLOW
-    );
+    m_view3DActive = !m_view3DActive;
+    RendererProvider::set(m_view3DActive ? m_renderer3D.get() : m_rendererIDE.get());
 }
 
 bool PerspectiveManager::is3DViewActive() const {
-    return true;
+    return m_view3DActive;
 }
 
 PerspectiveRenderer* PerspectiveManager::getRendererActive() const {
-    return m_renderer3D.get();
+    return m_view3DActive ? m_renderer3D.get() : m_rendererIDE.get();
 }
 
 IManagerScreens* PerspectiveManager::getManagerScreens() const {
-    return m_screens3D.get();
+    return m_view3DActive ? m_screens3D.get() : m_screensIDE.get();
 }
 
 float PerspectiveManager::getSensitivityMouseX() {
@@ -127,46 +134,55 @@ void PerspectiveManager::setSensitivityMouse(float x, float y) {
 }
 
 IDiaryUI& PerspectiveManager::getDiaryUI() {
-    static RaycasterDiaryScreen diaryUI;
-    return diaryUI;
+    static RaycasterDiaryScreen diary3D;
+    if (getInstance().is3DViewActive()) return diary3D;
+    return IDEDiaryScreen::instance();
 }
 
 IInventoryUI& PerspectiveManager::getInventoryUI() {
-    static RaycasterInventoryScreen inventoryUI;
-    return inventoryUI;
+    static RaycasterInventoryScreen inventory3D;
+    if (getInstance().is3DViewActive()) return inventory3D;
+    return IDEInventoryScreen::instance();
 }
 
 IAttributesUI& PerspectiveManager::getAttributesUI() {
-    static AttributesUIAdapter adapter;
-    return adapter;
+    static Attributes3DAdapter attributes3D;
+    if (getInstance().is3DViewActive()) return attributes3D;
+    return IDEAttributesScreen::instance();
 }
 
 IBestiaryUI& PerspectiveManager::getBestiaryUI() {
-    static BestiaryUIAdapter adapter;
-    return adapter;
+    static Bestiary3DAdapter bestiary3D;
+    if (getInstance().is3DViewActive()) return bestiary3D;
+    return IDEBestiaryScreen::instance();
 }
 
 ICombatScreenUI& PerspectiveManager::getScreenCombatUI() {
-    static ScreenCombatUIAdapter adapter;
-    return adapter;
+    static ScreenCombat3DAdapter combat3D;
+    if (getInstance().is3DViewActive()) return combat3D;
+    return IDECombatScreen::instance();
 }
 
 IDefeatUI& PerspectiveManager::getDefeatUI() {
-    static DefeatUIAdapter adapter;
-    return adapter;
+    static Defeat3DAdapter defeat3D;
+    if (getInstance().is3DViewActive()) return defeat3D;
+    return IDEDefeatScreen::instance();
 }
 
 IVictoryUI& PerspectiveManager::getVictoryUI() {
-    static VictoryUIAdapter adapter;
-    return adapter;
+    static Victory3DAdapter victory3D;
+    if (getInstance().is3DViewActive()) return victory3D;
+    return IDEVictoryScreen::instance();
 }
 
 IPauseUI& PerspectiveManager::getPauseUI() {
-    static PauseUIAdapter adapter;
-    return adapter;
+    static Pause3DAdapter pause3D;
+    if (getInstance().is3DViewActive()) return pause3D;
+    return IDEPauseScreen::instance();
 }
 
 IWorldMapUI& PerspectiveManager::getMapWorldUI() {
-    static MapWorldUIAdapter adapter;
-    return adapter;
+    static MapWorld3DAdapter map3D;
+    if (getInstance().is3DViewActive()) return map3D;
+    return IDEMapScreen::instance();
 }
