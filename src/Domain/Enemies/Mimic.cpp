@@ -143,11 +143,6 @@ void Mimic::onCausingDamage(Character* attacker, Character* target, int damageCa
     target->getInventory()->addGold(-robbery);
     goldStolenTotal += robbery;
     
-    /*
-     * A mensagem na UI foi removida para priorizar o combate limpo
-     * std::string msg = CombatScreen::combatMargin() + Appearance::color(Color::YELLOW) + ">> [MIMICO]: Com uma lingua grotesca, o Mimico roubou " + std::to_string(stolenGold) + "G do seu bolso!" + Appearance::color(Color::RESET) + "\n";
-     * CombatScreen::addFixedMessage(msg);
-     */
     Appearance::registerBattleLog(DialogueFunctions::formatSkillMsg("Com uma lingua grotesca, o Mimico roubou " + std::to_string(robbery) + "G do seu bolso!", Color::YELLOW));
 }
 

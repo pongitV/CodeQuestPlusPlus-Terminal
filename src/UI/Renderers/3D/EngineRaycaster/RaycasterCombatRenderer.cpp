@@ -145,7 +145,8 @@ std::vector<std::string> RaycasterRendererCombat::getArenaByTitle(const std::str
 
 /*
  * ═══════════════════════════════════════════════════════════════════
- * Cor base do sprite do inimigo (mesmas cores do RaycasterInimigos)
+ * [PT-BR] Cor base do sprite do inimigo (mesmas cores do RaycasterEnemies)
+ * [EN-US] Enemy sprite base color (same palette as RaycasterEnemies)
  * ═══════════════════════════════════════════════════════════════════
  */
 std::tuple<int,int,int> RaycasterRendererCombat::getColorSpriteEnemy(Character* enemy) {
@@ -213,7 +214,7 @@ std::vector<std::string> RaycasterRendererCombat::renderFrame(
     // Posicao fixa: centro da arena, olhando para Norte
     float jX = static_cast<float>(arena[0].size()) / 2.0f;
     float jY = static_cast<float>(arena.size()) - 2.0f;
-    float angle = -1.57f; // Olhando pro Norte
+    float angle = -1.57f; // [EN-US] Facing North (-PI/2)
 
     int widthScreen = Appearance::getTerminalWidth();
     int terminalHeight = Appearance::getTerminalHeight();
@@ -529,7 +530,8 @@ void RaycasterRendererCombat::superimposeSprite(
                                 }
                             }
 
-                            // Checa se eh borda (pixel adjacente a espaco ou borda da arte)
+                            // [PT-BR] Verifica se e borda (pixel adjacente a espaco ou borda da arte)
+                            // [EN-US] Checks if pixel is an edge (adjacent to space or sprite border)
                             bool isEdge = false;
                             for (int dy = -1; dy <= 1; ++dy) {
                                 for (int dx = -1; dx <= 1; ++dx) {

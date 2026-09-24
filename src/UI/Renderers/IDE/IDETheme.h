@@ -98,6 +98,7 @@ namespace IDETheme {
     }
 
     // [PT-BR] Barra de vida expressa no estilo de código C++: [████░░] 30/50
+    // [EN-US] Health bar styled in C++ code syntax: [████░░] 30/50
     inline std::string renderCodeHealthBar(int current, int max, int barWidth = 10) {
         if (max <= 0) max = 1;
         float ratio = static_cast<float>(current) / static_cast<float>(max);
@@ -120,6 +121,7 @@ namespace IDETheme {
     }
 
     // [PT-BR] Centraliza uma linha individual de acordo com a largura do terminal
+    // [EN-US] Centers an individual line according to terminal width
     inline std::string centerLine(const std::string& line, int totalWidth) {
         int vLen = Appearance::getVisualLength(line);
         int pad = std::max(0, (totalWidth - vLen) / 2);
@@ -127,6 +129,7 @@ namespace IDETheme {
     }
 
     // [PT-BR] Centraliza um bloco de linhas preservando o alinhamento e indentação interna
+    // [EN-US] Centers a block of lines while preserving internal alignment and indentation
     inline std::vector<std::string> centerBlock(const std::vector<std::string>& block, int totalWidth) {
         int maxLen = 0;
         for (const auto& l : block) {
@@ -144,12 +147,14 @@ namespace IDETheme {
     }
 
     // [PT-BR] Calcula espaçamento vertical superior para centralizar conteúdo
+    // [EN-US] Calculates top vertical padding to center content
     inline int calculateTopPadding(int contentHeight, int termHeight) {
         if (termHeight <= contentHeight) return 0;
         return (termHeight - contentHeight) / 2;
     }
 
     // [PT-BR] Centraliza um bloco de linhas horizontalmente e verticalmente na tela
+    // [EN-US] Centers a block of lines horizontally and vertically on screen
     inline std::vector<std::string> centerScreen(const std::vector<std::string>& block, int totalWidth, int totalHeight) {
         auto horizontallyCentered = centerBlock(block, totalWidth);
         int topPadding = calculateTopPadding(static_cast<int>(horizontallyCentered.size()), totalHeight);
@@ -164,10 +169,11 @@ namespace IDETheme {
     }
 
     // [PT-BR] Renderiza a visualização clássica de IDE:
-    // - Linha 0: Abas coladas no teto
-    // - Linha 1: Caminho / Breadcrumb técnico do arquivo
-    // - Linhas restantes: Bloco de código-fonte centralizado horizontal e verticalmente no viewport
-    // - Rodapé: Barra de status / telemetria técnica
+    // [EN-US] Renders the classic IDE view:
+    // - Linha 0: Abas coladas no teto / Tabs on top
+    // - Linha 1: Caminho / Technical file breadcrumb
+    // - Linhas restantes: Bloco de código-fonte centralizado / Centered source code block
+    // - Rodapé: Barra de status / Technical telemetry status bar
     inline std::vector<std::string> renderEditorView(
         const std::vector<std::string>& tabs,
         int activeTab,

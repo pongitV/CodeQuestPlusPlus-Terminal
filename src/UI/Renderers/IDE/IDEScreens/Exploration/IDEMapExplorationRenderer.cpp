@@ -18,6 +18,7 @@ void IDEMapExplorationRenderer::render(
     const std::string& mapTitle
 ) {
     // [PT-BR] 1. Layout de Abas no Topo
+    // [EN-US] 1. Top Tab Bar Layout
     std::string safeTitle = mapTitle.empty() ? "MapMain.cpp" : mapTitle + ".cpp";
     for (char& c : safeTitle) if (c == ' ') c = '_';
 
@@ -28,12 +29,14 @@ void IDEMapExplorationRenderer::render(
     };
     std::string tabLine = IDETheme::renderTabBar(tabs, 0, terminalWidth);
 
-    // [PT-BR] 2. Divisão de Largura (Opção A)
-    // Esquerda: ~55% da largura (mínimo 36 cols); Direita: restante para o Watch/Inspector
+    // [PT-BR] 2. Divisao de Largura (Opcao A)
+    // [EN-US] 2. Split-Screen Width Division (Option A)
+    // Esquerda: ~55% da largura (minimo 36 cols); Direita: restante para o Watch/Inspector
     int mapTargetWidth = std::clamp((terminalWidth * 55) / 100, 36, terminalWidth - 30);
     int rightPanelWidth = std::max(26, terminalWidth - mapTargetWidth - 3);
 
-    // [PT-BR] 3. Cálculo da Câmera do Mapa (Esquerda)
+    // [PT-BR] 3. Calculo da Camera do Mapa (Esquerda)
+    // [EN-US] 3. Map Camera Calculation (Left)
     int mapTotalWidth = mapMatrix.empty() ? 0 : static_cast<int>(mapMatrix[0].length());
     int mapTotalHeight = static_cast<int>(mapMatrix.size());
 
@@ -59,7 +62,8 @@ void IDEMapExplorationRenderer::render(
         }
     }
 
-    // [PT-BR] 4. Coleta dos Blocos de Inspeção (Direita)
+    // [PT-BR] 4. Coleta dos Blocos de Inspecao (Direita)
+    // [EN-US] 4. Inspector Code Block Gathering (Right)
     std::vector<std::string> playerInspector = IDEInspector::inspectPlayer(currentPlayer, playerPositionX, playerPositionY);
     std::vector<std::string> entityInspector = IDEInspector::inspectNearestEntity(mapMatrix, playerPositionX, playerPositionY, mapTitle);
 
@@ -68,7 +72,8 @@ void IDEMapExplorationRenderer::render(
     rightLines.push_back("");
     rightLines.insert(rightLines.end(), entityInspector.begin(), entityInspector.end());
 
-    // [PT-BR] 5. Montagem do Buffer Atômico (Substitui por cima no topo da tela)
+    // [PT-BR] 5. Montagem do Buffer Atomico (Substitui por cima no topo da tela)
+    // [EN-US] 5. Atomic Buffer Assembly (Overwrites from screen top)
     std::ostringstream frame;
     frame << "\033[H"; // Move cursor para (0, 0)
     frame << tabLine << "\033[K\n";
@@ -116,8 +121,9 @@ void IDEMapExplorationRenderer::render(
     }
 
     // [PT-BR] 6. Barra de Status Inferior da IDE
+    // [EN-US] 6. Bottom IDE Status Bar
     std::string posInfo = "Ln " + std::to_string(playerPositionY) + ", Col " + std::to_string(playerPositionX) + " | C++23 | UTF-8";
-    std::string helpInfo = "[W,A,S,D] Mover | [V] Modo 3D | [I] Inv | [C] Ficha | [B] Bestiario | [M] Mapa";
+    std::string helpInfo = "[W,A,S,D] Mover | [V] Modo 3D | [I] Inv | [C] Ficha | [B] Diario | [M] Mapa";
 
     frame << IDETheme::renderStatusBar(posInfo, helpInfo, terminalWidth) << "\033[K";
 

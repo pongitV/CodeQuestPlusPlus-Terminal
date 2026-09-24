@@ -52,12 +52,12 @@ void addOption(std::vector<std::string>& lines, const std::string& text, bool se
     }
 }
 
-void displayPopupEWait(const std::string& title, const std::vector<std::string>& lines) {
+void displayPopupAndWait(const std::string& title, const std::vector<std::string>& lines) {
     PerspectiveManager::getDiaryUI().renderPopupMessage(title, lines);
     InputControl::readKey();
 }
 
-void displayPopupWithArtEWait(const std::string& title, const std::vector<std::string>& art, const std::vector<std::string>& info, const std::string& subtitle) {
+void displayPopupWithArtAndWait(const std::string& title, const std::vector<std::string>& art, const std::vector<std::string>& info, const std::string& subtitle) {
     PerspectiveManager::getDiaryUI().renderPopupInspectionWithArt(title, art, info, subtitle);
     InputControl::readKey();
 }
@@ -70,7 +70,7 @@ void inspectItem(Character* currentPlayer, const std::string& itemName) {
         linesInsp.push_back(Appearance::color(Color::YELLOW) + " >> " + item->getItemName() + " <<" + Appearance::color(Color::RESET));
         linesInsp.push_back("");
         linesInsp.insert(linesInsp.end(), details.begin(), details.end());
-        displayPopupEWait("INSPECAO DE ITEM", linesInsp);
+        displayPopupAndWait("INSPECAO DE ITEM", linesInsp);
     }
 }
 
@@ -100,7 +100,7 @@ void inspectNPC(const std::string& nameNPC) {
         temp.erase(0, post + 1);
     }
     linesLore.push_back(" > " + temp);
-    displayPopupWithArtEWait("INSPECAO DE NPC", art, linesLore, nameNPC);
+    displayPopupWithArtAndWait("INSPECAO DE NPC", art, linesLore, nameNPC);
 }
 
 void inspectRace(const std::string& raceName) {
@@ -119,7 +119,7 @@ void inspectRace(const std::string& raceName) {
             raceObj->getNameSkillRace(),
             raceObj->getDescriptionSkillRace()
         );
-        displayPopupWithArtEWait("INSPECAO DE RACA", art, attributes, raceName);
+        displayPopupWithArtAndWait("INSPECAO DE RACA", art, attributes, raceName);
     }
 }
 
@@ -143,7 +143,7 @@ void inspectClass(const std::string& className) {
             classObj->getNameSkillClass(),
             classObj->getDescriptionSkillClass()
         );
-        displayPopupWithArtEWait("INSPECAO DE CLASSE", art, attributes, className);
+        displayPopupWithArtAndWait("INSPECAO DE CLASSE", art, attributes, className);
     }
 }
 
@@ -163,7 +163,7 @@ void inspectBestiary(const std::string& nameEnemy) {
         } else {
             details.push_back(Appearance::color(Color::GRAY) + "Ainda nao derrotado. Pouco se sabe sobre seus costumes." + Appearance::color(Color::RESET));
         }
-        displayPopupWithArtEWait("BESTIARIO", info->appearance, details, nameEnemy);
+        displayPopupWithArtAndWait("BESTIARIO", info->appearance, details, nameEnemy);
     }
 }
 

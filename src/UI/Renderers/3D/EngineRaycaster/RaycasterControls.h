@@ -21,25 +21,30 @@ struct MouseHider {
             isHidden = true;
         }
     }
-    void concert() {
+    // [PT-BR] Restaura os cursores padrao do sistema operacional
+    // [EN-US] Restores standard operating system mouse cursors
+    void restore() {
         if (isHidden) {
-            SystemParametersInfoA(SPI_SETCURSORS, 0, NULL, 0); // Restaura cursores padrao do sistema
+            SystemParametersInfoA(SPI_SETCURSORS, 0, NULL, 0);
             isHidden = false;
         }
     }
+    void concert() { restore(); }
     ~MouseHider() {
-        concert();
+        restore();
     }
 };
 #endif
 
 class RaycasterControls {
 public:
-    static char processInputEControls(
+    // [PT-BR] Processa entradas de teclado, mouse e fisica de movimento do jogador no modo 3D
+    // [EN-US] Processes keyboard, mouse input and player movement physics in 3D exploration mode
+    static char processInputAndControls(
         Character* player,
         float& playerX,
         float& playerY,
-        float& angleVisa,
+        float& viewAngle,
         float& pitchOffset,
         float timeDelta,
         float speedMovement,
@@ -56,8 +61,27 @@ public:
         MouseHider& mouseHider,
 #endif
         bool& isMoving,
-        float& bobbingTeam,
+        float& bobbingTimer,
         float& bobbingAmplitude,
         int& bobbingOffset
     );
+
+    // [EN-US] Backward compatibility alias
+    static char processInputEControls(
+        Character* player, float& playerX, float& playerY, float& viewAngle, float& pitchOffset,
+        float timeDelta, float speedMovement, const std::vector<std::string>& mapMatrix,
+        int SCREEN_HEIGHT, float sensitivityX, float sensitivityY, bool& firstIterationMouse,
+        int& outHitX, int& outHitY, bool& running, std::chrono::steady_clock::time_point& tp1,
+#ifdef _WIN32
+        MouseHider& mouseHider,
+#endif
+        bool& isMoving, float& bobbingTimer, float& bobbingAmplitude, int& bobbingOffset
+    ) {
+        return processInputAndControls(player, playerX, playerY, viewAngle, pitchOffset, timeDelta, speedMovement,
+            mapMatrix, SCREEN_HEIGHT, sensitivityX, sensitivityY, firstIterationMouse, outHitX, outHitY, running, tp1,
+#ifdef _WIN32
+            mouseHider,
+#endif
+            isMoving, bobbingTimer, bobbingAmplitude, bobbingOffset);
+    }
 };

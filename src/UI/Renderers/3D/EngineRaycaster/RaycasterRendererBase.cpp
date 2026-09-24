@@ -88,9 +88,9 @@ struct EntityReached {
     float texX;
 };
 
-void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int SCREEN_HEIGHT, float playerX, float playerY, float angleVisa, float horizon, int bobbingOffset, float depthMaximum, float timeAbsolute, const vector<string>& mapMatrix, const string& titleMap, bool themeForest, int themeSky, const map<char, SpriteCache>& cacheSprites) {
+void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int SCREEN_HEIGHT, float playerX, float playerY, float viewAngle, float horizon, int bobbingOffset, float depthMaximum, float timeAbsolute, const vector<string>& mapMatrix, const string& titleMap, bool themeForest, int themeSky, const map<char, SpriteCache>& cacheSprites) {
     ManagerTextures::boot();
-    float fieldVisa = 3.14159f / 4.0f; // FOV 45 graus
+    float fov = 3.14159f / 4.0f; // FOV 45 graus
     int widthMap = mapMatrix.empty() ? 0 : mapMatrix[0].size();
     int heightMap = mapMatrix.size();
 
@@ -169,32 +169,32 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
     float globalAngleSlow = ((globalMs % 300000) / 300000.0f) * 6.2831853f;
 
     for (int x = 0; x < SCREEN_WIDTH; x++) {
-        float radiusAngle = (angleVisa - fieldVisa / 2.0f) + ((float)x / (float)SCREEN_WIDTH) * fieldVisa;
-        rayDirX[x] = cosf(radiusAngle);
-        rayDirY[x] = sinf(radiusAngle);
-        fisheyeCorrection[x] = 1.0f / cosf(radiusAngle - angleVisa);
+        float rayAngle = (viewAngle - fov / 2.0f) + ((float)x / (float)SCREEN_WIDTH) * fov;
+        rayDirX[x] = cosf(rayAngle);
+        rayDirY[x] = sinf(rayAngle);
+        fisheyeCorrection[x] = 1.0f / cosf(rayAngle - viewAngle);
     }
 
-    int indexInThreads = std::thread::hardware_concurrency();
-    if (indexInThreads == 0) indexInThreads = 4;
+    int numThreads = std::thread::hardware_concurrency();
+    if (numThreads == 0) numThreads = 4;
     int chunkSize = 16;
-    int indexInChunks = (SCREEN_WIDTH + chunkSize - 1) / chunkSize;
+    int numChunks = (SCREEN_WIDTH + chunkSize - 1) / chunkSize;
     
     s_tasks.clear();
-    if (s_tasks.capacity() < static_cast<size_t>(indexInChunks)) {
-        s_tasks.reserve(indexInChunks);
+    if (s_tasks.capacity() < static_cast<size_t>(numChunks)) {
+        s_tasks.reserve(numChunks);
     }
 
-    for (int i = 0; i < indexInChunks; i++) {
+    for (int i = 0; i < numChunks; i++) {
         int startX = i * chunkSize;
         int endX = std::min(startX + chunkSize, SCREEN_WIDTH);
         s_tasks.push_back([&, startX, endX, globalAngleSlow]() {
             static thread_local std::vector<std::tuple<int, int, int>> wallLights;
             
             for (int x = startX; x < endX; x++) {
-        float radiusAngle = (angleVisa - fieldVisa / 2.0f) + ((float)x / (float)SCREEN_WIDTH) * fieldVisa;
-        float distanceUntilWall = 0.0f;
-        bool hitNaWall = false;
+        float rayAngle = (viewAngle - fov / 2.0f) + ((float)x / (float)SCREEN_WIDTH) * fov;
+        float distToWall = 0.0f;
+        bool hitWall = false;
 
         float eyeX = rayDirX[x];
         float eyeY = rayDirY[x];
@@ -206,26 +206,26 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
          * Traca a trajetoria do raio pulando perfeitamente pelas grades do mapa de forma rapida,
          * sem a necessidade de pequenos incrementos variaveis, calculando a colisao exata.
          */
-        float raySayX = eyeX;
-        float raySayY = eyeY;
+        float rayDirX_DDA = eyeX;
+        float rayDirY_DDA = eyeY;
 
         int mapX = (int)playerX;
         int mapY = (int)playerY;
 
-        float deltaDistX = (raySayX == 0.0f) ? 1e30f : std::abs(1.0f / raySayX);
-        float deltaDistY = (raySayY == 0.0f) ? 1e30f : std::abs(1.0f / raySayY);
+        float deltaDistX = (rayDirX_DDA == 0.0f) ? 1e30f : std::abs(1.0f / rayDirX_DDA);
+        float deltaDistY = (rayDirY_DDA == 0.0f) ? 1e30f : std::abs(1.0f / rayDirY_DDA);
 
         int stepX, stepY;
         float sideDistX, sideDistY;
 
-        if (raySayX < 0) {
+        if (rayDirX_DDA < 0) {
             stepX = -1;
             sideDistX = (playerX - mapX) * deltaDistX;
         } else {
             stepX = 1;
             sideDistX = (mapX + 1.0f - playerX) * deltaDistX;
         }
-        if (raySayY < 0) {
+        if (rayDirY_DDA < 0) {
             stepY = -1;
             sideDistY = (playerY - mapY) * deltaDistY;
         } else {
@@ -235,42 +235,42 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
 
         int side = 0;
 
-        while (!hitNaWall && distanceUntilWall < depthMaximum) {
+        while (!hitWall && distToWall < depthMaximum) {
             if (sideDistX < sideDistY) {
-                distanceUntilWall = sideDistX;
+                distToWall = sideDistX;
                 sideDistX += deltaDistX;
                 mapX += stepX;
                 side = 0;
             } else {
-                distanceUntilWall = sideDistY;
+                distToWall = sideDistY;
                 sideDistY += deltaDistY;
                 mapY += stepY;
                 side = 1;
             }
 
             if (mapX < 0 || mapX >= widthMap || mapY < 0 || mapY >= heightMap) {
-                hitNaWall = true;
-                distanceUntilWall = depthMaximum;
+                hitWall = true;
+                distToWall = depthMaximum;
             } else {
                 char c = mapMatrix[mapY][mapX];
                 if (c != '.' && c != ' ' && c != '~' && c != ',') {
                     if (!RaycasterWorld::isMapLabel(mapX, mapY, mapMatrix) && !RaycasterWorld::isEntity(c)) {
-                        hitNaWall = true;
+                        hitWall = true;
                         charWall = c;
                     }
                 }
             }
         } 
 
-        float hitX = playerX + eyeX * distanceUntilWall;
-        float hitY = playerY + eyeY * distanceUntilWall;
+        float hitX = playerX + eyeX * distToWall;
+        float hitY = playerY + eyeY * distToWall;
         
         /* 
          * Correcao do Efeito "Olho de Peixe" (Fisheye):
          * A distancia perpendicular ate a parede eh calculada ao inves da distancia Euclidiana 
          * reta, evitando que as paredes parecam arredondadas nas bordas da tela.
          */
-        float perpWallDist = distanceUntilWall / fisheyeCorrection[x];
+        float perpWallDist = distToWall / fisheyeCorrection[x];
         if (perpWallDist < 0.1f) perpWallDist = 0.1f;
 
         ZBuffer[x] = perpWallDist;
@@ -301,17 +301,17 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
         int nx = (side == 0) ? -stepX : 0;
         int ny = (side == 1) ? -stepY : 0;
         for (const auto& l : lights) {
-            float sayLightX = std::get<0>(l) + 0.5f - hitX;
-            float sayLightY = std::get<1>(l) + 0.5f - hitY;
-            if (sayLightX * nx + sayLightY * ny >= -0.5f) {
+            float dirLightX = std::get<0>(l) + 0.5f - hitX;
+            float dirLightY = std::get<1>(l) + 0.5f - hitY;
+            if (dirLightX * nx + dirLightY * ny >= -0.5f) {
                 wallLights.push_back(l);
             }
         }
 
         float pushX = hitX + nx * 0.01f;
         float pushY = hitY + ny * 0.01f;
-        Highlighter::InfoLight infoLightWall = Highlighter::calculateInfoLight(perpWallDist * 0.55f, depthMaximum, themeSky, wallLights, pushX, pushY, &mapMatrix, timeAbsolute);
-        float angleSky = radiusAngle;
+        Illuminator::InfoLight infoLightWall = Illuminator::calculateInfoLight(perpWallDist * 0.55f, depthMaximum, themeSky, wallLights, pushX, pushY, &mapMatrix, timeAbsolute);
+        float angleSky = rayAngle;
         if (themeSky == 0) { // Dynamic Outdoors
             angleSky -= globalAngleSlow;
         }
@@ -382,7 +382,7 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
                 float fractionY = currentY - std::floor(currentY);
                 screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getPixelWall(titleMap, themeForest, currentDist, depthMaximum, 'T', (int)(fractionY * 1000.0f), 0, 1000, fractionX, timeAbsolute, false, getCeilingInfoLight(y), currentX, currentY, ' ', 0.0f, 0.0f);
             } else {
-                screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getPixelCeiling(themeSky, radiusAngle, angleSky, y - bobbingOffset, SCREEN_HEIGHT, timeAbsolute);
+                screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getPixelCeiling(themeSky, rayAngle, angleSky, y - bobbingOffset, SCREEN_HEIGHT, timeAbsolute);
             }
         }
         
@@ -400,7 +400,7 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
                         float fractionY = currentY - std::floor(currentY);
                         screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getPixelWall(titleMap, themeForest, currentDist, depthMaximum, 'T', (int)(fractionY * 1000.0f), 0, 1000, fractionX, timeAbsolute, false, getCeilingInfoLight(y), currentX, currentY, ' ', 0.0f, 0.0f);
                     } else {
-                        screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getPixelCeiling(themeSky, radiusAngle, angleSky, y - bobbingOffset, SCREEN_HEIGHT, timeAbsolute);
+                        screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getPixelCeiling(themeSky, rayAngle, angleSky, y - bobbingOffset, SCREEN_HEIGHT, timeAbsolute);
                     }
                 } else {
                     float currentDist = factorDist / ((float)y - horizon);
@@ -411,7 +411,7 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
                     if (currentX >= 0 && currentX < widthMap && currentY >= 0 && currentY < heightMap) {
                         floorChar = mapMatrix[(int)currentY][(int)currentX];
                     }
-                    if (floorChar == '~') screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getPixelWater(currentX, currentY, currentDist, depthMaximum, radiusAngle, timeAbsolute, themeSky);
+                    if (floorChar == '~') screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getPixelWater(currentX, currentY, currentDist, depthMaximum, rayAngle, timeAbsolute, themeSky);
                     else screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getFloorPixel(titleMap, currentX, currentY, currentDist, depthMaximum, getFloorInfoLight(y));
                 }
             } else {
@@ -429,7 +429,7 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
             if (currentX >= 0 && currentX < widthMap && currentY >= 0 && currentY < heightMap) {
                 floorChar = mapMatrix[(int)currentY][(int)currentX];
             }
-            if (floorChar == '~') screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getPixelWater(currentX, currentY, currentDist, depthMaximum, radiusAngle, timeAbsolute, themeSky);
+            if (floorChar == '~') screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getPixelWater(currentX, currentY, currentDist, depthMaximum, rayAngle, timeAbsolute, themeSky);
             else screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getFloorPixel(titleMap, currentX, currentY, currentDist, depthMaximum, getFloorInfoLight(y));
         }
         } // para x
@@ -474,17 +474,17 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
 
     std::sort(spritesGlobal.begin(), spritesGlobal.end(), [](const SpriteProject& a, const SpriteProject& b) { return a.dist > b.dist; });
 
-    float sayX = cosf(angleVisa);
-    float sayY = sinf(angleVisa);
-    float planeX = -sinf(angleVisa) * tanf(fieldVisa / 2.0f);
-    float planeY = cosf(angleVisa) * tanf(fieldVisa / 2.0f);
+    float dirX = cosf(viewAngle);
+    float dirY = sinf(viewAngle);
+    float planeX = -sinf(viewAngle) * tanf(fov / 2.0f);
+    float planeY = cosf(viewAngle) * tanf(fov / 2.0f);
 
     for (const auto& sp : spritesGlobal) {
         float spriteX = sp.x - playerX;
         float spriteY = sp.y - playerY;
 
-        float invDet = 1.0f / (planeX * sayY - sayX * planeY);
-        float transformX = invDet * (sayY * spriteX - sayX * spriteY);
+        float invDet = 1.0f / (planeX * dirY - dirX * planeY);
+        float transformX = invDet * (dirY * spriteX - dirX * spriteY);
         float transformY = invDet * (-planeY * spriteX + planeX * spriteY);
 
         if (transformY <= 0.1f) continue;
@@ -525,12 +525,16 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
             entityScale = 0.4f;
         }
         else if (sp.sprCh == '*') {
-            // Arvores: manter o tamanho gigante que estava com o bug anterior (1.0 * 1.725), reduzido em 20% a pedido
-            entityScale = 1.725f * 0.80f;
+            // [PT-BR] Escala calibrada para folhagem de arvores no mundo 3D
+            // [EN-US] Calibrated scale for world tree foliage
+            constexpr float TREE_SCALE = 1.38f;
+            entityScale = TREE_SCALE;
         }
         else if (sp.sprCh == '^' || (sp.sprCh >= '1' && sp.sprCh <= '5')) {
-            // Portas: levemente maiores que o player (0.5f da camera) + aumentos acumulados
-            entityScale = 0.6f * 1.25f * 1.50f;
+            // [PT-BR] Escala vertical destacada para portais e passagens
+            // [EN-US] Heightened vertical scale for doorways and portals
+            constexpr float PORTAL_SCALE = 1.125f;
+            entityScale = PORTAL_SCALE;
         }
 
         if (isEnemy) {
@@ -538,25 +542,32 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
             float pct = ((mapSeeds % 101) - 50.0f) / 1000.0f; 
             entityScale *= (1.0f + pct);
             
-            // Inimigos: escala base + 50%, e depois reduzido em 10%
-            entityScale *= (1.5f * 0.90f);
+            // [PT-BR] Escala base padronizada para entidades hostis
+            // [EN-US] Standardized base scale for hostile entities
+            constexpr float ENEMY_BASE_SCALE = 1.35f;
+            entityScale *= ENEMY_BASE_SCALE;
             
-            // Ajustes finos adicionais pedidos pelo usuario
-            if (sp.sprCh == 'O') {
-                entityScale *= (1.25f * 1.10f); // +10% em cima dos 25% anteriores
-            } else if (sp.sprCh == 'S') {
-                entityScale *= (1.25f * 1.10f); // +10% em cima dos 25% anteriores
+            // [PT-BR] Fatores de escala calibrados por tipo de criatura
+            // [EN-US] Calibrated scale factors per creature type
+            if (sp.sprCh == 'O' || sp.sprCh == 'S') {
+                constexpr float ORC_SLIME_SCALE = 1.375f;
+                entityScale *= ORC_SLIME_SCALE;
             } else if (sp.sprCh == 'T') {
-                entityScale *= (1.25f * 1.20f * 1.20f * 1.15f); // +15% extra
+                constexpr float TROLL_SCALE = 2.07f;
+                entityScale *= TROLL_SCALE;
             }
         } 
         else if (sp.sprCh == 'V' || sp.sprCh == 'Q' || sp.sprCh == 'Z' || sp.sprCh == 'J' || sp.sprCh == 'C' || sp.sprCh == 'B' || sp.sprCh == 'W') {
-            // NPCs: escala base + 50%, e depois aumentado em 15%
-            entityScale *= (1.5f * 1.15f);
+            // [PT-BR] Escala base padronizada para NPCs aliados e neutros
+            // [EN-US] Standardized base scale for friendly and neutral NPCs
+            constexpr float NPC_BASE_SCALE = 1.725f;
+            entityScale *= NPC_BASE_SCALE;
             
-            // Ajuste fino para o Cavaleiro a pedido do usuario
             if (sp.sprCh == 'C') {
-                entityScale *= 0.85f; // -15%
+                // [PT-BR] Ajuste proporcional para a armadura do Cavaleiro
+                // [EN-US] Proportional adjustment for Knight sprite dimensions
+                constexpr float KNIGHT_SCALE_ADJUST = 0.85f;
+                entityScale *= KNIGHT_SCALE_ADJUST;
             }
         }
         

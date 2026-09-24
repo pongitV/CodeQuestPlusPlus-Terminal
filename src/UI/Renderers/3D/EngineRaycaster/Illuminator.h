@@ -6,7 +6,7 @@
 #include <cmath>
 #include "UI/Renderers/3D/EngineRaycaster/RaycasterSprites.h"
 
-namespace Highlighter {
+namespace Illuminator {
 
     struct InfoLight {
         float lightR = 0, lightG = 0, lightB = 0;
@@ -14,7 +14,7 @@ namespace Highlighter {
         int fogR = 0, fogG = 0, fogB = 0;
         float sunIntensity = 0;
         int sunR = 0, sunG = 0, sunB = 0;
-        float sayLightX = 0, sayLightY = 0;
+        float lightDirX = 0, lightDirY = 0;
     };
 
     inline bool checkOcclusion(float startX, float startY, float endX, float endY, const std::vector<std::string>* mapMatrix) {
@@ -85,17 +85,17 @@ namespace Highlighter {
             // [PT-BR] Ciclo dinamico de horario do dia (120 segundos)
             // [EN-US] Dynamic time of day cycle (120 seconds)
             t = std::fmod(timeAnimation, 120.0f) * (1.0f / 120.0f);
-            StateClimate sunBirth = { 255.0f, 180.0f, 100.0f, 0.8f, 200, 120, 80 };
+            StateClimate sunrise  = { 255.0f, 180.0f, 100.0f, 0.8f, 200, 120, 80 };
             StateClimate day      = { 255.0f, 255.0f, 240.0f, 1.0f, 120, 180, 255 };
             StateClimate sunSet   = { 255.0f, 140.0f, 80.0f,  0.8f, 200, 100, 50 };
             StateClimate night    = { 80.0f,  100.0f, 255.0f, 0.4f, 10,  10,  30 };
             
-            if (t < 0.1f)      climateDynamic = mixClimate(sunBirth, day, t * 10.0f);
+            if (t < 0.1f)      climateDynamic = mixClimate(sunrise, day, t * 10.0f);
             else if (t < 0.4f) climateDynamic = day;
             else if (t < 0.5f) climateDynamic = mixClimate(day, sunSet, (t - 0.4f) * 10.0f);
             else if (t < 0.6f) climateDynamic = mixClimate(sunSet, night, (t - 0.5f) * 10.0f);
             else if (t < 0.9f) climateDynamic = night;
-            else               climateDynamic = mixClimate(night, sunBirth, (t - 0.9f) * 10.0f);
+            else               climateDynamic = mixClimate(night, sunrise, (t - 0.9f) * 10.0f);
         }
 
         info.fogR = climateDynamic.fogR;
@@ -103,22 +103,22 @@ namespace Highlighter {
         info.fogB = climateDynamic.fogB;
 
         float globalRotation = timeAnimation * 0.05f;
-        float sayLightX = 0.0f, sayLightY = 0.0f;
+        float lightDirX = 0.0f, lightDirY = 0.0f;
         if (themeSky != 3) {
             if (t > 0.55f && t < 0.95f) {
                 // [PT-BR] Noite: a lua domina a direcao da luz
                 // [EN-US] Night: moon dominates light direction
-                sayLightX = -std::cos(globalRotation);
-                sayLightY = -std::sin(globalRotation);
+                lightDirX = -std::cos(globalRotation);
+                lightDirY = -std::sin(globalRotation);
             } else {
                 // [PT-BR] Dia: o sol domina a direcao da luz
                 // [EN-US] Day: sun dominates light direction
-                sayLightX = std::cos(globalRotation);
-                sayLightY = std::sin(globalRotation);
+                lightDirX = std::cos(globalRotation);
+                lightDirY = std::sin(globalRotation);
             }
         }
-        info.sayLightX = sayLightX;
-        info.sayLightY = sayLightY;
+        info.lightDirX = lightDirX;
+        info.lightDirY = lightDirY;
 
         if (!lights.empty()) {
             for (const auto& l : lights) {
@@ -152,8 +152,8 @@ namespace Highlighter {
         if (mapMatrix != nullptr) {
             bool inShadow = false;
             if (themeSky != 3) {
-                if (sayLightX != lastSunAngle) {
-                    lastSunAngle = sayLightX;
+                if (lightDirX != lastSunAngle) {
+                    lastSunAngle = lightDirX;
                     currentShadowFrame++;
                 }
                 
@@ -164,14 +164,14 @@ namespace Highlighter {
                     if (shadowFrameMap[my][mx] != currentShadowFrame) {
                         float originX = (mx + 0.5f) / 4.0f;
                         float originY = (my + 0.5f) / 4.0f;
-                        inShadow = checkOcclusion(originX, originY, originX + sayLightX * 2.5f, originY + sayLightY * 2.5f, mapMatrix);
+                        inShadow = checkOcclusion(originX, originY, originX + lightDirX * 2.5f, originY + lightDirY * 2.5f, mapMatrix);
                         shadowBoolMap[my][mx] = inShadow;
                         shadowFrameMap[my][mx] = currentShadowFrame;
                     } else {
                         inShadow = shadowBoolMap[my][mx];
                     }
                 } else {
-                    inShadow = checkOcclusion(hitX, hitY, hitX + sayLightX * 2.5f, hitY + sayLightY * 2.5f, mapMatrix);
+                    inShadow = checkOcclusion(hitX, hitY, hitX + lightDirX * 2.5f, hitY + lightDirY * 2.5f, mapMatrix);
                 }
             }
             if (!inShadow) {
@@ -205,8 +205,8 @@ namespace Highlighter {
         float sunFactor = info.sunIntensity;
         if (isWall && info.sunIntensity > 0) {
             float NdotL = 1.0f;
-            if (info.sayLightX != 0.0f || info.sayLightY != 0.0f) {
-                NdotL = std::max(0.0f, nx * info.sayLightX + ny * info.sayLightY);
+            if (info.lightDirX != 0.0f || info.lightDirY != 0.0f) {
+                NdotL = std::max(0.0f, nx * info.lightDirX + ny * info.lightDirY);
             } else {
                 NdotL = std::max(0.0f, nx);
             }
@@ -260,4 +260,6 @@ namespace Highlighter {
         return applyLightPrecalculated(r, g, b, info, darken, isWall, nx, ny);
     }
 
-}
+} // namespace Illuminator
+
+namespace Highlighter = Illuminator;

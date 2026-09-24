@@ -150,7 +150,8 @@ void IDEAttributesScreen::managePlayerCharacterSheet(Character* currentPlayer) {
             char key = InputControl::readKey();
             if (key == '0' || key == 27) break;
             if (key == '1' && currentPlayer->canLevelUp()) {
-                // Rotina subir nivel com template C++ real
+                // [PT-BR] Rotina de level up com visualizacao de template C++
+                // [EN-US] Level-up routine with live C++ template visualization
                 std::vector<std::string> lvlLines;
                 lvlLines.push_back(IDETheme::preprocessor("#pragma once"));
                 lvlLines.push_back(IDETheme::comment("// Instanciação de template para alocação de attributes de level:"));

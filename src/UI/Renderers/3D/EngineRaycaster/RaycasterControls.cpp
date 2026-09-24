@@ -14,11 +14,11 @@
 
 using namespace std;
 
-char RaycasterControls::processInputEControls(
+char RaycasterControls::processInputAndControls(
     Character* player,
     float& playerX,
     float& playerY,
-    float& angleVisa,
+    float& viewAngle,
     float& pitchOffset,
     float timeDelta,
     float speedMovement,
@@ -35,7 +35,7 @@ char RaycasterControls::processInputEControls(
     MouseHider& mouseHider,
 #endif
     bool& isMoving,
-    float& bobbingTeam,
+    float& bobbingTimer,
     float& bobbingAmplitude,
     int& bobbingOffset
 ) {
@@ -67,8 +67,8 @@ char RaycasterControls::processInputEControls(
                 int deltaY = p.y - centerY;
                 
                 if (deltaX != 0 || deltaY != 0) {
-                    angleVisa += deltaX * sensitivityX; // Yaw (Esquerda/Direita)
-                    pitchOffset -= deltaY * sensitivityY;  // Pitch corrigido
+                    viewAngle += deltaX * sensitivityX; // Yaw (Esquerda/Direita)
+                    pitchOffset -= deltaY * sensitivityY; // Pitch (Cima/Baixo)
                     
                     // Limitar o angulo de olhar para cima/baixo
                     float maxPitch = SCREEN_HEIGHT * 0.7f;
@@ -80,7 +80,7 @@ char RaycasterControls::processInputEControls(
             }
         }
     } else {
-        mouseHider.concert(); // Mostra se a janela perder o foco
+        mouseHider.restore(); // Restaura cursor se a janela perder o foco
         
         // Auto-pause ao perder o foco (Alt-Tab)
         firstIterationMouse = true;
@@ -92,7 +92,7 @@ char RaycasterControls::processInputEControls(
 
     if (GetAsyncKeyState('V') & 0x8000) {
         while (GetAsyncKeyState('V') & 0x8000) std::this_thread::sleep_for(std::chrono::milliseconds(15));
-        mouseHider.concert();
+        mouseHider.restore();
         InputControl::clearBuffer();
         PerspectiveManager::getInstance().toggleView();
         return 'V';
@@ -111,7 +111,7 @@ char RaycasterControls::processInputEControls(
     for (const auto& p : popups) {
         if (GetAsyncKeyState(p.key) & 0x8000) {
             firstIterationMouse = true;
-            mouseHider.concert();
+            mouseHider.restore();
             InputControl::clearBuffer();
             p.action(player);
             RaycasterFrame::restoreLastFrame();
@@ -122,7 +122,7 @@ char RaycasterControls::processInputEControls(
 
     if (GetAsyncKeyState('M') & 0x8000) {
         firstIterationMouse = true;
-        mouseHider.concert();
+        mouseHider.restore();
         while (GetAsyncKeyState('M') & 0x8000)
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         InputControl::clearBuffer();
@@ -137,7 +137,7 @@ char RaycasterControls::processInputEControls(
             if (GetAsyncKeyState(td) & 0x8000) { pressedDebug = true; break; }
         if (pressedDebug) {
             firstIterationMouse = true;
-            mouseHider.concert();
+            mouseHider.restore();
             for (int td : keysDebug)
                 while (GetAsyncKeyState(td) & 0x8000)
                     std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -154,23 +154,23 @@ char RaycasterControls::processInputEControls(
 
     if (GetAsyncKeyState('W') & 0x8000) {
         isMoving = true;
-        moveX += cosf(angleVisa) * speedMovement * timeDelta;
-        moveY += sinf(angleVisa) * speedMovement * timeDelta;
+        moveX += cosf(viewAngle) * speedMovement * timeDelta;
+        moveY += sinf(viewAngle) * speedMovement * timeDelta;
     }
     if (GetAsyncKeyState('S') & 0x8000) {
         isMoving = true;
-        moveX -= cosf(angleVisa) * speedMovement * timeDelta;
-        moveY -= sinf(angleVisa) * speedMovement * timeDelta;
+        moveX -= cosf(viewAngle) * speedMovement * timeDelta;
+        moveY -= sinf(viewAngle) * speedMovement * timeDelta;
     }
     if (GetAsyncKeyState('A') & 0x8000) { // Strafe Esquerda (-90 graus)
         isMoving = true;
-        moveX += cosf(angleVisa - 1.5708f) * speedMovement * timeDelta;
-        moveY += sinf(angleVisa - 1.5708f) * speedMovement * timeDelta;
+        moveX += cosf(viewAngle - 1.5708f) * speedMovement * timeDelta;
+        moveY += sinf(viewAngle - 1.5708f) * speedMovement * timeDelta;
     }
     if (GetAsyncKeyState('D') & 0x8000) { // Strafe Direita (+90 graus)
         isMoving = true;
-        moveX += cosf(angleVisa + 1.5708f) * speedMovement * timeDelta;
-        moveY += sinf(angleVisa + 1.5708f) * speedMovement * timeDelta;
+        moveX += cosf(viewAngle + 1.5708f) * speedMovement * timeDelta;
+        moveY += sinf(viewAngle + 1.5708f) * speedMovement * timeDelta;
     }
 
     if (isMoving) {
@@ -187,19 +187,19 @@ char RaycasterControls::processInputEControls(
 
     // Efeito de Head Bobbing (Balanco da Camera)
     if (isMoving) {
-        bobbingTeam += timeDelta * 12.0f;
+        bobbingTimer += timeDelta * 12.0f;
         bobbingAmplitude += timeDelta * 5.0f; // Aumenta a forca do passo
         if (bobbingAmplitude > 1.0f) bobbingAmplitude = 1.0f;
     } else {
         bobbingAmplitude -= timeDelta * 5.0f; // Suaviza a parada em 0.2 segundos
         if (bobbingAmplitude < 0.0f) {
             bobbingAmplitude = 0.0f;
-            bobbingTeam = 0.0f;
+            bobbingTimer = 0.0f;
         } else {
-            bobbingTeam += timeDelta * 12.0f;
+            bobbingTimer += timeDelta * 12.0f;
         }
     }
-    bobbingOffset = (int)(sinf(bobbingTeam) * bobbingAmplitude * (SCREEN_HEIGHT * 0.02f));
+    bobbingOffset = (int)(sinf(bobbingTimer) * bobbingAmplitude * (SCREEN_HEIGHT * 0.02f));
 
     // Verifica se o player pisou em um trigger (Inimigo ou Teleporte) para acionar a transicao de mapa/combate
     int newCellX = (int)playerX;
@@ -211,9 +211,11 @@ char RaycasterControls::processInputEControls(
             if (RaycasterWorld::isTeleport(cell) || (!isLabel && RaycasterWorld::isEntity(cell))) {
                 outHitX = newCellX;
                 outHitY = newCellY;
-                playerX = oldPlayerX; // Retorna para a exata posicao anterior flutuante
+                // [PT-BR] Restaura a posicao flutuante exata e encerra o loop 3D para processamento de evento no mapa
+                // [EN-US] Restores exact floating position and exits 3D loop for map event processing
+                playerX = oldPlayerX;
                 playerY = oldPlayerY;
-                running = false; // Sai do loop 3D e devolve o controle pro mapa top-down processar o evento!
+                running = false;
             }
         }
     }

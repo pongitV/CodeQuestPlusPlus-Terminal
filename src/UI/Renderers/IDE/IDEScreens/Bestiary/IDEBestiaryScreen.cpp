@@ -102,7 +102,7 @@ void IDEBestiaryScreen::displayDetail(Character* enemy) {
     lines.push_back("");
     lines.push_back(IDETheme::punctuation("} // namespace Domain::Entities::Monsters"));
 
-    auto editorView = IDETheme::renderEditorView(tabs, 0, "// include/Monsters/" + className + ".hpp", lines, width, height, "[ENTER] Retornar ao Catálogo");
+    auto editorView = IDETheme::renderEditorView(tabs, 0, "// include/Monsters/" + className + ".hpp", lines, width, height, "[ENTER] Retornar ao Catalogo");
 
     for (const auto& l : editorView) std::cout << l << "\n";
     std::cout << "\033[J" << std::flush;

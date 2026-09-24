@@ -117,7 +117,7 @@ static void downsampleScreenBuffer(const vector<Pixel3D>& screen3D, vector<strin
     }
 }
 
-char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playerX, float& playerY, float& angleVisa, const string& titleMap, Character* player, int& outHitX, int& outHitY, int typeAnimationEntry) {
+char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playerX, float& playerY, float& viewAngle, const string& titleMap, Character* player, int& outHitX, int& outHitY, int typeAnimationEntry) {
     outHitX = -1;
     outHitY = -1;
     if (mapMatrix.empty() || !player) return 0;
@@ -146,7 +146,7 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
     auto tp1 = chrono::steady_clock::now();
     auto tp2 = chrono::steady_clock::now();
     static auto timeHome = chrono::steady_clock::now();
-    float bobbingTeam = 0.0f;
+    float bobbingTimer = 0.0f;
     float bobbingAmplitude = 0.0f;
     float pitchOffset = 0.0f;
     int bobbingOffset = 0;
@@ -340,17 +340,17 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
     std::chrono::duration<float> diffHomeInitial = tpNow - timeHome;
     float timeAbsoluteInitial = diffHomeInitial.count();
 
-    RaycasterRenderer::render3D(screen3D, SCREEN_WIDTH, HEIGHT_INTERNAL, playerX, playerY, angleVisa, (HEIGHT_INTERNAL / 2.0f), 0, depthMaximum, timeAbsoluteInitial, mapMatrix, titleMap, themeForest, themeActiveInitial, cacheSprites);
+    RaycasterRenderer::render3D(screen3D, SCREEN_WIDTH, HEIGHT_INTERNAL, playerX, playerY, viewAngle, (HEIGHT_INTERNAL / 2.0f), 0, depthMaximum, timeAbsoluteInitial, mapMatrix, titleMap, themeForest, themeActiveInitial, cacheSprites);
     downsampleScreen();
     if (typeAnimationEntry == 1) {
         cheerEye(true, screen);
-        RaycasterHUD::draw(screen, SCREEN_WIDTH, SCREEN_HEIGHT, playerX, playerY, angleVisa, mapMatrix, titleMap, themeForest, player);
+        RaycasterHUD::draw(screen, SCREEN_WIDTH, SCREEN_HEIGHT, playerX, playerY, viewAngle, mapMatrix, titleMap, themeForest, player);
     } else if (typeAnimationEntry == 2) {
         cheerDoorOpening();
-        RaycasterHUD::draw(screen, SCREEN_WIDTH, SCREEN_HEIGHT, playerX, playerY, angleVisa, mapMatrix, titleMap, themeForest, player);
+        RaycasterHUD::draw(screen, SCREEN_WIDTH, SCREEN_HEIGHT, playerX, playerY, viewAngle, mapMatrix, titleMap, themeForest, player);
         cheerBanner3D(titleMap);
     } else {
-        RaycasterHUD::draw(screen, SCREEN_WIDTH, SCREEN_HEIGHT, playerX, playerY, angleVisa, mapMatrix, titleMap, themeForest, player);
+        RaycasterHUD::draw(screen, SCREEN_WIDTH, SCREEN_HEIGHT, playerX, playerY, viewAngle, mapMatrix, titleMap, themeForest, player);
     }
 
 #ifdef _WIN32
@@ -365,9 +365,9 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
 #endif
     while (running) {
         tp2 = chrono::steady_clock::now();
-        chrono::duration<float> elapsedTeam = tp2 - tp1;
+        chrono::duration<float> elapsedTime = tp2 - tp1;
         tp1 = tp2;
-        float timeDelta = elapsedTeam.count();
+        float timeDelta = elapsedTime.count();
         
         chrono::duration<float> diffHome = tp2 - timeHome;
         float timeAbsolute = diffHome.count();
@@ -380,11 +380,11 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
         }
 
         bool isMoving = false;
-        char actionReturn = RaycasterControls::processInputEControls(
+        char actionReturn = RaycasterControls::processInputAndControls(
             player,
             playerX,
             playerY,
-            angleVisa,
+            viewAngle,
             pitchOffset,
             timeDelta,
             speedMovement,
@@ -401,7 +401,7 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
             mouseHider,
 #endif
             isMoving,
-            bobbingTeam,
+            bobbingTimer,
             bobbingAmplitude,
             bobbingOffset
         );
@@ -426,14 +426,14 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
             }
         }
 
-        RaycasterRenderer::render3D(screen3D, SCREEN_WIDTH, HEIGHT_INTERNAL, playerX, playerY, angleVisa, horizonInternal, offsetGeneral, depthMaximum, timeAbsolute, mapMatrix, titleMap, themeForest, themeActive, cacheSprites);
+        RaycasterRenderer::render3D(screen3D, SCREEN_WIDTH, HEIGHT_INTERNAL, playerX, playerY, viewAngle, horizonInternal, offsetGeneral, depthMaximum, timeAbsolute, mapMatrix, titleMap, themeForest, themeActive, cacheSprites);
         // --- LIMPA A TELA HUD ---
         for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++) {
             screen[i].clear();
         }
 
         // --- RENDERIZACAO HUD E OVERLAYS (2D) ---
-        RaycasterHUD::draw(screen, SCREEN_WIDTH, SCREEN_HEIGHT, playerX, playerY, angleVisa, mapMatrix, titleMap, themeForest, player);
+        RaycasterHUD::draw(screen, SCREEN_WIDTH, SCREEN_HEIGHT, playerX, playerY, viewAngle, mapMatrix, titleMap, themeForest, player);
 
         string bufferFrame = "\033[?2026h\033[?25l\033[H"; 
         bufferFrame.reserve(SCREEN_WIDTH * SCREEN_HEIGHT * 15); 
@@ -549,7 +549,7 @@ void Raycaster::blinkScreenColor(Color color, int durationMs) {
     std::this_thread::sleep_for(std::chrono::milliseconds(durationMs));
 }
 
-std::vector<std::string> Raycaster::drawFrameStatic3D(const std::vector<std::string>& mapMatrix, float playerX, float playerY, float angleVisa, const std::string& titleMap, Character* player, int heightOverride) {
+std::vector<std::string> Raycaster::drawFrameStatic3D(const std::vector<std::string>& mapMatrix, float playerX, float playerY, float viewAngle, const std::string& titleMap, Character* player, int heightOverride) {
     (void)player;
     int SCREEN_WIDTH = Appearance::getTerminalWidth();
     int SCREEN_HEIGHT = (heightOverride > 0) ? heightOverride : Appearance::getTerminalHeight();
@@ -567,7 +567,7 @@ std::vector<std::string> Raycaster::drawFrameStatic3D(const std::vector<std::str
     std::vector<Pixel3D> screen3D(SCREEN_WIDTH * HEIGHT_INTERNAL);
     std::vector<std::string> screen(SCREEN_WIDTH * SCREEN_HEIGHT, " ");
 
-    RaycasterRenderer::render3D(screen3D, SCREEN_WIDTH, HEIGHT_INTERNAL, playerX, playerY, angleVisa, (HEIGHT_INTERNAL / 2.0f), 0, 150.0f, 0.0f, mapMatrix, titleMap, themeForest, themeSky, cacheSprites);
+    RaycasterRenderer::render3D(screen3D, SCREEN_WIDTH, HEIGHT_INTERNAL, playerX, playerY, viewAngle, (HEIGHT_INTERNAL / 2.0f), 0, 150.0f, 0.0f, mapMatrix, titleMap, themeForest, themeSky, cacheSprites);
 
     downsampleScreenBuffer(screen3D, screen, SCREEN_WIDTH, SCREEN_HEIGHT);
 

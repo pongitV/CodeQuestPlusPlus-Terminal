@@ -24,9 +24,6 @@ static std::unordered_map<Character*, PlayerHUDStateRaycaster> hudStatesRaycaste
 std::vector<std::string> RaycasterCombatScreen::getPlayerStatusBarLines(Character* currentPlayer, Color colorHighlight, int damageAnimation, int frameAnimation, bool isHealing) {
     if (!currentPlayer) return {};
 
-    auto now = std::chrono::steady_clock::now();
-    (void)now; // caso precise no futuro
-
     std::string weaponName = (currentPlayer->getWeapons()) ? currentPlayer->getWeapons()->getItemName() + currentPlayer->getWeapons()->getInfoStatus() : "Punhos";
     std::string shieldName = (currentPlayer->getShield()) ? currentPlayer->getShield()->getItemName() + currentPlayer->getShield()->getInfoStatus() : "Nenhum";
     std::string armorName = (currentPlayer->getArmor()) ? currentPlayer->getArmor()->getItemName() + currentPlayer->getArmor()->getInfoStatus() : "Trapos";
@@ -352,7 +349,8 @@ void RaycasterCombatScreen::updateScreenStatic(const std::string& combatTitle, c
         callbackOverlay(screen3D);
     }
 
-    // Joga na tela
+    // [PT-BR] Envia buffer composto para a saida padrao (stdout)
+    // [EN-US] Flushes composed buffer to standard output (stdout)
     std::string out = "\033[?25l\033[H";
     for (size_t i = 0; i < screen3D.size(); ++i) {
         out += screen3D[i];
@@ -376,7 +374,8 @@ void RaycasterCombatScreen::displayEnemyHordeSideBySide(const std::vector<Charac
         targetAnimation, frameAnimation, 0, damageAnimation, isHealing, timeMs, isDeath, dropsAnimation, 1.0f
     );
 
-    // Joga na tela
+    // [PT-BR] Envia buffer composto para a saida padrao (stdout)
+    // [EN-US] Flushes composed buffer to standard output (stdout)
     std::string out = "\033[?25l\033[H";
     for (size_t i = 0; i < screen3D.size(); ++i) {
         out += screen3D[i];
@@ -397,7 +396,8 @@ void RaycasterCombatScreen::animateCombatIntro(const std::string& combatTitle, c
     (void)combatTitle;
     (void)enemies;
     (void)currentPlayer;
-    // O usuario solicitou a remocao da animacao de introducao do combate
+    // [PT-BR] Transicao imediata para o combate sem atraso de animacao de introducao
+    // [EN-US] Direct combat transition without intro animation delay
 }
 
 void RaycasterCombatScreen::displayLogoForCombatScreen(const std::string& screenTitle, bool animate) {
@@ -517,7 +517,8 @@ void RaycasterCombatScreen::animateEnemyDeath(const std::string& combatTitle, co
         std::cout << out << std::flush;
     });
 
-    // Drops removidos daqui conforme solicitado; eles ja aparecem no log.
+    // [PT-BR] Registro de drops gerenciado centralmente pelo log de batalha
+    // [EN-US] Drop notification handled centrally by the battle log
 }
 
 // [PT-BR] Menus de selecao de acao do jogador

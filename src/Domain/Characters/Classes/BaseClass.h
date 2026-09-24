@@ -64,7 +64,7 @@ public:
     virtual bool skillConsumeShift() const { return true; }
 
 protected:
-    void notifyMessageCombat(const std::string& msgWithColor, const std::string& /*msgSemCor*/) const {
+    void notifyMessageCombat(const std::string& msgWithColor, const std::string& /*uncoloredMsg*/) const {
         Appearance::registerBattleLog(msgWithColor);
     }
 
@@ -130,6 +130,6 @@ protected:
         }
     }
 
-    virtual int processDamagePreAttack(Character* /*atacante*/, Character* /*defensor*/, int damageBase, bool /*isAtacanteJogador*/, size_t /*qtdInimigos*/) { return damageBase; }
-    virtual void processDamagePostAttack(Character* /*atacante*/, Character* /*alvoAtual*/, Character* /*defensorPrincipal*/, int /*danoBase*/, int /*danoPerfurante*/, const std::function<void(Character*, Character*, int, int)>& /*aplicarDano*/, bool /*isAtacanteJogador*/, bool /*isArea*/, bool& /*ativouPassiva*/) {}
+    virtual int processDamagePreAttack(Character* /*attacker*/, Character* /*defender*/, int damageBase, bool /*isPlayerAttacker*/, size_t /*enemyCount*/) { return damageBase; }
+    virtual void processDamagePostAttack(Character* /*attacker*/, Character* /*currentTarget*/, Character* /*mainDefender*/, int /*baseDamage*/, int /*piercingDamage*/, const std::function<void(Character*, Character*, int, int)>& /*applyDamage*/, bool /*isPlayerAttacker*/, bool /*isArea*/, bool& /*passiveTriggered*/) {}
 };

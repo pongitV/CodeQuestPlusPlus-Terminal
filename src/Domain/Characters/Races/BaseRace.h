@@ -50,11 +50,11 @@ public:
 
     virtual std::vector<std::unique_ptr<Item>> getEquipmentRace() const { return {}; }
 
-    virtual int processDamageOffensive(int damageBase, Character* /*atacante*/) {
+    virtual int processDamageOffensive(int damageBase, Character* /*attacker*/) {
         return damageBase;
     }
 
-    virtual int processDamageDefensive(int finalDamage, Character* /*defensor*/) {
+    virtual int processDamageDefensive(int finalDamage, Character* /*defender*/) {
         return finalDamage;
     }
     
@@ -62,14 +62,14 @@ public:
     virtual bool ignoreParry() const { return false; }
     virtual bool ignoreShield() const { return false; }
 
-    virtual void performDrops(Character* /*inimigo*/, Character* /*jogadorAtual*/, std::vector<std::string>& /*itensObtidos*/, int& /*ouroTotal*/, int& /*xpTotal*/) {
+    virtual void performDrops(Character* /*enemy*/, Character* /*currentPlayer*/, std::vector<std::string>& /*obtainedItems*/, int& /*totalGold*/, int& /*totalXp*/) {
         // [PT-BR] Implementacao padrao sem recompensas de drop
         // [EN-US] Default implementation without drop rewards
     }
 
-    virtual void onCausingDamage(Character* /*atacante*/, Character* /*alvo*/, int /*danoCausado*/) {}
+    virtual void onCausingDamage(Character* /*attacker*/, Character* /*target*/, int /*damageDealt*/) {}
 
-    virtual bool tryUseSkillActive(Character* /*esteInimigo*/, Character* /*alvo*/, int /*dificuldade*/) {
+    virtual bool tryUseSkillActive(Character* /*thisEnemy*/, Character* /*target*/, int /*difficulty*/) {
         // [PT-BR] Por padrao, inimigos nao possuem habilidades ativas que consomem o turno
         // [EN-US] By default, enemies do not have active skills that consume their turn
         return false;

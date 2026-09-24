@@ -45,9 +45,9 @@ public:
     void decrementTurn() { remainingTurns--; }
     bool expired() const { return remainingTurns <= 0; }
     
-    virtual void onEnterMap(Character* /*alvo*/) {}
-    virtual void applyTurnStart(Character* /*alvo*/) {}
-    virtual void onExitMap(Character* /*alvo*/) {}
+    virtual void onEnterMap(Character* /*target*/) {}
+    virtual void applyTurnStart(Character* /*target*/) {}
+    virtual void onExitMap(Character* /*target*/) {}
     
     virtual int processReceivedDamage(int damage) { return damage; }
     virtual bool preventsAction() const { return false; }

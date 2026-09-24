@@ -87,20 +87,20 @@ void MapControl::processCombat(
     if (isExplorationActive && !PerspectiveManager::getInstance().is3DViewActive()) restoreScreen();
 }
 
-// [PT-BR] Animacao de introducao do mapa delegada para AnimadorMapa
+// [PT-BR] Animacao de introducao do mapa delegada para MapAnimator
 // [EN-US] Map introduction animation delegated to MapAnimator
 
-// [PT-BR] Efeito visual de flashbang delegado para AnimadorMapa
+// [PT-BR] Efeito visual de flashbang delegado para MapAnimator
 // [EN-US] Flashbang visual effect delegated to MapAnimator
 
-// [PT-BR] Funcoes de camera e renderizacao 3D abstraidas para RenderizadorMapa
+// [PT-BR] Funcoes de camera e renderizacao 3D abstraidas para MapRenderer
 // [EN-US] 3D camera and rendering functions abstracted to MapRenderer
 
 std::string MapControl::formatCell(char cell, int x, int y, const std::string& mapTitle, const std::vector<std::string>& mapMatrix, bool isMinimap) {
     return MapCellFormatter::formatCell(cell, x, y, mapTitle, mapMatrix, isMinimap);
 }
 
-// [PT-BR] Rotina renderizarMapa delegada para RenderizadorMapa
+// [PT-BR] Rotina renderMap delegada para MapRenderer
 // [EN-US] renderMap routine delegated to MapRenderer
 
 NextMapTransition MapControl::executeExplorationLoop(

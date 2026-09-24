@@ -8,12 +8,12 @@
 
 using namespace std;
 
-void RaycasterHUD::draw(vector<string>& screen, int widthScreen, int heightScreen, float playerX, float playerY, float angleVisa, const vector<string>& mapMatrix, const string& titleMap, bool themeForest, Character* player) {
-    drawBarStatus(screen, widthScreen, heightScreen, player, angleVisa);
+void RaycasterHUD::draw(vector<string>& screen, int widthScreen, int heightScreen, float playerX, float playerY, float viewAngle, const vector<string>& mapMatrix, const string& titleMap, bool themeForest, Character* player) {
+    drawBarStatus(screen, widthScreen, heightScreen, player, viewAngle);
     drawControls(screen, widthScreen, heightScreen);
 }
 
-void RaycasterHUD::drawMinimap(vector<string>& screen, int SCREEN_WIDTH, int SCREEN_HEIGHT, float playerX, float playerY, float angleVisa, const vector<string>& mapMatrix, const string& titleMap, bool /*temaFloresta*/, char playerIcon, const string& colorPlayerAnsi) {
+void RaycasterHUD::drawMinimap(vector<string>& screen, int SCREEN_WIDTH, int SCREEN_HEIGHT, float playerX, float playerY, float viewAngle, const vector<string>& mapMatrix, const string& titleMap, bool /*themeForest*/, char playerIcon, const string& colorPlayerAnsi) {
     int widthMap = mapMatrix.empty() ? 0 : mapMatrix[0].size();
     int heightMap = mapMatrix.size();
 
@@ -41,14 +41,14 @@ void RaycasterHUD::drawMinimap(vector<string>& screen, int SCREEN_WIDTH, int SCR
     }
 
     // 2. Desenha o conteudo do mini-mapa SEM rotacao
-    float angleNorm = fmod(angleVisa, 2.0f * 3.14159f);
+    float angleNorm = fmod(viewAngle, 2.0f * 3.14159f);
     if (angleNorm < 0) angleNorm += 2.0f * 3.14159f;
     
     string directionArrow = "►"; // 0 radianos aponta para o Leste (+X)
-    int sayX = 1, sayY = 0;
-    if (angleNorm >= 0.785f && angleNorm < 2.356f) { directionArrow = "▼"; sayX = 0; sayY = 1; }
-    else if (angleNorm >= 2.356f && angleNorm < 3.926f) { directionArrow = "◄"; sayX = -1; sayY = 0; }
-    else if (angleNorm >= 3.926f && angleNorm < 5.497f) { directionArrow = "▲"; sayX = 0; sayY = -1; }
+    int facingX = 1, facingY = 0;
+    if (angleNorm >= 0.785f && angleNorm < 2.356f) { directionArrow = "▼"; facingX = 0; facingY = 1; }
+    else if (angleNorm >= 2.356f && angleNorm < 3.926f) { directionArrow = "◄"; facingX = -1; facingY = 0; }
+    else if (angleNorm >= 3.926f && angleNorm < 5.497f) { directionArrow = "▲"; facingX = 0; facingY = -1; }
 
     for (int my = 0; my < heightMiniMap; my++) {
         for (int mx = 0; mx < widthMiniMap; mx++) {
@@ -61,11 +61,9 @@ void RaycasterHUD::drawMinimap(vector<string>& screen, int SCREEN_WIDTH, int SCR
             if (mapX >= 0 && mapX < widthMap && mapY >= 0 && mapY < heightMap) {
                 char c = mapMatrix[mapY][mapX];
                 
-                // bool isLabel = RaycasterMundo::isMapLabel(mapX, mapY, matrizDoMapa);
-                
                 if (mx == widthMiniMap/2 && my == heightMiniMap/2) {
                     screen[screenY * SCREEN_WIDTH + screenX] = bgMini + colorPlayerAnsi + string(1, playerIcon) + "\033[0m"; // Jogador
-                } else if (mx == widthMiniMap/2 + sayX && my == heightMiniMap/2 + sayY) {
+                } else if (mx == widthMiniMap/2 + facingX && my == heightMiniMap/2 + facingY) {
                     screen[screenY * SCREEN_WIDTH + screenX] = bgMini + "\033[1;38;2;255;255;255m" + directionArrow + "\033[0m"; // Indicador Visao Branco
                 } else {
                     screen[screenY * SCREEN_WIDTH + screenX] = bgMini + MapControl::formatCell(c, mapX, mapY, titleMap, mapMatrix, true) + "\033[0m";
@@ -79,7 +77,7 @@ void RaycasterHUD::drawMinimap(vector<string>& screen, int SCREEN_WIDTH, int SCR
     }
 }
 
-void RaycasterHUD::drawBarStatus(vector<string>& screen, int SCREEN_WIDTH, int SCREEN_HEIGHT, Character* player, float angleVisa, const string& titleEdge, int framesDamagePlayer, int damageAmount, bool isHealing) {
+void RaycasterHUD::drawBarStatus(vector<string>& screen, int SCREEN_WIDTH, int SCREEN_HEIGHT, Character* player, float viewAngle, const string& titleEdge, int framesDamagePlayer, int damageAmount, bool isHealing) {
     if (screen.empty()) return;
     bool isModeLines = (screen.size() <= (size_t)SCREEN_HEIGHT); // If it's a small vector, it's a vector of lines (strings)
     
@@ -232,7 +230,9 @@ void RaycasterHUD::drawControls(vector<string>& screen, int SCREEN_WIDTH, int SC
                        + cF + "[" + cK + "B" + cF + "] Diario   "
                        + cF + "[" + cK + "M" + cF + "] Mapa\033[0m";
 
-    int lenVis = 77; // Comprimento visual hardcoded pra formatacao
+    // [PT-BR] Largura visual calculada da barra de controles para alinhamento horizontal
+    // [EN-US] Calculated visual width of controls bar for horizontal alignment
+    const int lenVis = 77;
     int startCtrlX = (SCREEN_WIDTH - lenVis) / 2;
     int lineControls = SCREEN_HEIGHT - 1;
     

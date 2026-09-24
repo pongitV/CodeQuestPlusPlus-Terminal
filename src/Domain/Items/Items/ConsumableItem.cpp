@@ -38,7 +38,7 @@ std::vector<std::string> ConsumableItem::getDetailsInspection(Character* /*perso
 }
 
 std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
-    auto createLittleCure = []() {
+    auto createSmallHealingPotion = []() {
         auto healing = std::make_unique<ConsumableItem>(ItemFactory::getNameFromID(ItemID::HealingPotion30), 6);
         healing->addProperty(Property::HealingConsumable);
         healing->setDescriptionInspection("Restaura 30% da sua Vida Maxima.");
@@ -48,12 +48,12 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
                 return true;
             }
             int lifeBefore = user->getHealth();
-            int cureEstimated = static_cast<int>(user->getMaxHealth() * 0.30);
-            user->modifyHealth(cureEstimated);
+            int estimatedHealing = static_cast<int>(user->getMaxHealth() * 0.30);
+            user->modifyHealth(estimatedHealing);
             int lifeAfter = user->getHealth();
-            int cureReal = lifeAfter - lifeBefore;
-            showConsumableWarning(item->getItemName() + " usada! +" + std::to_string(cureReal) + " HP. (Vida atual: " + std::to_string(lifeAfter) + "/" + std::to_string(user->getMaxHealth()) + ")", Color::GREEN);
-            Appearance::registerBattleLog(Appearance::color(Color::GREEN) + "[SISTEMA]: " + item->getItemName() + " usada! +" + std::to_string(cureReal) + " HP." + Appearance::color(Color::RESET));
+            int actualHealing = lifeAfter - lifeBefore;
+            showConsumableWarning(item->getItemName() + " usada! +" + std::to_string(actualHealing) + " HP. (Vida atual: " + std::to_string(lifeAfter) + "/" + std::to_string(user->getMaxHealth()) + ")", Color::GREEN);
+            Appearance::registerBattleLog(Appearance::color(Color::GREEN) + "[SISTEMA]: " + item->getItemName() + " usada! +" + std::to_string(actualHealing) + " HP." + Appearance::color(Color::RESET));
             
             if (user->getConsumableQuickly() == item) {
                 user->unequipConsumable();
@@ -154,7 +154,7 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
         return food;
     };
 
-    auto createLittleCureBig = []() {
+    auto createGreatHealingPotion = []() {
         auto healing = std::make_unique<ConsumableItem>(ItemFactory::getNameFromID(ItemID::GreatHealingPotion), 30);
         healing->addProperty(Property::HealingConsumable);
         healing->setDescriptionInspection("Restaura 50% da sua Vida Maxima.");
@@ -164,11 +164,11 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
                 return true;
             }
             int lifeBefore = user->getHealth();
-            int cureEstimated = static_cast<int>(user->getMaxHealth() * 0.50);
-            user->modifyHealth(cureEstimated);
+            int estimatedHealing = static_cast<int>(user->getMaxHealth() * 0.50);
+            user->modifyHealth(estimatedHealing);
             int lifeAfter = user->getHealth();
-            int cureReal = lifeAfter - lifeBefore;
-            showConsumableWarning(item->getItemName() + " usada! +" + std::to_string(cureReal) + " HP. (Vida atual: " + std::to_string(lifeAfter) + "/" + std::to_string(user->getMaxHealth()) + ")", Color::GREEN);
+            int actualHealing = lifeAfter - lifeBefore;
+            showConsumableWarning(item->getItemName() + " usada! +" + std::to_string(actualHealing) + " HP. (Vida atual: " + std::to_string(lifeAfter) + "/" + std::to_string(user->getMaxHealth()) + ")", Color::GREEN);
             
             if (user->getConsumableQuickly() == item) {
                 user->unequipConsumable();
@@ -208,7 +208,7 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
             user->setItemSelectedForUse(item);
             return true;
         });
-        debuff->setActionUse([](Character* /*usuario*/, Character* target) {
+        debuff->setActionUse([](Character* /*user*/, Character* target) {
             if (!Character::isValid(target) || target->getHealth() <= 0) return;
             target->addEffect(std::make_unique<NecrosisEffect>(3, 12));
             CombatScreen::addFixedMessage("\n" + CombatScreen::combatMargin() + Appearance::color(Color::RED) + ">> Voce arremessou a pocao! " + target->getName() + " sofreu necrose (12 dano/turno) por 3 turnos!" + Appearance::color(Color::RESET) + "\n");
@@ -225,7 +225,7 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
             user->setItemSelectedForUse(item);
             return true;
         });
-        debuff->setActionUse([](Character* /*usuario*/, Character* target) {
+        debuff->setActionUse([](Character* /*user*/, Character* target) {
             if (!Character::isValid(target) || target->getHealth() <= 0) return;
             target->addEffect(std::make_unique<SlownessEffect>(3));
             CombatScreen::addFixedMessage("\n" + CombatScreen::combatMargin() + Appearance::color(Color::MAGENTA) + ">> Voce arremessou a pocao! " + target->getName() + " esta sob efeito de Lentidao por 3 turnos!" + Appearance::color(Color::RESET) + "\n");
@@ -238,11 +238,11 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
         {ItemID::Bread, [createFood]() { return createFood(ItemID::Bread, 25, 10, "Restaura 25 HP fixo."); }},
         {ItemID::Cheese, [createFood]() { return createFood(ItemID::Cheese, 40, 18, "Restaura 40 HP fixo."); }},
         {ItemID::DriedMeat, [createFood]() { return createFood(ItemID::DriedMeat, 60, 30, "Restaura 60 HP fixo."); }},
-        {ItemID::GreatHealingPotion, createLittleCureBig},
+        {ItemID::GreatHealingPotion, createGreatHealingPotion},
         {ItemID::AlchemicalStrengthPotion, createAlchemicalStrengthPotion},
         {ItemID::AlchemicalPoisonPotion, createAlchemicalPoisonPotion},
         {ItemID::AlchemicalSlownessPotion, createAlchemicalSlownessPotion},
-        {ItemID::HealingPotion30, createLittleCure},
+        {ItemID::HealingPotion30, createSmallHealingPotion},
         {ItemID::FuryPotion, [createBuffAttributes]() { return createBuffAttributes(ItemID::FuryPotion); }},
         {ItemID::ElixirArcane, [createBuffAttributes]() { return createBuffAttributes(ItemID::ElixirArcane); }},
         {ItemID::BottleSlime, []() {
@@ -254,7 +254,7 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
                 user->setItemSelectedForUse(item);
                 return true;
             });
-            debuff->setActionUse([](Character* /*usuario*/, Character* target) {
+            debuff->setActionUse([](Character* /*user*/, Character* target) {
                 if (!Character::isValid(target) || target->getHealth() <= 0) return;
                 target->addEffect(std::make_unique<SlownessEffect>(3));
             CombatScreen::addFixedMessage("\n" + CombatScreen::combatMargin() + Appearance::color(Color::MAGENTA) + ">> Voce jogou o frasco! " + target->getName() + " esta com lentidao por 3 turnos!" + Appearance::color(Color::RESET) + "\n");
@@ -270,7 +270,7 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
                 user->setItemSelectedForUse(item);
                 return true;
             });
-            debuff->setActionUse([](Character* /*usuario*/, Character* target) {
+            debuff->setActionUse([](Character* /*user*/, Character* target) {
                 if (!Character::isValid(target) || target->getHealth() <= 0) return;
                 target->addEffect(std::make_unique<WeaknessEffect>(3));
             CombatScreen::addFixedMessage("\n" + CombatScreen::combatMargin() + Appearance::color(Color::RED) + ">> Voce jogou o frasco! " + target->getName() + " teve sua forca reduzida em 25% por 3 turnos!" + Appearance::color(Color::RESET) + "\n");

@@ -834,7 +834,9 @@ char RaycasterWorld::getSpriteChar(int /*mapX*/, int mapY, char c, const std::st
     }
 
     if (c == '!' || c == '%') {
-        return c; // Retorna ! ou % para serem desenhados como sprite pelo RaycasterRenderizador (IDE)
+        // [PT-BR] Retorna ! ou % para serem desenhados como sprite pelo RaycasterRendererBase
+        // [EN-US] Returns ! or % to be rendered as sprite by RaycasterRendererBase
+        return c;
     }
     if (c == '@') {
         return '@'; // Terminal hackeavel
