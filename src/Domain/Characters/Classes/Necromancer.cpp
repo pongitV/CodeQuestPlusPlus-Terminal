@@ -12,8 +12,7 @@
 #include "Core/Utils/InputControl.h"
 #include "Domain/Characters/Races/BaseRace.h"
 
-// [PT-BR] --- INFORMACOES DA CLASSE ---
-// [EN-US] --- CLASS INFORMATION ---
+// INFORMACOES DA CLASSE
 std::string Necromancer::getClassName() const {
     return "Necromante";
 }
@@ -125,8 +124,7 @@ std::vector<std::unique_ptr<Item>> Necromancer::getEquipmentClass() const {
     return equipment;
 }
 
-// [PT-BR] --- PASSIVA DA CLASSE ---
-// [EN-US] --- CLASS PASSIVE ---
+// PASSIVA DA CLASSE
 std::string Necromancer::getNamePassiveClass() const {
     return "Toque Necrotico";
 }
@@ -137,12 +135,10 @@ std::string Necromancer::getDescriptionPassiveClass() const {
 }
 
 void Necromancer::executeAttackWithClassPassive(Character* attacker, Character* defender, int damageBase, int damagePiercing, std::vector<std::unique_ptr<Character>>& enemies, const std::function<void(Character*, Character*, int, int)>& applyDamage, bool applyPassive) {
-    // [PT-BR] Comportamento padrao: ataca o alvo principal ou todos caso a arma seja de efeito em area
-    // [EN-US] Default behavior: attacks main target or all if weapon has area of effect
+    // Comportamento padrao: ataca o alvo principal ou todos caso a arma seja de efeito em area
     BaseClass::executeAttackWithClassPassive(attacker, defender, damageBase, damagePiercing, enemies,
         [&](Character* atk, Character* def, int dmg, int perf) {
-            // [PT-BR] Callback para aplicar o dano e em seguida o efeito da habilidade passiva
-            // [EN-US] Callback to apply damage followed by passive skill effect
+            // Callback para aplicar o dano e em seguida o efeito da habilidade passiva
             applyDamage(atk, def, dmg, perf);
             if (def->getHealth() > 0 && applyPassive) {
                 int damageNecrosis = static_cast<int>(def->getMaxHealth() * 0.05);
@@ -155,8 +151,7 @@ void Necromancer::executeAttackWithClassPassive(Character* attacker, Character* 
 }
 
 
-// [PT-BR] --- HABILIDADE DA CLASSE ---
-// [EN-US] --- CLASS SKILL ---
+// HABILIDADE DA CLASSE
 std::string Necromancer::getRechargeSkillClass() const {
     return "Recarga: Nenhuma (consome 1 alma).";
 }
@@ -275,8 +270,7 @@ void Necromancer::useSkillClass(Combat* combat, Character* characterUser, std::v
                 characterUser->setSkillCanceled(true);
                 return;
             }
-            // [PT-BR] Interrompe invocacoes adicionais mantendo as ja concluidas
-            // [EN-US] Stops additional summons while keeping those already completed
+            // Interrompe invocacoes adicionais mantendo as ja concluidas
             break;
         }
 
@@ -307,14 +301,12 @@ void Necromancer::useSkillClass(Combat* combat, Character* characterUser, std::v
                 notifyMessageCombat(bossMsg, bossMsg);
                 std::cout << "\n" << CombatScreen::combatMargin() << bossMsg << "\n";
             }
-            // [PT-BR] Interrompe o laco, impedindo invocacoes subsequentes no mesmo turno
-            // [EN-US] Breaks loop, preventing subsequent summons in the same turn
+            // Interrompe o laco, impedindo invocacoes subsequentes no mesmo turno
             break;
         }
     }
     
-    // [PT-BR] Se invocou multiplos minions na mesma acao, eles pulam o primeiro turno para balanceamento
-    // [EN-US] If multiple minions were summoned in one action, they skip their initial turn for balance
+    // Se invocou multiplos minions na mesma acao, eles pulam o primeiro turno para balanceamento
     if (minionsRecentlyInvoked.size() > 1) {
         std::string msg = DialogueFunctions::formatSystemMsg("A invocacao multipla exauriu seu controle! O turno inimigo comecara imediatamente!", Color::LIGHT_RED);
         notifyMessageCombat(msg, msg);

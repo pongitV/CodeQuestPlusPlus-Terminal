@@ -41,8 +41,7 @@ public:
     void notifyCancellationItem() override;
     void notifyUnmetRequirement(const std::string& requirementMessage) override;
 
-    // [PT-BR] Instancia Singleton compartilhada
-    // [EN-US] Shared singleton instance
+    // Instancia Singleton compartilhada
     static IDECombatScreen& instance() {
         static IDECombatScreen s_instance;
         return s_instance;

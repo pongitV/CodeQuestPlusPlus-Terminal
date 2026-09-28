@@ -44,8 +44,7 @@ NextMapTransition Map3KingdomBridge::startExplorationLoop()
     auto formatter = [&](char cell, int x, int y) -> std::string {
         if (x == playerPositionX && y == playerPositionY) {
             char ic = Appearance::customPlayerIcon;
-            // [PT-BR] Garante que o icone do jogador seja um caractere visivel
-    // [EN-US] Ensures player icon is a visible character
+            // Garante que o icone do jogador seja um caractere visivel
     if (ic <= 32 || ic > 126) ic = '@';
             return Appearance::color(Appearance::customPlayerColor) + std::string(1, ic) + Appearance::color(Color::RESET);
         }
@@ -66,8 +65,7 @@ NextMapTransition Map3KingdomBridge::startExplorationLoop()
 
         if (currentMapTitle == "PONTE DO REINO" || currentMapTitle == "CAMINHO DO Reino") {
             titleArt = Map3KingdomBridgeLayouts::getKingdomBridgeLogo();
-            // [PT-BR] Largura da arte ASCII da ponte (150 colunas)
-    // [EN-US] Width of bridge ASCII art (150 columns)
+            // Largura da arte ASCII da ponte (150 colunas)
     artWidth = 150;
             transArt = Map3KingdomBridgeLayouts::getKingdomBridgeTransitionArt();
             transWidth = 75;
@@ -81,8 +79,7 @@ NextMapTransition Map3KingdomBridge::startExplorationLoop()
     std::unordered_map<char, std::function<void(int, int, int)>> interactions;
 
     interactions['^'] = [&]([[maybe_unused]] int px, int py, [[maybe_unused]] int width) {
-        // [PT-BR] Transicao 1: Acesso ao Reino / Castelo
-        // [EN-US] Transition 1: Access to Kingdom / Castle
+        // Transicao 1: Acesso ao Reino / Castelo
         if (py < 20) {
             if (!invitationReceived) {
                 Appearance::startPopupInteraction();
@@ -99,8 +96,7 @@ NextMapTransition Map3KingdomBridge::startExplorationLoop()
                 nextMap = NextMapTransition::Kingdom;
             }
         }
-        // [PT-BR] Transicao 2: Retornar para a Floresta
-        // [EN-US] Transition 2: Return to Forest
+        // Transicao 2: Retornar para a Floresta
         else if (py >= 20) {
             isExplorationActive = false;
             nextMap = NextMapTransition::Forest;

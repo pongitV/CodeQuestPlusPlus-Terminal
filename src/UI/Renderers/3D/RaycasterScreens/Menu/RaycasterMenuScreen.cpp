@@ -117,14 +117,8 @@ int ScreenMenuRaycaster::displayMainMenuOptions() {
             continue;
         }
 
-        unsigned char key = static_cast<unsigned char>(InputControl::readKey());
-        if (key == 224 || key == 0 || key == '\033') {
-            unsigned char nextKey = static_cast<unsigned char>(InputControl::readKey());
-            if (nextKey == '[') nextKey = static_cast<unsigned char>(InputControl::readKey());
-            if (nextKey == 72 || nextKey == 'A') key = 'w';
-            else if (nextKey == 80 || nextKey == 'B') key = 's';
-            else if (nextKey == 27) return -1;
-        }
+        unsigned char key = static_cast<unsigned char>(InputControl::readNavKey());
+        if (key == 27) return -1;
 
         if (confirmingExit) {
             if (key == 's' || key == 'S') {
@@ -216,7 +210,7 @@ bool ScreenMenuRaycaster::displayChooseConfirmationWithArtSideBySide(
 }
 
 std::vector<std::string> ScreenMenuRaycaster::composeAttributesFrame(
-    const Attributes& stats, const std::string& dryTitle,
+    const Attributes& stats, const std::string& sectionTitle,
     const std::string& skillTitle, const std::string& skillName,
     const std::string& skillDesc,
     const std::string& skillTitle2, const std::string& skillName2,
@@ -240,7 +234,7 @@ std::vector<std::string> ScreenMenuRaycaster::composeAttributesFrame(
     };
 
     std::vector<std::string> result;
-    result.push_back("\033[38;2;255;255;255m" + dryTitle + "\033[0m");
+    result.push_back("\033[38;2;255;255;255m" + sectionTitle + "\033[0m");
     result.push_back(formatAttribute("Vida", stats.health));
     result.push_back(formatAttribute("Forca", stats.strength));
     result.push_back(formatAttribute("Destreza", stats.dexterity));
@@ -332,14 +326,8 @@ bool ScreenMenuRaycaster::displayConfirmationExit() {
             continue;
         }
         
-        unsigned char key = static_cast<unsigned char>(InputControl::readKey());
-        if (key == 224 || key == 0 || key == '\033') {
-            unsigned char nextKey = static_cast<unsigned char>(InputControl::readKey());
-            if (nextKey == '[') nextKey = static_cast<unsigned char>(InputControl::readKey());
-            if (nextKey == 72 || nextKey == 'A') key = 'w';
-            else if (nextKey == 80 || nextKey == 'B') key = 's';
-            else if (nextKey == 27) return false;
-        }
+        unsigned char key = static_cast<unsigned char>(InputControl::readNavKey());
+        if (key == 27) return false;
 
         if (key == 'w' || key == 'W') {
             selectionCurrent = (selectionCurrent - 1 + (int)options.size()) % (int)options.size();

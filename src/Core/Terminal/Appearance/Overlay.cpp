@@ -91,7 +91,7 @@ std::string Appearance::superimposePanelOnAnsiLine(const std::string& background
     return result;
 }
 
-std::string Appearance::superimposeSoonAnsi(const std::string& backgroundLine, const std::vector<std::string>& soonChars, int startX, const std::string& fgColor, int terminalWidth) {
+std::string Appearance::superimposeLogoAnsi(const std::string& backgroundLine, const std::vector<std::string>& logoChars, int startX, const std::string& fgColor, int terminalWidth) {
     std::string result = "";
     result.reserve(backgroundLine.size() + 200);
 
@@ -129,9 +129,9 @@ std::string Appearance::superimposeSoonAnsi(const std::string& backgroundLine, c
 
         std::string charStr = backgroundLine.substr(i, len);
 
-        int soonCol = visualX - startX;
-        if (soonCol >= 0 && soonCol < static_cast<int>(soonChars.size()) && soonChars[soonCol] != " ") {
-            result += "\033[0m" + currentBg + fgColor + soonChars[soonCol] + "\033[0m" + currentBg + currentFg;
+        int logoCol = visualX - startX;
+        if (logoCol >= 0 && logoCol < static_cast<int>(logoChars.size()) && logoChars[logoCol] != " ") {
+            result += "\033[0m" + currentBg + fgColor + logoChars[logoCol] + "\033[0m" + currentBg + currentFg;
         } else {
             result += charStr;
         }

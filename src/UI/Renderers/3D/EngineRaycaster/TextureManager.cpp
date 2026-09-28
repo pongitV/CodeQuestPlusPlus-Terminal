@@ -2,29 +2,29 @@
 #include <cmath>
 #include <algorithm>
 
-bool ManagerTextures::initialized = false;
-ColorRGB ManagerTextures::cache[256][16384];
-float ManagerTextures::tableYes[4096];
+bool TextureManager::initialized = false;
+ColorRGB TextureManager::cache[256][16384];
+float TextureManager::tableSin[4096];
 
-float ManagerTextures::fastYes(float angle) {
+float TextureManager::fastSin(float angle) {
     // angulo em radianos. Normaliza para 0-2PI
     constexpr float TWO_PI = 2.0f * 3.14159265f;
     float a = std::fmod(angle, TWO_PI);
     if (a < 0) a += TWO_PI;
     int index = (int)((a / TWO_PI) * 4096.0f) % 4096;
-    return tableYes[index];
+    return tableSin[index];
 }
 
-float ManagerTextures::fastCos(float angle) {
-    return fastYes(angle + 1.57079632f); // angle + PI/2
+float TextureManager::fastCos(float angle) {
+    return fastSin(angle + 1.57079632f); // angle + PI/2
 }
 
-void ManagerTextures::boot() {
+void TextureManager::initialize() {
     if (initialized) return;
 
     // Gerar tabelas trigonometricas
     for (int i = 0; i < 4096; i++) {
-        tableYes[i] = std::sin((float)i / 4096.0f * 2.0f * 3.14159265f);
+        tableSin[i] = std::sin((float)i / 4096.0f * 2.0f * 3.14159265f);
     }
 
     // Gerar Texturas
@@ -35,7 +35,7 @@ void ManagerTextures::boot() {
     initialized = true;
 }
 
-void ManagerTextures::generate(TexID id) {
+void TextureManager::generate(TexID id) {
     int index = static_cast<int>(id);
     int res = 128; 
 
@@ -267,7 +267,7 @@ void ManagerTextures::generate(TexID id) {
                         if (ty >= 44 && ty <= 56 && std::abs(tx - (22 + (ty - 44))) <= 2) {
                             r = 210; g = 230; b = 245;
                         }
-                        // Balão de vidro e liquido purpura
+                        // Balao de vidro e liquido purpura
                         else if (cx * cx + cy * cy <= 120) {
                             float d = std::sqrt((float)(cx * cx + cy * cy));
                             if (d > 9.5f) { r = 220; g = 235; b = 250; }
@@ -288,7 +288,7 @@ void ManagerTextures::generate(TexID id) {
                             }
                         }
                     }
-                    // Almofariz e Pilão com ervas moidas (tx: 86..116, ty: 52..82)
+                    // Almofariz e Pilao com ervas moidas (tx: 86..116, ty: 52..82)
                     else if (tx >= 86 && tx <= 116 && ty >= 52 && ty <= 82) {
                         int mx = tx - 101, my = ty - 70;
                         // Pilao inclinado
@@ -503,7 +503,7 @@ void ManagerTextures::generate(TexID id) {
                     break;
                 }
                 case TexID::Francesco: {
-                    // TEMA: Empório do Mercador Franchesco (Sacos de Ouro, Bau de Tesouro, Balanca e Provisoes)
+                    // TEMA: Emporio do Mercador Franchesco (Sacos de Ouro, Bau de Tesouro, Balanca e Provisoes)
                     // Fundo de vigas rusticas de carvalho e prateleiras comerciais
                     int wood = 100 + (int)(fastYes(tx * 0.2f) * 12.0f);
                     r = std::clamp(wood, 0, 255);
@@ -680,7 +680,7 @@ void ManagerTextures::generate(TexID id) {
                             } else if (ex * ex + ey * ey <= 16) {
                                 r = 225; g = 185; b = 45; // Emblema dourado central
                             } else {
-                                r = 150; g = 30; b = 35; // Fundo vermelho heráldico
+                                r = 150; g = 30; b = 35; // Fundo vermelho heraldico
                             }
                         }
                     }
@@ -843,7 +843,6 @@ void ManagerTextures::generate(TexID id) {
                     // TEMA: Marmore branco e dourado compondo o altar sagrado.
 
                     // Tematica da Igreja (Vitral, Altar, Parede, Teto)
-                    float details = fastYes(tx * 0.2f) * fastYes(ty * 0.2f);
                     if (id == TexID::ChurchStainedglass) {
                         // Coloridos vitrais em padrao de diamante
                         float diag = std::abs(fastYes((tx + ty)*0.1f) + fastYes((tx - ty)*0.1f));
@@ -861,8 +860,7 @@ void ManagerTextures::generate(TexID id) {
                         else { r = 240; g = 240; b = 245; } // Marmore
                     } else {
                         // Pedra clara sagrada
-                        int bx = tx / 32; int by = ty / 32;
-                        if (by % 2 == 1) bx = (tx + 16) / 32;
+                        int by = ty / 32;
                         bool joint = (tx % 32 < 2) || (ty % 32 < 2);
                         if (by % 2 == 1 && ((tx + 16) % 32 < 2)) joint = true;
                         
@@ -875,7 +873,6 @@ void ManagerTextures::generate(TexID id) {
                     // TEMA: Paredes sagradas de pedra lisa da igreja.
 
                     // Tematica da Igreja (Vitral, Altar, Parede, Teto)
-                    float details = fastYes(tx * 0.2f) * fastYes(ty * 0.2f);
                     if (id == TexID::ChurchStainedglass) {
                         // Coloridos vitrais em padrao de diamante
                         float diag = std::abs(fastYes((tx + ty)*0.1f) + fastYes((tx - ty)*0.1f));
@@ -893,8 +890,7 @@ void ManagerTextures::generate(TexID id) {
                         else { r = 240; g = 240; b = 245; } // Marmore
                     } else {
                         // Pedra clara sagrada
-                        int bx = tx / 32; int by = ty / 32;
-                        if (by % 2 == 1) bx = (tx + 16) / 32;
+                        int by = ty / 32;
                         bool joint = (tx % 32 < 2) || (ty % 32 < 2);
                         if (by % 2 == 1 && ((tx + 16) % 32 < 2)) joint = true;
                         
@@ -907,7 +903,6 @@ void ManagerTextures::generate(TexID id) {
                     // TEMA: A parede principal logo atras do altar, ricamente adornada.
 
                     // Tematica da Igreja (Vitral, Altar, Parede, Teto)
-                    float details = fastYes(tx * 0.2f) * fastYes(ty * 0.2f);
                     if (id == TexID::ChurchStainedglass) {
                         // Coloridos vitrais em padrao de diamante
                         float diag = std::abs(fastYes((tx + ty)*0.1f) + fastYes((tx - ty)*0.1f));
@@ -925,8 +920,7 @@ void ManagerTextures::generate(TexID id) {
                         else { r = 240; g = 240; b = 245; } // Marmore
                     } else {
                         // Pedra clara sagrada
-                        int bx = tx / 32; int by = ty / 32;
-                        if (by % 2 == 1) bx = (tx + 16) / 32;
+                        int by = ty / 32;
                         bool joint = (tx % 32 < 2) || (ty % 32 < 2);
                         if (by % 2 == 1 && ((tx + 16) % 32 < 2)) joint = true;
                         
@@ -939,7 +933,6 @@ void ManagerTextures::generate(TexID id) {
                     // TEMA: Teto em arco da igreja, desenhado com padroes arquitetonicos altos.
 
                     // Tematica da Igreja (Vitral, Altar, Parede, Teto)
-                    float details = fastYes(tx * 0.2f) * fastYes(ty * 0.2f);
                     if (id == TexID::ChurchStainedglass) {
                         // Coloridos vitrais em padrao de diamante
                         float diag = std::abs(fastYes((tx + ty)*0.1f) + fastYes((tx - ty)*0.1f));
@@ -957,8 +950,7 @@ void ManagerTextures::generate(TexID id) {
                         else { r = 240; g = 240; b = 245; } // Marmore
                     } else {
                         // Pedra clara sagrada
-                        int bx = tx / 32; int by = ty / 32;
-                        if (by % 2 == 1) bx = (tx + 16) / 32;
+                        int by = ty / 32;
                         bool joint = (tx % 32 < 2) || (ty % 32 < 2);
                         if (by % 2 == 1 && ((tx + 16) % 32 < 2)) joint = true;
                         
@@ -980,8 +972,7 @@ void ManagerTextures::generate(TexID id) {
                         b = std::clamp(baseB + (int)(bark*5), 0, 255);
                     } else {
                         // Estrutura
-                        int bx = tx / 32; int by = ty / 16;
-                        if (by % 2 == 1) bx = (tx + 16) / 32;
+                        int by = ty / 16;
                         bool joint = (tx % 32 < 2) || (ty % 16 < 2);
                         if (by % 2 == 1 && ((tx + 16) % 32 < 2)) joint = true;
                         
@@ -1008,8 +999,7 @@ void ManagerTextures::generate(TexID id) {
                         b = std::clamp(baseB + (int)(bark*5), 0, 255);
                     } else {
                         // Estrutura
-                        int bx = tx / 32; int by = ty / 16;
-                        if (by % 2 == 1) bx = (tx + 16) / 32;
+                        int by = ty / 16;
                         bool joint = (tx % 32 < 2) || (ty % 16 < 2);
                         if (by % 2 == 1 && ((tx + 16) % 32 < 2)) joint = true;
                         
@@ -1036,8 +1026,7 @@ void ManagerTextures::generate(TexID id) {
                         b = std::clamp(baseB + (int)(bark*5), 0, 255);
                     } else {
                         // Estrutura
-                        int bx = tx / 32; int by = ty / 16;
-                        if (by % 2 == 1) bx = (tx + 16) / 32;
+                        int by = ty / 16;
                         bool joint = (tx % 32 < 2) || (ty % 16 < 2);
                         if (by % 2 == 1 && ((tx + 16) % 32 < 2)) joint = true;
                         
@@ -1348,7 +1337,7 @@ void ManagerTextures::generate(TexID id) {
                     break;
                 }
                 case TexID::DarkBricks: {
-                    // TEMA: Paredes rústicas de chalés e casas da vila em tijolos de terracota aquecida e cantaria.
+                    // TEMA: Paredes rusticas de chales e casas da vila em tijolos de terracota aquecida e cantaria.
                     int brickW = 32;
                     int brickH = 16;
                     int by = ty / brickH;
@@ -1365,16 +1354,16 @@ void ManagerTextures::generate(TexID id) {
                     int brickType = hash % 4;
                     int varR = 0, varG = 0, varB = 0;
                     if (brickType == 0) { varR = 16; varG = -4; varB = -8; }       // Terracota queimada profunda
-                    else if (brickType == 1) { varR = -12; varG = -8; varB = -6; } // Barro envelhecido rústico
+                    else if (brickType == 1) { varR = -12; varG = -8; varB = -6; } // Barro envelhecido rustico
                     else if (brickType == 2) { varR = 8; varG = 12; varB = 6; }    // Argila clara dourada
                     else { varR = ((hash % 15) - 7); varG = ((hash % 11) - 5); varB = ((hash % 9) - 4); }
 
-                    // Granulação mineral e porosidade da argila cozida
+                    // Granulacao mineral e porosidade da argila cozida
                     float grain = fastYes(tx * 0.45f) * fastYes(ty * 0.45f) * 10.0f + fastCos((tx + ty) * 0.3f) * 6.0f;
                     float sandNoise = fastYes(tx * 0.8f + ty * 0.8f) * 4.0f;
 
                     if (isJoint) {
-                        // Argamassa rústica de areia e cal
+                        // Argamassa rustica de areia e cal
                         int mortar = 48 + (int)sandNoise;
                         r = std::clamp(mortar + 8, 0, 255);
                         g = std::clamp(mortar + 3, 0, 255);
@@ -1384,14 +1373,14 @@ void ManagerTextures::generate(TexID id) {
                         int baseG = 88 + varG + (int)(grain * 0.7f);
                         int baseB = 64 + varB + (int)(grain * 0.5f);
 
-                        // Realce de chanfro e iluminação 3D superior e lateral
+                        // Realce de chanfro e iluminacao 3D superior e lateral
                         if (ly == 2 || ly == 3) { baseR += 26; baseG += 18; baseB += 12; }
                         if (lx == 2 || lx == 3) { baseR += 18; baseG += 12; baseB += 8; }
                         // Sombreamento 3D inferior e lateral
                         if (ly == brickH - 1 || ly == brickH - 2) { baseR -= 28; baseG -= 20; baseB -= 16; }
                         if (lx == brickW - 1 || lx == brickW - 2) { baseR -= 18; baseG -= 14; baseB -= 10; }
 
-                        // Pátina rústica na base da parede
+                        // Patina rustica na base da parede
                         if (ty >= 118) {
                             baseR -= 15; baseG -= 5; baseB -= 8;
                         }
@@ -1429,7 +1418,7 @@ void ManagerTextures::generate(TexID id) {
                         int baseG = 126 + varG + (int)grain;
                         int baseB = 136 + varB + (int)grain;
 
-                        // Bevel 3D iluminação nas bordas superiores/esquerdas
+                        // Bevel 3D iluminacao nas bordas superiores/esquerdas
                         if (ly == 2 || ly == 3) { baseR += 22; baseG += 22; baseB += 24; }
                         if (lx == 2 || lx == 3) { baseR += 16; baseG += 16; baseB += 18; }
                         // Sombreamento nas bordas inferiores/direitas
@@ -1443,7 +1432,7 @@ void ManagerTextures::generate(TexID id) {
                     break;
                 }
                 case TexID::BridgeStone: {
-                    // TEMA: Blocos macicos de pedra cinza medieval reforçada da Ponte do Reino.
+                    // TEMA: Blocos macicos de pedra cinza medieval reforcada da Ponte do Reino.
                     int blockW = 42;
                     int blockH = 21;
                     int by = ty / blockH;

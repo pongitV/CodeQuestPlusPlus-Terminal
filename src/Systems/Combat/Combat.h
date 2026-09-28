@@ -1,8 +1,3 @@
-// [PT-BR] Arquivo: Combat.h
-// [PT-BR] Proposito: Gerenciamento do fluxo de combate por turnos, acoes dos personagens, calculo de recompensas e estatisticas.
-// [EN-US] File: Combat.h
-// [EN-US] Purpose: Management of turn-based combat flow, character actions, reward calculation, and statistics.
-
 #pragma once
 
 #include <vector>
@@ -13,8 +8,7 @@
 #include "Domain/Characters/Character.h"
 #include "Systems/Combat/ICombatUI.h"
 
-// [PT-BR] Gerenciador da sessao ativa de combate por turnos.
-// [EN-US] Manager for the active turn-based combat session.
+// Gerenciador da sessao ativa de combate por turnos.
 class Combat 
 {
 public:
@@ -28,18 +22,15 @@ public:
     };
 
 private:
-    // [PT-BR] Referencias aos participantes do combate ativo
-    // [EN-US] References to active combat participants
+    // Referencias aos participantes do combate ativo
     Character* currentPlayer;
     std::vector<std::unique_ptr<Character>> enemies;
     std::vector<std::unique_ptr<Character>> allies;
 
-    // [PT-BR] Interface visual de combate (Injecao de Dependencia)
-    // [EN-US] Combat visual interface (Dependency Injection)
+    // Interface visual de combate (Injecao de Dependencia)
     std::unique_ptr<ICombatUI> ui;
 
-    // [PT-BR] Estatisticas gerais e controle da sessao de combate
-    // [EN-US] General statistics and combat session control
+    // Estatisticas gerais e controle da sessao de combate
     int goldObtained;
     int xpObtained;
     int totalDamageCaused;
@@ -48,8 +39,7 @@ private:
     std::vector<std::string> obtainedItems;
     std::vector<std::string> enemiesDefeated;
 
-    // [PT-BR] Estatisticas Avancadas da Sessao
-    // [EN-US] Advanced Session Statistics
+    // Estatisticas Avancadas da Sessao
     int parriesAttempted;
     int effectiveParries;
     int perfectParries;
@@ -88,24 +78,19 @@ public:
     void addAllyInCombat(std::unique_ptr<Character> ally);
     void addAllies(std::vector<std::unique_ptr<Character>> allies);
     
-    // [PT-BR] Inicia o laco principal de combate
-    // [EN-US] Starts main combat loop
+    // Inicia o laco principal de combate
     void startCombat();
 
-    // [PT-BR] Executa a inteligencia e as acoes de todos os inimigos presentes
-    // [EN-US] Executes AI and actions of all present enemies
+    // Executa a inteligencia e as acoes de todos os inimigos presentes
     void executeTurnForAllEnemies();
 
-    // [PT-BR] Verifica condicao de vitoria ou derrota no combate
-    // [EN-US] Checks victory or defeat condition in combat
+    // Verifica condicao de vitoria ou derrota no combate
     bool checkVictoryOrDefeatCondition();
 
-    // [PT-BR] Aplica o fluxo completo de ataque fisico de um personagem a outro
-    // [EN-US] Applies full physical attack flow from one character to another
+    // Aplica o fluxo completo de ataque fisico de um personagem a outro
     void performPhysicalAttack(Character* attackingCharacter, Character* defenderCharacter, int currentCombatTurn);
 
-    // [PT-BR] Getters para Estatisticas Avancadas
-    // [EN-US] Getters for Advanced Statistics
+    // Getters para Estatisticas Avancadas
     int getParriesAttempted() const { return parriesAttempted; }
     int getEffectiveParries() const { return effectiveParries; }
     int getHighestDamageCaused() const { return highestDamageCaused; }

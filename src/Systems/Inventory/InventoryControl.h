@@ -1,8 +1,3 @@
-/*
- * Arquivo: InventoryControl.h
- * Proposito: Regras de uso e equipagem de itens no inventario (processamento de resultados e erros).
- */
-
 #pragma once
 #include <string>
 
@@ -12,8 +7,10 @@ class Item;
 enum class ResultItem {
     Equipped,
     Unequipped,
-    Used_Shift,
-    Used_WithoutShift,
+    Used_Turn,
+    Used_WithoutTurn,
+    Used_Shift = Used_Turn,
+    Used_WithoutShift = Used_WithoutTurn,
     Error_TurnAlreadyUsed,
     Error_ShieldBroken,
     Error_Requirements,
@@ -28,8 +25,11 @@ struct UseItemInfo {
     bool consumedTurn = false;
 };
 
-class ControlInventory {
+class InventoryController {
 public:
     static UseItemInfo useOrEquip(Character* player, Item* item, bool turnAlreadyConsumed);
     static std::string getMessageError(Item* item, bool inCombat);
 };
+
+// Apelido para compatibilidade retroativa
+using ControlInventory = InventoryController;

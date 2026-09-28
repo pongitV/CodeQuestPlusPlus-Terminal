@@ -6,8 +6,7 @@
 #include "Core/Utils/DialogFunctions.h"
 #include "UI/Screens/BaseScreen.h"
 
-// [PT-BR] --- INTERACAO PRINCIPAL ---
-// [EN-US] --- MAIN INTERACTION ---
+// INTERACAO PRINCIPAL
 void InteractionNPC::interact(Character* currentPlayer) {
     std::string option;
     
@@ -40,7 +39,7 @@ void InteractionNPC::interact(Character* currentPlayer) {
     } while (option != "VOLTAR");
 }
 
-void InteractionNPC::processMenuMissionsEmpty(Character* currentPlayer, const std::string& titleMenu, Color colorHeader, const std::string& nameNPC, const std::string& speakEmpty) {
+void InteractionNPC::processMenuMissionsEmpty(Character* currentPlayer, const std::string& titleMenu, Color colorHeader, const std::string& nameNPC, const std::string& emptyDialogue) {
     std::string optionMission;
     do {
         std::vector<std::string> missions = {
@@ -53,12 +52,12 @@ void InteractionNPC::processMenuMissionsEmpty(Character* currentPlayer, const st
         optionMission = missions[id];
 
         if (optionMission == "(Nenhuma missao disponivel)") {
-            Appearance::displayPopup(nameNPC, {speakEmpty}, colorHeader);
+            Appearance::displayPopup(nameNPC, {emptyDialogue}, colorHeader);
         }
     } while (optionMission != "VOLTAR");
 }
 
-bool InteractionNPC::checkMaterialNoInventory(Character* currentPlayer, const std::string& nameMaterial, int quantityNecessary, const std::string& nameNPC, Color colorNPC, const std::string& messagePersonalized) {
+bool InteractionNPC::checkMaterialInInventory(Character* currentPlayer, const std::string& nameMaterial, int quantityNecessary, const std::string& nameNPC, Color colorNPC, const std::string& messagePersonalized) {
     int qtyCurrent = currentPlayer->getInventory()->countItem(nameMaterial);
     if (qtyCurrent < quantityNecessary) {
         std::string msg = messagePersonalized.empty() 
@@ -129,14 +128,14 @@ Item* InteractionNPC::readItemFromInventory(Character* currentPlayer, const std:
     return itemSelected;
 }
 
-void InteractionNPC::displaySuccessScreen(const std::string& titleHeader, Color colorHeader, const std::string& equation, const std::vector<std::string>& asciiArt, const std::string& nameNPC, const std::string& speakNPC) {
+void InteractionNPC::displaySuccessScreen(const std::string& titleHeader, Color colorHeader, const std::string& equation, const std::vector<std::string>& asciiArt, const std::string& nameNPC, const std::string& npcDialogue) {
     Appearance::clearScreen();
     Appearance::displayTextPanel(titleHeader, colorHeader);
     Appearance::printCentralizedMultiline({equation, ""}, 0, Appearance::color(colorHeader));
     if (!asciiArt.empty()) {
         Appearance::printCentralizedMultiline(asciiArt, 29, Appearance::color(colorHeader));
     }
-    DialogueFunctions::printDialogueNPC(nameNPC, colorHeader, speakNPC);
+    DialogueFunctions::printDialogueNPC(nameNPC, colorHeader, npcDialogue);
     InputControl::waitForEnter();
 }
 
@@ -145,7 +144,7 @@ std::string InteractionNPC::getFormatterStatusItem(ItemID id) {
     return tempItem ? tempItem->getInfoStatus() : "";
 }
 
-bool InteractionNPC::checkItemNoEquipped(Character* currentPlayer, Item* itemEvaluated, const std::string& nameNPC, Color colorNPC, const std::string& msgError) {
+bool InteractionNPC::checkItemNotEquipped(Character* currentPlayer, Item* itemEvaluated, const std::string& nameNPC, Color colorNPC, const std::string& msgError) {
     if (currentPlayer->isItemEquipped(itemEvaluated)) {
         DialogueFunctions::printDialogueNPC(nameNPC, colorNPC, msgError);
         InputControl::waitForEnter();

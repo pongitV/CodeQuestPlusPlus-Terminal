@@ -15,8 +15,10 @@
 
 namespace MenuRaycasterUtils {
 
-    inline float s_cycleHeavenly = 0.0f;
-    inline float s_speedHeavenly = 0.005f;
+    inline float s_celestialCycle = 0.0f;
+    inline float s_celestialSpeed = 0.005f;
+    inline float& s_cycleHeavenly = s_celestialCycle;
+    inline float& s_speedHeavenly = s_celestialSpeed;
     inline int s_starsX = 0;
     inline int s_warriorSteps = 0;
 
@@ -40,8 +42,8 @@ namespace MenuRaycasterUtils {
     inline int s_healTimer = 0;
 
     inline void increaseCycleDay() {
-        s_cycleHeavenly += s_speedHeavenly;
-        if (s_cycleHeavenly >= 4.6f) s_cycleHeavenly -= 4.6f;
+        s_celestialCycle += s_celestialSpeed;
+        if (s_celestialCycle >= 4.6f) s_celestialCycle -= 4.6f;
         s_starsX = (s_starsX + 1) % 2000;
         
         int width = Appearance::getTerminalWidth();
@@ -354,23 +356,27 @@ namespace MenuRaycasterUtils {
         }
     }
 
-    inline void superimposeSoonCodeQuest() {
+    inline void superimposeLogoCodeQuest() {
         if (s_background3DMenu.empty()) return;
         int widthConsole = Appearance::getTerminalWidth();
         if (widthConsole <= 0) return;
         std::string text = "CodeQuest";
         std::string more = "++";
         int totalWidth = Appearance::getVisualLength(text) + Appearance::getVisualLength(more);
-        int marginSoon = std::max(0, (widthConsole - totalWidth) / 2);
-        superimposeNoFrame(1, marginSoon, text, 255, 255, 255);
-        superimposeNoFrame(1, marginSoon + (int)text.length(), more, 255, 165, 0);
+        int marginLogo = std::max(0, (widthConsole - totalWidth) / 2);
+        superimposeNoFrame(1, marginLogo, text, 255, 255, 255);
+        superimposeNoFrame(1, marginLogo + (int)text.length(), more, 255, 165, 0);
+    }
+
+    inline void superimposeSoonCodeQuest() {
+        superimposeLogoCodeQuest();
     }
 
     inline void displayBackground3D(std::ostream& out) {
         applyCycleDayNight(s_background3DMenu);
         drawCastle();
         drawSceneBattle();
-        superimposeSoonCodeQuest();
+        superimposeLogoCodeQuest();
         out << "\033[H";
         for (size_t y = 0; y < s_background3DMenu.size(); ++y) {
             out << s_background3DMenu[y];

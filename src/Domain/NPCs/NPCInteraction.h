@@ -1,8 +1,3 @@
-// [PT-BR] Arquivo: NPCInteraction.h
-// [PT-BR] Proposito: Interface abstrata para interacoes de menu e dialogos com NPCs (Ferreiro, Alquimista, Mercador).
-// [EN-US] File: NPCInteraction.h
-// [EN-US] Purpose: Abstract interface for menu interactions and dialogues with NPCs (Blacksmith, Alchemist, Merchant).
-
 #pragma once
 
 #include <string>
@@ -12,8 +7,7 @@
 
 class Character;
 
-// [PT-BR] Interface de contrato para comportamentos de dialogo e transacoes com NPCs.
-// [EN-US] Contract interface for dialogue behaviors and transactions with NPCs.
+// Interface de contrato para comportamentos de dialogo e transacoes com NPCs.
 class InteractionNPC {
 public:
     virtual ~InteractionNPC() = default;
@@ -28,10 +22,18 @@ public:
 
     void interact(Character* currentPlayer);
 
-    static void processMenuMissionsEmpty(Character* currentPlayer, const std::string& titleMenu, Color colorHeader, const std::string& nameNPC, const std::string& speakEmpty);
-    static bool checkMaterialNoInventory(Character* currentPlayer, const std::string& nameMaterial, int quantityNecessary, const std::string& nameNPC, Color colorNPC, const std::string& messagePersonalized = "");
-    static bool checkItemNoEquipped(Character* currentPlayer, Item* itemEvaluated, const std::string& nameNPC, Color colorNPC, const std::string& msgError);
+    static void processMenuMissionsEmpty(Character* currentPlayer, const std::string& titleMenu, Color colorHeader, const std::string& nameNPC, const std::string& emptyDialogue);
+    static bool checkMaterialInInventory(Character* currentPlayer, const std::string& nameMaterial, int quantityNecessary, const std::string& nameNPC, Color colorNPC, const std::string& messagePersonalized = "");
+    static bool checkItemNotEquipped(Character* currentPlayer, Item* itemEvaluated, const std::string& nameNPC, Color colorNPC, const std::string& msgError);
     static Item* readItemFromInventory(Character* currentPlayer, const std::string& messageDialogue, const std::string& nameNPC, Color colorNPC, std::string& codeExit, bool displayPrices = false);
-    static void displaySuccessScreen(const std::string& titleHeader, Color colorHeader, const std::string& equation, const std::vector<std::string>& asciiArt, const std::string& nameNPC, const std::string& speakNPC);
+    static void displaySuccessScreen(const std::string& titleHeader, Color colorHeader, const std::string& equation, const std::vector<std::string>& asciiArt, const std::string& nameNPC, const std::string& npcDialogue);
     static std::string getFormatterStatusItem(ItemID id);
+
+    // Aliases para retrocompatibilidade
+    static inline bool checkMaterialNoInventory(Character* currentPlayer, const std::string& nameMaterial, int quantityNecessary, const std::string& nameNPC, Color colorNPC, const std::string& messagePersonalized = "") {
+        return checkMaterialInInventory(currentPlayer, nameMaterial, quantityNecessary, nameNPC, colorNPC, messagePersonalized);
+    }
+    static inline bool checkItemNoEquipped(Character* currentPlayer, Item* itemEvaluated, const std::string& nameNPC, Color colorNPC, const std::string& msgError) {
+        return checkItemNotEquipped(currentPlayer, itemEvaluated, nameNPC, colorNPC, msgError);
+    }
 };

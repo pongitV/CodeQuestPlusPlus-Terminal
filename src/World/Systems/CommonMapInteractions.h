@@ -1,8 +1,3 @@
-// [PT-BR] Arquivo: CommonMapInteractions.h
-// [PT-BR] Proposito: Utilitario compartilhado para registro de interacoes padrao de NPCs em mapas (DRY).
-// [EN-US] File: CommonMapInteractions.h
-// [EN-US] Purpose: Shared utility for registering standard NPC map interactions (DRY).
-
 #pragma once
 
 #include <unordered_map>
@@ -16,8 +11,7 @@
 #include "Systems/Progression/Progression.h"
 #include "World/MapControl.h"
 
-// [PT-BR] Provedor de registro de interacoes unificadas de NPCs para evitar duplicacao entre mapas
-// [EN-US] Unified NPC interaction registration provider to avoid duplication across maps
+// Provedor de registro de interacoes unificadas de NPCs para evitar duplicacao entre mapas
 namespace CommonMapInteractions {
 
     inline void registerStandardNPCs(
@@ -26,8 +20,7 @@ namespace CommonMapInteractions {
         const bool& isExplorationActive,
         const std::function<void()>& restoreScreen
     ) {
-        // [PT-BR] Mercador Franchesco ('F')
-        // [EN-US] Merchant Franchesco ('F')
+        // Mercador Franchesco ('F')
         interactions['F'] = [currentPlayer, &isExplorationActive, restoreScreen]([[maybe_unused]] int px, [[maybe_unused]] int py, [[maybe_unused]] int width) {
             NPCMerchant franchesco;
             franchesco.interact(currentPlayer);
@@ -35,8 +28,7 @@ namespace CommonMapInteractions {
             if (isExplorationActive && !MapControl::is3DExplorationActive()) restoreScreen();
         };
 
-        // [PT-BR] Ferreiro Bjorn ('B')
-        // [EN-US] Blacksmith Bjorn ('B')
+        // Ferreiro Bjorn ('B')
         interactions['B'] = [currentPlayer, &isExplorationActive, restoreScreen]([[maybe_unused]] int px, [[maybe_unused]] int py, [[maybe_unused]] int width) {
             NPCBlacksmith bjorn;
             bjorn.interact(currentPlayer);
@@ -44,8 +36,7 @@ namespace CommonMapInteractions {
             if (isExplorationActive && !MapControl::is3DExplorationActive()) restoreScreen();
         };
 
-        // [PT-BR] Estilista Real Anok ('N')
-        // [EN-US] Royal Stylist Anok ('N')
+        // Estilista Real Anok ('N')
         interactions['N'] = [currentPlayer, &isExplorationActive, restoreScreen]([[maybe_unused]] int px, [[maybe_unused]] int py, [[maybe_unused]] int width) {
             NPCAppearance appearance;
             appearance.interact(currentPlayer);
@@ -53,8 +44,7 @@ namespace CommonMapInteractions {
             if (isExplorationActive && !MapControl::is3DExplorationActive()) restoreScreen();
         };
 
-        // [PT-BR] Alquimista Real ('Q')
-        // [EN-US] Royal Alchemist ('Q')
+        // Alquimista Real ('Q')
         interactions['Q'] = [currentPlayer, &isExplorationActive, restoreScreen]([[maybe_unused]] int px, [[maybe_unused]] int py, [[maybe_unused]] int width) {
             NPCAlchemist alchemist;
             alchemist.interact(currentPlayer);

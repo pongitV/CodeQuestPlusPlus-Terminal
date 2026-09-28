@@ -9,12 +9,11 @@ class IDEMenuScreen {
 public:
     static void displayGameLogoPanel(const std::string& screenTitle = "", bool animateFadeIn = false);
     static bool displayChooseConfirmationWithArtSideBySide(const std::string& chooseType, const std::string& chooseName, const std::vector<std::string>& informationForDisplay, const std::vector<std::string>& asciiArtForDisplay);
-    static std::vector<std::string> composeAttributesFrame(const Attributes& stats, const std::string& dryTitle, const std::string& skillTitle, const std::string& skillName, const std::string& skillDesc, const std::string& skillTitle2 = "", const std::string& skillName2 = "", const std::string& skillDesc2 = "");
+    static std::vector<std::string> composeAttributesFrame(const Attributes& stats, const std::string& sectionTitle, const std::string& skillTitle, const std::string& skillName, const std::string& skillDesc, const std::string& skillTitle2 = "", const std::string& skillName2 = "", const std::string& skillDesc2 = "");
     static int displayMainMenuOptions();
     static bool displayConfirmationExit();
     
-    // [PT-BR] Funcoes utilitarias de layout e calculo de espacamento
-    // [EN-US] Layout utility functions and spacing calculations
+    // Funcoes utilitarias de layout e calculo de espacamento
     static std::vector<std::string> compressArtASCII(const std::vector<std::string>& artOriginal, int factorY, int factorX);
     static void printCentralizedBlockIDE(const std::vector<std::string>& block, int recoilAdditionalX = 0);
     static int calculateSpaceY(int contentLines);

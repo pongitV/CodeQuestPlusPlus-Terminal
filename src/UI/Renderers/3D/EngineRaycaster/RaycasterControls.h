@@ -21,8 +21,7 @@ struct MouseHider {
             isHidden = true;
         }
     }
-    // [PT-BR] Restaura os cursores padrao do sistema operacional
-    // [EN-US] Restores standard operating system mouse cursors
+    // Restaura os cursores padrao do sistema operacional
     void restore() {
         if (isHidden) {
             SystemParametersInfoA(SPI_SETCURSORS, 0, NULL, 0);
@@ -38,8 +37,7 @@ struct MouseHider {
 
 class RaycasterControls {
 public:
-    // [PT-BR] Processa entradas de teclado, mouse e fisica de movimento do jogador no modo 3D
-    // [EN-US] Processes keyboard, mouse input and player movement physics in 3D exploration mode
+    // Processa entradas de teclado, mouse e fisica de movimento do jogador no modo 3D
     static char processInputAndControls(
         Character* player,
         float& playerX,
@@ -66,7 +64,6 @@ public:
         int& bobbingOffset
     );
 
-    // [EN-US] Backward compatibility alias
     static char processInputEControls(
         Character* player, float& playerX, float& playerY, float& viewAngle, float& pitchOffset,
         float timeDelta, float speedMovement, const std::vector<std::string>& mapMatrix,

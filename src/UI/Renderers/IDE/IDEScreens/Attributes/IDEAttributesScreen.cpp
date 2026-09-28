@@ -79,7 +79,7 @@ void IDEAttributesScreen::managePlayerCharacterSheet(Character* currentPlayer) {
         };
 
         if (currentTab == 0) {
-            // --- FICHA PRINCIPAL (CharacterSheet.hpp) ---
+            // Ficha principal (charactersheet.hpp)
             std::vector<std::string> lines;
             std::string raceName = currentPlayer->getRace() ? currentPlayer->getRace()->getRaceName() : "Humano";
             std::string className = currentPlayer->getClassName();
@@ -150,8 +150,7 @@ void IDEAttributesScreen::managePlayerCharacterSheet(Character* currentPlayer) {
             char key = InputControl::readKey();
             if (key == '0' || key == 27) break;
             if (key == '1' && currentPlayer->canLevelUp()) {
-                // [PT-BR] Rotina de level up com visualizacao de template C++
-                // [EN-US] Level-up routine with live C++ template visualization
+                // Rotina de level up com visualizacao de template C++
                 std::vector<std::string> lvlLines;
                 lvlLines.push_back(IDETheme::preprocessor("#pragma once"));
                 lvlLines.push_back(IDETheme::comment("// Instanciação de template para alocação de attributes de level:"));
@@ -210,7 +209,7 @@ void IDEAttributesScreen::managePlayerCharacterSheet(Character* currentPlayer) {
                 currentTab = 3;
             }
         } else if (currentTab == 1) {
-            // --- HABILIDADES E EQUIPAMENTOS (SkillsAndGear.hpp) ---
+            // Habilidades e equipamentos (skillsandgear.hpp)
             std::vector<std::string> lines;
             lines.push_back(IDETheme::preprocessor("#pragma once"));
             lines.push_back(IDETheme::preprocessor("#include \"Core/Items/Equipment.hpp\""));
@@ -246,7 +245,7 @@ void IDEAttributesScreen::managePlayerCharacterSheet(Character* currentPlayer) {
             char k = InputControl::readKey();
             if (k == '1' || k == '0' || k == 27) currentTab = 0;
         } else if (currentTab == 2) {
-            // --- FORMULAS (StatFormulas.cpp) ---
+            // Formulas (statformulas.cpp)
             std::vector<std::string> lines;
             lines.push_back(IDETheme::preprocessor("#pragma once"));
             lines.push_back(IDETheme::keyword("namespace ") + IDETheme::type("Engine::Formulas") + IDETheme::punctuation(" {"));
@@ -269,7 +268,7 @@ void IDEAttributesScreen::managePlayerCharacterSheet(Character* currentPlayer) {
             char k = InputControl::readKey();
             if (k == '1' || k == '0' || k == 27) currentTab = 0;
         } else if (currentTab == 3) {
-            // --- MEMORY LAYOUT (MemoryLayout.map) ---
+            // Memory layout (memorylayout.map)
             std::vector<std::string> lines;
             lines.push_back(IDETheme::comment("// Memory layout da class Hero (sizeof = 0x38 bytes, align = 8):"));
             lines.push_back(IDETheme::comment("// +0x00: vptr -> &vtable da class Hero"));

@@ -5,8 +5,7 @@
 #include "Core/Utils/Appearance.h"
 #include "Core/Engine/Drops.h"
 
-// [PT-BR] --- INFORMACOES DA RACA ---
-// [EN-US] --- RACE INFORMATION ---
+// INFORMACOES DA RACA
 std::string Troll::getRaceName() const 
 { 
     return "Troll"; 
@@ -14,8 +13,7 @@ std::string Troll::getRaceName() const
 
 Attributes Troll::getAttributesRace() const 
 { 
-    // [PT-BR] Atributos base: vida, forca, destreza, resistencia, constituicao, inteligencia, sabedoria
-    // [EN-US] Base attributes: health, strength, dexterity, resistance, constitution, intelligence, wisdom
+    // Atributos base: vida, forca, destreza, resistencia, constituicao, inteligencia, sabedoria
     return { 500, 20, 1, 10, 10, 0, 0 };
 }
 
@@ -26,13 +24,11 @@ std::vector<std::unique_ptr<Item>> Troll::getEquipmentRace() const
     return equipment;
 }
 
-// [PT-BR] --- HABILIDADE DA RACA ---
-// [EN-US] --- RACE SKILL ---
+// HABILIDADE DA RACA
 std::string Troll::getNameSkillRace() const { return "Regeneracao Troll"; }
 std::string Troll::getDescriptionSkillRace() const { return "Pele aspera e capacidade de regenerar as feridas mais brutais. (Boss)"; }
 
-// [PT-BR] --- APARENCIA ---
-// [EN-US] --- APPEARANCE ---
+// APARENCIA
 const std::vector<std::string>& Troll::getAppearanceRace() const
 {
     static const std::vector<std::string> appearance =
@@ -136,8 +132,7 @@ const std::vector<std::string>& Troll::getAppearanceRace() const
 }
 
 
-// [PT-BR] --- BESTIARIO E DROPS ---
-// [EN-US] --- BESTIARY AND DROPS ---
+// BESTIARIO E DROPS
 InfoBestiary Troll::getInfoBestiary() const {
     return {
         "Montanhas", 

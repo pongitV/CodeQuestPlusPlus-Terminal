@@ -1,8 +1,3 @@
-/*
- * Arquivo: HackConsole.h
- * Proposito: Minigame de terminal para hackear dispositivos/consoles interativos no mapa.
- */
-
 #pragma once
 #include <string>
 

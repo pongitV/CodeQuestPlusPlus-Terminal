@@ -8,7 +8,7 @@
 
 using namespace std;
 
-void RaycasterHUD::draw(vector<string>& screen, int widthScreen, int heightScreen, float playerX, float playerY, float viewAngle, const vector<string>& mapMatrix, const string& titleMap, bool themeForest, Character* player) {
+void RaycasterHUD::draw(vector<string>& screen, int widthScreen, int heightScreen, float /*playerX*/, float /*playerY*/, float viewAngle, const vector<string>& /*mapMatrix*/, const string& /*titleMap*/, bool /*themeForest*/, Character* player) {
     drawBarStatus(screen, widthScreen, heightScreen, player, viewAngle);
     drawControls(screen, widthScreen, heightScreen);
 }
@@ -77,7 +77,7 @@ void RaycasterHUD::drawMinimap(vector<string>& screen, int SCREEN_WIDTH, int SCR
     }
 }
 
-void RaycasterHUD::drawBarStatus(vector<string>& screen, int SCREEN_WIDTH, int SCREEN_HEIGHT, Character* player, float viewAngle, const string& titleEdge, int framesDamagePlayer, int damageAmount, bool isHealing) {
+void RaycasterHUD::drawBarStatus(vector<string>& screen, int SCREEN_WIDTH, int SCREEN_HEIGHT, Character* player, float /*viewAngle*/, const string& titleEdge, int framesDamagePlayer, int damageAmount, bool isHealing) {
     if (screen.empty()) return;
     bool isModeLines = (screen.size() <= (size_t)SCREEN_HEIGHT); // If it's a small vector, it's a vector of lines (strings)
     
@@ -230,8 +230,7 @@ void RaycasterHUD::drawControls(vector<string>& screen, int SCREEN_WIDTH, int SC
                        + cF + "[" + cK + "B" + cF + "] Diario   "
                        + cF + "[" + cK + "M" + cF + "] Mapa\033[0m";
 
-    // [PT-BR] Largura visual calculada da barra de controles para alinhamento horizontal
-    // [EN-US] Calculated visual width of controls bar for horizontal alignment
+    // Largura visual calculada da barra de controles para alinhamento horizontal
     const int lenVis = 77;
     int startCtrlX = (SCREEN_WIDTH - lenVis) / 2;
     int lineControls = SCREEN_HEIGHT - 1;

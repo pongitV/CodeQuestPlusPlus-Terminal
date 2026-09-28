@@ -17,7 +17,7 @@ Bestiary& Bestiary::instance() {
 }
 
 Bestiary::Bestiary() {
-    bootEnemies();
+    initializeEnemies();
 }
 
 namespace {
@@ -38,13 +38,17 @@ namespace {
             " > Sabedoria      : " + std::to_string(attr.wisdom)
         };
 
+        std::vector<std::string> skills = {classPattern.getNameSkillClass() + " | " + classPattern.getDescriptionSkillClass()};
+
         baseEnemies[race.getRaceName()] = {
             race.getRaceName(), info.map, info.habitat,
             race.getAppearanceRace(),
             info.lore,
             info.factCurious,
+            info.factCurious,
             attrText,
-            {classPattern.getNameSkillClass() + " | " + classPattern.getDescriptionSkillClass()},
+            skills,
+            skills,
             race.getNameSkillRace() + " | " + race.getDescriptionSkillRace(),
             info.drops,
             info.difficulty
@@ -52,7 +56,7 @@ namespace {
     }
 }
 
-void Bestiary::bootEnemies() {
+void Bestiary::initializeEnemies() {
     registerInBestiary<Goblin>(baseEnemies);
     registerInBestiary<Slime>(baseEnemies);
     registerInBestiary<Fairy>(baseEnemies);
@@ -73,50 +77,50 @@ void Bestiary::registerDefeat(const std::string& enemyName) {
     if (baseEnemies.count(enemyName)) {
         seenEnemies.insert(enemyName);
         defeated.insert(enemyName);
-        quantityDefeats[enemyName]++;
+        defeatCounts[enemyName]++;
     }
 }
 
 void Bestiary::registerSkillView(const std::string& enemyName, const std::string& skill) {
     std::lock_guard<std::mutex> lock(mtx);
-    if (baseEnemies.count(enemyName)) skillsViews[enemyName].insert(skill);
+    if (baseEnemies.count(enemyName)) seenSkills[enemyName].insert(skill);
 }
 
 void Bestiary::registerDrop(const std::string& enemyName, const std::string& drop) {
     std::lock_guard<std::mutex> lock(mtx);
-    if (baseEnemies.count(enemyName)) dropsCollected[enemyName].insert(drop);
+    if (baseEnemies.count(enemyName)) collectedDrops[enemyName].insert(drop);
 }
 
-bool Bestiary::thisDiscovered(const std::string& enemyName) const {
+bool Bestiary::isDiscovered(const std::string& enemyName) const {
     std::lock_guard<std::mutex> lock(mtx);
     return seenEnemies.count(enemyName) > 0;
 }
 
-bool Bestiary::alreadyDefeated(const std::string& enemyName) const {
+bool Bestiary::isDefeated(const std::string& enemyName) const {
     std::lock_guard<std::mutex> lock(mtx);
     return defeated.count(enemyName) > 0;
 }
 
-int Bestiary::getQuantityDefeats(const std::string& enemyName) const {
+int Bestiary::getDefeatCount(const std::string& enemyName) const {
     std::lock_guard<std::mutex> lock(mtx);
-    auto it = quantityDefeats.find(enemyName);
-    if (it != quantityDefeats.end()) {
+    auto it = defeatCounts.find(enemyName);
+    if (it != defeatCounts.end()) {
         return it->second;
     }
     return 0;
 }
 
-bool Bestiary::jaSawSkill(const std::string& enemyName, const std::string& skill) const {
+bool Bestiary::hasSeenSkill(const std::string& enemyName, const std::string& skill) const {
     std::lock_guard<std::mutex> lock(mtx);
-    auto it = skillsViews.find(enemyName);
-    if (it != skillsViews.end()) return it->second.count(skill) > 0;
+    auto it = seenSkills.find(enemyName);
+    if (it != seenSkills.end()) return it->second.count(skill) > 0;
     return false;
 }
 
-bool Bestiary::jaCollectedDrop(const std::string& enemyName, const std::string& drop) const {
+bool Bestiary::hasCollectedDrop(const std::string& enemyName, const std::string& drop) const {
     std::lock_guard<std::mutex> lock(mtx);
-    auto it = dropsCollected.find(enemyName);
-    if (it != dropsCollected.end()) return it->second.count(drop) > 0;
+    auto it = collectedDrops.find(enemyName);
+    if (it != collectedDrops.end()) return it->second.count(drop) > 0;
     return false;
 }
 
@@ -151,8 +155,8 @@ void Bestiary::save(std::ofstream& out) const {
     writeSet(seenEnemies);
     writeSet(defeated);
 
-    out << quantityDefeats.size() << "\n";
-    for (const auto& [name, qty] : quantityDefeats) out << name << "\n" << qty << "\n";
+    out << defeatCounts.size() << "\n";
+    for (const auto& [name, qty] : defeatCounts) out << name << "\n" << qty << "\n";
 
     auto writeMapSets = [&](const auto& map) {
         out << map.size() << "\n";
@@ -162,17 +166,17 @@ void Bestiary::save(std::ofstream& out) const {
         }
     };
 
-    writeMapSets(skillsViews);
-    writeMapSets(dropsCollected);
+    writeMapSets(seenSkills);
+    writeMapSets(collectedDrops);
 }
 
 void Bestiary::load(std::ifstream& in) {
     std::lock_guard<std::mutex> lock(mtx);
     seenEnemies.clear();
     defeated.clear();
-    quantityDefeats.clear();
-    skillsViews.clear();
-    dropsCollected.clear();
+    defeatCounts.clear();
+    seenSkills.clear();
+    collectedDrops.clear();
 
     auto readSet = [&](auto& set) {
         size_t size;
@@ -185,8 +189,7 @@ void Bestiary::load(std::ifstream& in) {
         return true;
     };
     
-    // [PT-BR] Failsafe para compatibilidade com arquivos de save antigos
-    // [EN-US] Failsafe for compatibility with legacy save files
+    // Failsafe para compatibilidade com arquivos de save antigos
     if (!readSet(seenEnemies)) return;
     readSet(defeated);
     
@@ -196,7 +199,7 @@ void Bestiary::load(std::ifstream& in) {
         for (size_t i = 0; i < qtyDefeatsSize; ++i) {
             std::string name; std::getline(in, name);
             int qty; in >> qty; std::getline(in, line);
-            quantityDefeats[name] = qty;
+            defeatCounts[name] = qty;
         }
     }
 
@@ -210,12 +213,6 @@ void Bestiary::load(std::ifstream& in) {
         }
     };
 
-    readMap(skillsViews);
-    readMap(dropsCollected);
+    readMap(seenSkills);
+    readMap(collectedDrops);
 }
-
-
-
-
-
-

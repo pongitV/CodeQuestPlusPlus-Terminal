@@ -138,7 +138,7 @@ void Appearance::printTyping(const std::string& text, int delayMs, bool addNewli
     }
 }
 
-void Appearance::printVectorExcited(const std::vector<std::string>& lines, int delayMs) {
+void Appearance::printVectorAnimated(const std::vector<std::string>& lines, int delayMs) {
     for (const std::string& line : lines) {
         std::cout << line << "\n";
         std::cout << std::flush;
@@ -146,27 +146,27 @@ void Appearance::printVectorExcited(const std::vector<std::string>& lines, int d
     }
 }
 
-void Appearance::cheerTransitionScene3D(
-    const std::vector<std::string>& soonBase,
-    const std::string& colorEndSoon,
+void Appearance::animateTransitionScene3D(
+    const std::vector<std::string>& logoBase,
+    const std::string& colorEndLogo,
     const std::vector<std::string>& backgroundFree,
     std::function<std::vector<std::string>(float)> getBackgroundEnd,
     int targetY
 ) {
     int terminalWidth = getTerminalWidth();
     int height3D = static_cast<int>(backgroundFree.size());
-    int soonHeight = static_cast<int>(soonBase.size());
+    int logoHeight = static_cast<int>(logoBase.size());
     
-    int soonWidth = 0;
-    for(const auto& l : soonBase) {
-        soonWidth = std::max(soonWidth, getVisualLength(l));
+    int logoWidth = 0;
+    for(const auto& l : logoBase) {
+        logoWidth = std::max(logoWidth, getVisualLength(l));
     }
-    int soonX = (terminalWidth - soonWidth) / 2;
-    if (soonX < 0) soonX = 0;
+    int logoX = (terminalWidth - logoWidth) / 2;
+    if (logoX < 0) logoX = 0;
 
-    std::vector<std::vector<std::string>> decomposedSoon(soonHeight);
-    for (int i = 0; i < soonHeight; i++) {
-        decomposedSoon[i] = Appearance::splitUtf8(soonBase[i]);
+    std::vector<std::vector<std::string>> decomposedLogo(logoHeight);
+    for (int i = 0; i < logoHeight; i++) {
+        decomposedLogo[i] = Appearance::splitUtf8(logoBase[i]);
     }
 
     std::vector<std::string> sceneBase = getBackgroundEnd(1.0f);
@@ -183,21 +183,21 @@ void Appearance::cheerTransitionScene3D(
     Appearance::animateFadeIn(30, 40, [&](int frame, int /*intensidade*/) {
         float opacity = frame / 30.0f;
         
-        std::string fadedColorSoon = colorEndSoon;
-        if (colorEndSoon == "\033[1;31m") {
-            fadedColorSoon = "\033[38;2;" + std::to_string((int)(255 * opacity)) + ";0;0m";
-        } else if (colorEndSoon == "\033[1;32m") {
-            fadedColorSoon = "\033[38;2;0;" + std::to_string((int)(255 * opacity)) + ";0m";
-        } else if (colorEndSoon == "\033[1;37m" || colorEndSoon == "\033[37m") {
+        std::string fadedColorLogo = colorEndLogo;
+        if (colorEndLogo == "\033[1;31m") {
+            fadedColorLogo = "\033[38;2;" + std::to_string((int)(255 * opacity)) + ";0;0m";
+        } else if (colorEndLogo == "\033[1;32m") {
+            fadedColorLogo = "\033[38;2;0;" + std::to_string((int)(255 * opacity)) + ";0m";
+        } else if (colorEndLogo == "\033[1;37m" || colorEndLogo == "\033[37m") {
             int c = (int)(255 * opacity);
-            fadedColorSoon = "\033[38;2;" + std::to_string(c) + ";" + std::to_string(c) + ";" + std::to_string(c) + "m";
+            fadedColorLogo = "\033[38;2;" + std::to_string(c) + ";" + std::to_string(c) + ";" + std::to_string(c) + "m";
         }
         
         std::ostringstream buffer;
-        for (int y = targetY; y < targetY + soonHeight && y < height3D; y++) {
-            int soonRowIdx = y - targetY;
-            std::string lineSoon = superimposeSoonAnsi(sceneBase[y], decomposedSoon[soonRowIdx], soonX, fadedColorSoon, terminalWidth);
-            buffer << "\033[" << (y + 1) << ";1H" << lineSoon << "\033[K";
+        for (int y = targetY; y < targetY + logoHeight && y < height3D; y++) {
+            int logoRowIdx = y - targetY;
+            std::string lineLogo = superimposeLogoAnsi(sceneBase[y], decomposedLogo[logoRowIdx], logoX, fadedColorLogo, terminalWidth);
+            buffer << "\033[" << (y + 1) << ";1H" << lineLogo << "\033[K";
         }
         std::cout << buffer.str() << std::flush;
     });

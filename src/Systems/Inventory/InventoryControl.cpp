@@ -6,13 +6,13 @@
 #include "Domain/Characters/Character.h"
 #include <string>
 
-UseItemInfo ControlInventory::useOrEquip(Character* player, Item* item, bool turnAlreadyConsumed) {
+UseItemInfo InventoryController::useOrEquip(Character* player, Item* item, bool turnAlreadyConsumed) {
     if (turnAlreadyConsumed) {
         return {ResultItem::Error_TurnAlreadyUsed, "", "", false};
     }
 
     if (item->isEquipable()) {
-        if (item->getType() == EquipmentType::SHIELD && item->getDurabilityCurrentShield() <= 0) {
+        if (item->getType() == EquipmentType::SHIELD && item->getShieldCurrentDurability() <= 0) {
             return {ResultItem::Error_ShieldBroken, item->getItemName(), "", false};
         }
 
@@ -42,13 +42,13 @@ UseItemInfo ControlInventory::useOrEquip(Character* player, Item* item, bool tur
 
     bool consumed = false;
     if (item->useFromInventory(player, &consumed)) {
-        return {ResultItem::Used_Shift, item->getItemName(), "", consumed};
+        return {ResultItem::Used_Turn, item->getItemName(), "", consumed};
     }
 
     return {ResultItem::Error_CannotUse, item->getItemName(), "", false};
 }
 
-std::string ControlInventory::getMessageError(Item* item, bool inCombat) {
+std::string InventoryController::getMessageError(Item* item, bool inCombat) {
     switch (item->getType()) {
         case EquipmentType::MATERIAL:
             return "Materiais sao utilizados para NPCs especializados.";

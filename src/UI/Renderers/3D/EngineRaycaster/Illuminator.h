@@ -78,12 +78,10 @@ namespace Illuminator {
         StateClimate climateDynamic = {0,0,0,0, 0,0,0};
         float t = 0.0f;
         if (themeSky == 3) {
-            // [PT-BR] Ambiente interno estatico: iluminacao constante e suave
-            // [EN-US] Static indoor environment: constant, dim ambient light
+            // Ambiente interno estatico: iluminacao constante e suave
             climateDynamic = { 80.0f, 80.0f, 95.0f, 0.4f, 5, 5, 10 };
         } else {
-            // [PT-BR] Ciclo dinamico de horario do dia (120 segundos)
-            // [EN-US] Dynamic time of day cycle (120 seconds)
+            // Ciclo dinamico de horario do dia (120 segundos)
             t = std::fmod(timeAnimation, 120.0f) * (1.0f / 120.0f);
             StateClimate sunrise  = { 255.0f, 180.0f, 100.0f, 0.8f, 200, 120, 80 };
             StateClimate day      = { 255.0f, 255.0f, 240.0f, 1.0f, 120, 180, 255 };
@@ -106,13 +104,11 @@ namespace Illuminator {
         float lightDirX = 0.0f, lightDirY = 0.0f;
         if (themeSky != 3) {
             if (t > 0.55f && t < 0.95f) {
-                // [PT-BR] Noite: a lua domina a direcao da luz
-                // [EN-US] Night: moon dominates light direction
+                // Noite: a lua domina a direcao da luz
                 lightDirX = -std::cos(globalRotation);
                 lightDirY = -std::sin(globalRotation);
             } else {
-                // [PT-BR] Dia: o sol domina a direcao da luz
-                // [EN-US] Day: sun dominates light direction
+                // Dia: o sol domina a direcao da luz
                 lightDirX = std::cos(globalRotation);
                 lightDirY = std::sin(globalRotation);
             }
@@ -147,8 +143,7 @@ namespace Illuminator {
             }
         }
         
-        // [PT-BR] Calculo de luz direcional e sombras do sol/lua
-        // [EN-US] Directional light and shadow calculation for sun/moon
+        // Calculo de luz direcional e sombras do sol/lua
         if (mapMatrix != nullptr) {
             bool inShadow = false;
             if (themeSky != 3) {
@@ -200,8 +195,7 @@ namespace Illuminator {
         float lG = info.lightG;
         float lB = info.lightB;
         
-        // [PT-BR] Mistura de luz solar direcional
-        // [EN-US] Directional sunlight blend
+        // Mistura de luz solar direcional
         float sunFactor = info.sunIntensity;
         if (isWall && info.sunIntensity > 0) {
             float NdotL = 1.0f;
@@ -217,8 +211,7 @@ namespace Illuminator {
         float baseSunG = g * (info.sunG / 255.0f) * sunFactor;
         float baseSunB = b * (info.sunB / 255.0f) * sunFactor;
 
-        // [PT-BR] Luzes pontuais: componente emissiva e refletida
-        // [EN-US] Point lights: emissive and reflected components
+        // Luzes pontuais: componente emissiva e refletida
         float emissiveR = lR * 0.25f;
         float emissiveG = lG * 0.25f;
         float emissiveB = lB * 0.25f;
@@ -231,8 +224,7 @@ namespace Illuminator {
         float endG = baseSunG + emissiveG + reflectedG;
         float endB = baseSunB + emissiveB + reflectedB;
 
-        // [PT-BR] Limite minimo de luz ambiente para evitar escuridao total
-        // [EN-US] Minimum ambient light threshold to prevent total darkness
+        // Limite minimo de luz ambiente para evitar escuridao total
         endR = std::max(endR, r * 0.12f);
         endG = std::max(endG, g * 0.12f);
         endB = std::max(endB, b * 0.12f);

@@ -9,8 +9,7 @@
 #include "Core/Utils/DialogFunctions.h"
 #include "UI/Screens/Combat/CombatScreen.h"
 
-// [PT-BR] --- INFORMACOES DA CLASSE ---
-// [EN-US] --- CLASS INFORMATION ---
+// INFORMACOES DA CLASSE
 std::string Warrior::getClassName() const 
 { 
     return "Guerreiro"; 
@@ -83,8 +82,7 @@ std::vector<std::unique_ptr<Item>> Warrior::getEquipmentClass() const
     return equipment;
 }
 
-// [PT-BR] --- PASSIVA DA CLASSE ---
-// [EN-US] --- CLASS PASSIVE ---
+// PASSIVA DA CLASSE
 std::string Warrior::getNamePassiveClass() const 
 { 
     return "Golpe decisivo"; 
@@ -95,8 +93,7 @@ std::string Warrior::getDescriptionPassiveClass() const
     return "Causa +10%/+20%/+30% de dano em inimigos com menos de 30%/20%/10% de HP."; 
 }
 
-// [PT-BR] --- HABILIDADE DA CLASSE ---
-// [EN-US] --- CLASS SKILL ---
+// HABILIDADE DA CLASSE
 std::string Warrior::getRechargeSkillClass() const 
 { 
     return "Recarga: 3 turnos."; 
@@ -136,8 +133,7 @@ void Warrior::useSkillClass(Combat* /*combate*/, Character* characterUser, std::
     notifyMessageCombat(msg, msg);
 }
 
-// [PT-BR] --- PROCESSAMENTO DE DANO ---
-// [EN-US] --- DAMAGE PROCESSING ---
+// PROCESSAMENTO DE DANO
 int Warrior::processDamagePreAttack(Character* /*atacante*/, Character* defender, int damageBase, bool /*isAtacanteJogador*/, size_t /*qtdInimigos*/) {
     int finalDamage = damageBase;
     

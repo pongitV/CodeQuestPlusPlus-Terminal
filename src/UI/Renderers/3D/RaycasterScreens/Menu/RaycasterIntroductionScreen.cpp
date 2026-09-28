@@ -34,7 +34,7 @@ void ScreenIntroductionRaycaster::display() {
     for (size_t i = 0; i < scene.size(); ++i) {
         widthTotal = std::max(widthTotal, Appearance::getVisualLength(scene[i]));
     }
-    int marginSoon = ScreenBaseMenu::calculateOffsetCentral(widthTotal, widthConsole);
+    int marginLogo = ScreenBaseMenu::calculateOffsetCentral(widthTotal, widthConsole);
     int yTitle = 3;
     int charactersRevealed = 0;
 
@@ -45,7 +45,7 @@ void ScreenIntroductionRaycaster::display() {
         MenuRaycasterUtils::displayBackground3D(aprBuff);
 
         for (size_t i = 0; i < scene.size(); ++i) {
-            MenuRaycasterUtils::superimposeText3D(aprBuff, "\033[38;2;255;255;255m" + scene[i] + "\033[0m", yTitle + (int)i, marginSoon, widthConsole);
+            MenuRaycasterUtils::superimposeText3D(aprBuff, "\033[38;2;255;255;255m" + scene[i] + "\033[0m", yTitle + (int)i, marginLogo, widthConsole);
         }
 
         int charCount = 0;

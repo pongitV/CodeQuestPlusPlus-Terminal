@@ -1,8 +1,3 @@
-// [PT-BR] Arquivo: StringConverter.h
-// [PT-BR] Proposito: Utilitarios para conversao e manipulacao de strings brutas.
-// [EN-US] File: StringConverter.h
-// [EN-US] Purpose: Utilities for raw string conversion and manipulation.
-
 #pragma once
 
 #include <vector>

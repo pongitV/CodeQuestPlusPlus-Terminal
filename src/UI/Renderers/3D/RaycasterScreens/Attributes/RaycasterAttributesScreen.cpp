@@ -15,6 +15,8 @@
 #include <fstream>
 #include <algorithm>
 
+#include "UI/Screens/Menu/BaseMenuScreen.h"
+
 struct EffectInfo {
     EffectID effectId;
     Color colorId;
@@ -23,55 +25,10 @@ struct EffectInfo {
 };
 
 static void displayTitleFloating(int startY) {
-    int widthConsole = Appearance::getTerminalWidth();
-    int soonHeight = (int)ArtsAttributes::sheetLogo.size();
-    
-    int compVisualSoon = 0;
-    for (const auto& line : ArtsAttributes::sheetLogo) {
-        int comp = Appearance::getVisualLength(line);
-        if (comp > compVisualSoon) compVisualSoon = comp;
-    }
-    
-    int soonY = startY > 0 ? (startY - 1 - soonHeight) : 1;
-    if (soonY < 0) soonY = 0;
-    int soonX = (widthConsole - compVisualSoon) / 2;
-    if (soonX < 0) soonX = 0;
-    
-    if (widthConsole >= compVisualSoon && (startY >= soonHeight + 1 || soonY == 0)) {
-        std::string bgDark = "\033[48;2;20;20;20m";
-        std::string colorTitle = Appearance::color(Color::MAGENTA);
-        std::string reset = "\033[0m";
-        
-        for (int i = 0; i < soonHeight; ++i) {
-            Appearance::moveCursor(soonX, soonY + i);
-            const std::string& line = ArtsAttributes::sheetLogo[i];
-            
-            std::string buffer = bgDark + colorTitle;
-            for (size_t j = 0; j < line.length(); ) {
-                unsigned char uc = line[j];
-                int charLen = 1;
-                if ((uc & 0x80) == 0) charLen = 1;
-                else if ((uc & 0xE0) == 0xC0) charLen = 2;
-                else if ((uc & 0xF0) == 0xE0) charLen = 3;
-                else if ((uc & 0xF8) == 0xF0) charLen = 4;
-                buffer += line.substr(j, charLen);
-                j += charLen;
-            }
-            buffer += reset;
-            std::cout << buffer;
-        }
-        std::cout << std::flush;
-    } else if (startY >= 2) {
-        std::string titleCompact = "[ === FICHA DO PERSONAGEM === ]";
-        int compCompact = Appearance::getVisualLength(titleCompact);
-        int cx = std::max(0, (widthConsole - compCompact) / 2);
-        int cy = std::max(0, startY - 1);
-        Appearance::moveCursor(cx, cy);
-        std::cout << Appearance::color(Color::MAGENTA) << "\033[48;2;25;25;25m" << titleCompact << "\033[0m" << std::flush;
-    }
+    ScreenBaseMenu::displayFloatingLogo(ArtsAttributes::sheetLogo, startY, Color::MAGENTA, "[ === FICHA DO PERSONAGEM === ]");
 }
 
-void RaycasterAttributesScreen::display(Character* currentPlayer) {}
+void RaycasterAttributesScreen::display(Character* /*currentPlayer*/) {}
 
 enum StateAttributes { MAIN, SKILLS, DETAILS, RISE_LEVEL, ERROR_LEVEL };
 
@@ -85,8 +42,6 @@ void RaycasterAttributesScreen::managePlayerCharacterSheet(Character* currentPla
     
     bool running = true;
     
-    int lastStartX = -1;
-    int lastStartY = -1;
     int lastW = -1;
     int lastH = -1;
 
@@ -104,7 +59,7 @@ void RaycasterAttributesScreen::managePlayerCharacterSheet(Character* currentPla
         std::vector<std::string> linesRiseLevel;
         std::vector<std::string> linesErrorLevel;
 
-        // --- 1. PREPARAR PRINCIPAL ---
+        // 1. preparar principal
         linesMain.push_back("NOME: " + currentPlayer->getName() + "   RACA: " + currentPlayer->getRace()->getRaceName() + "   CLASSE: " + currentPlayer->getClassName());
         double percentageXp = static_cast<double>(currentPlayer->getCurrentXp()) / std::max(1, currentPlayer->getXpForRise());
         std::string barXp = BaseScreen::generateBarGradient(percentageXp, 10, Color::CYAN);
@@ -180,7 +135,7 @@ void RaycasterAttributesScreen::managePlayerCharacterSheet(Character* currentPla
             linesMain.push_back(cursor + colorOption + options[i] + Appearance::color(Color::RESET));
         }
 
-        // --- 2. PREPARAR HABILIDADES ---
+        // 2. preparar habilidades
         auto addDescriptionSplit = [&](const std::string& text) {
             std::istringstream stream(text);
             std::string lineDesc;
@@ -203,7 +158,7 @@ void RaycasterAttributesScreen::managePlayerCharacterSheet(Character* currentPla
         linesSkills.push_back("");
         linesSkills.push_back(Appearance::color(Color::WHITE) + " [ Voltar ]" + Appearance::color(Color::RESET));
 
-        // --- 3. PREPARAR DETALHES ---
+        // 3. preparar detalhes
         std::vector<std::string> artRace = currentPlayer->getRace()->getAppearanceRace();
         std::vector<std::string> artClass = currentPlayer->getClass()->getAppearanceClassMenu();
         
@@ -255,7 +210,7 @@ void RaycasterAttributesScreen::managePlayerCharacterSheet(Character* currentPla
         linesDetails.push_back("");
         linesDetails.push_back(Appearance::color(Color::WHITE) + " [ Voltar ]" + Appearance::color(Color::RESET));
 
-        // --- 4. PREPARAR SUBIR NIVEL ---
+        // 4. preparar subir nivel
         std::vector<std::string> namesAttr = {"Vida", "Forca", "Destreza", "Resistencia", "Constituicao", "Inteligencia", "Sabedoria"};
         std::vector<std::string> optionsAttr;
         for (int i = 1; i <= 7; ++i) {
@@ -285,7 +240,7 @@ void RaycasterAttributesScreen::managePlayerCharacterSheet(Character* currentPla
             linesRiseLevel.push_back(cursor + colorOption + optionsAttr[i] + Appearance::color(Color::RESET));
         }
 
-        // --- 5. PREPARAR ERRO NIVEL ---
+        // 5. preparar erro nivel
         linesErrorLevel.push_back("");
         linesErrorLevel.push_back("");
         linesErrorLevel.push_back(Appearance::color(Color::RED) + " Voce nao tem XP suficiente para subir de nivel!" + Appearance::color(Color::RESET));
@@ -293,7 +248,7 @@ void RaycasterAttributesScreen::managePlayerCharacterSheet(Character* currentPla
         linesErrorLevel.push_back("");
         linesErrorLevel.push_back(Appearance::color(Color::WHITE) + " [ Voltar ]" + Appearance::color(Color::RESET));
 
-        // --- PADDING & RENDERIZACAO ---
+        // Padding & renderizacao
         std::vector<std::string>* linesTarget = nullptr;
         std::string titleBox = "";
         
@@ -332,8 +287,6 @@ void RaycasterAttributesScreen::managePlayerCharacterSheet(Character* currentPla
             Raycaster::restoreLastFrame();
         }
         
-        lastStartX = startX;
-        lastStartY = startY;
         lastW = outW;
         lastH = outH;
 
@@ -347,7 +300,7 @@ void RaycasterAttributesScreen::managePlayerCharacterSheet(Character* currentPla
         }
         std::cout << std::flush;
         
-        // --- INPUT ---
+        // Input
         char c = InputControl::readKey();
         if (state == MAIN) {
             if (c == 'w' || c == 'W' || c == 72) {

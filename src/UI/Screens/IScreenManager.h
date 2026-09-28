@@ -9,8 +9,7 @@
 #include "UI/Screens/Menu/DifficultyScreen.h"
 #include "UI/Screens/Menu/ParryScreen.h"
 
-// [PT-BR] Interface abstrata (DIP) para que RegistroTelas nao dependa de implementacoes concretas (Raycaster ou IDE)
-// [EN-US] Abstract interface (DIP) so ScreenRegistry does not depend on concrete implementations (Raycaster or IDE)
+// Interface abstrata (DIP) para que RegistroTelas nao dependa de implementacoes concretas (Raycaster ou IDE)
 class IManagerScreens {
 public:
     virtual ~IManagerScreens() = default;
@@ -20,7 +19,7 @@ public:
     virtual bool chooseConfirmation(const std::string& chooseType, const std::string& chooseName,
         const std::vector<std::string>& informationForDisplay, const std::vector<std::string>& asciiArtForDisplay) = 0;
     virtual std::vector<std::string> frameAttributes(const Attributes& stats,
-        const std::string& dryTitle, const std::string& skillTitle,
+        const std::string& sectionTitle, const std::string& skillTitle,
         const std::string& skillName, const std::string& skillDesc,
         const std::string& skillTitle2, const std::string& skillName2, const std::string& skillDesc2) = 0;
     virtual int mainMenu() = 0;

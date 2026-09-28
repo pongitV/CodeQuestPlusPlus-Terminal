@@ -8,11 +8,9 @@
 
 class NPCGenericKnight {
 public:
-    // [PT-BR] --- CRIACAO DO NPC ---
-    // [EN-US] --- NPC CREATION ---
+    // CRIACAO DO NPC
     static std::unique_ptr<Character> createKnight(const std::string& name);
 
-    // [PT-BR] --- INTERACAO ---
-    // [EN-US] --- INTERACTION ---
+    // INTERACAO
     static void interact(Character* currentPlayer, bool& trollDefeated, bool& invitationReceived, int terminalWidth, std::vector<std::string>& currentMapMatrix, bool isExplorationActive, const std::function<void()>& restoreScreen, char destinationCell, int nextPositionX, int nextPositionY);
 };

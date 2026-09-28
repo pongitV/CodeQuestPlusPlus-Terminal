@@ -36,8 +36,7 @@ Map4Kingdom::Map4Kingdom(Character* playerCharacter) :
 {
     currentMapMatrix = Map4KingdomLayouts::getKingdomLayout();
     MapLoader::standardizeMapSize(currentMapMatrix);
-    // [PT-BR] Salva a matriz principal para restauracao ao sair de submapas
-    // [EN-US] Saves main matrix for restoration when exiting submaps
+    // Salva a matriz principal para restauracao ao sair de submapas
     savedMainMapMatrix = currentMapMatrix;
 }
 
@@ -45,8 +44,7 @@ Map4Kingdom::~Map4Kingdom() = default;
 
 NextMapTransition Map4Kingdom::startExplorationLoop()
 {
-    // [PT-BR] Resgata a posicao do jogador caso tenha usado Viagem Rapida de dentro de um submapa
-    // [EN-US] Rescues player position if Fast Travel was used while inside a submap
+    // Resgata a posicao do jogador caso tenha usado Viagem Rapida de dentro de um submapa
     if (playerIsInsideSubMap) {
         currentMapMatrix = savedMainMapMatrix;
         playerPositionX = (savedPositionXBeforeEnteringSubMap > 0) ? (savedPositionXBeforeEnteringSubMap + 1) : 33;
@@ -61,8 +59,7 @@ NextMapTransition Map4Kingdom::startExplorationLoop()
     auto formatter = [&](char cell, int x, int y) -> std::string {
         if (x == playerPositionX && y == playerPositionY) {
             char ic = Appearance::customPlayerIcon;
-            // [PT-BR] Garante caractere visivel para o icone do jogador
-    // [EN-US] Ensures visible character for player icon
+            // Garante caractere visivel para o icone do jogador
     if (ic <= 32 || ic > 126) ic = '@';
             return Appearance::color(Appearance::customPlayerColor) + std::string(1, ic) + Appearance::color(Color::RESET);
         }
@@ -79,8 +76,7 @@ NextMapTransition Map4Kingdom::startExplorationLoop()
         std::vector<std::string> titleArt;
         int artWidth = 0;
         
-        // [PT-BR] Garante que o titulo seja estritamente REINO para a bandeira
-    // [EN-US] Ensures title is strictly KINGDOM for the banner
+        // Garante que o titulo seja estritamente REINO para a bandeira
         if (currentMapTitle == "REINO" || currentMapTitle.find("Reino") != std::string::npos || currentMapTitle.find("REINO") != std::string::npos) {
             currentMapTitle = "REINO";
             titleArt = Map4KingdomLayouts::getKingdomLogo();
@@ -93,12 +89,10 @@ NextMapTransition Map4Kingdom::startExplorationLoop()
 
     std::unordered_map<char, std::function<void(int, int, int)>> interactions;
 
-    // [PT-BR] Gatilhos e Teleportes do Reino
-    // [EN-US] Kingdom Triggers and Teleports
+    // Gatilhos e Teleportes do Reino
     interactions['^'] = [&](int px, int py, [[maybe_unused]] int width) {
         if (playerIsInsideSubMap) {
-            // [PT-BR] Transicao: Saindo da Igreja de volta para o patio do Reino
-            // [EN-US] Transition: Exiting Church back to Kingdom courtyard
+            // Transicao: Saindo da Igreja de volta para o patio do Reino
             if (px == 18 && py == 3) {
                 currentMapMatrix = savedMainMapMatrix;
                 playerPositionX = savedPositionXBeforeEnteringSubMap + 1; // Coluna 33 (avenida aberta fora da porta)
@@ -108,14 +102,12 @@ NextMapTransition Map4Kingdom::startExplorationLoop()
                 restoreScreen();
             }
         } else {
-            // [PT-BR] Transicao: Retornar para a Ponte do Reino
-            // [EN-US] Transition: Return to Kingdom Bridge
+            // Transicao: Retornar para a Ponte do Reino
             if (py > 30) {
                 isExplorationActive = false;
                 nextMap = NextMapTransition::KingdomBridge;
             }
-            // [PT-BR] Transicao: Entrada do Palacio Real
-            // [EN-US] Transition: Royal Palace Entrance
+            // Transicao: Entrada do Palacio Real
             else if (py == 1 && (px >= 40 && px <= 45)) {
                 Appearance::startPopupInteraction();
                 std::vector<std::string> msg = {
@@ -131,8 +123,7 @@ NextMapTransition Map4Kingdom::startExplorationLoop()
         }
     };
 
-    // [PT-BR] Transicao: Entrada da Igreja da Capital
-    // [EN-US] Transition: Capital Church Entrance
+    // Transicao: Entrada da Igreja da Capital
     interactions['I'] = [&]([[maybe_unused]] int px, [[maybe_unused]] int py, [[maybe_unused]] int width) {
         if (!playerIsInsideSubMap) {
             MapLoader::enterSubMap(
@@ -145,8 +136,7 @@ NextMapTransition Map4Kingdom::startExplorationLoop()
         }
     };
 
-    // [PT-BR] Interacao: Padre da Igreja (so funciona dentro do submapa da igreja)
-    // [EN-US] Interaction: Church Priest (only functions inside church submap)
+    // Interacao: Padre da Igreja (so funciona dentro do submapa da igreja)
     interactions['P'] = [&]([[maybe_unused]] int px, [[maybe_unused]] int py, [[maybe_unused]] int width) {
         if (playerIsInsideSubMap) {
             NPCPriest priest;
@@ -156,12 +146,10 @@ NextMapTransition Map4Kingdom::startExplorationLoop()
         }
     };
 
-    // [PT-BR] Registro de interacoes padrao de NPCs (Franchesco, Bjorn, Anok, Alquimista)
-    // [EN-US] Registration of standard NPC interactions (Franchesco, Bjorn, Anok, Alchemist)
+    // Registro de interacoes padrao de NPCs (Franchesco, Bjorn, Anok, Alquimista)
     CommonMapInteractions::registerStandardNPCs(interactions, currentPlayer, isExplorationActive, restoreScreen);
 
-    // [PT-BR] Interacao: Cavaleiro Real para Treino
-    // [EN-US] Interaction: Royal Knight for Training
+    // Interacao: Cavaleiro Real para Treino
     interactions['C'] = [&]([[maybe_unused]] int px, [[maybe_unused]] int py, [[maybe_unused]] int width) {
         Appearance::startPopupInteraction();
         std::vector<std::string> lines = {
@@ -191,8 +179,7 @@ NextMapTransition Map4Kingdom::startExplorationLoop()
             }
             combat.startCombat();
 
-            // [PT-BR] Restaura XP e Ouro para garantir combate puramente de treino
-            // [EN-US] Restores XP and Gold to ensure training-only combat
+            // Restaura XP e Ouro para garantir combate puramente de treino
             currentPlayer->setCurrentXp(xpBefore);
             int goldAfter = currentPlayer->getInventory()->getGold();
             currentPlayer->getInventory()->addGold(goldBefore - goldAfter);
@@ -210,8 +197,7 @@ NextMapTransition Map4Kingdom::startExplorationLoop()
             playerPositionX = px;
             playerPositionY = py;
             
-            // [PT-BR] Transicao para a Ponte do Reino (saida sul do mapa)
-            // [EN-US] Transition to Kingdom Bridge (southern map exit)
+            // Transicao para a Ponte do Reino (saida sul do mapa)
             if (!playerIsInsideSubMap && py >= static_cast<int>(currentMapMatrix.size()) - 3) {
                 nextMap = NextMapTransition::KingdomBridge;
                 isExplorationActive = false;

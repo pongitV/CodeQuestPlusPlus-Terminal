@@ -1,8 +1,3 @@
-// [PT-BR] Arquivo: BaseScreen.h
-// [PT-BR] Proposito: Classe base estatica para construcao e renderizacao de molduras, barras e loops de menu de telas.
-// [EN-US] File: BaseScreen.h
-// [EN-US] Purpose: Static base class for building and rendering borders, bars, and menu loops of screens.
-
 #pragma once
 
 #include <string>
@@ -13,8 +8,7 @@
 
 class Character;
 
-// [PT-BR] Provedor de utilitarios de renderizacao de telas e loops interativos.
-// [EN-US] Provider of screen rendering utilities and interactive loops.
+// Provedor de utilitarios de renderizacao de telas e loops interativos.
 class BaseScreen {
 public:
     static std::string generateBarGradient(double pct, int size, Color colorEnd);

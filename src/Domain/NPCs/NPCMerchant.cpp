@@ -32,8 +32,7 @@ namespace {
         {1, {ItemID::DeviceLanguage, 1000, 1}}
     };
 
-    // [PT-BR] --- APARENCIA E DIALOGOS ---
-    // [EN-US] --- APPEARANCE AND DIALOGUES ---
+    // APARENCIA E DIALOGOS
     void processPotionsPurchase(Character* currentPlayer);
     void processPurchaseTalismans(Character* currentPlayer);
     void processPurchaseDelicacies(Character* currentPlayer);
@@ -48,8 +47,7 @@ namespace {
     }
 }
 
-// [PT-BR] --- INFORMACOES DO LUGAR ---
-// [EN-US] --- LOCATION INFORMATION ---
+// INFORMACOES DO LUGAR
 std::string NPCMerchant::getPlaceName() const {
     return "MERCADOR AMBULANTE";
 }
@@ -66,8 +64,7 @@ const std::vector<std::string>& NPCMerchant::getArtASCII() const {
     return NPCMerchantLayouts::artMerchant;
 }
 
-// [PT-BR] --- INTERACAO E MENU ---
-// [EN-US] --- INTERACTION AND MENU ---
+// INTERACAO E MENU
 void NPCMerchant::interact(Character* player) {
     InputControl::executeLoopMenuPopup(
         [this, player]() { this->displayDialogue(player); },
@@ -114,8 +111,7 @@ void NPCMerchant::processOption(Character* player, const std::string& option, in
 }
 
 namespace {
-    // [PT-BR] --- PROCESSAMENTO DE OPCOES ---
-    // [EN-US] --- OPTION PROCESSING ---
+    // PROCESSAMENTO DE OPCOES
     void processPotionsPurchase(Character* currentPlayer) {
         Shop::processPurchase(currentPlayer, "LOJA - POCOES", Color::YELLOW, potionsStock, 
             [](const std::string& msg) { dialogueFrancescoUnique(msg); }, InteractionNPC::getFormatterStatusItem, NPCMerchantLayouts::artMerchant);
@@ -210,8 +206,7 @@ namespace {
                     std::string qtyMsg = "Quantidade (1 a " + std::to_string(itemsChosen.size()) + ", 0 cancelar): ";
                     qtyForSell = Appearance::readIntegerInFloatingPopup(qtyMsg, 0, itemsChosen.size(), Color::YELLOW);
                 } else {
-                    // [PT-BR] Cancelar transacao
-                    // [EN-US] Cancel transaction
+                    // Cancelar transacao
                     continue;
                 }
             }

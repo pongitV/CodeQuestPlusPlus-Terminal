@@ -11,13 +11,11 @@ bool HackConsole::startHack(Character* player) {
     Appearance::clearScreen();
     
     vector<string> linesCode = {
-        "// [PT-BR] Sistema de Seguranca v1.2",
-        "// [EN-US] Security System v1.2",
+        "// Sistema de Seguranca v1.2",
         "bool unlockDoor() {",
         "    int accessLevel = getPlayerAccess();",
         "    if (accessLevel < 5) {",
-        "        ______ false; // [PT-BR] ERRO AQUI: Faltando palavra-chave de retorno",
-        "                      // [EN-US] ERROR HERE: Missing return keyword",
+        "        ______ false; // ERRO AQUI: Faltando palavra-chave de retorno",
         "    }",
         "    return true;",
         "}"
@@ -39,8 +37,7 @@ bool HackConsole::startHack(Character* player) {
         
         char key = InputControl::readKey();
         if (key == 13) {
-            // [PT-BR] Tecla ENTER confirmada
-            // [EN-US] ENTER key confirmed
+            // Tecla ENTER confirmada
             if (answer == "return") {
                 hackSuccess = true;
                 running = false;
@@ -50,12 +47,10 @@ bool HackConsole::startHack(Character* player) {
                 running = false;
             }
         } else if (key == 8) {
-            // [PT-BR] Tecla BACKSPACE pressionada
-            // [EN-US] BACKSPACE key pressed
+            // Tecla BACKSPACE pressionada
             if (!answer.empty()) answer.pop_back();
         } else if (key == 27) {
-            // [PT-BR] Tecla ESC para cancelar
-            // [EN-US] ESC key to cancel
+            // Tecla ESC para cancelar
             running = false;
         } else if (key >= 32 && key <= 126) {
             answer += key;

@@ -1,8 +1,3 @@
-/*
- * Arquivo: Raycaster.h
- * Proposito: Motor grafico 3D e renderizador do laco principal de exploracao.
- */
-
 #pragma once
 
 #include <vector>
@@ -19,15 +14,12 @@ public:
     static float sensitivityX;
     static float sensitivityY;
 
-    // [PT-BR] Inicia o laco principal em 3D, capturando inputs e renderizando quadros
-    // [EN-US] Starts main 3D loop, capturing input and rendering frames
+    // Inicia o laco principal em 3D, capturando inputs e renderizando quadros
     static char start3DExploration(const std::vector<std::string>& mapMatrix, float& playerX, float& playerY, float& viewAngle, const std::string& titleMap, Character* player, int& outHitX, int& outHitY, int typeAnimationEntry = 0);
     
-    // [PT-BR] Pisca a tela inteira com a cor fornecida por um curto periodo de tempo
-    // [EN-US] Blinks entire screen with given color for a brief duration
+    // Pisca a tela inteira com a cor fornecida por um curto periodo de tempo
     static void blinkScreenColor(Color color, int durationMs);
     
-    // [PT-BR] Gera um unico quadro estatico do ambiente 3D
-    // [EN-US] Renders a single static frame of the 3D environment
+    // Gera um unico quadro estatico do ambiente 3D
     static std::vector<std::string> drawFrameStatic3D(const std::vector<std::string>& mapMatrix, float playerX, float playerY, float viewAngle, const std::string& titleMap, Character* player, int heightOverride = -1);
 };

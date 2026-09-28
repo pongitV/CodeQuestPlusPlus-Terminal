@@ -9,8 +9,7 @@
 #include "Core/Utils/DialogFunctions.h"
 #include "UI/Screens/Combat/CombatScreen.h"
 
-// [PT-BR] --- INFORMACOES DA CLASSE ---
-// [EN-US] --- CLASS INFORMATION ---
+// INFORMACOES DA CLASSE
 std::string Wizard::getClassName() const 
 {
      return "Mago"; 
@@ -82,8 +81,7 @@ std::vector<std::unique_ptr<Item>> Wizard::getEquipmentClass() const
     return equipment;
 }
 
-// [PT-BR] --- PASSIVA DA CLASSE ---
-// [EN-US] --- CLASS PASSIVE ---
+// PASSIVA DA CLASSE
 std::string Wizard::getNamePassiveClass() const 
 { 
     return "Foco arcano"; 
@@ -94,8 +92,7 @@ std::string Wizard::getDescriptionPassiveClass() const
     return "Ataques ressoam (25% em area) ou causam +25% de dano em alvo unico."; 
 }
 
-// [PT-BR] --- HABILIDADE DA CLASSE ---
-// [EN-US] --- CLASS SKILL ---
+// HABILIDADE DA CLASSE
 std::string Wizard::getRechargeSkillClass() const 
 { 
     return "Recarga: 3 turnos."; 
@@ -131,8 +128,7 @@ void Wizard::useSkillClass(Combat* /*combate*/, Character* characterUser, std::v
     }
 }
 
-// [PT-BR] --- PROCESSAMENTO DE DANO ---
-// [EN-US] --- DAMAGE PROCESSING ---
+// PROCESSAMENTO DE DANO
 int Wizard::processDamagePreAttack(Character* /*atacante*/, Character* defender, int damageBase, bool isAttackerPlayer, size_t enemyCount) {
     if (defender == nullptr) return damageBase;
     if (!isAttackerPlayer || enemyCount <= 1) {

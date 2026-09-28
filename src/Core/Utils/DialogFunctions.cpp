@@ -1,8 +1,3 @@
-// [PT-BR] Arquivo: DialogFunctions.cpp
-// [PT-BR] Proposito: Implementacao das rotinas de exibicao e formatacao de dialogos de NPCs e sistema.
-// [EN-US] File: DialogFunctions.cpp
-// [EN-US] Purpose: Implementation of routines for displaying and formatting NPC dialogues and system messages.
-
 #include "Core/Utils/DialogFunctions.h"
 #include "Core/Terminal/Appearance/Appearance.h"
 #include <iostream>
@@ -10,19 +5,15 @@
 void DialogueFunctions::printDialogueNPC(const std::string& npcName, Color npcColor, const std::string& text, bool newLineBefore, bool newLineAfter) {
     if (newLineBefore) {
         std::cout << "\n";
-        // [PT-BR] Imprime a tag colorida com o nome do NPC e reseta a cor ANSI
-        // [EN-US] Prints colored NPC tag and resets ANSI color
+        // Imprime a tag colorida com o nome do NPC e reseta a cor ANSI
         std::cout << Appearance::color(npcColor) << "[" << npcName << "]: " << Appearance::color(Color::RESET);
-        // [PT-BR] Imprime o texto da fala com efeito de digitacao
-        // [EN-US] Prints dialogue text with typewriter effect
+        // Imprime o texto da fala com efeito de digitacao
         Appearance::printTyping(text, Appearance::typingDelayMS, newLineAfter);
     } else {
-        // [PT-BR] Calcula o preenchimento para alinhar com a primeira linha do dialogo
-        // [EN-US] Computes padding to align subsequent lines with the first dialogue line
+        // Calcula o preenchimento para alinhar com a primeira linha do dialogo
         std::string tag = "[" + npcName + "]: ";
         std::cout << std::string(tag.length(), ' ');
-        // [PT-BR] Imprime a continuacao da fala com efeito de digitacao
-        // [EN-US] Prints continued dialogue with typewriter effect
+        // Imprime a continuacao da fala com efeito de digitacao
         Appearance::printTyping(text, Appearance::typingDelayMS, newLineAfter);
     }
 }
@@ -30,12 +21,10 @@ void DialogueFunctions::printDialogueNPC(const std::string& npcName, Color npcCo
 void DialogueFunctions::printDialogueNPC(const std::string& npcName, Color npcColor, const std::vector<std::string>& lines) {
     if (lines.empty()) return;
     
-    // [PT-BR] A primeira linha imprime a quebra de linha inicial e o nome do NPC
-    // [EN-US] The first line prints the initial newline and the NPC name tag
+    // A primeira linha imprime a quebra de linha inicial e o nome do NPC
     printDialogueNPC(npcName, npcColor, lines[0], true, true);
     
-    // [PT-BR] As linhas subsequentes herdam o alinhamento visual da tag
-    // [EN-US] Subsequent lines inherit the visual alignment from the tag
+    // As linhas subsequentes herdam o alinhamento visual da tag
     for (size_t i = 1; i < lines.size(); ++i) {
         printDialogueNPC(npcName, npcColor, lines[i], false, true);
     }

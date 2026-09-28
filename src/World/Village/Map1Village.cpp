@@ -41,7 +41,7 @@ Map1Village::Map1Village(Character* playerCharacter) :
     savedPositionXBeforeEnteringSubMap(10), 
     savedPositionYBeforeEnteringSubMap(4),
     playerIsInsideSubMap(true),
-    bjornRescued(Progression::instance().getFlag(Flags::Village_KissRescued)), 
+    bjornRescued(Progression::instance().getFlag(Flags::Village_BjornRescued)), 
     caveAlreadyVisited(false),
     spawnAlreadyVisited(false),
     nextMap(NextMapTransition::None),
@@ -95,12 +95,11 @@ namespace {
                 Appearance::displayPopup("RESGATE NA CAVERNA", bjornLines, Color::YELLOW);
                 
                 ctx.self->bjornRescued = true;
-                Progression::instance().setFlag(Flags::Village_KissRescued, true);
+                Progression::instance().setFlag(Flags::Village_BjornRescued, true);
 
                 ctx.self->currentMapMatrix[ctx.nextPositionY][ctx.nextPositionX] = '.';
                 
-                // [PT-BR] Atualiza mapas salvos para restaurar Bjorn apos o resgate
-                // [EN-US] Updates saved maps to restore Bjorn after rescue
+                // Atualiza mapas salvos para restaurar Bjorn apos o resgate
                 for (auto& line : ctx.self->savedMainMapMatrix) {
                     std::replace(line.begin(), line.end(), 'P', 'B');
                 }
@@ -153,22 +152,19 @@ namespace {
             int px = ctx.nextPositionX;
             int py = ctx.nextPositionY;
             
-            // [PT-BR] Transicao 1: Entrar no Caminho do Inicio a partir da Vila Inicial
-            // [EN-US] Transition 1: Enter Beginning Path from Initial Village
+            // Transicao 1: Entrar no Caminho do Inicio a partir da Vila Inicial
             if (px >= 17 && px <= 19 && py <= 6 && !ctx.self->playerIsInsideSubMap) {
                 MapLoader::enterSubMap(ctx.self->currentMapMatrix, ctx.self->savedMainMapMatrix, ctx.self->savedPositionXBeforeEnteringSubMap, ctx.self->savedPositionYBeforeEnteringSubMap, ctx.self->playerPositionX, ctx.self->playerPositionY, ctx.self->playerIsInsideSubMap, ctx.self->currentMapTitle, ctx.self->savedSpawnMapMatrix, ctx.self->spawnAlreadyVisited, Map1VillageLayouts::getSpawnLayout(), 53, 7, "CAMINHO DO INICIO", ctx.animateScreen);
                 MapControl::signal3DMapChange();
                 RaycasterWorld::updateMapHash(ctx.self->currentMapMatrix);
             }
-            // [PT-BR] Transicao 2: Entrar na Caverna a partir da Vila
-            // [EN-US] Transition 2: Enter Cave from Village
+            // Transicao 2: Entrar na Caverna a partir da Vila
             else if (px > 50 && py < 30 && !ctx.self->playerIsInsideSubMap) {
                 MapLoader::enterSubMap(ctx.self->currentMapMatrix, ctx.self->savedMainMapMatrix, ctx.self->savedPositionXBeforeEnteringSubMap, ctx.self->savedPositionYBeforeEnteringSubMap, ctx.self->playerPositionX, ctx.self->playerPositionY, ctx.self->playerIsInsideSubMap, ctx.self->currentMapTitle, ctx.self->savedCaveMapMatrix, ctx.self->caveAlreadyVisited, Map1VillageLayouts::getBasementLayout(ctx.self->bjornRescued), 14, 3, "CAVERNA DO ORK", ctx.animateScreen);
                 MapControl::signal3DMapChange();
                 RaycasterWorld::updateMapHash(ctx.self->currentMapMatrix);
             }
-            // [PT-BR] Transicao 3: Retornar dos Interiores/Caverna para a Vila
-            // [EN-US] Transition 3: Return from Interiors/Cave to Village
+            // Transicao 3: Retornar dos Interiores/Caverna para a Vila
             else if (nextCell == 'S' && ctx.self->playerIsInsideSubMap) {
                 if (ctx.self->currentMapTitle == "CAVERNA DO ORK") {
                     ctx.self->caveAlreadyVisited = false;
@@ -184,8 +180,7 @@ namespace {
                 RaycasterWorld::updateMapHash(ctx.self->currentMapMatrix);
                 if (!MapControl::is3DExplorationActive()) ctx.restoreScreen();
             }
-            // [PT-BR] Transicao 4: Voltar para a Vila Inicial a partir do Caminho do Inicio
-            // [EN-US] Transition 4: Return to Initial Village from Beginning Path
+            // Transicao 4: Voltar para a Vila Inicial a partir do Caminho do Inicio
             else if ((px == 54 || px == 53) && (py == 7 || py == 6) && ctx.self->currentMapTitle == "CAMINHO DO INICIO") {
                 ctx.self->savedSpawnMapMatrix = ctx.self->currentMapMatrix;
                 ctx.self->currentMapMatrix = ctx.self->savedMainMapMatrix;
@@ -199,10 +194,9 @@ namespace {
                 RaycasterWorld::updateMapHash(ctx.self->currentMapMatrix);
                 if (!MapControl::is3DExplorationActive()) ctx.animateScreen();
             }
-            // [PT-BR] Transicao 5: Ir para a Floresta a partir da Vila
-            // [EN-US] Transition 5: Go to Forest from Village
+            // Transicao 5: Ir para a Floresta a partir da Vila
             else if (py >= 30 && !ctx.self->playerIsInsideSubMap) {
-                if (!Progression::instance().getFlag(Flags::Village_KissRescued)) {
+                if (!Progression::instance().getFlag(Flags::Village_BjornRescued)) {
                     Appearance::startPopupInteraction();
                     std::vector<std::string> msg = {
                         "Voce precisa ajudar os habitantes da vila antes de seguir jornada.",
@@ -307,8 +301,7 @@ NextMapTransition Map1Village::startExplorationLoop()
         needsRender = false;
     };
 
-    // [PT-BR] Substitui Bjorn por placa se ainda nao resgatado
-    // [EN-US] Replaces Bjorn with signpost if not yet rescued
+    // Substitui Bjorn por placa se ainda nao resgatado
     if (currentMapTitle == "VILA INICIAL" && !bjornRescued) {
         for (auto& line : currentMapMatrix) {
             std::replace(line.begin(), line.end(), 'B', 'P');

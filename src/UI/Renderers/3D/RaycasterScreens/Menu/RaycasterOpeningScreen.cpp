@@ -20,19 +20,19 @@ void ScreenOpeningRaycaster::display() {
     int widthConsole = Appearance::getTerminalWidth();
     int heightConsole = Appearance::getTerminalHeight();
 
-    int widthSoonMax = 0;
+    int widthLogoMax = 0;
     int widthTotal = 0;
     for (size_t i = 0; i < ArtsRaycaster::textLogo.size(); ++i) {
-        int wSoon = Appearance::getVisualLength(ArtsRaycaster::textLogo[i]);
+        int wLogo = Appearance::getVisualLength(ArtsRaycaster::textLogo[i]);
         int wPlus = (i < ArtsRaycaster::plusLogo.size())
             ? Appearance::getVisualLength(ArtsRaycaster::plusLogo[i]) : 0;
-        widthSoonMax = std::max(widthSoonMax, wSoon);
-        widthTotal    = std::max(widthTotal, wSoon + wPlus);
+        widthLogoMax = std::max(widthLogoMax, wLogo);
+        widthTotal    = std::max(widthTotal, wLogo + wPlus);
     }
 
-    int marginSoon = ScreenBaseMenu::calculateOffsetCentral(widthTotal, widthConsole);
-    int ySoon = 3;
-    int yPrompt = std::max(ySoon + (int)ArtsRaycaster::textLogo.size() + 2, heightConsole - 3);
+    int marginLogo = ScreenBaseMenu::calculateOffsetCentral(widthTotal, widthConsole);
+    int yLogo = 3;
+    int yPrompt = std::max(yLogo + (int)ArtsRaycaster::textLogo.size() + 2, heightConsole - 3);
 
     std::string version = "Versao 0.1";
     int colVersion = std::max(1, widthConsole - (int)version.length() - 1);
@@ -47,11 +47,11 @@ void ScreenOpeningRaycaster::display() {
         MenuRaycasterUtils::drawSceneBattle();
 
         for (size_t i = 1; i < ArtsRaycaster::textLogo.size(); ++i) {
-            int row = ySoon + (int)i - 1;
+            int row = yLogo + (int)i - 1;
             int plusIdx = (int)i - 1;
-            MenuRaycasterUtils::superimposeNoFrame(row, marginSoon, ArtsRaycaster::textLogo[i], 255, 255, 255);
+            MenuRaycasterUtils::superimposeNoFrame(row, marginLogo, ArtsRaycaster::textLogo[i], 255, 255, 255);
             if (plusIdx < (int)ArtsRaycaster::plusLogo.size()) {
-                MenuRaycasterUtils::superimposeNoFrame(row, marginSoon + widthSoonMax, ArtsRaycaster::plusLogo[plusIdx], 255, 165, 0);
+                MenuRaycasterUtils::superimposeNoFrame(row, marginLogo + widthLogoMax, ArtsRaycaster::plusLogo[plusIdx], 255, 165, 0);
             }
         }
 

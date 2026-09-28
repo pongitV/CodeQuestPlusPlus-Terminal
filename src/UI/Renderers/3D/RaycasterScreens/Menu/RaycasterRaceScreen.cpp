@@ -51,8 +51,7 @@ RaceScreen::Result ScreenRaceRaycaster::display(const std::string& namePlayer) {
 
         int yBase = 7;
 
-        // [PT-BR] Calcula dimensoes da arte ASCII para posicionamento
-    // [EN-US] Computes ASCII art dimensions for positioning
+        // Calcula dimensoes da arte ASCII para posicionamento
         int artWidth = 0;
         int colCenter = (widthConsole - 50) / 2;
         if (!isReturn) {
@@ -63,8 +62,7 @@ RaceScreen::Result ScreenRaceRaycaster::display(const std::string& namePlayer) {
         int colList = colCenter - 14;
         if (colList < 2) colList = 2;
 
-        // [PT-BR] Esquerda: lista de opcoes
-    // [EN-US] Left: options list
+        // Esquerda: lista de opcoes
         int totalOptions = (int)optionsGeneral.size() + 1;
         for (int i = 0; i < totalOptions; ++i) {
             std::string nameOption = (i == (int)optionsGeneral.size()) ? "VOLTAR" : optionsGeneral[i].name;
@@ -78,16 +76,14 @@ RaceScreen::Result ScreenRaceRaycaster::display(const std::string& namePlayer) {
         if (!isReturn) {
             Attributes attributes = race->getAttributesRace();
 
-            // [PT-BR] Centro: arte ASCII da raca
-    // [EN-US] Center: race ASCII art
+            // Centro: arte ASCII da raca
             MenuRaycasterUtils::printArtPixelatedSimple(buffer, race->getAppearanceRace(), 200, 180, 220, colCenter, yBase);
 
             // Direita: logo apos a arte
             int colSay = colCenter + artWidth + 3;
             if (colSay > widthConsole - 20) colSay = widthConsole - 20;
 
-            // [PT-BR] Direita: Atributos e habilidades da raca
-    // [EN-US] Right: Race attributes and skills
+            // Direita: Atributos e habilidades da raca
             int rightY = yBase;
             MenuRaycasterUtils::superimposeText3D(buffer, "\033[38;2;100;200;255m[ATRIBUTOS]\033[0m", rightY++, colSay, widthConsole);
             MenuRaycasterUtils::superimposeText3D(buffer, "  \033[38;2;180;180;180mHP " + std::to_string(attributes.health) + "\033[0m", rightY++, colSay, widthConsole);
@@ -120,17 +116,11 @@ RaceScreen::Result ScreenRaceRaycaster::display(const std::string& namePlayer) {
             continue;
         }
 
-        unsigned char key = static_cast<unsigned char>(InputControl::readKey());
-        if (key == 224 || key == 0 || key == '\033') {
-            unsigned char nextKey = static_cast<unsigned char>(InputControl::readKey());
-            if (nextKey == '[') nextKey = static_cast<unsigned char>(InputControl::readKey());
-            if (nextKey == 72 || nextKey == 'A') key = 'w';
-            else if (nextKey == 80 || nextKey == 'B') key = 's';
-            else if (nextKey == 27) {
-                RaceScreen::Result r;
-                r.returned = true;
-                return r;
-            }
+        unsigned char key = static_cast<unsigned char>(InputControl::readNavKey());
+        if (key == 27) {
+            RaceScreen::Result r;
+            r.returned = true;
+            return r;
         }
 
         if (key == 'w' || key == 'W') {

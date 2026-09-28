@@ -44,16 +44,13 @@ bool Parry::tryParry(Character* attacker, Character* defender, int damageMitigat
     int difficulty = std::clamp(damageMitigated / 5 + (attackerDexterity / 10), 1, 20);
 
     bool success = false;
-    // [PT-BR] Verifica se estamos na visao terminal (IDE)
-    // [EN-US] Checks if terminal view (IDE) is currently active
+    // Verifica se estamos na visao terminal (IDE)
     bool isTerminal = !PerspectiveManager::getInstance().is3DViewActive();
     if (isTerminal) {
-        // [PT-BR] Na visao terminal, forca o minigame de digitacao
-        // [EN-US] In terminal view, forces typing minigame
+        // Na visao terminal, forca o minigame de digitacao
         success = executeMinigameTyping(difficulty, damageMitigated, damageReduced);
     } else {
-        // [PT-BR] Fora da visao terminal, permite alternancia entre movimento e digitacao
-        // [EN-US] Outside terminal view, allows switching between movement and typing
+        // Fora da visao terminal, permite alternancia entre movimento e digitacao
         if (defender && defender->getParryModern()) {
             success = executeMinigameMovement(difficulty, damageMitigated, damageReduced);
         } else {
@@ -95,16 +92,13 @@ bool Parry::executeMinigameMovement(int difficulty, int damageMitigated, int& da
             bool noSweetSpot = (i >= sweetSpotCenter - sizeSweetSpot/2 && i <= sweetSpotCenter + sizeSweetSpot/2);
             
             if (i == positionCurrent) {
-                // [PT-BR] Cursor branco
-                // [EN-US] White cursor
+                // Cursor branco
                 bar += "\033[48;2;255;255;255m>\033[0m";
             } else if (noSweetSpot) {
-                // [PT-BR] Zona Verde de acerto
-                // [EN-US] Green hit zone
+                // Zona Verde de acerto
                 bar += "\033[38;2;50;255;50m█\033[0m";
             } else if (i < positionCurrent) {
-                // [PT-BR] Rastro visual
-                // [EN-US] Visual trail
+                // Rastro visual
                 bar += "░";
             } else {
                 bar += " ";
@@ -149,12 +143,10 @@ bool Parry::executeMinigameMovement(int difficulty, int damageMitigated, int& da
         if (noSweetSpot) {
             int distance = std::abs(positionPressed - sweetSpotCenter);
             if (distance <= 1) {
-                // [PT-BR] Parry Perfeito! (100% de absorcao)
-                // [EN-US] Perfect Parry! (100% absorption)
+                // Parry Perfeito! (100% de absorcao)
                 damageReduced = damageMitigated; 
             } else {
-                // [PT-BR] Parry Efetivo (50% de absorcao)
-                // [EN-US] Effective Parry (50% absorption)
+                // Parry Efetivo (50% de absorcao)
                 damageReduced = std::max(1, damageMitigated / 2); 
             }
             return true;
@@ -213,8 +205,7 @@ bool Parry::executeMinigameTyping(int difficulty, int damageMitigated, int& dama
                     break;
                 }
             } else if (c == '\b' || c == 127) {
-                // [PT-BR] Trata tecla Backspace
-                // [EN-US] Handles Backspace key
+                // Trata tecla Backspace
                 if (!answer.empty()) {
                     answer.pop_back();
                 }
@@ -255,12 +246,10 @@ bool Parry::executeMinigameTyping(int difficulty, int damageMitigated, int& dama
 
     if (completed && answer == sequence) {
         if (timeTotal <= timeLimit * 0.5) {
-            // [PT-BR] Parry Perfeito por digitacao!
-            // [EN-US] Perfect Parry by typing!
+            // Parry Perfeito por digitacao!
             damageReduced = damageMitigated;
         } else {
-            // [PT-BR] Parry Efetivo por digitacao!
-            // [EN-US] Effective Parry by typing!
+            // Parry Efetivo por digitacao!
             damageReduced = std::max(1, damageMitigated / 2);
         }
         return true;

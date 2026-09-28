@@ -42,12 +42,12 @@ bool ScreenRegistry::chooseConfirmation(const std::string& chooseType, const std
 }
 
 std::vector<std::string> ScreenRegistry::frameAttributes(const Attributes& stats,
-    const std::string& dryTitle, const std::string& skillTitle,
+    const std::string& sectionTitle, const std::string& skillTitle,
     const std::string& skillName, const std::string& skillDesc,
     const std::string& skillTitle2, const std::string& skillName2, const std::string& skillDesc2) {
     while (true) {
         try {
-            return PerspectiveManager::getInstance().getManagerScreens()->frameAttributes(stats, dryTitle, skillTitle, skillName, skillDesc, skillTitle2, skillName2, skillDesc2);
+            return PerspectiveManager::getInstance().getManagerScreens()->frameAttributes(stats, sectionTitle, skillTitle, skillName, skillDesc, skillTitle2, skillName2, skillDesc2);
         } catch (const PerspectiveChangedException&) {
             continue;
         }

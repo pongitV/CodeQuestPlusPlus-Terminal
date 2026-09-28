@@ -9,8 +9,10 @@ enum class TexID {
     None = 0,
     // Paredes
     LabyrinthWood,
-    LabyrinthBowPillar,
-    LabyrinthBowBackground,
+    LabyrinthArchPillar,
+    LabyrinthBowPillar = LabyrinthArchPillar,
+    LabyrinthArchBackground,
+    LabyrinthBowBackground = LabyrinthArchBackground,
     MorganaWood,
     ChurchStainedglass,
     BridgeWood,
@@ -18,7 +20,8 @@ enum class TexID {
     EntryChurch,
     MannequinAnok,
     Francesco,
-    Kiss,
+    Bjorn,
+    Kiss = Bjorn,
     Knight,
     KingdomWood,
     ChurchAltar,
@@ -37,12 +40,14 @@ enum class TexID {
     DarkBricks,
     KingdomStone,
     BridgeStone,
-    WallInvalidates,
+    InvalidWall,
+    WallInvalidates = InvalidWall,
     
     // Chaos e Tetos
     FloorLabyrinthEdge,
     FloorLabyrinth,
-    FloorRoomBossOut,
+    FloorRoomBossOutside,
+    FloorRoomBossOut = FloorRoomBossOutside,
     FloorRoomBossInside,
     FloorHeartMoss,
     FloorHeartEarth,
@@ -57,25 +62,30 @@ enum class TexID {
     CeilingIndoorsPattern
 };
 
-class ManagerTextures {
+class TextureManager {
 public:
-    static void boot();
+    static void initialize();
+    static inline void boot() { initialize(); }
     static ColorRGB getColor(TexID id, int tx, int ty);
     
-    // Lookup tables para otimizacao de funcoes trigonometricas
-    static float fastYes(float angle);
+    // Lookup tables para otimizacao de funcoes trigonometricas (fast sine / cosine)
+    static float fastSin(float angle);
     static float fastCos(float angle);
+    static inline float fastYes(float angle) { return fastSin(angle); }
 
 private:
     static bool initialized;
     static ColorRGB cache[256][16384];
-    static float tableYes[4096];
+    static float tableSin[4096];
 
     static void generate(TexID id);
 };
 
-inline ColorRGB ManagerTextures::getColor(TexID id, int tx, int ty) {
-    if (!initialized) boot();
+// Apelido para compatibilidade retroativa
+using ManagerTextures = TextureManager;
+
+inline ColorRGB TextureManager::getColor(TexID id, int tx, int ty) {
+    if (!initialized) initialize();
     int res = 128;
     if (tx < 0) tx = 0; 
     if (tx >= res) tx = res - 1;

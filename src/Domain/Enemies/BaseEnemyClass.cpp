@@ -1,7 +1,6 @@
 #include "Domain/Enemies/BaseEnemyClass.h"
 
-// [PT-BR] --- INFORMACOES DA CLASSE ---
-// [EN-US] --- CLASS INFORMATION ---
+// INFORMACOES DA CLASSE
 std::string BaseEnemyClass::getClassName() const 
 { 
     return "Monstro"; 
@@ -23,13 +22,11 @@ std::vector<std::unique_ptr<Item>> BaseEnemyClass::getEquipmentClass() const
     return {}; 
 }
 
-// [PT-BR] --- PASSIVA DA CLASSE ---
-// [EN-US] --- CLASS PASSIVE ---
+// PASSIVA DA CLASSE
 std::string BaseEnemyClass::getNamePassiveClass() const { return "Nenhuma"; }
 std::string BaseEnemyClass::getDescriptionPassiveClass() const { return "Inimigos nao possuem passivas de classe."; }
 
-// [PT-BR] --- HABILIDADE DA CLASSE ---
-// [EN-US] --- CLASS SKILL ---
+// HABILIDADE DA CLASSE
 std::string BaseEnemyClass::getRechargeSkillClass() const { return ""; }
 std::string BaseEnemyClass::getNameSkillClass() const { return "Nenhuma"; }
 std::string BaseEnemyClass::getDescriptionSkillClass() const { return "Inimigos basicos nao possuem habilidades ativas."; }

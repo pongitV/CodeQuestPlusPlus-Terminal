@@ -8,8 +8,7 @@
 #include <chrono>
 
 void IDEMenuScreen::displayGameLogoPanel(const std::string& screenTitle, bool /*animarFadeIn*/) {
-    // [PT-BR] Na visao IDE nao utilizamos animacao de fadeIn; renderizamos como codigo estatico
-    // [EN-US] In IDE view we do not use fadeIn animation; rendered as static code
+    // Na visao IDE nao utilizamos animacao de fadeIn; renderizamos como codigo estatico
     Appearance::clearScreen();
     
     std::string colorType = "\033[38;2;78;201;176m"; // Cyan
@@ -86,13 +85,7 @@ int IDEMenuScreen::displayMainMenuOptions() {
         for (const auto& l : editorView) std::cout << l << "\n";
         std::cout << "\033[J" << std::flush;
 
-        unsigned char key = static_cast<unsigned char>(InputControl::readKey());
-        if (key == 224 || key == 0 || key == '\033') {
-            unsigned char nextKey = static_cast<unsigned char>(InputControl::readKey());
-            if (nextKey == '[') nextKey = static_cast<unsigned char>(InputControl::readKey());
-            if (nextKey == 72 || nextKey == 'A') key = 'w';
-            else if (nextKey == 80 || nextKey == 'B') key = 's';
-        }
+        unsigned char key = static_cast<unsigned char>(InputControl::readNavKey());
 
         if (key == 'w' || key == 'W') {
             selectionCurrent = (selectionCurrent - 1 + (int)options.size()) % (int)options.size();
@@ -145,13 +138,7 @@ bool IDEMenuScreen::displayConfirmationExit() {
         for (const auto& l : editorView) std::cout << l << "\n";
         std::cout << "\033[J" << std::flush;
 
-        unsigned char key = static_cast<unsigned char>(InputControl::readKey());
-        if (key == 224 || key == 0 || key == '\033') {
-            unsigned char nextKey = static_cast<unsigned char>(InputControl::readKey());
-            if (nextKey == '[') nextKey = static_cast<unsigned char>(InputControl::readKey());
-            if (nextKey == 72 || nextKey == 'A') key = 'w';
-            else if (nextKey == 80 || nextKey == 'B') key = 's';
-        }
+        unsigned char key = static_cast<unsigned char>(InputControl::readNavKey());
 
         if (key == 'w' || key == 'W' || key == 'a' || key == 'A') {
             selectionCurrent = 0;
@@ -212,13 +199,7 @@ bool IDEMenuScreen::displayChooseConfirmationWithArtSideBySide(const std::string
         for (const auto& l : editorView) std::cout << l << "\n";
         std::cout << "\033[J" << std::flush;
 
-        unsigned char key = static_cast<unsigned char>(InputControl::readKey());
-        if (key == 224 || key == 0 || key == '\033') {
-            unsigned char nextKey = static_cast<unsigned char>(InputControl::readKey());
-            if (nextKey == '[') nextKey = static_cast<unsigned char>(InputControl::readKey());
-            if (nextKey == 72 || nextKey == 'A') key = 'w';
-            else if (nextKey == 80 || nextKey == 'B') key = 's';
-        }
+        unsigned char key = static_cast<unsigned char>(InputControl::readNavKey());
 
         if (key == 'w' || key == 'W' || key == 'a' || key == 'A') {
             selectionCurrent = 0;
@@ -230,7 +211,7 @@ bool IDEMenuScreen::displayChooseConfirmationWithArtSideBySide(const std::string
     }
 }
 
-std::vector<std::string> IDEMenuScreen::composeAttributesFrame(const Attributes& stats, const std::string& dryTitle, const std::string& skillTitle, const std::string& skillName, const std::string& skillDesc, const std::string& skillTitle2, const std::string& skillName2, const std::string& skillDesc2) {
+std::vector<std::string> IDEMenuScreen::composeAttributesFrame(const Attributes& stats, const std::string& sectionTitle, const std::string& skillTitle, const std::string& skillName, const std::string& skillDesc, const std::string& skillTitle2, const std::string& skillName2, const std::string& skillDesc2) {
     std::string colorKeyword = "\033[38;2;86;156;214m"; // Blue
     std::string colorType = "\033[38;2;78;201;176m"; // Cyan
     std::string colorPunct = "\033[38;2;212;212;212m"; // Gray
@@ -240,7 +221,7 @@ std::vector<std::string> IDEMenuScreen::composeAttributesFrame(const Attributes&
     std::string reset = "\033[0m";
 
     std::vector<std::string> res;
-    res.push_back(colorComment + "// " + dryTitle + reset);
+    res.push_back(colorComment + "// " + sectionTitle + reset);
     res.push_back(colorKeyword + "struct " + colorType + "Stats " + colorPunct + "{");
     res.push_back("    " + colorType + "int " + colorPunct + "Vida = " + colorNumber + std::to_string(stats.health) + colorPunct + ";");
     res.push_back("    " + colorType + "int " + colorPunct + "Forca = " + colorNumber + std::to_string(stats.strength) + colorPunct + ";");
@@ -274,8 +255,7 @@ std::vector<std::string> IDEMenuScreen::compressArtASCII(const std::vector<std::
         std::string newLine = "";
         for (size_t x = 0; x < artOriginal[y].length(); x += factorX) {
             char c = ' ';
-            // [PT-BR] Amostra o caractere mais denso no bloco de escala (fatorY x fatorX)
-    // [EN-US] Samples the densest character within scaling block (factorY x factorX)
+            // Amostra o caractere mais denso no bloco de escala (fatorY x fatorX)
             for (size_t dy = 0; dy < (size_t)factorY && y + dy < artOriginal.size(); dy++) {
                 for (size_t dx = 0; dx < (size_t)factorX && x + dx < artOriginal[y + dy].length(); dx++) {
                     char cur = artOriginal[y + dy][x + dx];
@@ -288,8 +268,7 @@ std::vector<std::string> IDEMenuScreen::compressArtASCII(const std::vector<std::
             }
             newLine += c;
         }
-        // [PT-BR] Remove espacos em branco a direita para otimizacao visual
-    // [EN-US] Trims trailing whitespace on the right for visual cleanliness
+        // Remove espacos em branco a direita para otimizacao visual
         size_t end = newLine.find_last_not_of(" ");
         if (end != std::string::npos) {
             newLine = newLine.substr(0, end + 1);

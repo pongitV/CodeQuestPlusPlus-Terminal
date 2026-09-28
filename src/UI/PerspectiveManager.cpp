@@ -27,8 +27,7 @@
 #include "Core/Utils/RendererProvider.h"
 #include "Core/Utils/Appearance.h"
 
-// [PT-BR] Adaptadores de UI concretos do Raycaster 3D
-// [EN-US] Concrete UI adapters for 3D Raycaster
+// Adaptadores de UI concretos do Raycaster 3D
 class Attributes3DAdapter : public IAttributesUI {
     void display(Character* player) override { RaycasterAttributesScreen::display(player); }
     void displayDetailsAttributes(Character* currentPlayer) override { RaycasterAttributesScreen::displayDetailsAttributes(currentPlayer); }

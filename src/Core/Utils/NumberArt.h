@@ -4,8 +4,6 @@
 
 namespace NumberArts {
     const std::vector<std::vector<std::string>> digits = {
-        // [PT-BR] Digito 0
-        // [EN-US] Digit 0
         {
             "  ___  ",
             " / _ \\ ",
@@ -13,8 +11,6 @@ namespace NumberArts {
             "| |_| |",
             " \\___/ "
         },
-        // [PT-BR] Digito 1
-        // [EN-US] Digit 1
         {
             " _   ",
             "/ |  ",
@@ -22,8 +18,6 @@ namespace NumberArts {
             "| |  ",
             "|_|  "
         },
-        // [PT-BR] Digito 2
-        // [EN-US] Digit 2
         {
             " ____  ",
             "|___ \\ ",
@@ -31,8 +25,6 @@ namespace NumberArts {
             " / __/ ",
             "|_____|"
         },
-        // [PT-BR] Digito 3
-        // [EN-US] Digit 3
         {
             " _____ ",
             "|___ / ",
@@ -40,8 +32,6 @@ namespace NumberArts {
             " ___) |",
             "|____/ "
         },
-        // [PT-BR] Digito 4
-        // [EN-US] Digit 4
         {
             " _  _   ",
             "| || |  ",
@@ -49,8 +39,6 @@ namespace NumberArts {
             "|__   _|",
             "   |_|  "
         },
-        // [PT-BR] Digito 5
-        // [EN-US] Digit 5
         {
             " ____  ",
             "| ___| ",
@@ -58,8 +46,6 @@ namespace NumberArts {
             " ___) |",
             "|____/ "
         },
-        // [PT-BR] Digito 6
-        // [EN-US] Digit 6
         {
             "  __   ",
             " / /_  ",
@@ -67,8 +53,6 @@ namespace NumberArts {
             "| (_) |",
             " \\___/ "
         },
-        // [PT-BR] Digito 7
-        // [EN-US] Digit 7
         {
             " _____ ",
             "|___  |",
@@ -76,8 +60,6 @@ namespace NumberArts {
             "  / /  ",
             " /_/   "
         },
-        // [PT-BR] Digito 8
-        // [EN-US] Digit 8
         {
             "  ___  ",
             " ( _ ) ",
@@ -85,8 +67,6 @@ namespace NumberArts {
             "| (_) |",
             " \\___/ "
         },
-        // [PT-BR] Digito 9
-        // [EN-US] Digit 9
         {
             "  ___  ",
             " / _ \\ ",

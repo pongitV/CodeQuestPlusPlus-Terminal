@@ -118,6 +118,10 @@ std::vector<std::string> BaseScreen::createBox(const std::vector<std::string>& l
         int comp = Appearance::getVisualLength(line);
         if (comp > maxWidth) maxWidth = comp;
     }
+    int titleLen = Appearance::getVisualLength(title);
+    if (titleLen > 0 && titleLen + 2 > maxWidth) {
+        maxWidth = titleLen + 2;
+    }
     
     std::vector<std::string> box;
     std::string colorStr = Appearance::color(colorBox);
@@ -156,7 +160,6 @@ std::vector<std::string> BaseScreen::createBox(const std::vector<std::string>& l
     std::string padBg = bgAnsi.empty() ? "\033[48;2;25;25;25m" : bgAnsi;
 
     std::string top = "╔";
-    int titleLen = Appearance::getVisualLength(title);
     if (titleLen > 0) {
         top += "══ " + title + " ";
         int remaining = maxWidth + 2 - (titleLen + 4);
@@ -206,6 +209,12 @@ std::vector<std::string> BaseScreen::createBoxWithArt(const std::vector<std::str
     int totalWidth = widthText;
     if (hasArt) totalWidth += artWidth + 3;
 
+    int titleLen = Appearance::getVisualLength(title);
+    if (titleLen > 0 && titleLen + 2 > totalWidth) {
+        totalWidth = titleLen + 2;
+        widthText = totalWidth - (hasArt ? (artWidth + 3) : 0);
+    }
+
     if (totalWidth < widthMinimal) totalWidth = widthMinimal;
 
     int boxHeight = std::max(static_cast<int>(art.size()), static_cast<int>(linesText.size()));
@@ -215,7 +224,6 @@ std::vector<std::string> BaseScreen::createBoxWithArt(const std::vector<std::str
     std::string padBg = bgAnsi.empty() ? "\033[48;2;25;25;25m" : bgAnsi;
 
     std::string top = padBg + colorStr + "╔";
-    int titleLen = Appearance::getVisualLength(title);
     if (titleLen > 0) {
         top += "══ " + title + " ";
         int remaining = totalWidth + 2 - (titleLen + 4);

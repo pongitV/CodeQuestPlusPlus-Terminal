@@ -27,7 +27,7 @@ const std::vector<std::string>& NPCFood::getArtASCII() const {
 
 void NPCFood::displayDialogue(Character* player) {
     std::vector<std::string> lines = {
-        "Olá, combatente! Sente fome? A jornada deve ser cansativa.",
+        "Ola, combatente! Sente fome? A jornada deve ser cansativa.",
         "Tenho as melhores e mais frescas provisões do reino!",
         "Nossos alimentos curam sua vida instantaneamente ao serem consumidos na mochila."
     };

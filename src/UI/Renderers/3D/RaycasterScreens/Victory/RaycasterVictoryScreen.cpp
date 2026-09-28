@@ -20,8 +20,7 @@ void RaycasterVictoryScreen::display(Character* currentPlayer, int obtainedGoldQ
     int widthConsole = Appearance::getTerminalWidth();
     std::cout << "\033[?25l";
     InputControl::clearBuffer();
-    // [PT-BR] Agrupa inimigos derrotados para exibicao consolidada
-    // [EN-US] Groups defeated enemies for consolidated display
+    // Agrupa inimigos derrotados para exibicao consolidada
     std::map<std::string, int> enemiesGrouped;
     for (const auto& enemy : enemiesDefeated) {
         enemiesGrouped[enemy]++;
@@ -68,22 +67,21 @@ void RaycasterVictoryScreen::display(Character* currentPlayer, int obtainedGoldQ
         return chars;
     };
 
-    // [PT-BR] Renderiza o logo de VITORIA
-    // [EN-US] Renders VICTORY logo
-    int soonY = 2;
-    int compVisualSoon = 0;
+    // Renderiza o logo de VITORIA
+    int logoY = 2;
+    int compVisualLogo = 0;
     for (const auto& line : ArtsVictory::victoryLogo) {
         int comp = Appearance::getVisualLength(line);
-        if (comp > compVisualSoon) compVisualSoon = comp;
+        if (comp > compVisualLogo) compVisualLogo = comp;
     }
-    int soonX = ScreenBaseMenu::calculateOffsetCentral(compVisualSoon, widthConsole);
+    int logoX = ScreenBaseMenu::calculateOffsetCentral(compVisualLogo, widthConsole);
     for (int i = 0; i < (int)ArtsVictory::victoryLogo.size(); ++i) {
-        if (soonY + i < height3D) {
-            screenBackground[soonY + i] = Appearance::superimposeSoonAnsi(screenBackground[soonY + i], stringForCharsUtf8(ArtsVictory::victoryLogo[i]), soonX, "\033[1;38;2;50;255;50m", widthConsole);
+        if (logoY + i < height3D) {
+            screenBackground[logoY + i] = Appearance::superimposeLogoAnsi(screenBackground[logoY + i], stringForCharsUtf8(ArtsVictory::victoryLogo[i]), logoX, "\033[1;38;2;50;255;50m", widthConsole);
         }
     }
 
-    int startY = soonY + (int)ArtsVictory::victoryLogo.size() + 2;
+    int startY = logoY + (int)ArtsVictory::victoryLogo.size() + 2;
 
     MenuRaycasterUtils::s_background3DMenu = screenBackground;
 
@@ -114,8 +112,7 @@ void RaycasterVictoryScreen::display(Character* currentPlayer, int obtainedGoldQ
             if (y < MenuRaycasterUtils::s_background3DMenu.size() - 1) buffer << "\n";
         }
 
-        // [PT-BR] Caixa de inimigos derrotados
-    // [EN-US] Defeated enemies box
+        // Caixa de inimigos derrotados
         std::vector<std::string> boxEnemies;
         boxEnemies.push_back("\033[38;2;200;200;200mInimigos Derrotados:\033[0m");
         if (enemiesGrouped.empty()) boxEnemies.push_back(" \033[38;2;100;100;100mNenhum\033[0m");
@@ -123,8 +120,7 @@ void RaycasterVictoryScreen::display(Character* currentPlayer, int obtainedGoldQ
             boxEnemies.push_back(" \033[38;2;255;100;100m" + std::to_string(qty) + "x " + name + "\033[0m");
         }
 
-        // [PT-BR] Caixa de recompensas e drops obtidos
-    // [EN-US] Rewards and obtained drops box
+        // Caixa de recompensas e drops obtidos
         std::vector<std::string> boxDrops;
         boxDrops.push_back("\033[38;2;255;215;0mRecompensas:\033[0m");
         boxDrops.push_back(" \033[38;2;255;215;0mOuro: " + std::to_string(obtainedGoldQuantity) + "\033[0m" + "  \033[38;2;0;255;255mXP: " + std::to_string(obtainedXpQuantity) + "\033[0m");
@@ -140,8 +136,7 @@ void RaycasterVictoryScreen::display(Character* currentPlayer, int obtainedGoldQ
             boxDrops.push_back(" " + colorRarity + std::to_string(drop.second) + "x " + drop.first + "\033[0m");
         }
 
-        // [PT-BR] Caixa de estatisticas da batalha
-    // [EN-US] Battle statistics box
+        // Caixa de estatisticas da batalha
         std::vector<std::string> boxStats;
         boxStats.push_back("\033[38;2;150;150;255mEstatisticas de Combate:\033[0m");
         boxStats.push_back(" Turnos: \033[38;2;255;255;255m" + std::to_string(combatTurns) + "\033[0m");

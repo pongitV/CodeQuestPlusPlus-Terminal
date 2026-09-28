@@ -13,7 +13,7 @@ void GOAnimator::effectType(const std::vector<std::string>& lines, int speedMs) 
     }
 }
 
-void GOAnimator::scrollExcited(const std::vector<std::string>& content, int linesByFrame, int intervalMs) {
+void GOAnimator::scrollAnimated(const std::vector<std::string>& content, int linesByFrame, int intervalMs) {
     for (size_t i = 0; i < content.size(); i += linesByFrame) {
         std::cout << "\033[H\033[J";
         for (size_t j = i; j < i + 20 && j < content.size(); ++j) {

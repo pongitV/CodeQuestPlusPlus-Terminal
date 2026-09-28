@@ -116,7 +116,7 @@ void Appearance::displayPanel(
             std::ostringstream buffer;
             for (size_t i = 0; i < linesFinals.size(); ++i) {
                 int y = targetY + static_cast<int>(i);
-                buffer << "\033[" << (y + 1) << ";1H" << fatarLineAnsi(linesFinals[i], pct) << "\033[K";
+                buffer << "\033[" << (y + 1) << ";1H" << fadeLineAnsi(linesFinals[i], pct) << "\033[K";
                 if (i < linesFinals.size() - 1) buffer << "\n";
             }
             buffer << "\033[0m";
@@ -145,8 +145,8 @@ void Appearance::displayPanel(
     }
 }
 
-void Appearance::displayTextPanel(const std::string& title, Color colorDoHeader, bool animateFadeIn) {
-    displayPanel(title, colorDoHeader, {}, 0, {}, Color::RESET, animateFadeIn);
+void Appearance::displayTextPanel(const std::string& title, Color headerColor, bool animateFadeIn) {
+    displayPanel(title, headerColor, {}, 0, {}, Color::RESET, animateFadeIn);
 }
 
 void Appearance::displayTitlePattern(const std::string& title, Color themeColor) {
@@ -168,7 +168,7 @@ void Appearance::displayTitlePattern(const std::string& title, Color themeColor)
         std::ostringstream buffer;
         for (size_t i = 0; i < linesFinals.size(); ++i) {
             int y = targetY + static_cast<int>(i);
-            buffer << "\033[" << (y + 1) << ";1H" << fatarLineAnsi(linesFinals[i], pct) << "\033[K";
+            buffer << "\033[" << (y + 1) << ";1H" << fadeLineAnsi(linesFinals[i], pct) << "\033[K";
             if (i < linesFinals.size() - 1) buffer << "\n";
         }
         buffer << "\033[0m";
@@ -183,7 +183,7 @@ void Appearance::displayTitlePattern(const std::string& title, Color themeColor)
     std::cout << "\033[J" << std::flush;
 }
 
-int Appearance::printSideASide(const std::vector<std::string>& columnLeft, const std::vector<std::string>& columnRight, int minWidthLeft, int spacing, Color colorLeft, Color colorRight, int delayLineMs) {
+int Appearance::printSideBySide(const std::vector<std::string>& columnLeft, const std::vector<std::string>& columnRight, int minWidthLeft, int spacing, Color colorLeft, Color colorRight, int delayLineMs) {
     int widthLeft = minWidthLeft;
     for (const auto& s : columnLeft) {
         if (getVisualLength(s) > widthLeft) {
@@ -191,14 +191,14 @@ int Appearance::printSideASide(const std::vector<std::string>& columnLeft, const
         }
     }
     
-    int widthSay = 0;
+    int widthRight = 0;
     for (const auto& s : columnRight) {
-        if (getVisualLength(s) > widthSay) {
-            widthSay = getVisualLength(s);
+        if (getVisualLength(s) > widthRight) {
+            widthRight = getVisualLength(s);
         }
     }
 
-    int recoil = (getTerminalWidth() - (widthLeft + spacing + widthSay)) / 2;
+    int recoil = (getTerminalWidth() - (widthLeft + spacing + widthRight)) / 2;
     if (recoil < 0) recoil = 0;
 
     size_t maxLines = std::max(columnLeft.size(), columnRight.size());

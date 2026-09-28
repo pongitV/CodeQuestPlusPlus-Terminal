@@ -4,11 +4,9 @@
 
 #ifdef _WIN32
     #include <windows.h>
-    // [PT-BR] Necessário para a chamada ShellExecuteEx (elevação de privilégios)
-    // [EN-US] Required for ShellExecuteEx call (privilege elevation)
+    // Necessario para a chamada ShellExecuteEx (elevacao de privilegios)
     #include <shellapi.h>
-    // [PT-BR] Necessário para a verificação IsUserAnAdmin
-    // [EN-US] Required for IsUserAnAdmin verification
+    // Necessario para a verificacao IsUserAnAdmin
     #include <shlobj.h>
 #endif
 
@@ -32,8 +30,7 @@
 #include "Core/Terminal/InputOutputControl/InputControl.h"
 #include "UI/PerspectiveManager.h"
 
-// [PT-BR] Garante que o processo do jogo execute com privilégios de Administrador no Windows.
-// [EN-US] Ensures the game process runs with Administrator privileges on Windows.
+// Garante que o processo do jogo execute com privilegios de Administrador no Windows.
 bool ensureAdmin() noexcept 
 {
 #ifdef _WIN32
@@ -44,8 +41,7 @@ bool ensureAdmin() noexcept
         {
             SHELLEXECUTEINFOA sei{};
             sei.cbSize = sizeof(sei);
-            // [PT-BR] Verbo "runas" solicita elevação UAC
-            // [EN-US] "runas" verb requests UAC privilege elevation
+            // Verbo "runas" solicita elevacao UAC
             sei.lpVerb = "runas";
             sei.lpFile = pathBuffer.data();
             sei.hwnd = nullptr;
@@ -53,15 +49,13 @@ bool ensureAdmin() noexcept
 
             if (ShellExecuteExA(&sei)) 
             {
-                // [PT-BR] Sucesso ao abrir nova instância com privilégios elevados; encerra a instância atual
-                // [EN-US] Successfully launched elevated instance; terminates current instance
+                // Sucesso ao abrir nova instancia com privilegios elevados; encerra a instancia atual
                 return true;
             }
         }
     }
 #endif
-    // [PT-BR] Continua a execução normal (já é administrador ou plataforma não-Windows)
-    // [EN-US] Continues normal execution (already admin or non-Windows platform)
+    // Continua a execucao normal (ja e administrador ou plataforma nao-Windows)
     return false;
 }
 
@@ -70,30 +64,24 @@ bool ensureAdmin() noexcept
 
 int main() 
 {
-    // [PT-BR] 1. Tenta elevar privilégios para Administrador antes de iniciar os subsistemas
-    // [EN-US] 1. Attempts to elevate privileges to Administrator before booting subsystems
+    // 1. Tenta elevar privilegios para Administrador antes de iniciar os subsistemas
     if (ensureAdmin()) return 0;
 
-    // [PT-BR] Guard RAII para garantir a restauracao do terminal no encerramento
-    // [EN-US] RAII guard to guarantee terminal restoration upon exit
+    // Guard RAII para garantir a restauracao do terminal no encerramento
     TerminalSessionGuard sessionGuard;
 
-    // [PT-BR] 2. Configura a tela do console e inicializa o modo de renderização do terminal
-    // [EN-US] 2. Configures the console display and initializes the terminal rendering mode
+    // 2. Configura a tela do console e inicializa o modo de renderizacao do terminal
     Appearance::bootConsole();
     Appearance::maximizeWindowTerminal(); 
     Appearance::clearScreen();
     
-    // [PT-BR] Configura a captura de eventos de mouse no console
-    // [EN-US] Configures mouse event capture in the console
+    // Configura a captura de eventos de mouse no console
     InputControl::enableMouseInput();
     
-    // [PT-BR] 3. Inicializa os renderizadores no Gerenciador de Perspectivas (PerspectiveManager)
-    // [EN-US] 3. Initializes perspective renderers in PerspectiveManager
+    // 3. Inicializa os renderizadores no Gerenciador de Perspectivas (PerspectiveManager)
     PerspectiveManager::getInstance().boot();
 
-    // [PT-BR] 4. Inicia o loop principal do jogo através do padrão de estados (StateManager)
-    // [EN-US] 4. Starts the main game loop using the State Pattern (StateManager)
+    // 4. Inicia o loop principal do jogo atraves do padrao de estados (StateManager)
     Game rpg(std::make_unique<MenuState>());
     rpg.run();
 

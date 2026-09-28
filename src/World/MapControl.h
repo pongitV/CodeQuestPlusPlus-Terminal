@@ -1,8 +1,3 @@
-// [PT-BR] Arquivo: MapControl.h
-// [PT-BR] Proposito: Fachada central de controle de mapas (coordenacao de movimentacao, gatilhos de combate e camera 3D).
-// [EN-US] File: MapControl.h
-// [EN-US] Purpose: Central map control facade (movement coordination, combat triggers, and 3D camera).
-
 #pragma once
 
 #include "Domain/Characters/Character.h"
@@ -13,8 +8,7 @@
 #include "Core/Utils/Appearance.h"
 #include "World/InteractionMap.h"
 
-// [PT-BR] Fachada para delegacao dos sistemas de animacao, colisao e renderizacao de mapa.
-// [EN-US] Facade for delegating map animation, collision, and rendering systems.
+// Fachada para delegacao dos sistemas de animacao, colisao e renderizacao de mapa.
 class MapControl 
 {
 public:
@@ -26,8 +20,10 @@ public:
 
     static bool is3DExplorationActive();
     static void signal3DMapChange();
-    static float getCameraPostX3D();
-    static float getCameraPostY3D();
+    static float getCameraPosX3D();
+    static inline float getCameraPostX3D() { return getCameraPosX3D(); }
+    static float getCameraPosY3D();
+    static inline float getCameraPostY3D() { return getCameraPosY3D(); }
     static float getCameraAngle3D();
     static std::string getCurrentMapTitle();
     static std::vector<std::string> getCurrentMapMatrix();

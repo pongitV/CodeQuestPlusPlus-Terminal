@@ -7,8 +7,7 @@
 #include "Core/Utils/DialogFunctions.h"
 #include "UI/Screens/Combat/CombatScreen.h"
 
-// [PT-BR] --- INFORMACOES DA RACA ---
-// [EN-US] --- RACE INFORMATION ---
+// INFORMACOES DA RACA
 std::string ForestAbomination::getRaceName() const 
 { 
     return "Abominacao da Floresta"; 
@@ -19,8 +18,7 @@ Attributes ForestAbomination::getAttributesRace() const
     return { 300, 30, 5, 20, 25, 0, 20 };
 }
 
-// [PT-BR] --- HABILIDADE DA RACA ---
-// [EN-US] --- RACE SKILL ---
+// HABILIDADE DA RACA
 std::string ForestAbomination::getNameSkillRace() const 
 { 
     return "Raizes Parasitas"; 
@@ -31,8 +29,7 @@ std::string ForestAbomination::getDescriptionSkillRace() const
     return "Abaixo de 40% de HP, recupera HP igual a 100% do dano causado ate 60% de HP"; 
 }
 
-// [PT-BR] --- PROCESSAMENTO DE DANO ---
-// [EN-US] --- DAMAGE PROCESSING ---
+// PROCESSAMENTO DE DANO
 void ForestAbomination::onCausingDamage(Character* attacker, Character* target, int damageCaused) 
 {
     int lifeMax = attacker->getMaxHealth();
@@ -73,8 +70,7 @@ void ForestAbomination::onCausingDamage(Character* attacker, Character* target, 
     }
 }
 
-// [PT-BR] --- APARENCIA ---
-// [EN-US] --- APPEARANCE ---
+// APARENCIA
 const std::vector<std::string>& ForestAbomination::getAppearanceRace() const
 {
     static const std::vector<std::string> appearance =
@@ -158,8 +154,7 @@ const std::vector<std::string>& ForestAbomination::getAppearanceRace() const
 }
 
 
-// [PT-BR] --- BESTIARIO E DROPS ---
-// [EN-US] --- BESTIARY AND DROPS ---
+// BESTIARIO E DROPS
 InfoBestiary ForestAbomination::getInfoBestiary() const {
     return {
         "Floresta", 

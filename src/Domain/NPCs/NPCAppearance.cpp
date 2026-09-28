@@ -53,8 +53,7 @@ void NPCAppearance::processOption(Character* player, const std::string& option, 
     auto& progress = Progression::instance();
 
     if (option == "Comprar Icones") {
-        // [PT-BR] Lista de icones disponiveis para compra
-        // [EN-US] List of icons available for purchase
+        // Lista de icones disponiveis para compra
         std::vector<std::pair<std::string, std::pair<char, int>>> iconsStore = {
             {"Coracao (H)", {'H', 100}},
             {"Estrela (*)", {'S', 150}},
@@ -155,8 +154,7 @@ void NPCAppearance::processOption(Character* player, const std::string& option, 
         );
 
         if (subChoose == 0) {
-            // [PT-BR] --- SELECAO DE ICONE ---
-            // [EN-US] --- ICON SELECTION ---
+            // SELECAO DE ICONE
             std::vector<std::pair<std::string, char>> iconsAvailable = {
                 {"Icone Padrao (@)", '@'}
             };
@@ -195,8 +193,7 @@ void NPCAppearance::processOption(Character* player, const std::string& option, 
             }
         }
         else if (subChoose == 1) {
-            // [PT-BR] --- SELECAO DE COR DE FUNDO ---
-            // [EN-US] --- BACKGROUND COLOR SELECTION ---
+            // SELECAO DE COR DE FUNDO
             std::vector<std::pair<std::string, Color>> colorsAvailable = {
                 {"Fundo Padrao (Preto)", Color::RESET}
             };
@@ -231,8 +228,7 @@ void NPCAppearance::processOption(Character* player, const std::string& option, 
 
             if (choice >= 0 && choice < (int)colorsAvailable.size()) {
                 Appearance::colorBackgroundActive = colorsAvailable[choice].second;
-                // [PT-BR] Limpa e redesenha a tela inteira para aplicar a cor de fundo
-                // [EN-US] Clears and redraws entire screen to apply background color
+                // Limpa e redesenha a tela inteira para aplicar a cor de fundo
                 Appearance::clearScreen();
                 Appearance::displayPopup("COR ALTERADA", {"Cor de fundo alterada com sucesso!"}, Color::BROWN_OFCOURSE, getArtASCII());
             }

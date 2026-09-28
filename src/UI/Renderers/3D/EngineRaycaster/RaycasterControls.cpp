@@ -48,7 +48,7 @@ char RaycasterControls::processInputAndControls(
     int oldCellY = (int)playerY;
 
 #ifdef _WIN32
-    // --- CONTROLES ASSINCRONOS E MOUSE ---
+    // Controles assincronos e mouse
     HWND hwnd = GetConsoleWindow();
     if (hwnd && GetForegroundWindow() == hwnd) {
         mouseHider.hide(); // Oculta 100% o cursor do mouse
@@ -211,8 +211,7 @@ char RaycasterControls::processInputAndControls(
             if (RaycasterWorld::isTeleport(cell) || (!isLabel && RaycasterWorld::isEntity(cell))) {
                 outHitX = newCellX;
                 outHitY = newCellY;
-                // [PT-BR] Restaura a posicao flutuante exata e encerra o loop 3D para processamento de evento no mapa
-                // [EN-US] Restores exact floating position and exits 3D loop for map event processing
+                // Restaura a posicao flutuante exata e encerra o loop 3D para processamento de evento no mapa
                 playerX = oldPlayerX;
                 playerY = oldPlayerY;
                 running = false;

@@ -17,7 +17,7 @@ void Appearance::registerBattleLog(const std::string& text) {
     CombatScreen::addFixedMessage(text);
 }
 
-void Appearance::cleanLogBattle() {
+void Appearance::clearBattleLog() {
     historyBattle.clear();
 }
 

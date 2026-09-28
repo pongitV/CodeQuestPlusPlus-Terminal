@@ -1,15 +1,9 @@
-// [PT-BR] Arquivo: InteractionMap.h
-// [PT-BR] Proposito: Interface de mapas exploraveis (IMap) e enumerador de transicao entre ambientes.
-// [EN-US] File: InteractionMap.h
-// [EN-US] Purpose: Exploratory maps interface (IMap) and destination transition enumerator between areas.
-
 #pragma once
 
 #include <functional>
 #include <string>
 
-// [PT-BR] Transicoes de destino ao trocar de mapa
-// [EN-US] Destination transitions when switching maps
+// Transicoes de destino ao trocar de mapa
 enum class NextMapTransition {
     None,
     ReturnMenu,
@@ -19,8 +13,7 @@ enum class NextMapTransition {
     Kingdom
 };
 
-// [PT-BR] Interface de contrato para um mapa exploravel do jogo.
-// [EN-US] Contract interface for an exploratory game map.
+// Interface de contrato para um mapa exploravel do jogo.
 class IMap {
 public:
     virtual ~IMap() = default;

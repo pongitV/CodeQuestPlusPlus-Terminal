@@ -1,8 +1,3 @@
-// [PT-BR] Arquivo: BaseEnemyClass.h
-// [PT-BR] Proposito: Classe base generica para definicao de comportamentos e estatisticas de inimigos.
-// [EN-US] File: BaseEnemyClass.h
-// [EN-US] Purpose: Generic base class for defining enemy behaviors and statistics.
-
 #pragma once
 
 #include <string>
@@ -10,8 +5,7 @@
 
 #include "Domain/Characters/Classes/BaseClass.h"
 
-// [PT-BR] Implementacao generica da interface BaseClass voltada a monstros e inimigos.
-// [EN-US] Generic implementation of BaseClass interface targeted at monsters and enemies.
+// Implementacao generica da interface BaseClass voltada a monstros e inimigos.
 class BaseEnemyClass : public BaseClass
 {
 public:

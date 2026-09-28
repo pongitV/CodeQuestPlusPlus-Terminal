@@ -10,19 +10,25 @@ namespace MenuRaycasterUtils {
     inline std::vector<std::string> s_background3DMenu;
     inline std::string s_lastBiomeMenu;
 
-    inline void superimposeNoFrame(int y, int x, const std::string& text,
-                                 int fgR, int fgG, int fgB) {
+    inline size_t findCellOffset(const std::string& line, int cellIndex) {
+        size_t pos = 0;
+        for (int c = 0; c < cellIndex && pos < line.size(); ++c) {
+            pos = line.find("\033[48;2;", pos);
+            if (pos == std::string::npos) return std::string::npos;
+            pos = line.find("\033[0m", pos);
+            if (pos == std::string::npos) return std::string::npos;
+            pos += 4;
+        }
+        return pos;
+    }
+
+    inline void superimposeOnFrame(int y, int x, const std::string& text,
+                                   int fgR, int fgG, int fgB) {
         if (y < 0 || y >= (int)s_background3DMenu.size()) return;
         std::string& line = s_background3DMenu[y];
 
-        size_t cellStart = 0;
-        for (int c = 0; c < x && cellStart < line.size(); ++c) {
-            cellStart = line.find("\033[48;2;", cellStart);
-            if (cellStart == std::string::npos) return;
-            cellStart = line.find("\033[0m", cellStart);
-            if (cellStart == std::string::npos) return;
-            cellStart += 4;
-        }
+        size_t cellStart = findCellOffset(line, x);
+        if (cellStart == std::string::npos || cellStart >= line.size()) return;
 
         std::string fgCode = "\033[38;2;" + std::to_string(fgR) + ";" +
                              std::to_string(fgG) + ";" + std::to_string(fgB) + "m";
@@ -61,7 +67,7 @@ namespace MenuRaycasterUtils {
         }
     }
 
-    inline void paintEffectNoFrame(int y, int x, const std::string& text, int colorR, int colorG, int colorB) {
+    inline void paintEffectOnFrame(int y, int x, const std::string& text, int colorR, int colorG, int colorB) {
         if (y < 0 || y >= (int)s_background3DMenu.size()) return;
         std::string& frameLine = s_background3DMenu[y];
         
@@ -72,27 +78,20 @@ namespace MenuRaycasterUtils {
             int lx = x + (int)col;
             if (lx < 0) continue;
             
-            size_t post = 0;
-            for (int cell = 0; cell < lx; ++cell) {
-                post = frameLine.find("\033[48;2;", post);
-                if (post == std::string::npos) { post = frameLine.size(); break; }
-                post = frameLine.find("\033[0m", post);
-                if (post == std::string::npos) { post = frameLine.size(); break; }
-                post += 4;
-            }
-            if (post >= frameLine.size()) continue;
+            size_t pos = findCellOffset(frameLine, lx);
+            if (pos == std::string::npos || pos >= frameLine.size()) continue;
             
-            size_t endOfCell = frameLine.find("\033[0m", post);
+            size_t endOfCell = frameLine.find("\033[0m", pos);
             if (endOfCell == std::string::npos) continue;
             
             std::string newBg = "\033[48;2;" + std::to_string(colorR) + ";" +
                                  std::to_string(colorG) + ";" + std::to_string(colorB) + "m ";
-            frameLine.replace(post, endOfCell - post, newBg);
+            frameLine.replace(pos, endOfCell - pos, newBg);
         }
     }
 
-    inline void paintSpriteNoFrame(int y, int x, const std::vector<std::string>& sprite,
-                                     int colorR, int colorG, int colorB) {
+    inline void paintSpriteOnFrame(int y, int x, const std::vector<std::string>& sprite,
+                                   int colorR, int colorG, int colorB) {
         for (size_t line = 0; line < sprite.size(); ++line) {
             int ly = y + (int)line;
             if (ly < 0 || ly >= (int)s_background3DMenu.size()) continue;
@@ -103,17 +102,10 @@ namespace MenuRaycasterUtils {
                 int lx = x + (int)col;
                 if (lx < 0) continue;
 
-                size_t post = 0;
-                for (int c = 0; c < lx; ++c) {
-                    post = frameLine.find("\033[48;2;", post);
-                    if (post == std::string::npos) { post = frameLine.size(); break; }
-                    post = frameLine.find("\033[0m", post);
-                    if (post == std::string::npos) { post = frameLine.size(); break; }
-                    post += 4;
-                }
-                if (post >= frameLine.size()) continue;
+                size_t pos = findCellOffset(frameLine, lx);
+                if (pos == std::string::npos || pos >= frameLine.size()) continue;
 
-                size_t bgEnd = frameLine.find('m', post);
+                size_t bgEnd = frameLine.find('m', pos);
                 if (bgEnd == std::string::npos) continue;
 
                 int rMod = colorR, gMod = colorG, bMod = colorB;
@@ -134,13 +126,13 @@ namespace MenuRaycasterUtils {
 
                 std::string newBg = "\033[48;2;" + std::to_string(rMod) + ";" +
                                      std::to_string(gMod) + ";" + std::to_string(bMod) + "m";
-                frameLine.replace(post, bgEnd - post + 1, newBg);
+                frameLine.replace(pos, bgEnd - pos + 1, newBg);
             }
         }
     }
 
-    inline void paintHeroNoFrame(int y, int x, const std::vector<std::string>& sprite,
-                                     int colorR, int colorG, int colorB) {
+    inline void paintHeroOnFrame(int y, int x, const std::vector<std::string>& sprite,
+                                 int colorR, int colorG, int colorB) {
         for (size_t line = 0; line < sprite.size(); ++line) {
             int ly = y + (int)line;
             if (ly < 0 || ly >= (int)s_background3DMenu.size()) continue;
@@ -152,17 +144,10 @@ namespace MenuRaycasterUtils {
                 int lx = x + (int)col;
                 if (lx < 0) continue;
 
-                size_t post = 0;
-                for (int cell = 0; cell < lx; ++cell) {
-                    post = frameLine.find("\033[48;2;", post);
-                    if (post == std::string::npos) { post = frameLine.size(); break; }
-                    post = frameLine.find("\033[0m", post);
-                    if (post == std::string::npos) { post = frameLine.size(); break; }
-                    post += 4;
-                }
-                if (post >= frameLine.size()) continue;
+                size_t pos = findCellOffset(frameLine, lx);
+                if (pos == std::string::npos || pos >= frameLine.size()) continue;
 
-                size_t endOfCell = frameLine.find("\033[0m", post);
+                size_t endOfCell = frameLine.find("\033[0m", pos);
                 if (endOfCell == std::string::npos) continue;
 
                 int rMod = colorR, gMod = colorG, bMod = colorB;
@@ -190,13 +175,13 @@ namespace MenuRaycasterUtils {
 
                 std::string newBg = "\033[48;2;" + std::to_string(rMod) + ";" +
                                      std::to_string(gMod) + ";" + std::to_string(bMod) + "m ";
-                frameLine.replace(post, endOfCell - post, newBg);
+                frameLine.replace(pos, endOfCell - pos, newBg);
             }
         }
     }
 
-    inline void paintEnemyNoFrame(int y, int x, const std::vector<std::string>& sprite,
-                                     int colorR, int colorG, int colorB, bool flashRed = false) {
+    inline void paintEnemyOnFrame(int y, int x, const std::vector<std::string>& sprite,
+                                  int colorR, int colorG, int colorB, bool flashRed = false) {
         for (size_t line = 0; line < sprite.size(); ++line) {
             int ly = y + (int)line;
             if (ly < 0 || ly >= (int)s_background3DMenu.size()) continue;
@@ -208,17 +193,10 @@ namespace MenuRaycasterUtils {
                 int lx = x + (int)col;
                 if (lx < 0) continue;
 
-                size_t post = 0;
-                for (int cell = 0; cell < lx; ++cell) {
-                    post = frameLine.find("\033[48;2;", post);
-                    if (post == std::string::npos) { post = frameLine.size(); break; }
-                    post = frameLine.find("\033[0m", post);
-                    if (post == std::string::npos) { post = frameLine.size(); break; }
-                    post += 4;
-                }
-                if (post >= frameLine.size()) continue;
+                size_t pos = findCellOffset(frameLine, lx);
+                if (pos == std::string::npos || pos >= frameLine.size()) continue;
 
-                size_t endOfCell = frameLine.find("\033[0m", post);
+                size_t endOfCell = frameLine.find("\033[0m", pos);
                 if (endOfCell == std::string::npos) continue;
 
                 int rMod = colorR, gMod = colorG, bMod = colorB;
@@ -244,22 +222,33 @@ namespace MenuRaycasterUtils {
 
                 std::string newBg = "\033[48;2;" + std::to_string(rMod) + ";" +
                                      std::to_string(gMod) + ";" + std::to_string(bMod) + "m ";
-                frameLine.replace(post, endOfCell - post, newBg);
+                frameLine.replace(pos, endOfCell - pos, newBg);
             }
         }
+    }
+
+    // Aliases retrocompativeis
+    inline void superimposeNoFrame(int y, int x, const std::string& text, int fgR, int fgG, int fgB) {
+        superimposeOnFrame(y, x, text, fgR, fgG, fgB);
+    }
+    inline void paintEffectNoFrame(int y, int x, const std::string& text, int colorR, int colorG, int colorB) {
+        paintEffectOnFrame(y, x, text, colorR, colorG, colorB);
+    }
+    inline void paintSpriteNoFrame(int y, int x, const std::vector<std::string>& sprite, int colorR, int colorG, int colorB) {
+        paintSpriteOnFrame(y, x, sprite, colorR, colorG, colorB);
+    }
+    inline void paintHeroNoFrame(int y, int x, const std::vector<std::string>& sprite, int colorR, int colorG, int colorB) {
+        paintHeroOnFrame(y, x, sprite, colorR, colorG, colorB);
+    }
+    inline void paintEnemyNoFrame(int y, int x, const std::vector<std::string>& sprite, int colorR, int colorG, int colorB, bool flashRed = false) {
+        paintEnemyOnFrame(y, x, sprite, colorR, colorG, colorB, flashRed);
     }
 
     inline std::string getBgEm(int y, int x) {
         if (y < 0 || y >= (int)s_background3DMenu.size()) return "";
         const std::string& line = s_background3DMenu[y];
-        size_t cellStart = 0;
-        for (int c = 0; c < x; ++c) {
-            size_t found = line.find("\033[48;2;", cellStart);
-            if (found == std::string::npos) return "";
-            cellStart = line.find("\033[0m", found);
-            if (cellStart == std::string::npos) return "";
-            cellStart += 4;
-        }
+        size_t cellStart = findCellOffset(line, x);
+        if (cellStart == std::string::npos || cellStart >= line.size()) return "";
         size_t bgStart = line.find("\033[48;2;", cellStart);
         if (bgStart == std::string::npos) return "";
         size_t mPost = line.find('m', bgStart);

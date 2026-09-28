@@ -8,21 +8,20 @@
 
 namespace IDETheme {
 
-    // [PT-BR] Paleta ANSI 24-bit TrueColor estilo VS Code Dark+ / OneDark
-    // [EN-US] 24-bit TrueColor ANSI palette in VS Code Dark+ / OneDark style
+    // Paleta ANSI 24-bit TrueColor estilo VS Code Dark+ / OneDark
     inline constexpr std::string_view COLOR_KEYWORD    = "\033[38;2;86;156;214m";  // Azul (#569cd6)
     inline constexpr std::string_view COLOR_TYPE       = "\033[38;2;78;201;176m";  // Ciano/Teal (#4ec9b0)
     inline constexpr std::string_view COLOR_STRING     = "\033[38;2;214;157;133m"; // Laranja Coral (#ce9178)
     inline constexpr std::string_view COLOR_NUMBER     = "\033[38;2;181;206;168m"; // Verde Claro (#b5cea8)
-    inline constexpr std::string_view COLOR_COMMENT    = "\033[38;2;106;153;85m";  // Verde Comentário (#6a9955)
-    inline constexpr std::string_view COLOR_FUNCTION   = "\033[38;2;220;220;170m"; // Amarelo Função (#dcdcaa)
-    inline constexpr std::string_view COLOR_VARIABLE   = "\033[38;2;156;220;254m"; // Azul Claro Variável (#9cdcfe)
-    inline constexpr std::string_view COLOR_OPERATOR   = "\033[38;2;212;212;212m"; // Cinza Pontuação (#d4d4d4)
+    inline constexpr std::string_view COLOR_COMMENT    = "\033[38;2;106;153;85m";  // Verde Comentario (#6a9955)
+    inline constexpr std::string_view COLOR_FUNCTION   = "\033[38;2;220;220;170m"; // Amarelo Funcao (#dcdcaa)
+    inline constexpr std::string_view COLOR_VARIABLE   = "\033[38;2;156;220;254m"; // Azul Claro Variavel (#9cdcfe)
+    inline constexpr std::string_view COLOR_OPERATOR   = "\033[38;2;212;212;212m"; // Cinza Pontuacao (#d4d4d4)
     inline constexpr std::string_view COLOR_PREPROC    = "\033[38;2;197;134;192m"; // Roxo Preprocessador (#c586c0)
     inline constexpr std::string_view COLOR_HEADER_BG  = "\033[38;2;200;200;200m";
     inline constexpr std::string_view COLOR_ACTIVE_TAB = "\033[1;38;2;78;201;176m"; // Ciano brilhante bold (foreground only, sem fundo cinza)
     inline constexpr std::string_view COLOR_INACT_TAB  = "\033[38;2;130;130;130m"; // Cinza claro (foreground only, sem fundo cinza)
-    inline constexpr std::string_view COLOR_LINE_NUM   = "\033[38;2;133;133;133m"; // Cinza número de linha
+    inline constexpr std::string_view COLOR_LINE_NUM   = "\033[38;2;133;133;133m"; // Cinza numero de linha
     inline constexpr std::string_view COLOR_STATUS_BAR = "\033[38;2;0;122;204m";   // Azul foreground
     inline constexpr std::string_view COLOR_FLASH_HIT  = "\033[1;38;2;244;71;71m";  // Vermelho impacto bold
     inline constexpr std::string_view COLOR_FLASH_CURE = "\033[1;38;2;78;201;176m"; // Verde/Ciano cura bold
@@ -97,8 +96,7 @@ namespace IDETheme {
         return std::string(COLOR_STATUS_BAR) + " " + std::string(leftText) + std::string(spaces > 2 ? spaces - 2 : 0, ' ') + std::string(rightText) + " " + std::string(COLOR_RESET);
     }
 
-    // [PT-BR] Barra de vida expressa no estilo de código C++: [████░░] 30/50
-    // [EN-US] Health bar styled in C++ code syntax: [████░░] 30/50
+    // Barra de vida expressa no estilo de codigo C++: [████░░] 30/50
     inline std::string renderCodeHealthBar(int current, int max, int barWidth = 10) {
         if (max <= 0) max = 1;
         float ratio = static_cast<float>(current) / static_cast<float>(max);
@@ -120,16 +118,14 @@ namespace IDETheme {
         return result;
     }
 
-    // [PT-BR] Centraliza uma linha individual de acordo com a largura do terminal
-    // [EN-US] Centers an individual line according to terminal width
+    // Centraliza uma linha individual de acordo com a largura do terminal
     inline std::string centerLine(const std::string& line, int totalWidth) {
         int vLen = Appearance::getVisualLength(line);
         int pad = std::max(0, (totalWidth - vLen) / 2);
         return std::string(pad, ' ') + line;
     }
 
-    // [PT-BR] Centraliza um bloco de linhas preservando o alinhamento e indentação interna
-    // [EN-US] Centers a block of lines while preserving internal alignment and indentation
+    // Centraliza um bloco de linhas preservando o alinhamento e indentacao interna
     inline std::vector<std::string> centerBlock(const std::vector<std::string>& block, int totalWidth) {
         int maxLen = 0;
         for (const auto& l : block) {
@@ -146,15 +142,13 @@ namespace IDETheme {
         return result;
     }
 
-    // [PT-BR] Calcula espaçamento vertical superior para centralizar conteúdo
-    // [EN-US] Calculates top vertical padding to center content
+    // Calcula espacamento vertical superior para centralizar conteudo
     inline int calculateTopPadding(int contentHeight, int termHeight) {
         if (termHeight <= contentHeight) return 0;
         return (termHeight - contentHeight) / 2;
     }
 
-    // [PT-BR] Centraliza um bloco de linhas horizontalmente e verticalmente na tela
-    // [EN-US] Centers a block of lines horizontally and vertically on screen
+    // Centraliza um bloco de linhas horizontalmente e verticalmente na tela
     inline std::vector<std::string> centerScreen(const std::vector<std::string>& block, int totalWidth, int totalHeight) {
         auto horizontallyCentered = centerBlock(block, totalWidth);
         int topPadding = calculateTopPadding(static_cast<int>(horizontallyCentered.size()), totalHeight);
@@ -168,12 +162,11 @@ namespace IDETheme {
         return result;
     }
 
-    // [PT-BR] Renderiza a visualização clássica de IDE:
-    // [EN-US] Renders the classic IDE view:
+    // Renderiza a visualizacao classica de IDE:
     // - Linha 0: Abas coladas no teto / Tabs on top
     // - Linha 1: Caminho / Technical file breadcrumb
-    // - Linhas restantes: Bloco de código-fonte centralizado / Centered source code block
-    // - Rodapé: Barra de status / Technical telemetry status bar
+    // - Linhas restantes: Bloco de codigo-fonte centralizado / Centered source code block
+    // - Rodape: Barra de status / Technical telemetry status bar
     inline std::vector<std::string> renderEditorView(
         const std::vector<std::string>& tabs,
         int activeTab,

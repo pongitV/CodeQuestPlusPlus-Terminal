@@ -9,8 +9,7 @@
 #include "Core/Utils/DialogFunctions.h"
 #include "Systems/Progression/Bestiary.h"
 
-// [PT-BR] --- INFORMACOES DA RACA ---
-// [EN-US] --- RACE INFORMATION ---
+// INFORMACOES DA RACA
 std::string Mimic::getRaceName() const { return "Mimico"; }
 
 Attributes Mimic::getAttributesRace() const { 
@@ -21,13 +20,11 @@ std::vector<std::unique_ptr<Item>> Mimic::getEquipmentRace() const {
     return {};
 }
 
-// [PT-BR] --- HABILIDADE DA RACA ---
-// [EN-US] --- RACE SKILL ---
+// HABILIDADE DA RACA
 std::string Mimic::getNameSkillRace() const { return "Bolsos Furados"; }
 std::string Mimic::getDescriptionSkillRace() const { return "Rouba de 30 a 80 de ouro do alvo a cada ataque bem-sucedido."; }
 
-// [PT-BR] --- APARENCIA ---
-// [EN-US] --- APPEARANCE ---
+// APARENCIA
 const std::vector<std::string>& Mimic::getAppearanceRace() const
 {
     static const std::vector<std::string> appearance =
@@ -125,19 +122,16 @@ const std::vector<std::string>& Mimic::getAppearanceRace() const
 }
 
 
-// [PT-BR] --- LOGICA DE ROUBO DE OURO ---
-// [EN-US] --- GOLD THEFT LOGIC ---
+// LOGICA DE ROUBO DE OURO
 void Mimic::onCausingDamage(Character* attacker, Character* target, int damageCaused) {
     if (damageCaused <= 0) return;
     
     int goldCurrent = target->getInventory()->getGold();
-    // [PT-BR] Se o jogador nao possui ouro, o roubo nao ocorre
-    // [EN-US] If player has no gold, theft does not occur
+    // Se o jogador nao possui ouro, o roubo nao ocorre
     if (goldCurrent <= 0) return;
 
     int robbery = RandomGenerator::getInteger(30, 80);
-    // [PT-BR] Limita a quantia roubada ao total disponivel com o jogador
-    // [EN-US] Caps stolen amount to the player's total current gold
+    // Limita a quantia roubada ao total disponivel com o jogador
     if (robbery > goldCurrent) robbery = goldCurrent;
     
     target->getInventory()->addGold(-robbery);
@@ -146,8 +140,7 @@ void Mimic::onCausingDamage(Character* attacker, Character* target, int damageCa
     Appearance::registerBattleLog(DialogueFunctions::formatSkillMsg("Com uma lingua grotesca, o Mimico roubou " + std::to_string(robbery) + "G do seu bolso!", Color::YELLOW));
 }
 
-// [PT-BR] --- BESTIARIO E DROPS ---
-// [EN-US] --- BESTIARY AND DROPS ---
+// BESTIARIO E DROPS
 InfoBestiary Mimic::getInfoBestiary() const {
     return {
         "Masmorras e Cavernas", 

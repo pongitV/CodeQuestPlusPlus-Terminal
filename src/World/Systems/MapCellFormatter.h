@@ -1,8 +1,3 @@
-// [PT-BR] Arquivo: MapCellFormatter.h
-// [PT-BR] Proposito: Formatacao de celulas para renderizacao de mapas (2D, minimapa e modo IDE).
-// [EN-US] File: MapCellFormatter.h
-// [EN-US] Purpose: Cell formatting for map rendering (2D, minimap, and IDE mode).
-
 #pragma once
 
 #include <string>

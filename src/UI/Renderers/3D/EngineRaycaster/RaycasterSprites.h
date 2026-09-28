@@ -28,7 +28,9 @@ struct SpriteCache {
 
 class RaycasterSprites {
 public:
-    static SpriteCache parsiArt(const std::vector<std::string>& raw);
-    static SpriteCache parsiSprite(const std::vector<std::string>& raw, int r, int g, int b, bool isMahoraga = false);
+    static SpriteCache parseArt(const std::vector<std::string>& raw);
+    static SpriteCache parseSprite(const std::vector<std::string>& raw, int r, int g, int b, bool isMahoraga = false);
+    static inline SpriteCache parsiArt(const std::vector<std::string>& raw) { return parseArt(raw); }
+    static inline SpriteCache parsiSprite(const std::vector<std::string>& raw, int r, int g, int b, bool isMahoraga = false) { return parseSprite(raw, r, g, b, isMahoraga); }
     static std::vector<std::string> colorArt(const std::vector<std::string>& art, const std::string& colorAnsi);
 };

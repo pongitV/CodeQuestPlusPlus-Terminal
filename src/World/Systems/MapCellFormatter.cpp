@@ -1,8 +1,3 @@
-// [PT-BR] Arquivo: MapCellFormatter.cpp
-// [PT-BR] Proposito: Implementacao da formatacao de celulas para 2D, minimapa e modo IDE.
-// [EN-US] File: MapCellFormatter.cpp
-// [EN-US] Purpose: Implementation of cell formatting for 2D, minimap, and IDE mode.
-
 #include "World/Systems/MapCellFormatter.h"
 #include "Core/Utils/Appearance.h"
 #include "UI/PerspectiveManager.h"
@@ -33,8 +28,7 @@ std::string MapCellFormatter::formatCell(char cell, int x, int y, const std::str
         isSpawn = (upperTitle.find("INICIO") != std::string::npos);
     }
     
-    // [PT-BR] --- ESTETICA ENGINE IDE (VISAO TERMINAL) ---
-    // [EN-US] --- IDE ENGINE AESTHETICS (TERMINAL VIEW) ---
+    // ESTETICA ENGINE IDE (VISAO TERMINAL)
     bool isEngineIDE = !isMinimap && !PerspectiveManager::getInstance().is3DViewActive();
     if (isEngineIDE) {
         std::string npcs = "GOBFPMSTRCH";
@@ -77,8 +71,7 @@ std::string MapCellFormatter::formatCell(char cell, int x, int y, const std::str
     // Agua
     if (cell == '~') return Appearance::colorRGB(50, 150, 255) + "≈" + Appearance::color(Color::RESET);
     
-    // [PT-BR] Arvores e Vegetacao
-    // [EN-US] Trees and Vegetation
+    // Arvores e Vegetacao
     if (cell == '*') {
         bool isTrunk = false;
         if (y > 0 && mapMatrix[y-1][x] == '*') {
@@ -91,14 +84,12 @@ std::string MapCellFormatter::formatCell(char cell, int x, int y, const std::str
         return Appearance::color(Color::GREEN) + "▲" + Appearance::color(Color::RESET);
     }
     
-    // [PT-BR] Verifica caracteres de rotulo de mapa antes de processar entidades
-    // [EN-US] Checks map label characters before processing entities
+    // Verifica caracteres de rotulo de mapa antes de processar entidades
     if (RaycasterWorld::isMapLabel(x, y, mapMatrix)) {
         return Appearance::color(Color::GRAY) + std::string(1, cell) + Appearance::color(Color::RESET);
     }
     
-    // [PT-BR] Renderizacao de Entidades no mapa
-    // [EN-US] Entity Rendering on map
+    // Renderizacao de Entidades no mapa
     if (isVillage || isSpawn) {
         if (cell == 'G' || cell == 'O') return Appearance::color(Color::BOLD, Color::RED) + std::string(1, cell) + Appearance::color(Color::RESET);
         if (cell == 'B') return Appearance::color(Color::BOLD, Color::CYAN) + "B" + Appearance::color(Color::RESET);
@@ -119,8 +110,7 @@ std::string MapCellFormatter::formatCell(char cell, int x, int y, const std::str
         return Appearance::color(Color::BOLD, Color::WHITE) + std::string(1, cell) + Appearance::color(Color::RESET);
     }
     
-    // [PT-BR] Casas e Estruturas no mapa
-    // [EN-US] Houses and Structures on map
+    // Casas e Estruturas no mapa
     if (!isInterior && !isKingdom) {
         std::string structureColor = extractBaseColorFromRaycaster('|', upperTitle, isForest);
         
@@ -136,8 +126,7 @@ std::string MapCellFormatter::formatCell(char cell, int x, int y, const std::str
         }
     }
     
-    // [PT-BR] Elementos do Reino
-    // [EN-US] Kingdom Elements
+    // Elementos do Reino
     if (isKingdom) {
         if (cell == '|') return Appearance::color(Color::WOOD) + "█" + Appearance::color(Color::RESET);
         std::string structures = "_[]{}/\\<>;=-+#";
@@ -147,8 +136,7 @@ std::string MapCellFormatter::formatCell(char cell, int x, int y, const std::str
         }
     }
     
-    // [PT-BR] Elementos do Labirinto
-    // [EN-US] Maze Elements
+    // Elementos do Labirinto
     if (isInterior) {
         if (upperTitle.find("LABIRINTO") != std::string::npos) {
             std::string mazeColor = extractBaseColorFromRaycaster('|', upperTitle, isForest);
@@ -210,8 +198,7 @@ std::string MapCellFormatter::formatCell(char cell, int x, int y, const std::str
         }
     }
     
-    // [PT-BR] Renderizacao do chao e rotulos
-    // [EN-US] Ground and label rendering
+    // Renderizacao do chao e rotulos
     if (cell == '.' && (!isInterior || upperTitle.find("CHEFE") != std::string::npos || upperTitle.find("CORACAO") != std::string::npos)) {
         if (isMinimap) return "\033[38;2;50;50;50m.\033[0m";
         return "\033[38;2;40;40;40m·\033[0m";

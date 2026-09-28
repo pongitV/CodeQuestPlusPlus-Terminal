@@ -35,17 +35,15 @@
 
 void MapControl::signal3DMapChange() { MapCameraController::signal3DMapChange(); }
 bool MapControl::is3DExplorationActive() { return MapCameraController::is3DExplorationActive(); }
-float MapControl::getCameraPostX3D() { return MapCameraController::getCameraPostX3D(); }
-float MapControl::getCameraPostY3D() { return MapCameraController::getCameraPostY3D(); }
+float MapControl::getCameraPosX3D() { return MapCameraController::getCameraPosX3D(); }
+float MapControl::getCameraPosY3D() { return MapCameraController::getCameraPosY3D(); }
 float MapControl::getCameraAngle3D() { return MapCameraController::getCameraAngle3D(); }
 std::string MapControl::getCurrentMapTitle() { return MapCameraController::getCurrentMapTitle(); }
 std::vector<std::string> MapControl::getCurrentMapMatrix() { return MapCameraController::getCurrentMapMatrix(); }
 
-// [PT-BR] Processamento de input e comandos delegado ao modulo correspondente
-// [EN-US] Input and command processing delegated to corresponding module
+// Processamento de input e comandos delegado ao modulo correspondente
 
-// [PT-BR] Aplicacao de limites de mapa delegada para FisicaMapa
-// [EN-US] Application of map boundaries delegated to MapPhysics
+// Aplicacao de limites de mapa delegada para FisicaMapa
 void MapControl::processCombat(
     Character* currentPlayer, std::vector<std::string>& currentMapMatrix, 
     int& playerPositionX, int& playerPositionY, bool& isExplorationActive,
@@ -87,21 +85,17 @@ void MapControl::processCombat(
     if (isExplorationActive && !PerspectiveManager::getInstance().is3DViewActive()) restoreScreen();
 }
 
-// [PT-BR] Animacao de introducao do mapa delegada para MapAnimator
-// [EN-US] Map introduction animation delegated to MapAnimator
+// Animacao de introducao do mapa delegada para MapAnimator
 
-// [PT-BR] Efeito visual de flashbang delegado para MapAnimator
-// [EN-US] Flashbang visual effect delegated to MapAnimator
+// Efeito visual de flashbang delegado para MapAnimator
 
-// [PT-BR] Funcoes de camera e renderizacao 3D abstraidas para MapRenderer
-// [EN-US] 3D camera and rendering functions abstracted to MapRenderer
+// Funcoes de camera e renderizacao 3D abstraidas para MapRenderer
 
 std::string MapControl::formatCell(char cell, int x, int y, const std::string& mapTitle, const std::vector<std::string>& mapMatrix, bool isMinimap) {
     return MapCellFormatter::formatCell(cell, x, y, mapTitle, mapMatrix, isMinimap);
 }
 
-// [PT-BR] Rotina renderMap delegada para MapRenderer
-// [EN-US] renderMap routine delegated to MapRenderer
+// Rotina renderMap delegada para MapRenderer
 
 NextMapTransition MapControl::executeExplorationLoop(
     Character* currentPlayer,
@@ -205,8 +199,7 @@ NextMapTransition MapControl::executeExplorationLoop(
                 MapPhysics::applyMapLimits(hitX, hitY, currentMapMatrix);
                 
                 char cell = currentMapMatrix[hitY][hitX];
-                // [PT-BR] Verifica se o jogador parou sobre um gatilho (inimigos, teleporte ou terminal)
-                // [EN-US] Checks if player landed on a trigger (enemies, teleport, or terminal)
+                // Verifica se o jogador parou sobre um gatilho (inimigos, teleporte ou terminal)
                 std::string triggers = "^GOBFSAMTHRPCIQ@";
                 if (triggers.find(cell) != std::string::npos) {
                     isTrigger = true;
@@ -217,8 +210,7 @@ NextMapTransition MapControl::executeExplorationLoop(
                 
                 if (cell == '@') {
                     if (HackConsole::startHack(currentPlayer)) {
-                        // [PT-BR] Remove o terminal do mapa apos hackeado com sucesso
-                        // [EN-US] Removes terminal from map after successful hack
+                        // Remove o terminal do mapa apos hackeado com sucesso
                         currentMapMatrix[hitY][hitX] = '.';
                         for(int dy = -5; dy <= 5; dy++) {
                             for(int dx = -5; dx <= 5; dx++) {
@@ -232,13 +224,11 @@ NextMapTransition MapControl::executeExplorationLoop(
                         RaycasterWorld::updateMapHash(currentMapMatrix);
                     }
                 } else {
-                    // [PT-BR] Processa interacao ou combate caso o jogador tenha colidido com entidade
-                    // [EN-US] Processes interaction or combat if player collided with entity
+                    // Processa interacao ou combate caso o jogador tenha colidido com entidade
                     processInteraction(hitX, hitY, terminalWidth);
                 }
                 
-                // [PT-BR] Empurra o jogador para tras para evitar ficar preso na celula da entidade
-                // [EN-US] Pushes player back to prevent getting stuck on entity cell
+                // Empurra o jogador para tras para evitar ficar preso na celula da entidade
                 if (isTrigger && PerspectiveManager::getInstance().is3DViewActive() && playerPositionX == posXBefore && playerPositionY == posYBefore) {
                     cameraPosX3D = static_cast<float>(hitX) + 0.5f - cos(cameraAngle3D) * 1.5f;
                     cameraPosY3D = static_cast<float>(hitY) + 0.5f - sin(cameraAngle3D) * 1.5f;
@@ -302,13 +292,11 @@ NextMapTransition MapControl::executeExplorationLoop(
 
                 if (destination != NextMapTransition::None) {
                     fastTravelDestination = destination;
-                    // [PT-BR] Sinaliza encerramento da exploracao para processar a viagem
-                    // [EN-US] Signals exploration exit to process fast travel
+                    // Sinaliza encerramento da exploracao para processar a viagem
                     isExplorationActive = false;
                     break;
                 }
-                // [PT-BR] Se nenhum destino foi selecionado, restaura a tela e prossegue exploracao
-                // [EN-US] If no destination was selected, restores screen and continues exploration
+                // Se nenhum destino foi selecionado, restaura a tela e prossegue exploracao
                 if (!PerspectiveManager::getInstance().is3DViewActive()) {
                     restoreScreen();
                     needsRender = true;

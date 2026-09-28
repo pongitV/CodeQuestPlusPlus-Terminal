@@ -1,5 +1,4 @@
-// [PT-BR] Utilitarios para formatacao de texto com cores ANSI
-// [EN-US] Utilities for text formatting with ANSI colors
+// Utilitarios para formatacao de texto com cores ANSI
 #pragma once
 
 #include <string>
@@ -9,8 +8,7 @@
 
 namespace AnsiFormatter {
 
-    // [PT-BR] Funcoes auxiliares para colorir texto no terminal com C++23
-    // [EN-US] Helper functions to color text in the terminal with C++23
+    // Funcoes auxiliares para colorir texto no terminal com C++23
     inline std::string keyword(std::string_view text) {
         return std::format("\033[38;2;86;156;214m{}\033[0m", text);
     }

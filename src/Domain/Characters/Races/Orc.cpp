@@ -4,8 +4,7 @@
 #include "Core/Utils/Appearance.h"
 #include "UI/Screens/Combat/CombatScreen.h"
 
-// [PT-BR] --- INFORMACOES DA RACA ---
-// [EN-US] --- RACE INFORMATION ---
+// INFORMACOES DA RACA
 std::string Ork::getRaceName() const 
 {
     return "Ork";
@@ -16,8 +15,7 @@ Attributes Ork::getAttributesRace() const
     return { 120, 20, 10, 0, 10, 5, 5 };
 }
 
-// [PT-BR] --- APARENCIA ---
-// [EN-US] --- APPEARANCE ---
+// APARENCIA
 const std::vector<std::string>& Ork::getAppearanceRace() const 
 {
     static const std::vector<std::string> appearance = 
@@ -68,8 +66,7 @@ const std::vector<std::string>& Ork::getAppearanceRace() const
     return appearance;
 }
 
-// [PT-BR] --- HABILIDADE DA RACA ---
-// [EN-US] --- RACE SKILL ---
+// HABILIDADE DA RACA
 std::string Ork::getNameSkillRace() const 
 { 
     return "Furia cega"; 
@@ -80,8 +77,7 @@ std::string Ork::getDescriptionSkillRace() const
     return "Dano extra baseado na porcentagem de vida perdida"; 
 }
 
-// [PT-BR] --- PROCESSAMENTO DE DANO ---
-// [EN-US] --- DAMAGE PROCESSING ---
+// PROCESSAMENTO DE DANO
 int Ork::processDamageOffensive(int damageBase, Character* attacker) 
 {
     double percLifeLost = 1.0 - (static_cast<double>(attacker->getHealth()) / attacker->getMaxHealth());

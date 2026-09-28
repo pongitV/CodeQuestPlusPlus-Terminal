@@ -71,13 +71,7 @@ RaceScreen::Result IDERaceScreen::display(const std::string& namePlayer) {
         for (const auto& l : editorView) std::cout << l << "\n";
         std::cout << "\033[J" << std::flush;
 
-        unsigned char key = static_cast<unsigned char>(InputControl::readKey());
-        if (key == 224 || key == 0 || key == '\033') {
-            unsigned char nextKey = static_cast<unsigned char>(InputControl::readKey());
-            if (nextKey == '[') nextKey = static_cast<unsigned char>(InputControl::readKey());
-            if (nextKey == 72 || nextKey == 'A') key = 'w';
-            else if (nextKey == 80 || nextKey == 'B') key = 's';
-        }
+        unsigned char key = static_cast<unsigned char>(InputControl::readNavKey());
 
         if (key == 'w' || key == 'W') {
             selectionCurrent = (selectionCurrent - 1 + totalOptions) % totalOptions;
@@ -113,8 +107,7 @@ RaceScreen::Result IDERaceScreen::display(const std::string& namePlayer) {
 
     bool confirmed = IDEMenuScreen::displayChooseConfirmationWithArtSideBySide("RACA", raceName, infoRace, artRace);
     if (!confirmed) {
-        // [PT-BR] Retorno recursivo ao cancelar
-        // [EN-US] Recursive return upon cancellation
+        // Retorno recursivo ao cancelar
         return display(namePlayer);
     }
 

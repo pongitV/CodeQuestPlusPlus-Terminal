@@ -1,8 +1,3 @@
-// [PT-BR] Arquivo: GameMenu.cpp
-// [PT-BR] Proposito: Implementacao do fluxo de menus principais e criacao de personagem.
-// [EN-US] File: GameMenu.cpp
-// [EN-US] Purpose: Implementation of the main menu flow and character creation.
-
 #include "Core/Engine/GameMenu.h"
 #include <algorithm>
 #include <chrono>

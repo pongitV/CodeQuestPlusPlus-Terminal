@@ -3,21 +3,23 @@
 class LevelSystem {
 private:
     int level;
-    int xpCurrent;
-    int xpForRise;
+    int currentXp;
+    int xpToNextLevel;
 
 public:
-    LevelSystem(int initialLevel = 1, int initialXp = 0, int initialXpForRise = 100) 
-        : level(initialLevel), xpCurrent(initialXp), xpForRise(initialXpForRise) {}
+    LevelSystem(int initialLevel = 1, int initialXp = 0, int initialXpToNextLevel = 100) 
+        : level(initialLevel), currentXp(initialXp), xpToNextLevel(initialXpToNextLevel) {}
 
     int getLevel() const { return level; }
-    int getCurrentXp() const { return xpCurrent; }
-    int getXpForRise() const { return xpForRise; }
+    int getCurrentXp() const { return currentXp; }
+    int getXpToNextLevel() const { return xpToNextLevel; }
+    inline int getXpForRise() const { return getXpToNextLevel(); }
 
     void setLevel(int newLevel) { level = newLevel; }
-    void setCurrentXp(int newXp) { xpCurrent = newXp; }
-    void setXpForRise(int newXpForRise) { xpForRise = newXpForRise; }
+    void setCurrentXp(int newXp) { currentXp = newXp; }
+    void setXpToNextLevel(int newXpToNextLevel) { xpToNextLevel = newXpToNextLevel; }
+    inline void setXpForRise(int newXpForRise) { setXpToNextLevel(newXpForRise); }
 
-    void gainXp(int value) { xpCurrent += value; }
-    bool canLevelUp() const { return xpCurrent >= xpForRise; }
+    void gainXp(int value) { currentXp += value; }
+    bool canLevelUp() const { return currentXp >= xpToNextLevel; }
 };

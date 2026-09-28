@@ -4,21 +4,20 @@
 
 class Character;
 
-class ShiftManager {
+class TurnManager {
 public:
-    // [PT-BR] Retorna a maior destreza entre todos os inimigos
-    // [EN-US] Returns highest dexterity among all enemies
+    // Retorna a maior destreza entre todos os inimigos
     static int calculateMaxDexterityEnemies(const std::vector<std::unique_ptr<Character>>& enemies);
     
-    // [PT-BR] Verifica se os inimigos atacam antes do jogador (destreza inimiga > destreza player)
-    // [EN-US] Checks if enemies attack before player (enemy dexterity > player dexterity)
+    // Verifica se os inimigos atacam antes do jogador (destreza inimiga > destreza player)
     static bool enemiesActFirst(Character* player, int maxEnemyDexterity);
     
-    // [PT-BR] Verifica se os inimigos possuem o dobro da destreza do jogador (atacam 2x seguidas no inicio)
-    // [EN-US] Checks if enemies have double player dexterity (attack twice in a row initially)
+    // Verifica se os inimigos possuem o dobro da destreza do jogador (atacam 2x seguidas no inicio)
     static bool enemiesHaveDoubleAgility(Character* player, int maxEnemyDexterity);
     
-    // [PT-BR] Verifica se o jogador possui o dobro de destreza (ganha turno extra no inicio)
-    // [EN-US] Checks if player has double agility (gains extra turn initially)
+    // Verifica se o jogador possui o dobro de destreza (ganha turno extra no inicio)
     static bool playerHasExtraTurnAtStart(Character* player, int maxEnemyDexterity);
 };
+
+// Apelido para compatibilidade retroativa
+using ShiftManager = TurnManager;

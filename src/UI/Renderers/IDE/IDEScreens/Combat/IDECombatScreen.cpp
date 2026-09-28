@@ -138,14 +138,14 @@ void IDECombatScreen::renderCombatFrame(
         allCenteredLines.insert(allCenteredLines.end(), centeredPrompt.begin(), centeredPrompt.end());
     }
 
-    // 5. Painel interativo ativo (Menu de Ações, Alvo, Escudo, Trace log)
+    // 5. Painel interativo ativo (Menu de Acoes, Alvo, Escudo, Trace log)
     if (!activePanelLines.empty()) {
         allCenteredLines.push_back("");
         auto centeredPanel = IDETheme::centerBlock(activePanelLines, width);
         allCenteredLines.insert(allCenteredLines.end(), centeredPanel.begin(), centeredPanel.end());
     }
 
-    // 6. Monta editor com abas coladas no teto (linha 0) e conteúdo centralizado no viewport
+    // 6. Monta editor com abas coladas no teto (linha 0) e conteudo centralizado no viewport
     std::vector<std::string> tabs = {
         "CombatSession.cpp",
         "CallStack.trace",
@@ -192,7 +192,7 @@ void IDECombatScreen::animateCombatIntro(const std::string& title, const std::ve
     int height = Appearance::getTerminalHeight();
     
     std::vector<std::string> lines;
-    lines.push_back(IDETheme::comment("// Alocação dinâmica da session de combat na heap:"));
+    lines.push_back(IDETheme::comment("// Alocação dinâmica da session de combat na heap: " + title));
     lines.push_back(IDETheme::keyword("auto* ") + IDETheme::variable("session") + IDETheme::punctuation(" = ")
                   + IDETheme::keyword("new ") + IDETheme::type("CombatSession") + IDETheme::punctuation("();"));
     lines.push_back("");

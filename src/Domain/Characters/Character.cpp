@@ -14,10 +14,10 @@
 #include "Core/Utils/Appearance.h"
 #include "Core/Engine/Debug.h"
 
-std::unordered_set<Character*> Character::charactersAssets;
+std::unordered_set<Character*> Character::activeCharacters;
 
 bool Character::isValid(Character* p) {
-    return charactersAssets.find(p) != charactersAssets.end();
+    return activeCharacters.find(p) != activeCharacters.end();
 }
 
 Character::Character(const Character& others)
@@ -28,28 +28,26 @@ Character::Character(const Character& others)
       finalStats(others.finalStats),
       backpack(std::make_unique<Inventory>()),
       itemSelectedForUse(nullptr),
-      levelSystem(std::make_unique<LevelSystem>(others.levelSystem->getLevel(), others.levelSystem->getCurrentXp(), others.levelSystem->getXpForRise()))
+      levelSystem(std::make_unique<LevelSystem>(others.levelSystem->getLevel(), others.levelSystem->getCurrentXp(), others.levelSystem->getXpToNextLevel()))
 {
     system = others.system;
     
     combat.isDefending = others.combat.isDefending;
-    // [PT-BR] Almas coletadas nao sao duplicadas na copia
-    // [EN-US] Collected souls are not duplicated during copy
+    // Almas coletadas nao sao duplicadas na copia
     combat.defenseRecharge = others.combat.defenseRecharge;
     combat.rechargeSkill = others.combat.rechargeSkill;
-    combat.jumpShiftEnemy = others.combat.jumpShiftEnemy;
+    combat.skipEnemyTurn = others.combat.skipEnemyTurn;
     combat.skillCanceled = others.combat.skillCanceled;
-    combat.deathLively = others.combat.deathLively;
+    combat.deathAnimated = others.combat.deathAnimated;
     combat.multiplierCurrent = others.combat.multiplierCurrent;
-    combat.totalCureReceived = others.combat.totalCureReceived;
+    combat.totalHealingReceived = others.combat.totalHealingReceived;
     combat.lifeMaximumFixed = others.combat.lifeMaximumFixed;
-    combat.cooldownsAssets = others.combat.cooldownsAssets;
+    combat.activeCooldowns = others.combat.activeCooldowns;
 
     cache_ = others.cache_;
-    charactersAssets.insert(this);
+    activeCharacters.insert(this);
 
-    // [PT-BR] Copia dos Itens (mantem o inventario duplicando as instancias)
-    // [EN-US] Copies Items (maintains inventory by cloning instances)
+    // Copia dos Itens (mantem o inventario duplicando as instancias)
     for (const auto& pair : others.equipment) {
         if (pair.second) {
             auto copyItem = ItemFactory::createItem(Appearance::removeANSIColors(pair.second->getItemName()));
@@ -84,19 +82,19 @@ Character::Character(const std::string& name, std::unique_ptr<BaseRace> chosenRa
     receiveEquipKit(this->race->getEquipmentRace());
 
     calculateAttributes();
-    charactersAssets.insert(this);
+    activeCharacters.insert(this);
 }
 
 Character::~Character() 
 {
-    charactersAssets.erase(this);
+    activeCharacters.erase(this);
 }  
 
 std::unique_ptr<Character> Character::clone() const {
     return std::make_unique<Character>(*this);
 }
 
-void Character::climbAttributes(double factor) {
+void Character::scaleAttributes(double factor) {
     finalStats.health = std::max(1, static_cast<int>(finalStats.health * factor));
     finalStats.strength = static_cast<int>(finalStats.strength * factor);
     finalStats.dexterity = static_cast<int>(finalStats.dexterity * factor);
@@ -166,8 +164,8 @@ void Character::reduceCooldowns()
 {
     if (combat.defenseRecharge) combat.defenseRecharge = false;
     if (combat.rechargeSkill) combat.rechargeSkill = false;
-    if (combat.cooldownsAssets.empty()) return;
-    for (auto& pair : combat.cooldownsAssets)
+    if (combat.activeCooldowns.empty()) return;
+    for (auto& pair : combat.activeCooldowns)
     {
         if (pair.second > 0) pair.second--;
     }
@@ -177,7 +175,7 @@ void Character::prepareForNewBattle()
 {
     combat.reset();
     combat.lifeMaximumFixed = getMaxHealth();
-    cleanEffects();
+    clearEffects();
     
     if (getArmor() && getArmor()->hasProperty(Property::AdaptationArmor)) {
         addEffect(std::make_unique<AdaptationWheelEffect>());
@@ -250,22 +248,22 @@ void Character::modifyHealth(int value)
 
     if (this->lifeCurrent > lifeBefore) 
     {
-        combat.totalCureReceived += (this->lifeCurrent - lifeBefore);
+        combat.totalHealingReceived += (this->lifeCurrent - lifeBefore);
     }
 }
 
 const StatusEffect* Character::findEffect(EffectID id) const {
-    auto it = std::find_if(effectsAssets.begin(), effectsAssets.end(), [id](const auto& ef) {
+    auto it = std::find_if(activeEffects.begin(), activeEffects.end(), [id](const auto& ef) {
         return ef->getID() == id;
     });
-    return it != effectsAssets.end() ? it->get() : nullptr;
+    return it != activeEffects.end() ? it->get() : nullptr;
 }
 
-bool Character::ownsEffect(EffectID id) const {
+bool Character::hasEffect(EffectID id) const {
     return findEffect(id) != nullptr;
 }
 
-int Character::getShiftsEffect(EffectID id) const {
+int Character::getEffectTurns(EffectID id) const {
     const StatusEffect* ef = findEffect(id);
     return ef ? ef->getRemainingTurns() : 0;
 }
@@ -354,7 +352,7 @@ DamageResult Character::receiveDamage(int damageGross, int damagePiercing, int d
 
     int finalDamage = calculateDefenseBase(damageGross, damagePiercing);
 
-    for (auto& effect : effectsAssets) {
+    for (auto& effect : activeEffects) {
         finalDamage = effect->processReceivedDamage(finalDamage);
     }
 
@@ -387,22 +385,22 @@ DamageResult Character::receiveDamage(int damageGross, int damagePiercing, int d
 void Character::addEffect(std::unique_ptr<StatusEffect> effect) {
     effect->onEnterMap(this);
     if (processingEffects) {
-        effectsQueueAddition.push_back(std::move(effect));
+        pendingEffectAdditions.push_back(std::move(effect));
     } else {
-        effectsAssets.push_back(std::move(effect));
+        activeEffects.push_back(std::move(effect));
     }
     cache_.dirty = true;
 }
 
-void Character::processEffectsHomeShift() {
+void Character::processEffectsTurnStart() {
     processingEffects = true;
-    for (auto& ef : effectsAssets) {
+    for (auto& ef : activeEffects) {
         ef->applyTurnStart(this);
         ef->decrementTurn();
     }
 
-    effectsAssets.erase(
-        std::remove_if(effectsAssets.begin(), effectsAssets.end(),
+    activeEffects.erase(
+        std::remove_if(activeEffects.begin(), activeEffects.end(),
             [this](const std::unique_ptr<StatusEffect>& ef) {
                 if (ef->expired()) {
                     ef->onExitMap(this);
@@ -411,64 +409,63 @@ void Character::processEffectsHomeShift() {
                 }
                 return false;
             }),
-        effectsAssets.end()
+        activeEffects.end()
     );
     processingEffects = false;
 
-    for (EffectID id : effectsQueueRemoval) {
+    for (EffectID id : pendingEffectRemovals) {
         removeEffect(id);
     }
-    effectsQueueRemoval.clear();
+    pendingEffectRemovals.clear();
 
-    for (auto& ef : effectsQueueAddition) {
-        effectsAssets.push_back(std::move(ef));
+    for (auto& ef : pendingEffectAdditions) {
+        activeEffects.push_back(std::move(ef));
     }
-    effectsQueueAddition.clear();
+    pendingEffectAdditions.clear();
 }
 
-void Character::cleanEffects() {
-    for (auto& ef : effectsAssets) {
-        // [PT-BR] Garante que os atributos modificados (ex: Forca e Destreza) sejam restaurados ao remover o efeito
-        // [EN-US] Ensures modified attributes (e.g., Strength and Dexterity) are restored upon effect removal
+void Character::clearEffects() {
+    for (auto& ef : activeEffects) {
+        // Garante que os atributos modificados (ex: Forca e Destreza) sejam restaurados ao remover o efeito
         ef->onExitMap(this);
     }
-    effectsAssets.clear();
-    effectsQueueAddition.clear();
-    effectsQueueRemoval.clear();
+    activeEffects.clear();
+    pendingEffectAdditions.clear();
+    pendingEffectRemovals.clear();
     cache_.dirty = true;
 }
 
 void Character::removeEffect(EffectID id) {
     if (processingEffects) {
-        effectsQueueRemoval.push_back(id);
+        pendingEffectRemovals.push_back(id);
         return;
     }
-    auto it = std::find_if(effectsAssets.begin(), effectsAssets.end(),
+    auto it = std::find_if(activeEffects.begin(), activeEffects.end(),
         [id](const std::unique_ptr<StatusEffect>& ef) {
             return ef->getID() == id;
         });
-    if (it != effectsAssets.end()) {
+    if (it != activeEffects.end()) {
         (*it)->onExitMap(this);
-        effectsAssets.erase(it);
+        activeEffects.erase(it);
         cache_.dirty = true;
     }
 }
 
 bool Character::canAct(std::string& reasonDisability) const {
-    auto it = std::find_if(effectsAssets.begin(), effectsAssets.end(), [](const auto& ef) {
+    auto it = std::find_if(activeEffects.begin(), activeEffects.end(), [](const auto& ef) {
         return ef->preventsAction();
     });
-    if (it != effectsAssets.end()) {
+    if (it != activeEffects.end()) {
         reasonDisability = (*it)->getName();
         return false;
     }
     return true;
 }
 
-void Character::getIDsEffectsAssets(std::vector<EffectID>& outIDs) const {
+void Character::getActiveEffectIDs(std::vector<EffectID>& outIDs) const {
     outIDs.clear();
-    outIDs.reserve(effectsAssets.size());
-    std::transform(effectsAssets.begin(), effectsAssets.end(), std::back_inserter(outIDs), [](const auto& ef) {
+    outIDs.reserve(activeEffects.size());
+    std::transform(activeEffects.begin(), activeEffects.end(), std::back_inserter(outIDs), [](const auto& ef) {
         return ef->getID();
     });
 }
@@ -546,7 +543,7 @@ std::pair<int, int> Character::calculateDamageOffensiveBase() {
 
 void Character::finishBattle() { 
     combat.lifeMaximumFixed = 0; 
-    if (system.ownsRegenerationTroll && lifeCurrent > 0 && lifeCurrent < getMaxHealth()) {
+    if (system.hasTrollRegeneration && lifeCurrent > 0 && lifeCurrent < getMaxHealth()) {
         modifyHealth(getMaxHealth());
         std::cout << "\n" << CombatScreen::combatMargin() << Appearance::color(Color::GREEN) << "[SISTEMA]: Seu Orgao regenerador curou completamente suas feridas apos a batalha!" << Appearance::color(Color::RESET) << "\n";
         InputControl::waitForEnter();

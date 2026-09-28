@@ -50,8 +50,7 @@ void CombatRaycasterUIImpl::cleanContextEnemyDeathAndDrops() {
 }
 
 std::string CombatRaycasterUIImpl::combatMargin() {
-    // [PT-BR] RaycasterCombatScreen utiliza formatacao propria em 3D
-    // [EN-US] RaycasterCombatScreen uses its own 3D formatting
+    // RaycasterCombatScreen utiliza formatacao propria em 3D
     return "";
 }
 

@@ -3,8 +3,7 @@
 #include "Domain/Characters/Races/Elf.h"
 #include "Domain/Characters/Races/Human.h"
 #include "Domain/Characters/Races/Orc.h"
-// [PT-BR] Inclusao de novos tipos de racas conforme expansoes futuras
-// [EN-US] Inclusion of new race types as needed for future expansions
+// Inclusao de novos tipos de racas conforme expansoes futuras
 
 std::unique_ptr<BaseRace> RaceFactory::createRace(TypeRace type) {
     switch (type) {

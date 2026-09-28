@@ -1,8 +1,3 @@
-// [PT-BR] Arquivo: StateManager.cpp
-// [PT-BR] Proposito: Implementacao das transicoes de estados e loop principal de exploracao.
-// [EN-US] File: StateManager.cpp
-// [EN-US] Purpose: Implementation of state transitions and main exploration loop.
-
 #include "Core/Engine/StateManager.h"
 #include "Domain/Characters/Classes/Archer.h"
 #include "Domain/Characters/Classes/Bard.h"
@@ -32,8 +27,7 @@ void MenuState::execute(Game& game, GameContext& ctx) {
 }
 
 void ExplorationState::onExit([[maybe_unused]] Game& game, GameContext& ctx) {
-    // [PT-BR] Desvincula e limpa a memoria do player para a proxima iteracao
-    // [EN-US] Unbinds and clears player memory for the next iteration
+    // Desvincula e limpa a memoria do player para a proxima iteracao
     ctx.player.reset();
 }
 
@@ -76,8 +70,7 @@ void ExplorationState::execute(Game& game, GameContext& ctx) {
             if (!Progression::instance().getFlag(Flags::Visited_Kingdom)) Progression::instance().setFlag(Flags::Visited_Kingdom, true);
         }
         else {
-            // [PT-BR] Se nenhuma transicao foi solicitada (None), encerra o loop de exploracao por precaucao e forca o retorno ao menu principal.
-            // [EN-US] If no transition was requested (None), terminates exploration loop as a precaution and forces return to main menu.
+            // Se nenhuma transicao foi solicitada (None), encerra o loop de exploracao por precaucao e forca o retorno ao menu principal.
             player->setReturnToMenu(true);
             break;
         }

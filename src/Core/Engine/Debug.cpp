@@ -1,8 +1,3 @@
-// [PT-BR] Arquivo: Debug.cpp
-// [PT-BR] Proposito: Implementacao do menu de depuracao e trapacas do jogo.
-// [EN-US] File: Debug.cpp
-// [EN-US] Purpose: Implementation of the in-game debug and cheat menu.
-
 #include "Core/Engine/Debug.h"
 
 #include <iostream>
@@ -89,8 +84,7 @@ namespace {
     std::map<std::string, std::vector<ItemID>> getAllCategorizedItems() {
         std::map<std::string, std::vector<ItemID>> categories;
         
-        // [PT-BR] Realiza varredura de IDs de itens cadastrados no sistema
-        // [EN-US] Scans item IDs registered in the system
+        // Realiza varredura de IDs de itens cadastrados no sistema
         for (int i = 1; i <= 200; ++i) {
             ItemID id = static_cast<ItemID>(i);
             std::string name = ItemFactory::getNameFromID(id);
@@ -102,8 +96,7 @@ namespace {
                     else if (type == EquipmentType::ARMOR) categories["Armaduras"].push_back(id);
                     else if (type == EquipmentType::SHIELD) categories["Escudos"].push_back(id);
                     else {
-                        // [PT-BR] Classifica itens de utilidade por nome ou tipo base
-                        // [EN-US] Classifies utility items by name or base type
+                        // Classifica itens de utilidade por nome ou tipo base
                         if (name.find("Talisma") != std::string::npos || name == "Convite" || name == "Dispositivo") {
                             categories["Missoes"].push_back(id);
                         } else if (name.find("Pocao") != std::string::npos || name.find("Frasco") != std::string::npos || name.find("Elixir") != std::string::npos || name.find("Regenerador") != std::string::npos) {
@@ -342,7 +335,7 @@ void Debug::displayDebugMenu(Character* player) {
                 }
                 case 4:
                     player->unlockMaze();
-                    Progression::instance().setFlag(Flags::Village_KissRescued, true);
+                    Progression::instance().setFlag(Flags::Village_BjornRescued, true);
                     Progression::instance().setFlag(Flags::Forest_MorganaQuest, true);
                     Progression::instance().setFlag(Flags::Forest_MahoragaDefeated, true);
                     Progression::instance().setFlag(Flags::Visited_Forest, true);

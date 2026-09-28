@@ -13,7 +13,7 @@
 #include <map>
 
 static SpriteCache createDoorWood() {
-    return RaycasterSprites::parsiArt({
+    return RaycasterSprites::parseArt({
         "  ~~~~~~~~  ",
         " ~\033[38;2;40;20;10m/||||||\\\033[0m~ ",
         " ~\033[38;2;40;20;10m||||||||\033[0m~ ",
@@ -30,7 +30,7 @@ static SpriteCache createDoorWood() {
 }
 
 static SpriteCache createBackpack() {
-    return RaycasterSprites::parsiArt({
+    return RaycasterSprites::parseArt({
         "       __       ",
         "     /    \\     ",
         "    |      |    ",
@@ -47,12 +47,12 @@ static SpriteCache createBackpack() {
 }
 
 void RaycasterNPCs::bootSprites(std::map<char, SpriteCache>& cache) {
-    cache['B'] = RaycasterSprites::parsiSprite(NPCBlacksmithLayouts::artBlacksmith, 100, 200, 255); // Ciano Bjorn
-    cache['W'] = RaycasterSprites::parsiSprite(NPCMageLayouts::artMage, 200, 100, 255); // Roxo Morgana
+    cache['B'] = RaycasterSprites::parseSprite(NPCBlacksmithLayouts::artBlacksmith, 100, 200, 255); // Ciano Bjorn
+    cache['W'] = RaycasterSprites::parseSprite(NPCMageLayouts::artMage, 200, 100, 255); // Roxo Morgana
     
-    cache['V'] = RaycasterSprites::parsiSprite(NPCMerchantLayouts::artMerchant, 255, 200, 50); // Amarelo Franchesco
+    cache['V'] = RaycasterSprites::parseSprite(NPCMerchantLayouts::artMerchant, 255, 200, 50); // Amarelo Franchesco
     
-    cache['X'] = RaycasterSprites::parsiSprite({
+    cache['X'] = RaycasterSprites::parseSprite({
         "  ____  ",
         " / || \\ ",
         " ====== ",
@@ -68,21 +68,21 @@ void RaycasterNPCs::bootSprites(std::map<char, SpriteCache>& cache) {
     cache['4'] = createDoorWood();
     cache['5'] = createDoorWood();
 
-    cache['C'] = RaycasterSprites::parsiSprite(NPCKnightGenericLayouts::artKnight, 200, 200, 220); // Cavaleiro Real
+    cache['C'] = RaycasterSprites::parseSprite(NPCKnightGenericLayouts::artKnight, 200, 200, 220); // Cavaleiro Real
 
     // Sprites customizados para o PATIO DO REINO e Igreja
-    cache['Z'] = RaycasterSprites::parsiSprite(NPCAppearanceLayouts::artAppearance, 120, 50, 200); // Anok (Roxo Estiloso)
+    cache['Z'] = RaycasterSprites::parseSprite(NPCAppearanceLayouts::artAppearance, 120, 50, 200); // Anok (Roxo Estiloso)
 
-    cache['Q'] = RaycasterSprites::parsiSprite(NPCAlchemistLayouts::artAlchemist, 180, 50, 200); // Alquimista (Roxo)
+    cache['Q'] = RaycasterSprites::parseSprite(NPCAlchemistLayouts::artAlchemist, 180, 50, 200); // Alquimista (Roxo)
 
-    cache['K'] = RaycasterSprites::parsiSprite({
+    cache['K'] = RaycasterSprites::parseSprite({
         "  /==\\  ",
         " [ oo ] ",
         " [####] ",
         "  ||||  "
     }, 220, 180, 100); // Barraquinha de comida (Marrom claro)
 
-    cache['L'] = RaycasterSprites::parsiSprite({
+    cache['L'] = RaycasterSprites::parseSprite({
         "   /\\   ",
         "  /  \\  ",
         " /_||_\\ ",
@@ -90,9 +90,9 @@ void RaycasterNPCs::bootSprites(std::map<char, SpriteCache>& cache) {
         " | || | "
     }, 230, 230, 250); // Capela (Branco MArmore)
 
-    cache['J'] = RaycasterSprites::parsiSprite(NPCPriestLayouts::artPriest, 255, 215, 0); // Padre Benedito (Dourado)
+    cache['J'] = RaycasterSprites::parseSprite(NPCPriestLayouts::artPriest, 255, 215, 0); // Padre Benedito (Dourado)
 
-    cache['P'] = RaycasterSprites::parsiSprite({
+    cache['P'] = RaycasterSprites::parseSprite({
         "  ____  ",
         " |%%%%| ",
         " |____| ",
@@ -100,7 +100,7 @@ void RaycasterNPCs::bootSprites(std::map<char, SpriteCache>& cache) {
         "   ||   "
     }, 160, 90, 40); // Placa de madeira detalhada
 
-    cache['!'] = RaycasterSprites::parsiSprite({
+    cache['!'] = RaycasterSprites::parseSprite({
         "        ",
         "   //   ",
         "  //    ",
@@ -108,7 +108,7 @@ void RaycasterNPCs::bootSprites(std::map<char, SpriteCache>& cache) {
         "        "
     }, 100, 255, 100); // Comentario de Linha (Verde translucido)
 
-    cache['%'] = RaycasterSprites::parsiSprite({
+    cache['%'] = RaycasterSprites::parseSprite({
         "        ",
         "   /*   ",
         "  ...   ",
@@ -116,7 +116,7 @@ void RaycasterNPCs::bootSprites(std::map<char, SpriteCache>& cache) {
         "        "
     }, 100, 255, 100); // Comentario de Bloco (Verde translucido)
 
-    cache['@'] = RaycasterSprites::parsiSprite({
+    cache['@'] = RaycasterSprites::parseSprite({
         "  ====  ",
         " |>_  | ",
         " |    | ",
@@ -203,17 +203,17 @@ void RaycasterNPCs::bootSprites(std::map<char, SpriteCache>& cache) {
                     normX = std::clamp(normX, -1.0f, 1.0f);
                     float cylLight = 1.0f - (normX * normX) * 0.5f;
 
-                    float barkNoise = ManagerTextures::fastYes(sx * 0.8f + sy * 0.3f) * 1.2f;
+                    float barkNoise = ManagerTextures::fastSin(sx * 0.8f + sy * 0.3f) * 1.2f;
                     px.r = std::clamp((int)((130 + barkNoise * 18) * cylLight), 0, 255);
                     px.g = std::clamp((int)((86 + barkNoise * 12) * cylLight), 0, 255);
                     px.b = std::clamp((int)((48 + barkNoise * 8) * cylLight), 0, 255);
                 } else {
-                    float leafNoise = ManagerTextures::fastYes(sx * 0.7f + sy * 0.7f) * 1.2f + ManagerTextures::fastYes(sx * 1.4f - sy * 0.8f) * 0.5f;
+                    float leafNoise = ManagerTextures::fastSin(sx * 0.7f + sy * 0.7f) * 1.2f + ManagerTextures::fastSin(sx * 1.4f - sy * 0.8f) * 0.5f;
                     float shade = std::clamp(vPuffShading + leafNoise * 0.25f, 0.45f, 1.45f);
                     float heightFactor = 1.0f - (sy / 40.0f) * 0.25f;
                     float finalLight = shade * heightFactor;
 
-                    bool isApple = (bestVCov > 0.3f && bestVCov < 0.7f && (std::abs(ManagerTextures::fastYes(sx * 1.8f + sy * 1.4f)) > 0.88f) && sy > 12.0f && sy < 28.0f);
+                    bool isApple = (bestVCov > 0.3f && bestVCov < 0.7f && (std::abs(ManagerTextures::fastSin(sx * 1.8f + sy * 1.4f)) > 0.88f) && sy > 12.0f && sy < 28.0f);
 
                     if (isApple) {
                         px.r = 220;
@@ -257,7 +257,7 @@ void RaycasterNPCs::bootSprites(std::map<char, SpriteCache>& cache) {
             float cx = sx - 24.0f;
 
             // Tronco gnarled da floresta com raizes largas
-            float sway = ManagerTextures::fastYes(sy * 0.15f) * 1.5f;
+            float sway = ManagerTextures::fastSin(sy * 0.15f) * 1.5f;
             float trunkCx = cx - sway;
             float flare = (sy > 36.0f) ? (sy - 36.0f) * 0.35f : 0.0f;
             float trunkRadius = 3.5f + (sy / 47.0f) * 2.0f + flare;
@@ -321,8 +321,8 @@ void RaycasterNPCs::bootSprites(std::map<char, SpriteCache>& cache) {
                     normX = std::clamp(normX, -1.0f, 1.0f);
                     float cylLight = 1.0f - (normX * normX) * 0.55f;
 
-                    float barkNoise = ManagerTextures::fastYes(sx * 0.9f + sy * 0.4f) * 1.3f;
-                    float mossNoise = ManagerTextures::fastYes(sx * 0.4f + sy * 0.2f);
+                    float barkNoise = ManagerTextures::fastSin(sx * 0.9f + sy * 0.4f) * 1.3f;
+                    float mossNoise = ManagerTextures::fastSin(sx * 0.4f + sy * 0.2f);
                     bool hasMoss = (sy > 34.0f && mossNoise > -0.1f) || (sy > 42.0f);
 
                     if (hasMoss) {
@@ -344,7 +344,7 @@ void RaycasterNPCs::bootSprites(std::map<char, SpriteCache>& cache) {
                         px.b = std::clamp((int)((28 + barkNoise * 7) * cylLight), 0, 255);
                     }
                 } else {
-                    float leafNoise = ManagerTextures::fastYes(sx * 0.7f + sy * 0.6f) * 1.2f + ManagerTextures::fastYes(sx * 1.5f - sy * 0.8f) * 0.5f;
+                    float leafNoise = ManagerTextures::fastSin(sx * 0.7f + sy * 0.6f) * 1.2f + ManagerTextures::fastSin(sx * 1.5f - sy * 0.8f) * 0.5f;
                     float shade = std::clamp(leafPuffShading + leafNoise * 0.25f, 0.45f, 1.4f);
                     float heightFactor = 1.0f - (sy / 40.0f) * 0.3f;
                     float finalLight = shade * heightFactor;

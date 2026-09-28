@@ -19,6 +19,11 @@ namespace {
 void Appearance::startPopupInteraction() {
     popupMinWidthCurrent = 0;
     popupMinHeightCurrent = 0;
+    lastPopupX = -1;
+    lastPopupY = -1;
+    lastPopupW = -1;
+    lastPopupH = -1;
+    lastPopupBg = "";
 }
 void Appearance::updateMinPopupSize(int width, int height) {
     if (width > popupMinWidthCurrent) popupMinWidthCurrent = width;
@@ -27,15 +32,15 @@ void Appearance::updateMinPopupSize(int width, int height) {
 int Appearance::getMinWidthPopup() { return popupMinWidthCurrent; }
 int Appearance::getMinHeightPopup() { return popupMinHeightCurrent; }
 
-void Appearance::cleanPopupPrevious() {
+void Appearance::clearPreviousPopup() {
     if (lastPopupH <= 0 || lastPopupW <= 0) return;
-    std::string line = lastPopupBg + std::string(lastPopupW, ' ') + "\033[0m";
+    std::string line = "\033[0m" + std::string(lastPopupW, ' ') + "\033[0m";
     for (int i = 0; i < lastPopupH; ++i) {
         moveCursor(lastPopupX, lastPopupY + i);
         std::cout << line;
     }
     std::cout << std::flush;
-    lastPopupX = -1; lastPopupY = -1; lastPopupW = -1; lastPopupH = -1;
+    lastPopupX = -1; lastPopupY = -1; lastPopupW = -1; lastPopupH = -1; lastPopupBg = "";
 }
 
 void Appearance::setLastPopup(int x, int y, int w, int h, const std::string& bgAnsi) {
@@ -80,7 +85,7 @@ void Appearance::displayPopup(const std::string& title, const std::vector<std::s
     }
 }
 
-void Appearance::renderBoxPopupLively(const std::vector<std::string>& box, int startX, int startY, bool /*animar*/) {
+void Appearance::renderBoxPopupAnimated(const std::vector<std::string>& box, int startX, int startY, bool /*animar*/) {
     if (box.empty()) return;
     for (int i = 0; i < static_cast<int>(box.size()); ++i) {
         moveCursor(startX, startY + i);
@@ -121,7 +126,7 @@ int Appearance::readIntegerInFloatingPopup(const std::string& message, int limit
     return result;
 }
 
-void Appearance::removeBoxPopupLively(int endBoxWidth, int endBoxHeight, int startX, int startY, bool /*animar*/) {
+void Appearance::removeBoxPopupAnimated(int endBoxWidth, int endBoxHeight, int startX, int startY, bool /*animar*/) {
     if (endBoxWidth <= 0 || endBoxHeight <= 0) return;
     for (int i = 0; i < endBoxHeight; ++i) {
         moveCursor(startX, startY + i);

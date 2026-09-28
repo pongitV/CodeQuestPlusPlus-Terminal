@@ -15,14 +15,22 @@ public:
     virtual void displayEnemyHordeSideBySide(const std::vector<Character*>& enemies, Character* targetAnimation = nullptr, int frameAnimation = 0, bool isHealing = false, bool animateEmergence = false, bool isDeath = false, Item* weaponAttacker = nullptr, int damageAnimation = -1, const std::vector<std::string>& dropsAnimation = {}) = 0;
     virtual void animateDamageToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* attacker, Character* currentPlayer, const std::vector<Character*>& allies, int damageAnimation = -1) = 0;
     virtual void animateCureToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int healingAnimation = 0) = 0;
+    virtual inline void animateHealingToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int healingAnimation = 0) {
+        animateCureToEnemy(combatTitle, enemies, targetAnimation, currentPlayer, allies, healingAnimation);
+    }
     virtual void animateDamageToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies = {}, bool isParry = false, int damageAnimation = -1) = 0;
     virtual void animateCureToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies = {}, int healingAnimation = 0) = 0;
+    virtual inline void animateHealingToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies = {}, int healingAnimation = 0) {
+        animateCureToPlayer(combatTitle, enemies, targetAnimation, currentPlayer, allies, healingAnimation);
+    }
     virtual void animateEnemyDeath(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* enemyDead, Character* currentPlayer, const std::vector<Character*>& allies, const std::vector<std::string>& drops = {}) = 0;
     virtual void updateScreenStatic(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies, bool animateEntrance = false, std::function<void(std::vector<std::string>&)> callbackOverlay = nullptr) = 0;
     virtual void addFixedMessage(const std::string& msg) = 0;
     virtual void cleanMessagesFixed() = 0;
+    virtual inline void clearFixedMessages() { cleanMessagesFixed(); }
     virtual void configureContext3D(bool mode3D, const std::vector<std::string>& matrix, float postX, float postY, float angle, const std::string& title) = 0;
     virtual void setShiftVisible(int shift, const std::string& name) = 0;
+    virtual inline void setTurnVisible(int turn, const std::string& name) { setShiftVisible(turn, name); }
     virtual void selectHUDAlly(Character* currentPlayer, const std::vector<Character*>& allies) = 0;
     virtual int getPlayerAction(int currentTurn, Character* characterActing, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) = 0;
     virtual int getTargetAttack(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) = 0;
@@ -30,6 +38,7 @@ public:
     virtual int chooseShield(const std::string& characterName, const std::vector<Item*>& shields) = 0;
     virtual void notifyEnemiesMoreAct() = 0;
     virtual void notifyShiftExtra(int dexterityPlayer, int maxEnemyDexterity) = 0;
+    virtual inline void notifyExtraTurn(int dexterityPlayer, int maxEnemyDexterity) { notifyShiftExtra(dexterityPlayer, maxEnemyDexterity); }
     virtual void notifyUnpreventionInventory() = 0;
     virtual void notifyWithoutShields(const std::string& characterName) = 0;
     virtual void notifyImbalanceDefense(const std::string& characterName) = 0;

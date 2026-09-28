@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include "Core/Utils/Appearance.h"
 
-static void parsiAnsiColors(const std::string& ansi, SpritePixel& pixel) {
+static void parseAnsiColors(const std::string& ansi, SpritePixel& pixel) {
     size_t i = 0;
     while (i < ansi.size()) {
         if (ansi[i] == '\033' && i + 1 < ansi.size() && ansi[i+1] == '[') {
@@ -112,7 +112,7 @@ static void parsiAnsiColors(const std::string& ansi, SpritePixel& pixel) {
     }
 }
 
-SpriteCache RaycasterSprites::parsiArt(const std::vector<std::string>& raw) {
+SpriteCache RaycasterSprites::parseArt(const std::vector<std::string>& raw) {
     SpriteCache sc;
     sc.height = raw.size();
     sc.width = 0;
@@ -145,7 +145,7 @@ SpriteCache RaycasterSprites::parsiArt(const std::vector<std::string>& raw) {
                 sp.isTransparent = true;
             } else {
                 sp.isTransparent = false;
-                parsiAnsiColors(currentAnsi, sp);
+                parseAnsiColors(currentAnsi, sp);
                 if (sp.hasFg && !sp.hasBg) {
                     sp.r = sp.fgR;
                     sp.g = sp.fgG;
@@ -176,7 +176,7 @@ SpriteCache RaycasterSprites::parsiArt(const std::vector<std::string>& raw) {
     return sc;
 }
 
-SpriteCache RaycasterSprites::parsiSprite(const std::vector<std::string>& raw, int r, int g, int b, bool isMahoraga) {
+SpriteCache RaycasterSprites::parseSprite(const std::vector<std::string>& raw, int r, int g, int b, bool isMahoraga) {
     SpriteCache sc;
     sc.height = raw.size();
     sc.width = 0;

@@ -525,14 +525,12 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
             entityScale = 0.4f;
         }
         else if (sp.sprCh == '*') {
-            // [PT-BR] Escala calibrada para folhagem de arvores no mundo 3D
-            // [EN-US] Calibrated scale for world tree foliage
+            // Escala calibrada para folhagem de arvores no mundo 3D
             constexpr float TREE_SCALE = 1.38f;
             entityScale = TREE_SCALE;
         }
         else if (sp.sprCh == '^' || (sp.sprCh >= '1' && sp.sprCh <= '5')) {
-            // [PT-BR] Escala vertical destacada para portais e passagens
-            // [EN-US] Heightened vertical scale for doorways and portals
+            // Escala vertical destacada para portais e passagens
             constexpr float PORTAL_SCALE = 1.125f;
             entityScale = PORTAL_SCALE;
         }
@@ -542,13 +540,11 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
             float pct = ((mapSeeds % 101) - 50.0f) / 1000.0f; 
             entityScale *= (1.0f + pct);
             
-            // [PT-BR] Escala base padronizada para entidades hostis
-            // [EN-US] Standardized base scale for hostile entities
+            // Escala base padronizada para entidades hostis
             constexpr float ENEMY_BASE_SCALE = 1.35f;
             entityScale *= ENEMY_BASE_SCALE;
             
-            // [PT-BR] Fatores de escala calibrados por tipo de criatura
-            // [EN-US] Calibrated scale factors per creature type
+            // Fatores de escala calibrados por tipo de criatura
             if (sp.sprCh == 'O' || sp.sprCh == 'S') {
                 constexpr float ORC_SLIME_SCALE = 1.375f;
                 entityScale *= ORC_SLIME_SCALE;
@@ -558,14 +554,12 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
             }
         } 
         else if (sp.sprCh == 'V' || sp.sprCh == 'Q' || sp.sprCh == 'Z' || sp.sprCh == 'J' || sp.sprCh == 'C' || sp.sprCh == 'B' || sp.sprCh == 'W') {
-            // [PT-BR] Escala base padronizada para NPCs aliados e neutros
-            // [EN-US] Standardized base scale for friendly and neutral NPCs
+            // Escala base padronizada para NPCs aliados e neutros
             constexpr float NPC_BASE_SCALE = 1.725f;
             entityScale *= NPC_BASE_SCALE;
             
             if (sp.sprCh == 'C') {
-                // [PT-BR] Ajuste proporcional para a armadura do Cavaleiro
-                // [EN-US] Proportional adjustment for Knight sprite dimensions
+                // Ajuste proporcional para a armadura do Cavaleiro
                 constexpr float KNIGHT_SCALE_ADJUST = 0.85f;
                 entityScale *= KNIGHT_SCALE_ADJUST;
             }
@@ -626,7 +620,7 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
                             px.isBackground = false;
 
                             if (spix.ch == ' ' && isAnimated) {
-                                float wave = ManagerTextures::fastYes(timeAbsolute * 6.0f + y * 0.2f + texX * 0.2f);
+                                float wave = ManagerTextures::fastSin(timeAbsolute * 6.0f + y * 0.2f + texX * 0.2f);
                                 px.r = static_cast<uint8_t>(210 + (int)(wave * 45));
                                 px.g = static_cast<uint8_t>(190 + (int)(wave * 65));
                                 px.b = 255;

@@ -11,15 +11,13 @@ public:
     void interact(Character* player);
 
 protected:
-    // [PT-BR] --- INFORMACOES DO LUGAR E APARENCIA ---
-    // [EN-US] --- LOCATION INFORMATION AND APPEARANCE ---
+    // INFORMACOES DO LUGAR E APARENCIA
     std::string getPlaceName() const override;
     Color getHeaderColor() const override;
     Color getArtColor() const override;
     const std::vector<std::string>& getArtASCII() const override;
 
-    // [PT-BR] --- INTERACAO E MENU ---
-    // [EN-US] --- INTERACTION AND MENU ---
+    // INTERACAO E MENU
     void displayDialogue(Character* player) override;
     std::vector<std::string> getOptionsMenu(Character* player, int terminalWidth) override;
     void processOption(Character* player, const std::string& option, int terminalWidth) override;

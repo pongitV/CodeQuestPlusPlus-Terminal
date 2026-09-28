@@ -8,12 +8,10 @@ class Character;
 
 class IDEInspector {
 public:
-    // [PT-BR] Gera o bloco de código C++ representando a struct/instância do Player
-    // [EN-US] Generates C++ code block representing Player struct/instance
+    // Gera o bloco de codigo C++ representando a struct/instancia do Player
     static std::vector<std::string> inspectPlayer(Character* player, int posX, int posY);
 
-    // [PT-BR] Identifica e gera a definição de classe C++ do monstro ou entidade mais próxima
-    // [EN-US] Identifies and generates C++ class definition for nearest monster or entity
+    // Identifica e gera a definicao de classe C++ do monstro ou entidade mais proxima
     static std::vector<std::string> inspectNearestEntity(
         const std::vector<std::string>& mapMatrix,
         int playerX,
@@ -21,7 +19,6 @@ public:
         const std::string& mapTitle
     );
 
-    // [PT-BR] Retorna o nome amigável de uma entidade pelo seu char
-    // [EN-US] Returns friendly entity name from its map character
+    // Retorna o nome amigavel de uma entidade pelo seu char
     static std::string getEntityTypeName(char c, const std::string& mapTitle);
 };

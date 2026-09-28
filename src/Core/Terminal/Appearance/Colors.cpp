@@ -65,7 +65,7 @@ std::string Appearance::getColorRGBFade(Color themeColor, int intensity) {
     return "\033[38;2;" + std::to_string(r) + ";" + std::to_string(g) + ";" + std::to_string(b) + "m";
 }
 
-std::string Appearance::fatarLineAnsi(const std::string& line, float ratio) {
+std::string Appearance::fadeLineAnsi(const std::string& line, float ratio) {
     std::string res;
     res.reserve(line.size());
     size_t i = 0;

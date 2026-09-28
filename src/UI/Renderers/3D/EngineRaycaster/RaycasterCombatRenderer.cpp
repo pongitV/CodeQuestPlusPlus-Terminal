@@ -117,15 +117,15 @@ std::vector<std::string> RaycasterRendererCombat::getArenaByTitle(const std::str
     // Vila / Inicio
     if (upper.find("VILA") != std::string::npos || upper.find("INICIO") != std::string::npos) {
         return {
-            "T=====[]=======================T",
-            "T" + floorStr(30) + "T",
-            "T" + floorStr(30) + "T",
-            "T" + floorStr(30) + "T",
-            "T" + floorStr(30) + "T",
-            "T" + floorStr(30) + "T",
-            "T" + floorStr(30) + "T",
-            "T" + floorStr(30) + "T",
-            "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+            "#=====[]=======================#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "#" + floorStr(30) + "#",
+            "################################"
         };
     }
     
@@ -143,12 +143,7 @@ std::vector<std::string> RaycasterRendererCombat::getArenaByTitle(const std::str
     };
 }
 
-/*
- * ═══════════════════════════════════════════════════════════════════
- * [PT-BR] Cor base do sprite do inimigo (mesmas cores do RaycasterEnemies)
- * [EN-US] Enemy sprite base color (same palette as RaycasterEnemies)
- * ═══════════════════════════════════════════════════════════════════
- */
+// Cor base do sprite do inimigo (mesmas cores do RaycasterEnemies)
 std::tuple<int,int,int> RaycasterRendererCombat::getColorSpriteEnemy(Character* enemy) {
     if (!enemy) return {255, 255, 255};
     
@@ -214,7 +209,7 @@ std::vector<std::string> RaycasterRendererCombat::renderFrame(
     // Posicao fixa: centro da arena, olhando para Norte
     float jX = static_cast<float>(arena[0].size()) / 2.0f;
     float jY = static_cast<float>(arena.size()) - 2.0f;
-    float angle = -1.57f; // [EN-US] Facing North (-PI/2)
+    float angle = -1.57f; // Olhando para o Norte (-PI/2)
 
     int widthScreen = Appearance::getTerminalWidth();
     int terminalHeight = Appearance::getTerminalHeight();
@@ -237,10 +232,10 @@ std::vector<std::string> RaycasterRendererCombat::renderFrame(
     int indexInEnemies = static_cast<int>(enemies.size());
     for (int i = 0; i < indexInEnemies; ++i) {
         Character* enemy = enemies[i];
-        if (enemy && (enemy->getHealth() > 0 || !enemy->getDeathLively())) {
-            bool isExcited = (targetAnimation != nullptr && enemy == targetAnimation);
-            int framesDamage = (isExcited && damageAmount > 0 && !isDeath) ? frame : 0;
-            bool isDeathIni = (isDeath && isExcited);
+        if (enemy && (enemy->getHealth() > 0 || !enemy->isDeathAnimated())) {
+            bool isAnimated = (targetAnimation != nullptr && enemy == targetAnimation);
+            int framesDamage = (isAnimated && damageAmount > 0 && !isDeath) ? frame : 0;
+            bool isDeathIni = (isDeath && isAnimated);
             int frameDeathIni = isDeathIni ? frame : 0;
             bool isSel = (CombatScreen::context.selectionTargetCurrent == i);
             
@@ -402,29 +397,29 @@ void RaycasterRendererCombat::superimposeSprite(
         return std::string("\033[48;2;0;0;0m");
     };
 
-    auto parsiAnsiRGB = [](const std::string& str) -> std::tuple<int,int,int> {
+    auto parseAnsiRGB = [](const std::string& str) -> std::tuple<int,int,int> {
         int r = 0, g = 0, b = 0;
-        size_t post = str.find("48;2;");
-        if (post == std::string::npos) {
-            post = str.find("38;2;");
+        size_t pos = str.find("48;2;");
+        if (pos == std::string::npos) {
+            pos = str.find("38;2;");
         }
-        if (post != std::string::npos) {
-            post += 5;
-            while (post < str.size() && str[post] >= '0' && str[post] <= '9') {
-                r = r * 10 + (str[post] - '0');
-                post++;
+        if (pos != std::string::npos) {
+            pos += 5;
+            while (pos < str.size() && str[pos] >= '0' && str[pos] <= '9') {
+                r = r * 10 + (str[pos] - '0');
+                pos++;
             }
-            if (post < str.size() && str[post] == ';') {
-                post++;
-                while (post < str.size() && str[post] >= '0' && str[post] <= '9') {
-                    g = g * 10 + (str[post] - '0');
-                    post++;
+            if (pos < str.size() && str[pos] == ';') {
+                pos++;
+                while (pos < str.size() && str[pos] >= '0' && str[pos] <= '9') {
+                    g = g * 10 + (str[pos] - '0');
+                    pos++;
                 }
-                if (post < str.size() && str[post] == ';') {
-                    post++;
-                    while (post < str.size() && str[post] >= '0' && str[post] <= '9') {
-                        b = b * 10 + (str[post] - '0');
-                        post++;
+                if (pos < str.size() && str[pos] == ';') {
+                    pos++;
+                    while (pos < str.size() && str[pos] >= '0' && str[pos] <= '9') {
+                        b = b * 10 + (str[pos] - '0');
+                        pos++;
                     }
                 }
             }
@@ -499,7 +494,7 @@ void RaycasterRendererCombat::superimposeSprite(
     int centerColumnX = enemyIdx * widthColumn + widthColumn / 2;
     startX = centerColumnX - croppedWidth / 2 + swayOff;
 
-    bool drawBody = (enemy->getHealth() > 0 || !enemy->getDeathLively());
+    bool drawBody = (enemy->getHealth() > 0 || !enemy->isDeathAnimated());
 
     if (drawBody) {
         // Desenha contorno preto (borda do sprite) + corpo texturizado (mesclando fundo via spriteOpacity)
@@ -530,8 +525,7 @@ void RaycasterRendererCombat::superimposeSprite(
                                 }
                             }
 
-                            // [PT-BR] Verifica se e borda (pixel adjacente a espaco ou borda da arte)
-                            // [EN-US] Checks if pixel is an edge (adjacent to space or sprite border)
+                            // Verifica se e borda (pixel adjacente a espaco ou borda da arte)
                             bool isEdge = false;
                             for (int dy = -1; dy <= 1; ++dy) {
                                 for (int dx = -1; dx <= 1; ++dx) {
@@ -547,7 +541,7 @@ void RaycasterRendererCombat::superimposeSprite(
                             }
                             
                             std::string bgStr = getBg(screen[screenY * widthScreen + screenX]);
-                            auto [bgR, bgG, bgB] = parsiAnsiRGB(bgStr);
+                            auto [bgR, bgG, bgB] = parseAnsiRGB(bgStr);
                             int tgtR = 0, tgtG = 0, tgtB = 0;
                             
                             if (isEdge) {

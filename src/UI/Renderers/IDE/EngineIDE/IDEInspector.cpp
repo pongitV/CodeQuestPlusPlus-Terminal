@@ -41,7 +41,7 @@ namespace {
 
         DetectedEntity e;
 
-        // 1. Verificações de NPCs Amigáveis:
+        // 1. Verificacoes de NPCs Amigaveis:
         if ((isVillage || isKingdom) && c == 'B') {
             e.kind = EntityKind::NPC;
             e.typeName = "Bjorn";
@@ -124,7 +124,7 @@ namespace {
             return e;
         }
 
-        // 2. Verificações de Objetos Interativos:
+        // 2. Verificacoes de Objetos Interativos:
         if (isForest && c == 'B') {
             e.kind = EntityKind::OBJECT;
             e.typeName = "BauDoTesouro";

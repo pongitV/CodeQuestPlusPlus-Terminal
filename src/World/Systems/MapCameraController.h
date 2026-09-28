@@ -1,8 +1,3 @@
-// [PT-BR] Arquivo: MapCameraController.h
-// [PT-BR] Proposito: Gerenciamento do estado da camera 3D e rastreamento de mapa ativo.
-// [EN-US] File: MapCameraController.h
-// [EN-US] Purpose: 3D camera state management and active map tracking.
-
 #pragma once
 
 #include <string>
@@ -20,8 +15,10 @@ private:
 public:
     static void signal3DMapChange();
     static bool is3DExplorationActive();
-    static float getCameraPostX3D();
-    static float getCameraPostY3D();
+    static float getCameraPosX3D();
+    static inline float getCameraPostX3D() { return getCameraPosX3D(); }
+    static float getCameraPosY3D();
+    static inline float getCameraPostY3D() { return getCameraPosY3D(); }
     static float getCameraAngle3D();
     static std::string getCurrentMapTitle();
     static std::vector<std::string> getCurrentMapMatrix();

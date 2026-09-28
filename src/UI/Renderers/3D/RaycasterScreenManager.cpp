@@ -23,10 +23,10 @@ bool RaycasterScreenManager::chooseConfirmation(const std::string& chooseType, c
 }
 
 std::vector<std::string> RaycasterScreenManager::frameAttributes(const Attributes& stats,
-    const std::string& dryTitle, const std::string& skillTitle,
+    const std::string& sectionTitle, const std::string& skillTitle,
     const std::string& skillName, const std::string& skillDesc,
     const std::string& skillTitle2, const std::string& skillName2, const std::string& skillDesc2) {
-    return ScreenMenuRaycaster::composeAttributesFrame(stats, dryTitle, skillTitle, skillName, skillDesc, skillTitle2, skillName2, skillDesc2);
+    return ScreenMenuRaycaster::composeAttributesFrame(stats, sectionTitle, skillTitle, skillName, skillDesc, skillTitle2, skillName2, skillDesc2);
 }
 
 int RaycasterScreenManager::mainMenu() {

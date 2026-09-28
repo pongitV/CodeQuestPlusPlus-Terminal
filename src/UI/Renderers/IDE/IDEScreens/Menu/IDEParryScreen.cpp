@@ -247,13 +247,7 @@ ParryScreen::Result IDEParryScreen::display(const std::string& namePlayer, const
         for (const auto& l : editorView) std::cout << l << "\n";
         std::cout << "\033[J" << std::flush;
 
-        unsigned char key = static_cast<unsigned char>(InputControl::readKey());
-        if (key == 224 || key == 0 || key == '\033') {
-            unsigned char nextKey = static_cast<unsigned char>(InputControl::readKey());
-            if (nextKey == '[') nextKey = static_cast<unsigned char>(InputControl::readKey());
-            if (nextKey == 72 || nextKey == 'A') key = 'w';
-            else if (nextKey == 80 || nextKey == 'B') key = 's';
-        }
+        unsigned char key = static_cast<unsigned char>(InputControl::readNavKey());
 
         if (key == 'w' || key == 'W') {
             selectionCurrent = (selectionCurrent - 1 + (int)options.size()) % (int)options.size();

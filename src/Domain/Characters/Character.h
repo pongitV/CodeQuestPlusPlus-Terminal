@@ -1,8 +1,3 @@
-/*
- * Arquivo: Character.h
- * Proposito: Classe base central do personagem (Jogador e Inimigos), atributos, status e inventario.
- */
-
 #pragma once
 
 #include <iostream>
@@ -90,25 +85,25 @@ private:
         std::vector<std::unique_ptr<Character>> soulsCollected;
         bool defenseRecharge = false;
         bool rechargeSkill = false;
-        bool jumpShiftEnemy = false;
+        bool skipEnemyTurn = false;
         bool skillCanceled = false;
-        bool deathLively = false;
+        bool deathAnimated = false;
         double multiplierCurrent = 1.0;
-        int totalCureReceived = 0;
+        int totalHealingReceived = 0;
         int lifeMaximumFixed = 0;
-        std::unordered_map<SkillID, int> cooldownsAssets;
+        std::unordered_map<SkillID, int> activeCooldowns;
         
         void reset() {
             isDefending = false;
             defenseRecharge = false;
             rechargeSkill = false;
-            jumpShiftEnemy = false;
+            skipEnemyTurn = false;
             skillCanceled = false;
-            deathLively = false;
+            deathAnimated = false;
             multiplierCurrent = 1.0;
-            totalCureReceived = 0;
+            totalHealingReceived = 0;
             lifeMaximumFixed = 0;
-            cooldownsAssets.clear();
+            activeCooldowns.clear();
         }
     };
 
@@ -118,7 +113,7 @@ private:
         bool canRevive = true;
         bool parryActivated = false;
         bool parryModern = true;
-        bool ownsRegenerationTroll = false;
+        bool hasTrollRegeneration = false;
         bool godModeActive = false;
         bool noclipActive = false;
         bool isMinion = false;
@@ -129,7 +124,7 @@ private:
         Color colorBackgroundTerminal = Color::RESET;
     };
 
-    static std::unordered_set<Character*> charactersAssets;
+    static std::unordered_set<Character*> activeCharacters;
 
     CombatControl combat;
     ControlSystem system;
@@ -142,16 +137,15 @@ protected:
     Attributes finalStats;
     std::unique_ptr<Inventory> backpack;
 
-    std::vector<std::unique_ptr<StatusEffect>> effectsAssets;
-    std::vector<std::unique_ptr<StatusEffect>> effectsQueueAddition;
-    std::vector<EffectID> effectsQueueRemoval;
+    std::vector<std::unique_ptr<StatusEffect>> activeEffects;
+    std::vector<std::unique_ptr<StatusEffect>> pendingEffectAdditions;
+    std::vector<EffectID> pendingEffectRemovals;
     bool processingEffects = false;
 
     std::map<SlotEquipment, Item*> equipment;
     Item* itemSelectedForUse;
 
-    // [PT-BR] Cache de atributos calculados. Utiliza mutex para sincronizacao em ambientes concorrentes.
-    // [EN-US] Cache for calculated attributes. Uses mutex for thread-safe synchronization in concurrent environments.
+    // Cache de atributos calculados. Utiliza mutex para sincronizacao em ambientes concorrentes.
     struct CacheAttributes {
         int lifeMaximum = 0;
         int strength = 0;
@@ -164,15 +158,11 @@ protected:
         bool dirty = true;
     };
     mutable CacheAttributes cache_;
-    // [PT-BR] Protege o acesso ao cache em ambientes multithread
-    // [EN-US] Protects cache access in multithreaded environments
+    // Protege o acesso ao cache em ambientes multithread
     mutable std::mutex mutexCache_;
     void updateCacheIfNecessary() const;
     
-    
-    
     std::unique_ptr<LevelSystem> levelSystem;
-
 
     int* getPointerAttributeStatic(AttributeType attribute);
 
@@ -190,8 +180,7 @@ public:
     void changeName(const std::string& newName) { characterName = newName; }
     void equipItem(Item* item);
 
-    // [PT-BR] Getters e Setters de atributos e informacoes do personagem
-    // [EN-US] Getters and Setters for character attributes and information
+    // Getters e Setters de atributos e informacoes do personagem
     std::string getName() const { return characterName; }
     int getHealth() const { return lifeCurrent; }
     int getMaxHealth() const {
@@ -207,15 +196,22 @@ public:
     
     int getLevel() const { return levelSystem->getLevel(); }
     int getCurrentXp() const { return levelSystem->getCurrentXp(); }
-    int getXpForRise() const { return levelSystem->getXpForRise(); }
+    int getXpToNextLevel() const { return levelSystem->getXpToNextLevel(); }
+    inline int getXpForRise() const { return getXpToNextLevel(); }
+    
     void setLevel(int newLevel) { levelSystem->setLevel(newLevel); }
     void setCurrentXp(int newXp) { levelSystem->setCurrentXp(newXp); }
-    void setXpForRise(int newXpForRise) { levelSystem->setXpForRise(newXpForRise); }
+    void setXpToNextLevel(int newXpToNextLevel) { levelSystem->setXpToNextLevel(newXpToNextLevel); }
+    inline void setXpForRise(int newXpForRise) { setXpToNextLevel(newXpForRise); }
+
     void setHealth(int newLife) { lifeCurrent = newLife; }
     void gainXp(int value) { levelSystem->gainXp(value); }
     bool canLevelUp() const { return levelSystem->canLevelUp(); }
     bool levelUp(AttributeType attribute);
-    void climbAttributes(double factor);
+    
+    void scaleAttributes(double factor);
+    inline void climbAttributes(double factor) { scaleAttributes(factor); }
+    
     void addSoul(std::unique_ptr<Character> soul);
     std::vector<std::unique_ptr<Character>>& getSouls();
     size_t getSoulCount() const;
@@ -223,7 +219,8 @@ public:
 
     void forceCacheRecalculation() { cache_.dirty = true; }
     
-    int getTotalCureReceived() const { return combat.totalCureReceived; }
+    int getTotalHealingReceived() const { return combat.totalHealingReceived; }
+    inline int getTotalCureReceived() const { return getTotalHealingReceived(); }
 
     void changeStaticAttribute(AttributeType attribute, int value);
     Attributes& getFinalAttributes() { return finalStats; }
@@ -238,7 +235,10 @@ public:
     Item* getWeapons() const { auto it = equipment.find(SlotEquipment::MAIN_HAND); return it != equipment.end() ? it->second : nullptr; }
     Item* getShield() const { auto it = equipment.find(SlotEquipment::OFF_HAND); return it != equipment.end() ? it->second : nullptr; }
     Item* getArmor() const { auto it = equipment.find(SlotEquipment::ARMOR); return it != equipment.end() ? it->second : nullptr; }
-    Item* getConsumableQuickly() const { auto it = equipment.find(SlotEquipment::CONSUMABLE); return it != equipment.end() ? it->second : nullptr; }
+    
+    Item* getQuickConsumable() const { auto it = equipment.find(SlotEquipment::CONSUMABLE); return it != equipment.end() ? it->second : nullptr; }
+    inline Item* getConsumableQuickly() const { return getQuickConsumable(); }
+    
     void unequipConsumable() { equipment.erase(SlotEquipment::CONSUMABLE); cache_.dirty = true; }
     Inventory* getInventory() const { return backpack.get(); }
     Item* getItemSelectedForUse() const { return itemSelectedForUse; }
@@ -250,20 +250,16 @@ public:
         return false;
     }
 
-    // [PT-BR] Verifica se a entidade esta ativamente no loop de combate
-    // [EN-US] Checks if the entity is currently inside the combat loop
+    // Verifica se a entidade esta ativamente no loop de combate
     bool isInCombat() const;
 
-    // [PT-BR] Define o estado da entidade para combate
-    // [EN-US] Sets entity state to in-combat
+    // Define o estado da entidade para combate
     void enterCombat();
 
-    // [PT-BR] Limpa o estado de combate da entidade (cooldowns, flags temporarias)
-    // [EN-US] Clears combat state for the entity (cooldowns, temporary flags)
+    // Limpa o estado de combate da entidade (cooldowns, flags temporarias)
     void leaveCombat();
 
-    // [PT-BR] Inicializa e prepara a entidade antes do combate
-    // [EN-US] Initializes and prepares entity before battle
+    // Inicializa e prepara a entidade antes do combate
     void prepareForCombat();
 
     void setItemSelectedForUse(Item* item) { itemSelectedForUse = item; }
@@ -278,12 +274,12 @@ public:
 
     int getCooldown(SkillID skill) const 
     {
-        auto it{combat.cooldownsAssets.find(skill)};
-        return (it != combat.cooldownsAssets.end()) ? it->second : 0;
+        auto it{combat.activeCooldowns.find(skill)};
+        return (it != combat.activeCooldowns.end()) ? it->second : 0;
     }
     void setCooldown(SkillID skill, int shifts) 
     {
-        combat.cooldownsAssets[skill] = shifts;
+        combat.activeCooldowns[skill] = shifts;
     }
     
     bool getSkillCanceled() const { return combat.skillCanceled; }
@@ -291,17 +287,24 @@ public:
 
     void setRecharge(bool emRecharge) { combat.rechargeSkill = emRecharge; }
     bool getRecharge() const { return combat.rechargeSkill; }
-    void setJumpShiftEnemy(bool jumpShift) { combat.jumpShiftEnemy = jumpShift; }
-    bool getJumpShiftEnemy() const { return combat.jumpShiftEnemy; }
+    
+    void setSkipEnemyTurn(bool skip) { combat.skipEnemyTurn = skip; }
+    inline void setJumpShiftEnemy(bool jumpShift) { setSkipEnemyTurn(jumpShift); }
+    bool getSkipEnemyTurn() const { return combat.skipEnemyTurn; }
+    inline bool getJumpShiftEnemy() const { return getSkipEnemyTurn(); }
     
     void setReturnToMenu(bool returnVal) { system.returnToMenuRequested = returnVal; }
     bool getReturnToMenu() const { return system.returnToMenuRequested; }
 
-    void unlockMaze() { system.labyrinthUnlocked = true; }
-    bool getUnlockedMaze() const { return system.labyrinthUnlocked; }
+    void unlockLabyrinth() { system.labyrinthUnlocked = true; }
+    inline void unlockMaze() { unlockLabyrinth(); }
+    bool isLabyrinthUnlocked() const { return system.labyrinthUnlocked; }
+    inline bool getUnlockedMaze() const { return isLabyrinthUnlocked(); }
 
-    void unlockRegenerationTroll() { system.ownsRegenerationTroll = true; }
-    bool ownsRegenerationTroll() const { return system.ownsRegenerationTroll; }
+    void unlockTrollRegeneration() { system.hasTrollRegeneration = true; }
+    inline void unlockRegenerationTroll() { unlockTrollRegeneration(); }
+    bool hasTrollRegeneration() const { return system.hasTrollRegeneration; }
+    inline bool ownsRegenerationTroll() const { return hasTrollRegeneration(); }
 
     void toggleGodMode() { system.godModeActive = !system.godModeActive; }
     bool isGodMode() const { return system.godModeActive; }
@@ -313,10 +316,11 @@ public:
     void prepareForNewBattle();
     void finishBattle();
 
-    bool ownsEffect(EffectID id) const;
-    int getShiftsEffect(EffectID id) const;
+    bool hasEffect(EffectID id) const;
+    inline bool ownsEffect(EffectID id) const { return hasEffect(id); }
+    int getEffectTurns(EffectID id) const;
+    inline int getShiftsEffect(EffectID id) const { return getEffectTurns(id); }
     const StatusEffect* findEffect(EffectID id) const;
-
 
     void setDefending(bool d) { combat.isDefending = d; }
     bool getDefending() const { return combat.isDefending; }
@@ -326,8 +330,11 @@ public:
     void unequipWeapon() { equipment.erase(SlotEquipment::MAIN_HAND); cache_.dirty = true; }
     void unequipArmor() { equipment.erase(SlotEquipment::ARMOR); cache_.dirty = true; }
 
-    void setDeathLively(bool m) { combat.deathLively = m; }
-    bool getDeathLively() const { return combat.deathLively; }
+    void setDeathAnimated(bool m) { combat.deathAnimated = m; }
+    bool getDeathAnimated() const { return combat.deathAnimated; }
+    bool isDeathAnimated() const { return combat.deathAnimated; }
+    void setDeathLively(bool m) { setDeathAnimated(m); }
+    bool getDeathLively() const { return getDeathAnimated(); }
 
     void setParryEnabled(bool p) { system.parryActivated = p; }
     bool getParryActivated() const { return system.parryActivated; }
@@ -354,13 +361,16 @@ public:
     bool classSkillConsumesTurn() const;
 
     void addEffect(std::unique_ptr<StatusEffect> effect);
-    void processEffectsHomeShift();
+    void processEffectsTurnStart();
+    inline void processEffectsHomeShift() { processEffectsTurnStart(); }
     bool canAct(std::string& reasonDisability) const;
 
-    // [PT-BR] Preenche o vetor com os IDs de todos os efeitos ativos (evita alocacoes de memoria indesejadas)
-    // [EN-US] Fills vector with IDs of all active status effects (avoids unwanted heap allocations)
-    void getIDsEffectsAssets(std::vector<EffectID>& outIDs) const;
-    void cleanEffects();
+    // Preenche o vetor com os IDs de todos os efeitos ativos (evita alocacoes de memoria indesejadas)
+    void getActiveEffectIDs(std::vector<EffectID>& outIDs) const;
+    inline void getIDsEffectsAssets(std::vector<EffectID>& outIDs) const { getActiveEffectIDs(outIDs); }
+    
+    void clearEffects();
+    inline void cleanEffects() { clearEffects(); }
     void removeEffect(EffectID id);
 
     int calculateDefenseBase(int damageGross, int damagePiercing) override;

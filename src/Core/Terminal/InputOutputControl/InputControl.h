@@ -1,8 +1,3 @@
-// [PT-BR] Arquivo: InputControl.h
-// [PT-BR] Proposito: Controle de entrada do usuario pelo terminal (teclado, mouse e captura de caracteres).
-// [EN-US] File: InputControl.h
-// [EN-US] Purpose: User input control via terminal (keyboard, mouse, and character capturing).
-
 #pragma once
 
 #include <string>
@@ -10,8 +5,7 @@
 #include "Core/Terminal/Appearance/Appearance.h"
 #include <functional>
 
-// [PT-BR] Comandos de navegacao mapeados a partir de teclas
-// [EN-US] Navigation commands mapped from keys
+// Comandos de navegacao mapeados a partir de teclas
 enum class MapCommand {
     Up,
     Down,
@@ -23,40 +17,37 @@ enum class MapCommand {
     None
 };
 
-// [PT-BR] Abstrai a captura e o processamento de entradas de teclado e mouse.
-// [EN-US] Abstracts keyboard and mouse input capturing and processing.
+// Abstrai a captura e o processamento de entradas de teclado e mouse.
 class InputControl 
 {
 public:
-    // [PT-BR] Verifica se alguma tecla foi pressionada (non-blocking)
-    // [EN-US] Checks if any key was pressed (non-blocking)
-    static bool pressedKey();
+    // Verifica se alguma tecla foi pressionada (non-blocking)
+    static bool isKeyPressed();
+    static inline bool pressedKey() { return isKeyPressed(); }
 
-    // [PT-BR] Le um caractere do teclado sem necessidade de pressionar Enter
-    // [EN-US] Reads a character from the keyboard without requiring Enter
+    // Le um caractere do teclado sem necessidade de pressionar Enter
     static char readKey();
 
-    // [PT-BR] Converte a tecla pressionada no comando correspondente
-    // [EN-US] Translates pressed key into the corresponding command
+    // Le uma tecla traduzindo setas direcionais para 'w','s','a','d'
+    static char readNavKey();
+
+    // Converte a tecla pressionada no comando correspondente
     static MapCommand translateKeyToCommand(char key);
 
-    // [PT-BR] Limpa o buffer de entrada do terminal
-    // [EN-US] Clears terminal input buffer
+    // Limpa o buffer de entrada do terminal
     static void clearBuffer();
 
-    // [PT-BR] Le uma string digitada pelo usuario protegendo contra entradas invalidas
-    // [EN-US] Reads a user-input string protected against invalid entries
-    static std::string readEntryProtected(const std::string& promptMessage = "");
+    // Le uma string digitada pelo usuario protegendo contra entradas invalidas
+    static std::string readProtectedInput(const std::string& promptMessage = "");
+    static inline std::string readEntryProtected(const std::string& promptMessage = "") { return readProtectedInput(promptMessage); }
     
-    // [PT-BR] Habilita e gerencia captura de mouse no terminal Windows
-    // [EN-US] Enables and manages mouse capture in Windows terminal
+    // Habilita e gerencia captura de mouse no terminal Windows
     static void enableMouseInput();
     static bool pollMouseState(int& mouseX, int& mouseY, bool& isLeftPressed, bool& isRightPressed);
     
-    // [PT-BR] Leituras estruturadas de inteiros e selecoes de menu
-    // [EN-US] Structured integer readings and menu selection prompts
-    static int readIntegerWithLimits(const std::string& promptMessage, int minimum, int maximum, bool centralizePrompt = false, const std::string& marginPersonalized = "");
-    static int readSelectionMenuWithArrows(const std::vector<std::string>& options, bool centralize = true, const std::string& marginPersonalized = "", const std::vector<std::string>& panelRight = {});
+    // Leituras estruturadas de inteiros e selecoes de menu
+    static int readIntegerWithLimits(const std::string& promptMessage, int minimum, int maximum, bool centralizePrompt = false, const std::string& customMargin = "");
+    static int readSelectionMenuWithArrows(const std::vector<std::string>& options, bool centralize = true, const std::string& customMargin = "", const std::vector<std::string>& panelRight = {});
     static int readMenuSelectionInPopup(const std::string& title, const std::vector<std::string>& text, const std::vector<std::string>& options, Color themeColor = Color::WHITE, const std::vector<std::string>& asciiArt = {}, bool animateEntrance = true);
     static void waitForEnter(const std::string& message = "Pressione ENTER para continuar...");
     

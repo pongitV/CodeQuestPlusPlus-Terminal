@@ -21,8 +21,7 @@
 #include "Domain/NPCs/NPCGenericKnightLayout.h"
 
 namespace {
-    // [PT-BR] --- CLASSES E FUNCOES AUXILIARES ---
-    // [EN-US] --- HELPER CLASSES AND FUNCTIONS ---
+    // CLASSES E FUNCOES AUXILIARES
     Item* searchByName(Inventory* inv, const std::string& name) {
         for (auto* item : inv->getAllItems()) {
             if (item->getItemName() == name) return item;
@@ -54,8 +53,7 @@ namespace {
         }
     };
 
-    // [PT-BR] Funcao auxiliar de dialogo com o Cavaleiro Real
-    // [EN-US] Helper dialogue function with Royal Knight
+    // Funcao auxiliar de dialogo com o Cavaleiro Real
     [[maybe_unused]] void dialogueKnight(const std::vector<std::string>& lines) {
         DialogueFunctions::printDialogueNPC("Cavaleiro Real", Color::GRAY, lines);
     }
@@ -76,14 +74,9 @@ namespace {
         }
         return false;
     }
-
-    void displayScreenKnight(const std::string& titleHeader, const std::vector<std::string>& lines) {
-        if (RendererProvider::get()) RendererProvider::get()->displayPopup(titleHeader, lines, Color::GRAY, NPCKnightGenericLayouts::artKnight);
-    }
 }
 
-// [PT-BR] --- CRIACAO DO NPC ---
-// [EN-US] --- NPC CREATION ---
+// CRIACAO DO NPC
 std::unique_ptr<Character> NPCGenericKnight::createKnight(const std::string& name) {
     auto knight = std::make_unique<Character>(name, std::make_unique<RaceKnight>(), std::make_unique<ClassKnight>());
     std::string nameArmor = ItemFactory::getNameFromID(ItemID::ArmorKnight);
@@ -96,8 +89,7 @@ std::unique_ptr<Character> NPCGenericKnight::createKnight(const std::string& nam
     return knight;
 }
 
-// [PT-BR] --- INTERACAO ---
-// [EN-US] --- INTERACTION ---
+// INTERACAO
 void NPCGenericKnight::interact(Character* currentPlayer, bool& trollDefeated, bool& invitationReceived, int /*terminalWidth*/, std::vector<std::string>& currentMapMatrix, bool isExplorationActive, const std::function<void()>& restoreScreen, char destinationCell, int nextPositionX, int nextPositionY) {
     Diary::instance().registerNPC("Cavaleiro Real");
     if (!trollDefeated && (destinationCell == 'T' || destinationCell == 'C')) {
@@ -212,13 +204,13 @@ void NPCGenericKnight::interact(Character* currentPlayer, bool& trollDefeated, b
                         );
 
                         if (escMission == 0) {
-                            std::vector<std::string> rewardYouspeak = {
+                            std::vector<std::string> rewardDialogue = {
                                 "Voce lutou bravamente e limpou o reino dos Trolls!",
                                 "Como prometido, aqui esta a sua recompensa.",
                                 "",
                                 "Voce recebeu o [Convite Real]!"
                             };
-                            Appearance::displayPopup("RECOMPENSA", rewardYouspeak, Color::YELLOW, NPCKnightGenericLayouts::artKnight);
+                            Appearance::displayPopup("RECOMPENSA", rewardDialogue, Color::YELLOW, NPCKnightGenericLayouts::artKnight);
                             currentPlayer->getInventory()->addItem(ItemFactory::createItem(ItemID::RoyalInvitation));
                             Diary::instance().registerItem("Convite Real");
                             Diary::instance().registerMissionCompleted("cavaleiro_trolls");

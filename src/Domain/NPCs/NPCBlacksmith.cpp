@@ -19,8 +19,7 @@
 #include "Domain/NPCs/NPCBlacksmithLayout.h"
 
 namespace {
-    // [PT-BR] --- DADOS DO ESTOQUE ---
-    // [EN-US] --- STOCK DATA ---
+    // DADOS DO ESTOQUE
     std::map<int, ShopProduct> stockWeapons = {
         {1, {ItemID::SwordIron, 40, -1}},
         {2, {ItemID::BowWood, 40, -1}},
@@ -40,19 +39,17 @@ namespace {
     void processUpgradeByMaterial(Character* currentPlayer);
     void processShieldRepair(Character* currentPlayer);
 
-    // [PT-BR] --- APARENCIA E DIALOGOS ---
-    // [EN-US] --- APPEARANCE AND DIALOGUES ---
-    void dialogueKiss(const std::vector<std::string>& lines) {
+    // APARENCIA E DIALOGOS
+    void dialogueBjorn(const std::vector<std::string>& lines) {
         Appearance::displayPopup("BJORN", lines, Color::CYAN, NPCBlacksmithLayouts::artBlacksmith);
     }
     
-    void dialogueKissUnique(const std::string& msg) {
-        dialogueKiss({msg});
+    void dialogueBjornUnique(const std::string& msg) {
+        dialogueBjorn({msg});
     }
 }
 
-// [PT-BR] --- INFORMACOES DO LUGAR ---
-// [EN-US] --- LOCATION INFORMATION ---
+// INFORMACOES DO LUGAR
 std::string NPCBlacksmith::getPlaceName() const {
     return "FORJA DO BJORN";
 }
@@ -69,8 +66,7 @@ const std::vector<std::string>& NPCBlacksmith::getArtASCII() const {
     return NPCBlacksmithLayouts::artBlacksmith;
 }
 
-// [PT-BR] --- INTERACAO E MENU ---
-// [EN-US] --- INTERACTION AND MENU ---
+// INTERACAO E MENU
 void NPCBlacksmith::interact(Character* player) {
     InputControl::executeLoopMenuPopup(
         [this, player]() { this->displayDialogue(player); },
@@ -81,7 +77,7 @@ void NPCBlacksmith::interact(Character* player) {
 }
 
 void NPCBlacksmith::displayDialogue(Character* /*player*/) {
-    dialogueKiss(std::vector<std::string>{
+    dialogueBjorn(std::vector<std::string>{
         "Bem-vindo a minha forja, salvador!",
         "O que vai ser hoje?"
     });
@@ -113,14 +109,13 @@ void NPCBlacksmith::processOption(Character* player, const std::string& option, 
 }
 
 namespace {
-    // [PT-BR] --- PROCESSAMENTO DE OPCOES ---
-    // [EN-US] --- OPTION PROCESSING ---
+    // PROCESSAMENTO DE OPCOES
     void processEquipmentPurchase(Character* currentPlayer, bool buyingWeapons) {
         auto& currentStock = buyingWeapons ? stockWeapons : stockArmor;
         std::string shopTitle = buyingWeapons ? "FORJA - ARMAS" : "FORJA - ARMADURAS";
 
         Shop::processPurchase(currentPlayer, shopTitle, Color::CYAN, currentStock, 
-            [](const std::string& msg) { dialogueKissUnique(msg); }, InteractionNPC::getFormatterStatusItem, NPCBlacksmithLayouts::artBlacksmith);
+            [](const std::string& msg) { dialogueBjornUnique(msg); }, InteractionNPC::getFormatterStatusItem, NPCBlacksmithLayouts::artBlacksmith);
     }
 
     void processAnvilImprovement(Character* currentPlayer) {
@@ -134,7 +129,7 @@ namespace {
                     optionsItem.push_back(item->getItemName());
                 }
             }
-            if (optionsItem.empty()) { dialogueKissUnique("Voce nao tem nenhum equipamento que eu possa melhorar!"); break; }
+            if (optionsItem.empty()) { dialogueBjornUnique("Voce nao tem nenhum equipamento que eu possa melhorar!"); break; }
             optionsItem.push_back("VOLTAR");
             
             int choice = InputControl::readMenuSelectionInPopup("FUSAO DE EQUIPAMENTO", {"Qual item deseja fundir? (Requer copia no inventario)"}, optionsItem, Color::CYAN, NPCBlacksmithLayouts::artAnvil);
@@ -148,7 +143,7 @@ namespace {
             if ((currentPlayer->getWeapons() && currentPlayer->getWeapons()->getItemName() == itemBase->getItemName()) ||
                 (currentPlayer->getShield() && currentPlayer->getShield()->getItemName() == itemBase->getItemName()) ||
                 (currentPlayer->getArmor() && currentPlayer->getArmor()->getItemName() == itemBase->getItemName())) {
-                dialogueKissUnique("Voce possui uma copia deste item equipada! DESEQUIPE antes de fundir."); continue;
+                dialogueBjornUnique("Voce possui uma copia deste item equipada! DESEQUIPE antes de fundir."); continue;
             }
 
             std::unique_ptr<Item> newItem = itemBase->generateCopyImproved();
@@ -181,7 +176,7 @@ namespace {
                     optionsItem.push_back(item->getItemName());
                 }
             }
-            if (optionsItem.empty()) { dialogueKissUnique("Voce nao tem armaduras validas para imbuir!"); break; }
+            if (optionsItem.empty()) { dialogueBjornUnique("Voce nao tem armaduras validas para imbuir!"); break; }
             optionsItem.push_back("VOLTAR");
             
             int choice = InputControl::readMenuSelectionInPopup("IMBUIR ARMADURA", {"Qual armadura imbuir com a Pedra? (+3 Defesa)"}, optionsItem, Color::CYAN, NPCBlacksmithLayouts::artAnvil);
@@ -194,7 +189,7 @@ namespace {
             if (!armor) continue;
 
             if (armor->hasProperty(Property::ImprovedMaterial)) {
-                dialogueKissUnique("Esta armadura ja foi imbuida com a pedra magica!");
+                dialogueBjornUnique("Esta armadura ja foi imbuida com a pedra magica!");
                 continue;
             }
 
@@ -236,7 +231,7 @@ namespace {
             }
 
             if (shieldsDamaged.empty()) {
-                dialogueKissUnique("Voce nao tem nenhum escudo danificado que eu possa consertar!");
+                dialogueBjornUnique("Voce nao tem nenhum escudo danificado que eu possa consertar!");
                 break;
             }
             
@@ -249,16 +244,15 @@ namespace {
             if (!InteractionNPC::checkItemNoEquipped(currentPlayer, shieldForFix, "Bjorn", Color::CYAN, "Voce precisa DESEQUIPAR o escudo antes de conserta-lo!")) continue;
 
             int durabilityLost = shieldForFix->getDurabilityMaximum() - shieldForFix->getDurabilityCurrentShield();
-            // [PT-BR] Custo de reparo: 5 de ouro por ponto de durabilidade perdida
-            // [EN-US] Repair cost: 5 gold per lost durability point
+            // Custo de reparo: 5 de ouro por ponto de durabilidade perdida
             int costRepair = durabilityLost * 5;
 
             if (currentPlayer->getInventory()->getGold() >= costRepair) {
                 currentPlayer->getInventory()->addGold(-costRepair);
                 shieldForFix->setDurability(shieldForFix->getDurabilityMaximum());
-                dialogueKissUnique("Hmph! Seu escudo esta como novo! (-" + std::to_string(costRepair) + "g)");
+                dialogueBjornUnique("Hmph! Seu escudo esta como novo! (-" + std::to_string(costRepair) + "g)");
             } else {
-                dialogueKissUnique("Voce nao tem ouro suficiente para consertar este escudo. Eu preciso de " + std::to_string(costRepair) + "g.");
+                dialogueBjornUnique("Voce nao tem ouro suficiente para consertar este escudo. Eu preciso de " + std::to_string(costRepair) + "g.");
             }
         } while (true);
     }

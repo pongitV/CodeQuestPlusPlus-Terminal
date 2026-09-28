@@ -1,12 +1,12 @@
 #include "UI/Screens/Scene3DScreen.h"
 #include "Core/Utils/Appearance.h"
 
-void ScreenScene3D::execute() {
+void Scene3DScreen::execute() {
     auto getBackgroundOpacity = [this](float opacity) {
         return this->composeBackgroundWithElements(opacity);
     };
 
-    Appearance::cheerTransitionScene3D(
+    Appearance::animateTransitionScene3D(
         getLogo(),
         getLogoColor(),
         getBackgroundInitial(),
@@ -15,7 +15,7 @@ void ScreenScene3D::execute() {
     );
 }
 
-void ScreenScene3D::superimposePanel(std::vector<std::string>& background, const std::vector<std::string>& art, int startY, int startX) const {
+void Scene3DScreen::superimposePanel(std::vector<std::string>& background, const std::vector<std::string>& art, int startY, int startX) const {
     for (size_t i = 0; i < art.size(); ++i) {
         int y = startY + i;
         if (y >= 0 && y < static_cast<int>(background.size())) {

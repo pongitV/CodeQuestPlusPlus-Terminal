@@ -3,9 +3,9 @@
 #include <vector>
 #include <string>
 
-class ScreenScene3D {
+class Scene3DScreen {
 public:
-    virtual ~ScreenScene3D() = default;
+    virtual ~Scene3DScreen() = default;
 
     void execute();
 
@@ -21,3 +21,6 @@ protected:
 
     void superimposePanel(std::vector<std::string>& background, const std::vector<std::string>& art, int startY, int startX) const;
 };
+
+// Apelido para compatibilidade retroativa
+using ScreenScene3D = Scene3DScreen;

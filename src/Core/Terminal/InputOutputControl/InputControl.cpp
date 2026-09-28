@@ -1,8 +1,3 @@
-// [PT-BR] Arquivo: InputControl.cpp
-// [PT-BR] Proposito: Implementacao das rotinas de baixo nivel e menus interativos de entrada.
-// [EN-US] File: InputControl.cpp
-// [EN-US] Purpose: Implementation of low-level routines and interactive input menus.
-
 #include "Core/Terminal/InputOutputControl/InputControl.h"
 #include <iostream>
 #include <string>
@@ -25,17 +20,14 @@
 std::function<void()> InputControl::onWaitEnterUpdate = nullptr;
 std::string InputControl::enterPromptText = "";
 
-// [PT-BR] Verifica se ha alguma tecla aguardando no buffer de entrada (Non-blocking).
-// [PT-BR] Utilizado primariamente pelo motor 3D e loops assincronos para evitar que a thread de renderizacao trave esperando input.
-// [EN-US] Checks if there is any key waiting in the input buffer (Non-blocking).
-// [EN-US] Used primarily by the 3D engine and asynchronous loops to prevent render thread from blocking on input.
-bool InputControl::pressedKey() 
+// Verifica se ha alguma tecla aguardando no buffer de entrada (Non-blocking).
+// Utilizado primariamente pelo motor 3D e loops assincronos para evitar que a thread de renderizacao trave esperando input.
+bool InputControl::isKeyPressed() 
 {
 #ifdef _WIN32
     return _kbhit() != 0;
 #else
-    // [PT-BR] Ambiente POSIX requer implementacao detalhada non-blocking
-    // [EN-US] POSIX environment requires detailed non-blocking implementation
+    // Ambiente POSIX requer implementacao detalhada non-blocking
     return false;
 #endif
 }
@@ -50,6 +42,21 @@ char InputControl::readKey()
 #endif
     
     return key;
+}
+
+char InputControl::readNavKey() 
+{
+    unsigned char key = static_cast<unsigned char>(readKey());
+    if (key == 224 || key == 0 || key == '\033' || key == 27) {
+        unsigned char nextKey = static_cast<unsigned char>(readKey());
+        if (nextKey == '[') nextKey = static_cast<unsigned char>(readKey());
+        if (nextKey == 72 || nextKey == 'A') return 'w';
+        if (nextKey == 80 || nextKey == 'B') return 's';
+        if (nextKey == 75 || nextKey == 'D') return 'a';
+        if (nextKey == 77 || nextKey == 'C') return 'd';
+        return static_cast<char>(nextKey);
+    }
+    return static_cast<char>(key);
 }
 
 void InputControl::clearBuffer() 
@@ -85,10 +92,8 @@ void InputControl::enableMouseInput() {
 #endif
 }
 
-// [PT-BR] Captura e processa eventos complexos de mouse na API do Windows (Win32 Console).
-// [PT-BR] Intercepta MOUSE_EVENTs diretamente da stream STDIN.
-// [EN-US] Captures and processes complex mouse events in the Windows API (Win32 Console).
-// [EN-US] Intercepts MOUSE_EVENT records directly from STDIN stream.
+// Captura e processa eventos complexos de mouse na API do Windows (Win32 Console).
+// Intercepta MOUSE_EVENTs diretamente da stream STDIN.
 bool InputControl::pollMouseState(int& mouseX, int& mouseY, bool& isLeftPressed, bool& isRightPressed) {
 #ifdef _WIN32
     HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
@@ -141,7 +146,7 @@ bool InputControl::pollMouseState(int& mouseX, int& mouseY, bool& isLeftPressed,
 }
 
 
-std::string InputControl::readEntryProtected(const std::string& promptMessage) {
+std::string InputControl::readProtectedInput(const std::string& promptMessage) {
     if (!promptMessage.empty()) {
         Appearance::displayPrompt(promptMessage);
     }
@@ -163,44 +168,40 @@ std::string InputControl::readEntryProtected(const std::string& promptMessage) {
     }
 }
 
-int InputControl::readIntegerWithLimits(const std::string& promptMessage, int minimum, int maximum, bool centralizePrompt, const std::string& marginPersonalized) {
+int InputControl::readIntegerWithLimits(const std::string& promptMessage, int minimum, int maximum, bool centralizePrompt, const std::string& customMargin) {
     int value;
     if (centralizePrompt) Appearance::displayPrompt(promptMessage);
-    else std::cout << marginPersonalized << promptMessage;
+    else std::cout << customMargin << promptMessage;
 
     while (true) {
-        std::string entry = readEntryProtected();
+        std::string entry = readProtectedInput();
         try {
             value = std::stoi(entry);
             if (value >= minimum && value <= maximum) break;
         } catch (...) {}
-        // [PT-BR] Limpa a entrada invalida na tela
-        // [EN-US] Clears the invalid input on screen
+        // Limpa a entrada invalida na tela
         std::cout << "\033[u\033[J";
     }
     return value;
 }
 
-// [PT-BR] Renderiza e controla um menu iterativo direto no console (ANSI).
-// [PT-BR] Utiliza escape sequences para pular linhas (ex: \033[NA) e atualizar os icones sem que o terminal pisque inteiramente (Zero-Flicker approach).
-// [EN-US] Renders and controls an interactive menu directly in console (ANSI).
-// [EN-US] Uses escape sequences to jump lines (e.g., \033[NA) and update icons without causing full-terminal flicker (Zero-Flicker approach).
-int InputControl::readSelectionMenuWithArrows(const std::vector<std::string>& options, bool centralize, const std::string& marginPersonalized, const std::vector<std::string>& panelRight) {
+// Renderiza e controla um menu iterativo direto no console (ANSI).
+// Utiliza escape sequences para pular linhas (ex: \033[NA) e atualizar os icones sem que o terminal pisque inteiramente (Zero-Flicker approach).
+int InputControl::readSelectionMenuWithArrows(const std::vector<std::string>& options, bool centralize, const std::string& customMargin, const std::vector<std::string>& panelRight) {
     if (options.empty()) return -1;
     
     int selectionCurrent = 0;
     int totalOptions = static_cast<int>(options.size());
     int totalRight = static_cast<int>(panelRight.size());
 
-    // [PT-BR] Pula para a primeira opcao que nao seja HEADER (evita focar nas bordas)
-    // [EN-US] Skips to the first non-HEADER option (avoids focusing on border headers)
+    // Pula para a primeira opcao que nao seja HEADER (evita focar nas bordas)
     while (selectionCurrent < totalOptions && options[selectionCurrent].find("#HEADER#") == 0) {
         selectionCurrent++;
     }
     if (selectionCurrent >= totalOptions) selectionCurrent = 0;
 
     int maxLines = std::max(totalOptions, totalRight);
-    std::string margin = marginPersonalized;
+    std::string margin = customMargin;
     
     int maxWidth = 0;
     for (const std::string& op : options) {
@@ -290,15 +291,7 @@ int InputControl::readSelectionMenuWithArrows(const std::vector<std::string>& op
 #endif
 
         if (pressedKey()) {
-            unsigned char key = static_cast<unsigned char>(readKey());
-            
-            if (key == 224 || key == 0 || key == '\033') {
-                unsigned char nextKey = static_cast<unsigned char>(readKey());
-                if (nextKey == '[') nextKey = static_cast<unsigned char>(readKey()); 
-                
-                if (nextKey == 72 || nextKey == 'A') key = 'w';
-                else if (nextKey == 80 || nextKey == 'B') key = 's';
-            }
+            char key = readNavKey();
 
             if (key == 'w' || key == 'W') { 
                 int home = selectionCurrent;
@@ -402,13 +395,7 @@ int InputControl::readMenuSelectionInPopup(const std::string& title, const std::
 #endif
 
         if (pressedKey()) {
-            unsigned char key = static_cast<unsigned char>(readKey());
-            if (key == 224 || key == 0 || key == 27) {
-                unsigned char nextKey = static_cast<unsigned char>(readKey());
-                if (nextKey == '[') nextKey = static_cast<unsigned char>(readKey());
-                if (nextKey == 72 || nextKey == 'A') key = 'w';
-                else if (nextKey == 80 || nextKey == 'B') key = 's';
-            }
+            char key = readNavKey();
 
             if (key == 'w' || key == 'W') { selectionCurrent--; if (selectionCurrent < 0) selectionCurrent = totalOptions - 1; }
             else if (key == 's' || key == 'S') { selectionCurrent++; if (selectionCurrent >= totalOptions) selectionCurrent = 0; }

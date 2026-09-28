@@ -10,7 +10,7 @@ class Item;
 
 class CombatScreen {
 public:
-    static ContextCombat context;
+    static CombatContext context;
 
     static void displayLogoForCombatScreen(const std::string& screenTitle = "", bool animate = true);
     static void animateCombatIntro(const std::string& title, const std::vector<Character*>& enemies, Character* currentPlayer = nullptr);
@@ -18,16 +18,24 @@ public:
     static void displayEnemyHordeSideBySide(const std::vector<Character*>& enemies, Character* targetAnimation = nullptr, int frameAnimation = 0, bool isHealing = false, bool animateEmergence = false, bool isDeath = false, Item* weaponAttacker = nullptr, int damageAnimation = -1, const std::vector<std::string>& dropsAnimation = {});
     static void animateDamageToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* attacker, Character* currentPlayer, const std::vector<Character*>& allies, int damageAnimation = -1);
     static void animateCureToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int healingAnimation = 0);
+    static inline void animateHealingToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int healingAnimation = 0) {
+        animateCureToEnemy(combatTitle, enemies, targetAnimation, currentPlayer, allies, healingAnimation);
+    }
     static void animateDamageToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies = {}, bool isParry = false, int damageAnimation = -1);
     static void animateCureToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies = {}, int healingAnimation = 0);
+    static inline void animateHealingToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies = {}, int healingAnimation = 0) {
+        animateCureToPlayer(combatTitle, enemies, targetAnimation, currentPlayer, allies, healingAnimation);
+    }
     static void animateEnemyDeath(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* enemyDead, Character* currentPlayer, const std::vector<Character*>& allies, const std::vector<std::string>& drops = {});
     static void updateScreenStatic(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies, bool animateEntrance = false);
 
     static void addFixedMessage(const std::string& msg);
     static void cleanMessagesFixed();
+    static inline void clearFixedMessages() { cleanMessagesFixed(); }
 
     static void configureContext3D(bool mode3D, const std::vector<std::string>& matrix, float postX, float postY, float angle, const std::string& title);
     static void setShiftVisible(int shift, const std::string& name);
+    static inline void setTurnVisible(int turn, const std::string& name) { setShiftVisible(turn, name); }
     static void selectHUDAlly(Character* currentPlayer, const std::vector<Character*>& allies);
 
     static int getPlayerAction(int currentTurn, Character* characterActing, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies);
@@ -36,6 +44,7 @@ public:
     static int chooseShield(const std::string& characterName, const std::vector<Item*>& shields);
     static void notifyEnemiesMoreAct();
     static void notifyShiftExtra(int dexterityPlayer, int maxEnemyDexterity);
+    static inline void notifyExtraTurn(int dexterityPlayer, int maxEnemyDexterity) { notifyShiftExtra(dexterityPlayer, maxEnemyDexterity); }
     static void notifyUnpreventionInventory();
     static void notifyWithoutShields(const std::string& characterName);
     static void notifyImbalanceDefense(const std::string& characterName);

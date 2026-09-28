@@ -1,8 +1,3 @@
-// [PT-BR] Arquivo: Appearance.h
-// [PT-BR] Proposito: Utilitarios de estetica do terminal (formatadores ANSI, movimentacao de cursor e suporte a cores).
-// [EN-US] File: Appearance.h
-// [EN-US] Purpose: Terminal aesthetics utilities (ANSI formatters, cursor movement, and color support).
-
 #pragma once
 
 #include "Core/Terminal/Appearance/Color.h"
@@ -14,19 +9,18 @@
 #include <functional>
 #include <algorithm>
 
-// [PT-BR] Fornece utilitarios de formatacao, cores e posicionamento para o console/terminal.
-// [EN-US] Provides formatting, coloring, and positioning utilities for console/terminal.
+// Formatacao, cores e posicionamento para o console/terminal.
 class Appearance {
 public:
     static Color colorBackgroundActive;
     static char customPlayerIcon;
     static Color customPlayerColor;
 
-    static void bootConsole();
-    static std::string convertVectorForStringGross(const std::vector<std::string>& vector);
+    static void initializeConsole();
+    static inline void bootConsole() { initializeConsole(); }
     static std::string superimposePanelOnAnsiLine(const std::string& backgroundLine, const std::string& panelLine, int startX);
     static std::string color(Color code);
-    static std::vector<std::string> convertRawStringToVector(const std::string& textGross);
+    static std::vector<std::string> convertRawStringToVector(const std::string& rawText);
     static std::vector<std::string> splitUtf8(std::string_view text);
     static void standardizeVectorSize(std::vector<std::string>& lines);
     static std::vector<std::string> loadArt(const std::string& pathFile);
@@ -35,15 +29,18 @@ public:
     static std::string bgRGB(uint8_t r, uint8_t g, uint8_t b);
 
     static void maximizeWindowTerminal();
-    static void adjustSourceForResolution();
+    static void adjustFontForResolution();
+    static inline void adjustSourceForResolution() { adjustFontForResolution(); }
     static void hideCursor();
-    static void concertCursor();
+    static void showCursor();
+    static inline void concertCursor() { showCursor(); }
     static void setColorBackgroundTerminal(const std::string& hexColor);
     static void clearScreen();
     static int getTerminalWidth();
     static int getTerminalHeight();
     static void moveCursor(int x, int y);
-    static int getCursorPostY();
+    static int getCursorPosY();
+    static inline int getCursorPostY() { return getCursorPosY(); }
     
     static std::string removeANSIColors(const std::string& text);
     static int getVisualLength(const std::string& text);
@@ -53,7 +50,10 @@ public:
     static void printCentralized(const std::string& text, const std::string& colorAnsi = "");
     static void printCentralizedMultiline(const std::vector<std::string>& lines, int widthVisual = 0, const std::string& colorAnsi = "", int delayLineMs = 0);
     static void printBlockCentralized(const std::vector<std::string>& lines, const std::string& colorAnsi = "", int delayLineMs = 0);
-    static int printSideASide(const std::vector<std::string>& columnLeft, const std::vector<std::string>& columnRight, int minWidthLeft = 0, int spacing = 0, Color colorLeft = Color::RESET, Color colorRight = Color::RESET, int delayLineMs = 0);
+    static int printSideBySide(const std::vector<std::string>& columnLeft, const std::vector<std::string>& columnRight, int minWidthLeft = 0, int spacing = 0, Color colorLeft = Color::RESET, Color colorRight = Color::RESET, int delayLineMs = 0);
+    static inline int printSideASide(const std::vector<std::string>& columnLeft, const std::vector<std::string>& columnRight, int minWidthLeft = 0, int spacing = 0, Color colorLeft = Color::RESET, Color colorRight = Color::RESET, int delayLineMs = 0) {
+        return printSideBySide(columnLeft, columnRight, minWidthLeft, spacing, colorLeft, colorRight, delayLineMs);
+    }
     
     static std::string getColorRGBFade(Color themeColor, int intensity);
     static void animateFadeIn(int framesTotals, int timeByFrameMs, const std::function<void(int frame, int intensity)>& renderFrame);
@@ -63,7 +63,10 @@ public:
     static void printBlockCentralizedTyping(const std::vector<std::string>& lines, int delayMs = typingDelayMS);
     static void printCentralizedTyping(const std::string& text, int delayMs = typingDelayMS);
     static void printTyping(const std::string& text, int delayMs = typingDelayMS, bool addNewline = true);
-    static void printVectorExcited(const std::vector<std::string>& lines, int delayMs = 30);
+    static void printVectorAnimated(const std::vector<std::string>& lines, int delayMs = 30);
+    static void printVectorExcited(const std::vector<std::string>& lines, int delayMs = 30) {
+        printVectorAnimated(lines, delayMs);
+    }
     
     static void displayPanel(const std::string& title, Color colorMain = Color::WHITE, const std::vector<std::string>& artMain = {}, int artWidth = 0, const std::vector<std::string>& artSecondary = {}, Color colorSecondary = Color::RESET, bool animateFadeIn = false);
     static void displayTextPanel(const std::string& title, Color colorDoHeader = Color::WHITE, bool animateFadeIn = false);
@@ -71,31 +74,54 @@ public:
     static void displayTitlePattern(const std::string& title, Color themeColor = Color::WHITE);
     static void displayPrompt(const std::string& message);
     static void displayPopup(const std::string& title, const std::vector<std::string>& text, Color themeColor = Color::WHITE, const std::vector<std::string>& asciiArt = {});
-    static void renderBoxPopupLively(const std::vector<std::string>& box, int startX, int startY, bool animate);
-    static void removeBoxPopupLively(int endBoxWidth, int endBoxHeight, int startX, int startY, bool animate = true);
+    static void renderBoxPopupAnimated(const std::vector<std::string>& box, int startX, int startY, bool animate);
+    static void renderBoxPopupLively(const std::vector<std::string>& box, int startX, int startY, bool animate) {
+        renderBoxPopupAnimated(box, startX, startY, animate);
+    }
+    static void removeBoxPopupAnimated(int endBoxWidth, int endBoxHeight, int startX, int startY, bool animate = true);
+    static void removeBoxPopupLively(int endBoxWidth, int endBoxHeight, int startX, int startY, bool animate = true) {
+        removeBoxPopupAnimated(endBoxWidth, endBoxHeight, startX, startY, animate);
+    }
     static void startPopupInteraction();
     static void updateMinPopupSize(int width, int height);
     static int getMinWidthPopup();
     static int getMinHeightPopup();
     static int readIntegerInFloatingPopup(const std::string& message, int limitMin, int limitMax, Color themeColor = Color::WHITE);
-    static void cleanPopupPrevious();
+    static void clearPreviousPopup();
+    static inline void cleanPopupPrevious() { clearPreviousPopup(); }
     static void setLastPopup(int x, int y, int w, int h, const std::string& bgAnsi = "\033[48;2;25;25;25m");
     static std::vector<std::string> reduceScaleAscii(const std::vector<std::string>& artOriginal, float factorX = 2.0f, float factorY = 2.0f);
-    static std::string superimposeSoonAnsi(const std::string& backgroundLine, const std::vector<std::string>& soonChars, int startX, const std::string& fgColor, int terminalWidth);
-    static std::string fatarLineAnsi(const std::string& line, float ratio);
+    static std::string superimposeLogoAnsi(const std::string& backgroundLine, const std::vector<std::string>& logoChars, int startX, const std::string& fgColor, int terminalWidth);
+    static std::string superimposeSoonAnsi(const std::string& backgroundLine, const std::vector<std::string>& logoChars, int startX, const std::string& fgColor, int terminalWidth) {
+        return superimposeLogoAnsi(backgroundLine, logoChars, startX, fgColor, terminalWidth);
+    }
+    static std::string fadeLineAnsi(const std::string& line, float ratio);
+    static std::string fatarLineAnsi(const std::string& line, float ratio) {
+        return fadeLineAnsi(line, ratio);
+    }
     
-    static void cheerTransitionScene3D(
-        const std::vector<std::string>& soonBase,
-        const std::string& colorEndSoon,
+    static void animateTransitionScene3D(
+        const std::vector<std::string>& logoBase,
+        const std::string& colorEndLogo,
         const std::vector<std::string>& backgroundFree,
         std::function<std::vector<std::string>(float)> getBackgroundEnd,
         int targetY = 2
     );
+    static void cheerTransitionScene3D(
+        const std::vector<std::string>& logoBase,
+        const std::string& colorEndLogo,
+        const std::vector<std::string>& backgroundFree,
+        std::function<std::vector<std::string>(float)> getBackgroundEnd,
+        int targetY = 2
+    ) {
+        animateTransitionScene3D(logoBase, colorEndLogo, backgroundFree, getBackgroundEnd, targetY);
+    }
 
     static int FACTOR_COMPRESSION_GLOBAL;
 
     static void registerBattleLog(const std::string& text);
-    static void cleanLogBattle();
+    static void clearBattleLog();
+    static inline void cleanLogBattle() { clearBattleLog(); }
     static void displayLatestLogs(int quantity);
     static void displayHistoryComplete();
 

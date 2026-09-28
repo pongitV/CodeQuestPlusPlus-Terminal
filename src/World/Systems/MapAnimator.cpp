@@ -154,8 +154,7 @@ void MapAnimator::animateFlashbang(int r, int g, int b) {
     if (SCREEN_WIDTH <= 0) SCREEN_WIDTH = 120;
     if (SCREEN_HEIGHT <= 0) SCREEN_HEIGHT = 30;
 
-    // [PT-BR] Esconde o cursor do terminal
-    // [EN-US] Hides terminal cursor
+    // Esconde o cursor do terminal
     std::cout << "\033[?25l";
     std::string colorPrefix = "\033[48;2;" + std::to_string(r) + ";" + std::to_string(g) + ";" + std::to_string(b) + "m";
     
@@ -167,12 +166,10 @@ void MapAnimator::animateFlashbang(int r, int g, int b) {
         
         for (int y = 0; y < SCREEN_HEIGHT; y++) {
             for (int x = 0; x < SCREEN_WIDTH; x++) {
-                // [PT-BR] Previne rolagem acidental no ultimo caractere do terminal
-                // [EN-US] Prevents accidental scrolling on last terminal character
+                // Previne rolagem acidental no ultimo caractere do terminal
                 if (y == SCREEN_HEIGHT - 1 && x == SCREEN_WIDTH - 1) break;
                 if (fadeChars[step] == " ") {
-                    // [PT-BR] Fundo preto final
-                    // [EN-US] Final black background
+                    // Fundo preto final
                     buffer += "\033[40m \033[0m";
                 } else {
                     buffer += colorPrefix + "\033[38;2;255;255;255m" + fadeChars[step] + "\033[0m";

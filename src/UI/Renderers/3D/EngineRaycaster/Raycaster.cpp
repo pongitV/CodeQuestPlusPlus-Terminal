@@ -159,7 +159,7 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
         downsampleScreenBuffer(screen3D, screen, SCREEN_WIDTH, SCREEN_HEIGHT);
     };
 
-    auto cheerEye = [&](bool opening, const vector<string>& frameBase) {
+    auto animateEye = [&](bool opening, const vector<string>& frameBase) {
         int maxSteps = 8; 
         for (int step = 0; step <= maxSteps; step++) {
             int p = opening ? step : (maxSteps - step);
@@ -200,7 +200,7 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
         }
     };
 
-    auto cheerDoorOpening = [&]() {
+    auto animateDoorOpening = [&]() {
         int maxSteps = 11;
         for (int step = 0; step <= maxSteps; step++) {
             float percentage = (float)step / maxSteps;
@@ -231,7 +231,7 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
         }
     };
 
-    auto cheerBanner3D = [&](const string& title) {
+    auto animateBanner3D = [&](const string& title) {
         vector<string> banner;
         string upper = title;
         for(char& c : upper) c = toupper((unsigned char)c);
@@ -343,12 +343,12 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
     RaycasterRenderer::render3D(screen3D, SCREEN_WIDTH, HEIGHT_INTERNAL, playerX, playerY, viewAngle, (HEIGHT_INTERNAL / 2.0f), 0, depthMaximum, timeAbsoluteInitial, mapMatrix, titleMap, themeForest, themeActiveInitial, cacheSprites);
     downsampleScreen();
     if (typeAnimationEntry == 1) {
-        cheerEye(true, screen);
+        animateEye(true, screen);
         RaycasterHUD::draw(screen, SCREEN_WIDTH, SCREEN_HEIGHT, playerX, playerY, viewAngle, mapMatrix, titleMap, themeForest, player);
     } else if (typeAnimationEntry == 2) {
-        cheerDoorOpening();
+        animateDoorOpening();
         RaycasterHUD::draw(screen, SCREEN_WIDTH, SCREEN_HEIGHT, playerX, playerY, viewAngle, mapMatrix, titleMap, themeForest, player);
-        cheerBanner3D(titleMap);
+        animateBanner3D(titleMap);
     } else {
         RaycasterHUD::draw(screen, SCREEN_WIDTH, SCREEN_HEIGHT, playerX, playerY, viewAngle, mapMatrix, titleMap, themeForest, player);
     }
@@ -409,12 +409,12 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
             return actionReturn;
         }
 
-        // --- RENDERIZACAO RAYCASTING (3D) ---
+        // Renderizacao raycasting (3d)
         float horizonInternal = (HEIGHT_INTERNAL / 2.0f) + (bobbingOffset * 2) + (pitchOffset * 2.0f);
         int offsetGeneral = (bobbingOffset * 2) + (int)(pitchOffset * 2.0f);
         
 
-        // --- CICLO DIA/NOITE GLOBAL ---
+        // Ciclo dia/noite global
         int themeActive = themeSky;
         if (themeSky == 1 || themeSky == 2) {
             long long globalMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -427,12 +427,12 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
         }
 
         RaycasterRenderer::render3D(screen3D, SCREEN_WIDTH, HEIGHT_INTERNAL, playerX, playerY, viewAngle, horizonInternal, offsetGeneral, depthMaximum, timeAbsolute, mapMatrix, titleMap, themeForest, themeActive, cacheSprites);
-        // --- LIMPA A TELA HUD ---
+        // Limpa a tela hud
         for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++) {
             screen[i].clear();
         }
 
-        // --- RENDERIZACAO HUD E OVERLAYS (2D) ---
+        // Renderizacao hud e overlays (2d)
         RaycasterHUD::draw(screen, SCREEN_WIDTH, SCREEN_HEIGHT, playerX, playerY, viewAngle, mapMatrix, titleMap, themeForest, player);
 
         string bufferFrame = "\033[?2026h\033[?25l\033[H"; 
@@ -518,7 +518,7 @@ char Raycaster::start3DExploration(const vector<string>& mapMatrix, float& playe
 
     InputControl::clearBuffer();
     if (outHitX == -1 && outHitY == -1) {
-        cheerEye(false, screen);
+        animateEye(false, screen);
         Appearance::clearScreen();
     }
     return 0;

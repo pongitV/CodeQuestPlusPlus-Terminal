@@ -524,8 +524,7 @@ void CombatInventory::manageInventory(Character* currentPlayer, bool* shiftWasCo
                     if (escLogic == 7 + offset) {
                         running = false;
                     } else if (offset == 1 && escLogic == 0) {
-                        // [PT-BR] --- CONSUMIVEL RAPIDO ---
-                        // [EN-US] --- QUICK CONSUMABLE ---
+                        // CONSUMIVEL RAPIDO
                         Item* quickly = currentPlayer->getConsumableQuickly();
                         std::string quickItemName = quickly->getItemName();
                         int countBefore = currentPlayer->getInventory()->countItem(quickItemName);
@@ -611,8 +610,7 @@ void CombatInventory::manageInventory(Character* currentPlayer, bool* shiftWasCo
                                     if (is3D) RaycasterFrame::restoreLastFrame();
                                     break;
                                 } else if (subOption == 1) {
-                                    // [PT-BR] Equipar ou Desequipar Acesso Rapido
-                                    // [EN-US] Equip or Unequip Quick Access
+                                    // Equipar ou Desequipar Acesso Rapido
                                     if (isQuickEquipped) {
                                         currentPlayer->unequipConsumable();
                                         displayMessagePopupInventory("SISTEMA", {foundItem->getItemName() + " desequipado(a) do Acesso Rapido!"});
@@ -623,8 +621,7 @@ void CombatInventory::manageInventory(Character* currentPlayer, bool* shiftWasCo
                                     submenuOpen = false;
                                     if (is3D) RaycasterFrame::restoreLastFrame();
                                 } else if (subOption == 2) {
-                                    // [PT-BR] Inspecionar
-                                    // [EN-US] Inspect
+                                    // Inspecionar
                                     std::vector<std::string> details = foundItem->getDetailsInspection(currentPlayer);
                                     std::vector<std::string> inspectionLines;
                                     inspectionLines.push_back(Appearance::color(Color::YELLOW) + " >> " + foundItem->getItemName() + " <<" + Appearance::color(Color::RESET));
@@ -633,8 +630,7 @@ void CombatInventory::manageInventory(Character* currentPlayer, bool* shiftWasCo
                                     displayMessagePopupInventory("INSPECAO DE ITEM", inspectionLines);
                                     if (is3D) RaycasterFrame::restoreLastFrame();
                                 } else if (subOption == 0) {
-                                    // [PT-BR] Usar consumivel
-                                    // [EN-US] Use consumable
+                                    // Usar consumivel
                                     int qtyAvailable = currentPlayer->getInventory()->countItem(foundItem->getItemName());
                                     int quantityForUse = 1;
                                     
@@ -696,8 +692,7 @@ void CombatInventory::manageInventory(Character* currentPlayer, bool* shiftWasCo
                                     if (is3D) RaycasterFrame::restoreLastFrame();
                                 }
                             } else {
-                                // [PT-BR] Equipavel / Material / Missao
-                                // [EN-US] Equipable / Material / Mission
+                                // Equipavel / Material / Missao
                                 if (subOption == 2) {
                                     submenuOpen = false;
                                     if (is3D) RaycasterFrame::restoreLastFrame();

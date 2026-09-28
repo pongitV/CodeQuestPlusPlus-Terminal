@@ -1,8 +1,3 @@
-// [PT-BR] Arquivo: ICombatUI.h
-// [PT-BR] Proposito: Interface abstrata para renderizacao da interface visual de combate (Console 2D e Raycaster 3D).
-// [EN-US] File: ICombatUI.h
-// [EN-US] Purpose: Abstract interface for rendering combat UI (2D Console and 3D Raycaster).
-
 #pragma once
 
 #include <string>
@@ -12,8 +7,7 @@
 class Character;
 class Item;
 
-// [PT-BR] Interface de exibicao e controle visual de combate.
-// [EN-US] Interface for combat visual display and control.
+// Interface de exibicao e controle visual de combate.
 class ICombatUI {
 public:
     virtual ~ICombatUI() = default;
@@ -25,20 +19,30 @@ public:
     
     virtual void animateDamageToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* attacker, Character* currentPlayer, const std::vector<Character*>& allies, int damageAnimation) = 0;
     virtual void animateCureToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int healingAnimation) = 0;
+    virtual inline void animateHealingToEnemy(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int healingAnimation) {
+        animateCureToEnemy(combatTitle, enemies, targetAnimation, currentPlayer, allies, healingAnimation);
+    }
     
     virtual void animateDamageToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, bool isParry, int damageAnimation) = 0;
     virtual void animateCureToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int healingAnimation) = 0;
+    virtual inline void animateHealingToPlayer(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* targetAnimation, Character* currentPlayer, const std::vector<Character*>& allies, int healingAnimation) {
+        animateCureToPlayer(combatTitle, enemies, targetAnimation, currentPlayer, allies, healingAnimation);
+    }
     
     virtual void animateEnemyDeath(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* enemyDead, Character* currentPlayer, const std::vector<Character*>& allies, const std::vector<std::string>& drops) = 0;
 
     virtual void cleanContextCharacterHUD() = 0;
+    virtual inline void clearContextCharacterHUD() { cleanContextCharacterHUD(); }
     virtual void cleanContextEnemyDeathAndDrops() = 0;
+    virtual inline void clearContextEnemyDeathAndDrops() { cleanContextEnemyDeathAndDrops(); }
 
     virtual std::string combatMargin() = 0;
 
     virtual void addFixedMessage(const std::string& msg) = 0;
     virtual void cleanMessagesFixed() = 0;
+    virtual inline void clearFixedMessages() { cleanMessagesFixed(); }
     virtual void setShiftVisible(int shift, const std::string& name) = 0;
+    virtual inline void setTurnVisible(int turn, const std::string& name) { setShiftVisible(turn, name); }
     
     virtual int getPlayerAction(int currentTurn, Character* characterActing, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) = 0;
     virtual int getTargetAttack(const std::string& combatTitle, const std::vector<Character*>& enemies, Character* currentPlayer, const std::vector<Character*>& allies) = 0;
@@ -47,6 +51,7 @@ public:
     
     virtual void notifyEnemiesMoreAct() = 0;
     virtual void notifyShiftExtra(int dexterityPlayer, int maxEnemyDexterity) = 0;
+    virtual inline void notifyExtraTurn(int dexterityPlayer, int maxEnemyDexterity) { notifyShiftExtra(dexterityPlayer, maxEnemyDexterity); }
     virtual void notifyUnpreventionInventory() = 0;
     virtual void notifyWithoutShields(const std::string& characterName) = 0;
     virtual void notifyImbalanceDefense(const std::string& characterName) = 0;

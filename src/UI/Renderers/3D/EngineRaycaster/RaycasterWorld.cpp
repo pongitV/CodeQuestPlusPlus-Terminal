@@ -181,7 +181,7 @@ Pixel3D RaycasterWorld::getInternalWallPixel(const std::string& titleMap, bool t
     bool isStructure = (charWall == '|' || charWall == '_' || charWall == '[' || charWall == ']' || charWall == '{' || charWall == '}' || charWall == '/' || charWall == '\\' || charWall == '<' || charWall == '>' || charWall == ';' || charWall == '=' || charWall == '-' || charWall == ':' || charWall == '+');
     bool isLabyrinthArch = (!isKingdom && themeForest && charWall == '#' && hitX >= 125.0f && hitX <= 150.0f && hitY >= 5.0f && hitY <= 15.0f);
 
-    TexID texID = TexID::WallInvalidates;
+    TexID texID = TexID::InvalidWall;
 
     if (flags.isLabyrinth) {
         texID = TexID::LabyrinthWood;
@@ -189,8 +189,8 @@ Pixel3D RaycasterWorld::getInternalWallPixel(const std::string& titleMap, bool t
         int mapX = (int)hitX;
         int mapY = (int)hitY;
         bool isPillar = (std::abs(mapY - 12) == 1 && mapX >= 132 && mapX <= 136);
-        if (isPillar) texID = TexID::LabyrinthBowPillar;
-        else texID = TexID::LabyrinthBowBackground;
+        if (isPillar) texID = TexID::LabyrinthArchPillar;
+        else texID = TexID::LabyrinthArchBackground;
     } else if (isStructure && npcFound == 'M') {
         texID = TexID::MorganaWood;
     } else if (isKingdom && (isStructure || charWall == '#' || charWall == '+')) {
@@ -206,7 +206,7 @@ Pixel3D RaycasterWorld::getInternalWallPixel(const std::string& titleMap, bool t
                 else if (npcFound == 'I' || npcFound == 'P') texID = TexID::EntryChurch;
                 else if (npcFound == 'A' || npcFound == 'N') texID = TexID::MannequinAnok;
                 else if (npcFound == 'F') texID = TexID::Francesco;
-                else if (npcFound == 'B') texID = TexID::Kiss;
+                else if (npcFound == 'B') texID = TexID::Bjorn;
                 else if (npcFound == 'C') texID = TexID::Knight;
                 else texID = TexID::KingdomStone;
             }
@@ -303,7 +303,7 @@ Pixel3D RaycasterWorld::getFloorPixel(const std::string& titleMap, float current
         float cy = (globY & 127) - 64.0f;
         float dist = std::sqrt(cx*cx + cy*cy);
         float angle = std::atan2(cy, cx);
-        float spiral = ManagerTextures::fastYes(dist * 0.4f - angle * 3.0f);
+        float spiral = ManagerTextures::fastSin(dist * 0.4f - angle * 3.0f);
         fgR = 50; fgG = 50; fgB = 50; 
         if (spiral > 0.3f) c = '@';
         else if (spiral > 0.0f) c = '%';
@@ -315,7 +315,7 @@ Pixel3D RaycasterWorld::getFloorPixel(const std::string& titleMap, float current
         float cy = (globY & 255) - 128.0f;
         float dist = std::sqrt(cx*cx + cy*cy);
         float angle = std::atan2(cy, cx);
-        float spiral = ManagerTextures::fastYes(dist * 0.2f + angle * 4.0f + globX * 0.1f);
+        float spiral = ManagerTextures::fastSin(dist * 0.2f + angle * 4.0f + globX * 0.1f);
         bool hasMoss = ((globX * 17 + globY * 13) % 100) < 40 || (spiral > 0.5f);
         if (hasMoss) { texID = TexID::FloorHeartMoss; fgR = 30; fgG = 80; fgB = 20; }
         else if (spiral > 0.0f) { texID = TexID::FloorHeartEarth; fgR = 50; fgG = 30; fgB = 15; }
@@ -323,7 +323,7 @@ Pixel3D RaycasterWorld::getFloorPixel(const std::string& titleMap, float current
     } else if (flags.isKingdom || flags.isBridge) {
         float cx = globX * 0.15f;
         float cy = globY * 0.15f;
-        float noise = ManagerTextures::fastYes(cx) * ManagerTextures::fastYes(cy);
+        float noise = ManagerTextures::fastSin(cx) * ManagerTextures::fastSin(cy);
         
         int row = globY / 24;
         int offset = (row % 2 == 0) ? 0 : 12;
@@ -344,7 +344,7 @@ Pixel3D RaycasterWorld::getFloorPixel(const std::string& titleMap, float current
         float cx = globX * 0.06f;
         float cy = globY * 0.06f;
         float cx2 = (globX - globY) * 0.03f;
-        float noise = ManagerTextures::fastYes(cx) + ManagerTextures::fastYes(cy) + ManagerTextures::fastYes(cx2);
+        float noise = ManagerTextures::fastSin(cx) + ManagerTextures::fastSin(cy) + ManagerTextures::fastSin(cx2);
         
         int var = (int)(noise * 5.0f);
         bgR = 30 + var; bgG = 30 + var; bgB = 30 + var;
@@ -355,7 +355,7 @@ Pixel3D RaycasterWorld::getFloorPixel(const std::string& titleMap, float current
         float cy = globY * 0.091f;
         float cx2 = (globX + globY) * 0.054f;
         float cy2 = ((float)globX - globY) * 0.111f;
-        float noise = ManagerTextures::fastYes(cx) + ManagerTextures::fastYes(cy) + ManagerTextures::fastYes(cx2) + ManagerTextures::fastYes(cy2);
+        float noise = ManagerTextures::fastSin(cx) + ManagerTextures::fastSin(cy) + ManagerTextures::fastSin(cx2) + ManagerTextures::fastSin(cy2);
         bool isGrass = (noise > -3.0f);
         if (isGrass) {
             if (flags.isForest) { fgR = 6; fgG = 35; fgB = 6; texID = TexID::FloorGrassForest; }
@@ -538,7 +538,7 @@ Pixel3D RaycasterWorld::getPixelWater(float currentX, float currentY, float curr
     int baseR=0, baseG=0, baseB=0;
     currentDist *= 0.55f;
 
-    float waveX = ManagerTextures::fastYes(currentX * 4.0f + timeAnimation * 2.0f);
+    float waveX = ManagerTextures::fastSin(currentX * 4.0f + timeAnimation * 2.0f);
     float waveY = ManagerTextures::fastCos(currentY * 4.0f + timeAnimation * 1.5f);
     float wave = (waveX + waveY) * 0.5f; 
 
@@ -610,7 +610,7 @@ Pixel3D RaycasterWorld::getPixelCeiling(int themeSky, float radiusAngle, float a
             float cy = (ty - 64.0f);
             float dist = std::sqrt(cx*cx + cy*cy);
             float angle = std::atan2(cy, cx);
-            float spiral = ManagerTextures::fastYes(dist * 0.2f + angle * 4.0f + tx * 0.1f);
+            float spiral = ManagerTextures::fastSin(dist * 0.2f + angle * 4.0f + tx * 0.1f);
             
             bool hasMoss = ((tx * 17 + ty * 13) % 100) < 20 || (spiral > 0.8f);
             
@@ -834,8 +834,7 @@ char RaycasterWorld::getSpriteChar(int /*mapX*/, int mapY, char c, const std::st
     }
 
     if (c == '!' || c == '%') {
-        // [PT-BR] Retorna ! ou % para serem desenhados como sprite pelo RaycasterRendererBase
-        // [EN-US] Returns ! or % to be rendered as sprite by RaycasterRendererBase
+        // Retorna ! ou % para serem desenhados como sprite pelo RaycasterRendererBase
         return c;
     }
     if (c == '@') {

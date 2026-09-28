@@ -95,17 +95,11 @@ DifficultyScreen::Result ScreenDifficultyRaycaster::display(const std::string& n
             continue;
         }
 
-        unsigned char key = static_cast<unsigned char>(InputControl::readKey());
-        if (key == 224 || key == 0 || key == '\033') {
-            unsigned char nextKey = static_cast<unsigned char>(InputControl::readKey());
-            if (nextKey == '[') nextKey = static_cast<unsigned char>(InputControl::readKey());
-            if (nextKey == 72 || nextKey == 'A') key = 'w';
-            else if (nextKey == 80 || nextKey == 'B') key = 's';
-            else if (nextKey == 27) {
-                DifficultyScreen::Result r;
-                r.returned = true;
-                return r;
-            }
+        unsigned char key = static_cast<unsigned char>(InputControl::readNavKey());
+        if (key == 27) {
+            DifficultyScreen::Result r;
+            r.returned = true;
+            return r;
         }
 
         if (key == 'w' || key == 'W') {

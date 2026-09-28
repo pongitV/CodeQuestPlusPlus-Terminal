@@ -1,8 +1,3 @@
-/*
- * Arquivo: Progression.h
- * Proposito: Singleton gerenciador de flags globais de progresso da historia e salvamento.
- */
-
 #pragma once
 #include <string>
 #include <unordered_map>
@@ -26,15 +21,13 @@ public:
     void setFlag(const std::string& key, bool value);
     bool getFlag(const std::string& key) const;
 
-    // [PT-BR] Calculos dinamicos de progresso combinando dados do jogador com as flags salvas
-    // [EN-US] Dynamic progress calculations combining player stats with saved flags
+    // Calculos dinamicos de progresso combinando dados do jogador com as flags salvas
     int getVillageProgress(Character* currentPlayer) const;
     int getForestProgress(Character* currentPlayer) const;
     int getKingdomBridgeProgress(Character* currentPlayer) const;
     int getKingdomProgress(Character* currentPlayer) const;
 
-    // [PT-BR] Funcoes de integracao com o sistema de salvamento
-    // [EN-US] Integration functions with save system
+    // Funcoes de integracao com o sistema de salvamento
     void save(std::ofstream& out) const;
     void load(std::ifstream& in);
 };

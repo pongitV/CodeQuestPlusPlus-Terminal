@@ -24,7 +24,7 @@ namespace {
     };
 
     const std::vector<ItemProgress> progressItems = {
-        {Flags::Village_KissRescued, "O Salvador da Forja", "Resgatou o ferreiro Bjorn encurralado por um Orc.", CategoryProgress::NPC},
+        {Flags::Village_BjornRescued, "O Salvador da Forja", "Resgatou o ferreiro Bjorn encurralado por um Orc.", CategoryProgress::NPC},
         {Flags::Village_RoyalInvitation, "Passe Real", "Ajudou os cavaleiros a se livrarem dos Trolls e recebeu um convite para o Reino.", CategoryProgress::NPC},
         {Flags::Forest_MorganaQuest, "Pacto com a Bruxa", "Entregou os Coracoes da Floresta para Morgana e recebeu a chave para o Labirinto.", CategoryProgress::NPC},
         {Flags::Forest_MahoragaDefeated, "Ritual concluido", "Derrotou Mahoraga pela primeira vez.", CategoryProgress::MONSTER},

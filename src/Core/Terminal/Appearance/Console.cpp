@@ -23,7 +23,7 @@ namespace {
 #endif
 }
 
-void Appearance::bootConsole() {
+void Appearance::initializeConsole() {
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(NULL);
 
@@ -44,7 +44,7 @@ void Appearance::bootConsole() {
 
 void Appearance::maximizeWindowTerminal() {
 #ifdef _WIN32
-    adjustSourceForResolution();
+    adjustFontForResolution();
 
     HWND hwnd = GetConsoleWindow();
 
@@ -54,7 +54,7 @@ void Appearance::maximizeWindowTerminal() {
 #endif
 }
 
-void Appearance::adjustSourceForResolution() {
+void Appearance::adjustFontForResolution() {
 #ifdef _WIN32
     int widthScreen = GetSystemMetrics(SM_CXSCREEN);
     int heightScreen = GetSystemMetrics(SM_CYSCREEN);
@@ -65,12 +65,12 @@ void Appearance::adjustSourceForResolution() {
     double scaleY = static_cast<double>(heightScreen) / 1080.0;
     double scale = std::min(scaleX, scaleY);
     
-    const int SOURCE_REFERENCE = 10;
+    const int FONT_REFERENCE = 10;
     
-    int newSize = static_cast<int>(SOURCE_REFERENCE * scale);
+    int newSize = static_cast<int>(FONT_REFERENCE * scale);
     
     if (newSize < 8) newSize = 8;
-    if (newSize >= SOURCE_REFERENCE) return;
+    if (newSize >= FONT_REFERENCE) return;
     
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_FONT_INFOEX fontInfo = {};
@@ -97,7 +97,7 @@ void Appearance::hideCursor() {
 #endif
 }
 
-void Appearance::concertCursor() {
+void Appearance::showCursor() {
 #ifdef _WIN32
     HANDLE terminalManipulator = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_CURSOR_INFO cursorInformation;
@@ -144,7 +144,7 @@ void Appearance::moveCursor(int x, int y) {
     std::cout << "\033[" << (y + 1) << ";" << (x + 1) << "H";
 }
 
-int Appearance::getCursorPostY() {
+int Appearance::getCursorPosY() {
 #ifdef _WIN32
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi)) {

@@ -1,5 +1,4 @@
-// [PT-BR] Utilidades multiplataforma para terminal
-// [EN-US] Cross-platform terminal utilities
+// Utilidades multiplataforma para terminal
 #pragma once
 #include <string>
 #include <string_view>
@@ -17,8 +16,7 @@
 #include <unistd.h>
 #endif
 
-// [PT-BR] Funcoes de baixo nivel para controle e formatacao do terminal
-// [EN-US] Low-level functions for terminal control and formatting
+// Funcoes de baixo nivel para controle e formatacao do terminal
 namespace TerminalUtils {
     inline void clearScreen() {
 #ifdef _WIN32
@@ -81,8 +79,7 @@ namespace TerminalUtils {
         return 0;
     }
 
-    // [PT-BR] Remove sequencias de escape ANSI de uma string_view
-    // [EN-US] Strips ANSI escape sequences from a string_view
+    // Remove sequencias de escape ANSI de uma string_view
     inline std::string removeANSIColors(std::string_view text) {
         std::string result;
         result.reserve(text.size());
@@ -96,8 +93,7 @@ namespace TerminalUtils {
         return result;
     }
 
-    // [PT-BR] Calcula o comprimento visual real considerando caracteres multibyte UTF-8 e ignorando ANSI
-    // [EN-US] Calculates actual visual length considering UTF-8 multibyte characters and ignoring ANSI
+    // Calcula o comprimento visual real considerando caracteres multibyte UTF-8 e ignorando ANSI
     inline int getVisualLength(std::string_view text) {
         std::string noAnsi = removeANSIColors(text);
         int comp = 0;

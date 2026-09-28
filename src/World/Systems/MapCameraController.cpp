@@ -1,8 +1,3 @@
-// [PT-BR] Arquivo: MapCameraController.cpp
-// [PT-BR] Proposito: Implementacao do gerenciamento da camera 3D e mapas.
-// [EN-US] File: MapCameraController.cpp
-// [EN-US] Purpose: Implementation of 3D camera and map state management.
-
 #include "World/Systems/MapCameraController.h"
 #include "UI/PerspectiveManager.h"
 
@@ -15,8 +10,8 @@ std::vector<std::string> MapCameraController::s_currentMapMatrix;
 
 void MapCameraController::signal3DMapChange() { s_justChangedMap = true; }
 bool MapCameraController::is3DExplorationActive() { return PerspectiveManager::getInstance().is3DViewActive(); }
-float MapCameraController::getCameraPostX3D() { return s_cameraPosX3D; }
-float MapCameraController::getCameraPostY3D() { return s_cameraPosY3D; }
+float MapCameraController::getCameraPosX3D() { return s_cameraPosX3D; }
+float MapCameraController::getCameraPosY3D() { return s_cameraPosY3D; }
 float MapCameraController::getCameraAngle3D() { return s_cameraAngle3D; }
 std::string MapCameraController::getCurrentMapTitle() { return s_currentMapTitle; }
 std::vector<std::string> MapCameraController::getCurrentMapMatrix() { return s_currentMapMatrix; }

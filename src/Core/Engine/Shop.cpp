@@ -1,8 +1,3 @@
-// [PT-BR] Arquivo: Shop.cpp
-// [PT-BR] Proposito: Implementacao das transacoes e telas de loja com NPCs.
-// [EN-US] File: Shop.cpp
-// [EN-US] Purpose: Implementation of transactions and shop screens with NPCs.
-
 #include "Core/Engine/Shop.h"
 #include <iostream>
 #include <vector>
@@ -29,8 +24,7 @@ void Shop::processPurchase(Character* currentPlayer, const std::string& shopTitl
     });
 
     Appearance::startPopupInteraction();
-    // [PT-BR] Padroniza o tamanho da tela de Loja
-    // [EN-US] Standardizes the Shop screen popup size
+    // Padroniza o tamanho da tela de Loja
     Appearance::updateMinPopupSize(100, 24);
 
     bool animateEntrance = true;
@@ -89,8 +83,7 @@ void Shop::processPurchase(Character* currentPlayer, const std::string& shopTitl
                         qtyOptions, 
                         shopColor,
                         asciiArt,
-                        // [PT-BR] Nunca animar submenus da loja para navegacao fluida
-                        // [EN-US] Never animate shop submenus for smoother navigation
+                        // Nunca animar submenus da loja para navegacao fluida
                         false
                     );
                     
@@ -102,8 +95,7 @@ void Shop::processPurchase(Character* currentPlayer, const std::string& shopTitl
                         std::string qtyMsg = "Quantidade (1 a " + std::to_string(maxPossible) + ", 0 cancelar): ";
                         qtyToBuy = Appearance::readIntegerInFloatingPopup(qtyMsg, 0, maxPossible, shopColor);
                     } else {
-                        // [PT-BR] Cancelar selecao
-                        // [EN-US] Cancel selection
+                        // Cancelar selecao
                         qtyToBuy = 0;
                     }
                 }

@@ -9,8 +9,7 @@
 #include "Core/Utils/DialogFunctions.h"
 #include <memory>
 
-// [PT-BR] --- INFORMACOES DA RACA ---
-// [EN-US] --- RACE INFORMATION ---
+// INFORMACOES DA RACA
 std::string Mahoraga::getRaceName() const { 
     return "General Divino Imoral da Espada de Oito Empunhaduras, Mahoraga"; 
 }
@@ -23,20 +22,16 @@ std::vector<std::unique_ptr<Item>> Mahoraga::getEquipmentRace() const {
     return {};
 }
 
-// [PT-BR] --- HABILIDADE DA RACA ---
-// [EN-US] --- RACE SKILL ---
+// HABILIDADE DA RACA
 std::string Mahoraga::getNameSkillRace() const { return "A Roda da Adaptacao"; }
 std::string Mahoraga::getDescriptionSkillRace() const { return "Adapta-se ao alvo. Apos sofrer 10 parrys perfeitos, torna-se Imparavel."; }
 
-// [PT-BR] --- MECANICA DE ADAPTACAO ---
-// [EN-US] --- ADAPTATION MECHANIC ---
+// MECANICA DE ADAPTACAO
 void Mahoraga::onCausingDamage(Character* attacker, Character* target, int damageCaused) {
-    // [PT-BR] Efeito popup de texto piscante
-    // [EN-US] Flashing popup text effect
+    // Efeito popup de texto piscante
     CombatScreen::addFixedMessage(CombatScreen::combatMargin() + "\033[5m" + Appearance::color(Color::YELLOW) + "* KLINK! *" + Appearance::color(Color::RESET) + " A Roda gira...\n");
 
-    // [PT-BR] Adaptacao de Defesa contra o tipo de dano predominante
-    // [EN-US] Defense adaptation against predominant damage type
+    // Adaptacao de Defesa contra o tipo de dano predominante
     int strengthDexteritySum = target->getStrength() + target->getDexterity();
     int intelligenceWisdomSum = target->getIntelligence() + target->getWisdom();
     
@@ -62,14 +57,12 @@ void Mahoraga::onCausingDamage(Character* attacker, Character* target, int damag
         }
     }
 
-    // [PT-BR] Regeneracao de vida proporcional
-    // [EN-US] Proportional health regeneration
+    // Regeneracao de vida proporcional
     int healing = attacker->getMaxHealth() * 0.05; 
     attacker->modifyHealth(healing);
     Appearance::registerBattleLog(DialogueFunctions::formatSkillMsg("Mahoraga regenerou " + std::to_string(healing) + " HP", Color::GREEN));
 
-    // [PT-BR] Remocao e purificacao de debuffs negativos
-    // [EN-US] Cleansing of negative debuffs
+    // Remocao e purificacao de debuffs negativos
     std::vector<EffectID> effects;
     attacker->getIDsEffectsAssets(effects);
     if (!effects.empty()) {
@@ -104,8 +97,7 @@ bool Mahoraga::ignoreShield() const {
     return defensesWithShieldSuffered >= 3;
 }
 
-// [PT-BR] --- APARENCIA ---
-// [EN-US] --- APPEARANCE ---
+// APARENCIA
 const std::vector<std::string>& Mahoraga::getAppearanceRace() const
 {
     static const std::vector<std::string> appearanceOriginal =
@@ -267,8 +259,7 @@ const std::vector<std::string>& Mahoraga::getAppearanceRace() const
 }
 
 
-// [PT-BR] --- BESTIARIO E DROPS ---
-// [EN-US] --- BESTIARY AND DROPS ---
+// BESTIARIO E DROPS
 InfoBestiary Mahoraga::getInfoBestiary() const {
     return {
         "Labirinto Subterraneo", 

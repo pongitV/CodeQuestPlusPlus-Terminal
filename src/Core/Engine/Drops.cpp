@@ -1,8 +1,3 @@
-// [PT-BR] Arquivo: Drops.cpp
-// [PT-BR] Proposito: Implementacao das funcoes de recompensa e distribuicao de itens/XP/ouro.
-// [EN-US] File: Drops.cpp
-// [EN-US] Purpose: Implementation of reward functions and distribution of items/XP/gold.
-
 #include "Core/Engine/Drops.h"
 #include "Domain/Characters/Character.h"
 #include "Domain/Items/ItemFactory.h"
@@ -40,8 +35,7 @@ void Drops::giveAndProcessItem(Character* player, ItemID itemId, int quantity, s
     }
     for (int i = 0; i < quantity; ++i) {
         auto createdItem = ItemFactory::createItem(itemId);
-        // [PT-BR] Obtem o nome formatado (com cores/degrade se aplicavel) no primeiro item criado
-        // [EN-US] Gets the formatted name (with colors/gradients if applicable) on the first created item
+        // Obtem o nome formatado (com cores/degrade se aplicavel) no primeiro item criado
         if (createdItem && i == 0) itemName = createdItem->getItemName();
         player->getInventory()->addItem(std::move(createdItem));
         obtainedItems.push_back(itemName);
