@@ -2,10 +2,14 @@
 
 Este documento lista os bugs conhecidos e funcionalidades incompletas presentes na ultima versao da Engine Raycaster de terminal. Esse registro serve como base caso alguem deseje fazer um fork ou continuar o desenvolvimento desta versao antes da migracao para Direct2D.
 
+## Bugs Resolvidos
+
+- **Popup do Ork na Caverna (Corrigido)**: O estiramento horizontal do fundo cinza foi corrigido resetando as coordenadas/dimensões estáticas em `startPopupInteraction()`, limpando o terminal com `\033[0m` em vez de repintar com background cinza em `cleanPopupPrevious()`, e garantindo que `maxWidth` / `totalWidth` em `BaseScreen::createBox` e `createBoxWithArt` considerem a largura do título, unificando a largura de bordas e linhas.
+- **Fundo de Combate na Vila (Corrigido)**: A arena de combate da Vila/Início em `RaycasterCombatRenderer.cpp` utilizava o caractere `'T'` em suas paredes. Como `'T'` estava registrado como entidade (Troll) em `RaycasterWorld::isEntity`, os raios do raycaster atravessavam a parede sem colisão sólida (`hitWall`), atingindo a distância máxima e gerando o fundo cinza. Substituídas as paredes da arena por `'#'` (pedra da vila), renderizando o cenário 3D perfeitamente.
+
 ## Bugs Conhecidos
 
-- **Popup do Ork na Caverna**: O popup de "aceitar combate" contra o Ork na caverna aparece com o fundo cinza muito esticado para fora da caixa de diálogo, agora apenas na horizontal.
-- **Fundo de Combate na Vila**: O fundo 3D renderizado na tela de combate nao esta funcionando corretamente quando o combate ocorre na Vila; ele exibe apenas um fundo cinza em vez do cenário renderizado.
+- *(Nenhum bug crítico pendente no momento)*
 
 ## Coisas Faltando / Possiveis Melhorias Futuras
 
