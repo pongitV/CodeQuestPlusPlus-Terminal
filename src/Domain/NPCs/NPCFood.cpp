@@ -34,7 +34,7 @@ void NPCFood::displayDialogue(Character* player) {
     Appearance::displayPopup("VENDEDOR DE COMIDAS", lines, Color::LIGHT_GREEN, getArtASCII());
 }
 
-std::vector<std::string> NPCFood::getOptionsMenu(Character* player, int /*terminalWidth*/) {
+std::vector<std::string> NPCFood::getOptionsMenu(Character* player, int /*larguraTerminal*/) {
     return {
         "Maca (Cura 15 HP) - 5G",
         "Pao (Cura 25 HP) - 10G",
@@ -44,7 +44,7 @@ std::vector<std::string> NPCFood::getOptionsMenu(Character* player, int /*termin
     };
 }
 
-void NPCFood::processOption(Character* player, const std::string& option, int /*terminalWidth*/) {
+void NPCFood::processOption(Character* player, const std::string& option, int /*larguraTerminal*/) {
     ItemID idPurchase = ItemID::None;
     int cost = 0;
 

@@ -23,7 +23,7 @@ public:
         return AnsiFormatter::formatIDETitle(title);
     }
 
-    void displayPopup(const std::string& title, const std::vector<std::string>& lines, Color /*colorHeader*/, const std::vector<std::string>& /*logoArt*/ = {}) override {
+    void displayPopup(const std::string& title, const std::vector<std::string>& lines, Color /*corCabecalho*/, const std::vector<std::string>& /*arteLogo*/ = {}) override {
         Appearance::clearScreen();
         int termW = Appearance::getTerminalWidth();
         int termH = Appearance::getTerminalHeight();
@@ -55,9 +55,9 @@ public:
         const std::string& title,
         const std::vector<std::string>& descriptions,
         const std::vector<std::string>& options,
-        Color /*colorHeader*/,
-        const std::vector<std::string>& /*logoArt*/ = {},
-        bool /*returnEnabled*/ = true
+        Color /*corCabecalho*/,
+        const std::vector<std::string>& /*arteLogo*/ = {},
+        bool /*retornoHabilitado*/ = true
     ) override {
         if (options.empty()) return -1;
 

@@ -12,11 +12,9 @@
 
 using namespace std;
 
-/*
- * Estrutura de ThreadPool otimizada para o motor de Raycasting.
- * Utiliza o maximo de nucleos disponiveis (hardware_concurrency) para processar 
- * o laco principal de colunas da tela em paralelo com sincronizacao nativa (sem busy-spin), garantindo 60 FPS.
- */
+// Estrutura de ThreadPool otimizada para o motor de Raycasting.
+// Utiliza os nucleos disponiveis para processar o laco principal de colunas
+// da tela em paralelo com sincronizacao nativa, garantindo estabilidade a 60 FPS.
 struct ThreadPool {
     std::vector<std::thread> threads;
     std::atomic<bool> stop{false};
@@ -96,11 +94,9 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
 
     RaycasterWorld::updateMapHash(mapMatrix);
 
-    /*
-     * Sistema de Cache de Iluminacao:
-     * O mapa eh varrido apenas uma vez sempre que o player muda de sala ou layout, 
-     * armazenando a localizacao e a intensidade das fontes de luz (Fogo, NPCs, Portas).
-     */
+    // Sistema de cache de iluminacao:
+    // O mapa e verificado uma vez quando ha mudanca de sala ou layout,
+    // armazenando a localizacao e a intensidade das fontes de luz.
     static thread_local size_t lastMapForLightsHash = 0;
     static thread_local std::vector<std::tuple<int, int, int>> cachedLights;
 
@@ -201,11 +197,9 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
         
         char charWall = '#';
 
-        /*
-         * Algoritmo DDA (Digital Differential Analyzer):
-         * Traca a trajetoria do raio pulando perfeitamente pelas grades do mapa de forma rapida,
-         * sem a necessidade de pequenos incrementos variaveis, calculando a colisao exata.
-         */
+        // Algoritmo DDA (Digital Differential Analyzer):
+        // Traca a trajetoria do raio pelas grades do mapa de forma rapida,
+        // calculando a colisao exata sem incrementos variaveis.
         float rayDirX_DDA = eyeX;
         float rayDirY_DDA = eyeY;
 
@@ -265,11 +259,9 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
         float hitX = playerX + eyeX * distToWall;
         float hitY = playerY + eyeY * distToWall;
         
-        /* 
-         * Correcao do Efeito "Olho de Peixe" (Fisheye):
-         * A distancia perpendicular ate a parede eh calculada ao inves da distancia Euclidiana 
-         * reta, evitando que as paredes parecam arredondadas nas bordas da tela.
-         */
+        // Correcao do efeito olho de peixe (Fisheye):
+        // Calcula a distancia perpendicular ate a parede em vez da distancia euclidiana,
+        // evitando distorcao arredondada nas bordas da tela.
         float perpWallDist = distToWall / fisheyeCorrection[x];
         if (perpWallDist < 0.1f) perpWallDist = 0.1f;
 
@@ -432,18 +424,15 @@ void RaycasterRenderer::render3D(vector<Pixel3D>& screen, int SCREEN_WIDTH, int 
             if (floorChar == '~') screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getPixelWater(currentX, currentY, currentDist, depthMaximum, rayAngle, timeAbsolute, themeSky);
             else screen[y * SCREEN_WIDTH + x] = RaycasterWorld::getFloorPixel(titleMap, currentX, currentY, currentDist, depthMaximum, getFloorInfoLight(y));
         }
-        } // para x
-        }); // lambda
-    } // para i (tarefas)
+        } // Fim da iteracao horizontal
+        }); // Fim da funcao lambda
+    } // Fim da distribuicao de faixas entre as threads
     
     getThreadPool().execute(s_tasks);
 
-    /*
-     * Renderizacao de Sprites (Billboarding):
-     * Apos as paredes (Z-Buffer) terem sido desenhadas, entidades (Inimigos, NPCs, Arvores) 
-     * sao capturadas da matriz. O renderizador calcula a projecao 2D dessas entidades no 
-     * plano da camera, aplicando escalonamentos baseados no tipo do inimigo e distancia.
-     */
+    // Renderizacao de sprites (Billboarding):
+    // Apos o desenho das paredes no Z-Buffer, as entidades sao projetadas
+    // em 2D no plano da camera, com escala proporcional a distancia e tipo.
     struct SpriteProject { float x, y, dist; char c, sprCh; };
     static thread_local std::vector<SpriteProject> s_spritesGlobal;
     s_spritesGlobal.clear();

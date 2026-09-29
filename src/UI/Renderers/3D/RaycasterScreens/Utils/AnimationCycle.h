@@ -126,7 +126,7 @@ namespace MenuRaycasterUtils {
     inline float s_sunOverrideRatioY = -100.0f;
     inline float s_moonOverrideAngle = -100.0f;
     inline float s_moonOverrideRatioY = -100.0f;
-    inline int s_draggingEntity = 0; // 0=none, 1=sun, 2=moon, 3=sky
+    inline int s_draggingEntity = 0; // 0=nenhum, 1=sol, 2=lua, 3=ceu
 
     inline void applyCycleDayNight(std::vector<std::string>& frame) {
         int widthScreen = Appearance::getTerminalWidth();
@@ -235,7 +235,7 @@ namespace MenuRaycasterUtils {
                     g = baseG + (int)(noise * 8) + (int)(details * 6);
                     b = baseB + (int)(noise * 5) + (int)(details * 4);
 
-                    // Flower distribution (scattered evenly)
+                    // Distribuicao de flores com dispersao uniforme
                     unsigned int fX = (unsigned int)(cellX * 7 + 13) * 374761393U;
                     unsigned int fY = (unsigned int)(y * 11 + 7) * 668265263U;
                     unsigned int fHash = fX + fY;
@@ -243,11 +243,11 @@ namespace MenuRaycasterUtils {
                     int flower = fHash % 1000;
                     
                     if (flower < 8) {
-                        r = 235; g = 40; b = 40; // Red flowers
+                        r = 235; g = 40; b = 40; // Flores vermelhas
                     } else if (flower < 16) {
-                        r = 255; g = 220; b = 50; // Yellow flowers
+                        r = 255; g = 220; b = 50; // Flores amarelas
                     } else if (flower < 22) {
-                        r = 240; g = 240; b = 255; // White flowers
+                        r = 240; g = 240; b = 255; // Flores brancas
                     }
                     
                     if (fieldY < 0.08f) {

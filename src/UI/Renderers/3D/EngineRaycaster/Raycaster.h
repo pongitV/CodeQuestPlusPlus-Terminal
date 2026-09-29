@@ -6,9 +6,7 @@
 #include "Domain/Characters/Character.h"
 #include "Core/Utils/Appearance.h"
 
-/*
- * Responsavel pela visao em primeira pessoa (Raycasting) e animacoes de transicao.
- */
+// Responsavel pela visao em primeira pessoa (Raycasting) e animacoes de transicao.
 class Raycaster : public RaycasterFrame {
 public:
     static float sensitivityX;

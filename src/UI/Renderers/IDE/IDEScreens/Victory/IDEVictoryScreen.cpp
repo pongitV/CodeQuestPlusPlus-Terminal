@@ -6,22 +6,22 @@
 #include <vector>
 
 void IDEVictoryScreen::display(
-    Character* /*currentPlayer*/,
+    Character* /*jogadorAtual*/,
     int obtainedGoldQuantity,
     int obtainedXpQuantity,
     int totalDamageCaused,
     int totalDamageReceived,
     int totalHealingReceived,
     int combatTurns,
-    const std::vector<std::string>& /*enemiesDefeated*/,
+    const std::vector<std::string>& /*inimigosDerrotados*/,
     int parriesPerfect,
     int biggerDamage,
-    int /*parriesTempted*/,
-    int /*parriesEffective*/,
+    int /*aparosTentados*/,
+    int /*aparosEfetivos*/,
     int itemsConsumed,
     const std::vector<std::pair<std::string, int>>& dropsUnique,
     bool canRiseLevel,
-    const std::vector<std::string>& /*newDiscoveries*/,
+    const std::vector<std::string>& /*novasDescobertas*/,
     const std::string& titleMap
 ) {
     Appearance::clearScreen();

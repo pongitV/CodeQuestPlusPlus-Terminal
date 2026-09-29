@@ -208,7 +208,7 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
             user->setItemSelectedForUse(item);
             return true;
         });
-        debuff->setActionUse([](Character* /*user*/, Character* target) {
+        debuff->setActionUse([](Character* /*usuario*/, Character* target) {
             if (!Character::isValid(target) || target->getHealth() <= 0) return;
             target->addEffect(std::make_unique<NecrosisEffect>(3, 12));
             CombatScreen::addFixedMessage("\n" + CombatScreen::combatMargin() + Appearance::color(Color::RED) + ">> Voce arremessou a pocao! " + target->getName() + " sofreu necrose (12 dano/turno) por 3 turnos!" + Appearance::color(Color::RESET) + "\n");
@@ -225,7 +225,7 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
             user->setItemSelectedForUse(item);
             return true;
         });
-        debuff->setActionUse([](Character* /*user*/, Character* target) {
+        debuff->setActionUse([](Character* /*usuario*/, Character* target) {
             if (!Character::isValid(target) || target->getHealth() <= 0) return;
             target->addEffect(std::make_unique<SlownessEffect>(3));
             CombatScreen::addFixedMessage("\n" + CombatScreen::combatMargin() + Appearance::color(Color::MAGENTA) + ">> Voce arremessou a pocao! " + target->getName() + " esta sob efeito de Lentidao por 3 turnos!" + Appearance::color(Color::RESET) + "\n");
@@ -254,7 +254,7 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
                 user->setItemSelectedForUse(item);
                 return true;
             });
-            debuff->setActionUse([](Character* /*user*/, Character* target) {
+            debuff->setActionUse([](Character* /*usuario*/, Character* target) {
                 if (!Character::isValid(target) || target->getHealth() <= 0) return;
                 target->addEffect(std::make_unique<SlownessEffect>(3));
             CombatScreen::addFixedMessage("\n" + CombatScreen::combatMargin() + Appearance::color(Color::MAGENTA) + ">> Voce jogou o frasco! " + target->getName() + " esta com lentidao por 3 turnos!" + Appearance::color(Color::RESET) + "\n");
@@ -270,7 +270,7 @@ std::unique_ptr<Item> manufactureItemConsumable(ItemID id) {
                 user->setItemSelectedForUse(item);
                 return true;
             });
-            debuff->setActionUse([](Character* /*user*/, Character* target) {
+            debuff->setActionUse([](Character* /*usuario*/, Character* target) {
                 if (!Character::isValid(target) || target->getHealth() <= 0) return;
                 target->addEffect(std::make_unique<WeaknessEffect>(3));
             CombatScreen::addFixedMessage("\n" + CombatScreen::combatMargin() + Appearance::color(Color::RED) + ">> Voce jogou o frasco! " + target->getName() + " teve sua forca reduzida em 25% por 3 turnos!" + Appearance::color(Color::RESET) + "\n");

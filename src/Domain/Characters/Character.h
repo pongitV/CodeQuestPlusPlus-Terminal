@@ -18,9 +18,7 @@
 #include "Core/Utils/Appearance.h"
 #include "Domain/LevelSystem.h"
 
-/*
- * Estrutura de atributos base e finais de um personagem.
- */
+// Estrutura de atributos base e finais de um personagem.
 struct Attributes 
 {
     int health;       // Pontos de vida (HP) maximos do personagem
@@ -73,10 +71,8 @@ enum class GameDifficulty
     Difficult = 3
 };
 
-/*
- * Classe central do jogo que representa qualquer entidade viva (Jogador, Inimigos, NPCs).
- * Agrega status, atributos, inventario e logica de persistencia e interacao.
- */
+// Classe central do jogo que representa qualquer entidade viva (Jogador, Inimigos, NPCs).
+// Agrega status, atributos, inventario e logica de persistencia e interacao.
 class Character : public IAttacker, public IDamageable
 {
 private:

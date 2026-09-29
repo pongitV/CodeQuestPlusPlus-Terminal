@@ -7,11 +7,9 @@
 #include <iostream>
 #include "Core/Utils/Appearance.h"
 
-/*
- * BaseMenuScreen — utilitarios compartilhados de layout para as telas de menu.
- * Centraliza calculos de posicionamento horizontal para evitar repeticao
- * em cada tela concreta (Raycaster, IDE, futuras perspectivas).
- */
+// Utilitarios compartilhados de layout para as telas de menu.
+// Centraliza calculos de posicionamento horizontal para evitar duplicacao
+// entre as implementacoes de telas (Raycaster, IDE e outras perspectivas).
 class BaseMenuScreen {
 public:
     // Retorna o offset X para centralizar horizontalmente um bloco de texto dentro do terminal

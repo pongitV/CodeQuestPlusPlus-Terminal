@@ -19,8 +19,8 @@ namespace IDETheme {
     inline constexpr std::string_view COLOR_OPERATOR   = "\033[38;2;212;212;212m"; // Cinza Pontuacao (#d4d4d4)
     inline constexpr std::string_view COLOR_PREPROC    = "\033[38;2;197;134;192m"; // Roxo Preprocessador (#c586c0)
     inline constexpr std::string_view COLOR_HEADER_BG  = "\033[38;2;200;200;200m";
-    inline constexpr std::string_view COLOR_ACTIVE_TAB = "\033[1;38;2;78;201;176m"; // Ciano brilhante bold (foreground only, sem fundo cinza)
-    inline constexpr std::string_view COLOR_INACT_TAB  = "\033[38;2;130;130;130m"; // Cinza claro (foreground only, sem fundo cinza)
+    inline constexpr std::string_view COLOR_ACTIVE_TAB = "\033[1;38;2;78;201;176m"; // Ciano brilhante negrito (apenas primeiro plano, sem fundo cinza)
+    inline constexpr std::string_view COLOR_INACT_TAB  = "\033[38;2;130;130;130m"; // Cinza claro (apenas primeiro plano, sem fundo cinza)
     inline constexpr std::string_view COLOR_LINE_NUM   = "\033[38;2;133;133;133m"; // Cinza numero de linha
     inline constexpr std::string_view COLOR_STATUS_BAR = "\033[38;2;0;122;204m";   // Azul foreground
     inline constexpr std::string_view COLOR_FLASH_HIT  = "\033[1;38;2;244;71;71m";  // Vermelho impacto bold
@@ -76,7 +76,7 @@ namespace IDETheme {
         return line;
     }
 
-    inline std::string renderTabBar(const std::vector<std::string>& tabs, size_t activeIndex, int /*totalWidth*/) {
+    inline std::string renderTabBar(const std::vector<std::string>& tabs, size_t activeIndex, int /*larguraTotal*/) {
         std::string bar = "";
         for (size_t i = 0; i < tabs.size(); ++i) {
             if (i == activeIndex) {
@@ -96,7 +96,7 @@ namespace IDETheme {
         return std::string(COLOR_STATUS_BAR) + " " + std::string(leftText) + std::string(spaces > 2 ? spaces - 2 : 0, ' ') + std::string(rightText) + " " + std::string(COLOR_RESET);
     }
 
-    // Barra de vida expressa no estilo de codigo C++: [████░░] 30/50
+    // Barra de vida expressa no estilo de codigo C++: [====..] 30/50
     inline std::string renderCodeHealthBar(int current, int max, int barWidth = 10) {
         if (max <= 0) max = 1;
         float ratio = static_cast<float>(current) / static_cast<float>(max);
@@ -163,10 +163,10 @@ namespace IDETheme {
     }
 
     // Renderiza a visualizacao classica de IDE:
-    // - Linha 0: Abas coladas no teto / Tabs on top
-    // - Linha 1: Caminho / Technical file breadcrumb
-    // - Linhas restantes: Bloco de codigo-fonte centralizado / Centered source code block
-    // - Rodape: Barra de status / Technical telemetry status bar
+    // - Linha 0: Abas fixadas no topo
+    // - Linha 1: Caminho do arquivo
+    // - Linhas restantes: Bloco de codigo-fonte centralizado
+    // - Rodape: Barra de status
     inline std::vector<std::string> renderEditorView(
         const std::vector<std::string>& tabs,
         int activeTab,
@@ -205,6 +205,6 @@ namespace IDETheme {
         return result;
     }
 
-} // namespace IDETheme
+} // Namespace IDETheme
 
 

@@ -478,10 +478,7 @@ Pixel3D RaycasterWorld::getFloorPixel(const std::string& titleMap, float current
         r = 30 + var; g = 30 + var; b = 30 + var;
         c = ' ';
     } else if (isEarth) {
-        /*
-         * Mistura de terra e grama para Vila e Floresta
-         * Formula caotica sem padrao repetitivo
-         */
+        // Mistura de terra e grama para vila e floresta com variacao procedural
         float cx = globX * 0.123f;
         float cy = globY * 0.091f;
         float cx2 = (globX + globY) * 0.054f;
@@ -711,7 +708,7 @@ Pixel3D RaycasterWorld::getPixelCeiling(int themeSky, float radiusAngle, float a
     Pixel3D px;
     px.ch = ' '; px.hasFg = false; px.isBackground = false;
 
-    // Draw Moon
+    // Desenha a lua
     float moonAlpha = 1.0f;
     float moonGlowRadius = 0.11f;
 
@@ -752,7 +749,7 @@ Pixel3D RaycasterWorld::getPixelCeiling(int themeSky, float radiusAngle, float a
         }
     }
 
-    // Draw Sun
+    // Desenha o sol
     float sunAlpha = 1.0f;
     float angleSun = std::atan2(distYSun, diffAngleSun * 2.449f);
     float rays = std::sin(angleSun * 12.0f + timeAnimation * 1.5f) * 0.5f 
@@ -780,7 +777,7 @@ Pixel3D RaycasterWorld::getPixelCeiling(int themeSky, float radiusAngle, float a
         }
     }
 
-    // Clouds
+    // Nuvens
     float wind = timeAnimation * 0.05f; 
     float angleBase = radiusAngle + wind;
     float cloudNoise = std::sin(angleBase * 5.0f) * std::sin((y + wind*10.0f) * 0.1f) 
@@ -794,7 +791,7 @@ Pixel3D RaycasterWorld::getPixelCeiling(int themeSky, float radiusAngle, float a
         b = b + (int)((255 - b) * cloudIntensity);
     }
 
-    // Stars (only at night)
+    // Estrelas (apenas a noite)
     if (t > 0.5f && t < 0.95f) {
         float starAlpha = (t > 0.6f && t < 0.85f) ? 1.0f : 0.5f;
         unsigned int starX = static_cast<unsigned int>(radiusAngle * 150.0f);

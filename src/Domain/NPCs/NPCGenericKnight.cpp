@@ -90,7 +90,7 @@ std::unique_ptr<Character> NPCGenericKnight::createKnight(const std::string& nam
 }
 
 // INTERACAO
-void NPCGenericKnight::interact(Character* currentPlayer, bool& trollDefeated, bool& invitationReceived, int /*terminalWidth*/, std::vector<std::string>& currentMapMatrix, bool isExplorationActive, const std::function<void()>& restoreScreen, char destinationCell, int nextPositionX, int nextPositionY) {
+void NPCGenericKnight::interact(Character* currentPlayer, bool& trollDefeated, bool& invitationReceived, int /*larguraTerminal*/, std::vector<std::string>& currentMapMatrix, bool isExplorationActive, const std::function<void()>& restoreScreen, char destinationCell, int nextPositionX, int nextPositionY) {
     Diary::instance().registerNPC("Cavaleiro Real");
     if (!trollDefeated && (destinationCell == 'T' || destinationCell == 'C')) {
         int positionTrollX = -1, positionTrollY = -1;
@@ -129,7 +129,7 @@ void NPCGenericKnight::interact(Character* currentPlayer, bool& trollDefeated, b
             [&](const std::string& op) {
                 if (op == "Ajudar os Cavaleiros") choice = 0;
                 else choice = 1;
-                return false; // Exit loop after choice
+                return false; // Encerra o laco apos a escolha
             },
             "PEDIDO DE AJUDA", Color::GRAY, NPCKnightGenericLayouts::artKnight
         );

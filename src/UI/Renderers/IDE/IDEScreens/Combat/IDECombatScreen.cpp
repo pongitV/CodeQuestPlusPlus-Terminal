@@ -130,7 +130,7 @@ void IDECombatScreen::renderCombatFrame(
         allCenteredLines.insert(allCenteredLines.end(), centeredFixed.begin(), centeredFixed.end());
     }
 
-    // 4. Prompt de Enter
+    // 4. Aguarda confirmacao do jogador com Enter
     if (!InputControl::enterPromptText.empty()) {
         allCenteredLines.push_back("");
         std::vector<std::string> pLines = { "// [WAIT] " + InputControl::enterPromptText };
@@ -145,7 +145,7 @@ void IDECombatScreen::renderCombatFrame(
         allCenteredLines.insert(allCenteredLines.end(), centeredPanel.begin(), centeredPanel.end());
     }
 
-    // 6. Monta editor com abas coladas no teto (linha 0) e conteudo centralizado no viewport
+    // 6. Monta o editor com abas fixadas no topo (linha 0) e conteudo centralizado no viewport
     std::vector<std::string> tabs = {
         "CombatSession.cpp",
         "CallStack.trace",
@@ -174,7 +174,7 @@ void IDECombatScreen::renderCombatFrame(
     std::cout << frame.str() << std::flush;
 }
 
-void IDECombatScreen::displayLogoForCombatScreen(const std::string& screenTitle, bool /*animate*/) {
+void IDECombatScreen::displayLogoForCombatScreen(const std::string& screenTitle, bool /*animar*/) {
     int width = Appearance::getTerminalWidth();
     std::vector<std::string> tabs = {
         "CombatSession.cpp",
@@ -236,7 +236,7 @@ void IDECombatScreen::animateCombatIntro(const std::string& title, const std::ve
 
 std::vector<std::string> IDECombatScreen::getPlayerStatusBarLines(
     Character* currentPlayer,
-    Color /*colorHighlight*/,
+    Color /*corDestaque*/,
     int damageAnimation,
     int frameAnimation,
     bool isHealing
@@ -269,15 +269,15 @@ std::vector<std::string> IDECombatScreen::getPlayerStatusBarLines(
 }
 
 void IDECombatScreen::displayEnemyHordeSideBySide(
-    const std::vector<Character*>& /*enemies*/,
-    Character* /*targetAnimation*/,
-    int /*frameAnimation*/,
-    bool /*isHealing*/,
-    bool /*animateEmergence*/,
-    bool /*isDeath*/,
-    Item* /*weaponAttacker*/,
-    int /*damageAnimation*/,
-    const std::vector<std::string>& /*dropsAnimation*/
+    const std::vector<Character*>& /*inimigos*/,
+    Character* /*animacaoAlvo*/,
+    int /*animacaoQuadro*/,
+    bool /*ehCura*/,
+    bool /*animarSurgimento*/,
+    bool /*ehMorte*/,
+    Item* /*armaAtacante*/,
+    int /*animacaoDano*/,
+    const std::vector<std::string>& /*animacaoDrops*/
 ) {
     // Delegado para renderCombatFrame()
 }
@@ -288,7 +288,7 @@ void IDECombatScreen::animateDamageToEnemy(
     Character* targetAnimation,
     Character* attacker,
     Character* currentPlayer,
-    const std::vector<Character*>& /*allies*/,
+    const std::vector<Character*>& /*aliados*/,
     int damageAnimation
 ) {
     std::string targetName = targetAnimation ? targetAnimation->getName() : "enemy";
@@ -313,10 +313,10 @@ void IDECombatScreen::animateDamageToEnemy(
 void IDECombatScreen::animateCureToEnemy(
     const std::string& combatTitle,
     const std::vector<Character*>& enemies,
-    Character* /*targetAnimation*/,
+    Character* /*animacaoAlvo*/,
     Character* currentPlayer,
-    const std::vector<Character*>& /*allies*/,
-    int /*healingAnimation*/
+    const std::vector<Character*>& /*aliados*/,
+    int /*animacaoCura*/
 ) {
     renderCombatFrame(combatTitle, enemies, currentPlayer, {});
 }
@@ -324,9 +324,9 @@ void IDECombatScreen::animateCureToEnemy(
 void IDECombatScreen::animateDamageToPlayer(
     const std::string& combatTitle,
     const std::vector<Character*>& enemies,
-    Character* /*targetAnimation*/,
+    Character* /*animacaoAlvo*/,
     Character* currentPlayer,
-    const std::vector<Character*>& /*allies*/,
+    const std::vector<Character*>& /*aliados*/,
     bool isParry,
     int damageAnimation
 ) {
@@ -351,10 +351,10 @@ void IDECombatScreen::animateDamageToPlayer(
 void IDECombatScreen::animateCureToPlayer(
     const std::string& combatTitle,
     const std::vector<Character*>& enemies,
-    Character* /*targetAnimation*/,
+    Character* /*animacaoAlvo*/,
     Character* currentPlayer,
-    const std::vector<Character*>& /*allies*/,
-    int /*healingAnimation*/
+    const std::vector<Character*>& /*aliados*/,
+    int /*animacaoCura*/
 ) {
     std::vector<std::string> traceLines;
     traceLines.push_back(IDETheme::comment("// --- ROTINA DE HEALING ---"));
@@ -369,7 +369,7 @@ void IDECombatScreen::animateEnemyDeath(
     const std::vector<Character*>& enemies,
     Character* enemyDead,
     Character* currentPlayer,
-    const std::vector<Character*>& /*allies*/,
+    const std::vector<Character*>& /*aliados*/,
     const std::vector<std::string>& drops
 ) {
     std::string deadName = enemyDead ? enemyDead->getName() : "Monster";
@@ -397,9 +397,9 @@ void IDECombatScreen::updateScreenStatic(
     const std::string& combatTitle,
     const std::vector<Character*>& enemies,
     Character* currentPlayer,
-    const std::vector<Character*>& /*allies*/,
-    bool /*animateEntrance*/,
-    std::function<void(std::vector<std::string>&)> /*callbackOverlay*/
+    const std::vector<Character*>& /*aliados*/,
+    bool /*animarEntrada*/,
+    std::function<void(std::vector<std::string>&)> /*callbackSobreposicao*/
 ) {
     renderCombatFrame(combatTitle, enemies, currentPlayer, {});
 }
@@ -412,13 +412,13 @@ void IDECombatScreen::cleanMessagesFixed() {
     m_fixedMessages.clear();
 }
 
-void IDECombatScreen::configureContext3D(bool /*mode3D*/, const std::vector<std::string>& /*matrix*/, float /*postX*/, float /*postY*/, float /*angle*/, const std::string& /*title*/) {}
-void IDECombatScreen::setShiftVisible(int /*shift*/, const std::string& /*name*/) {}
-void IDECombatScreen::selectHUDAlly(Character* /*currentPlayer*/, const std::vector<Character*>& /*allies*/) {}
+void IDECombatScreen::configureContext3D(bool /*modo3D*/, const std::vector<std::string>& /*matriz*/, float /*postX*/, float /*postY*/, float /*angulo*/, const std::string& /*titulo*/) {}
+void IDECombatScreen::setShiftVisible(int /*deslocamento*/, const std::string& /*nome*/) {}
+void IDECombatScreen::selectHUDAlly(Character* /*jogadorAtual*/, const std::vector<Character*>& /*aliados*/) {}
 
 int IDECombatScreen::getPlayerAction(
     int currentTurn,
-    Character* /*characterActing*/,
+    Character* /*personagemAtuante*/,
     const std::vector<Character*>& enemies,
     Character* currentPlayer,
     const std::vector<Character*>& allies
@@ -502,7 +502,7 @@ int IDECombatScreen::getTargetAttack(
     const std::string& combatTitle,
     const std::vector<Character*>& enemies,
     Character* currentPlayer,
-    const std::vector<Character*>& /*allies*/
+    const std::vector<Character*>& /*aliados*/
 ) {
     if (enemies.empty()) return 0;
     if (enemies.size() == 1) return 0;
@@ -549,15 +549,15 @@ int IDECombatScreen::getTargetAttack(
 }
 
 int IDECombatScreen::getTargetItem(
-    const std::string& /*combatTitle*/,
-    const std::vector<Character*>& /*enemies*/,
-    Character* /*currentPlayer*/,
-    const std::vector<Character*>& /*allies*/
+    const std::string& /*tituloCombate*/,
+    const std::vector<Character*>& /*inimigos*/,
+    Character* /*jogadorAtual*/,
+    const std::vector<Character*>& /*aliados*/
 ) {
     return 0;
 }
 
-int IDECombatScreen::chooseShield(const std::string& /*characterName*/, const std::vector<Item*>& shields) {
+int IDECombatScreen::chooseShield(const std::string& /*nomePersonagem*/, const std::vector<Item*>& shields) {
     if (shields.empty()) return -1;
 
     int selected = 0;

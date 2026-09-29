@@ -7,7 +7,7 @@ ColorRGB TextureManager::cache[256][16384];
 float TextureManager::tableSin[4096];
 
 float TextureManager::fastSin(float angle) {
-    // angulo em radianos. Normaliza para 0-2PI
+    // Angulo em radianos. Normaliza para 0 a 2*PI
     constexpr float TWO_PI = 2.0f * 3.14159265f;
     float a = std::fmod(angle, TWO_PI);
     if (a < 0) a += TWO_PI;
@@ -16,7 +16,7 @@ float TextureManager::fastSin(float angle) {
 }
 
 float TextureManager::fastCos(float angle) {
-    return fastSin(angle + 1.57079632f); // angle + PI/2
+    return fastSin(angle + 1.57079632f); // Angulo + PI/2
 }
 
 void TextureManager::initialize() {
@@ -138,7 +138,7 @@ void TextureManager::generate(TexID id) {
                     if (id == TexID::ChurchStainedglass) {
                         // Coloridos vitrais em padrao de diamante
                         float diag = std::abs(fastYes((tx + ty)*0.1f) + fastYes((tx - ty)*0.1f));
-                        if (diag < 0.2f) { r = 10; g = 10; b = 10; } // chumbo do vitral
+                        if (diag < 0.2f) { r = 10; g = 10; b = 10; } // Chumbo do vitral
                         else {
                             int colorId = ((tx/16) + (ty/16)) % 3;
                             if (colorId == 0) { r = 200; g = 50; b = 50; }
@@ -846,7 +846,7 @@ void TextureManager::generate(TexID id) {
                     if (id == TexID::ChurchStainedglass) {
                         // Coloridos vitrais em padrao de diamante
                         float diag = std::abs(fastYes((tx + ty)*0.1f) + fastYes((tx - ty)*0.1f));
-                        if (diag < 0.2f) { r = 10; g = 10; b = 10; } // chumbo do vitral
+                        if (diag < 0.2f) { r = 10; g = 10; b = 10; } // Chumbo do vitral
                         else {
                             int colorId = ((tx/16) + (ty/16)) % 3;
                             if (colorId == 0) { r = 200; g = 50; b = 50; }
@@ -876,7 +876,7 @@ void TextureManager::generate(TexID id) {
                     if (id == TexID::ChurchStainedglass) {
                         // Coloridos vitrais em padrao de diamante
                         float diag = std::abs(fastYes((tx + ty)*0.1f) + fastYes((tx - ty)*0.1f));
-                        if (diag < 0.2f) { r = 10; g = 10; b = 10; } // chumbo do vitral
+                        if (diag < 0.2f) { r = 10; g = 10; b = 10; } // Chumbo do vitral
                         else {
                             int colorId = ((tx/16) + (ty/16)) % 3;
                             if (colorId == 0) { r = 200; g = 50; b = 50; }
@@ -906,7 +906,7 @@ void TextureManager::generate(TexID id) {
                     if (id == TexID::ChurchStainedglass) {
                         // Coloridos vitrais em padrao de diamante
                         float diag = std::abs(fastYes((tx + ty)*0.1f) + fastYes((tx - ty)*0.1f));
-                        if (diag < 0.2f) { r = 10; g = 10; b = 10; } // chumbo do vitral
+                        if (diag < 0.2f) { r = 10; g = 10; b = 10; } // Chumbo do vitral
                         else {
                             int colorId = ((tx/16) + (ty/16)) % 3;
                             if (colorId == 0) { r = 200; g = 50; b = 50; }
@@ -936,7 +936,7 @@ void TextureManager::generate(TexID id) {
                     if (id == TexID::ChurchStainedglass) {
                         // Coloridos vitrais em padrao de diamante
                         float diag = std::abs(fastYes((tx + ty)*0.1f) + fastYes((tx - ty)*0.1f));
-                        if (diag < 0.2f) { r = 10; g = 10; b = 10; } // chumbo do vitral
+                        if (diag < 0.2f) { r = 10; g = 10; b = 10; } // Chumbo do vitral
                         else {
                             int colorId = ((tx/16) + (ty/16)) % 3;
                             if (colorId == 0) { r = 200; g = 50; b = 50; }
@@ -1282,7 +1282,7 @@ void TextureManager::generate(TexID id) {
                     int stoneR = 100, stoneG = 100, stoneB = 100;
                     if (id == TexID::CaveHeartWall) { stoneR = 60; stoneG = 30; stoneB = 80; }
                     
-                    // Variation between blocks
+                    // Variacao entre blocos
                     int blockId = cx * 13 + cy * 7;
                     stoneR += (blockId % 30) - 15;
                     stoneG += (blockId % 30) - 15;
@@ -1293,7 +1293,7 @@ void TextureManager::generate(TexID id) {
                         g = std::clamp(stoneG - 50, 0, 255);
                         b = std::clamp(stoneB - 50, 0, 255);
                     } else {
-                        // Highlight top-left edge of stone
+                        // Destaque na borda superior esquerda da pedra
                         float highlight = (dx < -0.1f && dy < -0.1f) ? 20.0f : 0.0f;
                         float shadow = (dx > 0.1f && dy > 0.1f) ? -30.0f : 0.0f;
                         

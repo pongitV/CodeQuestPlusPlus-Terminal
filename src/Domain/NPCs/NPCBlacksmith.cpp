@@ -76,14 +76,14 @@ void NPCBlacksmith::interact(Character* player) {
     );
 }
 
-void NPCBlacksmith::displayDialogue(Character* /*player*/) {
+void NPCBlacksmith::displayDialogue(Character* /*jogador*/) {
     dialogueBjorn(std::vector<std::string>{
         "Bem-vindo a minha forja, salvador!",
         "O que vai ser hoje?"
     });
 }
 
-std::vector<std::string> NPCBlacksmith::getOptionsMenu(Character* /*player*/, int /*terminalWidth*/) {
+std::vector<std::string> NPCBlacksmith::getOptionsMenu(Character* /*jogador*/, int /*larguraTerminal*/) {
     return {
         "COMPRAR Armas das Classes",
         "COMPRAR Armaduras das Classes",
@@ -94,7 +94,7 @@ std::vector<std::string> NPCBlacksmith::getOptionsMenu(Character* /*player*/, in
     };
 }
 
-void NPCBlacksmith::processOption(Character* player, const std::string& option, int /*terminalWidth*/) {
+void NPCBlacksmith::processOption(Character* player, const std::string& option, int /*larguraTerminal*/) {
     if (option == "COMPRAR Armas das Classes" || option == "COMPRAR Armaduras das Classes") {
         processEquipmentPurchase(player, option == "COMPRAR Armas das Classes");
     } else if (option == "MELHORAR POR FUSAO") {

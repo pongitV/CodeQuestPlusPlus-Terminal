@@ -8,7 +8,7 @@ class Character;
 
 class IDEMapExplorationRenderer {
 public:
-    // Renderiza a exploracao Top-Down no formato Opcao A (Mapa a esquerda + Inspector a direita)
+    // Renderiza a exploracao bidimensional com mapa a esquerda e inspetor a direita
     static void render(
         const std::vector<std::string>& mapMatrix,
         int playerPositionX,

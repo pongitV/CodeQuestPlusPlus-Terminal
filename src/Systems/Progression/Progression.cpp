@@ -3,10 +3,8 @@
 #include "Systems/Progression/ProgressionFlags.h"
 #include "Systems/Progression/Diary.h"
 
-/*
- * Instancia global do gerenciador de progresso (Singleton).
- * Centraliza as regras de negocios e as bandeiras de enredo.
- */
+// Instancia global do gerenciador de progresso (Singleton).
+// Centraliza as regras de negocio e os estados de enredo.
 Progression& Progression::instance() {
     static Progression inst;
     return inst;
@@ -14,11 +12,9 @@ Progression& Progression::instance() {
 
 Progression::Progression() {}
 
-/*
- * Modificacao segura de Thread (Thread-Safe):
- * Utilizamos std::mutex para garantir que o renderizador assincrono 3D 
- * nao acesse o mapa de flags enquanto ele eh modificado pelo jogo principal.
- */
+// Modificacao segura entre threads (Thread-Safe):
+// Utiliza std::mutex para garantir que o renderizador assincrono 3D
+// nao acesse o mapa de flags enquanto ele e modificado pelo jogo principal.
 void Progression::setFlag(const std::string& key, bool value) {
     std::lock_guard<std::mutex> lock(mtx);
     flags[key] = value;
@@ -60,21 +56,17 @@ int Progression::getKingdomProgress(Character* currentPlayer) const {
     return (visited ? 50 : 0) + (talkedPriest ? 50 : 0);
 }
 
-/*
- * Serializacao (Save Game):
- * Exporta as chaves do mapa local para a persistencia em disco, garantindo
- * a consistencia dos estados e missoes abertas em um formato iteravel seguro.
- */
+// Serializacao (Save Game):
+// Exporta as chaves do mapa local para persistencia em disco, garantindo
+// a consistencia dos estados e missoes em formato iteravel seguro.
 void Progression::save(std::ofstream& out) const {
     std::lock_guard<std::mutex> lock(mtx);
     out << flags.size() << "\n";
     for (const auto& [key, value] : flags) out << key << "\n" << (value ? 1 : 0) << "\n";
 }
 
-/*
- * Deserializacao (Load Game):
- * Realimenta o mapa em memoria (RAM) a partir do estado do save anterior.
- */
+// Desserializacao (Load Game):
+// Restaura o mapa em memoria a partir do estado do save anterior.
 void Progression::load(std::ifstream& in) {
     std::lock_guard<std::mutex> lock(mtx);
     flags.clear();
@@ -85,10 +77,8 @@ void Progression::load(std::ifstream& in) {
         for (size_t i = 0; i < size; ++i) { std::string key; std::getline(in, key); int value; in >> value; std::getline(in, garbage); flags[key] = (value == 1); }
     }
 
-    /*
-     * --- RETROCOMPATIBILIDADE DE SAVES ANTIGOS ---
-     * Evita que saves antigos (anteriores a atualizacao) percam o acesso a Viagem Rapida
-     */
+    // Retrocompatibilidade de saves antigos:
+    // Evita que saves antigos (anteriores a atualizacao) percam o acesso a viagem rapida.
     auto itForest = flags.find("Visitou_Floresta");
     auto itBridgeKingdom = flags.find("Visitou_PonteReino");
     if ((itForest != flags.end() && itForest->second) || 

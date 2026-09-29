@@ -252,6 +252,6 @@ namespace Illuminator {
         return applyLightPrecalculated(r, g, b, info, darken, isWall, nx, ny);
     }
 
-} // namespace Illuminator
+} // Namespace Illuminator
 
 namespace Highlighter = Illuminator;

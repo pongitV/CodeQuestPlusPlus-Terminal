@@ -122,7 +122,7 @@ std::string Archer::getDescriptionSkillClass() const
     return "Se afasta durante um turno, no proximo turno causa 2x dano"; 
 }
 
-void Archer::useSkillClass(Combat* combat, Character* characterUser, std::vector<Character*>& /*enemyList*/) 
+void Archer::useSkillClass(Combat* combat, Character* characterUser, std::vector<Character*>& /*listaInimigos*/) 
 {
     int remainingTurns = characterUser->getCooldown(SkillID::WithdrawalWithAim);
     if (checkEReportRecharge(characterUser, remainingTurns, getNameSkillClass())) return;

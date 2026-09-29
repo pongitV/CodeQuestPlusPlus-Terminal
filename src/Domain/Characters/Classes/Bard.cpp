@@ -124,7 +124,7 @@ std::string Bard::getDescriptionSkillClass() const
     return "Possui 3 habilidades: Flashing lights, On sight e Through the wire."; 
 }
 
-void Bard::useSkillClass(Combat* /*combate*/, Character* characterUser, std::vector<Character*>& /*enemyList*/)
+void Bard::useSkillClass(Combat* /*combate*/, Character* characterUser, std::vector<Character*>& /*listaInimigos*/)
 {
     struct SubSkill {
         SkillID id;

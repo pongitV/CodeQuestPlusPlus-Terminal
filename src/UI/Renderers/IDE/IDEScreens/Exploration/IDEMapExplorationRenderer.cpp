@@ -12,7 +12,7 @@ void IDEMapExplorationRenderer::render(
     int playerPositionY,
     int terminalWidth,
     int terminalHeight,
-    int /*initialLine*/,
+    int /*linhaInicial*/,
     const std::function<std::string(char, int, int)>& cellFormatter,
     Character* currentPlayer,
     const std::string& mapTitle
@@ -28,12 +28,12 @@ void IDEMapExplorationRenderer::render(
     };
     std::string tabLine = IDETheme::renderTabBar(tabs, 0, terminalWidth);
 
-    // 2. Divisao de Largura (Opcao A)
+    // 2. Divisao de largura do layout
     // Esquerda: ~55% da largura (minimo 36 cols); Direita: restante para o Watch/Inspector
     int mapTargetWidth = std::clamp((terminalWidth * 55) / 100, 36, terminalWidth - 30);
     int rightPanelWidth = std::max(26, terminalWidth - mapTargetWidth - 3);
 
-    // 3. Calculo da Camera do Mapa (Esquerda)
+    // 3. Calculo da camera do mapa (esquerda)
     int mapTotalWidth = mapMatrix.empty() ? 0 : static_cast<int>(mapMatrix[0].length());
     int mapTotalHeight = static_cast<int>(mapMatrix.size());
 

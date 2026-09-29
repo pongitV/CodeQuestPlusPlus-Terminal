@@ -28,7 +28,7 @@ static void displayTitleFloating(int startY) {
     ScreenBaseMenu::displayFloatingLogo(ArtsAttributes::sheetLogo, startY, Color::MAGENTA, "[ === FICHA DO PERSONAGEM === ]");
 }
 
-void RaycasterAttributesScreen::display(Character* /*currentPlayer*/) {}
+void RaycasterAttributesScreen::display(Character* /*jogadorAtual*/) {}
 
 enum StateAttributes { MAIN, SKILLS, DETAILS, RISE_LEVEL, ERROR_LEVEL };
 
@@ -248,7 +248,7 @@ void RaycasterAttributesScreen::managePlayerCharacterSheet(Character* currentPla
         linesErrorLevel.push_back("");
         linesErrorLevel.push_back(Appearance::color(Color::WHITE) + " [ Voltar ]" + Appearance::color(Color::RESET));
 
-        // Padding & renderizacao
+        // Espacamento e renderizacao
         std::vector<std::string>* linesTarget = nullptr;
         std::string titleBox = "";
         

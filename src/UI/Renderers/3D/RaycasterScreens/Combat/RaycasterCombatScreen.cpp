@@ -258,7 +258,7 @@ void RaycasterCombatScreen::updateScreenStatic(const std::string& combatTitle, c
 
         if (maxCompVis > terminalWidth - 6) maxCompVis = terminalWidth - 6;
 
-        int boxW = maxCompVis + 4; // 1 space padding each side + borders
+        int boxW = maxCompVis + 4; // 1 espaco de preenchimento em cada lado mais bordas
         int boxX = terminalWidth - boxW - 2;
         if (boxX < 0) boxX = 0;
         int boxY = 2; // Canto superior direito
@@ -609,15 +609,15 @@ int RaycasterCombatScreen::getTargetAttack(const std::string& combatTitle, const
     }
 }
 
-int RaycasterCombatScreen::getTargetItem(const std::string& /*combatTitle*/, const std::vector<Character*>& /*enemies*/, Character* /*currentPlayer*/, const std::vector<Character*>& /*allies*/) { return -1; }
-int RaycasterCombatScreen::chooseShield(const std::string& /*characterName*/, const std::vector<Item*>& shields) {
+int RaycasterCombatScreen::getTargetItem(const std::string& /*tituloCombate*/, const std::vector<Character*>& /*inimigos*/, Character* /*jogadorAtual*/, const std::vector<Character*>& /*aliados*/) { return -1; }
+int RaycasterCombatScreen::chooseShield(const std::string& /*nomePersonagem*/, const std::vector<Item*>& shields) {
     if (shields.empty()) return 0;
     std::vector<std::string> names;
     for (auto* shield : shields) names.push_back(shield->getItemName());
     int selection = InputControl::readMenuSelectionInPopup("ESCOLHA DE ESCUDO", {"Qual escudo deseja equipar?"}, names, Color::YELLOW);
     return selection + 1;
 }
-void RaycasterCombatScreen::selectHUDAlly(Character* /*currentPlayer*/, const std::vector<Character*>& /*allies*/) {}
+void RaycasterCombatScreen::selectHUDAlly(Character* /*jogadorAtual*/, const std::vector<Character*>& /*aliados*/) {}
 void RaycasterCombatScreen::notifyEnemiesMoreAct() { addFixedMessage("Inimigos sao mais ageis e atacam primeiro!"); }
 void RaycasterCombatScreen::notifyShiftExtra(int, int) { addFixedMessage("Velocidade superior: Turno Extra!"); }
 void RaycasterCombatScreen::notifyUnpreventionInventory() { addFixedMessage("Sem item rapido equipado!"); }

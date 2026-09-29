@@ -398,7 +398,7 @@ void displayRaycaster(Character* currentPlayer) {
     }
 }
 
-} // anonymous namespace
+} // Namespace anonimo
 
 void DiaryScreen::display(Character* currentPlayer) {
     if (!currentPlayer) return;

@@ -10,11 +10,7 @@
 
 extern Character* g_enemyAttackerParry;
 
-/*
- * ═══════════════════════════════════════════════════════════════════
- * Arena de Combate por Bioma
- * ═══════════════════════════════════════════════════════════════════
- */
+// Arena de combate por bioma
 std::vector<std::string> RaycasterRendererCombat::getArenaByTitle(const std::string& title) {
     std::string upper = title;
     for (char& c : upper) c = std::toupper(static_cast<unsigned char>(c));
@@ -161,11 +157,7 @@ std::tuple<int,int,int> RaycasterRendererCombat::getColorSpriteEnemy(Character* 
     }
 }
 
-/*
- * ═══════════════════════════════════════════════════════════════════
- * Pintar texto no buffer 1D (overlay)
- * ═══════════════════════════════════════════════════════════════════
- */
+// Pintura de texto no buffer 1D (overlay)
 void RaycasterRendererCombat::paintTextNoBuffer(std::vector<std::string>& screen, int widthScreen, int heightMax, int postX, int postY, const std::string& text, const std::string& colorFg, const std::string& colorBgOverride) {
     (void)widthScreen;
     if (postY < 0 || postY >= (int)screen.size() || postY >= heightMax) return;
@@ -175,11 +167,7 @@ void RaycasterRendererCombat::paintTextNoBuffer(std::vector<std::string>& screen
     screen[postY] = Appearance::superimposePanelOnAnsiLine(screen[postY], panelText, postX);
 }
 
-/*
- * ═══════════════════════════════════════════════════════════════════
- * Renderizar Quadro Principal
- * ═══════════════════════════════════════════════════════════════════
- */
+// Renderizacao do quadro principal
 static std::vector<std::string> s_cachedBackground;
 static std::string s_cachedTitleMap;
 static int s_cachedWidthScreen = 0;
@@ -243,10 +231,8 @@ std::vector<std::string> RaycasterRendererCombat::renderFrame(
         }
     }
 
-    /*
-     * Retorna a tela com a altura correspondente a cena 3D (o HUD classico sera impresso abaixo por CombatScreen)
-     * PREENCHENDO ATE A ALTURA_TELA TOTAL PARA EVITAR CRASH NO HUD!
-     */
+    // Retorna a tela com a altura correspondente a cena 3D (o HUD sera impresso abaixo).
+    // Preenche ate a altura total da tela para manter a integridade visual do HUD.
     std::vector<std::string> linesRendered(terminalHeight);
     
     int cameraOffsetX = 0;
@@ -274,11 +260,7 @@ std::vector<std::string> RaycasterRendererCombat::renderFrame(
     return linesRendered;
 }
 
-/*
- * ═══════════════════════════════════════════════════════════════════
- * Sobrepor Sprite do Inimigo (com arte 3D texturizada)
- * ═══════════════════════════════════════════════════════════════════
- */
+// Sobreposicao de sprite do inimigo (com arte 3D texturizada)
 void RaycasterRendererCombat::superimposeSprite(
     std::vector<std::string>& screen, 
     Character* enemy, 
@@ -370,7 +352,7 @@ void RaycasterRendererCombat::superimposeSprite(
         if (comp > artWidth) artWidth = comp;
     }
 
-    // Sway horizontal based on time (apenas se nao estiver no meio da animacao de morte)
+    // Balanco horizontal baseado no tempo (apenas se nao estiver no meio da animacao de morte)
     int swayOff = 0;
     if (!isDeath) {
         int stepSway = (timeMs / 200) % 8;
@@ -702,7 +684,7 @@ void RaycasterRendererCombat::superimposeSprite(
                 paintStrLeft(drawX, hpY, "] ", "\033[38;2;180;180;180m");
                 drawX += 2;
                 
-                // 4. hpValStr (Orange if attacker, otherwise color based on life percentage)
+                // 4. hpValStr (Laranja se atacante, caso contrario cor baseada na porcentagem de vida)
                 std::string hpColor = "\033[38;2;255;100;100m";
                 if (enemy == g_enemyAttackerParry) {
                     hpColor = "\033[38;2;255;140;0m"; // Laranja ao atacar

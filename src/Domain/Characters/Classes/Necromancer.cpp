@@ -164,7 +164,7 @@ std::string Necromancer::getDescriptionSkillClass() const {
     return "Usa uma alma para invocar um clone com 80% dos atributos (Chefes 60%). Max: 3 lacaios.\nLacaios perdem 15% de sua Vida Max a cada turno do player.";
 }
 
-void Necromancer::useSkillClass(Combat* combat, Character* characterUser, std::vector<Character*>& /*enemyList*/) {
+void Necromancer::useSkillClass(Combat* combat, Character* characterUser, std::vector<Character*>& /*listaInimigos*/) {
     bool hasMiniBoss = false;
     int minionCount = 0;
     for (const auto& ally : combat->getAlliesAliveRaw()) {

@@ -40,7 +40,7 @@ void NPCAlchemist::displayDialogue(Character* player) {
     Appearance::displayPopup("QUINTUS - ALQUIMISTA REAL", lines, Color::GREEN_DARK, getArtASCII());
 }
 
-std::vector<std::string> NPCAlchemist::getOptionsMenu(Character* player, int /*terminalWidth*/) {
+std::vector<std::string> NPCAlchemist::getOptionsMenu(Character* player, int /*larguraTerminal*/) {
     return {
         "Pocao de Cura Grande (50%VM) [1x Maca + 1x Po magico]",
         "Pocao de Forca Alquimica [1x Pao + 1x Dente de goblin]",
@@ -50,7 +50,7 @@ std::vector<std::string> NPCAlchemist::getOptionsMenu(Character* player, int /*t
     };
 }
 
-void NPCAlchemist::processOption(Character* player, const std::string& option, int /*terminalWidth*/) {
+void NPCAlchemist::processOption(Character* player, const std::string& option, int /*larguraTerminal*/) {
     std::string foodReq = "";
     std::string requiredDrop = "";
     ItemID productId = ItemID::None;

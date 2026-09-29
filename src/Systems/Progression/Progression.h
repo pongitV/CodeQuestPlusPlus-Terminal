@@ -6,9 +6,7 @@
 
 class Character;
 
-/*
- * Gerenciador thread-safe do progresso das missoes e eventos do jogo.
- */
+// Gerenciador thread-safe do progresso das missoes e eventos do jogo.
 class Progression {
 private:
     std::unordered_map<std::string, bool> flags;

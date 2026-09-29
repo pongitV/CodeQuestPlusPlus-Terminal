@@ -8,12 +8,12 @@
 
 using namespace std;
 
-void RaycasterHUD::draw(vector<string>& screen, int widthScreen, int heightScreen, float /*playerX*/, float /*playerY*/, float viewAngle, const vector<string>& /*mapMatrix*/, const string& /*titleMap*/, bool /*themeForest*/, Character* player) {
+void RaycasterHUD::draw(vector<string>& screen, int widthScreen, int heightScreen, float /*jogadorX*/, float /*jogadorY*/, float viewAngle, const vector<string>& /*matrizMapa*/, const string& /*mapaTitulo*/, bool /*temaFloresta*/, Character* player) {
     drawBarStatus(screen, widthScreen, heightScreen, player, viewAngle);
     drawControls(screen, widthScreen, heightScreen);
 }
 
-void RaycasterHUD::drawMinimap(vector<string>& screen, int SCREEN_WIDTH, int SCREEN_HEIGHT, float playerX, float playerY, float viewAngle, const vector<string>& mapMatrix, const string& titleMap, bool /*themeForest*/, char playerIcon, const string& colorPlayerAnsi) {
+void RaycasterHUD::drawMinimap(vector<string>& screen, int SCREEN_WIDTH, int SCREEN_HEIGHT, float playerX, float playerY, float viewAngle, const vector<string>& mapMatrix, const string& titleMap, bool /*temaFloresta*/, char playerIcon, const string& colorPlayerAnsi) {
     int widthMap = mapMatrix.empty() ? 0 : mapMatrix[0].size();
     int heightMap = mapMatrix.size();
 
@@ -77,9 +77,9 @@ void RaycasterHUD::drawMinimap(vector<string>& screen, int SCREEN_WIDTH, int SCR
     }
 }
 
-void RaycasterHUD::drawBarStatus(vector<string>& screen, int SCREEN_WIDTH, int SCREEN_HEIGHT, Character* player, float /*viewAngle*/, const string& titleEdge, int framesDamagePlayer, int damageAmount, bool isHealing) {
+void RaycasterHUD::drawBarStatus(vector<string>& screen, int SCREEN_WIDTH, int SCREEN_HEIGHT, Character* player, float /*anguloVisao*/, const string& titleEdge, int framesDamagePlayer, int damageAmount, bool isHealing) {
     if (screen.empty()) return;
-    bool isModeLines = (screen.size() <= (size_t)SCREEN_HEIGHT); // If it's a small vector, it's a vector of lines (strings)
+    bool isModeLines = (screen.size() <= (size_t)SCREEN_HEIGHT); // Se for um vetor reduzido, representa um vetor de linhas (strings)
     
     vector<string> linesHUD = CombatScreen::getPlayerStatusBarLines(player, Color::RESET, damageAmount, framesDamagePlayer, isHealing);
     int hudHeight = linesHUD.size();
@@ -98,7 +98,7 @@ void RaycasterHUD::drawBarStatus(vector<string>& screen, int SCREEN_WIDTH, int S
     string colorHudEdge = "\033[38;2;255;255;255m"; 
     string bgHud = "\033[48;2;25;25;25m"; 
     
-    // Pulsing Border (Critical HP)
+    // Borda pulsante quando a vida estiver em nivel critico
     if (player && player->getHealth() <= player->getMaxHealth() * 0.25) {
         auto now = std::chrono::steady_clock::now();
         int timeMs = static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count());
@@ -194,7 +194,7 @@ void RaycasterHUD::drawBarStatus(vector<string>& screen, int SCREEN_WIDTH, int S
             string colorDamage = "\033[1;38;2;255;50;50m";
             
             // Procura onde esta o "/" do HP na primeira linha do HUD
-            int hpVisX = boxWidth / 2; // default centro
+            int hpVisX = boxWidth / 2; // Centro padrao
             if (linesHUD.size() > 0) {
                 size_t postHP = linesHUD[0].find("HP:");
                 if (postHP != string::npos) {

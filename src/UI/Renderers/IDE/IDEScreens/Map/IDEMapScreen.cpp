@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 
-void IDEMapScreen::renderPopup(const std::vector<std::string>& /*art*/, const std::vector<std::string>& places, int selection, bool /*redesignComplete*/) {
+void IDEMapScreen::renderPopup(const std::vector<std::string>& /*arte*/, const std::vector<std::string>& places, int selection, bool /*redesenhoCompleto*/) {
     Appearance::clearScreen();
     int width = Appearance::getTerminalWidth();
     int height = Appearance::getTerminalHeight();

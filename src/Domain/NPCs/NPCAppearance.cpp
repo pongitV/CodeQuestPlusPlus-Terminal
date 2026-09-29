@@ -40,7 +40,7 @@ void NPCAppearance::displayDialogue(Character* player) {
     Appearance::displayPopup("ANOK - ESTILISTA REAL", lines, Color::BROWN_OFCOURSE, getArtASCII());
 }
 
-std::vector<std::string> NPCAppearance::getOptionsMenu(Character* player, int /*terminalWidth*/) {
+std::vector<std::string> NPCAppearance::getOptionsMenu(Character* player, int /*larguraTerminal*/) {
     return {
         "Comprar Icones",
         "Comprar Cores de Fundo",

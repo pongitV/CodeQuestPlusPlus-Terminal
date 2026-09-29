@@ -13,9 +13,9 @@
 int MapAnimator::animateMapIntroduction(
     const std::string& mapTitle,
     const std::vector<std::string>& mapArt,
-    int /*artWidth*/,
+    int /*larguraArte*/,
     const std::vector<std::string>& transitionArt,
-    int /*transitionWidth*/,
+    int /*larguraTransicao*/,
     Color /*corTema*/,
     const std::vector<std::string>& mapMatrix,
     int playerPositionX,

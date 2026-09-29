@@ -146,7 +146,7 @@ void NPCMage::interact(Character* player) {
     );
 }
 
-void NPCMage::displayDialogue(Character* /*player*/) {
+void NPCMage::displayDialogue(Character* /*jogador*/) {
     if (Progression::instance().getFlag(Flags::Forest_MorganaQuest)) {
         dialogueMorgana(std::vector<std::string>{
             "O Labirinto o aguarda..."
@@ -159,7 +159,7 @@ void NPCMage::displayDialogue(Character* /*player*/) {
     }
 }
 
-std::vector<std::string> NPCMage::getOptionsMenu(Character* /*player*/, int /*terminalWidth*/) {
+std::vector<std::string> NPCMage::getOptionsMenu(Character* /*jogador*/, int /*larguraTerminal*/) {
     return {
         "ENCANTAR Armas (Universais)",
         "ENCANTAR Armas (Especificas)",
@@ -170,7 +170,7 @@ std::vector<std::string> NPCMage::getOptionsMenu(Character* /*player*/, int /*te
     };
 }
 
-void NPCMage::processOption(Character* player, const std::string& option, int /*terminalWidth*/) {
+void NPCMage::processOption(Character* player, const std::string& option, int /*larguraTerminal*/) {
     if (option == "ENCANTAR Armas (Universais)") {
         processEnchantments(player, true);
     }

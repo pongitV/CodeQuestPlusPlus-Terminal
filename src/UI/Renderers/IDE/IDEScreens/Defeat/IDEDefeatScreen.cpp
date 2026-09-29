@@ -6,9 +6,9 @@
 #include <vector>
 
 void IDEDefeatScreen::display(
-    Character* /*currentPlayer*/,
-    int /*obtainedGoldQuantity*/,
-    int /*obtainedXpQuantity*/,
+    Character* /*jogadorAtual*/,
+    int /*quantidadeOuroObtido*/,
+    int /*quantidadeXpObtido*/,
     int totalDamageCaused,
     int totalDamageReceived,
     int totalHealingReceived,

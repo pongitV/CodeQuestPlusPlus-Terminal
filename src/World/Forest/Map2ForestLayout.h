@@ -113,17 +113,17 @@ public:
                 if (c == 0xE2) { 
                     if (i + 2 < line.length() && static_cast<unsigned char>(line[i+1]) == 0x94) {
                         unsigned char b3 = line[i+2];
-                        if (b3 == 0x80) newLine += "=";      // ─
-                        else if (b3 == 0x82) newLine += "|"; // │
-                        else if (b3 == 0x8C) newLine += "."; // ┌
-                        else if (b3 == 0x90) newLine += "."; // ┐
-                        else if (b3 == 0x94) newLine += "'"; // └
-                        else if (b3 == 0x98) newLine += "'"; // ┘
-                        else if (b3 == 0x9C) newLine += "|"; // ├
-                        else if (b3 == 0xA4) newLine += "|"; // ┤
-                        else if (b3 == 0xAC) newLine += "."; // ┬
-                        else if (b3 == 0xB4) newLine += "'"; // ┴
-                        else if (b3 == 0xBC) newLine += "+"; // ┼
+                        if (b3 == 0x80) newLine += "=";      // Traco horizontal
+                        else if (b3 == 0x82) newLine += "|"; // Traco vertical
+                        else if (b3 == 0x8C) newLine += "."; // Canto superior esquerdo
+                        else if (b3 == 0x90) newLine += "."; // Canto superior direito
+                        else if (b3 == 0x94) newLine += "'"; // Canto inferior esquerdo
+                        else if (b3 == 0x98) newLine += "'"; // Canto inferior direito
+                        else if (b3 == 0x9C) newLine += "|"; // Juncao T para direita
+                        else if (b3 == 0xA4) newLine += "|"; // Juncao T para esquerda
+                        else if (b3 == 0xAC) newLine += "."; // Juncao T para baixo
+                        else if (b3 == 0xB4) newLine += "'"; // Juncao T para cima
+                        else if (b3 == 0xBC) newLine += "+"; // Cruzamento central
                         else newLine += "?";
                         i += 3;
                     } else {

@@ -9,7 +9,7 @@ void IDEDiaryScreen::renderBackground() {
     Appearance::clearScreen();
 }
 
-void IDEDiaryScreen::displayHeader(int /*startY*/) {
+void IDEDiaryScreen::displayHeader(int /*yInicial*/) {
     int width = Appearance::getTerminalWidth();
     std::vector<std::string> tabs = {
         "GameJournal.log",
@@ -19,7 +19,7 @@ void IDEDiaryScreen::displayHeader(int /*startY*/) {
     std::cout << IDETheme::comment("// logs/GameJournal.log > Stream de logs em runtime do journal") << "\n\n";
 }
 
-void IDEDiaryScreen::renderBox(const std::vector<std::string>& lines, const std::string& title, Color /*colorBox*/, int /*minY*/, int /*startYOverride*/) {
+void IDEDiaryScreen::renderBox(const std::vector<std::string>& lines, const std::string& title, Color /*corCaixa*/, int /*minY*/, int /*sobreposicaoYInicial*/) {
     int width = Appearance::getTerminalWidth();
     std::vector<std::string> boxLines;
     boxLines.push_back(IDETheme::comment("// --- " + title + " ---"));
@@ -53,7 +53,7 @@ void IDEDiaryScreen::renderPopupMessage(const std::string& title, const std::vec
     InputControl::waitForEnter();
 }
 
-void IDEDiaryScreen::renderPopupInspectionWithArt(const std::string& title, const std::vector<std::string>& /*art*/, const std::vector<std::string>& info, const std::string& subtitle) {
+void IDEDiaryScreen::renderPopupInspectionWithArt(const std::string& title, const std::vector<std::string>& /*arte*/, const std::vector<std::string>& info, const std::string& subtitle) {
     Appearance::clearScreen();
     int width = Appearance::getTerminalWidth();
     int height = Appearance::getTerminalHeight();

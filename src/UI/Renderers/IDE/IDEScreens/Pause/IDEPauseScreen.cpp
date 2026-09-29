@@ -65,7 +65,7 @@ int IDEPauseScreen::renderMenuPause() {
     return renderMenuIDE("PauseInterrupt", options);
 }
 
-int IDEPauseScreen::renderSettingsMenu(Character* /*player*/) {
+int IDEPauseScreen::renderSettingsMenu(Character* /*jogador*/) {
     std::vector<std::string> options = {
         "APPEARANCE_AND_THEME",
         "MOUSE_AND_SENSITIVITY",
@@ -75,7 +75,7 @@ int IDEPauseScreen::renderSettingsMenu(Character* /*player*/) {
     return renderMenuIDE("SettingsConfig", options);
 }
 
-int IDEPauseScreen::renderMenuAppearance(Character* /*player*/) {
+int IDEPauseScreen::renderMenuAppearance(Character* /*jogador*/) {
     std::vector<std::string> options = {
         "TOGGLE_IDE_PERSPECTIVE",
         "BACKGROUND_COLOR_PALETTE",
@@ -84,7 +84,7 @@ int IDEPauseScreen::renderMenuAppearance(Character* /*player*/) {
     return renderMenuIDE("AppearanceSubsystem", options);
 }
 
-int IDEPauseScreen::renderMenuBackground(int /*colorBackgroundCurrentIndex*/) {
+int IDEPauseScreen::renderMenuBackground(int /*corFundoIndiceAtual*/) {
     std::vector<std::string> options = {
         "THEME_DEFAULT_DARK",
         "THEME_MONOKAI",
@@ -95,7 +95,7 @@ int IDEPauseScreen::renderMenuBackground(int /*colorBackgroundCurrentIndex*/) {
     return renderMenuIDE("BackgroundPalette", options);
 }
 
-int IDEPauseScreen::renderMenuSensitivity(int /*percentX*/, int /*percentY*/) {
+int IDEPauseScreen::renderMenuSensitivity(int /*porcentoX*/, int /*porcentoY*/) {
     std::vector<std::string> options = {
         "INCREMENT_SENSITIVITY_X",
         "DECREMENT_SENSITIVITY_X",

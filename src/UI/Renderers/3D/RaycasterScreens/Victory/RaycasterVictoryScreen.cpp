@@ -26,10 +26,8 @@ void RaycasterVictoryScreen::display(Character* currentPlayer, int obtainedGoldQ
         enemiesGrouped[enemy]++;
     }
 
-    /*
-     * Usa o mesmo fundo gerado e cacheado durante a batalha,
-     * garantindo que a tela pareca estatica no momento em que o combate acabou
-     */
+    // Utiliza o fundo gerado e armazenado durante a batalha,
+    // mantendo a continuidade visual apos o termino do combate.
     std::vector<std::string> flatScreen = RaycasterRendererCombat::getLastBackgroundRendered();
     int height3D = std::max(10, Appearance::getTerminalHeight());
     

@@ -48,7 +48,7 @@ void MapControl::processCombat(
     Character* currentPlayer, std::vector<std::string>& currentMapMatrix, 
     int& playerPositionX, int& playerPositionY, bool& isExplorationActive,
     const std::string& combatTitle, const std::string& warningMessage, std::vector<std::unique_ptr<Character>> enemiesForBattle, 
-    int positionXAfterCombat, int positionYAfterCombat, int initialEnemyPositionX, int occupiedCellsQuantity, int /*terminalWidth*/, const std::function<void()>& restoreScreen)
+    int positionXAfterCombat, int positionYAfterCombat, int initialEnemyPositionX, int occupiedCellsQuantity, int /*larguraTerminal*/, const std::function<void()>& restoreScreen)
 {
     Appearance::startPopupInteraction();
     std::vector<std::string> text = { 

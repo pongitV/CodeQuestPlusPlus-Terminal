@@ -8,7 +8,7 @@
 #include <iomanip>
 #include <vector>
 
-void IDEInventoryScreen::displayHeader(bool /*animate*/, int /*startY*/) {
+void IDEInventoryScreen::displayHeader(bool /*animar*/, int /*yInicial*/) {
     int width = Appearance::getTerminalWidth();
     std::vector<std::string> tabs = {
         "InventoryHeap.hpp",
